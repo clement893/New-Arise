@@ -89,8 +89,11 @@ export default function AITestPage() {
 
   const updateMessage = (index: number, content: string) => {
     const newMessages = [...messages];
-    newMessages[index].content = content;
-    setMessages(newMessages);
+    const message = newMessages[index];
+    if (message) {
+      message.content = content;
+      setMessages(newMessages);
+    }
   };
 
   const removeMessage = (index: number) => {
