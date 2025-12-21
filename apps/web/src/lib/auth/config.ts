@@ -62,7 +62,7 @@ export const authConfig: NextAuthConfig = {
 
       return session;
     },
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       // Allow sign in
       if (account?.provider === 'google') {
         // You can add additional checks here
