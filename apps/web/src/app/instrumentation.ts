@@ -7,6 +7,7 @@ export async function register() {
   // Check if Sentry is installed before trying to import configs
   let sentryInstalled = false;
   try {
+    // @ts-expect-error - Sentry is optional and may not be installed
     await import('@sentry/nextjs');
     sentryInstalled = true;
   } catch {
