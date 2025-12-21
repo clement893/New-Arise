@@ -65,7 +65,8 @@ class Logger {
   }
 
   error(message: string, error?: Error | unknown, context?: LogContext): void {
-    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorMessage = error instanceof Error ? error.message : (error ? String(error) : '');
+    const fullMessage = errorMessage ? `${message}: ${errorMessage}` : message;
     const errorContext = {
       ...context,
       error: error instanceof Error ? {
@@ -74,7 +75,7 @@ class Logger {
         stack: error.stack,
       } : error,
     };
-    this.log(LogLevel.ERROR, errorMessage, errorContext);
+    this.log(LogLevel.ERROR, fullMessage, errorContext);
   }
 }
 
