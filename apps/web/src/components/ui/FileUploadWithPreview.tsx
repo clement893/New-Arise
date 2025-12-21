@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { clsx } from 'clsx';
 import FileUpload from './FileUpload';
 import Button from './Button';
