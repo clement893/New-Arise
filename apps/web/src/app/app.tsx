@@ -15,6 +15,7 @@ import Footer from '@/components/layout/Footer';
 export function App({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const isInternalPage = pathname?.startsWith('/dashboard');
 
   useEffect(() => {
     // Track page views
@@ -97,6 +98,12 @@ export function App({ children }: { children: React.ReactNode }) {
     return undefined;
   }, []);
 
+  // For internal pages (dashboard), don't show Header/Footer (handled by InternalLayout)
+  if (isInternalPage) {
+    return <>{children}</>;
+  }
+
+  // For public pages, show Header and Footer
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
