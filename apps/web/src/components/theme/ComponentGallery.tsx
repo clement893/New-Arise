@@ -157,14 +157,14 @@ export function ComponentGallery() {
         <div className="space-y-6">
           <Tabs>
             <TabList>
-              <Tab>Onglet 1</Tab>
-              <Tab>Onglet 2</Tab>
-              <Tab>Onglet 3</Tab>
+              <Tab value="tab1">Onglet 1</Tab>
+              <Tab value="tab2">Onglet 2</Tab>
+              <Tab value="tab3">Onglet 3</Tab>
             </TabList>
             <TabPanels>
-              <TabPanel>Contenu de l'onglet 1</TabPanel>
-              <TabPanel>Contenu de l'onglet 2</TabPanel>
-              <TabPanel>Contenu de l'onglet 3</TabPanel>
+              <TabPanel value="tab1">Contenu de l'onglet 1</TabPanel>
+              <TabPanel value="tab2">Contenu de l'onglet 2</TabPanel>
+              <TabPanel value="tab3">Contenu de l'onglet 3</TabPanel>
             </TabPanels>
           </Tabs>
 
