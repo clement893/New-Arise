@@ -213,16 +213,22 @@ export default function DataTableEnhanced<T extends Record<string, unknown>>({
             data={data}
             columns={visibleColumns.map((col) => ({
               ...col,
-              render: (value, row, index) => {
+              render: (value, row) => {
                 const originalRender = col.render;
                 const content = originalRender ? originalRender(value, row) : String(value ?? '');
+                
+                // Find the index of the row in the data array
+                const rowIndex = rowKey 
+                  ? data.findIndex((r) => rowKey(r) === rowKey(row))
+                  : data.findIndex((r) => (r as any).id === (row as any).id);
+                const actualIndex = rowIndex >= 0 ? rowIndex : data.indexOf(row);
 
                 if (selectable && col.key === columns[0]?.key) {
                   return (
                     <div className="flex items-center gap-3">
                       <Checkbox
-                        checked={selectedRows.has(getRowKey(row, index))}
-                        onChange={(e) => handleSelectRow(row, index, e.target.checked)}
+                        checked={selectedRows.has(getRowKey(row, actualIndex))}
+                        onChange={(e) => handleSelectRow(row, actualIndex, e.target.checked)}
                         onClick={(e) => e.stopPropagation()}
                       />
                       {content}
