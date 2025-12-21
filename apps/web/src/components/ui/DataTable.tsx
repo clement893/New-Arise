@@ -3,9 +3,9 @@
 import { useState, useMemo, ReactNode } from 'react';
 import { clsx } from 'clsx';
 import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from './Table';
-import { Input } from './Input';
-import { Button } from './Button';
-import { Pagination } from './Pagination';
+import Input from './Input';
+import Button from './Button';
+import Pagination from './Pagination';
 import { Dropdown, DropdownItem } from './Dropdown';
 import Badge from './Badge';
 
