@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import Button from './Button';
-import { Dropdown, DropdownItem } from './Dropdown';
+import Dropdown from './Dropdown';
+import type { DropdownItem } from './Dropdown';
 
 export interface ExportButtonProps {
   data: Record<string, any>[];
