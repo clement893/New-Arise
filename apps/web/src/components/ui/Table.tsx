@@ -4,11 +4,9 @@ import { clsx } from 'clsx';
 interface TableProps {
   children: ReactNode;
   className?: string;
-  striped?: boolean;
-  hover?: boolean;
 }
 
-export function Table({ children, className, striped = false, hover = false }: TableProps) {
+export function Table({ children, className }: TableProps) {
   return (
     <div className="overflow-x-auto">
       <table
