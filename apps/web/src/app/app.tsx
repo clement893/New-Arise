@@ -87,6 +87,8 @@ export function App({ children }: { children: React.ReactNode }) {
         clsObserver.disconnect();
       };
     }
+    // Return undefined if PerformanceObserver is not available
+    return undefined;
   }, []);
 
   return <>{children}</>;
