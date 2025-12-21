@@ -10,6 +10,7 @@ const categories = [
   { title: 'Feedback', description: 'Alertes, modales, notifications et indicateurs', href: '/components/feedback', icon: '💬', count: 7, color: 'yellow' },
   { title: 'Données', description: 'Tableaux, cartes et affichage de données', href: '/components/data', icon: '📊', count: 3, color: 'purple' },
   { title: 'Utilitaires', description: 'Composants utilitaires et helpers', href: '/components/utils', icon: '🛠️', count: 6, color: 'pink' },
+  { title: 'Thème', description: 'Mode sombre/clair et gestion des thèmes', href: '/components/theme', icon: '🌓', count: 2, color: 'indigo' },
 ];
 
 export default function ComponentsPage() {
@@ -29,20 +30,20 @@ export default function ComponentsPage() {
                 <div className="text-4xl">{category.icon}</div>
                 <Badge variant="default">{category.count} composants</Badge>
               </div>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">{category.title}</h2>
-              <p className="text-gray-600">{category.description}</p>
-              <div className="mt-4 text-blue-600 font-medium">Voir les exemples →</div>
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">{category.title}</h2>
+              <p className="text-gray-600 dark:text-gray-400">{category.description}</p>
+              <div className="mt-4 text-blue-600 dark:text-blue-400 font-medium">Voir les exemples →</div>
             </Card>
           </Link>
         ))}
       </div>
 
-      <div className="p-6 bg-blue-50 rounded-lg border border-blue-200">
-        <h3 className="text-lg font-semibold text-blue-900 mb-2">💡 Comment utiliser ces composants ?</h3>
-        <p className="text-blue-800 mb-4">
-          Tous les composants sont disponibles via l'import depuis <code className="bg-blue-100 px-2 py-1 rounded">@/components/ui</code>
+      <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+        <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-300 mb-2">💡 Comment utiliser ces composants ?</h3>
+        <p className="text-blue-800 dark:text-blue-300 mb-4">
+          Tous les composants sont disponibles via l'import depuis <code className="bg-blue-100 dark:bg-blue-900/50 px-2 py-1 rounded">@/components/ui</code>
         </p>
-        <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+        <pre className="bg-gray-900 dark:bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto">
           <code>{`import { Button, Input, Modal } from '@/components/ui';`}</code>
         </pre>
       </div>
