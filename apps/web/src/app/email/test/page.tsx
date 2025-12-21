@@ -1,9 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { emailAPI } from '@/lib/api';
+import { useAuthStore } from '@/lib/store';
 
 export default function EmailTestPage() {
+  const router = useRouter();
+  const { isAuthenticated } = useAuthStore();
   const [toEmail, setToEmail] = useState('');
   const [subject, setSubject] = useState('');
   const [htmlContent, setHtmlContent] = useState('');
@@ -13,21 +17,55 @@ export default function EmailTestPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [healthStatus, setHealthStatus] = useState<any>(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    // Check if user is authenticated
+    if (!isAuthenticated()) {
+      router.push('/auth/login');
+    } else {
+      setIsCheckingAuth(false);
+    }
+  }, [isAuthenticated, router]);
 
   const checkHealth = async () => {
     try {
+      // Check if token exists
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      if (!token) {
+        setError('You are not authenticated. Please log in.');
+        router.push('/auth/login');
+        return;
+      }
+
       const res = await emailAPI.health();
       setHealthStatus(res.data);
       setError('');
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to check health');
+      const errorMessage = err.response?.data?.detail || 'Failed to check health';
+      setError(errorMessage);
       setHealthStatus(null);
+      
+      // If authentication error, redirect to login
+      if (err.response?.status === 401) {
+        setTimeout(() => {
+          router.push('/auth/login');
+        }, 2000);
+      }
     }
   };
 
   const sendTestEmail = async () => {
     if (!toEmail.trim()) {
       setError('Please enter an email address');
+      return;
+    }
+
+    // Check if token exists
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (!token) {
+      setError('You are not authenticated. Please log in.');
+      router.push('/auth/login');
       return;
     }
 
@@ -39,7 +77,15 @@ export default function EmailTestPage() {
       const res = await emailAPI.sendTest(toEmail);
       setResponse(res.data);
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to send email');
+      const errorMessage = err.response?.data?.detail || 'Failed to send email';
+      setError(errorMessage);
+      
+      // If authentication error, redirect to login
+      if (err.response?.status === 401) {
+        setTimeout(() => {
+          router.push('/auth/login');
+        }, 2000);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -51,6 +97,14 @@ export default function EmailTestPage() {
       return;
     }
 
+    // Check if token exists
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (!token) {
+      setError('You are not authenticated. Please log in.');
+      router.push('/auth/login');
+      return;
+    }
+
     setIsLoading(true);
     setError('');
     setResponse(null);
@@ -59,7 +113,15 @@ export default function EmailTestPage() {
       const res = await emailAPI.sendWelcome(toEmail);
       setResponse(res.data);
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to send email');
+      const errorMessage = err.response?.data?.detail || 'Failed to send email';
+      setError(errorMessage);
+      
+      // If authentication error, redirect to login
+      if (err.response?.status === 401) {
+        setTimeout(() => {
+          router.push('/auth/login');
+        }, 2000);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -68,6 +130,14 @@ export default function EmailTestPage() {
   const sendCustomEmail = async () => {
     if (!toEmail.trim() || !subject.trim() || !htmlContent.trim()) {
       setError('Please fill in all required fields');
+      return;
+    }
+
+    // Check if token exists
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (!token) {
+      setError('You are not authenticated. Please log in.');
+      router.push('/auth/login');
       return;
     }
 
@@ -84,7 +154,15 @@ export default function EmailTestPage() {
       });
       setResponse(res.data);
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to send email');
+      const errorMessage = err.response?.data?.detail || 'Failed to send email';
+      setError(errorMessage);
+      
+      // If authentication error, redirect to login
+      if (err.response?.status === 401) {
+        setTimeout(() => {
+          router.push('/auth/login');
+        }, 2000);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -99,6 +177,21 @@ export default function EmailTestPage() {
       sendCustomEmail();
     }
   };
+
+  if (isCheckingAuth) {
+    return (
+      <main className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+              <p className="mt-4 text-gray-600">Checking authentication...</p>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-8 px-4">
