@@ -24,8 +24,6 @@ const nextConfig = {
   // Experimental features
   
   // Performance optimizations
-  swcMinify: true,
-  reactStrictMode: true,
   
   // Compression
   compress: true,
@@ -37,7 +35,6 @@ const nextConfig = {
   output: 'standalone',
   
   // Optimize fonts
-  optimizeFonts: true,
   
   // Experimental performance features
   experimental: {
