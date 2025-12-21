@@ -31,11 +31,16 @@ app = FastAPI(
 
 # CORS middleware
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+# Get additional allowed origins from environment variable (comma-separated)
+ADDITIONAL_ORIGINS = os.getenv("ADDITIONAL_ORIGINS", "").split(",")
+ADDITIONAL_ORIGINS = [origin.strip() for origin in ADDITIONAL_ORIGINS if origin.strip()]
+
 ALLOWED_ORIGINS = [
     FRONTEND_URL,
     "http://localhost:3000",
     "http://localhost:8000",
-]
+    "https://modeleweb-production.up.railway.app",  # Production frontend
+] + ADDITIONAL_ORIGINS
 
 app.add_middleware(
     CORSMiddleware,

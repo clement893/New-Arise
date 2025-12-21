@@ -23,7 +23,8 @@ function CallbackContent() {
       }
 
       // Fetch user info
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me`, {
+      const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').replace(/\/$/, '');
+      fetch(`${apiUrl}/api/users/me`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
