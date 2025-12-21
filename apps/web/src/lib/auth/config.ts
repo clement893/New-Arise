@@ -95,8 +95,8 @@ async function refreshAccessToken(token: {
   user?: {
     id: string;
     email: string;
-    name: string;
-    image: string | null;
+    name?: string | null;
+    image?: string | null;
   };
   error?: string;
 }) {
