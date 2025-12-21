@@ -21,28 +21,28 @@ export interface AlertProps {
 
 const variantClasses = {
   info: {
-    container: 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800',
-    text: 'text-blue-800 dark:text-blue-200',
-    title: 'text-blue-900 dark:text-blue-100',
-    icon: 'text-blue-400',
+    container: 'bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800',
+    text: 'text-primary-800 dark:text-primary-200',
+    title: 'text-primary-900 dark:text-primary-100',
+    icon: 'text-primary-400',
   },
   success: {
-    container: 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800',
-    text: 'text-green-800 dark:text-green-200',
-    title: 'text-green-900 dark:text-green-100',
-    icon: 'text-green-400',
+    container: 'bg-secondary-50 dark:bg-secondary-900/20 border-secondary-200 dark:border-secondary-800',
+    text: 'text-secondary-800 dark:text-secondary-200',
+    title: 'text-secondary-900 dark:text-secondary-100',
+    icon: 'text-secondary-400',
   },
   warning: {
-    container: 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800',
-    text: 'text-yellow-800 dark:text-yellow-200',
-    title: 'text-yellow-900 dark:text-yellow-100',
-    icon: 'text-yellow-400',
+    container: 'bg-warning-50 dark:bg-warning-900/20 border-warning-200 dark:border-warning-800',
+    text: 'text-warning-800 dark:text-warning-200',
+    title: 'text-warning-900 dark:text-warning-100',
+    icon: 'text-warning-400',
   },
   error: {
-    container: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800',
-    text: 'text-red-800 dark:text-red-200',
-    title: 'text-red-900 dark:text-red-100',
-    icon: 'text-red-400',
+    container: 'bg-danger-50 dark:bg-danger-900/20 border-danger-200 dark:border-danger-800',
+    text: 'text-danger-800 dark:text-danger-200',
+    title: 'text-danger-900 dark:text-danger-100',
+    icon: 'text-danger-400',
   },
 };
 

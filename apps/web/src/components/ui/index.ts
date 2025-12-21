@@ -74,3 +74,15 @@ export { default as ThemeToggle, ThemeToggleWithIcon } from './ThemeToggle';
 // Utility Components
 export { default as ClientOnly } from './ClientOnly';
 export { default as SearchBar } from './SearchBar';
+
+// New Components
+export { default as Drawer } from './Drawer';
+export type { DrawerProps } from './Drawer';
+export { default as Autocomplete } from './Autocomplete';
+export type { AutocompleteProps, AutocompleteOption } from './Autocomplete';
+export { default as Stepper } from './Stepper';
+export type { StepperProps, Step } from './Stepper';
+export { default as Popover } from './Popover';
+export type { PopoverProps } from './Popover';
+export { default as TreeView } from './TreeView';
+export type { TreeViewProps, TreeNode } from './TreeView';
