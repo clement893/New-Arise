@@ -40,6 +40,11 @@ export default function Hero() {
               Voir les composants
             </Button>
           </Link>
+          <Link href="/monitoring">
+            <Button size="lg" variant="secondary">
+              Monitoring
+            </Button>
+          </Link>
           <Link href="/auth/login">
             <Button size="lg" variant="outline">
               Se connecter
