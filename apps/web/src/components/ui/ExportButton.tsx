@@ -16,8 +16,11 @@ export default function ExportButton({ data, filename = 'export', onExport }: Ex
 
   const convertToCSV = (data: Record<string, any>[]): string => {
     if (data.length === 0) return '';
+    
+    const firstRow = data[0];
+    if (!firstRow) return '';
 
-    const headers = Object.keys(data[0]);
+    const headers = Object.keys(firstRow);
     const csvHeaders = headers.join(',');
     const csvRows = data.map((row) =>
       headers.map((header) => {
