@@ -7,7 +7,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { withAuth } from '@/lib/auth/middleware';
 
-async function handler(request: NextRequest, { user }: { user: { userId: string; email: string } }) {
+async function handler(_request: NextRequest, { user }: { user: { userId: string; email: string } }) {
   return NextResponse.json({
     success: true,
     message: 'This is a protected route',
