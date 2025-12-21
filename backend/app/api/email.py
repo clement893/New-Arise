@@ -41,7 +41,7 @@ class TestEmailRequest(BaseModel):
 async def email_health_check(
     current_user: User = Depends(get_current_user),
 ):
-    """Health check for SendGrid service."""
+    """Health check for SendGrid service (requires authentication)."""
     email_service = EmailService()
     
     if not email_service.is_configured():
@@ -55,6 +55,71 @@ async def email_health_check(
         "from_email": email_service.from_email,
         "from_name": email_service.from_name,
         "status": "ready",
+    }
+
+
+@router.get("/info")
+async def email_info():
+    """Get information about email API endpoints (no authentication required)."""
+    email_service = EmailService()
+    
+    return {
+        "message": "Email API Information",
+        "description": "This API allows you to send emails via SendGrid",
+        "configured": email_service.is_configured(),
+        "from_email": email_service.from_email if email_service.is_configured() else None,
+        "from_name": email_service.from_name if email_service.is_configured() else None,
+        "endpoints": {
+            "GET /api/email/info": {
+                "description": "Get API information (no auth required)",
+                "method": "GET"
+            },
+            "GET /api/email/health": {
+                "description": "Check SendGrid configuration (auth required)",
+                "method": "GET",
+                "auth": "Bearer token required"
+            },
+            "GET /api/email/test": {
+                "description": "Get test email endpoint info (auth required)",
+                "method": "GET",
+                "auth": "Bearer token required"
+            },
+            "POST /api/email/test": {
+                "description": "Send a test email",
+                "method": "POST",
+                "auth": "Bearer token required",
+                "body": {
+                    "to_email": "recipient@example.com"
+                }
+            },
+            "POST /api/email/welcome": {
+                "description": "Send a welcome email",
+                "method": "POST",
+                "auth": "Bearer token required",
+                "body": {
+                    "to_email": "recipient@example.com"
+                }
+            },
+            "POST /api/email/send": {
+                "description": "Send a custom email",
+                "method": "POST",
+                "auth": "Bearer token required",
+                "body": {
+                    "to_email": "recipient@example.com",
+                    "subject": "Email subject",
+                    "html_content": "<h1>Hello</h1>",
+                    "text_content": "Hello (optional)"
+                }
+            }
+        },
+        "how_to_use": {
+            "frontend": "Use the frontend at https://modeleweb-production.up.railway.app/email/test",
+            "api": "Use POST requests with Authorization header: Bearer <your-token>",
+            "get_token": "Login at https://modeleweb-production.up.railway.app/auth/login"
+        },
+        "example_curl": {
+            "test_email": 'curl -X POST "https://modelebackend-production.up.railway.app/api/email/test" \\\n  -H "Authorization: Bearer YOUR_TOKEN" \\\n  -H "Content-Type: application/json" \\\n  -d \'{"to_email": "your-email@example.com"}\''
+        }
     }
 
 

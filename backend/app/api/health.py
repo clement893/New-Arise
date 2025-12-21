@@ -106,7 +106,7 @@ async def s3_health_check():
 
 @router.get("/api/health/email")
 async def email_health_check():
-    """SendGrid configuration check."""
+    """SendGrid configuration check (no authentication required)."""
     from app.services.email_service import EmailService
     
     email_service = EmailService()
@@ -119,6 +119,7 @@ async def email_health_check():
     
     if not email_service.is_configured():
         results["error"] = "SendGrid is not configured. Please set SENDGRID_API_KEY environment variable."
+        results["status"] = "not_configured"
         return results
     
     # Try to verify API key by creating a client (SendGrid validates on first send)
@@ -131,5 +132,6 @@ async def email_health_check():
             results["status"] = "not_configured"
     except Exception as e:
         results["error"] = f"SendGrid service error: {str(e)}"
+        results["status"] = "error"
     
     return results
