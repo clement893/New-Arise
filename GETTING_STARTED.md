@@ -6,7 +6,9 @@
 - **pnpm** 9+ (`npm install -g pnpm`)
 - **Python** 3.11+ ([télécharger](https://www.python.org/downloads/))
 - **PostgreSQL** 14+ ([télécharger](https://www.postgresql.org/download/))
+- **Redis** 7+ ([télécharger](https://redis.io/download)) - Requis pour Celery (emails)
 - **Git** ([télécharger](https://git-scm.com/))
+- **Compte SendGrid** (optionnel pour développement, requis pour production) - [Créer un compte](https://sendgrid.com)
 
 ## ⚡ Installation Rapide
 
@@ -38,6 +40,13 @@ cp .env.example .env
 ```env
 DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/modele_db
 SECRET_KEY=votre-secret-key-changez-en-production
+REDIS_URL=redis://localhost:6379/0
+
+# SendGrid Email (optionnel pour développement)
+SENDGRID_API_KEY=votre-sendgrid-api-key
+SENDGRID_FROM_EMAIL=noreply@yourdomain.com
+SENDGRID_FROM_NAME=MODELE
+FRONTEND_URL=http://localhost:3000
 ```
 
 #### Frontend
@@ -70,30 +79,59 @@ alembic upgrade head
 
 ### 5. Démarrer le projet
 
-#### Option A : Développement complet (recommandé)
+#### Option A : Développement complet avec Docker (recommandé)
+
+```bash
+# Démarrer tous les services (PostgreSQL, Redis, Backend, Frontend, Celery)
+docker-compose up
+```
+
+Cela démarre :
+- ✅ PostgreSQL sur port 5432
+- ✅ Redis sur port 6379
+- ✅ Frontend sur http://localhost:3000
+- ✅ Backend sur http://localhost:8000
+- ✅ Celery worker pour les emails
+- ✅ Hot reload activé
+
+#### Option B : Développement local (sans Docker)
+
+**Terminal 1 - PostgreSQL & Redis :**
+```bash
+# Assurez-vous que PostgreSQL et Redis sont démarrés
+# PostgreSQL: pg_ctl start (ou service postgresql start)
+# Redis: redis-server (ou service redis start)
+```
+
+**Terminal 2 - Backend :**
+```bash
+cd backend
+uvicorn app.main:app --reload
+```
+
+**Terminal 3 - Celery Worker (pour les emails) :**
+```bash
+cd backend
+celery -A app.celery_app worker --loglevel=info
+```
+
+**Terminal 4 - Frontend :**
+```bash
+cd apps/web
+pnpm dev
+```
+
+#### Option C : Script npm (recommandé pour développement)
 
 ```bash
 # Depuis la racine du projet
 npm run dev:full
 ```
 
-Cela démarre :
-- ✅ Frontend sur http://localhost:3000
-- ✅ Backend sur http://localhost:8000
-- ✅ Hot reload activé
-
-#### Option B : Démarrage séparé
-
-**Terminal 1 - Backend :**
+**Note**: Pour les emails, vous devez démarrer Celery séparément :
 ```bash
 cd backend
-uvicorn app.main:app --reload
-```
-
-**Terminal 2 - Frontend :**
-```bash
-cd apps/web
-pnpm dev
+celery -A app.celery_app worker --loglevel=info
 ```
 
 ### 6. Accéder à l'application
@@ -306,6 +344,8 @@ npm run build
 
 - [README Principal](./README.md) - Overview and features
 - [Development Guide](./DEVELOPMENT.md) - Development tools and workflows
+- [SendGrid Email Setup](./docs/SENDGRID_SETUP.md) - Configuration emails transactionnels
+- [Email System Architecture](./docs/EMAIL_SYSTEM.md) - Vue d'ensemble système emails
 - [Monorepo Structure](./MONOREPO.md) - Monorepo configuration
 - [Contributing Guide](./CONTRIBUTING.md) - How to contribute
 - [Documentation Backend](./backend/README.md)

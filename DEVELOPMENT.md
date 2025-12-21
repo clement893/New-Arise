@@ -28,6 +28,35 @@ pnpm build-storybook
 
 Storybook will be available at `http://localhost:6006`
 
+### Celery (Background Tasks)
+
+Celery is used for processing background tasks, especially email sending via SendGrid.
+
+```bash
+# Start Celery worker (from backend directory)
+cd backend
+celery -A app.celery_app worker --loglevel=info
+
+# Start with auto-reload (development)
+celery -A app.celery_app worker --loglevel=info --reload
+
+# Monitor tasks
+celery -A app.celery_app flower  # Optional: Web UI for monitoring
+```
+
+**With Docker Compose:**
+```bash
+# Celery worker is automatically started
+docker-compose up celery_worker
+```
+
+**Testing Email Tasks:**
+```bash
+# Test email sending (requires SendGrid API key)
+cd backend
+python -c "from app.tasks.email_tasks import send_welcome_email_task; send_welcome_email_task.delay('test@example.com', 'Test User')"
+```
+
 ### Playwright (E2E Testing)
 
 ```bash

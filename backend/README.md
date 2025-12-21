@@ -10,6 +10,9 @@ FastAPI backend with OpenAPI/Swagger auto-generation, Pydantic v2 validation, Al
 - **Automated API tests** with pytest
 - **Async SQLAlchemy** for database operations
 - **JWT authentication** with password hashing
+- **SendGrid Email Service** with 7+ transaction templates
+- **Celery** for background task processing (emails, notifications)
+- **Redis** for caching and Celery broker
 
 ## 📋 Prerequisites
 
@@ -131,14 +134,22 @@ python scripts/migrate.py history
 backend/
 ├── app/
 │   ├── api/
-│   │   └── v1/
-│   │       ├── endpoints/     # API endpoints
-│   │       └── router.py      # Main router
+│   │   ├── v1/
+│   │   │   ├── endpoints/     # API endpoints
+│   │   │   └── router.py      # Main router
+│   │   └── email.py           # Email API endpoints
 │   ├── core/
 │   │   ├── config.py          # Settings with Pydantic
 │   │   └── database.py        # Database configuration
 │   ├── models/                # SQLAlchemy models
 │   ├── schemas/               # Pydantic schemas
+│   ├── services/
+│   │   ├── email_service.py   # SendGrid email service
+│   │   └── email_templates.py # Email templates
+│   ├── tasks/
+│   │   ├── email_tasks.py     # Celery email tasks
+│   │   └── notification_tasks.py
+│   ├── celery_app.py          # Celery configuration
 │   └── main.py                # FastAPI app
 ├── alembic/                   # Alembic migrations
 ├── tests/                     # Test suite
@@ -190,6 +201,17 @@ Authorization: Bearer <access_token>
 - `GET /api/v1/users/` - List users
 - `GET /api/v1/users/{id}` - Get user by ID
 
+### Email (SendGrid)
+- `POST /api/email/welcome` - Send welcome email
+- `POST /api/email/invoice` - Send invoice email
+- `POST /api/email/subscription/created` - Send subscription created email
+- `POST /api/email/subscription/cancelled` - Send subscription cancelled email
+- `POST /api/email/trial/ending` - Send trial ending email
+- `POST /api/email/test` - Send test email
+- `GET /api/email/health` - Email service health check
+
+> 📧 **Email Setup Guide**: [docs/SENDGRID_SETUP.md](../../docs/SENDGRID_SETUP.md)
+
 ## 🧹 Code Quality
 
 ### Format code:
@@ -216,6 +238,11 @@ Key variables:
 - `SECRET_KEY` - Secret key for JWT tokens
 - `CORS_ORIGINS` - Allowed CORS origins
 - `DEBUG` - Enable debug mode
+- `REDIS_URL` - Redis connection URL (required for Celery)
+- `SENDGRID_API_KEY` - SendGrid API key for emails
+- `SENDGRID_FROM_EMAIL` - Default sender email address
+- `SENDGRID_FROM_NAME` - Default sender name
+- `FRONTEND_URL` - Frontend URL for email links
 
 ## 🐛 Troubleshooting
 
