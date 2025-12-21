@@ -14,6 +14,8 @@ interface DatePickerProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 't
   error?: string;
   helperText?: string;
   fullWidth?: boolean;
+  format?: 'date' | 'datetime-local' | 'time' | 'month' | 'week';
+  type?: 'date' | 'datetime-local' | 'time' | 'month' | 'week';
 }
 
 const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
@@ -24,14 +26,19 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
       helperText,
       className,
       fullWidth = false,
+      format,
+      type,
       ...props
     },
     ref
   ) => {
+    // Use format prop if provided, otherwise use type prop, otherwise default to 'date'
+    const inputType = format || type || 'date';
+    
     return (
       <Input
         ref={ref}
-        type="date"
+        type={inputType}
         label={label}
         error={error}
         helperText={helperText}
