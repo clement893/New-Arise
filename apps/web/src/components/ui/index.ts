@@ -63,8 +63,7 @@ export type { ChartProps, ChartDataPoint } from './Chart';
 export { default as Avatar, AvatarImage, AvatarFallback } from './Avatar';
 
 // Theme Components
-export { default as ThemeToggle } from './ThemeToggle';
-export { default as ThemeToggleWithIcon } from './ThemeToggleWithIcon';
+export { default as ThemeToggle, ThemeToggleWithIcon } from './ThemeToggle';
 
 // Utility Components
 export { default as ClientOnly } from './ClientOnly';
