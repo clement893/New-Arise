@@ -31,7 +31,7 @@ export default function Error({
       <div className="max-w-md w-full">
         <ErrorDisplay
           error={error}
-          message={error.message || 'Une erreur inattendue s''est produite'}
+          message={error.message || "Une erreur inattendue s'est produite"}
           statusCode={500}
           details={{
             digest: error.digest,
