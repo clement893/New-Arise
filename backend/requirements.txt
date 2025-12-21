@@ -33,3 +33,6 @@ mypy==1.11.2
 
 # Environment
 python-dotenv==1.0.1
+
+# Logging
+python-json-logger==2.0.7

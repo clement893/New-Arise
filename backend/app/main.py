@@ -6,13 +6,23 @@ Configured with OpenAPI/Swagger auto-generation
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
+from fastapi.responses import JSONResponse
+from pydantic import ValidationError as PydanticValidationError
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.core.config import settings
 from app.core.database import init_db, close_db
+from app.core.exceptions import AppException
+from app.core.error_handler import (
+    app_exception_handler,
+    validation_exception_handler,
+    database_exception_handler,
+    general_exception_handler,
+)
 from app.api.v1.router import api_router
 
 
@@ -49,6 +59,33 @@ def create_app() -> FastAPI:
 
     # Include API router
     app.include_router(api_router, prefix=settings.API_V1_STR)
+
+    # Register exception handlers
+    app.add_exception_handler(AppException, app_exception_handler)
+    app.add_exception_handler(PydanticValidationError, validation_exception_handler)
+    app.add_exception_handler(SQLAlchemyError, database_exception_handler)
+    app.add_exception_handler(Exception, general_exception_handler)
+
+    # Add timestamp middleware
+    @app.middleware("http")
+    async def add_timestamp_middleware(request: Request, call_next):
+        response = await call_next(request)
+        if isinstance(response, JSONResponse):
+            import json
+            from datetime import datetime
+            try:
+                body_bytes = response.body
+                if body_bytes:
+                    data = json.loads(body_bytes.decode())
+                    if isinstance(data, dict):
+                        if "timestamp" in data and data["timestamp"] is None:
+                            data["timestamp"] = datetime.utcnow().isoformat()
+                        elif "timestamp" not in data and "error" in data:
+                            data["timestamp"] = datetime.utcnow().isoformat()
+                        response.body = json.dumps(data).encode()
+            except (json.JSONDecodeError, UnicodeDecodeError, KeyError):
+                pass
+        return response
 
     # Custom OpenAPI schema
     def custom_openapi() -> dict:
