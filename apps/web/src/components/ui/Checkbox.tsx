@@ -5,6 +5,7 @@ interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'typ
   label?: string;
   error?: string;
   fullWidth?: boolean;
+  indeterminate?: boolean;
 }
 
 const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
@@ -14,6 +15,8 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       error,
       className,
       fullWidth = false,
+      indeterminate = false,
+      checked,
       ...props
     },
     ref
@@ -22,8 +25,18 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       <div className={clsx('flex flex-col', fullWidth && 'w-full')}>
         <label className="flex items-center cursor-pointer group">
           <input
-            ref={ref}
+            ref={(node) => {
+              if (typeof ref === 'function') {
+                ref(node);
+              } else if (ref) {
+                ref.current = node;
+              }
+              if (node) {
+                node.indeterminate = indeterminate;
+              }
+            }}
             type="checkbox"
+            checked={checked}
             className={clsx(
               'w-4 h-4 text-blue-600 border-gray-300 rounded',
               'focus:ring-2 focus:ring-blue-500 focus:ring-offset-0',

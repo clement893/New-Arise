@@ -1,39 +1,42 @@
+/**
+ * Accordion Component
+ * Collapsible content component for ERP applications
+ */
+
 'use client';
 
-import { ReactNode, useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { clsx } from 'clsx';
 
-interface AccordionItem {
+export interface AccordionItem {
+  id: string;
   title: string;
   content: ReactNode;
+  icon?: ReactNode;
   defaultOpen?: boolean;
 }
 
-interface AccordionProps {
+export interface AccordionProps {
   items: AccordionItem[];
   allowMultiple?: boolean;
   className?: string;
 }
 
-export default function Accordion({
-  items,
-  allowMultiple = false,
-  className,
-}: AccordionProps) {
-  const [openItems, setOpenItems] = useState<Set<number>>(
-    new Set(items.map((item, index) => (item.defaultOpen ? index : -1)).filter((i) => i !== -1))
+export default function Accordion({ items, allowMultiple = false, className }: AccordionProps) {
+  const [openItems, setOpenItems] = useState<Set<string>>(
+    new Set(items.filter((item) => item.defaultOpen).map((item) => item.id))
   );
 
-  const toggleItem = (index: number) => {
+  const toggleItem = (id: string) => {
     setOpenItems((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(index)) {
-        newSet.delete(index);
+      if (newSet.has(id)) {
+        newSet.delete(id);
       } else {
         if (!allowMultiple) {
           newSet.clear();
         }
-        newSet.add(index);
+        newSet.add(id);
       }
       return newSet;
     });
@@ -41,23 +44,31 @@ export default function Accordion({
 
   return (
     <div className={clsx('space-y-2', className)}>
-      {items.map((item, index) => {
-        const isOpen = openItems.has(index);
+      {items.map((item) => {
+        const isOpen = openItems.has(item.id);
 
         return (
           <div
-            key={index}
-            className="border border-gray-200 rounded-lg overflow-hidden"
+            key={item.id}
+            className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
           >
             <button
-              onClick={() => toggleItem(index)}
-              className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
+              onClick={() => toggleItem(item.id)}
+              className={clsx(
+                'w-full px-4 py-3 flex items-center justify-between',
+                'text-left font-medium text-gray-900 dark:text-white',
+                'hover:bg-gray-50 dark:hover:bg-gray-800',
+                'transition-colors'
+              )}
             >
-              <span className="font-medium text-gray-900">{item.title}</span>
+              <div className="flex items-center gap-3">
+                {item.icon && <span>{item.icon}</span>}
+                <span>{item.title}</span>
+              </div>
               <svg
                 className={clsx(
                   'w-5 h-5 text-gray-500 transition-transform',
-                  isOpen && 'transform rotate-180'
+                  isOpen && 'rotate-180'
                 )}
                 fill="none"
                 stroke="currentColor"
@@ -72,7 +83,7 @@ export default function Accordion({
               </svg>
             </button>
             {isOpen && (
-              <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
+              <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
                 {item.content}
               </div>
             )}
@@ -82,4 +93,3 @@ export default function Accordion({
     </div>
   );
 }
-

@@ -1,126 +1,115 @@
+/**
+ * Tabs Component
+ * Tab navigation component for ERP applications
+ */
+
 'use client';
 
-import { ReactNode, useState, createContext, useContext } from 'react';
+import { type ReactNode, useState } from 'react';
 import { clsx } from 'clsx';
 
-interface TabsContextType {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-}
-
-const TabsContext = createContext<TabsContextType | undefined>(undefined);
-
-interface TabsProps {
-  children: ReactNode;
-  defaultTab?: string;
-  className?: string;
-}
-
-export function Tabs({
-  children,
-  defaultTab,
-  className,
-}: TabsProps) {
-  const [activeTab, setActiveTab] = useState(defaultTab || '');
-
-  return (
-    <TabsContext.Provider value={{ activeTab, setActiveTab }}>
-      <div className={clsx('w-full', className)}>{children}</div>
-    </TabsContext.Provider>
-  );
-}
-
-interface TabListProps {
-  children: ReactNode;
-  className?: string;
-}
-
-export function TabList({ children, className }: TabListProps) {
-  const context = useContext(TabsContext);
-  if (!context) throw new Error('TabList must be used within Tabs');
-
-  return (
-    <div
-      className={clsx(
-        'flex border-b border-gray-200 space-x-1',
-        className
-      )}
-      role="tablist"
-    >
-      {children}
-    </div>
-  );
-}
-
-interface TabProps {
-  children: ReactNode;
-  value: string;
-  className?: string;
+export interface Tab {
+  id: string;
+  label: string;
+  content: ReactNode;
+  icon?: ReactNode;
   disabled?: boolean;
+  badge?: string | number;
 }
 
-export function Tab({ children, value, className, disabled }: TabProps) {
-  const context = useContext(TabsContext);
-  if (!context) throw new Error('Tab must be used within Tabs');
+export interface TabsProps {
+  tabs: Tab[];
+  defaultTab?: string;
+  onChange?: (tabId: string) => void;
+  className?: string;
+  variant?: 'default' | 'pills' | 'underline';
+}
 
-  const { activeTab, setActiveTab } = context;
-  const isActive = activeTab === value;
+export default function Tabs({
+  tabs,
+  defaultTab,
+  onChange,
+  className,
+  variant = 'default',
+}: TabsProps) {
+  const [activeTab, setActiveTab] = useState(defaultTab ?? tabs[0]?.id ?? '');
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    onChange?.(tabId);
+  };
+
+  const activeTabContent = tabs.find((tab) => tab.id === activeTab)?.content;
+
+  const variantClasses = {
+    default: {
+      container: 'border-b border-gray-200 dark:border-gray-700',
+      tab: (isActive: boolean) =>
+        clsx(
+          'px-4 py-2 text-sm font-medium border-b-2 transition-colors',
+          isActive
+            ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+        ),
+    },
+    pills: {
+      container: 'flex gap-2',
+      tab: (isActive: boolean) =>
+        clsx(
+          'px-4 py-2 text-sm font-medium rounded-full transition-colors',
+          isActive
+            ? 'bg-blue-600 text-white'
+            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+        ),
+    },
+    underline: {
+      container: 'border-b border-gray-200 dark:border-gray-700',
+      tab: (isActive: boolean) =>
+        clsx(
+          'px-4 py-2 text-sm font-medium transition-colors relative',
+          isActive
+            ? 'text-blue-600 dark:text-blue-400'
+            : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300',
+          isActive && 'after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-600'
+        ),
+    },
+  };
+
+  const classes = variantClasses[variant];
 
   return (
-    <button
-      onClick={() => !disabled && setActiveTab(value)}
-      disabled={disabled}
-      className={clsx(
-        'px-4 py-2 text-sm font-medium transition-colors',
-        'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
-        disabled
-          ? 'opacity-50 cursor-not-allowed'
-          : 'cursor-pointer',
-        isActive
-          ? 'text-blue-600 border-b-2 border-blue-600'
-          : 'text-gray-600 hover:text-gray-900 hover:border-b-2 hover:border-gray-300',
-        className
-      )}
-      role="tab"
-      aria-selected={isActive}
-      aria-disabled={disabled}
-    >
-      {children}
-    </button>
-  );
-}
+    <div className={clsx('w-full', className)}>
+      <div className={clsx('flex', classes.container)}>
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => !tab.disabled && handleTabChange(tab.id)}
+            disabled={tab.disabled}
+            className={clsx(
+              classes.tab(activeTab === tab.id),
+              tab.disabled && 'opacity-50 cursor-not-allowed',
+              'flex items-center gap-2'
+            )}
+          >
+            {tab.icon && <span>{tab.icon}</span>}
+            <span>{tab.label}</span>
+            {tab.badge && (
+              <span
+                className={clsx(
+                  'ml-1 px-2 py-0.5 text-xs rounded-full',
+                  activeTab === tab.id
+                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                )}
+              >
+                {tab.badge}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
 
-interface TabPanelsProps {
-  children: ReactNode;
-  className?: string;
-}
-
-export function TabPanels({ children, className }: TabPanelsProps) {
-  return <div className={className}>{children}</div>;
-}
-
-interface TabPanelProps {
-  children: ReactNode;
-  value: string;
-  className?: string;
-}
-
-export function TabPanel({ children, value, className }: TabPanelProps) {
-  const context = useContext(TabsContext);
-  if (!context) throw new Error('TabPanel must be used within Tabs');
-
-  const { activeTab } = context;
-
-  if (activeTab !== value) return null;
-
-  return (
-    <div
-      className={clsx('mt-4', className)}
-      role="tabpanel"
-      aria-labelledby={`tab-${value}`}
-    >
-      {children}
+      <div className="mt-4">{activeTabContent}</div>
     </div>
   );
 }
-
