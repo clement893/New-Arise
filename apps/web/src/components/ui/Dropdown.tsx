@@ -57,11 +57,37 @@ export default function Dropdown({
     right: 'left-full top-0 ml-1',
   };
 
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen]);
+
   return (
     <div className={clsx('relative inline-block', className)} ref={dropdownRef}>
-      <div onClick={() => setIsOpen(!isOpen)}>{trigger}</div>
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        role="button"
+        tabIndex={0}
+        aria-haspopup="true"
+        aria-expanded={isOpen}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsOpen(!isOpen);
+          }
+        }}
+      >
+        {trigger}
+      </div>
       {isOpen && (
         <div
+          role="menu"
+          aria-orientation="vertical"
           className={clsx(
             'absolute z-50 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[200px]',
             positions[position]
@@ -76,6 +102,7 @@ export default function Dropdown({
             return (
               <button
                 key={index}
+                role="menuitem"
                 onClick={() => {
                   if (!dropdownItem.disabled) {
                     dropdownItem.onClick();
@@ -86,11 +113,13 @@ export default function Dropdown({
                 className={clsx(
                   'w-full px-4 py-2 text-left text-sm flex items-center space-x-2',
                   'hover:bg-gray-100 transition-colors',
+                  'focus:outline-none focus:bg-gray-100 focus:ring-2 focus:ring-blue-500',
                   dropdownItem.disabled && 'opacity-50 cursor-not-allowed',
                   className
                 )}
+                aria-disabled={dropdownItem.disabled}
               >
-                {dropdownItem.icon && <span className="flex-shrink-0">{dropdownItem.icon}</span>}
+                {dropdownItem.icon && <span className="flex-shrink-0" aria-hidden="true">{dropdownItem.icon}</span>}
                 <span>{dropdownItem.label}</span>
               </button>
             );

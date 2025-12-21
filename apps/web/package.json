@@ -59,6 +59,7 @@
     "@storybook/addon-essentials": "^7.6.0",
     "@storybook/addon-interactions": "^7.6.0",
     "@storybook/addon-docs": "^7.6.0",
+    "@storybook/addon-a11y": "^7.6.0",
     "@storybook/test": "^7.6.0",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.32"

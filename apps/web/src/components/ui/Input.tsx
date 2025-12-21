@@ -24,22 +24,36 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     },
     ref
   ) => {
+    const inputId = props.id || `input-${Math.random().toString(36).substring(7)}`;
+    const errorId = error ? `${inputId}-error` : undefined;
+    const helperId = helperText && !error ? `${inputId}-helper` : undefined;
+    const describedBy = [errorId, helperId].filter(Boolean).join(' ') || undefined;
+
     return (
       <div className={clsx('flex flex-col', fullWidth && 'w-full')}>
         {label && (
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label 
+            htmlFor={inputId}
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
             {label}
-            {props.required && <span className="text-red-500 dark:text-red-400 ml-1">*</span>}
+            {props.required && (
+              <span className="text-red-500 dark:text-red-400 ml-1" aria-label="required">*</span>
+            )}
           </label>
         )}
         <div className="relative">
           {leftIcon && (
-            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500">
+            <div 
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none"
+              aria-hidden="true"
+            >
               {leftIcon}
             </div>
           )}
           <input
             ref={ref}
+            id={inputId}
             className={clsx(
               'w-full px-4 py-2 border rounded-lg transition-all duration-200',
               'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100',
@@ -53,19 +67,37 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               rightIcon && 'pr-10',
               className
             )}
+            aria-invalid={error ? 'true' : undefined}
+            aria-describedby={describedBy}
+            aria-required={props.required}
             {...props}
           />
           {rightIcon && (
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500">
+            <div 
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none"
+              aria-hidden="true"
+            >
               {rightIcon}
             </div>
           )}
         </div>
         {error && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>
+          <p 
+            id={errorId}
+            className="mt-1 text-sm text-red-600 dark:text-red-400" 
+            role="alert"
+            aria-live="polite"
+          >
+            {error}
+          </p>
         )}
         {helperText && !error && (
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{helperText}</p>
+          <p 
+            id={helperId}
+            className="mt-1 text-sm text-gray-500 dark:text-gray-400"
+          >
+            {helperText}
+          </p>
         )}
       </div>
     );

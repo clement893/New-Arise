@@ -53,16 +53,19 @@ export default function Accordion({ items, allowMultiple = false, className }: A
             className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
           >
             <button
+              id={`accordion-header-${item.id}`}
               onClick={() => toggleItem(item.id)}
+              aria-expanded={isOpen}
+              aria-controls={`accordion-content-${item.id}`}
               className={clsx(
                 'w-full px-4 py-3 flex items-center justify-between',
                 'text-left font-medium text-gray-900 dark:text-white',
                 'hover:bg-gray-50 dark:hover:bg-gray-800',
-                'transition-colors'
+                'transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500'
               )}
             >
               <div className="flex items-center gap-3">
-                {item.icon && <span>{item.icon}</span>}
+                {item.icon && <span aria-hidden="true">{item.icon}</span>}
                 <span>{item.title}</span>
               </div>
               <svg
@@ -83,7 +86,12 @@ export default function Accordion({ items, allowMultiple = false, className }: A
               </svg>
             </button>
             {isOpen && (
-              <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+              <div 
+                id={`accordion-content-${item.id}`}
+                role="region"
+                aria-labelledby={`accordion-header-${item.id}`}
+                className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50"
+              >
                 {item.content}
               </div>
             )}

@@ -6,6 +6,16 @@ const meta: Meta<typeof Button> = {
   component: Button,
   parameters: {
     layout: 'centered',
+    a11y: {
+      config: {
+        rules: [
+          {
+            id: 'color-contrast',
+            enabled: true,
+          },
+        ],
+      },
+    },
   },
   tags: ['autodocs'],
   argTypes: {
@@ -20,7 +30,9 @@ const meta: Meta<typeof Button> = {
     disabled: {
       control: 'boolean',
     },
-    onClick: { action: 'clicked' },
+    loading: {
+      control: 'boolean',
+    },
   },
 };
 
@@ -62,25 +74,14 @@ export const Danger: Story = {
   },
 };
 
-export const Small: Story = {
-  args: {
-    children: 'Small Button',
-    size: 'sm',
-  },
-};
-
-export const Medium: Story = {
-  args: {
-    children: 'Medium Button',
-    size: 'md',
-  },
-};
-
-export const Large: Story = {
-  args: {
-    children: 'Large Button',
-    size: 'lg',
-  },
+export const Sizes: Story = {
+  render: () => (
+    <div className="flex items-center gap-4">
+      <Button size="sm">Small</Button>
+      <Button size="md">Medium</Button>
+      <Button size="lg">Large</Button>
+    </div>
+  ),
 };
 
 export const Disabled: Story = {
@@ -90,22 +91,47 @@ export const Disabled: Story = {
   },
 };
 
-export const AllVariants: Story = {
+export const Loading: Story = {
+  args: {
+    children: 'Loading...',
+    loading: true,
+  },
+};
+
+export const WithIcon: Story = {
   render: () => (
-    <div className="flex flex-col gap-4">
-      <div className="flex gap-2">
-        <Button variant="primary">Primary</Button>
-        <Button variant="secondary">Secondary</Button>
-        <Button variant="outline">Outline</Button>
-        <Button variant="ghost">Ghost</Button>
-        <Button variant="danger">Danger</Button>
-      </div>
-      <div className="flex gap-2 items-center">
-        <Button size="sm">Small</Button>
-        <Button size="md">Medium</Button>
-        <Button size="lg">Large</Button>
-      </div>
-    </div>
+    <Button>
+      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+      </svg>
+      Add Item
+    </Button>
   ),
 };
 
+export const KeyboardNavigation: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4">
+      <p className="text-sm text-gray-600">
+        Utilisez Tab pour naviguer entre les boutons, Enter/Espace pour activer
+      </p>
+      <div className="flex gap-2">
+        <Button>First</Button>
+        <Button>Second</Button>
+        <Button>Third</Button>
+      </div>
+    </div>
+  ),
+  parameters: {
+    a11y: {
+      config: {
+        rules: [
+          {
+            id: 'keyboard',
+            enabled: true,
+          },
+        ],
+      },
+    },
+  },
+};

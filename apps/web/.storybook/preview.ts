@@ -10,6 +10,26 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
+    // Configuration accessibilité
+    a11y: {
+      config: {
+        rules: [
+          {
+            id: 'color-contrast',
+            enabled: true,
+          },
+          {
+            id: 'keyboard',
+            enabled: true,
+          },
+          {
+            id: 'aria-required-attr',
+            enabled: true,
+          },
+        ],
+      },
+    },
+    // Thèmes dark/light
     backgrounds: {
       default: 'light',
       values: [
@@ -19,36 +39,19 @@ const preview: Preview = {
         },
         {
           name: 'dark',
-          value: '#111827',
+          value: '#1f2937',
         },
       ],
     },
   },
-  globalTypes: {
-    theme: {
-      description: 'Global theme for components',
-      defaultValue: 'light',
-      toolbar: {
-        title: 'Theme',
-        icon: 'circlehollow',
-        items: ['light', 'dark'],
-        dynamicTitle: true,
-      },
-    },
-  },
+  // Décorateurs globaux
   decorators: [
-    (Story, context) => {
-      const theme = context.globals.theme || 'light';
-      return (
-        <div className={theme === 'dark' ? 'dark' : ''}>
-          <div className="p-8">
-            <Story />
-          </div>
-        </div>
-      );
-    },
+    (Story) => (
+      <div style={{ padding: '2rem' }}>
+        <Story />
+      </div>
+    ),
   ],
 };
 
 export default preview;
-

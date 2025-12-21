@@ -21,6 +21,8 @@ export interface ModalProps {
   showCloseButton?: boolean;
   className?: string;
   overlayClassName?: string;
+  'aria-labelledby'?: string;
+  'aria-describedby'?: string;
 }
 
 const sizeClasses = {
@@ -43,7 +45,11 @@ export default function Modal({
   showCloseButton = true,
   className,
   overlayClassName,
+  'aria-labelledby': ariaLabelledBy,
+  'aria-describedby': ariaDescribedBy,
 }: ModalProps) {
+  const titleId = ariaLabelledBy || (title ? 'modal-title' : undefined);
+  const descriptionId = ariaDescribedBy;
   useEffect(() => {
     if (!isOpen || !closeOnEscape) return;
 
