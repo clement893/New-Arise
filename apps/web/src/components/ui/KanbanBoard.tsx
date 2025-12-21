@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, ReactNode } from 'react';
+import { useState } from 'react';
 import { clsx } from 'clsx';
 import Button from './Button';
 
