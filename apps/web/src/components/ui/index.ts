@@ -50,3 +50,21 @@ export { default as Accordion } from './Accordion';
 // Theme
 export { default as ThemeToggle, ThemeToggleWithIcon } from './ThemeToggle';
 export { default as ClientOnly } from './ClientOnly';
+
+// ERP Components
+export { default as DataTable } from './DataTable';
+export type { Column, DataTableProps } from './DataTable';
+export { default as CRUDModal } from './CRUDModal';
+export type { CRUDModalProps } from './CRUDModal';
+export { default as ExportButton } from './ExportButton';
+export type { ExportButtonProps } from './ExportButton';
+export { default as FileUploadWithPreview } from './FileUploadWithPreview';
+export type { FileUploadWithPreviewProps } from './FileUploadWithPreview';
+export { default as Calendar } from './Calendar';
+export type { CalendarProps, CalendarEvent } from './Calendar';
+export { default as KanbanBoard } from './KanbanBoard';
+export type { KanbanBoardProps, KanbanCard, KanbanColumn } from './KanbanBoard';
+export { default as Chart } from './Chart';
+export type { ChartProps, ChartDataPoint } from './Chart';
+export { default as FormBuilder } from './FormBuilder';
+export type { FormBuilderProps, FormField, FieldType } from './FormBuilder';
