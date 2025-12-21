@@ -16,7 +16,7 @@ import Radio from '@/components/ui/Radio';
 import Switch from '@/components/ui/Switch';
 import Badge from '@/components/ui/Badge';
 import Alert from '@/components/ui/Alert';
-import Modal, { ConfirmModal } from '@/components/ui/Modal';
+import Modal from '@/components/ui/Modal';
 import Tabs, { TabList, Tab, TabPanels, TabPanel } from '@/components/ui/Tabs';
 import Accordion from '@/components/ui/Accordion';
 import Progress from '@/components/ui/Progress';
