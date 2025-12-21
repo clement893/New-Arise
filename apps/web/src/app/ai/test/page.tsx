@@ -3,8 +3,6 @@
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
-'use client';
-
 import { useState } from 'react';
 import { aiAPI } from '@/lib/api';
 
@@ -133,9 +131,9 @@ export default function AITestPage() {
             </div>
             {healthStatus && (
               <div className="mt-2 text-sm">
-                <p>Configured: {healthStatus.configured ? 'âœ…' : 'âŒ'}</p>
+                <p>Configured: {healthStatus.configured ? 'Yes' : 'No'}</p>
                 <p>Model: {healthStatus.model || 'N/A'}</p>
-                <p>Available: {healthStatus.available ? 'âœ…' : 'âŒ'}</p>
+                <p>Available: {healthStatus.available ? 'Yes' : 'No'}</p>
                 {healthStatus.error && (
                   <p className="text-red-600">Error: {healthStatus.error}</p>
                 )}
@@ -148,21 +146,13 @@ export default function AITestPage() {
             <div className="flex gap-4 mb-4">
               <button
                 onClick={() => setMode('simple')}
-                className={`px-4 py-2 rounded-lg transition ${
-                  mode === 'simple'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
+                className={px-4 py-2 rounded-lg transition }
               >
                 Simple Chat
               </button>
               <button
                 onClick={() => setMode('chat')}
-                className={`px-4 py-2 rounded-lg transition ${
-                  mode === 'chat'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
+                className={px-4 py-2 rounded-lg transition }
               >
                 Full Chat
               </button>
@@ -286,7 +276,7 @@ export default function AITestPage() {
                     <textarea
                       value={msg.content}
                       onChange={(e) => updateMessage(index, e.target.value)}
-                      placeholder={`${msg.role} message...`}
+                      placeholder={${msg.role} message...}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                       rows={2}
                     />
@@ -322,4 +312,3 @@ export default function AITestPage() {
     </main>
   );
 }
-
