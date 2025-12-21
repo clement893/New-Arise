@@ -87,7 +87,7 @@ export default function PerformanceProfiler() {
                   className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
                 >
                   <div className="flex items-center gap-3">
-                    <Badge variant="secondary">{name}</Badge>
+                    <Badge variant="default">{name}</Badge>
                     <span className={`font-mono font-semibold ${getDurationColor(duration)}`}>
                       {duration.toFixed(2)}ms
                     </span>

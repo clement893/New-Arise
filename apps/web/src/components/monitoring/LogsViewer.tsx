@@ -37,18 +37,18 @@ export default function LogsViewer() {
     return () => clearInterval(interval);
   }, [search, levelFilter, serviceFilter]);
 
-  const getLevelColor = (level: LogEntry['level']) => {
+  const getLevelColor = (level: LogEntry['level']): 'error' | 'warning' | 'info' | 'default' => {
     switch (level) {
       case 'error':
         return 'error';
       case 'warn':
         return 'warning';
       case 'info':
-        return 'primary';
+        return 'info';
       case 'debug':
-        return 'secondary';
+        return 'default';
       default:
-        return 'secondary';
+        return 'default';
     }
   };
 
@@ -60,10 +60,10 @@ export default function LogsViewer() {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">Logs</h3>
           <div className="flex gap-2">
-            <Badge variant="secondary">Debug: {logCounts.debug}</Badge>
-            <Badge variant="primary">Info: {logCounts.info}</Badge>
+            <Badge variant="default">Debug: {logCounts.debug}</Badge>
+            <Badge variant="info">Info: {logCounts.info}</Badge>
             <Badge variant="warning">Warn: {logCounts.warn}</Badge>
-            <Badge variant="danger">Error: {logCounts.error}</Badge>
+            <Badge variant="error">Error: {logCounts.error}</Badge>
           </div>
         </div>
 
