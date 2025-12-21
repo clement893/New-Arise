@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -36,12 +36,12 @@ export default function DocsPage() {
         'React 19 avec Server Components',
         'TypeScript 5 avec configuration stricte',
         'Tailwind CSS 3 pour le styling',
-        'BibliothÃ¨que UI complÃ¨te (30+ composants ERP)',
-        'Hooks rÃ©utilisables personnalisÃ©s',
+        'Biblioth??que UI compl??te (30+ composants ERP)',
+        'Hooks r??utilisables personnalis??s',
         'NextAuth.js v5 avec OAuth Google',
         'Protection des routes avec middleware',
-        'Gestion centralisÃ©e des erreurs',
-        'Logging structurÃ©',
+        'Gestion centralis??e des erreurs',
+        'Logging structur??',
         'Support du mode sombre',
         'Responsive design mobile-first'
       ]
@@ -50,24 +50,24 @@ export default function DocsPage() {
       category: 'Backend',
       items: [
         'FastAPI avec documentation OpenAPI/Swagger automatique',
-        'Pydantic v2 pour la validation des donnÃ©es',
+        'Pydantic v2 pour la validation des donn??es',
         'SQLAlchemy async ORM',
-        'Alembic pour les migrations de base de donnÃ©es',
+        'Alembic pour les migrations de base de donn??es',
         'PostgreSQL avec support async',
         'Authentification JWT avec refresh tokens',
         'Tests avec pytest',
         'Logging avec loguru',
-        'Gestion standardisÃ©e des erreurs',
-        'API RESTful complÃ¨te',
-        'Support CORS configurÃ©',
+        'Gestion standardis??e des erreurs',
+        'API RESTful compl??te',
+        'Support CORS configur??',
         'Rate limiting'
       ]
     },
     {
-      category: 'Types PartagÃ©s',
+      category: 'Types Partag??s',
       items: [
-        'Package @modele/types pour les types TypeScript partagÃ©s',
-        'GÃ©nÃ©ration automatique depuis les schÃ©mas Pydantic',
+        'Package @modele/types pour les types TypeScript partag??s',
+        'G??n??ration automatique depuis les sch??mas Pydantic',
         'Synchronisation frontend/backend',
         'Types type-safe end-to-end'
       ]
@@ -75,14 +75,14 @@ export default function DocsPage() {
     {
       category: 'DevOps & Outils',
       items: [
-        'Turborepo pour monorepo optimisÃ©',
-        'pnpm workspaces pour la gestion des dÃ©pendances',
+        'Turborepo pour monorepo optimis??',
+        'pnpm workspaces pour la gestion des d??pendances',
         'GitHub Actions CI/CD',
         'Pre-commit hooks avec Husky',
         'Docker & Docker Compose',
-        'PrÃªt pour dÃ©ploiement Railway',
-        'GÃ©nÃ©rateurs de code (composants, pages, routes API)',
-        'Scripts de migration de base de donnÃ©es',
+        'Pr??t pour d??ploiement Railway',
+        'G??n??rateurs de code (composants, pages, routes API)',
+        'Scripts de migration de base de donn??es',
         'Configuration ESLint et Prettier',
         'Storybook pour la documentation des composants'
       ]
@@ -97,7 +97,7 @@ export default function DocsPage() {
             Documentation Technique du Template
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400">
-            Vue d'ensemble complÃ¨te de tous les Ã©lÃ©ments inclus dans ce template full-stack
+            Vue d'ensemble compl??te de tous les ??l??ments inclus dans ce template full-stack
           </p>
         </div>
 
@@ -114,12 +114,12 @@ export default function DocsPage() {
             ))}
           </div>
           <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-            Tous les composants sont disponibles dans <code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">@/components/ui</code> et exportÃ©s depuis <code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">@/components/ui/index.ts</code>
+            Tous les composants sont disponibles dans <code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">@/components/ui</code> et export??s depuis <code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">@/components/ui/index.ts</code>
           </p>
         </Card>
 
         {/* Hooks */}
-        <Card title="Hooks PersonnalisÃ©s" className="mb-6">
+        <Card title="Hooks Personnalis??s" className="mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {hooks.map((hook) => (
               <div
@@ -137,7 +137,7 @@ export default function DocsPage() {
           </div>
         </Card>
 
-        {/* FonctionnalitÃ©s par catÃ©gorie */}
+        {/* Fonctionnalit??s par cat??gorie */}
         {features.map((feature) => (
           <Card
             key={feature.category}
@@ -147,7 +147,7 @@ export default function DocsPage() {
             <ul className="space-y-2">
               {feature.items.map((item, index) => (
                 <li key={index} className="flex items-start">
-                  <span className="text-green-500 mr-2">âœ“</span>
+                  <span className="text-green-500 mr-2">???</span>
                   <span className="text-gray-700 dark:text-gray-300">{item}</span>
                 </li>
               ))}
@@ -159,30 +159,30 @@ export default function DocsPage() {
         <Card title="Structure du Projet" className="mb-6">
           <div className="font-mono text-sm bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto">
             <pre>{MODELE-NEXTJS-FULLSTACK/
-â”œâ”€â”€ apps/
-â”‚   â””â”€â”€ web/                    # Next.js 16 frontend
-â”‚       â”œâ”€â”€ src/
-â”‚       â”‚   â”œâ”€â”€ app/           # Pages et layouts
-â”‚       â”‚   â”œâ”€â”€ components/    # Composants React
-â”‚       â”‚   â”‚   â”œâ”€â”€ ui/        # Composants UI rÃ©utilisables
-â”‚       â”‚   â”‚   â””â”€â”€ providers/ # Providers React
-â”‚       â”‚   â”œâ”€â”€ hooks/         # Hooks personnalisÃ©s
-â”‚       â”‚   â”œâ”€â”€ lib/           # Utilitaires
-â”‚       â”‚   â”‚   â”œâ”€â”€ api/       # Client API
-â”‚       â”‚   â”‚   â”œâ”€â”€ auth/      # Authentification
-â”‚       â”‚   â”‚   â”œâ”€â”€ errors/    # Gestion d'erreurs
-â”‚       â”‚   â”‚   â””â”€â”€ logger/    # Logging
-â”‚       â”‚   â””â”€â”€ store/         # State management
-â”‚       â””â”€â”€ package.json
-â”œâ”€â”€ backend/                    # FastAPI backend
-â”‚   â”œâ”€â”€ app/
-â”‚   â”‚   â”œâ”€â”€ api/               # Endpoints API
-â”‚   â”‚   â”œâ”€â”€ models/            # ModÃ¨les SQLAlchemy
-â”‚   â”‚   â”œâ”€â”€ schemas/           # SchÃ©mas Pydantic
-â”‚   â”‚   â””â”€â”€ services/          # Logique mÃ©tier
-â”‚   â””â”€â”€ alembic/               # Migrations DB
-â””â”€â”€ packages/
-    â””â”€â”€ types/                  # Types TypeScript partagÃ©s}</pre>
+????????? apps/
+???   ????????? web/                    # Next.js 16 frontend
+???       ????????? src/
+???       ???   ????????? app/           # Pages et layouts
+???       ???   ????????? components/    # Composants React
+???       ???   ???   ????????? ui/        # Composants UI r??utilisables
+???       ???   ???   ????????? providers/ # Providers React
+???       ???   ????????? hooks/         # Hooks personnalis??s
+???       ???   ????????? lib/           # Utilitaires
+???       ???   ???   ????????? api/       # Client API
+???       ???   ???   ????????? auth/      # Authentification
+???       ???   ???   ????????? errors/    # Gestion d'erreurs
+???       ???   ???   ????????? logger/    # Logging
+???       ???   ????????? store/         # State management
+???       ????????? package.json
+????????? backend/                    # FastAPI backend
+???   ????????? app/
+???   ???   ????????? api/               # Endpoints API
+???   ???   ????????? models/            # Mod??les SQLAlchemy
+???   ???   ????????? schemas/           # Sch??mas Pydantic
+???   ???   ????????? services/          # Logique m??tier
+???   ????????? alembic/               # Migrations DB
+????????? packages/
+    ????????? types/                  # Types TypeScript partag??s}</pre>
           </div>
         </Card>
 
@@ -190,10 +190,10 @@ export default function DocsPage() {
         <Card title="Scripts Disponibles" className="mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h4 className="font-semibold mb-2">DÃ©veloppement</h4>
+              <h4 className="font-semibold mb-2">D??veloppement</h4>
               <ul className="space-y-1 text-sm">
-                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">pnpm dev</code> - DÃ©marrer le frontend</li>
-                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">pnpm dev:full</code> - DÃ©marrer frontend + backend</li>
+                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">pnpm dev</code> - D??marrer le frontend</li>
+                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">pnpm dev:full</code> - D??marrer frontend + backend</li>
                 <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">pnpm build</code> - Build de production</li>
                 <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">pnpm lint</code> - Linter le code</li>
               </ul>
@@ -203,13 +203,13 @@ export default function DocsPage() {
               <ul className="space-y-1 text-sm">
                 <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">alembic upgrade head</code> - Migrations DB</li>
                 <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">pytest</code> - Lancer les tests</li>
-                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">uvicorn app.main:app --reload</code> - DÃ©marrer le serveur</li>
+                <li><code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">uvicorn app.main:app --reload</code> - D??marrer le serveur</li>
               </ul>
             </div>
           </div>
         </Card>
 
-        {/* Technologies utilisÃ©es */}
+        {/* Technologies utilis??es */}
         <Card title="Stack Technologique" className="mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
