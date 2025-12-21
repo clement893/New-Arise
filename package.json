@@ -37,6 +37,8 @@
     "migrate": "node scripts/migrate-db.js",
     "seed": "node scripts/seed-db.js",
     "seed:extended": "node scripts/seed-db.js --extended",
+    "analyze": "cd apps/web && pnpm analyze",
+    "analyze:build": "cd apps/web && pnpm analyze:build",
     "workspace:upgrade": "pnpm up -r -L",
     "workspace:check": "pnpm list --depth=0 -r",
     "workspace:verify": "node scripts/check-workspace.js"
