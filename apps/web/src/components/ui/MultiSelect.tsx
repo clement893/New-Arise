@@ -246,7 +246,7 @@ export default function MultiSelect({
                   )}
                   {groupOptions.map((option) => {
                     const isSelected = value.includes(option.value);
-                    const isDisabled = option.disabled || (maxSelected && !isSelected && value.length >= maxSelected);
+                    const isDisabled = !!(option.disabled || (maxSelected && !isSelected && value.length >= maxSelected));
 
                     return (
                       <button
