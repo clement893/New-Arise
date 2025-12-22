@@ -1,15 +1,32 @@
 'use client';
 
-// Note: Client Components are already dynamic by nature.
-// Route segment config (export const dynamic) only works in Server Components.
-// If you need to prevent static generation, create a Server Component wrapper.
+/**
+ * Documentation Page Component
+ * 
+ * Displays comprehensive technical documentation for the full-stack template.
+ * This is a Client Component because it uses interactive features.
+ * 
+ * Note: Metadata is exported from layout.tsx since metadata can only be
+ * exported from Server Components. See docs/layout.tsx for SEO metadata.
+ * 
+ * Internationalization (i18n):
+ * Currently, all text is hardcoded in French. To add multi-language support:
+ * 1. Install next-intl or react-i18next
+ * 2. Create translation files in apps/web/src/locales/[lang]/docs.json
+ * 3. Replace hardcoded strings with translation keys (e.g., t('docs.title'))
+ * 4. Move FEATURES, SCRIPTS, and other text constants to translation files
+ * 
+ * Example structure:
+ *   locales/
+ *     fr/
+ *       docs.json
+ *     en/
+ *       docs.json
+ */
 
 import { Card } from '@/components/ui';
 
 // Type definitions for static data
-type UIComponentName = string;
-type HookName = string;
-
 interface TechStackItem {
   name: string;
   version: string;
@@ -25,8 +42,18 @@ interface ScriptGroup {
   scripts: readonly { command: string; description: string }[];
 }
 
-// Move static data outside component to prevent recreation on every render
-const UI_COMPONENTS: readonly UIComponentName[] = [
+/**
+ * Hook path mapping function
+ * Maps hook names to their file paths.
+ * Note: Assumes hooks follow the naming convention @/hooks/{hookName}
+ * If your hooks use a different structure, update this function accordingly.
+ */
+function getHookPath(hookName: string): string {
+  return `@/hooks/${hookName.toLowerCase()}`;
+}
+
+// Static data constants - moved outside component to prevent recreation on every render
+const UI_COMPONENTS: readonly string[] = [
   'Accordion', 'Alert', 'Badge', 'Breadcrumb', 'Button', 'Card', 'Checkbox',
   'DataTable', 'DataTableEnhanced', 'DatePicker', 'Dropdown', 'ExportButton',
   'FileUpload', 'FileUploadWithPreview', 'Form', 'FormBuilder', 'Input',
@@ -34,10 +61,13 @@ const UI_COMPONENTS: readonly UIComponentName[] = [
   'Skeleton', 'Spinner', 'Switch', 'Tabs', 'Textarea', 'Toast', 'Tooltip'
 ] as const;
 
-const HOOKS: readonly HookName[] = [
+const HOOKS: readonly string[] = [
   'useAuth', 'useForm', 'usePagination', 'useFilters', 'usePermissions',
   'useLogger', 'useDebounce', 'useLocalStorage', 'useMediaQuery'
 ] as const;
+
+// Compute component count at module level for better performance
+const COMPONENT_COUNT = UI_COMPONENTS.length;
 
 const FEATURES: readonly FeatureCategory[] = [
   {
@@ -47,7 +77,7 @@ const FEATURES: readonly FeatureCategory[] = [
       'React 19 avec Server Components',
       'TypeScript 5 avec configuration stricte',
       'Tailwind CSS 3 pour le styling',
-      'Bibliothèque UI complète (30+ composants ERP)',
+      `Bibliothèque UI complète (${COMPONENT_COUNT}+ composants ERP)`,
       'Hooks réutilisables personnalisés',
       'NextAuth.js v5 avec OAuth Google',
       'Protection des routes avec middleware',
@@ -100,31 +130,48 @@ const FEATURES: readonly FeatureCategory[] = [
   }
 ] as const;
 
-const PROJECT_STRUCTURE = `MODELE-NEXTJS-FULLSTACK/
-+-- apps/
-|   +-- web/
-|   |   +-- src/
-|   |   |   +-- app/
-|   |   |   +-- components/
-|   |   |   |   +-- ui/
-|   |   |   |   +-- providers/
-|   |   |   +-- hooks/
-|   |   |   +-- lib/
-|   |   |   |   +-- api/
-|   |   |   |   +-- auth/
-|   |   |   |   +-- errors/
-|   |   |   |   +-- logger/
-|   |   |   |   +-- store/
-|   |   +-- package.json
-+-- backend/
-|   +-- app/
-|   |   +-- api/
-|   |   +-- models/
-|   |   +-- schemas/
-|   |   +-- services/
-|   +-- alembic/
-+-- packages/
-    +-- types/`;
+/**
+ * Project Structure Generator
+ * 
+ * Generates a tree-like representation of the project structure.
+ * This function makes it easier to maintain and update the structure display.
+ * 
+ * Note: For i18n support, consider moving this to a translation file
+ * and using a library like next-intl or react-i18next.
+ */
+function generateProjectStructure(): string {
+  const structure = [
+    'MODELE-NEXTJS-FULLSTACK/',
+    '+-- apps/',
+    '|   +-- web/',
+    '|   |   +-- src/',
+    '|   |   |   +-- app/',
+    '|   |   |   +-- components/',
+    '|   |   |   |   +-- ui/',
+    '|   |   |   |   +-- providers/',
+    '|   |   |   +-- hooks/',
+    '|   |   |   +-- lib/',
+    '|   |   |   |   +-- api/',
+    '|   |   |   |   +-- auth/',
+    '|   |   |   |   +-- errors/',
+    '|   |   |   |   +-- logger/',
+    '|   |   |   |   +-- store/',
+    '|   |   +-- package.json',
+    '+-- backend/',
+    '|   +-- app/',
+    '|   |   +-- api/',
+    '|   |   +-- models/',
+    '|   |   +-- schemas/',
+    '|   |   +-- services/',
+    '|   +-- alembic/',
+    '+-- packages/',
+    '    +-- types/'
+  ];
+  
+  return structure.join('\n');
+}
+
+const PROJECT_STRUCTURE = generateProjectStructure();
 
 const SCRIPTS: readonly ScriptGroup[] = [
   {
@@ -146,20 +193,32 @@ const SCRIPTS: readonly ScriptGroup[] = [
   }
 ] as const;
 
+/**
+ * Technology Stack
+ * Standardized version format: Use specific versions where available,
+ * or minimum version with '+' suffix for ranges (e.g., "3.11+" means 3.11 or higher)
+ */
 const TECH_STACK: readonly TechStackItem[] = [
   { name: 'Next.js', version: '16.1.0' },
   { name: 'React', version: '19.0.0' },
   { name: 'TypeScript', version: '5.3.3' },
   { name: 'Tailwind CSS', version: '3.4.1' },
-  { name: 'FastAPI', version: '0.115+' },
-  { name: 'Python', version: '3.11+' },
-  { name: 'PostgreSQL', version: '14+' },
+  { name: 'FastAPI', version: '0.115.0+' },
+  { name: 'Python', version: '3.11.0+' },
+  { name: 'PostgreSQL', version: '14.0+' },
   { name: 'Turborepo', version: '2.0.0' }
 ] as const;
 
+/**
+ * Documentation Page Component
+ * 
+ * Note: This component renders static content, so no loading state is needed.
+ * If you add dynamic content in the future, consider adding a loading.tsx file
+ * or loading state management.
+ * 
+ * Error handling: Errors are caught by the error.tsx boundary in the app directory.
+ */
 export default function DocsPage() {
-  const componentCount = UI_COMPONENTS.length;
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4">
       <div className="max-w-6xl mx-auto">
@@ -172,7 +231,7 @@ export default function DocsPage() {
           </p>
         </header>
 
-        <Card title={`Composants UI (${componentCount}+)`} className="mb-6" aria-label={`Liste de ${componentCount} composants UI`}>
+        <Card title={`Composants UI (${COMPONENT_COUNT}+)`} className="mb-6" aria-label={`Liste de ${COMPONENT_COUNT} composants UI`}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" role="list">
             {UI_COMPONENTS.map((component) => (
               <div
@@ -201,7 +260,7 @@ export default function DocsPage() {
                   {hook}
                 </code>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                  Disponible dans <code className="bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded">@/hooks/{hook.toLowerCase()}</code>
+                  Disponible dans <code className="bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded">{getHookPath(hook)}</code>
                 </p>
               </div>
             ))}
@@ -228,7 +287,7 @@ export default function DocsPage() {
 
         <Card title="Structure du Projet" className="mb-6" aria-label="Structure du projet">
           <div className="font-mono text-sm bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto">
-            <pre className="whitespace-pre-wrap break-words" role="textbox" aria-label="Structure du projet">
+            <pre className="whitespace-pre-wrap break-words" aria-label="Structure du projet">
               {PROJECT_STRUCTURE}
             </pre>
           </div>
@@ -245,7 +304,7 @@ export default function DocsPage() {
                       <code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded" aria-label={`Commande: ${script.command}`}>
                         {script.command}
                       </code>
-                      {' - '}
+                      <span className="mx-2" aria-hidden="true">-</span>
                       <span>{script.description}</span>
                     </li>
                   ))}
