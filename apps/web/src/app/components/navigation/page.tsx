@@ -6,7 +6,6 @@ import { PageHeader, PageContainer, Section, PageNavigation } from '@/components
 
 // Disable static generation to avoid CSS file issues during build
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 export const dynamicParams = true;
 
 function NavigationPage() {
