@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Avatar, Tooltip, Dropdown, SearchBar, Accordion, Badge, Button, Autocomplete, TreeView } from '@/components/ui';
+import { Avatar, Tooltip, Dropdown, SearchBar, Accordion, Badge, Button, Autocomplete, TreeView, Container, Toast, ToastContainer, useToast } from '@/components/ui';
 import type { AutocompleteOption, TreeNode } from '@/components/ui';
 import { PageHeader, PageContainer, Section, PageNavigation } from '@/components/layout';
 
 export default function UtilsPage() {
   const [searchValue, setSearchValue] = useState('');
+  const { toasts, showToast } = useToast();
 
   const autocompleteOptions: AutocompleteOption[] = [
     { label: 'Paris', value: 'paris' },
@@ -151,8 +152,53 @@ export default function UtilsPage() {
             </div>
           </div>
         </Section>
+
+        <Section title="Container">
+          <div className="space-y-4">
+            <div>
+              <h4 className="text-sm font-semibold mb-2">Container avec différentes largeurs</h4>
+              <Container maxWidth="sm" className="bg-gray-100 dark:bg-gray-800 p-4 rounded mb-4">
+                <p className="text-sm">Container sm (max-w-screen-sm)</p>
+              </Container>
+              <Container maxWidth="md" className="bg-gray-100 dark:bg-gray-800 p-4 rounded mb-4">
+                <p className="text-sm">Container md (max-w-screen-md)</p>
+              </Container>
+              <Container maxWidth="lg" className="bg-gray-100 dark:bg-gray-800 p-4 rounded mb-4">
+                <p className="text-sm">Container lg (max-w-screen-lg)</p>
+              </Container>
+              <Container maxWidth="xl" className="bg-gray-100 dark:bg-gray-800 p-4 rounded mb-4">
+                <p className="text-sm">Container xl (max-w-screen-xl) - Par défaut</p>
+              </Container>
+              <Container maxWidth="full" className="bg-gray-100 dark:bg-gray-800 p-4 rounded">
+                <p className="text-sm">Container full (max-w-full)</p>
+              </Container>
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold mb-2">Container sans padding</h4>
+              <Container maxWidth="md" padding={false} className="bg-gray-100 dark:bg-gray-800 p-4 rounded">
+                <p className="text-sm">Container sans padding automatique</p>
+              </Container>
+            </div>
+          </div>
+        </Section>
+
+        <Section title="Toast (Composant individuel)">
+          <div className="space-y-4">
+            <div>
+              <h4 className="text-sm font-semibold mb-2">Exemples de Toast</h4>
+              <div className="flex gap-2 flex-wrap">
+                <Button onClick={() => showToast({ message: 'Opération réussie !', type: 'success' })} variant="primary" size="sm">Toast Success</Button>
+                <Button onClick={() => showToast({ message: 'Une erreur s\'est produite', type: 'error' })} variant="primary" size="sm">Toast Error</Button>
+                <Button onClick={() => showToast({ message: 'Attention requise', type: 'warning' })} variant="primary" size="sm">Toast Warning</Button>
+                <Button onClick={() => showToast({ message: 'Information importante', type: 'info' })} variant="primary" size="sm">Toast Info</Button>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Les toasts s'affichent en haut à droite de l'écran.</p>
+          </div>
+        </Section>
       </div>
 
+      <ToastContainer toasts={toasts} />
       <PageNavigation prev={{ label: 'Données', href: '/components/data' }} home={{ label: 'Retour à l\'accueil', href: '/components' }} />
     </PageContainer>
   );

@@ -86,3 +86,17 @@ export { default as Popover } from './Popover';
 export type { PopoverProps } from './Popover';
 export { default as TreeView } from './TreeView';
 export type { TreeViewProps, TreeNode } from './TreeView';
+
+// Advanced Components
+export { default as KanbanBoard } from './KanbanBoard';
+export type { KanbanBoardProps, KanbanCard, KanbanColumn } from './KanbanBoard';
+export { default as FormBuilder } from './FormBuilder';
+export type { FormBuilderProps, FormField, FieldType } from './FormBuilder';
+export { default as Calendar } from './Calendar';
+export type { CalendarProps, CalendarEvent } from './Calendar';
+export { default as CRUDModal } from './CRUDModal';
+export type { CRUDModalProps } from './CRUDModal';
+export { default as ExportButton } from './ExportButton';
+export type { ExportButtonProps } from './ExportButton';
+export { default as FileUploadWithPreview } from './FileUploadWithPreview';
+export type { FileUploadWithPreviewProps } from './FileUploadWithPreview';

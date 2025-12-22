@@ -1,6 +1,8 @@
 'use client';
 
-import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell, EmptyState, StatsCard, Badge, Button, DataTable, DataTableEnhanced } from '@/components/ui';
+import { useState } from 'react';
+import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell, EmptyState, StatsCard, Badge, Button, DataTable, DataTableEnhanced, KanbanBoard, Calendar, CRUDModal, ExportButton, Input } from '@/components/ui';
+import type { KanbanCard, KanbanColumn, CalendarEvent } from '@/components/ui';
 import { PageHeader, PageContainer, Section, PageNavigation } from '@/components/layout';
 
 const sampleData = [
@@ -12,6 +14,28 @@ const sampleData = [
 ];
 
 export default function DataPage() {
+  const [isCRUDModalOpen, setIsCRUDModalOpen] = useState(false);
+  const [crudMode, setCrudMode] = useState<'create' | 'edit' | 'delete' | 'view'>('create');
+
+  const kanbanColumns: KanbanColumn[] = [
+    { id: '1', title: 'À faire', status: 'todo', color: '#3B82F6' },
+    { id: '2', title: 'En cours', status: 'in-progress', color: '#F59E0B' },
+    { id: '3', title: 'Terminé', status: 'done', color: '#10B981' },
+  ];
+
+  const kanbanCards: KanbanCard[] = [
+    { id: '1', title: 'Tâche 1', description: 'Description de la tâche 1', status: 'todo', priority: 'high', assignee: 'John Doe' },
+    { id: '2', title: 'Tâche 2', description: 'Description de la tâche 2', status: 'todo', priority: 'medium', assignee: 'Jane Smith' },
+    { id: '3', title: 'Tâche 3', description: 'Description de la tâche 3', status: 'in-progress', priority: 'low', assignee: 'Bob Johnson' },
+    { id: '4', title: 'Tâche 4', description: 'Description de la tâche 4', status: 'done', priority: 'high', assignee: 'Alice Brown' },
+  ];
+
+  const calendarEvents: CalendarEvent[] = [
+    { id: '1', title: 'Réunion équipe', date: new Date(), time: '10:00', color: '#3B82F6' },
+    { id: '2', title: 'Présentation client', date: new Date(Date.now() + 86400000), time: '14:00', color: '#10B981' },
+    { id: '3', title: 'Deadline projet', date: new Date(Date.now() + 172800000), time: '17:00', color: '#EF4444' },
+  ];
+
   return (
     <PageContainer>
       <PageHeader title="Composants d'Affichage de Données" description="Tableaux, cartes et composants pour afficher des données" breadcrumbs={[{ label: 'Accueil', href: '/' }, { label: 'Composants', href: '/components' }, { label: 'Données' }]} />
@@ -117,6 +141,73 @@ export default function DataPage() {
                 onSelectionChange={(selected) => console.log('Sélection:', selected)}
               />
             </div>
+          </div>
+        </Section>
+
+        <Section title="KanbanBoard">
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400">Tableau Kanban avec drag & drop pour gérer les tâches par statut.</p>
+            <KanbanBoard
+              columns={kanbanColumns}
+              cards={kanbanCards}
+              onCardMove={(cardId, newStatus) => console.log('Carte déplacée:', cardId, newStatus)}
+              onCardClick={(card) => console.log('Carte cliquée:', card)}
+              onCardAdd={(status) => console.log('Ajouter une carte au statut:', status)}
+            />
+          </div>
+        </Section>
+
+        <Section title="Calendar">
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400">Calendrier mensuel avec événements.</p>
+            <Calendar
+              events={calendarEvents}
+              onDateClick={(date) => console.log('Date cliquée:', date)}
+              onEventClick={(event) => console.log('Événement cliqué:', event)}
+            />
+          </div>
+        </Section>
+
+        <Section title="CRUDModal">
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400">Modal pour les opérations CRUD (Create, Read, Update, Delete).</p>
+            <div className="flex gap-2 flex-wrap">
+              <Button onClick={() => { setCrudMode('create'); setIsCRUDModalOpen(true); }} variant="primary">Créer</Button>
+              <Button onClick={() => { setCrudMode('edit'); setIsCRUDModalOpen(true); }} variant="outline">Modifier</Button>
+              <Button onClick={() => { setCrudMode('view'); setIsCRUDModalOpen(true); }} variant="outline">Voir</Button>
+              <Button onClick={() => { setCrudMode('delete'); setIsCRUDModalOpen(true); }} variant="danger">Supprimer</Button>
+            </div>
+            <CRUDModal
+              isOpen={isCRUDModalOpen}
+              onClose={() => setIsCRUDModalOpen(false)}
+              title={crudMode === 'create' ? 'Créer un élément' : crudMode === 'edit' ? 'Modifier un élément' : crudMode === 'delete' ? 'Supprimer un élément' : 'Voir un élément'}
+              mode={crudMode}
+              onSubmit={() => { alert(`${crudMode === 'create' ? 'Création' : 'Modification'} réussie !`); setIsCRUDModalOpen(false); }}
+              onDelete={crudMode === 'delete' ? () => { alert('Suppression réussie !'); setIsCRUDModalOpen(false); } : undefined}
+            >
+              {crudMode === 'delete' ? (
+                <p className="text-gray-700 dark:text-gray-300">Êtes-vous sûr de vouloir supprimer cet élément ? Cette action est irréversible.</p>
+              ) : (
+                <div className="space-y-4">
+                  <Input label="Nom" placeholder="Entrez le nom" />
+                  <Input label="Email" type="email" placeholder="entrez@email.com" />
+                </div>
+              )}
+            </CRUDModal>
+          </div>
+        </Section>
+
+        <Section title="ExportButton">
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400">Bouton pour exporter des données en CSV ou Excel.</p>
+            <ExportButton
+              data={sampleData}
+              filename="utilisateurs"
+              onExport={(format, data) => {
+                console.log(`Export ${format}:`, data);
+                alert(`Export ${format} déclenché !`);
+              }}
+            />
           </div>
         </Section>
       </div>

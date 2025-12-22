@@ -65,7 +65,29 @@
   --color-info-rgb: 6, 182, 212;
   
   --font-family: Inter, sans-serif;
+  --font-family-heading: Inter, sans-serif;
+  --font-family-subheading: Inter, sans-serif;
   --border-radius: 0.5rem;
+  
+  /* Typography Colors */
+  --color-text-heading: #111827;
+  --color-text-heading-rgb: 17, 24, 39;
+  --color-text-subheading: #374151;
+  --color-text-subheading-rgb: 55, 65, 81;
+  --color-text-body: #1F2937;
+  --color-text-body-rgb: 31, 41, 55;
+  --color-text-secondary: #6B7280;
+  --color-text-secondary-rgb: 107, 114, 128;
+  --color-text-link: #3B82F6;
+  --color-text-link-rgb: 59, 130, 246;
+  
+  /* Error & Validation Colors */
+  --color-error: #EF4444;
+  --color-error-rgb: 239, 68, 68;
+  --color-error-bg: #FEF2F2;
+  --color-success: #10B981;
+  --color-success-rgb: 16, 185, 129;
+  --color-success-bg: #F0FDF4;
 }
 
 /* Apply theme variables to Tailwind classes using CSS custom properties */
@@ -114,6 +136,25 @@
   .ring-primary-400 { --tw-ring-color: var(--color-primary-400) !important; }
   .ring-secondary-500 { --tw-ring-color: var(--color-secondary-500) !important; }
   .ring-danger-500 { --tw-ring-color: var(--color-danger-500) !important; }
+  
+  /* Typography Colors */
+  .text-heading { color: var(--color-text-heading) !important; }
+  .text-subheading { color: var(--color-text-subheading) !important; }
+  .text-body { color: var(--color-text-body) !important; }
+  .text-secondary-custom { color: var(--color-text-secondary) !important; }
+  .text-link { color: var(--color-text-link) !important; }
+  
+  /* Font Families */
+  .font-heading { font-family: var(--font-family-heading), sans-serif !important; }
+  .font-subheading { font-family: var(--font-family-subheading), sans-serif !important; }
+  
+  /* Error & Validation */
+  .text-error { color: var(--color-error) !important; }
+  .bg-error { background-color: var(--color-error-bg) !important; }
+  .border-error { border-color: var(--color-error) !important; }
+  .text-success { color: var(--color-success) !important; }
+  .bg-success { background-color: var(--color-success-bg) !important; }
+  .border-success { border-color: var(--color-success) !important; }
 }
 
 * {

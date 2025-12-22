@@ -12,12 +12,32 @@ import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
 
 interface ThemeConfig {
+  // Couleurs principales
   primary: string;
   secondary: string;
   danger: string;
   warning: string;
   info: string;
+  
+  // Typographie - Polices
   fontFamily: string;
+  fontFamilyHeading: string;
+  fontFamilySubheading: string;
+  
+  // Typographie - Couleurs de texte
+  textHeading: string;
+  textSubheading: string;
+  textBody: string;
+  textSecondary: string;
+  textLink: string;
+  
+  // Couleurs d'erreur et validation
+  errorColor: string;
+  errorBg: string;
+  successColor: string;
+  successBg: string;
+  
+  // Style
   borderRadius: string;
 }
 
@@ -28,6 +48,17 @@ const defaultTheme: ThemeConfig = {
   warning: '#F59E0B', // yellow-500
   info: '#06B6D4', // cyan-500
   fontFamily: 'Inter',
+  fontFamilyHeading: 'Inter',
+  fontFamilySubheading: 'Inter',
+  textHeading: '#111827', // gray-900
+  textSubheading: '#374151', // gray-700
+  textBody: '#1F2937', // gray-800
+  textSecondary: '#6B7280', // gray-500
+  textLink: '#3B82F6', // primary-500
+  errorColor: '#EF4444', // red-500
+  errorBg: '#FEF2F2', // red-50
+  successColor: '#10B981', // green-500
+  successBg: '#F0FDF4', // green-50
   borderRadius: '0.5rem',
 };
 
@@ -37,6 +68,9 @@ const fontOptions = [
   { label: 'Open Sans', value: 'Open Sans' },
   { label: 'Poppins', value: 'Poppins' },
   { label: 'Montserrat', value: 'Montserrat' },
+  { label: 'Playfair Display', value: 'Playfair Display' },
+  { label: 'Lora', value: 'Lora' },
+  { label: 'Merriweather', value: 'Merriweather' },
 ];
 
 const borderRadiusOptions = [
@@ -118,9 +152,38 @@ export function ThemeManager() {
     generateColorShades(theme.warning, 'warning');
     generateColorShades(theme.info, 'info');
 
-    // Appliquer la police
+    // Appliquer les polices
     root.style.setProperty('--font-family', theme.fontFamily);
+    root.style.setProperty('--font-family-heading', theme.fontFamilyHeading);
+    root.style.setProperty('--font-family-subheading', theme.fontFamilySubheading);
     document.body.style.fontFamily = `var(--font-family), sans-serif`;
+
+    // Appliquer les couleurs de texte
+    const hexToRgbText = (hex: string) => {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result
+        ? `${parseInt(result[1]!, 16)}, ${parseInt(result[2]!, 16)}, ${parseInt(result[3]!, 16)}`
+        : null;
+    };
+
+    root.style.setProperty('--color-text-heading', theme.textHeading);
+    root.style.setProperty('--color-text-heading-rgb', hexToRgbText(theme.textHeading) || '17, 24, 39');
+    root.style.setProperty('--color-text-subheading', theme.textSubheading);
+    root.style.setProperty('--color-text-subheading-rgb', hexToRgbText(theme.textSubheading) || '55, 65, 81');
+    root.style.setProperty('--color-text-body', theme.textBody);
+    root.style.setProperty('--color-text-body-rgb', hexToRgbText(theme.textBody) || '31, 41, 55');
+    root.style.setProperty('--color-text-secondary', theme.textSecondary);
+    root.style.setProperty('--color-text-secondary-rgb', hexToRgbText(theme.textSecondary) || '107, 114, 128');
+    root.style.setProperty('--color-text-link', theme.textLink);
+    root.style.setProperty('--color-text-link-rgb', hexToRgbText(theme.textLink) || '59, 130, 246');
+
+    // Appliquer les couleurs d'erreur et validation
+    root.style.setProperty('--color-error', theme.errorColor);
+    root.style.setProperty('--color-error-rgb', hexToRgbText(theme.errorColor) || '239, 68, 68');
+    root.style.setProperty('--color-error-bg', theme.errorBg);
+    root.style.setProperty('--color-success', theme.successColor);
+    root.style.setProperty('--color-success-rgb', hexToRgbText(theme.successColor) || '16, 185, 129');
+    root.style.setProperty('--color-success-bg', theme.successBg);
 
     // Appliquer le border radius
     root.style.setProperty('--border-radius', theme.borderRadius);
@@ -163,7 +226,7 @@ export function ThemeManager() {
   }
 
   return (
-    <Card title="Gestionnaire de Couleurs" className="space-y-6">
+    <Card title="Gestionnaire de Thème Avancé" className="space-y-6">
       {/* Colors */}
       <div className="space-y-4">
         <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -269,18 +332,225 @@ export function ThemeManager() {
       {/* Typography */}
       <div className="space-y-4">
         <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-          Typographie
+          Typographie - Polices
         </h3>
 
         <div>
           <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
-            Police de caractères
+            Police principale (corps de texte)
           </label>
           <Select
             options={fontOptions}
             value={theme.fontFamily}
             onChange={(e) => updateColor('fontFamily', e.target.value)}
           />
+        </div>
+
+        <div>
+          <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+            Police des titres
+          </label>
+          <Select
+            options={fontOptions}
+            value={theme.fontFamilyHeading}
+            onChange={(e) => updateColor('fontFamilyHeading', e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+            Police des sous-titres
+          </label>
+          <Select
+            options={fontOptions}
+            value={theme.fontFamilySubheading}
+            onChange={(e) => updateColor('fontFamilySubheading', e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* Text Colors */}
+      <div className="space-y-4">
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+          Typographie - Couleurs de texte
+        </h3>
+
+        <div>
+          <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+            Couleur des titres
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="color"
+              value={theme.textHeading}
+              onChange={(e) => updateColor('textHeading', e.target.value)}
+              className="h-10 w-20 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
+            />
+            <Input
+              value={theme.textHeading}
+              onChange={(e) => updateColor('textHeading', e.target.value)}
+              className="flex-1"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+            Couleur des sous-titres
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="color"
+              value={theme.textSubheading}
+              onChange={(e) => updateColor('textSubheading', e.target.value)}
+              className="h-10 w-20 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
+            />
+            <Input
+              value={theme.textSubheading}
+              onChange={(e) => updateColor('textSubheading', e.target.value)}
+              className="flex-1"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+            Couleur du texte principal
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="color"
+              value={theme.textBody}
+              onChange={(e) => updateColor('textBody', e.target.value)}
+              className="h-10 w-20 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
+            />
+            <Input
+              value={theme.textBody}
+              onChange={(e) => updateColor('textBody', e.target.value)}
+              className="flex-1"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+            Couleur du texte secondaire
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="color"
+              value={theme.textSecondary}
+              onChange={(e) => updateColor('textSecondary', e.target.value)}
+              className="h-10 w-20 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
+            />
+            <Input
+              value={theme.textSecondary}
+              onChange={(e) => updateColor('textSecondary', e.target.value)}
+              className="flex-1"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+            Couleur des liens
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="color"
+              value={theme.textLink}
+              onChange={(e) => updateColor('textLink', e.target.value)}
+              className="h-10 w-20 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
+            />
+            <Input
+              value={theme.textLink}
+              onChange={(e) => updateColor('textLink', e.target.value)}
+              className="flex-1"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Error & Validation Colors */}
+      <div className="space-y-4">
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+          Couleurs d'erreur et validation
+        </h3>
+
+        <div>
+          <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+            Couleur d'erreur
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="color"
+              value={theme.errorColor}
+              onChange={(e) => updateColor('errorColor', e.target.value)}
+              className="h-10 w-20 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
+            />
+            <Input
+              value={theme.errorColor}
+              onChange={(e) => updateColor('errorColor', e.target.value)}
+              className="flex-1"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+            Fond d'erreur
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="color"
+              value={theme.errorBg}
+              onChange={(e) => updateColor('errorBg', e.target.value)}
+              className="h-10 w-20 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
+            />
+            <Input
+              value={theme.errorBg}
+              onChange={(e) => updateColor('errorBg', e.target.value)}
+              className="flex-1"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+            Couleur de succès
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="color"
+              value={theme.successColor}
+              onChange={(e) => updateColor('successColor', e.target.value)}
+              className="h-10 w-20 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
+            />
+            <Input
+              value={theme.successColor}
+              onChange={(e) => updateColor('successColor', e.target.value)}
+              className="flex-1"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+            Fond de succès
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="color"
+              value={theme.successBg}
+              onChange={(e) => updateColor('successBg', e.target.value)}
+              className="h-10 w-20 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
+            />
+            <Input
+              value={theme.successBg}
+              onChange={(e) => updateColor('successBg', e.target.value)}
+              className="flex-1"
+            />
+          </div>
         </div>
       </div>
 
