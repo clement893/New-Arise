@@ -6,6 +6,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { logger } from '@/lib/logger';
 
 export function useCSRF() {
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
@@ -18,7 +19,9 @@ export function useCSRF() {
         const data = await response.json();
         setCsrfToken(data.csrfToken);
       } catch (error) {
-        console.error('Failed to fetch CSRF token:', error);
+        logger.error('Failed to fetch CSRF token', error instanceof Error ? error : new Error(String(error)), {
+          type: 'csrf',
+        });
       } finally {
         setLoading(false);
       }

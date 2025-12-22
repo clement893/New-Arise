@@ -3,6 +3,8 @@
  * Outils pour le monitoring et l'optimisation des performances
  */
 
+import { logger } from './logger';
+
 /**
  * Mesure le temps d'exécution d'une fonction
  */
@@ -20,7 +22,7 @@ export function measurePerformance<T>(
   const duration = end - start;
 
   if (label) {
-    console.log(`[Performance] ${label}: ${duration.toFixed(2)}ms`);
+    logger.performance(label, duration, 'ms');
   }
 
   return result;
@@ -43,7 +45,7 @@ export async function measurePerformanceAsync<T>(
   const duration = end - start;
 
   if (label) {
-    console.log(`[Performance] ${label}: ${duration.toFixed(2)}ms`);
+    logger.performance(label, duration, 'ms');
   }
 
   return result;
@@ -87,7 +89,13 @@ export function reportWebVitals(metric: {
     //   });
     // }
   } else {
-    console.log('[Web Vitals]', metric);
+    logger.info('Web Vitals metric', {
+      id: metric.id,
+      name: metric.name,
+      value: metric.value,
+      label: metric.label,
+      type: 'web_vitals',
+    });
   }
 }
 

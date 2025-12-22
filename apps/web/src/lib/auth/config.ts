@@ -5,6 +5,7 @@
 
 import type { NextAuthConfig } from 'next-auth';
 import Google from 'next-auth/providers/google';
+import { logger } from '@/lib/logger';
 
 export const authConfig: NextAuthConfig = {
   providers: [
@@ -129,7 +130,10 @@ async function refreshAccessToken(token: {
       refreshToken: refreshedTokens.refreshToken ?? token.refreshToken,
     };
   } catch (error) {
-    console.error('Error refreshing access token:', error);
+    logger.error('Error refreshing access token', error instanceof Error ? error : new Error(String(error)), {
+      hasRefreshToken: !!token.refreshToken,
+      type: 'auth',
+    });
 
     return {
       ...token,

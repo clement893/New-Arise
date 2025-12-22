@@ -8,6 +8,7 @@
 import { useEffect } from 'react';
 import { ErrorDisplay } from '@/components/errors/ErrorDisplay';
 import Button from '@/components/ui/Button';
+import { logger } from '@/lib/logger';
 
 export default function Error({
   error,
@@ -18,7 +19,10 @@ export default function Error({
 }) {
   useEffect(() => {
     // Log error to error reporting service
-    console.error('Global error caught:', error);
+    logger.error('Error boundary caught error', error, {
+      digest: error.digest,
+      errorBoundary: 'error',
+    });
     
     // Send to Sentry if configured
     if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
@@ -31,7 +35,7 @@ export default function Error({
         });
       } catch (e) {
         // Sentry not available, continue without it
-        console.warn('Sentry not available:', e);
+        logger.warn('Sentry not available', { error: e instanceof Error ? e.message : String(e) });
       }
     }
   }, [error]);

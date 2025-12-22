@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Avatar, Tooltip, Dropdown, SearchBar, Accordion, Badge, Button, Autocomplete, TreeView, Container, ToastContainer, useToast, CommandPalette, useCommandPalette, MultiSelect } from '@/components/ui';
 import type { AutocompleteOption, TreeNode, Command, MultiSelectOption } from '@/components/ui';
 import { PageHeader, PageContainer, Section, PageNavigation } from '@/components/layout';
+import { logger } from '@/lib/logger';
 
 export default function UtilsPage() {
   const [searchValue, setSearchValue] = useState('');
@@ -165,7 +166,7 @@ export default function UtilsPage() {
                 options={autocompleteOptions}
                 placeholder="Tapez pour rechercher une ville..."
                 minChars={0}
-                onSelect={(option) => console.log('Sélectionné:', option)}
+                onSelect={(option) => logger.info('Autocomplete selection', { option })}
               />
             </div>
             <div>

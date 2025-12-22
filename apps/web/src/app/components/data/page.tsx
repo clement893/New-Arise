@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell, EmptyState, StatsCard, Badge, Button, DataTable, DataTableEnhanced, KanbanBoard, Calendar, CRUDModal, ExportButton, Input } from '@/components/ui';
 import type { KanbanCard, KanbanColumn, CalendarEvent } from '@/components/ui';
 import { PageHeader, PageContainer, Section, PageNavigation } from '@/components/layout';
+import { logger } from '@/lib/logger';
 
 const sampleData = [
   { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin', status: 'active' },
@@ -204,7 +205,7 @@ export default function DataPage() {
               data={sampleData}
               filename="utilisateurs"
               onExport={(format, data) => {
-                console.log(`Export ${format}:`, data);
+                logger.userAction('Data export', { format, recordCount: data.length });
                 alert(`Export ${format} déclenché !`);
               }}
             />

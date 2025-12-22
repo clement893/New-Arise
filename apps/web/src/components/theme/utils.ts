@@ -4,6 +4,7 @@
  */
 
 import type { ThemeConfig } from './types';
+import { logger } from '@/lib/logger';
 
 /**
  * Convert hex color to RGB
@@ -132,7 +133,7 @@ export function loadThemeFromStorage(): ThemeConfig | null {
   try {
     return JSON.parse(savedTheme) as ThemeConfig;
   } catch (e) {
-    console.error('Erreur lors du chargement du thème:', e);
+    logger.error('Failed to load theme from storage', e instanceof Error ? e : new Error(String(e)), { savedTheme });
     return null;
   }
 }
