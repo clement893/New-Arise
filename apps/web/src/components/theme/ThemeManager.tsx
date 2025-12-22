@@ -73,7 +73,7 @@ export function ThemeManager() {
       <div className="space-y-4">
         <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Presets de Thème</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {Object.entries(themePresets).map(([name, preset]) => (
+          {Object.entries(themePresets).map(([name]) => (
             <button
               key={name}
               onClick={() => applyPreset(name as ThemePresetName)}
