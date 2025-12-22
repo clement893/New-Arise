@@ -1,17 +1,9 @@
-import { Suspense } from 'react';
-import nextDynamic from 'next/dynamic';
-import { Spinner } from '@/components/ui';
+import ThemeContent from './ThemeContent';
 
-const ThemeContent = nextDynamic(() => import('./ThemeContent'), {
-  ssr: false,
-});
-
+// Force dynamic rendering to avoid CSS file issues during build
 export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
 
 export default function ThemePage() {
-  return (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Spinner /></div>}>
-      <ThemeContent />
-    </Suspense>
-  );
+  return <ThemeContent />;
 }
