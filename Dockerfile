@@ -15,13 +15,14 @@ RUN pnpm install --no-frozen-lockfile
 # Build application
 FROM base AS builder
 WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./package.json
 COPY --from=deps /app/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=deps /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 COPY --from=deps /app/apps/web/package.json ./apps/web/package.json
 COPY --from=deps /app/packages/types/package.json ./packages/types/package.json
-# Reinstall to recreate symlinks for binaries
-RUN pnpm install --no-frozen-lockfile --prefer-offline
+# Reinstall to recreate symlinks for binaries (offline mode to use cached packages)
+RUN pnpm install --offline --no-frozen-lockfile || pnpm install --no-frozen-lockfile
 COPY . .
 ENV PATH="/app/node_modules/.bin:$PATH"
 RUN pnpm build
