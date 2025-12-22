@@ -1,7 +1,6 @@
 'use client';
 
 import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell, EmptyState, StatsCard, Badge, Button, DataTable, DataTableEnhanced } from '@/components/ui';
-import type { Column } from '@/components/ui';
 import { PageHeader, PageContainer, Section, PageNavigation } from '@/components/layout';
 
 const sampleData = [
