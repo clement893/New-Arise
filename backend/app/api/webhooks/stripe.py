@@ -10,8 +10,7 @@ from datetime import datetime
 from app.core.database import get_db
 from app.services.stripe_service import StripeService
 from app.services.subscription_service import SubscriptionService
-from app.models.subscription import SubscriptionStatus
-from app.models.invoice import InvoiceStatus
+from app.utils.stripe_helpers import map_stripe_status, parse_timestamp
 from app.core.logging import logger
 
 router = APIRouter(prefix="/webhooks/stripe", tags=["webhooks"])
@@ -87,72 +86,67 @@ async def handle_checkout_completed(event_object: dict, db: AsyncSession, subscr
     )
 
 
-async def handle_subscription_created(event_object: dict, db: AsyncSession, subscription_service: SubscriptionService):
+def _parse_subscription_periods(event_object: dict) -> tuple[datetime | None, datetime | None]:
+    """Parse subscription period start and end from Stripe event"""
+    period_start = None
+    period_end = None
+    
+    if start_ts := parse_timestamp(event_object.get("current_period_start", 0)):
+        period_start = datetime.fromtimestamp(start_ts)
+    if end_ts := parse_timestamp(event_object.get("current_period_end", 0)):
+        period_end = datetime.fromtimestamp(end_ts)
+    
+    return period_start, period_end
+
+
+async def handle_subscription_created(
+    event_object: dict, 
+    db: AsyncSession, 
+    subscription_service: SubscriptionService
+):
     """Handle customer.subscription.created event"""
     subscription_id = event_object.get("id")
-    customer_id = event_object.get("customer")
-    status_str = event_object.get("status")
+    status_str = event_object.get("status", "")
     
-    # Map Stripe status to our status
-    status_map = {
-        "active": SubscriptionStatus.ACTIVE,
-        "trialing": SubscriptionStatus.TRIALING,
-        "past_due": SubscriptionStatus.PAST_DUE,
-        "canceled": SubscriptionStatus.CANCELED,
-        "unpaid": SubscriptionStatus.UNPAID,
-    }
-    
-    status = status_map.get(status_str, SubscriptionStatus.INCOMPLETE)
-    
-    current_period_start = None
-    current_period_end = None
-    
-    if event_object.get("current_period_start"):
-        current_period_start = datetime.fromtimestamp(event_object.get("current_period_start"))
-    if event_object.get("current_period_end"):
-        current_period_end = datetime.fromtimestamp(event_object.get("current_period_end"))
+    status = map_stripe_status(status_str)
+    period_start, period_end = _parse_subscription_periods(event_object)
     
     await subscription_service.update_subscription_status(
         stripe_subscription_id=subscription_id,
         status=status,
-        current_period_start=current_period_start,
-        current_period_end=current_period_end,
+        current_period_start=period_start,
+        current_period_end=period_end,
     )
 
 
-async def handle_subscription_updated(event_object: dict, db: AsyncSession, subscription_service: SubscriptionService):
+async def handle_subscription_updated(
+    event_object: dict, 
+    db: AsyncSession, 
+    subscription_service: SubscriptionService
+):
     """Handle customer.subscription.updated event"""
     subscription_id = event_object.get("id")
-    status_str = event_object.get("status")
+    status_str = event_object.get("status", "")
     
-    status_map = {
-        "active": SubscriptionStatus.ACTIVE,
-        "trialing": SubscriptionStatus.TRIALING,
-        "past_due": SubscriptionStatus.PAST_DUE,
-        "canceled": SubscriptionStatus.CANCELED,
-        "unpaid": SubscriptionStatus.UNPAID,
-    }
-    
-    status = status_map.get(status_str, SubscriptionStatus.INCOMPLETE)
-    
-    current_period_start = None
-    current_period_end = None
-    
-    if event_object.get("current_period_start"):
-        current_period_start = datetime.fromtimestamp(event_object.get("current_period_start"))
-    if event_object.get("current_period_end"):
-        current_period_end = datetime.fromtimestamp(event_object.get("current_period_end"))
+    status = map_stripe_status(status_str)
+    period_start, period_end = _parse_subscription_periods(event_object)
     
     await subscription_service.update_subscription_status(
         stripe_subscription_id=subscription_id,
         status=status,
-        current_period_start=current_period_start,
-        current_period_end=current_period_end,
+        current_period_start=period_start,
+        current_period_end=period_end,
     )
 
 
-async def handle_subscription_deleted(event_object: dict, db: AsyncSession, subscription_service: SubscriptionService):
+async def handle_subscription_deleted(
+    event_object: dict, 
+    db: AsyncSession, 
+    subscription_service: SubscriptionService
+):
     """Handle customer.subscription.deleted event"""
+    from app.models.subscription import SubscriptionStatus
+    
     subscription_id = event_object.get("id")
     
     await subscription_service.update_subscription_status(
@@ -163,14 +157,19 @@ async def handle_subscription_deleted(event_object: dict, db: AsyncSession, subs
 
 async def handle_invoice_paid(event_object: dict, db: AsyncSession):
     """Handle invoice.paid event"""
-    # Update invoice status in database
-    # Implementation depends on your Invoice model
-    pass
+    # TODO: Implement invoice paid handler
+    # - Update invoice status in database
+    # - Send confirmation email
+    # - Update subscription if needed
+    logger.info(f"Invoice paid: {event_object.get('id')}")
 
 
 async def handle_invoice_payment_failed(event_object: dict, db: AsyncSession):
     """Handle invoice.payment_failed event"""
-    # Handle failed payment
-    # Send notification, update subscription status, etc.
-    pass
+    # TODO: Implement payment failed handler
+    # - Update invoice status
+    # - Send notification email
+    # - Update subscription status if needed
+    # - Log for monitoring
+    logger.warning(f"Invoice payment failed: {event_object.get('id')}")
 

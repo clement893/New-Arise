@@ -6,9 +6,11 @@ Service for managing subscriptions
 from typing import List, Optional
 from datetime import datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from app.models import Plan, Subscription, User
+from app.models.plan import PlanStatus
 from app.models.subscription import SubscriptionStatus
 from app.services.stripe_service import StripeService
 
@@ -20,9 +22,13 @@ class SubscriptionService:
         self.db = db
         self.stripe_service = StripeService(db)
 
-    async def get_user_subscription(self, user_id: int) -> Optional[Subscription]:
-        """Get user's active subscription"""
-        result = await self.db.execute(
+    async def get_user_subscription(
+        self, 
+        user_id: int, 
+        include_plan: bool = True
+    ) -> Optional[Subscription]:
+        """Get user's active subscription with optional plan eager loading"""
+        query = (
             select(Subscription)
             .where(Subscription.user_id == user_id)
             .where(Subscription.status.in_([
@@ -32,13 +38,17 @@ class SubscriptionService:
             .order_by(Subscription.created_at.desc())
             .limit(1)
         )
+        
+        if include_plan:
+            query = query.options(selectinload(Subscription.plan))
+        
+        result = await self.db.execute(query)
         return result.scalar_one_or_none()
 
     async def get_all_plans(self, active_only: bool = True) -> List[Plan]:
-        """Get all plans"""
+        """Get all plans, optionally filtered by active status"""
         query = select(Plan)
         if active_only:
-            from app.models.plan import PlanStatus
             query = query.where(Plan.status == PlanStatus.ACTIVE)
         query = query.order_by(Plan.amount.asc())
         
@@ -112,12 +122,8 @@ class SubscriptionService:
         return subscription
 
     async def cancel_subscription(self, subscription_id: int) -> bool:
-        """Cancel subscription"""
-        result = await self.db.execute(
-            select(Subscription).where(Subscription.id == subscription_id)
-        )
-        subscription = result.scalar_one_or_none()
-
+        """Cancel subscription at period end"""
+        subscription = await self._get_subscription_by_id(subscription_id)
         if not subscription:
             return False
 
@@ -127,20 +133,24 @@ class SubscriptionService:
             subscription.cancel_at_period_end = True
             subscription.canceled_at = datetime.utcnow()
             await self.db.commit()
+            await self.db.refresh(subscription)
 
         return success
+
+    async def _get_subscription_by_id(self, subscription_id: int) -> Optional[Subscription]:
+        """Helper to get subscription by ID"""
+        result = await self.db.execute(
+            select(Subscription).where(Subscription.id == subscription_id)
+        )
+        return result.scalar_one_or_none()
 
     async def upgrade_plan(
         self,
         subscription_id: int,
         new_plan_id: int
     ) -> Optional[Subscription]:
-        """Upgrade subscription to new plan"""
-        result = await self.db.execute(
-            select(Subscription).where(Subscription.id == subscription_id)
-        )
-        subscription = result.scalar_one_or_none()
-
+        """Upgrade subscription to new plan with proration"""
+        subscription = await self._get_subscription_by_id(subscription_id)
         if not subscription:
             return None
 
@@ -154,8 +164,9 @@ class SubscriptionService:
             subscription.plan_id = new_plan_id
             await self.db.commit()
             await self.db.refresh(subscription)
+            return subscription
 
-        return subscription
+        return None
 
     async def check_subscription_expired(self, user_id: int) -> bool:
         """Check if user's subscription has expired"""

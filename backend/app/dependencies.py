@@ -14,7 +14,21 @@ from app.core.security import decode_token
 security = HTTPBearer()
 
 
-async def get_current_user(
+async def get_subscription_service(
+    db: AsyncSession = Depends(get_db),
+) -> SubscriptionService:
+    """Dependency to get SubscriptionService instance"""
+    return SubscriptionService(db)
+
+
+def get_stripe_service(
+    db: AsyncSession = Depends(get_db),
+) -> StripeService:
+    """Dependency to get StripeService instance"""
+    return StripeService(db)
+
+
+def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_db),
 ) -> User:

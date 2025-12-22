@@ -1,63 +1,28 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Card, Button, Alert } from '@/components/ui';
 import { api } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
-
-interface Subscription {
-  id: number;
-  plan_id: number;
-  plan: {
-    id: number;
-    name: string;
-    amount: number;
-    currency: string;
-    interval: string;
-  };
-  status: string;
-  current_period_start: string;
-  current_period_end: string;
-  cancel_at_period_end: boolean;
-}
+import { useSubscription } from '@/hooks/useSubscription';
+import { formatDate, formatPrice, formatInterval } from '@/utils/subscriptions';
 
 export default function SubscriptionsPage() {
-  const { data: session, status } = useSession();
+  const { status: sessionStatus } = useSession();
   const router = useRouter();
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { subscription, isLoading, error, refresh } = useSubscription();
   const [isCanceling, setIsCanceling] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/auth/signin');
-      return;
-    }
-
-    if (status === 'authenticated') {
-      loadSubscription();
-    }
-  }, [status, router]);
-
-  const loadSubscription = async () => {
-    try {
-      const response = await api.get('/v1/subscriptions/me');
-      setSubscription(response.data);
-    } catch (err: any) {
-      if (err.response?.status === 404) {
-        setError('No active subscription found');
-      } else {
-        setError('Failed to load subscription');
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  if (sessionStatus === 'unauthenticated') {
+    router.push('/auth/signin');
+    return null;
+  }
 
   const handleManageBilling = async () => {
+    setActionError(null);
     try {
       const returnUrl = `${window.location.origin}/subscriptions`;
       const response = await api.post('/v1/subscriptions/portal', null, {
@@ -67,8 +32,8 @@ export default function SubscriptionsPage() {
       if (response.data.url) {
         window.location.href = response.data.url;
       }
-    } catch (err) {
-      setError('Failed to open billing portal');
+    } catch (err: any) {
+      setActionError(err.response?.data?.detail || 'Failed to open billing portal');
     }
   };
 
@@ -78,17 +43,18 @@ export default function SubscriptionsPage() {
     }
 
     setIsCanceling(true);
+    setActionError(null);
     try {
       await api.post('/v1/subscriptions/cancel');
-      await loadSubscription();
-    } catch (err) {
-      setError('Failed to cancel subscription');
+      await refresh();
+    } catch (err: any) {
+      setActionError(err.response?.data?.detail || 'Failed to cancel subscription');
     } finally {
       setIsCanceling(false);
     }
   };
 
-  if (status === 'loading' || isLoading) {
+  if (sessionStatus === 'loading' || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin" />
@@ -112,25 +78,13 @@ export default function SubscriptionsPage() {
     );
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
-  const formatPrice = (amount: number) => {
-    return `$${(amount / 100).toFixed(2)}`;
-  };
-
   return (
     <div className="container mx-auto px-4 py-16">
       <h1 className="text-4xl font-bold mb-8">Subscription Management</h1>
 
-      {error && (
+      {(error || actionError) && (
         <Alert variant="error" className="mb-6">
-          {error}
+          {actionError || error}
         </Alert>
       )}
 
@@ -147,7 +101,8 @@ export default function SubscriptionsPage() {
           <div>
             <h2 className="text-sm font-medium text-gray-500 mb-1">Price</h2>
             <p className="text-2xl font-bold">
-              {formatPrice(subscription.plan.amount)} / {subscription.plan.interval}
+              {formatPrice(subscription.plan.amount, subscription.plan.currency)}
+              {formatInterval(subscription.plan.interval)}
             </p>
           </div>
           <div>
