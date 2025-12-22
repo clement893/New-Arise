@@ -1,8 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { Sidebar, Tabs, TabList, Tab, TabPanels, TabPanel, Pagination, Button } from '@/components/ui';
+import dynamicImport from 'next/dynamic';
 import { PageHeader, PageContainer, Section, PageNavigation } from '@/components/layout';
+
+// Dynamically import components to avoid CSS issues during build
+const Sidebar = dynamicImport(() => import('@/components/ui/Sidebar').then(mod => ({ default: mod.default })), { ssr: false });
+const Tabs = dynamicImport(() => import('@/components/ui/Tabs').then(mod => ({ default: mod.Tabs })), { ssr: false });
+const TabList = dynamicImport(() => import('@/components/ui/Tabs').then(mod => ({ default: mod.TabList })), { ssr: false });
+const Tab = dynamicImport(() => import('@/components/ui/Tabs').then(mod => ({ default: mod.Tab })), { ssr: false });
+const TabPanels = dynamicImport(() => import('@/components/ui/Tabs').then(mod => ({ default: mod.TabPanels })), { ssr: false });
+const TabPanel = dynamicImport(() => import('@/components/ui/Tabs').then(mod => ({ default: mod.TabPanel })), { ssr: false });
+const Pagination = dynamicImport(() => import('@/components/ui/Pagination').then(mod => ({ default: mod.default })), { ssr: false });
+const Button = dynamicImport(() => import('@/components/ui/Button').then(mod => ({ default: mod.default })), { ssr: false });
 
 // Disable static generation to avoid CSS file issues during build
 export const dynamic = 'force-dynamic';
