@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Input, Textarea, Select, Checkbox, Radio, Switch, DatePicker, FileUpload, Button, Form, FormField, FormBuilder, RichTextEditor } from '@/components/ui';
-import type { FormField as FormBuilderField } from '@/components/ui';
+import type { FormField as FormBuilderField } from '@/components/ui/FormBuilder';
 import { PageHeader, PageContainer, Section, PageNavigation } from '@/components/layout';
 
 export default function FormsPage() {
@@ -143,14 +143,14 @@ export default function FormsPage() {
             <p className="text-sm text-gray-600 dark:text-gray-400">Constructeur de formulaires dynamiques à partir d'une configuration.</p>
             <FormBuilder
               fields={[
-                { name: 'name', label: 'Nom complet', type: 'text', placeholder: 'John Doe', required: true },
-                { name: 'email', label: 'Email', type: 'email', placeholder: 'john@example.com', required: true },
-                { name: 'country', label: 'Pays', type: 'select', options: [{ label: 'France', value: 'fr' }, { label: 'États-Unis', value: 'us' }], required: true },
-                { name: 'message', label: 'Message', type: 'textarea', placeholder: 'Votre message...', helperText: 'Maximum 500 caractères' },
-                { name: 'newsletter', label: 'S\'abonner à la newsletter', type: 'checkbox', defaultValue: false },
-                { name: 'plan', label: 'Plan', type: 'radio', options: [{ label: 'Basique', value: 'basic' }, { label: 'Premium', value: 'premium' }], defaultValue: 'basic' },
-                { name: 'birthdate', label: 'Date de naissance', type: 'date' },
-              ] as FormBuilderField[]}
+                { name: 'name', label: 'Nom complet', type: 'text' as const, placeholder: 'John Doe', required: true },
+                { name: 'email', label: 'Email', type: 'email' as const, placeholder: 'john@example.com', required: true },
+                { name: 'country', label: 'Pays', type: 'select' as const, options: [{ label: 'France', value: 'fr' }, { label: 'États-Unis', value: 'us' }], required: true },
+                { name: 'message', label: 'Message', type: 'textarea' as const, placeholder: 'Votre message...', helperText: 'Maximum 500 caractères' },
+                { name: 'newsletter', label: 'S\'abonner à la newsletter', type: 'checkbox' as const, defaultValue: false },
+                { name: 'plan', label: 'Plan', type: 'radio' as const, options: [{ label: 'Basique', value: 'basic' }, { label: 'Premium', value: 'premium' }], defaultValue: 'basic' },
+                { name: 'birthdate', label: 'Date de naissance', type: 'date' as const },
+              ] satisfies FormBuilderField[]}
               onSubmit={(data) => {
                 console.log('Données du formulaire:', data);
                 alert('Formulaire soumis avec succès !');
