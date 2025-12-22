@@ -38,7 +38,9 @@ export default function Stepper({
   const isHorizontal = orientation === 'horizontal';
 
   const getStepStatus = (index: number) => {
-    if (steps[index].error) return 'error';
+    const step = steps[index];
+    if (!step) return 'upcoming';
+    if (step.error) return 'error';
     if (index < currentStep) return 'completed';
     if (index === currentStep) return 'current';
     return 'upcoming';
@@ -46,7 +48,9 @@ export default function Stepper({
 
   const handleStepClick = (index: number) => {
     if (!allowNavigation) return;
-    if (index <= currentStep || steps[index].optional) {
+    const step = steps[index];
+    if (!step) return;
+    if (index <= currentStep || step.optional) {
       onStepClick?.(index);
     }
   };
