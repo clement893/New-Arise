@@ -8,6 +8,20 @@ try {
   console.log('Sentry not installed, skipping Sentry configuration');
 }
 
+// Create CSS file before Next.js starts building
+const path = require('path');
+const fs = require('fs');
+const cssDir = path.join(process.cwd(), '.next', 'browser');
+const cssFile = path.join(cssDir, 'default-stylesheet.css');
+try {
+  if (!fs.existsSync(cssDir)) {
+    fs.mkdirSync(cssDir, { recursive: true });
+  }
+  fs.writeFileSync(cssFile, '', 'utf8');
+} catch (e) {
+  // Ignore errors - webpack plugin will handle it
+}
+
 const nextConfig = {
   // Performance optimizations
   compress: true,
