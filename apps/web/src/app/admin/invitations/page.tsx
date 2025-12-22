@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
+import { getErrorMessage, getErrorDetail } from '@/lib/error-utils';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
@@ -88,8 +89,8 @@ export default function InvitationsPage() {
           expires_at: '2024-01-08T10:00:00Z',
         },
       ]);
-    } catch (err: any) {
-      setError(err.response?.data?.detail || err.message || 'Erreur lors du chargement');
+    } catch (err: unknown) {
+      setError(getErrorDetail(err) || getErrorMessage(err, 'Erreur lors du chargement'));
     } finally {
       setLoading(false);
     }
@@ -108,8 +109,8 @@ export default function InvitationsPage() {
       setShowCreateModal(false);
       setNewInvitationEmail('');
       setNewInvitationRole('user');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Erreur lors de la création');
+    } catch (err: unknown) {
+      setError(getErrorDetail(err) || getErrorMessage(err, 'Erreur lors de la création'));
     }
   };
 
@@ -124,8 +125,8 @@ export default function InvitationsPage() {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       void invitationId; // Will be used when API is implemented
       await loadInvitations();
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Erreur lors de l\'annulation');
+    } catch (err: unknown) {
+      setError(getErrorDetail(err) || getErrorMessage(err, 'Erreur lors de l\'annulation'));
     }
   };
 
@@ -136,8 +137,8 @@ export default function InvitationsPage() {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       void invitationId; // Will be used when API is implemented
       await loadInvitations();
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Erreur lors de la réenvoi');
+    } catch (err: unknown) {
+      setError(getErrorDetail(err) || getErrorMessage(err, 'Erreur lors de la réenvoi'));
     }
   };
 

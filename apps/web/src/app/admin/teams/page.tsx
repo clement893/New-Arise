@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
+import { getErrorMessage, getErrorDetail } from '@/lib/error-utils';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
@@ -71,8 +72,8 @@ export default function TeamsPage() {
         { id: '2', name: 'Équipe Donateurs', description: 'Gestion de la relation donateurs', member_count: 3, organization_id: '1', created_at: '2024-01-20' },
         { id: '3', name: 'Équipe Technique', description: 'Développement et maintenance', member_count: 4, organization_id: '1', created_at: '2024-02-01' },
       ]);
-    } catch (err: any) {
-      setError(err.response?.data?.detail || err.message || 'Erreur lors du chargement');
+    } catch (err: unknown) {
+      setError(getErrorDetail(err) || getErrorMessage(err, 'Erreur lors du chargement'));
     } finally {
       setLoading(false);
     }
@@ -92,7 +93,7 @@ export default function TeamsPage() {
         { id: '2', user_id: '2', user_name: 'Marie Martin', user_email: 'marie@example.com', role: 'Member', joined_at: '2024-01-16' },
         { id: '3', user_id: '3', user_name: 'Pierre Durand', user_email: 'pierre@example.com', role: 'Member', joined_at: '2024-01-17' },
       ]);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error loading team members:', err);
     }
   };
@@ -110,8 +111,8 @@ export default function TeamsPage() {
       setShowCreateModal(false);
       setNewTeamName('');
       setNewTeamDescription('');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Erreur lors de la création');
+    } catch (err: unknown) {
+      setError(getErrorDetail(err) || getErrorMessage(err, 'Erreur lors de la création'));
     }
   };
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
+import { getErrorMessage, getErrorDetail } from '@/lib/error-utils';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
@@ -63,8 +64,8 @@ export default function RBACPage() {
         { id: '3', name: 'Manager', permissions: ['donateurs.read', 'donateurs.write', 'campagnes.read'], description: 'Gestion des donateurs et campagnes' },
         { id: '4', name: 'User', permissions: ['donateurs.read'], description: 'Accès en lecture seule' },
       ]);
-    } catch (err: any) {
-      setError(err.response?.data?.detail || err.message || 'Erreur lors du chargement');
+    } catch (err: unknown) {
+      setError(getErrorDetail(err) || getErrorMessage(err, 'Erreur lors du chargement'));
     } finally {
       setLoading(false);
     }
@@ -87,7 +88,7 @@ export default function RBACPage() {
         { id: 'campagnes.read', name: 'Lire campagnes', category: 'Campagnes', description: 'Voir les campagnes' },
         { id: 'campagnes.write', name: 'Modifier campagnes', category: 'Campagnes', description: 'Créer et modifier des campagnes' },
       ]);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error loading permissions:', err);
     }
   };
@@ -105,8 +106,8 @@ export default function RBACPage() {
       setShowCreateModal(false);
       setNewRoleName('');
       setNewRoleDescription('');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Erreur lors de la création');
+    } catch (err: unknown) {
+      setError(getErrorDetail(err) || getErrorMessage(err, 'Erreur lors de la création'));
     }
   };
 

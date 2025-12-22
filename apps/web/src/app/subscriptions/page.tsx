@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/store';
+import { getErrorMessage, getErrorDetail } from '@/lib/error-utils';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
@@ -50,8 +51,8 @@ function SubscriptionsContent() {
       // await subscriptionsAPI.create({ plan_id: planId, billing_period: period });
       // Redirect to success page
       router.push(`/subscriptions/success?plan=${planId}&period=${period}`);
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Erreur lors de la souscription');
+    } catch (err: unknown) {
+      setError(getErrorDetail(err) || getErrorMessage(err, 'Erreur lors de la souscription'));
     }
   }, [router]);
 
@@ -76,8 +77,8 @@ function SubscriptionsContent() {
         currency: 'EUR',
         billing_period: 'month',
       });
-    } catch (err: any) {
-      setError(err.response?.data?.detail || err.message || 'Erreur lors du chargement');
+    } catch (err: unknown) {
+      setError(getErrorDetail(err) || getErrorMessage(err, 'Erreur lors du chargement'));
     } finally {
       setLoading(false);
     }
@@ -108,7 +109,7 @@ function SubscriptionsContent() {
           invoice_url: '#',
         },
       ]);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error loading payments:', err);
     }
   }, []);
@@ -141,8 +142,8 @@ function SubscriptionsContent() {
       // TODO: Replace with actual API call
       // await subscriptionsAPI.cancel();
       await loadSubscription();
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Erreur lors de l\'annulation');
+    } catch (err: unknown) {
+      setError(getErrorDetail(err) || getErrorMessage(err, 'Erreur lors de l\'annulation'));
     }
   };
 
@@ -151,8 +152,8 @@ function SubscriptionsContent() {
       // TODO: Replace with actual API call
       // await subscriptionsAPI.resume();
       await loadSubscription();
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Erreur lors de la reprise');
+    } catch (err: unknown) {
+      setError(getErrorDetail(err) || getErrorMessage(err, 'Erreur lors de la reprise'));
     }
   };
 
