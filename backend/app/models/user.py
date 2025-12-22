@@ -6,6 +6,7 @@ SQLAlchemy model for users
 from datetime import datetime
 
 from sqlalchemy import Boolean, Column, DateTime, Integer, String, func, Index
+from sqlalchemy.orm import relationship
 
 from app.core.database import Base
 
@@ -34,6 +35,12 @@ class User(Base):
         nullable=False,
         index=True,
     )
+
+    # Relationships
+    roles = relationship("UserRole", back_populates="user", cascade="all, delete-orphan")
+    team_memberships = relationship("TeamMember", back_populates="user", cascade="all, delete-orphan")
+    owned_teams = relationship("Team", foreign_keys="Team.owner_id", back_populates="owner")
+    sent_invitations = relationship("Invitation", foreign_keys="Invitation.invited_by_id", back_populates="invited_by")
 
     def __repr__(self) -> str:
         return f"<User(id={self.id}, email={self.email})>"
