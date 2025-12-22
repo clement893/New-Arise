@@ -35,7 +35,7 @@ export const FONT_OPTIONS = [
   { label: 'Playfair Display', value: 'Playfair Display' },
   { label: 'Lora', value: 'Lora' },
   { label: 'Merriweather', value: 'Merriweather' },
-] as const;
+];
 
 // Border radius options
 export const BORDER_RADIUS_OPTIONS = [
@@ -43,5 +43,5 @@ export const BORDER_RADIUS_OPTIONS = [
   { label: 'Moyen (0.5rem)', value: '0.5rem' },
   { label: 'Grand (0.75rem)', value: '0.75rem' },
   { label: 'Très grand (1rem)', value: '1rem' },
-] as const;
+];
 
