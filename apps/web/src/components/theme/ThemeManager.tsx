@@ -11,6 +11,7 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
+import type { SelectOption } from '@/components/ui/Select';
 import { useThemeManager } from './hooks';
 import { themePresets, type ThemePresetName } from './presets';
 import { FONT_OPTIONS, BORDER_RADIUS_OPTIONS } from './constants';
@@ -108,7 +109,7 @@ export function ThemeManager() {
             Police principale (corps de texte)
           </label>
           <Select
-            options={FONT_OPTIONS}
+            options={FONT_OPTIONS as SelectOption[]}
             value={theme.fontFamily}
             onChange={(e) => updateColor('fontFamily', e.target.value)}
           />
@@ -116,7 +117,7 @@ export function ThemeManager() {
         <div>
           <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Police des titres</label>
           <Select
-            options={FONT_OPTIONS}
+            options={FONT_OPTIONS as SelectOption[]}
             value={theme.fontFamilyHeading}
             onChange={(e) => updateColor('fontFamilyHeading', e.target.value)}
           />
@@ -124,7 +125,7 @@ export function ThemeManager() {
         <div>
           <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Police des sous-titres</label>
           <Select
-            options={FONT_OPTIONS}
+            options={FONT_OPTIONS as SelectOption[]}
             value={theme.fontFamilySubheading}
             onChange={(e) => updateColor('fontFamilySubheading', e.target.value)}
           />
@@ -164,7 +165,7 @@ export function ThemeManager() {
         <div>
           <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Border Radius</label>
           <Select
-            options={BORDER_RADIUS_OPTIONS}
+            options={BORDER_RADIUS_OPTIONS as SelectOption[]}
             value={theme.borderRadius}
             onChange={(e) => updateColor('borderRadius', e.target.value)}
           />
