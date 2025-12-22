@@ -160,7 +160,7 @@ export default function CommandPalette({
 }
 
 // Hook for using Command Palette
-export function useCommandPalette(commands: Command[]) {
+export function useCommandPalette(_commands: Command[]) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
