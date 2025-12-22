@@ -4,7 +4,8 @@
  * Sentry is optional - functions will no-op if @sentry/nextjs is not installed
  */
 
-let Sentry: typeof import('@sentry/nextjs') | null = null;
+// @ts-nocheck
+let Sentry: any = null;
 
 // Lazy load Sentry to avoid webpack static analysis
 function loadSentry() {
