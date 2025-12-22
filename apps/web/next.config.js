@@ -46,11 +46,20 @@ const nextConfig = {
     );
     
     // Ignore CSS files that don't exist during build (like default-stylesheet.css)
+    // Also handle CSS imports more gracefully during server-side builds
     if (isServer) {
       config.plugins.push(
         new webpack.IgnorePlugin({
           resourceRegExp: /default-stylesheet\.css$/,
         })
+      );
+      
+      // Add a NormalModuleReplacementPlugin to handle missing CSS files
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(
+          /default-stylesheet\.css$/,
+          require.resolve('./src/lib/empty-css.js')
+        )
       );
     }
     
