@@ -33,7 +33,7 @@ export default function Error({
             errorBoundary: 'error',
           },
         });
-      } catch (e) {
+      } catch (e: unknown) {
         // Sentry not available, continue without it
         logger.warn('Sentry not available', { error: e instanceof Error ? e.message : String(e) });
       }
