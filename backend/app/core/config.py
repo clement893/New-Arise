@@ -3,6 +3,7 @@ Application Configuration
 Uses Pydantic Settings for validation
 """
 
+import os
 from functools import lru_cache
 from typing import List
 
@@ -97,7 +98,7 @@ class Settings(BaseSettings):
         description="Default sender email address",
     )
     SENDGRID_FROM_NAME: str = Field(
-        default="MODELE",
+        default=os.getenv("PROJECT_NAME", "App"),
         description="Default sender name",
     )
 

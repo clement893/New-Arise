@@ -5,6 +5,7 @@
     "private":  true,
     "scripts":  {
                     "setup":  "node scripts/setup.js",
+                    "rename":  "node scripts/rename-project.js",
                     "dev":  "turbo run dev --parallel",
                     "dev:full":  "node scripts/dev.js",
                     "dev:frontend":  "node scripts/dev.js --frontend-only",

@@ -147,7 +147,7 @@ export default function DocsPage() {
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Liens Utiles</h3>
               <ul className="space-y-2">
                 <li>
-                  <a href="https://github.com/clement893/MODELE-NEXTJS-FULLSTACK" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                  <a href={process.env.NEXT_PUBLIC_GITHUB_URL || "https://github.com/your-username/your-repo"} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                     Repository GitHub
                   </a>
                 </li>
@@ -167,12 +167,12 @@ export default function DocsPage() {
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Support</h3>
               <ul className="space-y-2">
                 <li>
-                  <a href="https://github.com/clement893/MODELE-NEXTJS-FULLSTACK/issues" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                  <a href={`${process.env.NEXT_PUBLIC_GITHUB_URL || "https://github.com/your-username/your-repo"}/issues`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                     Signaler un problème
                   </a>
                 </li>
                 <li>
-                  <a href="https://github.com/clement893/MODELE-NEXTJS-FULLSTACK/discussions" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                  <a href={`${process.env.NEXT_PUBLIC_GITHUB_URL || "https://github.com/your-username/your-repo"}/discussions`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                     Discussions
                   </a>
                 </li>
