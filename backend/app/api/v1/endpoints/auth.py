@@ -7,6 +7,7 @@ from typing import Annotated
 from urllib.parse import urlencode
 
 import httpx
+import bcrypt
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -32,11 +33,26 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/login
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against a hash"""
-    return pwd_context.verify(plain_password, hashed_password)
+    # Try bcrypt directly first (for new hashes), fallback to passlib for compatibility
+    try:
+        password_bytes = plain_password.encode('utf-8')
+        if len(password_bytes) > 72:
+            password_bytes = password_bytes[:72]
+            # Remove incomplete UTF-8 sequences
+            while len(password_bytes) > 0:
+                try:
+                    password_bytes.decode('utf-8')
+                    break
+                except UnicodeDecodeError:
+                    password_bytes = password_bytes[:-1]
+        return bcrypt.checkpw(password_bytes, hashed_password.encode('utf-8'))
+    except Exception:
+        # Fallback to passlib for old hashes
+        return pwd_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password: str) -> str:
-    """Hash a password"""
+    """Hash a password using bcrypt directly (bypassing passlib to avoid 72-byte limit issues)"""
     # Bcrypt has a 72-byte limit, so truncate password to 72 bytes if needed
     password_bytes = password.encode('utf-8')
     if len(password_bytes) > 72:
@@ -45,17 +61,19 @@ def get_password_hash(password: str) -> str:
         # Remove any incomplete UTF-8 sequences at the end
         while len(password_bytes) > 0:
             try:
-                password = password_bytes.decode('utf-8')
+                password_bytes.decode('utf-8')
                 break
             except UnicodeDecodeError:
                 password_bytes = password_bytes[:-1]
-        # If still can't decode, use errors='ignore'
-        if len(password_bytes) > 0:
-            password = password_bytes.decode('utf-8', errors='ignore')
-        else:
-            # Fallback: use first 72 bytes and ignore errors
-            password = password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
-    return pwd_context.hash(password)
+        # Use the truncated bytes directly
+        password_bytes = password_bytes
+    else:
+        password_bytes = password.encode('utf-8')
+    
+    # Use bcrypt directly instead of passlib to avoid compatibility issues
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password_bytes, salt)
+    return hashed.decode('utf-8')
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
