@@ -190,7 +190,7 @@ async def get_current_user_info(
 @router.get("/google")
 async def get_google_auth_url(
     request: Request,
-    redirect: str = Query(None, description="Frontend redirect URL after authentication")
+    redirect: Annotated[str | None, Query(description="Frontend redirect URL after authentication")] = None,
 ):
     """
     Get Google OAuth authorization URL
