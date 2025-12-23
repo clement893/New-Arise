@@ -168,19 +168,19 @@ apiClient.interceptors.response.use(
 
 export const authAPI = {
   login: (email: string, password: string) => {
-    return apiClient.post('/auth/login', { email, password });
+    return apiClient.post('/v1/auth/login', { email, password });
   },
   register: (email: string, password: string, name: string) => {
-    return apiClient.post('/auth/register', { email, password, name });
+    return apiClient.post('/v1/auth/register', { email, password, name });
   },
   refresh: (refreshToken: string) => {
-    return apiClient.post('/auth/refresh', { refresh_token: refreshToken });
+    return apiClient.post('/v1/auth/refresh', { refresh_token: refreshToken });
   },
   logout: () => {
-    return apiClient.post('/auth/logout');
+    return apiClient.post('/v1/auth/logout');
   },
   getGoogleAuthUrl: () => {
-    return apiClient.get('/auth/google');
+    return apiClient.get('/v1/auth/google');
   },
 };
 
