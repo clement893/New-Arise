@@ -5,6 +5,10 @@ import { Alert, Modal, Loading, Skeleton, Progress, Spinner, ToastContainer, use
 import type { Step } from '@/components/ui';
 import { PageHeader, PageContainer, Section, PageNavigation } from '@/components/layout';
 
+// Force dynamic rendering to avoid CSS file issues during build
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default function FeedbackPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
