@@ -6,6 +6,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: Size;
   loading?: boolean;
+  fullWidth?: boolean;
   children: ReactNode;
 }
 
@@ -81,6 +82,7 @@ function Button({
   variant = 'primary',
   size = 'md',
   loading = false,
+  fullWidth = false,
   className,
   children,
   disabled,
@@ -88,7 +90,13 @@ function Button({
 }: ButtonProps) {
   return (
     <button
-      className={clsx(baseStyles, variants[variant], sizes[size], className)}
+      className={clsx(
+        baseStyles,
+        variants[variant],
+        sizes[size],
+        fullWidth && 'w-full',
+        className
+      )}
       disabled={disabled || loading}
       {...props}
     >
