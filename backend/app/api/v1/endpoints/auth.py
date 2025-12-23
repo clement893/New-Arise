@@ -101,26 +101,39 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
+        logger.info(f"Decoding token: {token[:20]}...")
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        logger.info(f"Token decoded successfully, payload: {payload}")
         # Verify token type
         token_type = payload.get("type")
         if token_type != "access":
+            logger.warning(f"Invalid token type: {token_type}, expected 'access'")
             raise credentials_exception
         username: str = payload.get("sub")
         if username is None:
+            logger.warning("No 'sub' claim in token payload")
             raise credentials_exception
         token_data = TokenData(username=username)
-    except JWTError:
+        logger.info(f"Token data extracted, username: {username}")
+    except JWTError as e:
+        logger.error(f"JWT decode error: {e}")
         raise credentials_exception
 
     # Get user from database
-    result = await db.execute(
-        select(User).where(User.email == token_data.username)
-    )
-    user = result.scalar_one_or_none()
-    if user is None:
+    try:
+        logger.info(f"Querying database for user with email: {token_data.username}")
+        result = await db.execute(
+            select(User).where(User.email == token_data.username)
+        )
+        user = result.scalar_one_or_none()
+        if user is None:
+            logger.warning(f"User not found in database: {token_data.username}")
+            raise credentials_exception
+        logger.info(f"User found: {user.email}, id: {user.id}")
+        return user
+    except Exception as e:
+        logger.error(f"Database error in get_current_user: {e}", exc_info=True)
         raise credentials_exception
-    return user
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
@@ -210,17 +223,32 @@ async def login(
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_info(
     current_user: Annotated[User, Depends(get_current_user)],
-) -> User:
+) -> UserResponse:
     """
     Get current user information
     
     Args:
         current_user: Current authenticated user
-        
+    
     Returns:
         User information
     """
-    return current_user
+    try:
+        logger.info(f"Getting user info for: {current_user.email}")
+        # Convert User model to UserResponse schema
+        # This ensures relations are not loaded unnecessarily
+        return UserResponse(
+            id=current_user.id,
+            email=current_user.email,
+            first_name=current_user.first_name,
+            last_name=current_user.last_name,
+            is_active=current_user.is_active,
+            created_at=current_user.created_at.isoformat() if current_user.created_at else "",
+            updated_at=current_user.updated_at.isoformat() if current_user.updated_at else "",
+        )
+    except Exception as e:
+        logger.error(f"Error in get_current_user_info: {e}", exc_info=True)
+        raise
 
 
 @router.get("/google", response_model=dict)
