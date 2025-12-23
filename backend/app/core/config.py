@@ -41,14 +41,20 @@ class Settings(BaseSettings):
         import json
         import os
         
+        # Detect if we're in production (Railway or explicit ENVIRONMENT=production)
+        is_production = (
+            os.getenv("ENVIRONMENT", "").lower() == "production" or
+            os.getenv("RAILWAY_ENVIRONMENT") is not None or
+            os.getenv("RAILWAY_SERVICE_NAME") is not None
+        )
+        
         # If already a list, return as-is
         if isinstance(v, list):
             return v
         
         # If None or empty, use default based on environment
         if not v or (isinstance(v, str) and not v.strip()):
-            env = os.getenv("ENVIRONMENT", "development")
-            if env == "production":
+            if is_production:
                 return ["https://modele-nextjs-fullstack-production-1e92.up.railway.app"]
             return ["http://localhost:3000", "http://localhost:3001"]
         
@@ -73,8 +79,7 @@ class Settings(BaseSettings):
                 return [v.strip()]
         
         # Fallback
-        env = os.getenv("ENVIRONMENT", "development")
-        if env == "production":
+        if is_production:
             return ["https://modele-nextjs-fullstack-production-1e92.up.railway.app"]
         return ["http://localhost:3000", "http://localhost:3001"]
 
@@ -83,20 +88,26 @@ class Settings(BaseSettings):
     def ensure_cors_origins_list(cls, v):
         """Ensure CORS_ORIGINS is always a list"""
         import os
+        
+        # Detect if we're in production
+        is_production = (
+            os.getenv("ENVIRONMENT", "").lower() == "production" or
+            os.getenv("RAILWAY_ENVIRONMENT") is not None or
+            os.getenv("RAILWAY_SERVICE_NAME") is not None
+        )
+        
         if isinstance(v, str):
             # If it's still a string after parsing, convert to list
             if v.strip():
                 return [v.strip()]
             # Empty string - use default based on environment
-            env = os.getenv("ENVIRONMENT", "development")
-            if env == "production":
+            if is_production:
                 return ["https://modele-nextjs-fullstack-production-1e92.up.railway.app"]
             return ["http://localhost:3000", "http://localhost:3001"]
         if isinstance(v, list):
             return v
         # Fallback
-        env = os.getenv("ENVIRONMENT", "development")
-        if env == "production":
+        if is_production:
             return ["https://modele-nextjs-fullstack-production-1e92.up.railway.app"]
         return ["http://localhost:3000", "http://localhost:3001"]
 
