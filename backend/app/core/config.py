@@ -7,7 +7,7 @@ import os
 from functools import lru_cache
 from typing import List
 
-from pydantic import Field, PostgresDsn, field_validator, model_validator
+from pydantic import Field, PostgresDsn, field_validator, model_validator, field_serializer
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     PORT: int = 8000
     DEBUG: bool = False
 
-    # CORS - Use Union to accept both string and list
+    # CORS - Will be parsed in model_validator
     CORS_ORIGINS: List[str] = Field(
         default=["http://localhost:3000", "http://localhost:3001"],
         description="Allowed CORS origins",
@@ -41,12 +41,12 @@ class Settings(BaseSettings):
         import json
         import os
         
-        # If data is a dict (normal case), check for CORS_ORIGINS
+        # Handle both dict (from env) and other types
         if isinstance(data, dict):
             cors_value = data.get("CORS_ORIGINS")
             
-            # If not set or empty, set default based on environment
-            if not cors_value:
+            # If not set, use default based on environment
+            if cors_value is None:
                 env = os.getenv("ENVIRONMENT", "development")
                 if env == "production":
                     data["CORS_ORIGINS"] = ["https://modele-nextjs-fullstack-production-1e92.up.railway.app"]
@@ -54,12 +54,21 @@ class Settings(BaseSettings):
                     data["CORS_ORIGINS"] = ["http://localhost:3000", "http://localhost:3001"]
                 return data
             
-            # If it's already a list, keep it
+            # If already a list, keep it
             if isinstance(cors_value, list):
                 return data
             
-            # If it's a string, try to parse it
+            # If string, parse it
             if isinstance(cors_value, str):
+                # Empty string - use default
+                if not cors_value.strip():
+                    env = os.getenv("ENVIRONMENT", "development")
+                    if env == "production":
+                        data["CORS_ORIGINS"] = ["https://modele-nextjs-fullstack-production-1e92.up.railway.app"]
+                    else:
+                        data["CORS_ORIGINS"] = ["http://localhost:3000", "http://localhost:3001"]
+                    return data
+                
                 # Try JSON first
                 try:
                     parsed = json.loads(cors_value)
@@ -69,7 +78,7 @@ class Settings(BaseSettings):
                 except (json.JSONDecodeError, ValueError):
                     pass
                 
-                # Try comma-separated string
+                # Try comma-separated
                 if "," in cors_value:
                     origins = [origin.strip() for origin in cors_value.split(",") if origin.strip()]
                     if origins:
@@ -77,16 +86,8 @@ class Settings(BaseSettings):
                         return data
                 
                 # Single string
-                if cors_value.strip():
-                    data["CORS_ORIGINS"] = [cors_value.strip()]
-                    return data
-            
-            # If empty string, set default
-            env = os.getenv("ENVIRONMENT", "development")
-            if env == "production":
-                data["CORS_ORIGINS"] = ["https://modele-nextjs-fullstack-production-1e92.up.railway.app"]
-            else:
-                data["CORS_ORIGINS"] = ["http://localhost:3000", "http://localhost:3001"]
+                data["CORS_ORIGINS"] = [cors_value.strip()]
+                return data
         
         return data
 
@@ -214,6 +215,15 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         case_sensitive=True,
         extra="ignore",
+        # Disable automatic JSON parsing for complex types to handle CORS_ORIGINS manually
+        json_schema_extra={
+            "properties": {
+                "CORS_ORIGINS": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                }
+            }
+        }
     )
 
 
