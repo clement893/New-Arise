@@ -230,6 +230,8 @@ async def get_google_auth_url(
             callback_uri = f"{backend_base_url}{settings.API_V1_STR}/auth/google/callback"
         
         logger.info(f"Google OAuth callback URI: {callback_uri}")
+        logger.info(f"GOOGLE_REDIRECT_URI from settings: {settings.GOOGLE_REDIRECT_URI}")
+        logger.info(f"BASE_URL from settings: {settings.BASE_URL}")
         
         # Google OAuth 2.0 authorization endpoint
         google_auth_base_url = "https://accounts.google.com/o/oauth2/v2/auth"
