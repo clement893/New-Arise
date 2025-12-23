@@ -27,17 +27,25 @@ import { logger } from '@/lib/logger';
  * Make sure NEXT_PUBLIC_API_URL is set before building
  */
 const getApiUrl = () => {
-  const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  // In production, default to the known backend URL if not set
+  const isProduction = process.env.NODE_ENV === 'production';
+  const defaultUrl = isProduction 
+    ? 'https://modelebackend-production-0590.up.railway.app'
+    : 'http://localhost:8000';
+  
+  let url = process.env.NEXT_PUBLIC_API_URL || defaultUrl;
   
   // Log to help debug (only in browser, not SSR)
   if (typeof window !== 'undefined') {
+    console.log('[API Client] NODE_ENV:', process.env.NODE_ENV);
     console.log('[API Client] NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
+    console.log('[API Client] Default URL:', defaultUrl);
     console.log('[API Client] Using API URL:', url);
   }
   
   // If URL doesn't start with http:// or https://, add https://
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
-    return `https://${url}`;
+    url = `https://${url}`;
   }
   return url;
 };
