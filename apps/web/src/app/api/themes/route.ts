@@ -2,7 +2,7 @@
  * Next.js API route for theme management (server-side proxy).
  * This allows server-side rendering and better security.
  */
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -11,7 +11,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
  * Proxy to backend to get active theme.
  * Public endpoint - no authentication required.
  */
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const response = await fetch(`${API_URL}/api/v1/themes/active`, {
       method: 'GET',

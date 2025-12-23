@@ -7,8 +7,8 @@
 'use client';
 
 import { Component, ReactNode, ErrorInfo } from 'react';
-import Alert from './Alert';
-import Button from './Button';
+import { Alert } from './index';
+import { Button } from './index';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
