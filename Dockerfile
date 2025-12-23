@@ -49,6 +49,10 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# The standalone build puts the server.js in the root
-CMD ["node", "server.js"]
+# Create entrypoint script for Railway compatibility
+RUN echo '#!/bin/sh' > /entrypoint.sh && \
+    echo 'exec node server.js' >> /entrypoint.sh && \
+    chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
 
