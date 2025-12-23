@@ -13,6 +13,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
@@ -396,7 +397,7 @@ async def google_oauth_callback(
             
             # Check if user exists
             result = await db.execute(
-                User.__table__.select().where(User.email == email)
+                select(User).where(User.email == email)
             )
             user = result.scalar_one_or_none()
             
