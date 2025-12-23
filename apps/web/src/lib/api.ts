@@ -23,18 +23,16 @@ import { logger } from '@/lib/logger';
  * Falls back to localhost:8000 if NEXT_PUBLIC_API_URL is not set
  * Automatically adds https:// if protocol is missing (for production)
  * 
- * Note: Uses a function to ensure runtime access to env vars in Next.js
+ * Note: In Next.js, NEXT_PUBLIC_* vars are embedded at build time
+ * Make sure NEXT_PUBLIC_API_URL is set before building
  */
 const getApiUrl = () => {
-  // Access env var at runtime, not at module load time
-  const url = (typeof window !== 'undefined' 
-    ? (window as any).__NEXT_DATA__?.env?.NEXT_PUBLIC_API_URL 
-    : null) || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
   
-  // Log in development to help debug
-  if (process.env.NODE_ENV === 'development') {
-    console.log('[API] NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
-    console.log('[API] Resolved API URL:', url);
+  // Log to help debug (only in browser, not SSR)
+  if (typeof window !== 'undefined') {
+    console.log('[API Client] NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
+    console.log('[API Client] Using API URL:', url);
   }
   
   // If URL doesn't start with http:// or https://, add https://
@@ -44,7 +42,6 @@ const getApiUrl = () => {
   return url;
 };
 
-// Use function call to get URL at runtime
 const API_URL = getApiUrl().replace(/\/$/, '');
 
 /**
