@@ -3,7 +3,7 @@ Invitation Schemas
 Pydantic schemas for invitations
 """
 
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field
 
