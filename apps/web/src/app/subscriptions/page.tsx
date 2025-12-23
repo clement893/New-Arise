@@ -3,7 +3,6 @@
 import { useEffect, useState, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useAuthStore } from '@/lib/store';
 import { getErrorMessage, getErrorDetail } from '@/lib/error-utils';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -115,11 +114,6 @@ function SubscriptionsContent() {
   }, []);
 
   useEffect(() => {
-    if (!isAuthenticated()) {
-      router.push('/auth/login');
-      return;
-    }
-
     // Check if coming from pricing page
     const planId = searchParams.get('plan');
     const period = searchParams.get('period') as 'month' | 'year' | null;
@@ -131,7 +125,7 @@ function SubscriptionsContent() {
       loadSubscription();
       loadPayments();
     }
-  }, [isAuthenticated, router, searchParams, handleSubscribe, loadSubscription, loadPayments]);
+  }, [router, searchParams, handleSubscribe, loadSubscription, loadPayments]);
 
   const handleCancelSubscription = async () => {
     if (!confirm('Êtes-vous sûr de vouloir annuler votre abonnement ? Il restera actif jusqu\'à la fin de la période en cours.')) {
@@ -156,10 +150,6 @@ function SubscriptionsContent() {
       setError(getErrorDetail(err) || getErrorMessage(err, 'Erreur lors de la reprise'));
     }
   };
-
-  if (!isAuthenticated()) {
-    return null;
-  }
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, 'success' | 'error' | 'default'> = {
