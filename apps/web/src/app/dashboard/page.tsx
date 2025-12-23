@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import { Button, Card, Badge } from '@/components/ui';
+import Link from 'next/link';
 
 function DashboardContent() {
   const router = useRouter();
@@ -15,25 +17,19 @@ function DashboardContent() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 dark:from-gray-900 dark:to-gray-800">
-      <nav className="bg-white shadow">
+      <nav className="bg-white dark:bg-gray-800 shadow">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-danger-600 dark:bg-danger-500 text-white rounded-lg hover:bg-danger-700 dark:hover:bg-danger-600 transition"
-          >
+          <Button variant="danger" onClick={handleLogout}>
             Logout
-          </button>
+          </Button>
         </div>
       </nav>
 
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* User Profile Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-              Your Profile
-            </h2>
+          <Card title="Your Profile">
             <div className="space-y-4">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Name</p>
@@ -49,24 +45,21 @@ function DashboardContent() {
               </div>
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Status</p>
-                <p className="text-lg font-semibold text-secondary-600 dark:text-secondary-400">
+                <Badge variant={user?.is_active ? 'success' : 'default'}>
                   {user?.is_active ? 'Active' : 'Inactive'}
-                </p>
+                </Badge>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Verified</p>
-                <p className="text-lg font-semibold">
+                <p className="text-sm text-gray-600 dark:text-gray-400">Verified</p>
+                <Badge variant={user?.is_verified ? 'success' : 'default'}>
                   {user?.is_verified ? '✓ Yes' : '✗ No'}
-                </p>
+                </Badge>
               </div>
             </div>
-          </div>
+          </Card>
 
           {/* Quick Stats */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-              Quick Stats
-            </h2>
+          <Card title="Quick Stats">
             <div className="space-y-4">
               <div className="flex justify-between items-center p-4 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
                 <span className="text-gray-700 dark:text-gray-300">Resources</span>
@@ -81,14 +74,11 @@ function DashboardContent() {
                 <span className="text-2xl font-bold text-info-600 dark:text-info-400">0</span>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
 
         {/* API Status */}
-        <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-            API Status
-          </h2>
+        <Card title="API Status" className="mt-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-4 border border-secondary-200 dark:border-secondary-800 bg-secondary-50 dark:bg-secondary-900/20 rounded-lg">
               <p className="text-secondary-700 dark:text-secondary-300 font-semibold">✓ Backend Connected</p>
@@ -103,19 +93,13 @@ function DashboardContent() {
               <p className="text-sm text-gray-600 dark:text-gray-400">JWT is working</p>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Test Pages */}
-        <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-            Service Tests
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Test and verify the configuration of integrated services
-          </p>
+        <Card title="Service Tests" subtitle="Test and verify the configuration of integrated services" className="mt-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* AI Test */}
-            <a
+            <Link
               href="/ai/test"
               className="group p-6 border-2 border-info-200 dark:border-info-800 bg-gradient-to-br from-info-50 to-info-100 dark:from-info-900/20 dark:to-info-800/20 rounded-lg hover:border-info-400 dark:hover:border-info-600 hover:shadow-lg transition-all duration-200"
             >
@@ -133,10 +117,10 @@ function DashboardContent() {
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Test OpenAI integration with chat completions and text generation
               </p>
-            </a>
+            </Link>
 
             {/* Email Test */}
-            <a
+            <Link
               href="/email/test"
               className="group p-6 border-2 border-secondary-200 dark:border-secondary-800 bg-gradient-to-br from-secondary-50 to-secondary-100 dark:from-secondary-900/20 dark:to-secondary-800/20 rounded-lg hover:border-secondary-400 dark:hover:border-secondary-600 hover:shadow-lg transition-all duration-200"
             >
@@ -154,10 +138,10 @@ function DashboardContent() {
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Test SendGrid email service with test, welcome, and custom emails
               </p>
-            </a>
+            </Link>
 
             {/* S3 Test */}
-            <a
+            <Link
               href="/upload"
               className="group p-6 border-2 border-primary-200 dark:border-primary-800 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 rounded-lg hover:border-primary-400 dark:hover:border-primary-600 hover:shadow-lg transition-all duration-200"
             >
@@ -175,9 +159,9 @@ function DashboardContent() {
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Test AWS S3 file upload and management functionality
               </p>
-            </a>
+            </Link>
           </div>
-        </div>
+        </Card>
       </div>
     </main>
   );
