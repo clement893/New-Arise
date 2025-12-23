@@ -5,18 +5,14 @@
 
 'use client';
 
-import { type ReactNode } from 'react';
+import { type ReactNode, memo } from 'react';
 import { clsx } from 'clsx';
+import { AlertVariant, BaseComponentProps, ClosableProps, IconProps } from './types';
 
-export type AlertVariant = 'info' | 'success' | 'warning' | 'error';
-
-export interface AlertProps {
+export interface AlertProps extends BaseComponentProps, ClosableProps, IconProps {
   variant?: AlertVariant;
   title?: string;
   children: ReactNode;
-  onClose?: () => void;
-  className?: string;
-  icon?: ReactNode;
 }
 
 const variantClasses = {
@@ -85,7 +81,7 @@ const defaultIcons = {
   ),
 };
 
-export default function Alert({
+function Alert({
   variant = 'info',
   title,
   children,

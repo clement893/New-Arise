@@ -50,7 +50,8 @@ export type { FormProps, FormFieldProps } from './Form';
 
 // Feedback Components
 export { default as Alert } from './Alert';
-export type { AlertProps, AlertVariant } from './Alert';
+export type { AlertProps } from './Alert';
+export type { AlertVariant, ColorVariant, ButtonVariant, Size } from './types';
 export { default as ToastContainer } from './ToastContainer';
 export { useToast } from './ToastContainer';
 export { default as Toast } from './Toast';
@@ -112,3 +113,9 @@ export type { MultiSelectProps, MultiSelectOption } from './MultiSelect';
 // Rich Text Editor
 export { default as RichTextEditor } from './RichTextEditor';
 export type { RichTextEditorProps } from './RichTextEditor';
+
+// Error Boundary
+export { default as ErrorBoundary, withErrorBoundary } from './ErrorBoundary';
+
+// Design Tokens
+export * as tokens from './tokens';

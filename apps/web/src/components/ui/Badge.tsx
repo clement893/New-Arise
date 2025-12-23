@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, memo } from 'react';
 import { clsx } from 'clsx';
 import { ColorVariant, BaseComponentProps, ColorVariantProps } from './types';
 
@@ -7,7 +7,7 @@ interface BadgeProps extends BaseComponentProps, ColorVariantProps {
   variant?: ColorVariant;
 }
 
-export default function Badge({
+function Badge({
   children,
   variant = 'default',
   className,
@@ -32,4 +32,6 @@ export default function Badge({
     </span>
   );
 }
+
+export default memo(Badge);
 

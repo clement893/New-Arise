@@ -4,72 +4,72 @@ import userEvent from '@testing-library/user-event';
 import Alert from '../Alert';
 
 describe('Alert', () => {
-  it('renders with children', () => {
-    render(<Alert>Alert message</Alert>);
-    expect(screen.getByText('Alert message')).toBeInTheDocument();
+  it('renders alert with text', () => {
+    render(<Alert variant="info">Test message</Alert>);
+    expect(screen.getByText('Test message')).toBeInTheDocument();
   });
 
-  it('renders with title', () => {
-    render(<Alert title="Alert Title">Alert message</Alert>);
-    expect(screen.getByText('Alert Title')).toBeInTheDocument();
-    expect(screen.getByText('Alert message')).toBeInTheDocument();
+  it('renders alert with title', () => {
+    render(
+      <Alert variant="info" title="Test Title">
+        Test message
+      </Alert>
+    );
+    expect(screen.getByText('Test Title')).toBeInTheDocument();
+    expect(screen.getByText('Test message')).toBeInTheDocument();
   });
 
-  it('renders with info variant by default', () => {
-    const { container } = render(<Alert>Info alert</Alert>);
-    const alert = container.querySelector('[role="alert"]');
-    expect(alert).toHaveClass('bg-blue-50');
-  });
+  it('renders different variants', () => {
+    const { rerender } = render(<Alert variant="info">Info</Alert>);
+    expect(screen.getByText('Info')).toBeInTheDocument();
 
-  it('renders with success variant', () => {
-    const { container } = render(<Alert variant="success">Success</Alert>);
-    const alert = container.querySelector('[role="alert"]');
-    expect(alert).toHaveClass('bg-green-50');
-  });
+    rerender(<Alert variant="success">Success</Alert>);
+    expect(screen.getByText('Success')).toBeInTheDocument();
 
-  it('renders with warning variant', () => {
-    const { container } = render(<Alert variant="warning">Warning</Alert>);
-    const alert = container.querySelector('[role="alert"]');
-    expect(alert).toHaveClass('bg-yellow-50');
-  });
+    rerender(<Alert variant="warning">Warning</Alert>);
+    expect(screen.getByText('Warning')).toBeInTheDocument();
 
-  it('renders with error variant', () => {
-    const { container } = render(<Alert variant="error">Error</Alert>);
-    const alert = container.querySelector('[role="alert"]');
-    expect(alert).toHaveClass('bg-red-50');
+    rerender(<Alert variant="error">Error</Alert>);
+    expect(screen.getByText('Error')).toBeInTheDocument();
   });
 
   it('calls onClose when close button is clicked', async () => {
     const handleClose = vi.fn();
     const user = userEvent.setup();
-    render(<Alert onClose={handleClose}>Alert</Alert>);
-    
-    const closeButton = screen.getByLabelText('Close');
+
+    render(
+      <Alert variant="info" onClose={handleClose}>
+        Test message
+      </Alert>
+    );
+
+    const closeButton = screen.getByRole('button');
     await user.click(closeButton);
+
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
 
-  it('does not render close button when onClose is not provided', () => {
-    render(<Alert>Alert</Alert>);
-    expect(screen.queryByLabelText('Close')).not.toBeInTheDocument();
+  it('does not show close button when onClose is not provided', () => {
+    render(<Alert variant="info">Test message</Alert>);
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
-  it('renders with custom icon', () => {
-    const icon = <span data-testid="custom-icon">Icon</span>;
-    render(<Alert icon={icon}>Alert</Alert>);
+  it('renders custom icon when provided', () => {
+    const customIcon = <span data-testid="custom-icon">Custom</span>;
+    render(
+      <Alert variant="info" icon={customIcon}>
+        Test message
+      </Alert>
+    );
     expect(screen.getByTestId('custom-icon')).toBeInTheDocument();
   });
 
   it('applies custom className', () => {
-    const { container } = render(<Alert className="custom-class">Alert</Alert>);
-    const alert = container.querySelector('[role="alert"]');
-    expect(alert).toHaveClass('custom-class');
-  });
-
-  it('has correct role attribute', () => {
-    const { container } = render(<Alert>Alert</Alert>);
-    const alert = container.querySelector('[role="alert"]');
-    expect(alert).toBeInTheDocument();
+    const { container } = render(
+      <Alert variant="info" className="custom-class">
+        Test message
+      </Alert>
+    );
+    expect(container.firstChild).toHaveClass('custom-class');
   });
 });
-

@@ -1,4 +1,4 @@
-import { ButtonHTMLAttributes, ReactNode } from 'react';
+import { ButtonHTMLAttributes, ReactNode, memo } from 'react';
 import { clsx } from 'clsx';
 import { ButtonVariant, Size } from './types';
 
@@ -77,7 +77,7 @@ const sizes = {
   lg: 'px-8 py-4 text-lg',
 };
 
-export default function Button({
+function Button({
   variant = 'primary',
   size = 'md',
   loading = false,
@@ -122,3 +122,5 @@ export default function Button({
     </button>
   );
 }
+
+export default memo(Button);

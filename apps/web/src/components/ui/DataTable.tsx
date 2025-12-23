@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback, ReactNode } from 'react';
+import { useState, useMemo, useCallback, ReactNode, memo } from 'react';
 import { clsx } from 'clsx';
 import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from './Table';
 import Input from './Input';
@@ -287,4 +287,6 @@ export default function DataTable<T extends Record<string, unknown>>({
     </div>
   );
 }
+
+export default memo(DataTable) as typeof DataTable;
 

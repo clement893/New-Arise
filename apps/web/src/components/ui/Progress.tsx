@@ -1,11 +1,11 @@
 import { clsx } from 'clsx';
-import { Size } from './types';
+import { Size, ColorVariant, BaseComponentProps } from './types';
 
-interface ProgressProps {
+interface ProgressProps extends BaseComponentProps {
   value: number; // 0-100
   max?: number;
   size?: Size;
-  variant?: 'default' | 'success' | 'warning' | 'error';
+  variant?: ColorVariant;
   showLabel?: boolean;
   label?: string;
   className?: string;

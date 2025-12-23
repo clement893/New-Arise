@@ -14,3 +14,4 @@ export const localeNames: Record<Locale, string> = {
   fr: 'Français',
 };
 
+

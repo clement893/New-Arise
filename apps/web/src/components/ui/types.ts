@@ -13,6 +13,11 @@ import { ReactNode, HTMLAttributes } from 'react';
 export type ColorVariant = 'default' | 'success' | 'warning' | 'error' | 'info';
 
 /**
+ * Variants pour les Alertes (sans 'default', utilise 'info' à la place)
+ */
+export type AlertVariant = 'info' | 'success' | 'warning' | 'error';
+
+/**
  * Variants de style pour les boutons
  */
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';

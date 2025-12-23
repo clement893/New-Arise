@@ -1,5 +1,6 @@
 import type { Preview } from '@storybook/react';
 import '../src/app/globals.css';
+import { ThemeProvider } from '../src/contexts/ThemeContext';
 
 const preview: Preview = {
   parameters: {
@@ -19,22 +20,30 @@ const preview: Preview = {
         },
         {
           name: 'dark',
-          value: '#111827',
+          value: '#1f2937',
         },
       ],
     },
-    docs: {
-      toc: true,
+    a11y: {
+      config: {
+        rules: [
+          {
+            id: 'color-contrast',
+            enabled: true,
+          },
+        ],
+      },
     },
   },
   decorators: [
     (Story) => (
-      <div className="p-4">
-        <Story />
-      </div>
+      <ThemeProvider>
+        <div className="p-4">
+          <Story />
+        </div>
+      </ThemeProvider>
     ),
   ],
 };
 
 export default preview;
-

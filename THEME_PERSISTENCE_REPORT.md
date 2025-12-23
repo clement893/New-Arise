@@ -184,3 +184,4 @@ Pour synchroniser les préférences entre appareils :
 1. Initialiser le `ThemeManager` au niveau de l'application pour charger automatiquement le thème
 2. (Optionnel) Ajouter la synchronisation backend pour multi-appareils
 
+

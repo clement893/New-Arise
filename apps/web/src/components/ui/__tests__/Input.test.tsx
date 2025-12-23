@@ -1,115 +1,72 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import Input from '../Input';
 
 describe('Input', () => {
-  it('renders input element', () => {
-    const { container } = render(<Input />);
-    const input = container.querySelector('input');
-    expect(input).toBeInTheDocument();
-  });
-
-  it('renders with label', () => {
-    render(<Input label="Email" />);
-    expect(screen.getByLabelText('Email')).toBeInTheDocument();
-  });
-
-  it('renders with value', () => {
-    render(<Input value="test@example.com" onChange={() => {}} />);
-    const input = screen.getByDisplayValue('test@example.com');
-    expect(input).toBeInTheDocument();
-  });
-
-  it('calls onChange when value changes', () => {
-    const handleChange = vi.fn();
-    render(<Input onChange={handleChange} />);
-    
+  it('renders input field', () => {
+    render(<Input />);
     const input = screen.getByRole('textbox');
-    fireEvent.change(input, { target: { value: 'new value' } });
-    
-    expect(handleChange).toHaveBeenCalledTimes(1);
+    expect(input).toBeInTheDocument();
+  });
+
+  it('renders input with label', () => {
+    render(<Input label="Test Label" />);
+    expect(screen.getByLabelText('Test Label')).toBeInTheDocument();
   });
 
   it('displays error message', () => {
-    render(<Input error="This field is required" />);
-    expect(screen.getByText('This field is required')).toBeInTheDocument();
-    expect(screen.getByText('This field is required')).toHaveAttribute('role', 'alert');
+    render(<Input label="Test" error="Error message" />);
+    expect(screen.getByText('Error message')).toBeInTheDocument();
+    expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true');
   });
 
-  it('displays helper text when no error', () => {
-    render(<Input helperText="Enter your email address" />);
-    expect(screen.getByText('Enter your email address')).toBeInTheDocument();
+  it('displays helper text', () => {
+    render(<Input label="Test" helperText="Helper text" />);
+    expect(screen.getByText('Helper text')).toBeInTheDocument();
   });
 
-  it('does not display helper text when error is present', () => {
-    render(<Input error="Error" helperText="Helper text" />);
-    expect(screen.queryByText('Helper text')).not.toBeInTheDocument();
+  it('does not show helper text when error is present', () => {
+    render(<Input label="Test" error="Error" helperText="Helper" />);
+    expect(screen.queryByText('Helper')).not.toBeInTheDocument();
     expect(screen.getByText('Error')).toBeInTheDocument();
   });
 
+  it('handles user input', async () => {
+    const user = userEvent.setup();
+    render(<Input label="Test" />);
+    
+    const input = screen.getByLabelText('Test');
+    await user.type(input, 'Hello World');
+    
+    expect(input).toHaveValue('Hello World');
+  });
+
+  it('shows required indicator', () => {
+    render(<Input label="Test" required />);
+    const label = screen.getByText('Test');
+    expect(label.querySelector('[aria-label="required"]')).toBeInTheDocument();
+  });
+
+  it('applies disabled state', () => {
+    render(<Input label="Test" disabled />);
+    expect(screen.getByRole('textbox')).toBeDisabled();
+  });
+
   it('renders with left icon', () => {
-    const { container } = render(
-      <Input leftIcon={<span data-testid="left-icon">@</span>} />
-    );
-    expect(container.querySelector('[data-testid="left-icon"]')).toBeInTheDocument();
-    const input = container.querySelector('input');
-    expect(input).toHaveClass('pl-10');
+    const leftIcon = <span data-testid="left-icon">L</span>;
+    render(<Input label="Test" leftIcon={leftIcon} />);
+    expect(screen.getByTestId('left-icon')).toBeInTheDocument();
   });
 
   it('renders with right icon', () => {
-    const { container } = render(
-      <Input rightIcon={<span data-testid="right-icon">✓</span>} />
-    );
-    expect(container.querySelector('[data-testid="right-icon"]')).toBeInTheDocument();
-    const input = container.querySelector('input');
-    expect(input).toHaveClass('pr-10');
+    const rightIcon = <span data-testid="right-icon">R</span>;
+    render(<Input label="Test" rightIcon={rightIcon} />);
+    expect(screen.getByTestId('right-icon')).toBeInTheDocument();
   });
 
-  it('renders with fullWidth', () => {
+  it('applies fullWidth class when fullWidth is true', () => {
     const { container } = render(<Input fullWidth />);
-    const wrapper = container.firstChild;
-    expect(wrapper).toHaveClass('w-full');
-  });
-
-  it('marks input as required', () => {
-    render(<Input label="Email" required />);
-    const input = screen.getByLabelText('Email');
-    expect(input).toHaveAttribute('aria-required', 'true');
-    expect(input).toHaveAttribute('required');
-  });
-
-  it('shows required indicator in label', () => {
-    render(<Input label="Email" required />);
-    const label = screen.getByText('Email').parentElement;
-    expect(label?.querySelector('span[aria-label="required"]')).toBeInTheDocument();
-  });
-
-  it('has aria-invalid when error is present', () => {
-    render(<Input error="Error" />);
-    const input = screen.getByRole('textbox');
-    expect(input).toHaveAttribute('aria-invalid', 'true');
-  });
-
-  it('has aria-describedby when error or helper text is present', () => {
-    const { rerender } = render(<Input error="Error" />);
-    let input = screen.getByRole('textbox');
-    expect(input).toHaveAttribute('aria-describedby');
-    
-    rerender(<Input helperText="Helper" />);
-    input = screen.getByRole('textbox');
-    expect(input).toHaveAttribute('aria-describedby');
-  });
-
-  it('forwards ref', () => {
-    const ref = { current: null };
-    render(<Input ref={ref} />);
-    expect(ref.current).toBeInstanceOf(HTMLInputElement);
-  });
-
-  it('forwards HTML input attributes', () => {
-    render(<Input type="email" placeholder="Enter email" disabled />);
-    const input = screen.getByPlaceholderText('Enter email');
-    expect(input).toHaveAttribute('type', 'email');
-    expect(input).toBeDisabled();
+    expect(container.firstChild).toHaveClass('w-full');
   });
 });

@@ -184,3 +184,4 @@ Les composants principaux (Card, Button, Input, Header, Footer, Sidebar) ont ét
 2. Ajouter le support dark mode si nécessaire lors de la création/modification de composants
 3. Documenter les patterns dans un guide de style
 
+
