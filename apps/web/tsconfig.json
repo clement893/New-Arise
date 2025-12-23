@@ -76,6 +76,7 @@
     "**/*.stories.tsx",
     "**/*.stories.ts",
     "tests/**",
+    "src/test/**",
     "playwright.config.ts"
   ]
 }
