@@ -41,6 +41,9 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder /app/apps/web/public ./public
 COPY --from=builder /app/apps/web/.next/standalone ./
 COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/static
+# Copy start script for Railway compatibility
+COPY --from=builder /app/apps/web/scripts/start.sh ./apps/web/scripts/start.sh
+RUN chmod +x ./apps/web/scripts/start.sh
 
 # Create entrypoint script for Railway compatibility (before USER switch)
 # Railway may try to run pnpm start, so we ensure the entrypoint handles it
