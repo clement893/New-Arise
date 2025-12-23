@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timezone
 from sqlalchemy import select
 import stripe
-import stripe.error
+# Note: In recent Stripe versions, exceptions are directly in stripe module, not stripe.error
 import os
 
 from app.core.database import get_db
@@ -116,7 +116,7 @@ async def stripe_webhook(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid payload: {str(e)}"
         )
-    except stripe.error.SignatureVerificationError as e:
+    except stripe.SignatureVerificationError as e:
         logger.error(f"Invalid webhook signature: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

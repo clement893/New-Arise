@@ -15,9 +15,7 @@ from app.models.subscription import SubscriptionStatus
 
 # Configure Stripe timeout (handled automatically in recent versions)
 # Stripe SDK handles timeouts internally
-
-# Import stripe.error for proper exception handling
-import stripe.error
+# Note: In recent Stripe versions, exceptions are directly in stripe module, not stripe.error
 
 
 class StripeService:
@@ -52,7 +50,7 @@ class StripeService:
             )
             logger.info(f"Created Stripe customer {customer.id} for user {user.id}")
             return customer.id
-        except stripe.error.StripeError as e:
+        except stripe.StripeError as e:
             logger.error(f"Stripe error creating customer for user {user.id}: {e}")
             raise
 
@@ -114,7 +112,7 @@ class StripeService:
                 "url": session.url,
             }
 
-        except stripe.error.StripeError as e:
+        except stripe.StripeError as e:
             logger.error(f"Stripe error creating checkout session: {e}")
             raise
 
@@ -130,7 +128,7 @@ class StripeService:
                 return_url=return_url,
             )
             return {"url": session.url}
-        except stripe.error.StripeError as e:
+        except stripe.StripeError as e:
             logger.error(f"Stripe error creating portal session for user {user.id}: {e}")
             raise
 
@@ -161,7 +159,7 @@ class StripeService:
 
             return True
 
-        except stripe.error.StripeError as e:
+        except stripe.StripeError as e:
             logger.error(f"Stripe error canceling subscription: {e}")
             return False
 
@@ -209,7 +207,7 @@ class StripeService:
             logger.info(f"Updated subscription {subscription.id} to plan {new_plan.id}")
             return True
 
-        except stripe.error.StripeError as e:
+        except stripe.StripeError as e:
             logger.error(f"Stripe error updating subscription {subscription.id}: {e}")
             return False
 
@@ -229,7 +227,7 @@ class StripeService:
         except ValueError as e:
             logger.error(f"Invalid payload: {e}")
             raise
-        except stripe.error.SignatureVerificationError as e:
+        except stripe.SignatureVerificationError as e:
             logger.error(f"Invalid signature: {e}")
             raise
 
