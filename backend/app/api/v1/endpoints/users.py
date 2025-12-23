@@ -22,10 +22,10 @@ router = APIRouter()
 @router.get("/", response_model=List[UserSchema])
 @cached(expire=300, key_prefix="users")
 async def get_users(
-    skip: int = Query(0, ge=0, description="Number of records to skip"),
-    limit: int = Query(100, ge=1, le=1000, description="Maximum number of records"),
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: User = Depends(get_current_user),
+    skip: int = Query(0, ge=0, description="Number of records to skip"),
+    limit: int = Query(100, ge=1, le=1000, description="Maximum number of records"),
 ) -> List[User]:
     """
     Get list of users (requires admin permission)
