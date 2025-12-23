@@ -37,14 +37,15 @@ COPY . .
 # Change ownership
 RUN chown -R appuser:appuser /app
 
+# Create entrypoint script for Railway compatibility (before USER switch)
+RUN echo '#!/bin/sh' > /entrypoint.sh && \
+    echo 'exec uvicorn app.main:app --host 0.0.0.0 --port 8000' >> /entrypoint.sh && \
+    chmod +x /entrypoint.sh && \
+    chown appuser:appuser /entrypoint.sh
+
 USER appuser
 
 EXPOSE 8000
-
-# Create entrypoint script for Railway compatibility
-RUN echo '#!/bin/sh' > /entrypoint.sh && \
-    echo 'exec uvicorn app.main:app --host 0.0.0.0 --port 8000' >> /entrypoint.sh && \
-    chmod +x /entrypoint.sh
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \

@@ -42,17 +42,18 @@ COPY --from=builder /app/apps/web/public ./public
 COPY --from=builder /app/apps/web/.next/standalone ./
 COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/static
 
+# Create entrypoint script for Railway compatibility (before USER switch)
+RUN echo '#!/bin/sh' > /entrypoint.sh && \
+    echo 'exec node server.js' >> /entrypoint.sh && \
+    chmod +x /entrypoint.sh && \
+    chown nextjs:nodejs /entrypoint.sh
+
 USER nextjs
 
 EXPOSE 3000
 
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
-
-# Create entrypoint script for Railway compatibility
-RUN echo '#!/bin/sh' > /entrypoint.sh && \
-    echo 'exec node server.js' >> /entrypoint.sh && \
-    chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
 
