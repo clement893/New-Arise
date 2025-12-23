@@ -9,7 +9,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <h3 className="text-white font-bold text-lg mb-4">
-              MODELE<span className="text-blue-400">FULLSTACK</span>
+              MODELE<span className="text-primary-400">FULLSTACK</span>
             </h3>
             <p className="text-sm">
               Template full-stack moderne pour demarrer rapidement vos projets.
@@ -20,22 +20,22 @@ export default function Footer() {
             <h4 className="text-white font-semibold mb-4">Ressources</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/docs" className="hover:text-blue-400 transition">
+                <Link href="/docs" className="hover:text-primary-400 transition">
                   Documentation
                 </Link>
               </li>
               <li>
-                <Link href="/sitemap" className="hover:text-blue-400 transition">
+                <Link href="/sitemap" className="hover:text-primary-400 transition">
                   Plan du Site
                 </Link>
               </li>
               <li>
-                <Link href="https://github.com/clement893/MODELE-NEXTJS-FULLSTACK" target="_blank" className="hover:text-blue-400 transition">
+                <Link href="https://github.com/clement893/MODELE-NEXTJS-FULLSTACK" target="_blank" className="hover:text-primary-400 transition">
                   GitHub
                 </Link>
               </li>
               <li>
-                <Link href="/dashboard" className="hover:text-blue-400 transition">
+                <Link href="/dashboard" className="hover:text-primary-400 transition">
                   Dashboard
                 </Link>
               </li>
@@ -56,12 +56,12 @@ export default function Footer() {
             <h4 className="text-white font-semibold mb-4">Contact</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="https://github.com/clement893" target="_blank" className="hover:text-blue-400 transition">
+                <a href="https://github.com/clement893" target="_blank" className="hover:text-primary-400 transition">
                   GitHub
                 </a>
               </li>
               <li>
-                <a href="https://github.com/clement893/MODELE-NEXTJS-FULLSTACK/issues" target="_blank" className="hover:text-blue-400 transition">
+                <a href="https://github.com/clement893/MODELE-NEXTJS-FULLSTACK/issues" target="_blank" className="hover:text-primary-400 transition">
                   Report a Bug
                 </a>
               </li>
