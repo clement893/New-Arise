@@ -22,13 +22,18 @@ class CompressionMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
         
         # Only compress if client accepts gzip and response is JSON/text
-        if supports_gzip and response.status_code < 400:
+        # Skip compression for streaming responses or responses without body attribute
+        if supports_gzip and response.status_code < 400 and hasattr(response, 'body'):
             content_type = response.headers.get("Content-Type", "")
             
             # Compress JSON and text responses (skip binary, images, etc.)
             if "application/json" in content_type or "text/" in content_type or "application/javascript" in content_type:
-                # Get response body
-                body = response.body
+                # Get response body (only if it exists)
+                try:
+                    body = response.body
+                except AttributeError:
+                    # Response doesn't have body attribute (e.g., StreamingResponse)
+                    return response
                 
                 # Skip if already compressed or too small (compression overhead not worth it)
                 if len(body) > 1024:  # Only compress if > 1KB
