@@ -186,7 +186,7 @@ async def get_current_user_info(
     return current_user
 
 
-@router.get("/google")
+@router.get("/google", response_model=dict)
 async def get_google_auth_url(
     request: Request,
     redirect: Annotated[str | None, Query(description="Frontend redirect URL after authentication")] = None,
