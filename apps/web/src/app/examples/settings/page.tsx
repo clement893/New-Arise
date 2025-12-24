@@ -52,17 +52,14 @@ export default function ExampleSettingsPage() {
             <div className="p-4">
               <nav className="space-y-2">
                 {tabs.map((tab) => (
-                  <button
+                  <Button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
-                      activeTab === tab.id
-                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-                    }`}
+                    variant={activeTab === tab.id ? 'primary' : 'ghost'}
+                    className="w-full justify-start"
                   >
                     {tab.label}
-                  </button>
+                  </Button>
                 ))}
               </nav>
             </div>
@@ -119,7 +116,7 @@ export default function ExampleSettingsPage() {
                       </label>
                       <div className="flex gap-4">
                         {['light', 'dark', 'auto'].map((theme) => (
-                          <button
+                          <Button
                             key={theme}
                             onClick={() =>
                               setSettings({
@@ -127,14 +124,10 @@ export default function ExampleSettingsPage() {
                                 preferences: { ...settings.preferences, theme },
                               })
                             }
-                            className={`px-4 py-2 rounded-lg border-2 ${
-                              settings.preferences.theme === theme
-                                ? 'border-blue-500 bg-blue-50'
-                                : 'border-gray-200'
-                            }`}
+                            variant={settings.preferences.theme === theme ? 'primary' : 'outline'}
                           >
                             {theme === 'light' ? '☀️' : theme === 'dark' ? '🌙' : '🔄'} {theme}
-                          </button>
+                          </Button>
                         ))}
                       </div>
                     </div>
