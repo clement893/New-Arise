@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     )
 
     # CORS - Must be set via environment variable in production
-    CORS_ORIGINS: str = Field(
+    CORS_ORIGINS: Union[str, List[str]] = Field(
         default="",
         description="Comma-separated list of allowed CORS origins (required in production)"
     )
