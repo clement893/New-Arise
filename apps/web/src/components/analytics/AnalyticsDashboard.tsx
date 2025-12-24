@@ -179,8 +179,11 @@ export default function AnalyticsDashboard({
             ))}
           </select>
           {onExport && (
-            <Button variant="outline" onClick={onExport} icon={<Download className="w-4 h-4" />}>
-              Export
+            <Button variant="outline" onClick={onExport}>
+              <span className="flex items-center gap-2">
+                <Download className="w-4 h-4" />
+                Export
+              </span>
             </Button>
           )}
         </div>
