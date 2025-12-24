@@ -9,12 +9,13 @@ import {
   WorkflowBuilder,
   AutomationRules,
   TriggerManager,
+  type AutomationRule,
 } from '@/components/workflow';
 import { logger } from '@/lib/logger';
 import { useState } from 'react';
 
 export default function WorkflowComponentsContent() {
-  const [automationRules, setAutomationRules] = useState([
+  const [automationRules, setAutomationRules] = useState<AutomationRule[]>([
     {
       id: '1',
       name: 'Welcome Email',
