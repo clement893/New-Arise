@@ -1,161 +1,196 @@
-# MODELE-NEXTJS-FULLSTACK
+# 🚀 Next.js Full-Stack Template
 
-A comprehensive, production-ready full-stack template for building modern SaaS applications and websites with Next.js 16, React 19, and TypeScript.
+A production-ready, comprehensive full-stack template for building modern SaaS applications and websites with **Next.js 16**, **React 19**, **TypeScript**, and **FastAPI**.
 
-## 🚀 Features
+> **Perfect for:** SaaS applications, admin dashboards, e-commerce platforms, content management systems, and any full-stack web application.
 
-### Core Features
+---
+
+## ✨ What's Included
+
+### 🎯 Core Stack
 - ✅ **Next.js 16** with App Router and React Server Components
-- ✅ **React 19** - Latest React features
+- ✅ **React 19** - Latest React features and improvements
 - ✅ **TypeScript** - Strict mode for maximum type safety
-- ✅ **Monorepo** - Turborepo for efficient builds
+- ✅ **FastAPI** - Modern, fast Python backend framework
+- ✅ **PostgreSQL** - Robust relational database
+- ✅ **Redis** - Caching and background job queue
+- ✅ **Monorepo** - Turborepo for efficient builds and development
+
+### 🎨 UI & Styling
 - ✅ **Tailwind CSS** - Utility-first CSS framework
-- ✅ **Dark Mode** - Built-in theme support
+- ✅ **40+ UI Components** - Complete component library (DataTable, Kanban, Calendar, Forms, etc.)
+- ✅ **Dark Mode** - Built-in theme support with persistence
+- ✅ **Theme System** - Customizable color palettes and presets
+- ✅ **Responsive Design** - Mobile-first, accessible components
+- ✅ **Storybook** - Component documentation and testing
 
-### Authentication & Security
-- ✅ **JWT Authentication** with httpOnly cookies (XSS protection)
-- ✅ **Token Refresh** - Automatic token refresh
-- ✅ **Route Protection** - Server-side and client-side
-- ✅ **RBAC** - Role-Based Access Control
-- ✅ **Security Headers** - CSP, HSTS, X-Frame-Options
+### 🔐 Authentication & Security
+- ✅ **JWT Authentication** - Secure token-based auth with httpOnly cookies
+- ✅ **OAuth Integration** - Google, GitHub, Microsoft social login
+- ✅ **Multi-Factor Authentication (MFA)** - TOTP-based 2FA support
+- ✅ **Role-Based Access Control (RBAC)** - Flexible permission system
+- ✅ **Security Headers** - CSP, HSTS, X-Frame-Options, and more
+- ✅ **Input Sanitization** - XSS protection built-in
 
-### SaaS Features
+### 💼 SaaS Features
 - ✅ **Subscription Management** - Stripe integration ready
-- ✅ **Team Management** - Multi-user teams
-- ✅ **Invitations System** - User invitations
-- ✅ **Payment History** - Transaction tracking
-- ✅ **Customer Portal** - Self-service portal
+- ✅ **Team Management** - Multi-user teams and collaboration
+- ✅ **User Invitations** - Email-based invitation system
+- ✅ **Payment History** - Transaction tracking and management
+- ✅ **Customer Portal** - Self-service portal for users
 
-### Developer Experience
-- ✅ **React Query** - API state management with caching
-- ✅ **Storybook** - Component documentation
-- ✅ **Vitest** - Unit testing
-- ✅ **Playwright** - E2E testing
-- ✅ **ESLint & Prettier** - Code quality
-- ✅ **Bundle Analyzer** - Performance monitoring
-- ✅ **Web Vitals** - Performance tracking
+### 🛠️ Developer Experience
+- ✅ **Code Generation** - CLI tools for components, pages, API routes
+- ✅ **Type Safety** - Auto-generated TypeScript types from Pydantic schemas
+- ✅ **Hot Reload** - Fast refresh for both frontend and backend
+- ✅ **Testing Suite** - Vitest (unit), Playwright (E2E), pytest (backend)
+- ✅ **Code Quality** - ESLint, Prettier, TypeScript strict mode
+- ✅ **CI/CD Ready** - GitHub Actions workflows included
+- ✅ **Docker Support** - Docker Compose for local development
 
-### UI Components
-- ✅ **20+ UI Components** - DataTable, Kanban, Calendar, Forms, etc.
-- ✅ **Accessible** - WCAG compliant
-- ✅ **Responsive** - Mobile-first design
-- ✅ **Customizable** - Easy to theme
+### 📊 Performance & Monitoring
+- ✅ **Code Splitting** - Automatic route-based code splitting
+- ✅ **Image Optimization** - Next.js Image component optimized
+- ✅ **Bundle Analysis** - Webpack bundle analyzer included
+- ✅ **Web Vitals** - Core Web Vitals monitoring
+- ✅ **Error Tracking** - Sentry integration ready
+- ✅ **Performance Dashboard** - Built-in performance monitoring UI
 
-## 📋 Prerequisites
+### 🌍 Internationalization
+- ✅ **i18n Support** - next-intl configured (FR/EN included)
+- ✅ **Locale Routing** - Automatic locale detection and routing
 
-- **Node.js** 20.x or higher
-- **pnpm** 9.x or higher (recommended) or npm/yarn
-- **Git**
+---
 
-## ⚡ Quick Start
+## 🚀 Quick Start
 
-Get up and running in minutes with our one-command setup:
+### Option 1: Interactive Setup (Recommended)
 
 ```bash
-git clone https://github.com/clement893/MODELE-NEXTJS-FULLSTACK.git
-cd MODELE-NEXTJS-FULLSTACK
+git clone https://github.com/clement893/MODELE-NEXTJS-FULLSTACK.git your-project-name
+cd your-project-name
 pnpm quick-start
 ```
 
-This interactive script will guide you through:
-- ✅ Prerequisites check
+The interactive script will guide you through:
+- ✅ Prerequisites verification
 - ✅ Dependency installation
-- ✅ Environment configuration
+- ✅ Environment configuration with secure secrets
 - ✅ Database setup
 - ✅ Running migrations
 
-## 🛠️ Manual Installation
-
-If you prefer manual setup:
-
-### 1. Clone the repository
+### Option 2: Manual Setup
 
 ```bash
-git clone https://github.com/clement893/MODELE-NEXTJS-FULLSTACK.git
-cd MODELE-NEXTJS-FULLSTACK
-```
+# 1. Clone the repository
+git clone https://github.com/clement893/MODELE-NEXTJS-FULLSTACK.git your-project-name
+cd your-project-name
 
-### 2. Install dependencies
-
-```bash
+# 2. Install dependencies
 pnpm install
-```
 
-### 3. Set up environment variables
+# 3. Configure environment variables
+cp backend/.env.example backend/.env
+cp apps/web/.env.example apps/web/.env.local
+# Edit .env files with your values
 
-Create `.env.local` in `apps/web/`:
-
-```env
-# API Configuration
-NEXT_PUBLIC_API_URL=http://localhost:8000
-
-# Authentication
-JWT_SECRET=your-secret-key-change-in-production
-NEXTAUTH_SECRET=your-nextauth-secret
-NEXTAUTH_URL=http://localhost:3000
-
-# Stripe (for subscriptions)
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your-stripe-key
-STRIPE_SECRET_KEY=your-stripe-secret
-
-# Sentry (optional)
-NEXT_PUBLIC_SENTRY_DSN=your-sentry-dsn
-```
-
-### 4. Run development server
-
-```bash
-# Run frontend and backend in parallel
+# 4. Start development servers
 pnpm dev
-
-# Or run separately
-pnpm dev:frontend  # Frontend only
-pnpm dev:backend   # Backend only
 ```
 
-The application will be available at `http://localhost:3000`
+> 📖 **For detailed setup instructions**, see [GETTING_STARTED.md](./GETTING_STARTED.md)
 
-> 📖 For detailed setup instructions, see [GETTING_STARTED.md](./GETTING_STARTED.md)
+---
+
+## 📋 Prerequisites
+
+Before you begin, ensure you have:
+
+- **Node.js** 20.x or higher ([download](https://nodejs.org/))
+- **pnpm** 9.x or higher (`npm install -g pnpm`)
+- **Python** 3.11+ ([download](https://www.python.org/downloads/)) - Optional, for type generation
+- **PostgreSQL** 14+ ([download](https://www.postgresql.org/download/)) - Or use Docker
+- **Redis** 7+ ([download](https://redis.io/download)) - Optional, for background jobs
+- **Git** ([download](https://git-scm.com/))
+
+**Optional but recommended:**
+- **Docker** & **Docker Compose** - For easier local development
+- **SendGrid Account** - For transactional emails
+- **Stripe Account** - For payment processing
+
+---
 
 ## 📁 Project Structure
 
 ```
 MODELE-NEXTJS-FULLSTACK/
 ├── apps/
-│   └── web/                 # Next.js frontend application
+│   └── web/                      # Next.js frontend application
 │       ├── src/
-│       │   ├── app/         # Next.js App Router pages
-│       │   ├── components/ # React components
-│       │   ├── lib/         # Utilities and libraries
-│       │   └── hooks/       # Custom React hooks
-│       └── public/          # Static assets
+│       │   ├── app/              # Next.js App Router pages
+│       │   │   ├── components/   # Component showcase pages
+│       │   │   ├── examples/    # SaaS example pages
+│       │   │   └── ...
+│       │   ├── components/       # React components
+│       │   │   ├── ui/          # UI component library
+│       │   │   ├── auth/        # Authentication components
+│       │   │   ├── layout/      # Layout components
+│       │   │   ├── performance/ # Performance components
+│       │   │   └── errors/      # Error handling components
+│       │   ├── lib/             # Utilities and libraries
+│       │   ├── hooks/           # Custom React hooks
+│       │   └── contexts/        # React contexts
+│       └── public/              # Static assets
+├── backend/                      # FastAPI backend
+│   ├── app/
+│   │   ├── api/                 # API endpoints
+│   │   ├── models/              # SQLAlchemy models
+│   │   ├── schemas/             # Pydantic schemas
+│   │   ├── core/                # Configuration
+│   │   └── main.py
+│   ├── alembic/                 # Database migrations
+│   └── requirements.txt
 ├── packages/
-│   └── types/               # Shared TypeScript types
-├── backend/                 # FastAPI backend (if present)
-└── scripts/                 # Automation scripts
+│   └── types/                    # Shared TypeScript types
+│       └── src/
+│           ├── generated.ts     # Auto-generated from Pydantic
+│           └── index.ts
+├── scripts/                     # Automation scripts
+│   ├── generate/                # Code generators
+│   └── ...
+├── templates/                   # Module templates (CRM, Billing, etc.)
+├── .github/
+│   └── workflows/               # CI/CD GitHub Actions
+├── package.json                 # Monorepo configuration
+├── turbo.json                   # Turborepo configuration
+└── pnpm-workspace.yaml          # pnpm workspace configuration
 ```
+
+---
 
 ## 🎯 Available Scripts
 
 ### Development
 ```bash
-pnpm dev              # Start development servers
+pnpm dev              # Start all development servers (frontend + backend)
 pnpm dev:frontend     # Frontend only
 pnpm dev:backend      # Backend only
+pnpm storybook        # Start Storybook for component development
 ```
 
 ### Build
 ```bash
 pnpm build            # Build all packages
 pnpm build:web        # Build frontend only
-pnpm build:optimized  # Optimized build
+pnpm build:optimized  # Optimized production build
 ```
 
 ### Testing
 ```bash
-pnpm test             # Run unit tests
+pnpm test             # Run all tests
 pnpm test:watch       # Watch mode
-pnpm test:e2e         # E2E tests
+pnpm test:e2e         # E2E tests with Playwright
 pnpm test:coverage    # Coverage report
 ```
 
@@ -165,6 +200,21 @@ pnpm lint             # Lint code
 pnpm lint:fix         # Auto-fix linting issues
 pnpm format           # Format with Prettier
 pnpm type-check       # TypeScript type checking
+pnpm check            # Run all checks (lint + format + type-check)
+```
+
+### Code Generation
+```bash
+pnpm generate:component ComponentName    # Generate React component
+pnpm generate:page page-name              # Generate Next.js page
+pnpm generate:api route-name              # Generate API route
+pnpm generate:types                       # Generate TypeScript types from Pydantic
+```
+
+### Database
+```bash
+pnpm migrate          # Run database migrations
+pnpm seed             # Seed database with sample data
 ```
 
 ### Analysis
@@ -173,138 +223,268 @@ pnpm analyze         # Bundle size analysis
 pnpm audit:security  # Security audit
 ```
 
-## 🔧 Configuration
+---
 
-### TypeScript
-Strict mode is enabled with comprehensive type checking. See `apps/web/tsconfig.json` for details.
+## 🎨 Using Components
 
-### ESLint
-Configured with Next.js, TypeScript, and React rules. See `apps/web/.eslintrc.json`.
+The template includes a comprehensive UI component library. View all components at `/components` or in Storybook:
 
-### Tailwind CSS
-Utility-first CSS with custom configuration. See `apps/web/tailwind.config.js`.
-
-## 🧪 Testing
-
-### Unit Tests
-```bash
-pnpm test
-```
-
-Tests are written with Vitest and React Testing Library.
-
-### E2E Tests
-```bash
-pnpm test:e2e
-```
-
-E2E tests use Playwright.
-
-### Coverage
-Target: 70% coverage for lines, functions, branches, and statements.
-
-## 📚 Documentation
-
-### Component Documentation
 ```bash
 pnpm storybook
 ```
 
-View component documentation and examples in Storybook.
+### Example Usage
 
-### API Documentation
-API endpoints are documented in `apps/web/src/lib/api.ts` with JSDoc comments.
+```tsx
+import { Button, Card, Input, DataTable } from '@/components/ui';
+
+export default function MyPage() {
+  return (
+    <Card>
+      <Input label="Email" type="email" />
+      <Button variant="primary">Submit</Button>
+    </Card>
+  );
+}
+```
+
+### Available Component Categories
+
+- **Forms**: Input, Select, Textarea, Checkbox, Radio, Switch, RichTextEditor
+- **Data Display**: DataTable, Chart, Kanban, Calendar, Badge, Card
+- **Navigation**: Tabs, Breadcrumbs, Pagination, CommandPalette
+- **Feedback**: Alert, Toast, Modal, Spinner, Progress
+- **Layout**: Container, Section, Grid, Stack
+- **Authentication**: MFA, SocialAuth
+- **Performance**: OfflineSupport, OptimisticUpdates, PerformanceDashboard
+- **Errors**: ErrorReporting
+
+---
+
+## 🔧 Configuration
+
+### Environment Variables
+
+#### Frontend (`apps/web/.env.local`)
+```env
+# API Configuration
+NEXT_PUBLIC_API_URL=http://localhost:8000
+
+# Authentication
+NEXTAUTH_SECRET=your-secret-key-change-in-production
+NEXTAUTH_URL=http://localhost:3000
+JWT_SECRET=your-jwt-secret
+
+# OAuth (Optional)
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+
+# Stripe (Optional)
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your-stripe-key
+STRIPE_SECRET_KEY=your-stripe-secret
+
+# Monitoring (Optional)
+NEXT_PUBLIC_SENTRY_DSN=your-sentry-dsn
+```
+
+#### Backend (`backend/.env`)
+```env
+# Database
+DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/your_db
+
+# Security
+SECRET_KEY=your-secret-key-change-in-production
+
+# Redis (Optional)
+REDIS_URL=redis://localhost:6379/0
+
+# Email (Optional)
+SENDGRID_API_KEY=your-sendgrid-api-key
+SENDGRID_FROM_EMAIL=noreply@yourdomain.com
+
+# Frontend URL (for CORS)
+FRONTEND_URL=http://localhost:3000
+```
+
+> ⚠️ **Important**: Never commit `.env` files. Use `.env.example` files as templates.
+
+---
+
+## 🧪 Testing
+
+### Unit Tests (Vitest)
+```bash
+pnpm test
+```
+
+### E2E Tests (Playwright)
+```bash
+pnpm test:e2e
+```
+
+### Coverage Target
+- **Components**: 80%+
+- **Utilities**: 90%+
+- **Hooks**: 85%+
+
+---
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
+### Vercel (Frontend - Recommended)
 
 1. Push your code to GitHub
-2. Import project in Vercel
+2. Import project in [Vercel](https://vercel.com)
 3. Configure environment variables
-4. Deploy!
+4. Deploy automatically on push
+
+### Railway (Backend - Recommended)
+
+1. Connect GitHub repository to [Railway](https://railway.app)
+2. Configure environment variables (especially `FRONTEND_URL` for CORS)
+3. Deploy automatically
 
 ### Docker
 
 ```bash
 # Build
-docker build -t modele-nextjs-fullstack .
+docker build -t your-app .
 
 # Run
-docker run -p 3000:3000 modele-nextjs-fullstack
+docker run -p 3000:3000 your-app
 ```
 
-### Standalone Build
+> 📖 **For detailed deployment instructions**, see [DEPLOYMENT.md](./DEPLOYMENT.md)
 
-The app is configured for standalone output:
+---
+
+## 📚 Documentation
+
+### Essential Guides
+
+- **[Getting Started](./GETTING_STARTED.md)** - Complete setup and installation guide
+- **[Template Usage](./TEMPLATE_USAGE.md)** - How to use this template for your project
+- **[Development Guide](./DEVELOPMENT.md)** - Development tools, workflows, and best practices
+- **[Deployment Guide](./DEPLOYMENT.md)** - Production deployment instructions
+- **[Contributing](./CONTRIBUTING.md)** - How to contribute to the template
+
+### Additional Documentation
+
+- **[Component Documentation](./docs/COMPONENTS.md)** - Complete UI component library reference
+- **[Custom Hooks](./docs/HOOKS.md)** - Documentation for custom React hooks
+- **[Utilities](./docs/UTILS.md)** - Utility functions reference
+- **[Stripe Setup](./docs/STRIPE_SETUP.md)** - Payment integration guide
+- **[SendGrid Setup](./docs/SENDGRID_SETUP.md)** - Email service configuration
+- **[Security Guide](./docs/SECURITY.md)** - Security best practices
+- **[Troubleshooting](./docs/TROUBLESHOOTING.md)** - Common issues and solutions
+
+### Component Documentation
 
 ```bash
-pnpm build
-cd apps/web/.next/standalone
-node server.js
+pnpm storybook
 ```
+
+View interactive component documentation at `http://localhost:6006`
+
+### API Documentation
+
+- **Swagger UI**: `http://localhost:8000/docs` (when backend is running)
+- **ReDoc**: `http://localhost:8000/redoc`
+
+---
 
 ## 🔒 Security
 
 ### Implemented Security Features
-- ✅ httpOnly cookies for tokens
-- ✅ JWT verification server-side
-- ✅ Content Security Policy (CSP)
-- ✅ Security headers (X-Frame-Options, etc.)
-- ✅ Input sanitization
-- ✅ Error handling without data leakage
+
+- ✅ **httpOnly Cookies** - XSS protection for tokens
+- ✅ **JWT Verification** - Server-side token validation
+- ✅ **Content Security Policy (CSP)** - XSS and injection protection
+- ✅ **Security Headers** - HSTS, X-Frame-Options, etc.
+- ✅ **Input Sanitization** - DOMPurify for HTML sanitization
+- ✅ **Error Handling** - No sensitive data leakage in errors
+- ✅ **CORS Protection** - Configurable origin whitelist
 
 ### Security Best Practices
-- Use strong JWT secrets
+
+- Use strong, randomly generated secrets (32+ characters)
 - Enable HTTPS in production
-- Regularly update dependencies
+- Regularly update dependencies (`pnpm audit:security`)
 - Monitor security advisories
-- Use environment variables for secrets
+- Never commit secrets or `.env` files
+- Use environment variables for all sensitive data
+
+---
 
 ## 📊 Performance
 
-### Optimizations
-- ✅ Code splitting
-- ✅ Lazy loading
-- ✅ Image optimization
-- ✅ Bundle optimization
-- ✅ React Query caching
-- ✅ Web Vitals monitoring
+### Optimizations Included
+
+- ✅ **Code Splitting** - Automatic route-based splitting
+- ✅ **Lazy Loading** - Component and image lazy loading
+- ✅ **Image Optimization** - Next.js Image component
+- ✅ **Bundle Optimization** - Tree shaking and minification
+- ✅ **React Query Caching** - Intelligent API response caching
+- ✅ **Web Vitals Monitoring** - Performance tracking built-in
 
 ### Performance Targets
-- **LCP**: < 2.5s
-- **FID**: < 100ms
-- **CLS**: < 0.1
-- **TTFB**: < 600ms
+
+- **LCP** (Largest Contentful Paint): < 2.5s
+- **FID** (First Input Delay): < 100ms
+- **CLS** (Cumulative Layout Shift): < 0.1
+- **TTFB** (Time to First Byte): < 600ms
+
+---
 
 ## 🌍 Internationalization
 
-i18n support is configured with `next-intl`. See `apps/web/src/i18n/` for configuration.
+i18n is configured with `next-intl`. Supported locales:
+
+- 🇫🇷 French (default)
+- 🇬🇧 English
+
+To add more locales, see `apps/web/src/i18n/` configuration.
+
+---
 
 ## 🤝 Contributing
 
+We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+
+### Quick Contribution Steps
+
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+3. Make your changes
+4. Run tests (`pnpm test`)
+5. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
 
-### Code Style
-- Follow TypeScript best practices
-- Use ESLint and Prettier
-- Write tests for new features
-- Update documentation
+---
 
 ## 📝 License
 
 This project is private and proprietary.
 
-## 🆘 Support
+---
 
-For issues and questions:
-- Open an issue on GitHub
-- Check the documentation
-- Review the code comments
+## 🆘 Support & Help
+
+### Getting Help
+
+- 📖 Check the [documentation](./GETTING_STARTED.md)
+- 🐛 [Open an issue](https://github.com/clement893/MODELE-NEXTJS-FULLSTACK/issues)
+- 💬 [Start a discussion](https://github.com/clement893/MODELE-NEXTJS-FULLSTACK/discussions)
+- 📚 Review code comments and examples
+
+### Common Issues
+
+- **Build errors**: Check [GETTING_STARTED.md](./GETTING_STARTED.md#troubleshooting)
+- **CORS errors**: See [DEPLOYMENT.md](./DEPLOYMENT.md#troubleshooting-cors-issues)
+- **Database connection**: Verify environment variables and PostgreSQL is running
+
+---
 
 ## 🎓 Learning Resources
 
@@ -312,25 +492,36 @@ For issues and questions:
 - [React Documentation](https://react.dev)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [FastAPI Documentation](https://fastapi.tiangolo.com/)
+- [Storybook Documentation](https://storybook.js.org/docs)
+
+---
+
+## 🙏 Acknowledgments
+
+Built with amazing open-source projects:
+
+- Next.js, React, TypeScript
+- Tailwind CSS
+- FastAPI, SQLAlchemy, Pydantic
+- Turborepo, pnpm
+- And many more...
+
+---
 
 ## 📈 Roadmap
 
 ### Planned Features
-- [ ] Enhanced i18n support
-- [ ] More test coverage
-- [ ] CI/CD pipelines
-- [ ] Advanced analytics
+
+- [ ] Enhanced i18n support (more locales)
+- [ ] Additional payment providers (PayPal, etc.)
 - [ ] Real-time features (WebSockets)
-
-## 🙏 Acknowledgments
-
-Built with:
-- Next.js
-- React
-- TypeScript
-- Tailwind CSS
-- And many other amazing open-source projects
+- [ ] Advanced analytics dashboard
+- [ ] More SaaS templates (CRM, ERP modules)
+- [ ] Enhanced testing utilities
 
 ---
 
-**Made with ❤️ for building amazing SaaS applications**
+**Made with ❤️ for building amazing full-stack applications**
+
+*Start building your next project in minutes, not days.*

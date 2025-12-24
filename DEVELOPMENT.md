@@ -78,7 +78,7 @@ pnpm test:e2e:debug
 ### Generate a React Component
 
 ```bash
-npm run generate:component ComponentName
+pnpm generate:component ComponentName
 
 # With custom path
 node scripts/generate-component.js ComponentName --path=src/components/ui
@@ -93,10 +93,10 @@ node scripts/generate-component.js ComponentName --path=src/components/ui
 
 ```bash
 # App Router (default)
-npm run generate:page page-name --app
+pnpm generate:page page-name --app
 
 # Pages Router
-npm run generate:page page-name
+pnpm generate:page page-name
 ```
 
 **Files created:**
@@ -107,10 +107,10 @@ npm run generate:page page-name
 
 ```bash
 # GET route (default)
-npm run generate:api route-name
+pnpm generate:api route-name
 
 # POST route
-npm run generate:api route-name --method=POST
+pnpm generate:api route-name --method=POST
 ```
 
 **Files created:**
@@ -120,10 +120,10 @@ npm run generate:api route-name --method=POST
 
 ```bash
 # Generate types from Pydantic schemas
-npm run generate:types
+pnpm generate:types
 
 # Fallback version (without Python)
-npm run generate:types:fallback
+pnpm generate:types:fallback
 ```
 
 Types are generated in `packages/types/src/generated.ts` and exported via `@modele/types`.
@@ -151,17 +151,17 @@ alembic current
 alembic history
 ```
 
-### Using npm scripts
+### Using pnpm scripts
 
 ```bash
 # Create migration
-npm run migrate create MigrationName
+pnpm migrate create MigrationName
 
 # Apply migrations
-npm run migrate upgrade
+pnpm migrate upgrade
 
 # Rollback
-npm run migrate downgrade
+pnpm migrate downgrade
 ```
 
 ## 🧪 Testing
@@ -222,10 +222,10 @@ pnpm exec playwright test --project=chromium
 
 ```bash
 # Lint all code
-npm run lint
+pnpm lint
 
 # Fix linting issues
-npm run lint:fix
+pnpm lint:fix
 
 # Lint specific package
 pnpm --filter @modele/web lint
@@ -235,7 +235,7 @@ pnpm --filter @modele/web lint
 
 ```bash
 # Check TypeScript types
-npm run type-check
+pnpm type-check
 
 # Check specific package
 pnpm --filter @modele/web type-check
@@ -245,10 +245,10 @@ pnpm --filter @modele/web type-check
 
 ```bash
 # Format all code
-npm run format
+pnpm format
 
 # Check formatting
-npm run format:check
+pnpm format:check
 ```
 
 ## 🔥 Hot Reload
@@ -262,16 +262,16 @@ Hot reload is automatically configured:
 
 ```bash
 # Start everything (frontend + backend)
-npm run dev:full
+pnpm dev:full
 
 # Start frontend only
-npm run dev:frontend
+pnpm dev:frontend
 
 # Start backend only
-npm run dev:backend
+pnpm dev:backend
 
 # Start with Turborepo (recommended)
-npm run dev
+pnpm dev
 ```
 
 ### Docker Compose
@@ -297,10 +297,10 @@ Git hooks are configured with **Husky** and **lint-staged** to:
 
 ```bash
 # Run pre-commit checks manually
-npm run pre-commit
+pnpm pre-commit
 
 # Skip tests (faster)
-npm run pre-commit:skip-tests
+pnpm pre-commit:skip-tests
 ```
 
 ### Disable Temporarily
@@ -321,13 +321,13 @@ git commit --no-verify -m "message"
 
 2. **Generate code if needed**
    ```bash
-   npm run generate:component MyComponent
-   npm run generate:page my-page
+   pnpm generate:component MyComponent
+   pnpm generate:page my-page
    ```
 
 3. **Start development**
    ```bash
-   npm run dev:full
+   pnpm dev:full
    ```
 
 4. **Test components in Storybook**
@@ -342,9 +342,9 @@ git commit --no-verify -m "message"
 
 6. **Before committing**
    ```bash
-   npm run lint
-   npm run type-check
-   npm run test
+   pnpm lint
+   pnpm type-check
+   pnpm test
    ```
 
 7. **Commit and push**
@@ -379,6 +379,57 @@ The project uses Nixpacks for automatic builds. Ensure:
 2. Environment variables are configured
 3. Build commands are correct in `nixpacks.toml`
 
+## 📦 Monorepo Structure
+
+This project uses a Turborepo monorepo structure:
+
+```
+MODELE-NEXTJS-FULLSTACK/
+├── apps/
+│   └── web/              # Next.js 16 frontend
+├── backend/              # FastAPI backend
+├── packages/
+│   └── types/            # Shared TypeScript types
+├── scripts/              # Development scripts
+├── turbo.json            # Turborepo configuration
+├── pnpm-workspace.yaml   # pnpm workspace configuration
+└── package.json          # Root package.json
+```
+
+### Build Pipeline
+
+Build order is automatically handled:
+1. `@modele/types` (shared package)
+2. `@modele/web` (depends on `@modele/types`)
+
+### Workspace Dependencies
+
+All internal dependencies use `workspace:*` protocol:
+
+```json
+{
+  "dependencies": {
+    "@modele/types": "workspace:*"
+  }
+}
+```
+
+### Workspace Scripts
+
+```bash
+# Build all packages
+pnpm build
+
+# Build specific package
+pnpm build:web
+pnpm build:types
+
+# Check workspace dependencies
+pnpm workspace:check
+```
+
+For more details, see [Turborepo Documentation](https://turbo.build/repo/docs) and [pnpm Workspace Documentation](https://pnpm.io/workspaces).
+
 ## 📚 Resources
 
 - [Storybook Documentation](https://storybook.js.org/docs)
@@ -386,3 +437,5 @@ The project uses Nixpacks for automatic builds. Ensure:
 - [Alembic Documentation](https://alembic.sqlalchemy.org/)
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
 - [Railway Documentation](https://docs.railway.app/)
+- [Turborepo Documentation](https://turbo.build/repo/docs)
+- [pnpm Workspace Documentation](https://pnpm.io/workspaces)

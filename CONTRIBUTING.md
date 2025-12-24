@@ -1,6 +1,8 @@
-# Contributing to MODELE-NEXTJS-FULLSTACK
+# Contributing
 
-Merci de votre intérêt pour contribuer ! Ce document fournit les guidelines et instructions pour contribuer au projet.
+Thank you for your interest in contributing! This document provides guidelines and instructions for contributing to this template.
+
+> **Note**: This is a template repository. Contributions that improve the template for all users are especially welcome!
 
 ---
 
@@ -27,20 +29,20 @@ Merci de votre intérêt pour contribuer ! Ce document fournit les guidelines et
 
 ## 🚀 Démarrage
 
-### 1. Fork et Clone
+### 1. Fork and Clone
 
 ```bash
-# Fork le dépôt sur GitHub, puis :
-git clone https://github.com/VOTRE_USERNAME/MODELE-NEXTJS-FULLSTACK.git
+# Fork the repository on GitHub, then:
+git clone https://github.com/YOUR_USERNAME/MODELE-NEXTJS-FULLSTACK.git
 cd MODELE-NEXTJS-FULLSTACK
 ```
 
-### 2. Créer une Branche
+### 2. Create a Branch
 
 ```bash
-git checkout -b feat/nom-de-la-fonctionnalite
-# ou
-git checkout -b fix/nom-du-bug
+git checkout -b feat/feature-name
+# or
+git checkout -b fix/bug-name
 ```
 
 ### 3. Installer les Dépendances
@@ -210,7 +212,7 @@ pnpm test:coverage
 pnpm test:e2e
 ```
 
-**Voir** : [Guide des Tests](./docs/TESTING.md) pour plus de détails
+**See** : [Development Guide](./DEVELOPMENT.md#testing) for more details
 
 ---
 
@@ -310,22 +312,22 @@ Brève description des changements
 
 ## 📚 Documentation
 
-### Quand Mettre à Jour la Documentation
+### When to Update Documentation
 
-- ✅ Nouvelle fonctionnalité ajoutée
-- ✅ API modifiée
-- ✅ Processus de développement changé
-- ✅ Nouveau hook ou utilitaire créé
+- ✅ New feature added
+- ✅ API changed
+- ✅ Development process changed
+- ✅ New hook or utility created
+- ✅ Template usage instructions updated
 
-### Fichiers de Documentation
+### Documentation Files
 
-- **README.md** : Vue d'ensemble du projet
-- **docs/INDEX.md** : Index de toute la documentation
-- **docs/API.md** : Documentation API complète
-- **docs/HOOKS.md** : Documentation des hooks
-- **docs/UTILS.md** : Documentation des utilitaires
-- **docs/TESTING.md** : Guide des tests
-- **docs/TROUBLESHOOTING.md** : Guide de dépannage
+- **README.md** - Project overview
+- **GETTING_STARTED.md** - Setup guide
+- **TEMPLATE_USAGE.md** - Template customization guide
+- **DEVELOPMENT.md** - Development tools and workflows
+- **DEPLOYMENT.md** - Deployment instructions
+- **CONTRIBUTING.md** - This file
 
 ### Standards de Documentation
 
@@ -410,10 +412,24 @@ Tout autre contexte pertinent
 
 ---
 
-## 📄 Licence
+## 📄 License
 
-En contribuant, vous acceptez que vos contributions soient sous licence MIT.
+By contributing, you agree that your contributions will be licensed under the same license as the template.
 
 ---
 
-**Merci de contribuer ! 🙏**
+**Thank you for contributing! 🙏**
+
+---
+
+## 🎯 What to Contribute
+
+We especially welcome contributions that:
+
+- ✅ Improve template usability
+- ✅ Add new useful components
+- ✅ Fix bugs or security issues
+- ✅ Improve documentation
+- ✅ Add examples or templates
+- ✅ Enhance developer experience
+- ✅ Add tests or improve test coverage
