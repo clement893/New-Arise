@@ -42,6 +42,9 @@ from app.api.webhooks import stripe as stripe_webhook_router
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Lifespan context manager for startup and shutdown events"""
+    from app.core.logging import logger
+    import os
+    
     # Startup
     await init_db()
     await init_cache()
@@ -64,9 +67,6 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             await analyze_tables(session)
     except Exception as e:
         logger.warning(f"Index creation/analysis skipped: {e}")
-    
-    from app.core.logging import logger
-    import os
     logger.info(f"CORS Origins configured: {settings.CORS_ORIGINS}")
     logger.info(f"ENVIRONMENT: {os.getenv('ENVIRONMENT', 'NOT SET')}")
     logger.info(f"RAILWAY_ENVIRONMENT: {os.getenv('RAILWAY_ENVIRONMENT', 'NOT SET')}")
@@ -79,6 +79,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 def create_app() -> FastAPI:
     """Create and configure FastAPI application"""
+    from app.core.logging import logger
+    import os
+    
     app = FastAPI(
         title=settings.PROJECT_NAME,
         version=settings.VERSION,
@@ -137,7 +140,6 @@ def create_app() -> FastAPI:
     setup_ip_whitelist(app, admin_paths=["/api/v1/admin"])
 
     # Request Signing Middleware (optional, for enhanced API security)
-    import os
     if os.getenv("ENABLE_REQUEST_SIGNING", "").lower() == "true":
         app.add_middleware(
             RequestSigningMiddleware,
@@ -162,7 +164,6 @@ def create_app() -> FastAPI:
 
     # Rate Limiting (after CORS to allow preflight requests)
     # Can be disabled by setting DISABLE_RATE_LIMITING=true in environment
-    import os
     if not os.getenv("DISABLE_RATE_LIMITING", "").lower() == "true":
         app = setup_rate_limiting(app)
         logger.info("Rate limiting enabled")
@@ -208,7 +209,6 @@ def create_app() -> FastAPI:
         response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
         
         # Content Security Policy (strict in production, relaxed in development)
-        import os
         environment = os.getenv("ENVIRONMENT", "development")
         
         if environment == "production":
