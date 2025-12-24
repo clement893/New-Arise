@@ -96,7 +96,7 @@ export default function Calendar({
           key={day}
           className={clsx(
             'aspect-square border border-gray-200 dark:border-gray-700 p-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors',
-            isCurrentDay && 'bg-primary-50 dark:bg-primary-900/20 border-primary-500 dark:border-primary-400'
+            isCurrentDay && 'bg-primary-50 dark:bg-primary-900/40 border-primary-500 dark:border-primary-400'
           )}
           onClick={() => onDateClick?.(date)}
         >
