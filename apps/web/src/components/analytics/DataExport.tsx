@@ -9,7 +9,6 @@ import { useState } from 'react';
 import { clsx } from 'clsx';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import Select from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
 import Checkbox from '@/components/ui/Checkbox';
 import { Download, FileText, FileSpreadsheet, File, Database } from 'lucide-react';
@@ -209,9 +208,11 @@ export default function DataExport({
             onClick={handleExport}
             loading={loading}
             disabled={config.fields.length === 0}
-            icon={<Download className="w-4 h-4" />}
           >
-            Export {config.format.toUpperCase()}
+            <span className="flex items-center gap-2">
+              <Download className="w-4 h-4" />
+              Export {config.format.toUpperCase()}
+            </span>
           </Button>
         </div>
       </div>
