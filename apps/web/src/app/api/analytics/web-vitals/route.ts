@@ -38,7 +38,8 @@ export async function POST(request: NextRequest) {
     // Return success
     return NextResponse.json({ success: true });
   } catch (error) {
-    logger.error('Web Vitals API Error', error, {});
+    const errorObj = error instanceof Error ? error : new Error(String(error));
+    logger.error('Web Vitals API Error', errorObj, {});
     return NextResponse.json(
       { error: 'Failed to process Web Vitals' },
       { status: 500 }
