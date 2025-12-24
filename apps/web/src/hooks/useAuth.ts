@@ -109,11 +109,7 @@ export function useAuth() {
       const response = await authAPI.refresh(refreshTokenValue);
       const { access_token, refresh_token: newRefreshToken } = response.data;
 
-      TokenStorage.setToken(access_token);
-      if (newRefreshToken) {
-        const currentToken = TokenStorage.getToken();
-        await TokenStorage.setToken(currentToken || '', newRefreshToken);
-      }
+      await TokenStorage.setToken(access_token, newRefreshToken);
 
       useAuthStore.getState().setToken(access_token);
       return { success: true };
