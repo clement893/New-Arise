@@ -6,7 +6,6 @@ import { PageHeader, PageContainer, Section } from '@/components/layout';
 import { useAuthStore } from '@/lib/store';
 import { bootstrapSuperAdmin, makeSuperAdmin, checkSuperAdminStatus } from '@/lib/api/admin';
 import { Shield, Key, Mail, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
-import { clsx } from 'clsx';
 
 export const dynamic = 'force-dynamic';
 
