@@ -4,6 +4,7 @@ import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import Container from '@/components/ui/Container';
+import StatsCard from '@/components/ui/StatsCard';
 
 export default function ExampleDashboardPage() {
   return (
@@ -15,34 +16,26 @@ export default function ExampleDashboardPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <div className="p-6">
-            <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Donateurs</div>
-            <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">1,234</div>
-            <div className="text-sm text-green-600 dark:text-green-400 mt-2">+12% ce mois</div>
-          </div>
-        </Card>
-        <Card>
-          <div className="p-6">
-            <div className="text-sm text-gray-600 mb-1">Campagnes Actives</div>
-            <div className="text-3xl font-bold text-gray-900">8</div>
-            <div className="text-sm text-blue-600 mt-2">3 nouvelles</div>
-          </div>
-        </Card>
-        <Card>
-          <div className="p-6">
-            <div className="text-sm text-gray-600 mb-1">Montant Collecté</div>
-            <div className="text-3xl font-bold text-gray-900">45,678€</div>
-            <div className="text-sm text-green-600 mt-2">+8% ce mois</div>
-          </div>
-        </Card>
-        <Card>
-          <div className="p-6">
-            <div className="text-sm text-gray-600 mb-1">Taux de Conversion</div>
-            <div className="text-3xl font-bold text-gray-900">3.2%</div>
-            <div className="text-sm text-purple-600 mt-2">+0.5% ce mois</div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Total Donateurs"
+          value="1,234"
+          change={{ value: 12, type: 'increase', period: 'ce mois' }}
+        />
+        <StatsCard
+          title="Campagnes Actives"
+          value="8"
+          trend={<div className="text-sm text-blue-600 mt-2">3 nouvelles</div>}
+        />
+        <StatsCard
+          title="Montant Collecté"
+          value="45,678€"
+          change={{ value: 8, type: 'increase', period: 'ce mois' }}
+        />
+        <StatsCard
+          title="Taux de Conversion"
+          value="3.2%"
+          change={{ value: 0.5, type: 'increase', period: 'ce mois' }}
+        />
       </div>
 
       {/* Recent Activity */}

@@ -12,6 +12,8 @@ import Alert from '@/components/ui/Alert';
 import Container from '@/components/ui/Container';
 import Loading from '@/components/ui/Loading';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import SubscriptionCard from '@/components/subscriptions/SubscriptionCard';
+import PaymentHistory from '@/components/subscriptions/PaymentHistory';
 
 // Note: Client Components are already dynamic by nature.
 // Route segment config (export const dynamic) only works in Server Components.
@@ -174,25 +176,6 @@ function SubscriptionsContent() {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, 'success' | 'error' | 'default'> = {
-      active: 'success',
-      cancelled: 'error',
-      expired: 'error',
-      trial: 'default',
-    };
-    return variants[status] || 'default';
-  };
-
-  const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = {
-      active: 'Active',
-      cancelled: 'Cancelled',
-      expired: 'Expired',
-      trial: 'Trial',
-    };
-    return labels[status] || status;
-  };
 
   return (
     <div className="py-12">
@@ -216,118 +199,12 @@ function SubscriptionsContent() {
         </Card>
       ) : subscription ? (
         <>
-          {/* Current Subscription */}
-          <Card className="mb-8">
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">{subscription.plan_name}</h2>
-                  <Badge variant={getStatusBadge(subscription.status)}>
-                    {getStatusLabel(subscription.status)}
-                  </Badge>
-                </div>
-                <div className="text-right">
-                  <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                    {subscription.amount}€
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    /{subscription.billing_period === 'month' ? 'month' : 'year'}
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Current Period</div>
-                  <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                    {new Date(subscription.current_period_start).toLocaleDateString()} - {new Date(subscription.current_period_end).toLocaleDateString()}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Next Payment</div>
-                  <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                    {new Date(subscription.current_period_end).toLocaleDateString()}
-                  </div>
-                </div>
-              </div>
-
-              {subscription.cancel_at_period_end && (
-                <Alert variant="warning" className="mb-6">
-                  Your subscription will be canceled on {new Date(subscription.current_period_end).toLocaleDateString()}.
-                </Alert>
-              )}
-
-              <div className="flex gap-3">
-                {subscription.status === 'active' && !subscription.cancel_at_period_end && (
-                  <Button variant="outline" onClick={handleCancelSubscription} className="border-red-500 text-red-600 hover:bg-red-50">
-                    Cancel Subscription
-                  </Button>
-                )}
-                {subscription.cancel_at_period_end && (
-                  <Button onClick={handleResumeSubscription}>
-                    Resume Subscription
-                  </Button>
-                )}
-                <Link href="/pricing">
-                  <Button variant="outline">
-                    Change Plan
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </Card>
-
-          {/* Payment History */}
-          <Card>
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Payment History</h2>
-              {payments.length === 0 ? (
-                <p className="text-gray-600 dark:text-gray-400">No payments yet</p>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-gray-200 dark:border-gray-700">
-                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Date</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Amount</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                      {payments.map((payment) => (
-                        <tr key={payment.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                          <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                            {new Date(payment.date).toLocaleDateString('fr-FR')}
-                          </td>
-                          <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
-                            {payment.amount}€
-                          </td>
-                          <td className="px-4 py-3">
-                            <Badge variant={payment.status === 'paid' ? 'success' : payment.status === 'failed' ? 'error' : 'default'}>
-                              {payment.status === 'paid' ? 'Paid' : payment.status === 'pending' ? 'Pending' : 'Failed'}
-                            </Badge>
-                          </td>
-                          <td className="px-4 py-3">
-                            {payment.invoice_url && (
-                              <a
-                                href={payment.invoice_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-600 dark:text-blue-400 hover:underline text-sm"
-                              >
-                                Download Invoice
-                              </a>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </Card>
+          <SubscriptionCard
+            subscription={subscription}
+            onCancel={handleCancelSubscription}
+            onResume={handleResumeSubscription}
+          />
+          <PaymentHistory payments={payments} />
         </>
       ) : (
         <Card>

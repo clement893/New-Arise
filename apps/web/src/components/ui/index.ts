@@ -148,3 +148,10 @@ export { default as ErrorBoundary, withErrorBoundary } from './ErrorBoundary';
 
 // Design Tokens
 export * as tokens from './tokens';
+
+// Dashboard Components
+export { default as ServiceTestCard } from './ServiceTestCard';
+export { default as StatusCard } from './StatusCard';
+export { default as FAQItem } from './FAQItem';
+export { default as PricingCardSimple } from './PricingCardSimple';
+export { default as BillingPeriodToggle } from './BillingPeriodToggle';
