@@ -1,16 +1,31 @@
 # Multi-stage build for production
 FROM node:22-alpine AS base
 
-# Install pnpm
-RUN npm install -g pnpm@9.15.9
+# Install pnpm and system dependencies for sharp
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    vips-dev \
+    && npm install -g pnpm@9.15.9
 
 # Install dependencies (including devDependencies for build)
 FROM base AS deps
 WORKDIR /app
+
+# Set environment variables for sharp installation (increase timeout and retry)
+ENV SHARP_IGNORE_GLOBAL_LIBVIPS=1
+ENV npm_config_sharp_binary_host="https://github.com/lovell/sharp-libvips/releases/download"
+ENV npm_config_sharp_libvips_binary_host="https://github.com/lovell/sharp-libvips/releases/download"
+
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/web/package.json ./apps/web/
 COPY packages/types/package.json ./packages/types/
-RUN pnpm install --no-frozen-lockfile
+
+# Install with retry logic for sharp
+RUN pnpm install --no-frozen-lockfile || \
+    (echo "Retrying installation..." && sleep 5 && pnpm install --no-frozen-lockfile) || \
+    (echo "Second retry..." && sleep 10 && pnpm install --no-frozen-lockfile)
 
 # Build application
 FROM base AS builder
