@@ -1,19 +1,11 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { Button, Card, Badge, Container } from '@/components/ui';
+import { Card, Badge, Container } from '@/components/ui';
 import Link from 'next/link';
 
 function DashboardContent() {
-  const router = useRouter();
-  const { user, logout } = useAuthStore();
-
-  const handleLogout = () => {
-    logout();
-    router.push('/');
-  };
+  const { user } = useAuthStore();
 
   return (
     <Container className="py-8 lg:py-12">
@@ -157,9 +149,5 @@ function DashboardContent() {
 }
 
 export default function DashboardPage() {
-  return (
-    <ProtectedRoute>
-      <DashboardContent />
-    </ProtectedRoute>
-  );
+  return <DashboardContent />;
 }

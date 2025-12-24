@@ -4,7 +4,6 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Container from '@/components/ui/Container';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -450,10 +449,6 @@ function SettingsContent() {
 }
 
 export default function SettingsPage() {
-  return (
-    <ProtectedRoute>
-      <SettingsContent />
-    </ProtectedRoute>
-  );
+  return <SettingsContent />;
 }
 
