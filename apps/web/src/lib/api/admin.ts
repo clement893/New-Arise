@@ -109,19 +109,66 @@ export async function checkSuperAdminStatus(
   token?: string
 ): Promise<{ is_superadmin: boolean }> {
   try {
-    const authToken = token || getAuthToken();
-    const response = await fetch(`${API_URL}/api/v1/admin/check-superadmin/${encodeURIComponent(email)}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${authToken}`,
-      },
-      signal: (() => {
-        const controller = new AbortController();
-        setTimeout(() => controller.abort(), 10000); // 10 second timeout
-        return controller.signal;
-      })(),
-    });
+    let authToken = token || getAuthToken();
+    
+    const makeRequest = async (tokenToUse: string) => {
+      const response = await fetch(`${API_URL}/api/v1/admin/check-superadmin/${encodeURIComponent(email)}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${tokenToUse}`,
+        },
+        signal: (() => {
+          const controller = new AbortController();
+          setTimeout(() => controller.abort(), 10000); // 10 second timeout
+          return controller.signal;
+        })(),
+      });
+      return response;
+    };
+
+    let response = await makeRequest(authToken);
+
+    // If 401, try to refresh token and retry
+    if (response.status === 401) {
+      const { TokenStorage } = await import('@/lib/auth/tokenStorage');
+      const refreshToken = TokenStorage.getRefreshToken();
+      
+      if (refreshToken) {
+        try {
+          // Try to refresh the token
+          const refreshResponse = await fetch(`${API_URL}/api/v1/auth/refresh`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ refresh_token: refreshToken }),
+          });
+
+          if (refreshResponse.ok) {
+            const refreshData = await refreshResponse.json();
+            const newToken = refreshData.access_token || refreshData.accessToken;
+            const newRefreshToken = refreshData.refresh_token || refreshData.refreshToken;
+            
+            // Update token storage
+            await TokenStorage.setToken(newToken, newRefreshToken);
+            
+            // Retry the original request with new token
+            authToken = newToken;
+            response = await makeRequest(authToken);
+          } else {
+            // Refresh failed, throw error
+            throw new Error('Token expired and refresh failed. Please log in again.');
+          }
+        } catch (refreshError) {
+          // Refresh failed, throw error
+          throw new Error('Token expired and refresh failed. Please log in again.');
+        }
+      } else {
+        // No refresh token available
+        throw new Error('Token expired. Please log in again.');
+      }
+    }
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: response.statusText }));
