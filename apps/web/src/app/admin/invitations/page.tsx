@@ -1,14 +1,10 @@
 'use client';
 
 // Force dynamic rendering to avoid static generation
+// Note: generateStaticParams() cannot be used with 'use client'
+// The dynamic exports are sufficient for Client Components
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
-export const revalidate = 0;
-
-// Prevent static generation - return empty array to indicate no static paths
-export function generateStaticParams() {
-  return [];
-}
 
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/lib/store';
