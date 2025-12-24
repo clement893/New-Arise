@@ -124,7 +124,8 @@ export default function ActivityFeed({
           <Activity className="w-5 h-5" />
           Activity Feed
           {autoRefresh && (
-            <Badge variant="info" icon={<Bell className="w-3 h-3" />}>
+            <Badge variant="info">
+              <Bell className="w-3 h-3 mr-1" />
               Live
             </Badge>
           )}
