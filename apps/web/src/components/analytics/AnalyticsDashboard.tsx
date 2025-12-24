@@ -11,7 +11,7 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { Chart } from '@/components/ui';
 import type { ChartDataPoint } from '@/components/ui';
-import { TrendingUp, TrendingDown, Users, DollarSign, ShoppingCart, Eye, Calendar, Download } from 'lucide-react';
+import { TrendingUp, TrendingDown, Users, DollarSign, ShoppingCart, Eye, Download } from 'lucide-react';
 
 export interface AnalyticsMetric {
   label: string;
