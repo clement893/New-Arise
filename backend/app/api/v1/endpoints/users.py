@@ -4,7 +4,7 @@ Example implementation of optimized endpoints
 """
 
 from typing import Annotated, Optional
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_
 
@@ -23,6 +23,7 @@ router = APIRouter()
 @rate_limit_decorator("100/hour")
 @cache_query(expire=300, tags=["users"])
 async def list_users(
+    request: Request,
     pagination: Annotated[PaginationParams, Depends()],
     db: Annotated[AsyncSession, Depends(get_db)],
     is_active: Optional[bool] = Query(None, description="Filter by active status"),
@@ -78,6 +79,7 @@ async def list_users(
 @rate_limit_decorator("200/hour")
 @cache_query(expire=600, tags=["users"])
 async def get_user(
+    request: Request,
     user_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> UserResponse:

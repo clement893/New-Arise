@@ -7,6 +7,7 @@ from typing import Optional, Any, Callable
 from functools import wraps
 import hashlib
 import json
+import asyncio
 
 from app.core.cache import cache_backend, CacheBackend
 from app.core.logging import logger
@@ -48,7 +49,10 @@ class EnhancedCache:
         
         # Cache miss - compute value
         logger.debug(f"Cache miss: {key}")
-        value = await callable_fn(*args, **kwargs) if callable else callable_fn
+        if asyncio.iscoroutinefunction(callable_fn):
+            value = await callable_fn(*args, **kwargs)
+        else:
+            value = callable_fn(*args, **kwargs) if args or kwargs else callable_fn()
         
         # Store in cache
         await self.cache.set(key, value, expire, compress)
