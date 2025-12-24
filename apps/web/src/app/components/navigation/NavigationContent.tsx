@@ -4,7 +4,6 @@ import { useState } from 'react';
 import dynamicImport from 'next/dynamic';
 import { PageHeader, PageContainer, Section, PageNavigation } from '@/components/layout';
 import { Divider, Breadcrumb } from '@/components/ui';
-import type { BreadcrumbItem } from '@/components/ui';
 
 // Dynamically import components to avoid CSS issues during build
 const Sidebar = dynamicImport(() => import('@/components/ui/Sidebar').then(mod => ({ default: mod.default })), { ssr: false, loading: () => <div>Loading...</div> });
