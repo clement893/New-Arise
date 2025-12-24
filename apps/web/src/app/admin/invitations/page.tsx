@@ -12,6 +12,7 @@ import Container from '@/components/ui/Container';
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
 import Loading from '@/components/ui/Loading';
+import Modal from '@/components/ui/Modal';
 
 interface Invitation {
   id: string;
@@ -319,54 +320,59 @@ export default function InvitationsPage() {
       )}
 
       {/* Create Invitation Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-md m-4">
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Inviter un utilisateur</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Email *
-                  </label>
-                  <Input
-                    type="email"
-                    value={newInvitationEmail}
-                    onChange={(e) => setNewInvitationEmail(e.target.value)}
-                    placeholder="user@example.com"
-                    fullWidth
-                  />
-                </div>
-                <div>
-                  <Select
-                    label="Rôle *"
-                    value={newInvitationRole}
-                    onChange={(e) => setNewInvitationRole(e.target.value)}
-                    fullWidth
-                    options={[
-                      { value: 'user', label: 'Utilisateur' },
-                      { value: 'manager', label: 'Manager' },
-                      { value: 'admin', label: 'Administrateur' },
-                    ]}
-                  />
-                </div>
-                <div className="flex gap-3 justify-end">
-                  <Button variant="outline" onClick={() => {
-                    setShowCreateModal(false);
-                    setNewInvitationEmail('');
-                    setNewInvitationRole('user');
-                  }}>
-                    Annuler
-                  </Button>
-                  <Button onClick={handleCreateInvitation}>
-                    Envoyer l'invitation
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </Card>
+      <Modal
+        isOpen={showCreateModal}
+        onClose={() => {
+          setShowCreateModal(false);
+          setNewInvitationEmail('');
+          setNewInvitationRole('user');
+        }}
+        title="Inviter un utilisateur"
+        size="md"
+        footer={
+          <>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowCreateModal(false);
+                setNewInvitationEmail('');
+                setNewInvitationRole('user');
+              }}
+            >
+              Annuler
+            </Button>
+            <Button onClick={handleCreateInvitation}>
+              Envoyer l'invitation
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <div>
+            <Input
+              label="Email *"
+              type="email"
+              value={newInvitationEmail}
+              onChange={(e) => setNewInvitationEmail(e.target.value)}
+              placeholder="user@example.com"
+              fullWidth
+            />
+          </div>
+          <div>
+            <Select
+              label="Rôle *"
+              value={newInvitationRole}
+              onChange={(e) => setNewInvitationRole(e.target.value)}
+              fullWidth
+              options={[
+                { value: 'user', label: 'Utilisateur' },
+                { value: 'manager', label: 'Manager' },
+                { value: 'admin', label: 'Administrateur' },
+              ]}
+            />
+          </div>
         </div>
-      )}
+      </Modal>
       </Container>
     </div>
   );

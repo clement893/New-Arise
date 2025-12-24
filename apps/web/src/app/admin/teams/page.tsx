@@ -12,6 +12,7 @@ import Container from '@/components/ui/Container';
 import Input from '@/components/ui/Input';
 import Textarea from '@/components/ui/Textarea';
 import Loading from '@/components/ui/Loading';
+import Modal from '@/components/ui/Modal';
 
 interface Team {
   id: string;
@@ -279,53 +280,56 @@ export default function TeamsPage() {
       )}
 
       {/* Create Team Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-md m-4">
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Créer une nouvelle équipe</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Nom de l'équipe *
-                  </label>
-                  <Input
-                    type="text"
-                    value={newTeamName}
-                    onChange={(e) => setNewTeamName(e.target.value)}
-                    placeholder="Ex: Équipe Marketing"
-                    fullWidth
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Description
-                  </label>
-                  <Textarea
-                    value={newTeamDescription}
-                    onChange={(e) => setNewTeamDescription(e.target.value)}
-                    rows={3}
-                    placeholder="Description de l'équipe..."
-                    fullWidth
-                  />
-                </div>
-                <div className="flex gap-3 justify-end">
-                  <Button variant="outline" onClick={() => {
-                    setShowCreateModal(false);
-                    setNewTeamName('');
-                    setNewTeamDescription('');
-                  }}>
-                    Annuler
-                  </Button>
-                  <Button onClick={handleCreateTeam}>
-                    Créer
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </Card>
+      <Modal
+        isOpen={showCreateModal}
+        onClose={() => {
+          setShowCreateModal(false);
+          setNewTeamName('');
+          setNewTeamDescription('');
+        }}
+        title="Créer une nouvelle équipe"
+        size="md"
+        footer={
+          <>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowCreateModal(false);
+                setNewTeamName('');
+                setNewTeamDescription('');
+              }}
+            >
+              Annuler
+            </Button>
+            <Button onClick={handleCreateTeam}>
+              Créer
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <div>
+            <Input
+              label="Nom de l'équipe *"
+              type="text"
+              value={newTeamName}
+              onChange={(e) => setNewTeamName(e.target.value)}
+              placeholder="Ex: Équipe Marketing"
+              fullWidth
+            />
+          </div>
+          <div>
+            <Textarea
+              label="Description"
+              value={newTeamDescription}
+              onChange={(e) => setNewTeamDescription(e.target.value)}
+              rows={3}
+              placeholder="Description de l'équipe..."
+              fullWidth
+            />
+          </div>
         </div>
-      )}
+      </Modal>
       </Container>
     </div>
   );

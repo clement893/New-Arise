@@ -14,6 +14,7 @@ import Alert from '@/components/ui/Alert';
 import Loading from '@/components/ui/Loading';
 import Select from '@/components/ui/Select';
 import DataTable, { type Column } from '@/components/ui/DataTable';
+import Modal from '@/components/ui/Modal';
 import { projectsAPI } from '@/lib/api';
 import { handleApiError } from '@/lib/errors/api';
 import { Plus, Edit, Trash2 } from 'lucide-react';
@@ -285,137 +286,140 @@ function ProjectsContent() {
         )}
 
         {/* Create Project Modal */}
-        {showCreateModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <Card className="w-full max-w-md">
-              <div className="p-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                  Créer un nouveau projet
-                </h2>
-                <div className="space-y-4">
-                  <div>
-                    <Input
-                      label="Nom du projet *"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="Ex: Projet Alpha"
-                      fullWidth
-                    />
-                  </div>
-                  <div>
-                    <Textarea
-                      label="Description"
-                      value={formData.description || ''}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      placeholder="Description du projet..."
-                      rows={4}
-                      fullWidth
-                    />
-                  </div>
-                  <div>
-                    <Select
-                      label="Statut"
-                      value={formData.status}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          status: e.target.value as 'active' | 'archived' | 'completed',
-                        })
-                      }
-                      fullWidth
-                      options={[
-                        { value: 'active', label: 'Actif' },
-                        { value: 'completed', label: 'Terminé' },
-                        { value: 'archived', label: 'Archivé' },
-                      ]}
-                    />
-                  </div>
-                  <div className="flex gap-3 justify-end pt-4">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setShowCreateModal(false);
-                        resetForm();
-                      }}
-                    >
-                      Annuler
-                    </Button>
-                    <Button onClick={handleCreateProject} loading={loading}>
-                      Créer
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </Card>
+        <Modal
+          isOpen={showCreateModal}
+          onClose={() => {
+            setShowCreateModal(false);
+            resetForm();
+          }}
+          title="Créer un nouveau projet"
+          size="md"
+          footer={
+            <>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowCreateModal(false);
+                  resetForm();
+                }}
+              >
+                Annuler
+              </Button>
+              <Button onClick={handleCreateProject} loading={loading}>
+                Créer
+              </Button>
+            </>
+          }
+        >
+          <div className="space-y-4">
+            <div>
+              <Input
+                label="Nom du projet *"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="Ex: Projet Alpha"
+                fullWidth
+              />
+            </div>
+            <div>
+              <Textarea
+                label="Description"
+                value={formData.description || ''}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Description du projet..."
+                rows={4}
+                fullWidth
+              />
+            </div>
+            <div>
+              <Select
+                label="Statut"
+                value={formData.status}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    status: e.target.value as 'active' | 'archived' | 'completed',
+                  })
+                }
+                fullWidth
+                options={[
+                  { value: 'active', label: 'Actif' },
+                  { value: 'completed', label: 'Terminé' },
+                  { value: 'archived', label: 'Archivé' },
+                ]}
+              />
+            </div>
           </div>
-        )}
+        </Modal>
 
         {/* Edit Project Modal */}
-        {showEditModal && selectedProject && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <Card className="w-full max-w-md">
-              <div className="p-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                  Modifier le projet
-                </h2>
-                <div className="space-y-4">
-                  <div>
-                    <Input
-                      label="Nom du projet *"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="Ex: Projet Alpha"
-                      fullWidth
-                    />
-                  </div>
-                  <div>
-                    <Textarea
-                      label="Description"
-                      value={formData.description || ''}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      placeholder="Description du projet..."
-                      rows={4}
-                      fullWidth
-                    />
-                  </div>
-                  <div>
-                    <Select
-                      label="Statut"
-                      value={formData.status}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          status: e.target.value as 'active' | 'archived' | 'completed',
-                        })
-                      }
-                      fullWidth
-                      options={[
-                        { value: 'active', label: 'Actif' },
-                        { value: 'completed', label: 'Terminé' },
-                        { value: 'archived', label: 'Archivé' },
-                      ]}
-                    />
-                  </div>
-                  <div className="flex gap-3 justify-end pt-4">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setShowEditModal(false);
-                        setSelectedProject(null);
-                        resetForm();
-                      }}
-                    >
-                      Annuler
-                    </Button>
-                    <Button onClick={handleEditProject} loading={loading}>
-                      Enregistrer
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </Card>
+        <Modal
+          isOpen={showEditModal && selectedProject !== null}
+          onClose={() => {
+            setShowEditModal(false);
+            setSelectedProject(null);
+            resetForm();
+          }}
+          title="Modifier le projet"
+          size="md"
+          footer={
+            <>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowEditModal(false);
+                  setSelectedProject(null);
+                  resetForm();
+                }}
+              >
+                Annuler
+              </Button>
+              <Button onClick={handleEditProject} loading={loading}>
+                Enregistrer
+              </Button>
+            </>
+          }
+        >
+          <div className="space-y-4">
+            <div>
+              <Input
+                label="Nom du projet *"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="Ex: Projet Alpha"
+                fullWidth
+              />
+            </div>
+            <div>
+              <Textarea
+                label="Description"
+                value={formData.description || ''}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Description du projet..."
+                rows={4}
+                fullWidth
+              />
+            </div>
+            <div>
+              <Select
+                label="Statut"
+                value={formData.status}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    status: e.target.value as 'active' | 'archived' | 'completed',
+                  })
+                }
+                fullWidth
+                options={[
+                  { value: 'active', label: 'Actif' },
+                  { value: 'completed', label: 'Terminé' },
+                  { value: 'archived', label: 'Archivé' },
+                ]}
+              />
+            </div>
           </div>
-        )}
+        </Modal>
       </Container>
     </div>
   );

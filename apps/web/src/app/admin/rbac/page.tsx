@@ -12,6 +12,7 @@ import Container from '@/components/ui/Container';
 import Input from '@/components/ui/Input';
 import Textarea from '@/components/ui/Textarea';
 import Loading from '@/components/ui/Loading';
+import Modal from '@/components/ui/Modal';
 
 interface Role {
   id: string;
@@ -251,53 +252,56 @@ export default function RBACPage() {
       </div>
 
       {/* Create Role Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-md m-4">
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Créer un nouveau rôle</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Nom du rôle *
-                  </label>
-                  <Input
-                    type="text"
-                    value={newRoleName}
-                    onChange={(e) => setNewRoleName(e.target.value)}
-                    placeholder="Ex: Éditeur"
-                    fullWidth
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Description
-                  </label>
-                  <Textarea
-                    value={newRoleDescription}
-                    onChange={(e) => setNewRoleDescription(e.target.value)}
-                    rows={3}
-                    placeholder="Description du rôle..."
-                    fullWidth
-                  />
-                </div>
-                <div className="flex gap-3 justify-end">
-                  <Button variant="outline" onClick={() => {
-                    setShowCreateModal(false);
-                    setNewRoleName('');
-                    setNewRoleDescription('');
-                  }}>
-                    Annuler
-                  </Button>
-                  <Button onClick={handleCreateRole}>
-                    Créer
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </Card>
+      <Modal
+        isOpen={showCreateModal}
+        onClose={() => {
+          setShowCreateModal(false);
+          setNewRoleName('');
+          setNewRoleDescription('');
+        }}
+        title="Créer un nouveau rôle"
+        size="md"
+        footer={
+          <>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowCreateModal(false);
+                setNewRoleName('');
+                setNewRoleDescription('');
+              }}
+            >
+              Annuler
+            </Button>
+            <Button onClick={handleCreateRole}>
+              Créer
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <div>
+            <Input
+              label="Nom du rôle *"
+              type="text"
+              value={newRoleName}
+              onChange={(e) => setNewRoleName(e.target.value)}
+              placeholder="Ex: Éditeur"
+              fullWidth
+            />
+          </div>
+          <div>
+            <Textarea
+              label="Description"
+              value={newRoleDescription}
+              onChange={(e) => setNewRoleDescription(e.target.value)}
+              rows={3}
+              placeholder="Description du rôle..."
+              fullWidth
+            />
+          </div>
         </div>
-      )}
+      </Modal>
       </Container>
     </div>
   );

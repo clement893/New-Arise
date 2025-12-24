@@ -13,6 +13,7 @@ import Alert from '@/components/ui/Alert';
 import Loading from '@/components/ui/Loading';
 import Select from '@/components/ui/Select';
 import DataTable, { type Column } from '@/components/ui/DataTable';
+import Modal from '@/components/ui/Modal';
 import { usersAPI } from '@/lib/api';
 import { handleApiError } from '@/lib/errors/api';
 import { Plus, Edit, Trash2, Mail, Shield, User } from 'lucide-react';
@@ -396,157 +397,160 @@ function UsersContent() {
         )}
 
         {/* Create User Modal */}
-        {showCreateModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <Card className="w-full max-w-md">
-              <div className="p-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                  Créer un nouvel utilisateur
-                </h2>
-                <div className="space-y-4">
-                  <div>
-                    <Input
-                      label="Nom *"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="Ex: John Doe"
-                      fullWidth
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      label="Email *"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="user@example.com"
-                      fullWidth
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      label="Mot de passe *"
-                      type="password"
-                      value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
-                      fullWidth
-                    />
-                  </div>
-                  <div>
-                    <Select
-                      label="Rôle *"
-                      value={formData.role}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          role: e.target.value as 'admin' | 'user' | 'manager',
-                        })
-                      }
-                      fullWidth
-                      options={[
-                        { value: 'user', label: 'Utilisateur' },
-                        { value: 'manager', label: 'Manager' },
-                        { value: 'admin', label: 'Administrateur' },
-                      ]}
-                    />
-                  </div>
-                  <div className="flex gap-3 justify-end pt-4">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setShowCreateModal(false);
-                        resetForm();
-                      }}
-                    >
-                      Annuler
-                    </Button>
-                    <Button onClick={handleCreateUser} loading={loading}>
-                      Créer
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </Card>
+        <Modal
+          isOpen={showCreateModal}
+          onClose={() => {
+            setShowCreateModal(false);
+            resetForm();
+          }}
+          title="Créer un nouvel utilisateur"
+          size="md"
+          footer={
+            <>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowCreateModal(false);
+                  resetForm();
+                }}
+              >
+                Annuler
+              </Button>
+              <Button onClick={handleCreateUser} loading={loading}>
+                Créer
+              </Button>
+            </>
+          }
+        >
+          <div className="space-y-4">
+            <div>
+              <Input
+                label="Nom *"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="Ex: John Doe"
+                fullWidth
+              />
+            </div>
+            <div>
+              <Input
+                label="Email *"
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                placeholder="user@example.com"
+                fullWidth
+              />
+            </div>
+            <div>
+              <Input
+                label="Mot de passe *"
+                type="password"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                placeholder="••••••••"
+                fullWidth
+              />
+            </div>
+            <div>
+              <Select
+                label="Rôle *"
+                value={formData.role}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    role: e.target.value as 'admin' | 'user' | 'manager',
+                  })
+                }
+                fullWidth
+                options={[
+                  { value: 'user', label: 'Utilisateur' },
+                  { value: 'manager', label: 'Manager' },
+                  { value: 'admin', label: 'Administrateur' },
+                ]}
+              />
+            </div>
           </div>
-        )}
+        </Modal>
 
         {/* Edit User Modal */}
-        {showEditModal && selectedUser && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <Card className="w-full max-w-md">
-              <div className="p-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                  Modifier l'utilisateur
-                </h2>
-                <div className="space-y-4">
-                  <div>
-                    <Input
-                      label="Nom *"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="Ex: John Doe"
-                      fullWidth
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      label="Email *"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="user@example.com"
-                      fullWidth
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      label="Nouveau mot de passe (optionnel)"
-                      type="password"
-                      value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      placeholder="Laisser vide pour ne pas changer"
-                      fullWidth
-                    />
-                  </div>
-                  <div>
-                    <Select
-                      label="Rôle *"
-                      value={formData.role}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          role: e.target.value as 'admin' | 'user' | 'manager',
-                        })
-                      }
-                      fullWidth
-                      options={[
-                        { value: 'user', label: 'Utilisateur' },
-                        { value: 'manager', label: 'Manager' },
-                        { value: 'admin', label: 'Administrateur' },
-                      ]}
-                    />
-                  </div>
-                  <div className="flex gap-3 justify-end pt-4">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setShowEditModal(false);
-                        setSelectedUser(null);
-                        resetForm();
-                      }}
-                    >
-                      Annuler
-                    </Button>
-                    <Button onClick={handleEditUser} loading={loading}>
-                      Enregistrer
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </Card>
+        <Modal
+          isOpen={showEditModal && selectedUser !== null}
+          onClose={() => {
+            setShowEditModal(false);
+            setSelectedUser(null);
+            resetForm();
+          }}
+          title="Modifier l'utilisateur"
+          size="md"
+          footer={
+            <>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowEditModal(false);
+                  setSelectedUser(null);
+                  resetForm();
+                }}
+              >
+                Annuler
+              </Button>
+              <Button onClick={handleEditUser} loading={loading}>
+                Enregistrer
+              </Button>
+            </>
+          }
+        >
+          <div className="space-y-4">
+            <div>
+              <Input
+                label="Nom *"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="Ex: John Doe"
+                fullWidth
+              />
+            </div>
+            <div>
+              <Input
+                label="Email *"
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                placeholder="user@example.com"
+                fullWidth
+              />
+            </div>
+            <div>
+              <Input
+                label="Nouveau mot de passe (optionnel)"
+                type="password"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                placeholder="Laisser vide pour ne pas changer"
+                fullWidth
+              />
+            </div>
+            <div>
+              <Select
+                label="Rôle *"
+                value={formData.role}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    role: e.target.value as 'admin' | 'user' | 'manager',
+                  })
+                }
+                fullWidth
+                options={[
+                  { value: 'user', label: 'Utilisateur' },
+                  { value: 'manager', label: 'Manager' },
+                  { value: 'admin', label: 'Administrateur' },
+                ]}
+              />
+            </div>
           </div>
-        )}
+        </Modal>
       </Container>
     </div>
   );
