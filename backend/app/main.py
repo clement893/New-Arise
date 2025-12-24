@@ -17,6 +17,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.core.config import settings
 from app.core.database import init_db, close_db
 from app.core.cache import init_cache, close_cache
+from app.core.migrations import ensure_theme_preference_column
 from app.core.exceptions import AppException
 from app.core.error_handler import (
     app_exception_handler,
@@ -38,6 +39,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Startup
     await init_db()
     await init_cache()
+    # Ensure required columns exist (auto-migration)
+    await ensure_theme_preference_column()
     from app.core.logging import logger
     import os
     logger.info(f"CORS Origins configured: {settings.CORS_ORIGINS}")
