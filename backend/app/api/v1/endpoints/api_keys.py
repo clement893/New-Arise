@@ -4,7 +4,7 @@ Allows users to generate and manage API keys
 """
 
 from typing import Annotated, List
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
 
@@ -41,6 +41,7 @@ class APIKeyListResponse(BaseModel):
 @router.post("/generate", response_model=APIKeyResponse)
 @rate_limit_decorator("5/minute")
 async def generate_api_key_endpoint(
+    request: Request,
     api_key_data: APIKeyCreate,
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -69,6 +70,7 @@ async def generate_api_key_endpoint(
 @router.get("/list", response_model=List[APIKeyListResponse])
 @rate_limit_decorator("10/minute")
 async def list_api_keys(
+    request: Request,
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
@@ -80,6 +82,7 @@ async def list_api_keys(
 @router.delete("/{key_id}")
 @rate_limit_decorator("10/minute")
 async def revoke_api_key(
+    request: Request,
     key_id: int,
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
