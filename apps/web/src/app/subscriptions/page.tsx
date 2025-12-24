@@ -192,7 +192,8 @@ function SubscriptionsContent() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="py-12">
+      <div className="container mx-auto px-4">
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-2">My Subscriptions</h1>
         <p className="text-gray-600">Manage your subscription and payments</p>
@@ -335,6 +336,7 @@ function SubscriptionsContent() {
           </div>
         </Card>
       )}
+      </div>
     </div>
   );
 }

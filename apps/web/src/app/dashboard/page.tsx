@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic rendering to avoid prerendering issues
+export const dynamic = 'force-dynamic';
+
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
