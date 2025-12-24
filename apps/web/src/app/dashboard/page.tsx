@@ -63,17 +63,17 @@ function DashboardContent() {
           {/* Quick Stats */}
           <Card title="Quick Stats">
             <div className="space-y-4">
-              <div className="flex justify-between items-center p-4 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
-                <span className="text-gray-700 dark:text-gray-300">Resources</span>
-                <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">0</span>
+              <div className="flex justify-between items-center p-4 bg-primary-100 dark:bg-primary-900/40 rounded-lg border border-primary-200 dark:border-primary-800">
+                <span className="text-primary-900 dark:text-primary-100 font-medium">Resources</span>
+                <span className="text-2xl font-bold text-primary-700 dark:text-primary-300">0</span>
               </div>
-              <div className="flex justify-between items-center p-4 bg-secondary-50 dark:bg-secondary-900/20 rounded-lg">
-                <span className="text-gray-700 dark:text-gray-300">Files</span>
-                <span className="text-2xl font-bold text-secondary-600 dark:text-secondary-400">0</span>
+              <div className="flex justify-between items-center p-4 bg-secondary-100 dark:bg-secondary-900/40 rounded-lg border border-secondary-200 dark:border-secondary-800">
+                <span className="text-secondary-900 dark:text-secondary-100 font-medium">Files</span>
+                <span className="text-2xl font-bold text-secondary-700 dark:text-secondary-300">0</span>
               </div>
-              <div className="flex justify-between items-center p-4 bg-info-50 dark:bg-info-900/20 rounded-lg">
-                <span className="text-gray-700 dark:text-gray-300">Activities</span>
-                <span className="text-2xl font-bold text-info-600 dark:text-info-400">0</span>
+              <div className="flex justify-between items-center p-4 bg-info-100 dark:bg-info-900/40 rounded-lg border border-info-200 dark:border-info-800">
+                <span className="text-info-900 dark:text-info-100 font-medium">Activities</span>
+                <span className="text-2xl font-bold text-info-700 dark:text-info-300">0</span>
               </div>
             </div>
           </Card>
@@ -82,17 +82,17 @@ function DashboardContent() {
         {/* API Status */}
         <Card title="API Status" className="mt-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 border border-secondary-200 dark:border-secondary-800 bg-secondary-50 dark:bg-secondary-900/20 rounded-lg">
-              <p className="text-secondary-700 dark:text-secondary-300 font-semibold">✓ Backend Connected</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">API is running</p>
+            <div className="p-4 border border-secondary-200 dark:border-secondary-800 bg-secondary-100 dark:bg-secondary-900/40 rounded-lg">
+              <p className="text-secondary-900 dark:text-secondary-100 font-semibold">✓ Backend Connected</p>
+              <p className="text-sm text-secondary-800 dark:text-secondary-200">API is running</p>
             </div>
-            <div className="p-4 border border-secondary-200 dark:border-secondary-800 bg-secondary-50 dark:bg-secondary-900/20 rounded-lg">
-              <p className="text-secondary-700 dark:text-secondary-300 font-semibold">✓ Database Connected</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">PostgreSQL is running</p>
+            <div className="p-4 border border-secondary-200 dark:border-secondary-800 bg-secondary-100 dark:bg-secondary-900/40 rounded-lg">
+              <p className="text-secondary-900 dark:text-secondary-100 font-semibold">✓ Database Connected</p>
+              <p className="text-sm text-secondary-800 dark:text-secondary-200">PostgreSQL is running</p>
             </div>
-            <div className="p-4 border border-secondary-200 dark:border-secondary-800 bg-secondary-50 dark:bg-secondary-900/20 rounded-lg">
-              <p className="text-secondary-700 dark:text-secondary-300 font-semibold">✓ Authentication</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">JWT is working</p>
+            <div className="p-4 border border-secondary-200 dark:border-secondary-800 bg-secondary-100 dark:bg-secondary-900/40 rounded-lg">
+              <p className="text-secondary-900 dark:text-secondary-100 font-semibold">✓ Authentication</p>
+              <p className="text-sm text-secondary-800 dark:text-secondary-200">JWT is working</p>
             </div>
           </div>
         </Card>
@@ -103,7 +103,7 @@ function DashboardContent() {
             {/* AI Test */}
             <Link
               href="/ai/test"
-              className="group p-6 border-2 border-info-200 dark:border-info-800 bg-gradient-to-br from-info-50 to-info-100 dark:from-info-900/20 dark:to-info-800/20 rounded-lg hover:border-info-400 dark:hover:border-info-600 hover:shadow-lg transition-all duration-200"
+              className="group p-6 border-2 border-info-200 dark:border-info-800 bg-gradient-to-br from-info-100 to-info-200 dark:from-info-900/40 dark:to-info-800/40 rounded-lg hover:border-info-400 dark:hover:border-info-600 hover:shadow-lg transition-all duration-200"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="w-12 h-12 bg-info-600 dark:bg-info-500 rounded-lg flex items-center justify-center">
@@ -115,8 +115,8 @@ function DashboardContent() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">AI Test</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <h3 className="text-xl font-bold text-info-900 dark:text-info-100 mb-2">AI Test</h3>
+              <p className="text-sm text-info-800 dark:text-info-200">
                 Test OpenAI integration with chat completions and text generation
               </p>
             </Link>
@@ -124,7 +124,7 @@ function DashboardContent() {
             {/* Email Test */}
             <Link
               href="/email/test"
-              className="group p-6 border-2 border-secondary-200 dark:border-secondary-800 bg-gradient-to-br from-secondary-50 to-secondary-100 dark:from-secondary-900/20 dark:to-secondary-800/20 rounded-lg hover:border-secondary-400 dark:hover:border-secondary-600 hover:shadow-lg transition-all duration-200"
+              className="group p-6 border-2 border-secondary-200 dark:border-secondary-800 bg-gradient-to-br from-secondary-100 to-secondary-200 dark:from-secondary-900/40 dark:to-secondary-800/40 rounded-lg hover:border-secondary-400 dark:hover:border-secondary-600 hover:shadow-lg transition-all duration-200"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="w-12 h-12 bg-secondary-600 dark:bg-secondary-500 rounded-lg flex items-center justify-center">
@@ -136,8 +136,8 @@ function DashboardContent() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Email Test</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <h3 className="text-xl font-bold text-secondary-900 dark:text-secondary-100 mb-2">Email Test</h3>
+              <p className="text-sm text-secondary-800 dark:text-secondary-200">
                 Test SendGrid email service with test, welcome, and custom emails
               </p>
             </Link>
@@ -145,7 +145,7 @@ function DashboardContent() {
             {/* S3 Test */}
             <Link
               href="/upload"
-              className="group p-6 border-2 border-primary-200 dark:border-primary-800 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 rounded-lg hover:border-primary-400 dark:hover:border-primary-600 hover:shadow-lg transition-all duration-200"
+              className="group p-6 border-2 border-primary-200 dark:border-primary-800 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/40 dark:to-primary-800/40 rounded-lg hover:border-primary-400 dark:hover:border-primary-600 hover:shadow-lg transition-all duration-200"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="w-12 h-12 bg-primary-600 dark:bg-primary-500 rounded-lg flex items-center justify-center">
@@ -157,8 +157,8 @@ function DashboardContent() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">S3 Upload</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <h3 className="text-xl font-bold text-primary-900 dark:text-primary-100 mb-2">S3 Upload</h3>
+              <p className="text-sm text-primary-800 dark:text-primary-200">
                 Test AWS S3 file upload and management functionality
               </p>
             </Link>

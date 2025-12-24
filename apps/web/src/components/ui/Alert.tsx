@@ -17,28 +17,28 @@ export interface AlertProps extends BaseComponentProps, ClosableProps, IconProps
 
 const variantClasses = {
   info: {
-    container: 'bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800',
-    text: 'text-primary-800 dark:text-primary-200',
-    title: 'text-primary-900 dark:text-primary-100',
-    icon: 'text-primary-400',
+    container: 'bg-primary-100 dark:bg-primary-900/40 border-primary-200 dark:border-primary-800',
+    text: 'text-primary-900 dark:text-primary-100',
+    title: 'text-primary-900 dark:text-primary-50 font-semibold',
+    icon: 'text-primary-600 dark:text-primary-400',
   },
   success: {
-    container: 'bg-secondary-50 dark:bg-secondary-900/20 border-secondary-200 dark:border-secondary-800',
-    text: 'text-secondary-800 dark:text-secondary-200',
-    title: 'text-secondary-900 dark:text-secondary-100',
-    icon: 'text-secondary-400',
+    container: 'bg-secondary-100 dark:bg-secondary-900/40 border-secondary-200 dark:border-secondary-800',
+    text: 'text-secondary-900 dark:text-secondary-100',
+    title: 'text-secondary-900 dark:text-secondary-50 font-semibold',
+    icon: 'text-secondary-600 dark:text-secondary-400',
   },
   warning: {
-    container: 'bg-warning-50 dark:bg-warning-900/20 border-warning-200 dark:border-warning-800',
-    text: 'text-warning-800 dark:text-warning-200',
-    title: 'text-warning-900 dark:text-warning-100',
-    icon: 'text-warning-400',
+    container: 'bg-warning-100 dark:bg-warning-900/40 border-warning-200 dark:border-warning-800',
+    text: 'text-warning-900 dark:text-warning-100',
+    title: 'text-warning-900 dark:text-warning-50 font-semibold',
+    icon: 'text-warning-600 dark:text-warning-400',
   },
   error: {
-    container: 'bg-danger-50 dark:bg-danger-900/20 border-danger-200 dark:border-danger-800',
-    text: 'text-danger-800 dark:text-danger-200',
-    title: 'text-danger-900 dark:text-danger-100',
-    icon: 'text-danger-400',
+    container: 'bg-danger-100 dark:bg-danger-900/40 border-danger-200 dark:border-danger-800',
+    text: 'text-danger-900 dark:text-danger-100',
+    title: 'text-danger-900 dark:text-danger-50 font-semibold',
+    icon: 'text-danger-600 dark:text-danger-400',
   },
 };
 
