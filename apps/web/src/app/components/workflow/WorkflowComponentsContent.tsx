@@ -126,6 +126,7 @@ export default function WorkflowComponentsContent() {
                 logger.info('Rule created:', { rule });
                 const newRule = {
                   ...rule,
+                  description: rule.description || '',
                   id: String(Date.now()),
                   createdAt: new Date().toISOString(),
                   triggerCount: 0,
