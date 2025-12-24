@@ -232,7 +232,7 @@ export default function BillingComponentsContent() {
                 currency: invoice.currency,
                 items: [
                   {
-                    description: invoice.description,
+                    description: invoice.description || 'Monthly Subscription',
                     quantity: 1,
                     unitPrice: invoice.amount * 0.9,
                     total: invoice.amount * 0.9,
