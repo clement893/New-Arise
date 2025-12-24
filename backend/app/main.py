@@ -105,7 +105,10 @@ def create_app() -> FastAPI:
     app.add_middleware(CompressionMiddleware)
 
     # Cache Headers Middleware
-    app.add_middleware(CacheHeadersMiddleware, default_max_age=300)`n`n    # CSRF Protection Middleware (after CORS, before auth)`n    app.add_middleware(CSRFProtectionMiddleware)
+    app.add_middleware(CacheHeadersMiddleware, default_max_age=300)
+
+    # CSRF Protection Middleware (after CORS, before auth)
+    app.add_middleware(CSRFProtectionMiddleware)
 
     # Rate Limiting (after CORS to allow preflight requests)
     app = setup_rate_limiting(app)
