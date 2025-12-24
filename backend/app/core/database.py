@@ -9,15 +9,31 @@ from sqlalchemy.orm import declarative_base
 from app.core.config import settings
 
 # Create async engine with optimized connection pooling
+# Enhanced pool configuration for better performance
 engine = create_async_engine(
     str(settings.DATABASE_URL),
     echo=settings.DEBUG,
     future=True,
-    pool_pre_ping=True,  # Vérifier connexions avant utilisation
-    pool_size=settings.DB_POOL_SIZE,
-    max_overflow=settings.DB_MAX_OVERFLOW,
-    pool_recycle=3600,  # Recycler connexions après 1h pour éviter stale connections
-    pool_reset_on_return='commit',  # Reset sur retour au pool
+    # Connection pool optimization
+    pool_pre_ping=True,  # Verify connections before use (prevents stale connections)
+    pool_size=settings.DB_POOL_SIZE,  # Base pool size
+    max_overflow=settings.DB_MAX_OVERFLOW,  # Maximum overflow connections
+    pool_recycle=3600,  # Recycle connections after 1 hour (prevents stale connections)
+    pool_reset_on_return='commit',  # Reset connection state on return to pool
+    # Additional optimizations
+    pool_timeout=30,  # Timeout for getting connection from pool (seconds)
+    connect_args={
+        "server_settings": {
+            "application_name": "modele_backend",
+            "jit": "off",  # Disable JIT for faster query planning on small queries
+        },
+        "command_timeout": 60,  # Query timeout (seconds)
+    },
+    # Query optimization
+    execution_options={
+        "autocommit": False,
+        "isolation_level": "READ COMMITTED",  # Balance between consistency and performance
+    },
 )
 
 # Create async session factory

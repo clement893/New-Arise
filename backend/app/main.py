@@ -93,7 +93,13 @@ def create_app() -> FastAPI:
     setup_cors(app)
 
     # Compression Middleware (after CORS)
-    app.add_middleware(CompressionMiddleware)
+    # Enhanced compression with Brotli support
+    app.add_middleware(
+        CompressionMiddleware,
+        min_size=1024,  # Only compress responses > 1KB
+        compress_level=6,  # Balance between speed and compression ratio
+        use_brotli=True,  # Use Brotli if client supports it
+    )
 
     # Cache Headers Middleware
     app.add_middleware(CacheHeadersMiddleware, default_max_age=300)

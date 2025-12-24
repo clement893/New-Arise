@@ -214,11 +214,27 @@ class Settings(BaseSettings):
     # Database Connection Pool Configuration
     DB_POOL_SIZE: int = Field(
         default=10,
-        description="Database connection pool size",
+        ge=1,
+        le=50,
+        description="Database connection pool size (base connections)",
     )
     DB_MAX_OVERFLOW: int = Field(
         default=20,
-        description="Database connection pool max overflow",
+        ge=0,
+        le=50,
+        description="Database connection pool max overflow (additional connections)",
+    )
+    DB_POOL_TIMEOUT: int = Field(
+        default=30,
+        ge=5,
+        le=120,
+        description="Timeout for getting connection from pool (seconds)",
+    )
+    DB_QUERY_TIMEOUT: int = Field(
+        default=60,
+        ge=10,
+        le=300,
+        description="Query execution timeout (seconds)",
     )
 
     # Stripe Configuration

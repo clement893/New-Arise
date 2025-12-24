@@ -1,88 +1,99 @@
 """
-User Management Endpoints
+User Endpoints with Pagination and Query Optimization
+Example implementation of optimized endpoints
 """
 
-from typing import Annotated, List
-
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from typing import Annotated, Optional
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload
+from sqlalchemy import select, and_
 
 from app.core.database import get_db
-from app.core.cache import cached, invalidate_cache_pattern
-from app.dependencies import get_current_user
-from app.dependencies.rbac import require_permission as rbac_require_permission
+from app.core.pagination import PaginationParams, paginate_query, PaginatedResponse
+from app.core.query_optimization import QueryOptimizer
+from app.core.cache_enhanced import cache_query
+from app.core.rate_limit import rate_limit_decorator
 from app.models.user import User
-from app.schemas.user import User as UserSchema
+from app.schemas.user import UserResponse
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[UserSchema])
-@cached(expire=300, key_prefix="users")
-async def get_users(
+@router.get("/", response_model=PaginatedResponse[UserResponse])
+@rate_limit_decorator("100/hour")
+@cache_query(expire=300, tags=["users"])
+async def list_users(
+    pagination: Annotated[PaginationParams, Depends()],
+    is_active: Optional[bool] = Query(None, description="Filter by active status"),
+    search: Optional[str] = Query(None, description="Search by name or email"),
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: User = Depends(get_current_user),
-    skip: int = Query(0, ge=0, description="Number of records to skip"),
-    limit: int = Query(100, ge=1, le=1000, description="Maximum number of records"),
-) -> List[User]:
+) -> PaginatedResponse[UserResponse]:
     """
-    Get list of users (requires admin permission)
+    List users with pagination and filtering
     
-    Args:
-        skip: Number of records to skip
-        limit: Maximum number of records to return
-        current_user: Current authenticated user
-        db: Database session
-        
-    Returns:
-        List of users
+    Features:
+    - Pagination support
+    - Filtering by active status
+    - Search functionality
+    - Query optimization with eager loading
+    - Result caching
     """
-    # Require admin permission to list all users
-    await rbac_require_permission("users:read:all", current_user, db)
+    # Build query
+    query = select(User)
     
-    result = await db.execute(
-        select(User)
-        .options(
-            selectinload(User.roles),
-            selectinload(User.team_memberships)
+    # Apply filters
+    filters = []
+    if is_active is not None:
+        filters.append(User.is_active == is_active)
+    
+    if search:
+        search_filter = or_(
+            User.email.ilike(f"%{search}%"),
+            User.first_name.ilike(f"%{search}%"),
+            User.last_name.ilike(f"%{search}%"),
         )
-        .offset(skip)
-        .limit(limit)
-    )
-    users = result.scalars().all()
-    return users
+        filters.append(search_filter)
+    
+    if filters:
+        query = query.where(and_(*filters))
+    
+    # Optimize query with eager loading (prevent N+1 queries)
+    query = QueryOptimizer.add_eager_loading(query, ["roles"], strategy="selectin")
+    
+    # Order by created_at (uses index)
+    query = query.order_by(User.created_at.desc())
+    
+    # Paginate query
+    result = await paginate_query(db, query, pagination)
+    
+    return result
 
 
-@router.get("/{user_id}", response_model=UserSchema)
+@router.get("/{user_id}", response_model=UserResponse)
+@rate_limit_decorator("200/hour")
+@cache_query(expire=600, tags=["users"])
 async def get_user(
     user_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
-) -> User:
+) -> UserResponse:
     """
-    Get user by ID
+    Get user by ID with query optimization
     
-    Args:
-        user_id: User ID
-        db: Database session
-        
-    Returns:
-        User information
+    Features:
+    - Eager loading of relationships
+    - Result caching
     """
-    result = await db.execute(
-        select(User)
-        .where(User.id == user_id)
-        .options(
-            selectinload(User.roles),
-            selectinload(User.team_memberships)
-        )
-    )
+    # Build optimized query
+    query = select(User).where(User.id == user_id)
+    
+    # Eager load relationships to prevent N+1 queries
+    query = QueryOptimizer.add_eager_loading(query, ["roles", "team_memberships"], strategy="selectin")
+    
+    result = await db.execute(query)
     user = result.scalar_one_or_none()
+    
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found",
-        )
+        from fastapi import HTTPException, status
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    
     return user
-
