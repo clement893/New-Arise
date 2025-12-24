@@ -15,7 +15,6 @@ import {
   UsageMeter,
   BillingSettings,
 } from '@/components/billing';
-import Card from '@/components/ui/Card';
 import { logger } from '@/lib/logger';
 import { useState } from 'react';
 
