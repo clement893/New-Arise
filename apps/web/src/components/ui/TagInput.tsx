@@ -85,7 +85,8 @@ export default function TagInput({
       e.preventDefault();
       addTag(inputValue);
     } else if (e.key === 'Backspace' && inputValue === '' && tags.length > 0) {
-      const lastTag = tags[tags.length - 1]; if (lastTag) removeTag(lastTag);
+      const lastTag = tags[tags.length - 1];
+      if (lastTag) removeTag(lastTag);
     }
   };
 
