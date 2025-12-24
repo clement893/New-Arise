@@ -6,7 +6,7 @@ Example implementation of optimized endpoints
 from typing import Annotated, Optional
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, or_
 
 from app.core.database import get_db
 from app.core.pagination import PaginationParams, paginate_query, PaginatedResponse
@@ -24,9 +24,9 @@ router = APIRouter()
 @cache_query(expire=300, tags=["users"])
 async def list_users(
     pagination: Annotated[PaginationParams, Depends()],
+    db: Annotated[AsyncSession, Depends(get_db)],
     is_active: Optional[bool] = Query(None, description="Filter by active status"),
     search: Optional[str] = Query(None, description="Search by name or email"),
-    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> PaginatedResponse[UserResponse]:
     """
     List users with pagination and filtering
