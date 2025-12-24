@@ -11,6 +11,7 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import Alert from '@/components/ui/Alert';
+import { logger } from '@/lib/logger';
 
 export interface OptimisticUpdateOptions<T> {
   onUpdate: (data: T) => Promise<T>;
@@ -81,11 +82,11 @@ export default function OptimisticUpdates({ className }: OptimisticUpdatesProps)
       return updatedItem;
     },
     onError: (error, rollbackData) => {
-      console.error('Update failed, rolling back:', error);
+      logger.error('Update failed, rolling back', { error, rollbackData });
       // Rollback would happen automatically
     },
     onSuccess: (data) => {
-      console.log('Update successful:', data);
+      logger.info('Update successful', { data });
     },
     rollbackOnError: true,
   });
