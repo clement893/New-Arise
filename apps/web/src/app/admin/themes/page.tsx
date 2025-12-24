@@ -2,6 +2,7 @@
 
 import { ThemeManager } from '@/components/admin/themes/ThemeManager';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import Container from '@/components/ui/Container';
 import { TokenStorage } from '@/lib/auth/tokenStorage';
 import { useState, useEffect } from 'react';
 
@@ -22,9 +23,9 @@ export default function AdminThemesPage() {
 
   return (
     <ProtectedRoute requireAdmin={true}>
-      <div className="container mx-auto py-8">
+      <Container className="py-8">
         <ThemeManager authToken={token} />
-      </div>
+      </Container>
     </ProtectedRoute>
   );
 }

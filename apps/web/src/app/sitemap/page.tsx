@@ -3,14 +3,16 @@
 import Link from 'next/link';
 import { sitePages, BASE_URL } from '@/config/sitemap';
 import Badge from '@/components/ui/Badge';
+import Container from '@/components/ui/Container';
+import Card from '@/components/ui/Card';
 import { useAuthStore } from '@/lib/store';
 
 function SitemapPageContent() {
   const { isAuthenticated, user } = useAuthStore();
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
-      <div className="container mx-auto px-4 max-w-6xl">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+      <Container className="max-w-6xl">
+        <Card className="p-8">
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Plan du Site
@@ -182,8 +184,8 @@ function SitemapPageContent() {
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </Card>
+      </Container>
     </div>
   );
 }

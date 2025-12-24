@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import Container from '@/components/ui/Container';
 
 export default function ExampleOnboardingPage() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -38,8 +40,9 @@ export default function ExampleOnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4 py-12">
-      <Card className="w-full max-w-2xl">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-4 py-12">
+      <Container>
+        <Card className="w-full max-w-2xl mx-auto">
         <div className="p-8">
           {/* Progress Steps */}
           <div className="mb-8">
@@ -56,7 +59,7 @@ export default function ExampleOnboardingPage() {
                     >
                       {currentStep > step.number ? '✓' : step.number}
                     </div>
-                    <div className="mt-2 text-xs text-center text-gray-600 hidden sm:block">
+                    <div className="mt-2 text-xs text-center text-gray-600 dark:text-gray-400 hidden sm:block">
                       {step.title}
                     </div>
                   </div>
@@ -76,35 +79,31 @@ export default function ExampleOnboardingPage() {
           <div className="mb-8">
             {currentStep === 1 && (
               <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                   Bienvenue sur la plateforme !
                 </h2>
-                <p className="text-gray-600 mb-6">
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
                   Nous sommes ravis de vous accueillir. Commençons par quelques informations de base.
                 </p>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Votre nom *
-                    </label>
-                    <input
+                    <Input
+                      label="Votre nom *"
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                       placeholder="Jean Dupont"
+                      fullWidth
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Votre email *
-                    </label>
-                    <input
+                    <Input
+                      label="Votre email *"
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                       placeholder="jean@example.com"
+                      fullWidth
                     />
                   </div>
                 </div>
@@ -113,22 +112,20 @@ export default function ExampleOnboardingPage() {
 
             {currentStep === 2 && (
               <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                   Votre Organisation
                 </h2>
-                <p className="text-gray-600 mb-6">
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
                   Parlez-nous de votre organisation.
                 </p>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nom de l'organisation *
-                  </label>
-                  <input
+                  <Input
+                    label="Nom de l'organisation *"
                     type="text"
                     value={formData.organization}
                     onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                     placeholder="Mon Organisation"
+                    fullWidth
                   />
                 </div>
               </div>
@@ -136,10 +133,10 @@ export default function ExampleOnboardingPage() {
 
             {currentStep === 3 && (
               <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                   Votre Rôle
                 </h2>
-                <p className="text-gray-600 mb-6">
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
                   Comment allez-vous utiliser la plateforme ?
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -153,8 +150,8 @@ export default function ExampleOnboardingPage() {
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
-                      <div className="font-semibold text-gray-900">{role}</div>
-                      <div className="text-sm text-gray-600 mt-1">
+                      <div className="font-semibold text-gray-900 dark:text-gray-100">{role}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                         {role === 'Manager' && 'Gérer les équipes et les campagnes'}
                         {role === 'Fundraiser' && 'Collecter des fonds et gérer les donateurs'}
                         {role === 'Administrator' && 'Administrer la plateforme'}
@@ -183,10 +180,10 @@ export default function ExampleOnboardingPage() {
                     />
                   </svg>
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                   Félicitations !
                 </h2>
-                <p className="text-gray-600 mb-6">
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
                   Votre profil est maintenant configuré. Vous êtes prêt à commencer à utiliser la plateforme.
                 </p>
                 <Button>Commencer</Button>
@@ -218,6 +215,7 @@ export default function ExampleOnboardingPage() {
           )}
         </div>
       </Card>
+      </Container>
     </div>
   );
 }
