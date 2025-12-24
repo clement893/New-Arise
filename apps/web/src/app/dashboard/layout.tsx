@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Sidebar from '@/components/ui/Sidebar';
 import Button from '@/components/ui/Button';
 import { 
@@ -21,7 +22,7 @@ import {
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
-export default function DashboardLayout({
+function DashboardLayoutContent({
   children,
 }: {
   children: React.ReactNode;
@@ -148,5 +149,17 @@ export default function DashboardLayout({
         </div>
       </div>
     </div>
+  );
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <ProtectedRoute>
+      <DashboardLayoutContent>{children}</DashboardLayoutContent>
+    </ProtectedRoute>
   );
 }
