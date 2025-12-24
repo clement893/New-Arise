@@ -44,7 +44,6 @@ export default function MarkdownEditor({
   className,
 }: MarkdownEditorProps) {
   const [markdown, setMarkdown] = useState(value);
-  const [showPreview, setShowPreview] = useState(true);
   const [previewMode, setPreviewMode] = useState<'split' | 'preview' | 'edit'>('split');
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
