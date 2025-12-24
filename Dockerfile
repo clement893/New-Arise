@@ -13,19 +13,18 @@ RUN apk add --no-cache \
 FROM base AS deps
 WORKDIR /app
 
-# Set environment variables for sharp installation (increase timeout and retry)
-ENV SHARP_IGNORE_GLOBAL_LIBVIPS=1
-ENV npm_config_sharp_binary_host="https://github.com/lovell/sharp-libvips/releases/download"
-ENV npm_config_sharp_libvips_binary_host="https://github.com/lovell/sharp-libvips/releases/download"
+# Sharp will automatically detect and use system libvips (vips-dev)
+# No need to download binaries when vips-dev is available
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/web/package.json ./apps/web/
 COPY packages/types/package.json ./packages/types/
 
-# Install with retry logic for sharp
-RUN pnpm install --no-frozen-lockfile || \
-    (echo "Retrying installation..." && sleep 5 && pnpm install --no-frozen-lockfile) || \
-    (echo "Second retry..." && sleep 10 && pnpm install --no-frozen-lockfile)
+# Install dependencies
+# Sharp will use system libvips (vips-dev) instead of downloading binaries
+RUN pnpm install --frozen-lockfile || \
+    (echo "Retrying installation with relaxed lockfile..." && sleep 5 && pnpm install --no-frozen-lockfile) || \
+    (echo "Final retry with build from source..." && npm_config_build_from_source=true pnpm install --no-frozen-lockfile)
 
 # Build application
 FROM base AS builder

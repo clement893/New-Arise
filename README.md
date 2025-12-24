@@ -47,7 +47,26 @@ A comprehensive, production-ready full-stack template for building modern SaaS a
 - **pnpm** 9.x or higher (recommended) or npm/yarn
 - **Git**
 
-## 🛠️ Installation
+## ⚡ Quick Start
+
+Get up and running in minutes with our one-command setup:
+
+```bash
+git clone https://github.com/clement893/MODELE-NEXTJS-FULLSTACK.git
+cd MODELE-NEXTJS-FULLSTACK
+pnpm quick-start
+```
+
+This interactive script will guide you through:
+- ✅ Prerequisites check
+- ✅ Dependency installation
+- ✅ Environment configuration
+- ✅ Database setup
+- ✅ Running migrations
+
+## 🛠️ Manual Installation
+
+If you prefer manual setup:
 
 ### 1. Clone the repository
 
@@ -95,6 +114,8 @@ pnpm dev:backend   # Backend only
 ```
 
 The application will be available at `http://localhost:3000`
+
+> 📖 For detailed setup instructions, see [GETTING_STARTED.md](./GETTING_STARTED.md)
 
 ## 📁 Project Structure
 

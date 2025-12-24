@@ -4,6 +4,7 @@
     "description":  "Full-stack template with Next.js 16 frontend and FastAPI backend",
     "private":  true,
     "scripts":  {
+                    "quick-start":  "node scripts/quick-start.js",
                     "setup":  "node scripts/setup.js",
                     "rename":  "node scripts/rename-project.js",
                     "post-install":  "node scripts/post-install.js",

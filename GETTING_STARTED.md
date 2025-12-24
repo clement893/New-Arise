@@ -1,49 +1,68 @@
-# 🚀 Guide de Démarrage Rapide
+# 🚀 Quick Start Guide
 
-## 📋 Prérequis
+## ⚡ One-Command Setup
 
-- **Node.js** 22+ ([télécharger](https://nodejs.org/))
-- **pnpm** 9+ (`npm install -g pnpm`)
-- **Python** 3.11+ ([télécharger](https://www.python.org/downloads/))
-- **PostgreSQL** 14+ ([télécharger](https://www.postgresql.org/download/))
-- **Redis** 7+ ([télécharger](https://redis.io/download)) - Requis pour Celery (emails)
-- **Git** ([télécharger](https://git-scm.com/))
-- **Compte SendGrid** (optionnel pour développement, requis pour production) - [Créer un compte](https://sendgrid.com)
+The fastest way to get started:
 
-## ⚡ Installation Rapide
+```bash
+git clone https://github.com/clement893/MODELE-NEXTJS-FULLSTACK.git
+cd MODELE-NEXTJS-FULLSTACK
+pnpm quick-start
+```
 
-### 1. Cloner le projet
+This interactive script will:
+- ✅ Check prerequisites
+- ✅ Install dependencies
+- ✅ Setup environment files with secure secrets
+- ✅ Configure database
+- ✅ Run migrations
+
+## 📋 Prerequisites
+
+- **Node.js** 20.x or higher ([download](https://nodejs.org/))
+- **pnpm** 9.x or higher (`npm install -g pnpm`)
+- **Python** 3.11+ ([download](https://www.python.org/downloads/)) - Optional, for type generation
+- **PostgreSQL** 14+ ([download](https://www.postgresql.org/download/)) - Or use Docker
+- **Redis** 7+ ([download](https://redis.io/download)) - Optional, for Celery (emails)
+- **Git** ([download](https://git-scm.com/))
+- **SendGrid Account** (optional for development, required for production) - [Create account](https://sendgrid.com)
+
+## 🛠️ Manual Installation
+
+If you prefer manual setup:
+
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/clement893/MODELE-NEXTJS-FULLSTACK.git
 cd MODELE-NEXTJS-FULLSTACK
 ```
 
-### 2. Installer les dépendances
+### 2. Install dependencies
 
 ```bash
-# Installer toutes les dépendances (frontend + backend)
+# Install all dependencies (frontend + backend)
 pnpm install
 ```
 
-### 3. Configurer les variables d'environnement
+### 3. Configure environment variables
 
 #### Backend
 
 ```bash
 cd backend
 cp .env.example .env
-# Éditer .env avec vos valeurs
+# Edit .env with your values
 ```
 
-**Variables requises :**
+**Required variables:**
 ```env
 DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/modele_db
-SECRET_KEY=votre-secret-key-changez-en-production
+SECRET_KEY=your-secret-key-change-in-production
 REDIS_URL=redis://localhost:6379/0
 
-# SendGrid Email (optionnel pour développement)
-SENDGRID_API_KEY=votre-sendgrid-api-key
+# SendGrid Email (optional for development)
+SENDGRID_API_KEY=your-sendgrid-api-key
 SENDGRID_FROM_EMAIL=noreply@yourdomain.com
 SENDGRID_FROM_NAME=MODELE
 FRONTEND_URL=http://localhost:3000
@@ -54,142 +73,149 @@ FRONTEND_URL=http://localhost:3000
 ```bash
 cd apps/web
 cp .env.example .env.local
-# Éditer .env.local avec vos valeurs
+# Edit .env.local with your values
 ```
 
-**Variables requises :**
+**Required variables:**
 ```env
-NEXTAUTH_SECRET=votre-secret-key-changez-en-production
-GOOGLE_CLIENT_ID=votre-google-client-id
-GOOGLE_CLIENT_SECRET=votre-google-client-secret
-JWT_SECRET=votre-jwt-secret
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+NEXTAUTH_SECRET=your-secret-key-change-in-production
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+JWT_SECRET=your-jwt-secret
+NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
-### 4. Initialiser la base de données
+### 4. Initialize database
 
 ```bash
-# Créer la base de données PostgreSQL
+# Create PostgreSQL database
 createdb modele_db
 
-# Appliquer les migrations
+# Run migrations
 cd backend
 alembic upgrade head
 ```
 
-### 5. Démarrer le projet
-
-#### Option A : Développement complet avec Docker (recommandé)
+Or use Docker:
 
 ```bash
-# Démarrer tous les services (PostgreSQL, Redis, Backend, Frontend, Celery)
+docker-compose up -d postgres redis
+pnpm migrate
+```
+
+### 5. Start the project
+
+#### Option A: Full development with Docker (Recommended)
+
+```bash
+# Start all services (PostgreSQL, Redis, Backend, Frontend, Celery)
 docker-compose up
 ```
 
-Cela démarre :
-- ✅ PostgreSQL sur port 5432
-- ✅ Redis sur port 6379
-- ✅ Frontend sur http://localhost:3000
-- ✅ Backend sur http://localhost:8000
-- ✅ Celery worker pour les emails
-- ✅ Hot reload activé
+This starts:
+- ✅ PostgreSQL on port 5432
+- ✅ Redis on port 6379
+- ✅ Frontend on http://localhost:3000
+- ✅ Backend on http://localhost:8000
+- ✅ Celery worker for emails
+- ✅ Hot reload enabled
 
-#### Option B : Développement local (sans Docker)
+#### Option B: Local development (without Docker)
 
-**Terminal 1 - PostgreSQL & Redis :**
+**Terminal 1 - PostgreSQL & Redis:**
 ```bash
-# Assurez-vous que PostgreSQL et Redis sont démarrés
-# PostgreSQL: pg_ctl start (ou service postgresql start)
-# Redis: redis-server (ou service redis start)
+# Make sure PostgreSQL and Redis are running
+# PostgreSQL: pg_ctl start (or service postgresql start)
+# Redis: redis-server (or service redis start)
 ```
 
-**Terminal 2 - Backend :**
+**Terminal 2 - Backend:**
 ```bash
 cd backend
 uvicorn app.main:app --reload
 ```
 
-**Terminal 3 - Celery Worker (pour les emails) :**
+**Terminal 3 - Celery Worker (for emails):**
 ```bash
 cd backend
 celery -A app.celery_app worker --loglevel=info
 ```
 
-**Terminal 4 - Frontend :**
+**Terminal 4 - Frontend:**
 ```bash
 cd apps/web
 pnpm dev
 ```
 
-#### Option C : Script npm (recommandé pour développement)
+#### Option C: npm script (Recommended for development)
 
 ```bash
-# Depuis la racine du projet
-npm run dev:full
+# From project root
+pnpm dev:full
 ```
 
-**Note**: Pour les emails, vous devez démarrer Celery séparément :
+**Note**: For emails, you need to start Celery separately:
 ```bash
 cd backend
 celery -A app.celery_app worker --loglevel=info
 ```
 
-### 6. Accéder à l'application
+### 6. Access the application
 
-- **Frontend** : http://localhost:3000
-- **Backend API** : http://localhost:8000
-- **API Docs (Swagger)** : http://localhost:8000/docs
-- **API Docs (ReDoc)** : http://localhost:8000/redoc
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8000
+- **API Docs (Swagger)**: http://localhost:8000/docs
+- **API Docs (ReDoc)**: http://localhost:8000/redoc
 
-## 🛠️ Commandes Utiles
+## 🛠️ Useful Commands
 
-### Développement
+### Development
 
 ```bash
-# Démarrer tout le projet
-npm run dev
+# Start entire project
+pnpm dev
 
-# Démarrer uniquement le frontend
-npm run dev:frontend
+# Start frontend only
+pnpm dev:frontend
 
-# Démarrer uniquement le backend
-npm run dev:backend
+# Start backend only
+pnpm dev:backend
 
-# Générer les types depuis Pydantic
-npm run generate:types
+# Generate types from Pydantic
+pnpm generate:types
 
-# Vérifier le code
-npm run check
+# Check code quality
+pnpm check
 ```
 
-### Génération de Code
+### Code Generation
 
 ```bash
-# Générer un composant React
-npm run generate:component
+# Generate a React component
+pnpm generate:component
 
-# Générer une page Next.js
-npm run generate:page
+# Generate a Next.js page
+pnpm generate:page
 
-# Générer une route API
-npm run generate:api
+# Generate an API route
+pnpm generate:api
 
-# Générer des types TypeScript depuis Pydantic
-npm run generate:types
+# Generate TypeScript types from Pydantic
+pnpm generate:types
 ```
 
-### Tests
+### Testing
 
 ```bash
-# Tests frontend
+# Frontend tests
 cd apps/web
 pnpm test
 
-# Tests backend
+# Backend tests
 cd backend
 pytest
 
-# Tests E2E
+# E2E tests
 cd apps/web
 pnpm test:e2e
 ```
@@ -197,73 +223,73 @@ pnpm test:e2e
 ### Build
 
 ```bash
-# Build complet
-npm run build
+# Full build
+pnpm build
 
-# Build frontend uniquement
-npm run build:web
+# Frontend only
+pnpm build:web
 
-# Build optimisé
-npm run build:optimized
+# Optimized build
+pnpm build:optimized
 ```
 
-### Qualité de Code
+### Code Quality
 
 ```bash
 # Linter
-npm run lint
-npm run lint:fix
+pnpm lint
+pnpm lint:fix
 
 # Type checking
-npm run type-check
+pnpm type-check
 
-# Formatage
-npm run format
+# Formatting
+pnpm format
 
-# Tous les checks
-npm run check
+# All checks
+pnpm check
 ```
 
-## 📁 Structure du Projet
+## 📁 Project Structure
 
 ```
 MODELE-NEXTJS-FULLSTACK/
 ├── apps/
 │   └── web/                 # Frontend Next.js 16
 │       ├── src/
-│       │   ├── app/        # Pages et layouts
-│       │   ├── components/ # Composants React
-│       │   │   ├── ui/     # Bibliothèque UI complète
+│       │   ├── app/        # Pages and layouts
+│       │   ├── components/ # React components
+│       │   │   ├── ui/     # Complete UI library
 │       │   │   └── ...
-│       │   ├── hooks/     # Hooks réutilisables
-│       │   ├── lib/       # Utilitaires
-│       │   └── contexts/ # Contextes React
+│       │   ├── hooks/     # Reusable hooks
+│       │   ├── lib/       # Utilities
+│       │   └── contexts/ # React contexts
 │       └── package.json
 ├── backend/                # Backend FastAPI
 │   ├── app/
-│   │   ├── api/           # Endpoints API
-│   │   ├── models/        # Modèles SQLAlchemy
-│   │   ├── schemas/       # Schemas Pydantic
+│   │   ├── api/           # API endpoints
+│   │   ├── models/        # SQLAlchemy models
+│   │   ├── schemas/       # Pydantic schemas
 │   │   ├── core/          # Configuration
 │   │   └── main.py
-│   ├── alembic/           # Migrations DB
+│   ├── alembic/           # DB migrations
 │   └── requirements.txt
 ├── packages/
-│   └── types/              # Types TypeScript partagés
+│   └── types/              # Shared TypeScript types
 │       └── src/
-│           ├── generated.ts # Auto-généré depuis Pydantic
+│           ├── generated.ts # Auto-generated from Pydantic
 │           └── index.ts
-├── scripts/                # Scripts utilitaires
-│   ├── generate/           # Générateurs de code
+├── scripts/                # Utility scripts
+│   ├── generate/           # Code generators
 │   └── ...
 ├── .github/
 │   └── workflows/         # CI/CD GitHub Actions
-├── package.json           # Configuration monorepo
-├── turbo.json            # Configuration Turborepo
-└── pnpm-workspace.yaml    # Configuration pnpm
+├── package.json           # Monorepo configuration
+├── turbo.json            # Turborepo configuration
+└── pnpm-workspace.yaml    # pnpm configuration
 ```
 
-## 🎨 Utilisation des Composants UI
+## 🎨 Using UI Components
 
 ```tsx
 import { Button, Card, Input, DataTable } from '@/components/ui';
@@ -278,86 +304,84 @@ export default function MyPage() {
 }
 ```
 
-## 🔐 Authentification
+## 🔐 Authentication
 
-### Configuration Google OAuth
+### Google OAuth Configuration
 
-1. Aller sur [Google Cloud Console](https://console.cloud.google.com/)
-2. Créer un projet
-3. Activer Google+ API
-4. Créer des identifiants OAuth 2.0
-5. Ajouter les URLs de redirection :
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a project
+3. Enable Google+ API
+4. Create OAuth 2.0 credentials
+5. Add redirect URLs:
    - `http://localhost:3000/api/auth/callback/google`
-   - `https://votre-domaine.com/api/auth/callback/google`
+   - `https://your-domain.com/api/auth/callback/google`
 
-### Utilisation
+### Usage
 
 ```tsx
 import { signIn, signOut, useSession } from 'next-auth/react';
 
-// Se connecter
+// Sign in
 signIn('google');
 
-// Se déconnecter
+// Sign out
 signOut();
 
-// Obtenir la session
+// Get session
 const { data: session } = useSession();
 ```
 
-## 📝 Génération de Types
+## 📝 Type Generation
 
-Les types TypeScript sont automatiquement générés depuis les schemas Pydantic :
-
-```bash
-# Générer les types
-npm run generate:types
-
-# Ou version fallback (sans Python)
-npm run generate:types:fallback
-```
-
-Les types sont disponibles dans `packages/types/src/generated.ts` et exportés via `@modele/types`.
-
-## 🐛 Dépannage
-
-### Erreur "Python not found"
+TypeScript types are automatically generated from Pydantic schemas:
 
 ```bash
-# Utiliser la version fallback
-npm run generate:types:fallback
+# Generate types
+pnpm generate:types
+
+# Or fallback version (without Python)
+pnpm generate:types:fallback
 ```
 
-### Erreur de connexion à la base de données
+Types are available in `packages/types/src/generated.ts` and exported via `@modele/types`.
 
-Vérifier que PostgreSQL est démarré et que les variables d'environnement sont correctes.
+## 🐛 Troubleshooting
 
-### Erreur de build
+### Error "Python not found"
 
 ```bash
-# Nettoyer et rebuilder
-npm run clean
-npm run build
+# Use fallback version
+pnpm generate:types:fallback
 ```
 
-## 📚 Documentation Complémentaire
+### Database connection error
 
-- [README Principal](./README.md) - Overview and features
-- [Development Guide](./DEVELOPMENT.md) - Development tools and workflows
-- [SendGrid Email Setup](./docs/SENDGRID_SETUP.md) - Configuration emails transactionnels
-- [Email System Architecture](./docs/EMAIL_SYSTEM.md) - Vue d'ensemble système emails
-- [Monorepo Structure](./MONOREPO.md) - Monorepo configuration
+Verify that PostgreSQL is running and environment variables are correct.
+
+### Build error
+
+```bash
+# Clean and rebuild
+pnpm clean
+pnpm build
+```
+
+## 📚 Additional Documentation
+
+- [Main README](./README.md) - Overview and features
+- [Development Guide](./docs/DEVELOPMENT.md) - Development tools and workflows
+- [SendGrid Email Setup](./docs/SENDGRID_SETUP.md) - Transactional email configuration
+- [Email System Architecture](./docs/EMAIL_SYSTEM.md) - Email system overview
 - [Contributing Guide](./CONTRIBUTING.md) - How to contribute
-- [Documentation Backend](./backend/README.md)
-- [Documentation Frontend](./apps/web/README.md)
+- [Backend Documentation](./backend/README.md)
+- [Frontend Documentation](./apps/web/README.md)
 
-## 🤝 Besoin d'Aide ?
+## 🤝 Need Help?
 
-- 📖 Consulter la [documentation complète](./README.md)
-- 🐛 Ouvrir une [issue GitHub](https://github.com/clement893/MODELE-NEXTJS-FULLSTACK/issues)
-- 💬 Poser une question dans les discussions
+- 📖 Check the [complete documentation](./README.md)
+- 🐛 Open a [GitHub issue](https://github.com/clement893/MODELE-NEXTJS-FULLSTACK/issues)
+- 💬 Ask a question in discussions
 
 ---
 
-**Bon développement ! 🚀**
-
+**Happy coding! 🚀**
