@@ -1,7 +1,7 @@
 """Email endpoints using SendGrid."""
 
 import os
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional, Union
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr, Field
 
