@@ -1,6 +1,6 @@
 /**
  * Rich Text Editor Component
- * Simple rich text editor for SaaS applications
+ * Enhanced rich text editor for SaaS applications with link dialog and advanced formatting
  */
 
 'use client';
@@ -8,6 +8,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { clsx } from 'clsx';
 import DOMPurify from 'isomorphic-dompurify';
+import Modal from './Modal';
+import Input from './Input';
+import Button from './Button';
 
 export interface RichTextEditorProps {
   value?: string;
@@ -36,6 +39,9 @@ export default function RichTextEditor({
 }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const [isFocused, setIsFocused] = useState(false);
+  const [showLinkDialog, setShowLinkDialog] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [linkText, setLinkText] = useState('');
 
   // Enhanced XSS protection configuration
   const sanitizeConfig = {
@@ -73,6 +79,71 @@ export default function RichTextEditor({
     document.execCommand(command, false, value);
     editorRef.current?.focus();
     handleInput();
+  };
+
+  const handleLinkClick = () => {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const selectedText = range.toString();
+      
+      // Check if a link is already selected
+      const linkElement = range.commonAncestorContainer.nodeType === Node.ELEMENT_NODE
+        ? (range.commonAncestorContainer as Element).closest('a')
+        : range.commonAncestorContainer.parentElement?.closest('a');
+      
+      if (linkElement) {
+        setLinkUrl((linkElement as HTMLAnchorElement).href);
+        setLinkText(linkElement.textContent || '');
+      } else {
+        setLinkUrl('');
+        setLinkText(selectedText);
+      }
+    } else {
+      setLinkUrl('');
+      setLinkText('');
+    }
+    setShowLinkDialog(true);
+  };
+
+  const handleInsertLink = () => {
+    if (!linkUrl.trim()) {
+      return;
+    }
+
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      
+      // If text is selected, create link with selected text
+      if (range.toString()) {
+        execCommand('createLink', linkUrl);
+      } else {
+        // Insert link with provided text
+        const link = document.createElement('a');
+        link.href = linkUrl;
+        link.textContent = linkText || linkUrl;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        range.insertNode(link);
+        handleInput();
+      }
+    } else {
+      // Fallback: insert at cursor
+      execCommand('createLink', linkUrl);
+    }
+
+    setShowLinkDialog(false);
+    setLinkUrl('');
+    setLinkText('');
+    editorRef.current?.focus();
+  };
+
+  const handleRemoveLink = () => {
+    execCommand('unlink');
+    setShowLinkDialog(false);
+    setLinkUrl('');
+    setLinkText('');
   };
 
   const ToolbarButton = ({ 
@@ -178,13 +249,52 @@ export default function RichTextEditor({
             />
             <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
             <ToolbarButton
-              command="createLink"
+              command="justifyLeft"
               icon={
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18M3 18h18M3 6h18" />
                 </svg>
               }
-              label="Lien"
+              label="Aligner à gauche"
+            />
+            <ToolbarButton
+              command="justifyCenter"
+              icon={
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M6 14h12M3 18h18M3 6h18" />
+                </svg>
+              }
+              label="Centrer"
+            />
+            <ToolbarButton
+              command="justifyRight"
+              icon={
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M9 14h12M3 18h18M3 6h18" />
+                </svg>
+              }
+              label="Aligner à droite"
+            />
+            <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+            <button
+              type="button"
+              onClick={handleLinkClick}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+              aria-label="Insérer un lien"
+              disabled={disabled}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+              </svg>
+            </button>
+            <ToolbarButton
+              command="removeFormat"
+              icon={
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              }
+              label="Supprimer le formatage"
             />
           </div>
         )}
@@ -228,6 +338,67 @@ export default function RichTextEditor({
           {helperText}
         </p>
       )}
+
+      {/* Link Dialog */}
+      <Modal
+        isOpen={showLinkDialog}
+        onClose={() => {
+          setShowLinkDialog(false);
+          setLinkUrl('');
+          setLinkText('');
+        }}
+        title="Insérer un lien"
+        size="sm"
+      >
+        <div className="space-y-4">
+          <Input
+            label="URL du lien"
+            type="url"
+            value={linkUrl}
+            onChange={(e) => setLinkUrl(e.target.value)}
+            placeholder="https://exemple.com"
+            required
+          />
+          <Input
+            label="Texte du lien (optionnel)"
+            type="text"
+            value={linkText}
+            onChange={(e) => setLinkText(e.target.value)}
+            placeholder="Texte à afficher"
+            helperText="Si vide, l'URL sera utilisée comme texte"
+          />
+          <div className="flex gap-2 justify-end pt-4">
+            {linkUrl && (
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={handleRemoveLink}
+              >
+                Supprimer le lien
+              </Button>
+            )}
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                setShowLinkDialog(false);
+                setLinkUrl('');
+                setLinkText('');
+              }}
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleInsertLink}
+              disabled={!linkUrl.trim()}
+            >
+              Insérer
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
