@@ -14,30 +14,48 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_secret_key() -> str:
     """
-    Get SECRET_KEY from environment with validation.
+    Get SECRET_KEY from environment with strict validation.
     
     Retrieves the secret key from environment variables and validates it.
-    In production, raises an error if SECRET_KEY is not set or is too short.
-    In development, uses a default key with a warning.
+    In production, raises an error if SECRET_KEY is not set, is too short,
+    or is the default value. In development, uses a default key with a warning.
     
     Returns:
         str: The secret key (minimum 32 characters)
         
     Raises:
-        ValueError: If SECRET_KEY is not set in production or is too short
+        ValueError: If SECRET_KEY is not set in production, is too short,
+                   is the default value in production, or has insufficient entropy
     """
     secret_key = os.getenv("SECRET_KEY")
+    env = os.getenv("ENVIRONMENT", "development").lower()
+    default_key = "change-this-secret-key-in-production"
+    
     if not secret_key:
-        env = os.getenv("ENVIRONMENT", "development")
         if env == "production":
             raise ValueError(
                 "SECRET_KEY must be set in production. "
                 "Generate one with: python -c 'import secrets; print(secrets.token_urlsafe(32))'"
             )
-        secret_key = "change-this-secret-key-in-production"
+        secret_key = default_key
     
+    # Validation stricte de la longueur
     if len(secret_key) < 32:
         raise ValueError("SECRET_KEY must be at least 32 characters long")
+    
+    # VÃ©rifier que ce n'est pas la clÃ© par dÃ©faut en production
+    if env == "production" and secret_key == default_key:
+        raise ValueError(
+            "SECRET_KEY must be changed from default value in production. "
+            "Generate one with: python -c 'import secrets; print(secrets.token_urlsafe(32))'"
+        )
+    
+    # VÃ©rifier l'entropie (au moins 20 caractÃ¨res uniques) en production
+    if env == "production" and len(set(secret_key)) < 20:
+        raise ValueError(
+            "SECRET_KEY must have sufficient entropy (at least 20 unique characters). "
+            "Generate a stronger key with: python -c 'import secrets; print(secrets.token_urlsafe(32))'"
+        )
     
     return secret_key
 

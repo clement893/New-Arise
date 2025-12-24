@@ -1,4 +1,4 @@
-"""
+﻿"""
 Centralized Error Handler
 Handles all exceptions and returns standardized error responses
 """
@@ -17,6 +17,8 @@ from app.core.logging_utils import sanitize_log_data
 
 async def app_exception_handler(request: Request, exc: AppException) -> JSONResponse:
     """Handle application exceptions"""
+    from app.core.config import settings
+    
     context = sanitize_log_data({
         "status_code": exc.status_code,
         "details": exc.details,
@@ -29,17 +31,31 @@ async def app_exception_handler(request: Request, exc: AppException) -> JSONResp
         exc_info=exc,
     )
 
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={
+    # En production, masquer les dÃ©tails pour Ã©viter la fuite d'information
+    if settings.ENVIRONMENT == "production":
+        error_response = {
+            "success": False,
+            "error": {
+                "code": "APPLICATION_ERROR",
+                "message": "An error occurred. Please contact support if the problem persists.",
+            },
+            "timestamp": None,
+        }
+    else:
+        # En dÃ©veloppement, permettre plus de dÃ©tails
+        error_response = {
             "success": False,
             "error": {
                 "code": exc.__class__.__name__,
                 "message": exc.message,
                 "details": exc.details,
             },
-            "timestamp": None,  # Will be set by middleware
-        },
+            "timestamp": None,
+        }
+
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=error_response,
     )
 
 
@@ -107,26 +123,42 @@ async def database_exception_handler(request: Request, exc: SQLAlchemyError) -> 
 
 async def general_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """Handle all other exceptions"""
+    from app.core.config import settings
+    
     context = sanitize_log_data({
         "path": request.url.path,
         "method": request.method,
     })
     logger.error(
-        "Unhandled exception",
+        f"Unhandled exception: {exc}",
         context=context,
         exc_info=exc,
     )
 
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={
+    # En production, ne pas exposer les dÃ©tails de l'exception
+    if settings.ENVIRONMENT == "production":
+        error_response = {
             "success": False,
             "error": {
                 "code": "INTERNAL_SERVER_ERROR",
-                "message": "An unexpected error occurred",
-                "details": {},
+                "message": "An internal error occurred. Please contact support.",
             },
             "timestamp": None,
-        },
+        }
+    else:
+        # En dÃ©veloppement, permettre plus de dÃ©tails pour le dÃ©bogage
+        error_response = {
+            "success": False,
+            "error": {
+                "code": "INTERNAL_SERVER_ERROR",
+                "message": str(exc),
+                "type": exc.__class__.__name__,
+            },
+            "timestamp": None,
+        }
+
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content=error_response,
     )
 

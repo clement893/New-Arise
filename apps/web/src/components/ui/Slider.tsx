@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { InputHTMLAttributes, useCallback, useRef, useState } from 'react';
 import { clsx } from 'clsx';
@@ -48,8 +48,6 @@ export default function Slider({
     },
     [isControlled, onChange]
   );
-
-  const percentage = ((currentValue - min) / (max - min)) * 100;
 
   return (
     <div className={clsx('flex flex-col gap-2', fullWidth && 'w-full', className)}>

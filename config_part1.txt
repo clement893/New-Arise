@@ -1,0 +1,50 @@
+﻿"""
+Application Configuration
+Uses Pydantic Settings for validation
+"""
+
+import os
+from functools import lru_cache
+from typing import List, Union
+
+from pydantic import Field, PostgresDsn, field_validator, model_validator, field_serializer
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    """Application settings with validation"""
+
+    # Project
+    PROJECT_NAME: str = Field(
+        default=os.getenv("PROJECT_NAME", "API"),
+        description="Project name"
+    )
+    VERSION: str = "1.0.0"
+    DESCRIPTION: str = "FastAPI backend with OpenAPI/Swagger auto-generation"
+    API_V1_STR: str = "/api/v1"
+
+    # Server
+    HOST: str = "0.0.0.0"
+    PORT: int = 8000
+    DEBUG: bool = False
+    BASE_URL: str = Field(
+        default="",
+        description="Base URL of the backend (for OAuth callbacks). If empty, will be constructed from request.",
+    )
+
+    # CORS - Accept string or list, will be converted to list
+    # Use default_factory to detect environment at initialization time
+    CORS_ORIGINS: Union[str, List[str]] = Field(
+        default_factory=lambda: (
+            ["https://modele-nextjs-fullstack-production-1e92.up.railway.app"]
+            if (
+                os.getenv("ENVIRONMENT", "").lower() == "production" or
+                os.getenv("RAILWAY_ENVIRONMENT") is not None or
+                os.getenv("RAILWAY_SERVICE_NAME") is not None
+            )
+            else "http://localhost:3000,http://localhost:3001"
+        ),
+        description="Allowed CORS origins (comma-separated string or JSON array)",
+    )
+
+    @field_validator("CORS_ORIGINS", mode="before")
