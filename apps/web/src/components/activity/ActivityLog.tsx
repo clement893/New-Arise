@@ -270,7 +270,7 @@ export default function ActivityLog({
 
       <DataTable
         data={filteredActivities as unknown as Record<string, unknown>[]}
-        columns={columns}
+        columns={columns as unknown as Column<Record<string, unknown>>[]}
         pageSize={20}
         emptyMessage="No activity found"
       />
