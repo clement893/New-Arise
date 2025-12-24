@@ -20,7 +20,6 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'MODELE-NEXTJS-FULLSTACK',
   description: 'Full-stack template with Next.js 16 frontend and FastAPI backend',
-  charset: 'utf-8',
 };
 
 export const viewport: Viewport = {
