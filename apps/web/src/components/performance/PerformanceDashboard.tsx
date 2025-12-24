@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { clsx } from 'clsx';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
@@ -37,7 +37,7 @@ interface PerformanceMetrics {
   };
 }
 
-export default function PerformanceDashboard({
+const PerformanceDashboardComponent = memo(function PerformanceDashboard({
   className,
   refreshInterval = 5000,
 }: PerformanceDashboardProps) {
@@ -329,5 +329,9 @@ export default function PerformanceDashboard({
       </div>
     </Card>
   );
-}
+});
+
+PerformanceDashboardComponent.displayName = 'PerformanceDashboard';
+
+export default PerformanceDashboardComponent;
 

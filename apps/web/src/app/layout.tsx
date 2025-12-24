@@ -1,11 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import SessionProvider from '@/components/providers/SessionProvider';
-import QueryProvider from '@/components/providers/QueryProvider';
-import ThemeManagerProvider from '@/components/providers/ThemeManagerProvider';
-import { GlobalThemeProvider } from '@/lib/theme/global-theme-provider';
-import { ThemeProvider } from '@/contexts/ThemeContext';
+import AppProviders from '@/components/providers/AppProviders';
 import { App } from './app';
 import { WebVitalsReporter } from '@/components/performance/WebVitalsReporter';
 import { PerformanceScripts } from '@/components/performance/PerformanceScripts';
@@ -25,6 +21,10 @@ export const metadata: Metadata = {
   icons: {
     icon: '/favicon.ico',
   },
+  // Resource hints for performance
+  other: {
+    'dns-prefetch': process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+  },
 };
 
 export const viewport: Viewport = {
@@ -38,23 +38,30 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Get API URL for resource hints
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_DEFAULT_API_URL || 'http://localhost:8000';
+  const apiHost = apiUrl.replace(/^https?:\/\//, '').split('/')[0];
+
   return (
     <html lang="fr" className={inter.variable}>
+      <head>
+        {/* Resource hints for performance */}
+        {apiHost && (
+          <>
+            <link rel="dns-prefetch" href={`//${apiHost}`} />
+            <link rel="preconnect" href={`//${apiHost}`} crossOrigin="anonymous" />
+          </>
+        )}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
       <body className={inter.className}>
         <PerformanceScripts />
-        <GlobalThemeProvider>
-          <ThemeProvider>
-            <ThemeManagerProvider>
-              <QueryProvider>
-                <SessionProvider>
-                  <App>
-                    {children}
-                  </App>
-                </SessionProvider>
-              </QueryProvider>
-            </ThemeManagerProvider>
-          </ThemeProvider>
-        </GlobalThemeProvider>
+        <AppProviders>
+          <App>
+            {children}
+          </App>
+        </AppProviders>
         <WebVitalsReporter />
       </body>
     </html>

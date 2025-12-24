@@ -25,7 +25,8 @@
     "env:generate": "node scripts/validate-env.js generate",
     "analyze": "ANALYZE=true next build",
     "analyze:server": "BUNDLE_ANALYZE=server ANALYZE=true next build",
-    "analyze:browser": "BUNDLE_ANALYZE=browser ANALYZE=true next build"
+    "analyze:browser": "BUNDLE_ANALYZE=browser ANALYZE=true next build",
+    "check:bundle-size": "node scripts/check-bundle-size.js"
   },
   "dependencies": {
     "@axe-core/react": "^4.11.0",
