@@ -5,10 +5,10 @@
  * Performance: Uses dynamic import for code splitting
  */
 
-import dynamic from 'next/dynamic';
+import nextDynamic from 'next/dynamic';
 
 // Dynamically import ComponentsContent for route-based code splitting
-const ComponentsContent = dynamic(
+const ComponentsContent = nextDynamic(
   () => import('./ComponentsContent'),
   {
     loading: () => (
