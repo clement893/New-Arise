@@ -11,7 +11,7 @@ import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import DataTable from '@/components/ui/DataTable';
 import type { Column } from '@/components/ui/DataTable';
-import { History, Filter, Calendar, Search } from 'lucide-react';
+import { History, Filter, Search } from 'lucide-react';
 
 export interface EventHistoryEntry {
   id: string;
@@ -283,8 +283,8 @@ export default function EventHistory({
       </div>
 
       <DataTable
-        data={filteredEvents}
-        columns={columns}
+        data={filteredEvents as unknown as Record<string, unknown>[]}
+        columns={columns as unknown as Column<Record<string, unknown>>[]}
         pageSize={20}
         emptyMessage="No events found"
       />
