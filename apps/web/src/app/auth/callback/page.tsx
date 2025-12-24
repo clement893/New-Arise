@@ -7,6 +7,9 @@ import { TokenStorage } from '@/lib/auth/tokenStorage';
 import { usersAPI } from '@/lib/api';
 import { logger } from '@/lib/logger';
 import { handleApiError } from '@/lib/errors/api';
+import Container from '@/components/ui/Container';
+import Loading from '@/components/ui/Loading';
+import Card from '@/components/ui/Card';
 
 // Note: Client Components are already dynamic by nature.
 // Route segment config (export const dynamic) only works in Server Components.
@@ -136,11 +139,15 @@ function CallbackContent() {
   }, [handleAuthCallback]);
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Completing authentication...</p>
-      </div>
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      <Container>
+        <Card className="text-center">
+          <div className="py-12">
+            <Loading />
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Completing authentication...</p>
+          </div>
+        </Card>
+      </Container>
     </main>
   );
 }
@@ -149,11 +156,15 @@ export default function AuthCallbackPage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading...</p>
-          </div>
+        <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+          <Container>
+            <Card className="text-center">
+              <div className="py-12">
+                <Loading />
+                <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
+              </div>
+            </Card>
+          </Container>
         </main>
       }
     >

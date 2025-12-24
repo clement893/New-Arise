@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useAuthStore } from '@/lib/store';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
+import Loading from '@/components/ui/Loading';
 
 // Note: Client Components are already dynamic by nature.
 // Route segment config (export const dynamic) only works in Server Components.
@@ -48,11 +49,11 @@ function SubscriptionSuccessContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-4">
       <Card className="w-full max-w-2xl">
         <div className="p-8 text-center">
           {/* Success Icon */}
-          <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
+          <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 dark:bg-green-900 mb-6">
             <svg
               className="h-8 w-8 text-green-600"
               fill="none"
@@ -68,38 +69,38 @@ function SubscriptionSuccessContent() {
             </svg>
           </div>
 
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Abonnement confirmé !
           </h1>
-          <p className="text-xl text-gray-600 mb-8">
+          <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
             Merci pour votre confiance. Votre abonnement <strong>{planName}</strong> est maintenant actif.
           </p>
 
           {/* Subscription Details */}
-          <div className="bg-gray-50 rounded-lg p-6 mb-8 text-left">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Détails de votre abonnement</h2>
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 mb-8 text-left">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Détails de votre abonnement</h2>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-gray-600">Plan:</span>
-                <span className="font-medium text-gray-900">{planName}</span>
+                <span className="text-gray-600 dark:text-gray-400">Plan:</span>
+                <span className="font-medium text-gray-900 dark:text-gray-100">{planName}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Période:</span>
-                <span className="font-medium text-gray-900">
+                <span className="text-gray-600 dark:text-gray-400">Période:</span>
+                <span className="font-medium text-gray-900 dark:text-gray-100">
                   {billingPeriod === 'month' ? 'Mensuel' : 'Annuel'}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Statut:</span>
-                <span className="font-medium text-green-600">Actif</span>
+                <span className="text-gray-600 dark:text-gray-400">Statut:</span>
+                <span className="font-medium text-green-600 dark:text-green-400">Actif</span>
               </div>
             </div>
           </div>
 
           {/* Next Steps */}
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Prochaines étapes</h3>
-            <ul className="text-left space-y-2 text-gray-600">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Prochaines étapes</h3>
+            <ul className="text-left space-y-2 text-gray-600 dark:text-gray-400">
               <li className="flex items-start">
                 <span className="text-green-600 mr-2">✓</span>
                 <span>Vous pouvez maintenant accéder à toutes les fonctionnalités de votre plan</span>
@@ -138,11 +139,11 @@ export default function SubscriptionSuccessPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center px-4">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-4">
           <Card className="w-full max-w-2xl">
             <div className="p-8 text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
-              <p className="mt-4 text-gray-600">Chargement...</p>
+              <Loading />
+              <p className="mt-4 text-gray-600 dark:text-gray-400">Chargement...</p>
             </div>
           </Card>
         </div>

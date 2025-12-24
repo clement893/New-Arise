@@ -15,6 +15,7 @@ import PerformanceProfiler from '@/components/monitoring/PerformanceProfiler';
 import { trackWebVital } from '@/lib/monitoring/metrics';
 import { profiler } from '@/lib/monitoring/profiler';
 import { createLog } from '@/lib/monitoring/logs';
+import Container from '@/components/ui/Container';
 
 export default function MonitoringPage() {
   useEffect(() => {
@@ -43,9 +44,9 @@ export default function MonitoringPage() {
   }, []);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <Container className="py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Monitoring & Observability</h1>
+        <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-gray-100">Monitoring & Observability</h1>
         <p className="text-gray-600 dark:text-gray-400">
           Dashboard de santé, métriques de performance, logs centralisés et alertes
         </p>
@@ -76,7 +77,7 @@ export default function MonitoringPage() {
       <div className="mb-6">
         <PerformanceProfiler />
       </div>
-    </div>
+    </Container>
   );
 }
 
