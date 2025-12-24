@@ -61,16 +61,24 @@ ENV NEXT_PUBLIC_GOOGLE_CLIENT_ID=${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-}
 
 ENV PATH="/app/node_modules/.bin:$PATH"
 
+# Debug: Print environment variables before preparing build env
+RUN echo "=== Environment variables before build ===" && \
+    echo "All NEXT_PUBLIC_* vars:" && \
+    (env | grep "^NEXT_PUBLIC_" || echo "No NEXT_PUBLIC_* variables found") && \
+    echo "=========================================="
+
 # Prepare build environment: create .env.local from environment variables
-# This ensures Next.js can read NEXT_PUBLIC_* variables during build
+# Railway passes environment variables, but they may not be available as build args
+# This script reads them from the environment and creates .env.local for Next.js
 RUN cd apps/web && node scripts/prepare-build-env.js
 
-# Debug: Print environment variables (without sensitive values)
-RUN echo "Build-time environment variables:" && \
-    env | grep "^NEXT_PUBLIC_" | sed 's/=.*/=***/' || echo "No NEXT_PUBLIC_* variables found"
+# Verify .env.local was created
+RUN echo "=== .env.local contents ===" && \
+    (cat apps/web/.env.local 2>/dev/null | sed 's/=.*/=***/' || echo "No .env.local file created") && \
+    echo "==========================="
 
 # Build Next.js application
-# Next.js will read variables from .env.local or ENV
+# Next.js will read variables from .env.local (created above) or ENV
 RUN cd apps/web && pnpm build
 
 # Production image
