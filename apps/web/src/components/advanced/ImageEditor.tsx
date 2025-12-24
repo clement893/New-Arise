@@ -9,7 +9,7 @@ import { useState, useRef } from 'react';
 import { clsx } from 'clsx';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { Upload, Download, RotateCw, ZoomIn, ZoomOut, Filter } from 'lucide-react';
+import { Upload, Download, RotateCw, ZoomIn, ZoomOut } from 'lucide-react';
 
 export interface ImageEditorProps {
   imageUrl?: string;
