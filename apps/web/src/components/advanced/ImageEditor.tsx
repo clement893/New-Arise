@@ -78,17 +78,20 @@ export default function ImageEditor({
               variant="outline"
               size="sm"
               onClick={() => fileInputRef.current?.click()}
-              icon={<Upload className="w-4 h-4" />}
             >
-              Upload
+              <span className="flex items-center gap-2">
+                <Upload className="w-4 h-4" />
+                Upload
+              </span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={handleZoomOut}
-              icon={<ZoomOut className="w-4 h-4" />}
               disabled={zoom <= 50}
-            />
+            >
+              <ZoomOut className="w-4 h-4" />
+            </Button>
             <span className="text-sm text-gray-600 dark:text-gray-400 min-w-[50px] text-center">
               {zoom}%
             </span>
@@ -96,23 +99,27 @@ export default function ImageEditor({
               variant="outline"
               size="sm"
               onClick={handleZoomIn}
-              icon={<ZoomIn className="w-4 h-4" />}
               disabled={zoom >= 200}
-            />
+            >
+              <ZoomIn className="w-4 h-4" />
+            </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={handleRotate}
-              icon={<RotateCw className="w-4 h-4" />}
-            />
+            >
+              <RotateCw className="w-4 h-4" />
+            </Button>
             {image && (
               <Button
                 variant="primary"
                 size="sm"
                 onClick={handleSave}
-                icon={<Download className="w-4 h-4" />}
               >
-                Save
+                <span className="flex items-center gap-2">
+                  <Download className="w-4 h-4" />
+                  Save
+                </span>
               </Button>
             )}
           </div>
