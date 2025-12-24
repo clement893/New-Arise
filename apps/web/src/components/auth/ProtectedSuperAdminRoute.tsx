@@ -92,7 +92,7 @@ export default function ProtectedSuperAdminRoute({ children }: ProtectedSuperAdm
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mb-4"></div>
           <div className="text-xl text-gray-600 dark:text-gray-400">
             Vérification des permissions...
           </div>
