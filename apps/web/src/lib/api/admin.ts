@@ -148,7 +148,12 @@ export async function checkSuperAdminStatus(
 
         if (refreshResponse.ok) {
           const refreshData = await refreshResponse.json();
-          const newToken = refreshData.access_token || refreshData.accessToken;
+          // Backend returns access_token in Token schema
+          const newToken = refreshData.access_token;
+          
+          if (!newToken) {
+            throw new Error('No access token in refresh response');
+          }
           
           // Update token storage
           await TokenStorage.setToken(newToken, refreshToken || undefined);
@@ -182,7 +187,12 @@ export async function checkSuperAdminStatus(
             
             if (refreshTokenResponse.ok) {
               const refreshData = await refreshTokenResponse.json();
-              const newToken = refreshData.access_token || refreshData.accessToken;
+              // Backend returns access_token in Token schema
+              const newToken = refreshData.access_token;
+              
+              if (!newToken) {
+                throw new Error('No access token in refresh response');
+              }
               
               await TokenStorage.setToken(newToken, refreshToken);
               try {
