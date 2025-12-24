@@ -9,7 +9,6 @@ import { useState } from 'react';
 import { clsx } from 'clsx';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
 import Badge from '@/components/ui/Badge';
 import { Folder, File, Upload, Download, Trash2, MoreVertical, Search, Grid, List } from 'lucide-react';
 import { logger } from '@/lib/logger';
