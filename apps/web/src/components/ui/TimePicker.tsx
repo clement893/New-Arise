@@ -121,7 +121,7 @@ export default function TimePicker({
         disabled={disabled}
         fullWidth={fullWidth}
         placeholder={format === '12h' ? '12:00 PM' : '12:00'}
-        icon={<Clock className="w-5 h-5" />}
+        leftIcon={<Clock className="w-5 h-5" />}
       />
 
       {isOpen && (
