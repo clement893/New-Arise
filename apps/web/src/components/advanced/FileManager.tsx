@@ -54,7 +54,7 @@ export default function FileManager({
 }: FileManagerProps) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
+  const [selectedFiles, _setSelectedFiles] = useState<Set<string>>(new Set());
 
   const filteredFiles = files.filter((file) =>
     file.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -179,8 +179,11 @@ export default function FileManager({
                   onChange={handleUpload}
                   className="hidden"
                 />
-                <Button variant="primary" icon={<Upload className="w-4 h-4" />} asChild>
-                  <span>Upload</span>
+                <Button variant="primary">
+                  <span className="flex items-center gap-2">
+                    <Upload className="w-4 h-4" />
+                    Upload
+                  </span>
                 </Button>
               </label>
             )}
