@@ -114,7 +114,8 @@ export const useAuthStore = create<AuthState>()(
       },
 
       setRefreshToken: async (refreshToken: string) => {
-        await TokenStorage.setRefreshToken(refreshToken);
+        const currentToken = get().token;
+        await TokenStorage.setToken(currentToken || '', refreshToken);
         set({ refreshToken });
       },
 
