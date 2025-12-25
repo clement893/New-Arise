@@ -1,6 +1,5 @@
 """AI endpoints using OpenAI and Anthropic (Claude)."""
 
-import os
 from typing import Optional, List, Literal
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
