@@ -76,7 +76,7 @@ export default function WebhookManager({
       await onCreate?.(formData);
       setShowCreateModal(false);
       setFormData({ name: '', url: '', events: [] });
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error('Failed to create webhook', error instanceof Error ? error : undefined);
     } finally {
       setLoading(false);
@@ -87,7 +87,7 @@ export default function WebhookManager({
     if (!confirm('Are you sure you want to delete this webhook?')) return;
     try {
       await onDelete?.(id);
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error('Failed to delete webhook', error instanceof Error ? error : undefined);
     }
   };
@@ -95,7 +95,7 @@ export default function WebhookManager({
   const handleToggle = async (id: string, active: boolean) => {
     try {
       await onToggle?.(id, active);
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error('Failed to toggle webhook', error instanceof Error ? error : undefined);
     }
   };

@@ -132,7 +132,7 @@ const PerformanceDashboardComponent = memo(function PerformanceDashboard({
             newMetrics.cls = clsValue;
           });
           observer.observe({ type: 'layout-shift', buffered: true });
-        } catch (e) {
+        } catch (_e: unknown) {
           // CLS not supported
         }
       }

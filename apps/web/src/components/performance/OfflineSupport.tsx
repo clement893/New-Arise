@@ -62,7 +62,7 @@ export default function OfflineSupport({
     if (storedQueue) {
       try {
         setSyncQueue(JSON.parse(storedQueue));
-      } catch (e) {
+      } catch (e: unknown) {
         console.error('Failed to parse sync queue:', e);
       }
     }
