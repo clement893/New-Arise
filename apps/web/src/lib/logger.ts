@@ -56,8 +56,20 @@ function sanitizeData(data: unknown): unknown {
 }
 
 class Logger {
-  private isDevelopment = process.env.NODE_ENV === 'development';
-  private isProduction = process.env.NODE_ENV === 'production';
+  private isDevelopment: boolean;
+  private isProduction: boolean;
+
+  constructor() {
+    // Safely check NODE_ENV to prevent crashes during SSR
+    try {
+      this.isDevelopment = process.env.NODE_ENV === 'development';
+      this.isProduction = process.env.NODE_ENV === 'production';
+    } catch {
+      // Fallback if process.env is not available
+      this.isDevelopment = false;
+      this.isProduction = false;
+    }
+  }
 
   private formatMessage(level: LogLevel, message: string, context?: LogContext): string {
     const timestamp = new Date().toISOString();
@@ -91,12 +103,17 @@ class Logger {
     // En production, envoyer à votre service de logging
     if (this.isProduction && level === 'error') {
       // Exemple: envoyer à Sentry, LogRocket, etc.
-      if (typeof window !== 'undefined' && window.Sentry) {
-        window.Sentry.captureException(error || new Error(message), {
-          contexts: {
-            custom: sanitizedContext,
-          },
-        });
+      try {
+        if (typeof window !== 'undefined' && window.Sentry) {
+          window.Sentry.captureException(error || new Error(message), {
+            contexts: {
+              custom: sanitizedContext,
+            },
+          });
+        }
+      } catch (e) {
+        // Silently fail if Sentry is not available or errors
+        // Don't let error reporting break the app
       }
     }
   }

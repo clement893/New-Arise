@@ -35,10 +35,6 @@ function sendToAnalytics(metric: Metric) {
         // Track performance metric in Sentry
         Sentry.metrics.distribution(`web_vital.${metric.name.toLowerCase()}`, metric.value, {
           unit: 'millisecond',
-          tags: {
-            rating: metric.rating,
-            navigationType: metric.navigationType,
-          },
         });
 
         // If metric is poor, capture as an issue

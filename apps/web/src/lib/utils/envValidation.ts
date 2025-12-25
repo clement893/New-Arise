@@ -102,7 +102,7 @@ export function validateAndLogEnvironmentVariables(): void {
   }
 
   if (result.errors.length > 0) {
-    logger.error('Environment variable validation failed', {
+    logger.error('Environment variable validation failed', new Error(result.errors.join('; ')), {
       errors: result.errors,
     });
 
