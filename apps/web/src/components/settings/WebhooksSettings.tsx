@@ -52,7 +52,7 @@ const availableEvents = [
 export default function WebhooksSettings({
   webhooks = [],
   onCreate,
-  onUpdate,
+  onUpdate: _onUpdate,
   onDelete,
   onToggle,
   className,
