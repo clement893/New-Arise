@@ -94,12 +94,15 @@ RUN adduser --system --uid 1001 nextjs
 # Copy built application
 # Next.js standalone mode creates .next/standalone with server.js at apps/web/server.js
 # The standalone directory already contains the correct structure, so we copy it as-is
+# Note: Standalone mode includes .next/static files, but we need to ensure they're accessible
 COPY --from=builder /app/apps/web/.next/standalone ./
 # Copy public files (standalone doesn't include public directory)
 COPY --from=builder /app/apps/web/public ./apps/web/public
-# Ensure static files are in the correct location relative to server.js
-# Static files should be at apps/web/.next/static (same level as server.js)
+# Copy static files - standalone includes them but we ensure they're in the right place
+# Static files must be at apps/web/.next/static relative to server.js location
 COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/static
+# Also ensure static files are accessible from root for Next.js routing
+COPY --from=builder /app/apps/web/.next/static ./.next/static
 
 # Set working directory to where server.js is located BEFORE switching user
 # This ensures Next.js can find static files and other resources correctly
