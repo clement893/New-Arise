@@ -38,8 +38,8 @@ export {
   CheckCircle,
   XCircle,
   AlertCircle,
+  AlertTriangle,
   Info,
-  Warning,
   Loader,
   
   // Files
