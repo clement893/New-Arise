@@ -7,7 +7,6 @@
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
-import { useRouter, usePathname } from 'next/navigation';
 import { locales, localeNames, localeNativeNames, isRTL, type Locale } from '@/i18n/routing';
 import { useState } from 'react';
 import { Globe, Check } from 'lucide-react';
@@ -17,8 +16,6 @@ import { clsx } from 'clsx';
 export default function LanguageSwitcher() {
   const locale = useLocale() as Locale;
   const t = useTranslations('language');
-  const router = useRouter();
-  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLocaleChange = (newLocale: Locale) => {
