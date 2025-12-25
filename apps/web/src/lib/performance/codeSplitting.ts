@@ -19,7 +19,7 @@ export function createLazyComponent<T extends ComponentType<ComponentProps>>(
   }
 ) {
   return dynamic(importFn, {
-    loading: options?.loading || (() => <div>Loading...</div>),
+    loading: options?.loading || (() => <div>Loading...</div>) as ComponentType<ComponentProps>,
     ssr: options?.ssr !== false,
   });
 }
