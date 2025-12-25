@@ -13,7 +13,6 @@ import Button from './Button';
 import Checkbox from './Checkbox';
 import Dropdown from './Dropdown';
 import type { DropdownItem } from './Dropdown';
-import { useTableData } from '@/hooks/data/useTableData';
 
 export interface BulkAction<T> {
   label: string;
@@ -64,13 +63,8 @@ export default function DataTableEnhanced<T extends Record<string, unknown>>({
   rowKey,
   ...props
 }: DataTableEnhancedProps<T>) {
-  // Use shared hook for table data management (eliminates duplication)
-  const tableData = useTableData(data, columns, {
-    searchable: props.searchable,
-    filterable: props.filterable,
-    sortable: props.sortable,
-    pageSize: props.pageSize,
-  });
+  // Note: DataTableEnhanced wraps DataTable, which uses useTableData internally
+  // So we don't need to call useTableData here - DataTable handles it
 
   const [selectedRows, setSelectedRows] = useState<Set<string | number>>(new Set());
 
@@ -222,9 +216,9 @@ export default function DataTableEnhanced<T extends Record<string, unknown>>({
             data={data}
             columns={visibleColumns.map((col) => ({
               ...col,
-              render: (value, row) => {
+              render: (value: unknown, row: T) => {
                 const originalRender = col.render;
-                const content = originalRender ? originalRender(value, row as T) : String(value ?? '');
+                const content = originalRender ? originalRender(value, row) : String(value ?? '');
                 
                 // Find the index of the row in the data array
                 const rowIndex = rowKey 

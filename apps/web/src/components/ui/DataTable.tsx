@@ -1,10 +1,11 @@
 'use client';
 
-import { ReactNode, memo } from 'react';
+import { memo } from 'react';
 import { clsx } from 'clsx';
 import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from './Table';
 import Dropdown from './Dropdown';
 import type { DropdownItem } from './Dropdown';
+import Button from './Button';
 import { useTableData } from '@/hooks/data/useTableData';
 import type { Column } from '@/hooks/data/useTableData';
 import TableSearchBar from './TableSearchBar';

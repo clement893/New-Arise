@@ -4,12 +4,14 @@
  * Can be reused across DataTable and DataTableEnhanced components
  */
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, type ReactNode } from 'react';
 
 export interface Column<T> {
   key: string;
   label: string;
   sortable?: boolean;
+  /** Custom render function for cell content */
+  render?: (value: unknown, row: T) => ReactNode;
   filterable?: boolean;
   filterType?: 'text' | 'select' | 'date' | 'number';
   filterOptions?: { label: string; value: string }[];

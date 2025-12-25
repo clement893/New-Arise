@@ -11,7 +11,7 @@ export interface UseErrorTrackingReturn {
   errors: Error[];
   stats: ErrorStats;
   isLoading: boolean;
-  error: Error | null;
+  error: globalThis.Error | null;
   refresh: () => void;
 }
 
@@ -22,7 +22,7 @@ export interface UseErrorTrackingReturn {
 export function useErrorTracking(): UseErrorTrackingReturn {
   const [errors, setErrors] = useState<Error[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<globalThis.Error | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export function useErrorTracking(): UseErrorTrackingReturn {
         
         setErrors(fetchedErrors);
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to fetch error data'));
+        setError(err instanceof globalThis.Error ? err : new globalThis.Error('Failed to fetch error data'));
       } finally {
         setIsLoading(false);
       }
