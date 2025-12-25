@@ -67,7 +67,7 @@ export default function LayoutComponentsContent() {
         <Section title="Error State">
           <ErrorState
             title="Something went wrong"
-            message="Unable to load the requested content"
+            description="Unable to load the requested content"
             onRetry={() => {
               console.log('Retrying...');
             }}
