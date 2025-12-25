@@ -54,7 +54,7 @@ const availableEvents = [
 export default function WebhookManager({
   webhooks = [],
   onCreate,
-  onUpdate,
+  onUpdate: _onUpdate,
   onDelete,
   onToggle,
   onTest,
