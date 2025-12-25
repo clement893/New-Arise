@@ -39,7 +39,9 @@ export interface WorkflowBuilderProps {
   className?: string;
 }
 
-const nodeTypes: SelectOption[] = [
+// Template placeholder - Available for future use when implementing dynamic node type selection
+// TODO: Implement UI for selecting node types dynamically
+export const nodeTypes: SelectOption[] = [
   { label: 'Trigger', value: 'trigger' },
   { label: 'Action', value: 'action' },
   { label: 'Condition', value: 'condition' },
