@@ -38,8 +38,11 @@ COPY . .
 RUN chown -R appuser:appuser /app
 
 # Create entrypoint script for Railway compatibility (before USER switch)
+# Railway provides PORT via environment variable, use it or default to 8000
 RUN echo '#!/bin/sh' > /entrypoint.sh && \
-    echo 'exec uvicorn app.main:app --host 0.0.0.0 --port 8000' >> /entrypoint.sh && \
+    echo 'PORT=${PORT:-8000}' >> /entrypoint.sh && \
+    echo 'echo "Starting Uvicorn on 0.0.0.0:$PORT..."' >> /entrypoint.sh && \
+    echo 'exec uvicorn app.main:app --host 0.0.0.0 --port "$PORT"' >> /entrypoint.sh && \
     chmod +x /entrypoint.sh && \
     chown appuser:appuser /entrypoint.sh
 
