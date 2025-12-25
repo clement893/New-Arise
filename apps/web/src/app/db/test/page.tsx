@@ -67,7 +67,7 @@ function DatabaseTestContent() {
 
     try {
       const response = await apiClient.get<DatabaseHealthCheck>('/api/v1/db-health/');
-      setHealthData(response.data);
+      setHealthData(response.data ?? null);
     } catch (err: any) {
       const errorMessage = err.response?.data?.detail || err.message || 'Failed to check database health';
       setError(errorMessage);
