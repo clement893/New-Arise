@@ -92,7 +92,7 @@ export default function MarkdownEditor({
     html = html.replace(/`([^`]+)`/gim, '<code>$1</code>');
     
     // Links - sanitize URLs to prevent javascript: and data: XSS
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/gim, (match, text, url) => {
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/gim, (_match, text, url) => {
       // Only allow http://, https://, and mailto: protocols
       const safeUrl = /^(https?|mailto):/i.test(url) ? url : '#';
       return `<a href="${safeUrl}">${text}</a>`;
