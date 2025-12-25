@@ -214,7 +214,7 @@ export default function NotificationSettings({
                 <Select
                   label="Email Frequency"
                   options={frequencyOptions}
-                  value={channelData.frequency}
+                  value={(channelData as NotificationSettingsData['email']).frequency}
                   onChange={(e) => handleChange(channel, 'frequency', e.target.value)}
                 />
               )}
