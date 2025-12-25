@@ -95,9 +95,6 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder /app/apps/web/public ./public
 COPY --from=builder /app/apps/web/.next/standalone ./
 COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/static
-# Copy start script for Railway compatibility
-COPY --from=builder /app/apps/web/scripts/start.sh ./apps/web/scripts/start.sh
-RUN chmod +x ./apps/web/scripts/start.sh
 
 USER nextjs
 
@@ -108,6 +105,7 @@ EXPOSE 3000
 ENV PORT=${PORT:-3000}
 ENV HOSTNAME="0.0.0.0"
 
-# Set CMD directly to avoid Railway trying to parse shell scripts
+# Use CMD with absolute path to ensure Railway executes directly
+# This prevents Railway from trying to parse shell scripts or use cd commands
 CMD ["node", "/app/server.js"]
 
