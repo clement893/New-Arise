@@ -1,82 +1,82 @@
-# Authentification et Sécurité
+# Authentication and Security
 
-Ce document décrit la configuration complète de l'authentification et de la sécurité pour l'application.
+This document describes the complete authentication and security configuration for the application.
 
-## 🔐 Configuration OAuth Google
+## 🔐 Google OAuth Configuration
 
-### Prérequis
+### Prerequisites
 
-1. Créer un projet dans [Google Cloud Console](https://console.cloud.google.com/)
-2. Activer l'API Google+ (ou Google Identity)
-3. Créer des identifiants OAuth 2.0
-4. Configurer les URI de redirection autorisés :
-   - `http://localhost:3000/api/auth/callback/google` (développement)
-   - `https://votre-domaine.com/api/auth/callback/google` (production)
+1. Create a project in [Google Cloud Console](https://console.cloud.google.com/)
+2. Enable Google+ API (or Google Identity)
+3. Create OAuth 2.0 credentials
+4. Configure authorized redirect URIs:
+   - `http://localhost:3000/api/auth/callback/google` (development)
+   - `https://your-domain.com/api/auth/callback/google` (production)
 
-### Variables d'environnement requises
+### Required Environment Variables
 
 ```env
-GOOGLE_CLIENT_ID=votre-client-id.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=votre-client-secret
+GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-client-secret
 NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=generer-avec-openssl-rand-base64-32
+NEXTAUTH_SECRET=generate-with-openssl-rand-base64-32
 ```
 
-### Génération des secrets
+### Secret Generation
 
 ```bash
-# Générer NEXTAUTH_SECRET
+# Generate NEXTAUTH_SECRET
 openssl rand -base64 32
 
-# Générer JWT_SECRET
+# Generate JWT_SECRET
 openssl rand -base64 32
 ```
 
-## 🎫 Gestion des Tokens JWT
+## 🎫 JWT Token Management
 
-### Types de tokens
+### Token Types
 
-1. **Access Token** : Token d'accès de courte durée (15 minutes par défaut)
-2. **Refresh Token** : Token de rafraîchissement de longue durée (30 jours par défaut)
+1. **Access Token**: Short-lived access token (15 minutes by default)
+2. **Refresh Token**: Long-lived refresh token (30 days by default)
 
 ### Configuration
 
 ```env
-JWT_SECRET=votre-secret-jwt
+JWT_SECRET=your-jwt-secret
 JWT_ISSUER=modele-app
 JWT_AUDIENCE=modele-users
 JWT_ACCESS_TOKEN_EXPIRES=15m
 JWT_REFRESH_TOKEN_EXPIRES=30d
 ```
 
-### Utilisation
+### Usage
 
 ```typescript
 import { createAccessToken, verifyToken } from '@/lib/auth/jwt';
 
-// Créer un token
+// Create a token
 const token = await createAccessToken({
   userId: 'user-id',
   email: 'user@example.com',
   role: 'user',
 });
 
-// Vérifier un token
+// Verify a token
 const payload = await verifyToken(token);
 ```
 
-## 🛡️ Middleware d'authentification
+## 🛡️ Authentication Middleware
 
-### Middleware Next.js
+### Next.js Middleware
 
-Le middleware `src/proxy.ts` protège automatiquement toutes les routes sauf :
-- `/auth/*` (pages d'authentification)
-- `/api/auth/*` (routes NextAuth)
-- `/api/public/*` (routes publiques)
+The `src/middleware.ts` automatically protects all routes except:
+- `/auth/*` (authentication pages)
+- `/api/auth/*` (NextAuth routes)
+- `/api/public/*` (public routes)
 
-### Utilisation dans les API Routes
+### Usage in API Routes
 
-#### Route protégée simple
+#### Simple Protected Route
 
 ```typescript
 import { withAuth } from '@/lib/auth/middleware';
@@ -88,7 +88,7 @@ async function handler(request: NextRequest, { user }: { user: TokenPayload }) {
 export const GET = withAuth(handler);
 ```
 
-#### Route avec contrôle de rôle
+#### Route with Role Control
 
 ```typescript
 import { withRole } from '@/lib/auth/middleware';
@@ -100,7 +100,7 @@ async function handler(request: NextRequest, { user }: { user: TokenPayload }) {
 export const GET = withRole(['admin'], handler);
 ```
 
-### Utilisation dans les Server Components
+### Usage in Server Components
 
 ```typescript
 import { auth } from '@/lib/auth';
@@ -116,105 +116,104 @@ export default async function Page() {
 }
 ```
 
-## 📋 Variables d'environnement
+## 📋 Environment Variables
 
-### Validation automatique
+### Automatic Validation
 
-Les variables d'environnement sont validées automatiquement au démarrage en développement.
+Environment variables are automatically validated on startup in development mode.
 
-### Scripts disponibles
+### Available Scripts
 
 ```bash
-# Valider les variables d'environnement
+# Validate environment variables
 pnpm env:validate
 
-# Afficher la documentation
+# Display documentation
 pnpm env:docs
 
-# Générer le fichier .env.example
+# Generate .env.example file
 pnpm env:generate
 ```
 
-### Variables requises
+### Required Variables
 
-| Variable | Description | Exemple |
+| Variable | Description | Example |
 |----------|-------------|---------|
-| `NEXTAUTH_URL` | URL de base de l'application | `http://localhost:3000` |
-| `NEXTAUTH_SECRET` | Secret pour NextAuth | Généré avec openssl |
-| `GOOGLE_CLIENT_ID` | ID client Google OAuth | `xxx.apps.googleusercontent.com` |
-| `GOOGLE_CLIENT_SECRET` | Secret client Google OAuth | `xxx` |
-| `JWT_SECRET` | Secret pour JWT | Généré avec openssl |
+| `NEXTAUTH_URL` | Base URL of the application | `http://localhost:3000` |
+| `NEXTAUTH_SECRET` | Secret for NextAuth | Generated with openssl |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID | `xxx.apps.googleusercontent.com` |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret | `xxx` |
+| `JWT_SECRET` | Secret for JWT | Generated with openssl |
 
-### Variables optionnelles
+### Optional Variables
 
-| Variable | Description | Défaut |
-|----------|-------------|--------|
-| `JWT_ISSUER` | Émetteur JWT | `modele-app` |
-| `JWT_AUDIENCE` | Audience JWT | `modele-users` |
-| `JWT_ACCESS_TOKEN_EXPIRES` | Expiration access token | `15m` |
-| `JWT_REFRESH_TOKEN_EXPIRES` | Expiration refresh token | `30d` |
-| `ALLOWED_EMAIL_DOMAINS` | Domaines email autorisés | Tous |
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `JWT_ISSUER` | JWT issuer | `modele-app` |
+| `JWT_AUDIENCE` | JWT audience | `modele-users` |
+| `JWT_ACCESS_TOKEN_EXPIRES` | Access token expiration | `15m` |
+| `JWT_REFRESH_TOKEN_EXPIRES` | Refresh token expiration | `30d` |
+| `ALLOWED_EMAIL_DOMAINS` | Allowed email domains | All |
 
-## 🔒 Sécurité
+## 🔒 Security
 
-### Bonnes pratiques implémentées
+### Implemented Best Practices
 
-1. **Tokens JWT sécurisés** : Utilisation de `jose` pour la création et vérification
-2. **Refresh tokens** : Rotation automatique des tokens d'accès
-3. **HTTPS en production** : Tous les tokens sont transmis via HTTPS
-4. **Validation des domaines** : Option pour restreindre les domaines email
-5. **Expiration des tokens** : Tokens d'accès de courte durée
-6. **Secrets sécurisés** : Génération aléatoire des secrets
+1. **Secure JWT tokens**: Using `jose` for creation and verification
+2. **Refresh tokens**: Automatic access token rotation
+3. **HTTPS in production**: All tokens are transmitted via HTTPS
+4. **Domain validation**: Option to restrict email domains
+5. **Token expiration**: Short-lived access tokens
+6. **Secure secrets**: Random secret generation
 
-### Protection CSRF
+### CSRF Protection
 
-NextAuth gère automatiquement la protection CSRF pour toutes les routes d'authentification.
+NextAuth automatically handles CSRF protection for all authentication routes.
 
-### Protection XSS
+### XSS Protection
 
-Les tokens sont stockés dans des cookies HTTP-only (via NextAuth) et ne sont pas accessibles depuis JavaScript côté client.
+Tokens are stored in HTTP-only cookies (via NextAuth) and are not accessible from client-side JavaScript.
 
-## 🧪 Tests
+## 🧪 Testing
 
-### Tester l'authentification Google
+### Testing Google Authentication
 
-1. Démarrer l'application : `pnpm dev`
-2. Visiter `/auth/signin`
-3. Cliquer sur "Sign in with Google"
-4. Sélectionner un compte Google
-5. Vérifier la redirection vers la page d'origine
+1. Start the application: `pnpm dev`
+2. Visit `/auth/signin`
+3. Click "Sign in with Google"
+4. Select a Google account
+5. Verify redirect to the original page
 
-### Tester les routes protégées
+### Testing Protected Routes
 
 ```bash
-# Sans authentification (devrait rediriger vers /auth/signin)
+# Without authentication (should redirect to /auth/signin)
 curl http://localhost:3000/api/protected
 
-# Avec authentification (ajouter le token dans l'en-tête)
+# With authentication (add token in header)
 curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:3000/api/protected
 ```
 
-## 📚 Documentation supplémentaire
+## 📚 Additional Documentation
 
 - [NextAuth.js Documentation](https://next-auth.js.org/)
 - [Google OAuth Setup](https://developers.google.com/identity/protocols/oauth2)
 - [JWT Best Practices](https://datatracker.ietf.org/doc/html/rfc8725)
 
-## 🐛 Dépannage
+## 🐛 Troubleshooting
 
-### Erreur "Invalid credentials"
+### Error "Invalid credentials"
 
-- Vérifier que `GOOGLE_CLIENT_ID` et `GOOGLE_CLIENT_SECRET` sont corrects
-- Vérifier que l'URI de redirection est configurée dans Google Cloud Console
+- Verify that `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are correct
+- Verify that the redirect URI is configured in Google Cloud Console
 
-### Erreur "NEXTAUTH_SECRET is not set"
+### Error "NEXTAUTH_SECRET is not set"
 
-- Générer un secret : `openssl rand -base64 32`
-- Ajouter à `.env.local` : `NEXTAUTH_SECRET=votre-secret`
+- Generate a secret: `openssl rand -base64 32`
+- Add to `.env.local`: `NEXTAUTH_SECRET=your-secret`
 
-### Tokens expirés
+### Expired Tokens
 
-- Les tokens d'accès expirent après 15 minutes
-- Utiliser le refresh token pour obtenir un nouveau token d'accès
-- Endpoint : `POST /api/auth/refresh`
-
+- Access tokens expire after 15 minutes
+- Use the refresh token to obtain a new access token
+- Endpoint: `POST /api/auth/refresh`

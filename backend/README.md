@@ -1,283 +1,503 @@
-# MODELE Backend API
+# Backend - FastAPI
 
-FastAPI backend with OpenAPI/Swagger auto-generation, Pydantic v2 validation, Alembic migrations, and automated tests.
+FastAPI backend for MODELE-NEXTJS-FULLSTACK with PostgreSQL database, async support, and comprehensive security features.
 
 ## 🚀 Features
 
-- **FastAPI** with automatic OpenAPI/Swagger documentation
-- **Pydantic v2** for request/response validation
-- **Alembic** for database migrations with rollback support
-- **Automated API tests** with pytest
-- **Async SQLAlchemy** for database operations
-- **JWT authentication** with password hashing
-- **Stripe Integration** for payments and subscriptions
-- **SendGrid Email Service** with 7+ transaction templates
-- **Celery** for background task processing (emails, notifications)
-- **Redis** for caching and Celery broker
+### Core Technologies
+- ✅ **FastAPI** - Modern, fast Python web framework
+- ✅ **Python 3.11+** - Latest Python features
+- ✅ **PostgreSQL** - Production-ready database
+- ✅ **SQLAlchemy 2.0** - Modern async ORM
+- ✅ **Alembic** - Database migrations
+- ✅ **Pydantic 2.0** - Data validation and settings
+
+### Security Features
+- ✅ **JWT Authentication** - Access and refresh tokens
+- ✅ **OAuth2** - Google OAuth integration
+- ✅ **2FA Support** - TOTP-based two-factor authentication
+- ✅ **API Keys** - Programmatic access
+- ✅ **CSRF Protection** - Cross-site request forgery prevention
+- ✅ **Rate Limiting** - Request throttling
+- ✅ **CORS** - Configurable cross-origin resource sharing
+- ✅ **Request Signing** - Optional request signature verification
+- ✅ **IP Whitelisting** - Admin endpoint protection
+- ✅ **Security Headers** - HSTS, CSP, XSS protection
+
+### Performance Features
+- ✅ **Async/Await** - High concurrency support
+- ✅ **Connection Pooling** - Efficient database connections
+- ✅ **Response Caching** - Redis-based caching
+- ✅ **Query Optimization** - Eager loading, N+1 prevention
+- ✅ **Compression** - Brotli and Gzip support
+- ✅ **Database Indexes** - Optimized queries
+- ✅ **Pagination** - Efficient data retrieval
+
+### SaaS Features
+- ✅ **User Management** - Complete user CRUD
+- ✅ **Role-Based Access Control (RBAC)** - Permissions system
+- ✅ **Team/Organization Support** - Multi-tenant ready
+- ✅ **Subscriptions** - Stripe integration
+- ✅ **Plans & Billing** - Subscription management
+- ✅ **Webhooks** - Stripe webhook handling
+- ✅ **Invoices** - Payment history
+
+### Additional Features
+- ✅ **Email Integration** - SendGrid support
+- ✅ **File Management** - S3 integration ready
+- ✅ **WebSocket Support** - Real-time communication
+- ✅ **Theme Management** - Dynamic theme system
+- ✅ **Project Management** - Project CRUD operations
+- ✅ **Structured Logging** - JSON logging
+- ✅ **Error Handling** - Standardized error responses
+- ✅ **OpenAPI/Swagger** - Auto-generated API docs
 
 ## 📋 Prerequisites
 
-- Python 3.11+
-- PostgreSQL (or SQLite for development)
+- Python 3.11 or higher
+- PostgreSQL 14+ (or compatible database)
+- Redis (optional, for caching)
 - pip or poetry
 
 ## 🛠️ Installation
 
-1. Create virtual environment:
+### 1. Clone and Navigate
+
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+cd backend
 ```
 
-2. Install dependencies:
+### 2. Create Virtual Environment
+
+```bash
+# Using venv
+python -m venv venv
+
+# Activate (Windows)
+venv\Scripts\activate
+
+# Activate (Linux/Mac)
+source venv/bin/activate
+```
+
+### 3. Install Dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Copy environment file:
-```bash
-cp .env.example .env
+### 4. Environment Variables
+
+Create a `.env` file in the `backend` directory:
+
+```env
+# Database
+DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/dbname
+
+# Security
+SECRET_KEY=your-secret-key-min-32-chars
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=15
+REFRESH_TOKEN_EXPIRE_DAYS=30
+
+# CORS
+CORS_ORIGINS=http://localhost:3000
+FRONTEND_URL=http://localhost:3000
+
+# OAuth
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+
+# Stripe
+STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
+STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+
+# Email (SendGrid)
+SENDGRID_API_KEY=your-sendgrid-api-key
+SENDGRID_FROM_EMAIL=noreply@example.com
+
+# Redis (optional)
+REDIS_URL=redis://localhost:6379/0
+
+# AWS S3 (optional)
+AWS_ACCESS_KEY_ID=your-access-key
+AWS_SECRET_ACCESS_KEY=your-secret-key
+AWS_REGION=us-east-1
+S3_BUCKET_NAME=your-bucket-name
+
+# OpenAI (optional)
+OPENAI_API_KEY=your-openai-api-key
+
+# Environment
+ENVIRONMENT=development
+DEBUG=True
 ```
 
-4. Update `.env` with your configuration
+### 5. Database Setup
 
-## 🗄️ Database Setup
-
-1. Create database:
 ```bash
-createdb modele
+# Run migrations
+alembic upgrade head
+
+# Seed database (optional)
+python scripts/seed_db.py
 ```
 
-2. Run migrations:
-```bash
-python scripts/migrate.py upgrade
-```
-
-Or create initial migration:
-```bash
-python scripts/migrate.py create "Initial migration"
-python scripts/migrate.py upgrade
-```
-
-## 🏃 Running the Application
+## 🚀 Running the Server
 
 ### Development
-```bash
-python run.py
-```
 
-Or with uvicorn directly:
 ```bash
+# Using uvicorn directly
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Or using the script
+python -m app.main
 ```
 
 ### Production
+
 ```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+# Using gunicorn with uvicorn workers
+gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
 ```
 
-## 📚 API Documentation
-
-Once the server is running:
-
+The API will be available at:
+- **API**: http://localhost:8000
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
 - **OpenAPI JSON**: http://localhost:8000/api/v1/openapi.json
-
-## 🧪 Testing
-
-Run all tests:
-```bash
-pytest
-```
-
-Run with coverage:
-```bash
-pytest --cov=app --cov-report=html
-```
-
-Run specific test file:
-```bash
-pytest tests/test_auth.py
-```
-
-## 🔄 Database Migrations
-
-### Create Migration
-```bash
-python scripts/migrate.py create "Description of changes"
-```
-
-### Upgrade Database
-```bash
-python scripts/migrate.py upgrade
-```
-
-### Downgrade Database
-```bash
-python scripts/migrate.py downgrade -1  # Go back one revision
-python scripts/migrate.py downgrade <revision_id>  # Go to specific revision
-```
-
-### View Current Revision
-```bash
-python scripts/migrate.py current
-```
-
-### View Migration History
-```bash
-python scripts/migrate.py history
-```
 
 ## 📁 Project Structure
 
 ```
 backend/
 ├── app/
-│   ├── api/
-│   │   ├── v1/
-│   │   │   ├── endpoints/     # API endpoints
-│   │   │   └── router.py      # Main router
-│   │   └── email.py           # Email API endpoints
-│   ├── core/
-│   │   ├── config.py          # Settings with Pydantic
-│   │   └── database.py        # Database configuration
+│   ├── api/                    # API endpoints
+│   │   ├── v1/                # API version 1
+│   │   │   └── endpoints/     # Endpoint modules
+│   │   │       ├── auth.py    # Authentication
+│   │   │       ├── users.py   # User management
+│   │   │       ├── projects.py # Projects
+│   │   │       ├── themes.py  # Theme management
+│   │   │       ├── admin.py   # Admin operations
+│   │   │       └── ...
+│   │   ├── email.py           # Email endpoints
+│   │   └── webhooks/          # Webhook handlers
+│   ├── core/                  # Core functionality
+│   │   ├── config.py          # Configuration
+│   │   ├── database.py        # Database setup
+│   │   ├── logging.py         # Logging configuration
+│   │   ├── cache.py           # Caching utilities
+│   │   ├── exceptions.py      # Custom exceptions
+│   │   ├── rate_limit.py     # Rate limiting
+│   │   └── ...
 │   ├── models/                # SQLAlchemy models
+│   │   ├── user.py           # User model
+│   │   ├── subscription.py   # Subscription model
+│   │   ├── plan.py           # Plan model
+│   │   ├── team.py           # Team model
+│   │   └── ...
 │   ├── schemas/               # Pydantic schemas
-│   ├── services/
-│   │   ├── email_service.py   # SendGrid email service
-│   │   └── email_templates.py # Email templates
-│   ├── tasks/
-│   │   ├── email_tasks.py     # Celery email tasks
-│   │   └── notification_tasks.py
-│   ├── celery_app.py          # Celery configuration
-│   └── main.py                # FastAPI app
-├── alembic/                   # Alembic migrations
-├── tests/                     # Test suite
-├── scripts/
-│   └── migrate.py             # Migration helper script
-├── requirements.txt
-├── pyproject.toml
-└── alembic.ini
+│   │   ├── auth.py           # Auth schemas
+│   │   ├── user.py           # User schemas
+│   │   └── ...
+│   ├── dependencies.py        # FastAPI dependencies
+│   └── main.py               # Application entry point
+├── alembic/                   # Database migrations
+│   └── versions/             # Migration files
+├── scripts/                   # Utility scripts
+├── tests/                     # Test files
+├── requirements.txt           # Python dependencies
+└── README.md                 # This file
 ```
+
+## 🔌 API Endpoints
+
+See [API_ENDPOINTS.md](./API_ENDPOINTS.md) for complete API documentation.
+
+### Quick Reference
+
+**Authentication:**
+- `POST /api/v1/auth/register` - Register new user
+- `POST /api/v1/auth/login` - Login with credentials
+- `POST /api/v1/auth/refresh` - Refresh access token
+- `POST /api/v1/auth/google` - Google OAuth login
+- `GET /api/v1/auth/me` - Get current user
+
+**Users:**
+- `GET /api/v1/users/` - List users (paginated)
+- `GET /api/v1/users/{id}` - Get user by ID
+- `PUT /api/v1/users/{id}` - Update user
+- `DELETE /api/v1/users/{id}` - Delete user
+
+**Projects:**
+- `GET /api/v1/projects/` - List projects
+- `POST /api/v1/projects/` - Create project
+- `GET /api/v1/projects/{id}` - Get project
+- `PUT /api/v1/projects/{id}` - Update project
+- `DELETE /api/v1/projects/{id}` - Delete project
+
+**Themes:**
+- `GET /api/v1/themes/active` - Get active theme
+- `GET /api/v1/themes/` - List themes
+- `POST /api/v1/themes/` - Create theme (admin)
+- `PUT /api/v1/themes/{id}` - Update theme (admin)
+
+**Admin:**
+- `POST /api/v1/admin/make-superadmin` - Make user superadmin
+- `GET /api/v1/admin/stats` - System statistics
+
+**Email:**
+- `POST /api/email/send` - Send email
+- `POST /api/email/welcome` - Send welcome email
+- `POST /api/email/invoice` - Send invoice email
+
+**Webhooks:**
+- `POST /webhooks/stripe` - Stripe webhook handler
+
+## 🗄️ Database Schema
+
+See [DATABASE_SCHEMA.md](./DATABASE_SCHEMA.md) for complete database schema documentation.
+
+### Main Tables
+
+- **users** - User accounts
+- **roles** - Role definitions
+- **user_roles** - User-role assignments
+- **teams** - Teams/organizations
+- **team_members** - Team membership
+- **invitations** - Team invitations
+- **subscriptions** - User subscriptions
+- **plans** - Subscription plans
+- **invoices** - Payment invoices
+- **projects** - User projects
+- **themes** - Theme configurations
+- **files** - File metadata
+- **api_keys** - API key management
 
 ## 🔐 Authentication
 
-The API uses JWT tokens for authentication:
+### JWT Tokens
 
-1. Register a user:
-```bash
-POST /api/v1/auth/register
-{
-  "email": "user@example.com",
-  "password": "SecurePass123",
-  "first_name": "John",
-  "last_name": "Doe"
-}
+The API uses JWT (JSON Web Tokens) for authentication:
+
+1. **Access Token**: Short-lived (15 minutes by default)
+   - Used for API requests
+   - Contains user ID and permissions
+   - Sent in `Authorization: Bearer <token>` header
+
+2. **Refresh Token**: Long-lived (30 days by default)
+   - Used to obtain new access tokens
+   - Stored securely (HTTP-only cookie recommended)
+
+### Usage Example
+
+```python
+import httpx
+
+# Login
+response = httpx.post("http://localhost:8000/api/v1/auth/login", data={
+    "username": "user@example.com",
+    "password": "password"
+})
+tokens = response.json()
+
+# Use access token
+headers = {"Authorization": f"Bearer {tokens['access_token']}"}
+response = httpx.get("http://localhost:8000/api/v1/auth/me", headers=headers)
+user = response.json()
 ```
 
-2. Login:
+## 🧪 Testing
+
+### Run Tests
+
 ```bash
-POST /api/v1/auth/login
-username=user@example.com&password=SecurePass123
+# All tests
+pytest
+
+# With coverage
+pytest --cov=app --cov-report=html
+
+# Specific test file
+pytest tests/test_auth.py
+
+# Watch mode
+pytest-watch
 ```
 
-3. Use token in requests:
+### Test Database
+
+Tests use an in-memory SQLite database by default. Configure test database in `pytest.ini` or environment variables.
+
+## 📊 Database Migrations
+
+### Create Migration
+
 ```bash
-Authorization: Bearer <access_token>
+# Auto-generate migration
+alembic revision --autogenerate -m "description"
+
+# Create empty migration
+alembic revision -m "description"
 ```
 
-## 🎯 API Endpoints
+### Apply Migrations
 
-### Health
-- `GET /api/v1/health/` - Health check
-- `GET /api/v1/health/ready` - Readiness check
-
-### Authentication
-- `POST /api/v1/auth/register` - Register new user
-- `POST /api/v1/auth/login` - Login and get token
-- `GET /api/v1/auth/me` - Get current user (protected)
-
-### Users
-- `GET /api/v1/users/` - List users
-- `GET /api/v1/users/{id}` - Get user by ID
-
-### Subscriptions & Payments (Stripe)
-- `GET /api/v1/subscriptions/plans` - List all subscription plans
-- `GET /api/v1/subscriptions/plans/{id}` - Get plan details
-- `GET /api/v1/subscriptions/me` - Get current user's subscription
-- `POST /api/v1/subscriptions/checkout` - Create Stripe checkout session
-- `POST /api/v1/subscriptions/portal` - Create customer portal session
-- `POST /api/v1/subscriptions/cancel` - Cancel subscription
-- `POST /api/v1/subscriptions/upgrade/{plan_id}` - Upgrade/downgrade plan
-- `POST /webhooks/stripe` - Stripe webhook endpoint
-
-### Email (SendGrid)
-- `POST /api/email/welcome` - Send welcome email
-- `POST /api/email/invoice` - Send invoice email
-- `POST /api/email/subscription/created` - Send subscription created email
-- `POST /api/email/subscription/cancelled` - Send subscription cancelled email
-- `POST /api/email/trial/ending` - Send trial ending email
-- `POST /api/email/test` - Send test email
-- `GET /api/email/health` - Email service health check
-
-> 💳 **Stripe Setup Guide**: [docs/STRIPE_SETUP.md](../../docs/STRIPE_SETUP.md)  
-> 📋 **Subscriptions Guide**: [docs/SUBSCRIPTIONS_GUIDE.md](../../docs/SUBSCRIPTIONS_GUIDE.md)  
-> 📧 **Email Setup Guide**: [docs/SENDGRID_SETUP.md](../../docs/SENDGRID_SETUP.md)
-
-## 🧹 Code Quality
-
-### Format code:
 ```bash
-black app tests
+# Upgrade to latest
+alembic upgrade head
+
+# Upgrade one version
+alembic upgrade +1
+
+# Downgrade one version
+alembic downgrade -1
+
+# Show current revision
+alembic current
 ```
 
-### Lint code:
+### Migration History
+
 ```bash
-ruff check app tests
+# Show migration history
+alembic history
+
+# Show current migration
+alembic current
 ```
 
-### Type checking:
-```bash
-mypy app
+## 🔧 Configuration
+
+### Environment Variables
+
+All configuration is done via environment variables. See `.env.example` for all available options.
+
+### Key Settings
+
+- **DATABASE_URL**: PostgreSQL connection string
+- **SECRET_KEY**: JWT signing key (min 32 chars)
+- **CORS_ORIGINS**: Allowed CORS origins (comma-separated)
+- **REDIS_URL**: Redis connection string (optional)
+- **ENVIRONMENT**: `development` or `production`
+
+## 📝 Logging
+
+Structured JSON logging is configured by default:
+
+```python
+from app.core.logging import logger
+
+logger.info("User created", context={"user_id": user.id})
+logger.error("Database error", context={"query": query}, exc_info=exception)
 ```
 
-## 📝 Environment Variables
+Logs are output in JSON format for easy parsing and aggregation.
 
-See `.env.example` for all available environment variables.
+## 🚀 Deployment
 
-Key variables:
-- `DATABASE_URL` - Database connection string
-- `SECRET_KEY` - Secret key for JWT tokens
-- `CORS_ORIGINS` - Allowed CORS origins
-- `DEBUG` - Enable debug mode
-- `REDIS_URL` - Redis connection URL (required for Celery)
-- `SENDGRID_API_KEY` - SendGrid API key for emails
-- `SENDGRID_FROM_EMAIL` - Default sender email address
-- `SENDGRID_FROM_NAME` - Default sender name
-- `FRONTEND_URL` - Frontend URL for email links
-- `STRIPE_SECRET_KEY` - Stripe secret key for payments
-- `STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
-- `STRIPE_WEBHOOK_SECRET` - Stripe webhook signing secret
+### Railway
+
+1. Connect GitHub repository
+2. Set environment variables
+3. Deploy automatically
+
+### Docker
+
+```bash
+# Build image
+docker build -t modele-backend .
+
+# Run container
+docker run -p 8000:8000 --env-file .env modele-backend
+```
+
+### Manual Deployment
+
+1. Install dependencies: `pip install -r requirements.txt`
+2. Set environment variables
+3. Run migrations: `alembic upgrade head`
+4. Start server: `gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker`
+
+## 📚 Additional Documentation
+
+- [API Endpoints](./API_ENDPOINTS.md) - Complete API reference
+- [Database Schema](./DATABASE_SCHEMA.md) - Database structure
+- [Authentication Guide](../apps/web/AUTHENTICATION.md) - Auth setup
+- [Error Handling](../apps/web/ERROR_HANDLING.md) - Error patterns
+
+## 🛠️ Available Scripts
+
+```bash
+# Database
+alembic upgrade head          # Run migrations
+alembic revision --autogenerate -m "message"  # Create migration
+python scripts/seed_db.py     # Seed database
+
+# Development
+uvicorn app.main:app --reload  # Run dev server
+pytest                         # Run tests
+pytest --cov=app              # Test with coverage
+
+# Production
+gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker
+```
+
+## 🔍 Monitoring
+
+### Health Check
+
+```bash
+curl http://localhost:8000/health
+```
+
+### Metrics
+
+The API includes response time headers:
+- `X-Response-Time`: Processing time
+- `X-Process-Time`: Total time
+- `X-Timestamp`: Response timestamp
 
 ## 🐛 Troubleshooting
 
-### Database connection errors
+### Database Connection Issues
+
 - Verify `DATABASE_URL` is correct
-- Ensure PostgreSQL is running
-- Check database exists
+- Check PostgreSQL is running
+- Ensure database exists
+- Check user permissions
 
-### Migration errors
-- Ensure all models are imported in `alembic/env.py`
-- Check database schema matches models
+### CORS Errors
 
-### Test failures
-- Ensure test database is clean
-- Check fixtures are properly configured
+- Verify `CORS_ORIGINS` includes frontend URL
+- Check frontend is sending correct headers
+- Review CORS middleware configuration
 
-## 📚 Resources
+### Authentication Issues
+
+- Verify `SECRET_KEY` is set (min 32 chars)
+- Check token expiration settings
+- Verify JWT algorithm matches (`HS256`)
+
+### Rate Limiting
+
+- Check Redis is running (if using Redis-based rate limiting)
+- Review rate limit configuration
+- Check `DISABLE_RATE_LIMITING` env var
+
+## 📖 Additional Resources
 
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [Pydantic v2 Documentation](https://docs.pydantic.dev/)
+- [SQLAlchemy Documentation](https://docs.sqlalchemy.org/)
 - [Alembic Documentation](https://alembic.sqlalchemy.org/)
-- [SQLAlchemy Async Documentation](https://docs.sqlalchemy.org/en/20/orm/extensions/asyncio.html)
+- [Pydantic Documentation](https://docs.pydantic.dev/)
+
+## 📄 License
+
+MIT
+
+---
+
+**Happy coding! 🚀**

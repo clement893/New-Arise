@@ -1,20 +1,20 @@
-# Gestion d'Erreurs Standardisée
+# Standardized Error Handling
 
-Ce document décrit le système de gestion d'erreurs standardisé pour l'application.
+This document describes the standardized error handling system for the application.
 
-## 🎯 Vue d'ensemble
+## 🎯 Overview
 
-Le système de gestion d'erreurs fournit :
-- **Composants d'erreur réutilisables** pour l'affichage cohérent
-- **Logging structuré** pour le frontend et le backend
-- **Gestion centralisée** des erreurs API
-- **Pages d'erreur Next.js** personnalisées
+The error handling system provides:
+- **Reusable error components** for consistent display
+- **Structured logging** for frontend and backend
+- **Centralized** API error handling
+- **Custom Next.js** error pages
 
-## 📦 Composants d'Erreur
+## 📦 Error Components
 
 ### ErrorBoundary
 
-Composant React pour capturer les erreurs dans l'arbre de composants :
+React component to catch errors in the component tree:
 
 ```tsx
 import { ErrorBoundary } from '@/components/errors';
@@ -26,7 +26,7 @@ import { ErrorBoundary } from '@/components/errors';
 
 ### ErrorDisplay
 
-Composant réutilisable pour afficher les erreurs :
+Reusable component to display errors:
 
 ```tsx
 import { ErrorDisplay } from '@/components/errors';
@@ -41,7 +41,7 @@ import { NotFoundError } from '@/lib/errors';
 
 ### ApiError
 
-Composant spécialisé pour les erreurs API :
+Specialized component for API errors:
 
 ```tsx
 import { ApiError } from '@/components/errors';
@@ -53,21 +53,21 @@ try {
 }
 ```
 
-## 📝 Logging Structuré
+## 📝 Structured Logging
 
 ### Frontend
 
 ```tsx
 import { logger } from '@/lib/logger';
-// ou
+// or
 import { useLogger } from '@/hooks/useLogger';
 
-// Dans un composant
+// In a component
 const log = useLogger();
 log.info('User action', { userId: user.id });
 log.error('API call failed', error, { endpoint: '/api/users' });
 
-// Directement
+// Directly
 logger.debug('Debug message', { context: 'value' });
 logger.warn('Warning message', { context: 'value' });
 ```
@@ -82,33 +82,33 @@ logger.error("Database error", context={"query": query}, exc_info=exception)
 logger.warning("Rate limit approaching", context={"user_id": user_id})
 ```
 
-## 🔧 Gestion des Erreurs API
+## 🔧 API Error Handling
 
 ### Frontend
 
-Le client API gère automatiquement les erreurs :
+The API client automatically handles errors:
 
 ```tsx
 import { apiClient } from '@/lib/api/client';
-import { handleApiError } from '@/lib/errors';
+import { handleApiError } from '@/lib/errors/api';
 
 try {
   const response = await apiClient.get('/api/users');
 } catch (error) {
   const appError = handleApiError(error);
-  // appError est une instance de AppError
+  // appError is an instance of AppError
   console.error(appError.code, appError.message);
 }
 ```
 
 ### Backend
 
-Les exceptions sont gérées automatiquement :
+Exceptions are handled automatically:
 
 ```python
 from app.core.exceptions import NotFoundException, ValidationException
 
-# Dans un endpoint
+# In an endpoint
 if not user:
     raise NotFoundException("User not found")
 
@@ -117,11 +117,11 @@ if not email_valid:
     raise ValidationException("Invalid email", details={"field": "email"})
 ```
 
-## 🎨 Pages d'Erreur Next.js
+## 🎨 Next.js Error Pages
 
 ### error.tsx
 
-Page d'erreur globale pour les erreurs non gérées :
+Global error page for unhandled errors:
 
 ```tsx
 // app/error.tsx
@@ -134,7 +134,7 @@ export default function Error({ error, reset }) {
 
 ### not-found.tsx
 
-Page 404 personnalisée :
+Custom 404 page:
 
 ```tsx
 // app/not-found.tsx
@@ -147,7 +147,7 @@ export default function NotFound() {
 
 ### global-error.tsx
 
-Boundary d'erreur pour le layout racine :
+Error boundary for root layout:
 
 ```tsx
 // app/global-error.tsx
@@ -158,9 +158,9 @@ export default function GlobalError({ error, reset }) {
 }
 ```
 
-## 🔍 Types d'Erreurs
+## 🔍 Error Types
 
-### Codes d'Erreur
+### Error Codes
 
 ```typescript
 enum ErrorCode {
@@ -182,7 +182,7 @@ enum ErrorCode {
 }
 ```
 
-### Classes d'Erreur
+### Error Classes
 
 ```typescript
 import {
@@ -197,9 +197,9 @@ throw new NotFoundError('User not found');
 throw new ValidationError('Invalid input', { field: 'email' });
 ```
 
-## 📊 Format des Réponses d'Erreur API
+## 📊 API Error Response Format
 
-Toutes les erreurs API suivent ce format :
+All API errors follow this format:
 
 ```json
 {
@@ -223,9 +223,9 @@ Toutes les erreurs API suivent ce format :
 }
 ```
 
-## 🛠️ Utilisation Pratique
+## 🛠️ Practical Usage
 
-### Dans un composant React
+### In a React Component
 
 ```tsx
 'use client';
@@ -257,7 +257,7 @@ export function UserList() {
 }
 ```
 
-### Dans un endpoint FastAPI
+### In a FastAPI Endpoint
 
 ```python
 from app.core.exceptions import NotFoundException
@@ -274,7 +274,7 @@ async def get_user(user_id: int, db: AsyncSession = Depends(get_db)):
     return user
 ```
 
-## 🔐 Gestion des Erreurs d'Authentification
+## 🔐 Authentication Error Handling
 
 ```tsx
 import { UnauthorizedError } from '@/lib/errors';
@@ -283,18 +283,18 @@ try {
   await apiClient.get('/api/protected');
 } catch (error) {
   if (error instanceof UnauthorizedError) {
-    // Rediriger vers la page de connexion
+    // Redirect to login page
     router.push('/auth/signin');
   }
 }
 ```
 
-## 📈 Monitoring et Tracking
+## 📈 Monitoring and Tracking
 
-En production, les erreurs sont automatiquement envoyées aux services de tracking :
+In production, errors are automatically sent to tracking services:
 
-- **Frontend** : Intégration avec Sentry (à configurer)
-- **Backend** : Logs structurés JSON pour agrégation
+- **Frontend**: Integration with Sentry (to be configured)
+- **Backend**: Structured JSON logs for aggregation
 
 ## 🧪 Tests
 
@@ -308,9 +308,8 @@ test('should throw NotFoundError', () => {
 });
 ```
 
-## 📚 Ressources
+## 📚 Resources
 
 - [Next.js Error Handling](https://nextjs.org/docs/app/building-your-application/routing/error-handling)
 - [React Error Boundaries](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary)
 - [FastAPI Exception Handling](https://fastapi.tiangolo.com/tutorial/handling-errors/)
-

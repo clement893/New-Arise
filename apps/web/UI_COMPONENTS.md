@@ -1,13 +1,13 @@
-# Bibliothèque de Composants UI ERP
+# ERP UI Component Library
 
-Bibliothèque complète de composants UI pour applications ERP.
+Complete UI component library for ERP applications.
 
-## 📦 Composants Disponibles
+## 📦 Available Components
 
-### Composants de Base
+### Base Components
 
 #### Button
-Bouton avec plusieurs variantes et tailles.
+Button with multiple variants and sizes.
 
 ```tsx
 import { Button } from '@/components/ui';
@@ -24,7 +24,7 @@ import { Button } from '@/components/ui';
 - `loading`: `boolean`
 
 #### Input
-Champ de saisie avec support d'icônes.
+Input field with icon support.
 
 ```tsx
 import { Input } from '@/components/ui';
@@ -38,7 +38,7 @@ import { Input } from '@/components/ui';
 ```
 
 #### Checkbox
-Case à cocher avec support d'état indéterminé.
+Checkbox with indeterminate state support.
 
 ```tsx
 import { Checkbox } from '@/components/ui';
@@ -52,7 +52,7 @@ import { Checkbox } from '@/components/ui';
 ```
 
 #### Badge
-Badge pour afficher des statuts ou labels.
+Badge to display statuses or labels.
 
 ```tsx
 import { Badge } from '@/components/ui';
@@ -63,10 +63,10 @@ import { Badge } from '@/components/ui';
 
 **Variants:** `'default' | 'success' | 'warning' | 'error' | 'info'`
 
-### Composants de Layout
+### Layout Components
 
 #### Card
-Carte pour afficher du contenu groupé.
+Card to display grouped content.
 
 ```tsx
 import { Card } from '@/components/ui';
@@ -81,7 +81,7 @@ import { Card } from '@/components/ui';
 ```
 
 #### Tabs
-Navigation par onglets.
+Tab navigation.
 
 ```tsx
 import { Tabs } from '@/components/ui';
@@ -98,7 +98,7 @@ import { Tabs } from '@/components/ui';
 **Variants:** `'default' | 'pills' | 'underline'`
 
 #### Accordion
-Contenu repliable.
+Collapsible content.
 
 ```tsx
 import { Accordion } from '@/components/ui';
@@ -116,10 +116,10 @@ import { Accordion } from '@/components/ui';
 />
 ```
 
-### Composants de Données
+### Data Components
 
 #### DataTable
-Tableau de données avec recherche, tri et pagination.
+Data table with search, sorting, and pagination.
 
 ```tsx
 import { DataTable } from '@/components/ui';
@@ -137,7 +137,7 @@ import { DataTable } from '@/components/ui';
 ```
 
 #### DataTableEnhanced
-Version améliorée avec sélection multiple et actions en masse.
+Enhanced version with multiple selection and bulk actions.
 
 ```tsx
 import { DataTableEnhanced } from '@/components/ui';
@@ -161,10 +161,10 @@ import { DataTableEnhanced } from '@/components/ui';
 />
 ```
 
-### Composants Overlay
+### Overlay Components
 
 #### Modal
-Modal dialog complet.
+Complete modal dialog.
 
 ```tsx
 import { Modal } from '@/components/ui';
@@ -183,7 +183,7 @@ import { Modal } from '@/components/ui';
 **Sizes:** `'sm' | 'md' | 'lg' | 'xl' | 'full'`
 
 #### ConfirmModal
-Modal de confirmation pré-configuré.
+Pre-configured confirmation modal.
 
 ```tsx
 import { ConfirmModal } from '@/components/ui';
@@ -198,7 +198,7 @@ import { ConfirmModal } from '@/components/ui';
 ```
 
 #### Tooltip
-Info-bulle contextuelle.
+Contextual tooltip.
 
 ```tsx
 import { Tooltip } from '@/components/ui';
@@ -210,10 +210,10 @@ import { Tooltip } from '@/components/ui';
 
 **Positions:** `'top' | 'bottom' | 'left' | 'right'`
 
-### Composants de Formulaire
+### Form Components
 
 #### Form
-Formulaire complet avec validation.
+Complete form with validation.
 
 ```tsx
 import { Form } from '@/components/ui';
@@ -247,7 +247,7 @@ import { Form } from '@/components/ui';
 ```
 
 #### FormField
-Champ de formulaire avec contrôle total.
+Form field with full control.
 
 ```tsx
 import { FormField } from '@/components/ui';
@@ -263,10 +263,10 @@ import { FormField } from '@/components/ui';
 </FormField>
 ```
 
-### Composants de Feedback
+### Feedback Components
 
 #### Alert
-Alertes et notifications.
+Alerts and notifications.
 
 ```tsx
 import { Alert } from '@/components/ui';
@@ -278,10 +278,10 @@ import { Alert } from '@/components/ui';
 
 **Variants:** `'info' | 'success' | 'warning' | 'error'`
 
-### Composants Utilitaires
+### Utility Components
 
 #### Avatar
-Avatar utilisateur avec fallback.
+User avatar with fallback.
 
 ```tsx
 import { Avatar } from '@/components/ui';
@@ -295,7 +295,7 @@ import { Avatar } from '@/components/ui';
 ```
 
 #### Pagination
-Pagination pour les listes.
+Pagination for lists.
 
 ```tsx
 import { Pagination } from '@/components/ui';
@@ -307,22 +307,22 @@ import { Pagination } from '@/components/ui';
 />
 ```
 
-## 🎨 Thème et Personnalisation
+## 🎨 Theme and Customization
 
-Tous les composants supportent le mode sombre automatiquement via les classes Tailwind `dark:`.
+All components support dark mode automatically via Tailwind `dark:` classes.
 
-### Personnalisation des Couleurs
+### Color Customization
 
-Les composants utilisent des variantes de couleur standardisées :
-- **Primary**: Bleu (`blue-600`)
-- **Success**: Vert (`green-600`)
-- **Warning**: Jaune (`yellow-600`)
-- **Error**: Rouge (`red-600`)
-- **Info**: Bleu clair (`blue-500`)
+Components use standardized color variants:
+- **Primary**: Blue (`blue-600`)
+- **Success**: Green (`green-600`)
+- **Warning**: Yellow (`yellow-600`)
+- **Error**: Red (`red-600`)
+- **Info**: Light blue (`blue-500`)
 
-## 📚 Exemples d'Utilisation
+## 📚 Usage Examples
 
-### Formulaire Complet avec Validation
+### Complete Form with Validation
 
 ```tsx
 'use client';
@@ -381,7 +381,7 @@ export function UserForm() {
 }
 ```
 
-### Tableau avec Actions en Masse
+### Table with Bulk Actions
 
 ```tsx
 'use client';
@@ -425,9 +425,9 @@ export function UsersTable({ users }) {
 }
 ```
 
-## 🔧 Types TypeScript
+## 🔧 TypeScript Types
 
-Tous les composants sont entièrement typés avec TypeScript. Les types sont exportés depuis `@/components/ui` :
+All components are fully typed with TypeScript. Types are exported from `@/components/ui`:
 
 ```typescript
 import type {
@@ -439,7 +439,6 @@ import type {
 } from '@/components/ui';
 ```
 
-## 📖 Documentation Complète
+## 📖 Complete Documentation
 
-Pour plus de détails sur chaque composant, consultez les fichiers source dans `src/components/ui/`.
-
+For more details on each component, see the source files in `src/components/ui/`.
