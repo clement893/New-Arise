@@ -113,5 +113,21 @@ def setup_cors(app: FastAPI) -> None:
         max_age=3600,  # Cache preflight requests for 1 hour
     )
     
+    # Add explicit OPTIONS handler for all routes to ensure preflight requests are handled
+    @app.options("/{full_path:path}")
+    async def options_handler(request: Request):
+        """Explicit OPTIONS handler for CORS preflight requests"""
+        from fastapi.responses import Response
+        return Response(
+            status_code=200,
+            headers={
+                "Access-Control-Allow-Origin": request.headers.get("Origin", "*"),
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+                "Access-Control-Allow-Headers": ", ".join(allowed_headers),
+                "Access-Control-Allow-Credentials": "true",
+                "Access-Control-Max-Age": "3600",
+            }
+        )
+    
     logger.info("✅ CORS middleware configured with tightened security")
 
