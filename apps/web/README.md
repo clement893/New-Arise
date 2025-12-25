@@ -1,6 +1,6 @@
 # Frontend - Next.js 16
 
-Frontend for MODELE-NEXTJS-FULLSTACK built with Next.js 16 and React 19.
+Frontend application built with Next.js 16 and React 19.
 
 ## 🚀 Features
 
@@ -15,7 +15,7 @@ Frontend for MODELE-NEXTJS-FULLSTACK built with Next.js 16 and React 19.
 - ✅ **Zod** for schema validation
 
 ### UI Components Library
-- ✅ **30+ ERP Components** (Button, Input, DataTable, Modal, Form, etc.)
+- ✅ **255+ Components** (96 UI components + 159 feature components)
 - ✅ **Storybook** for component documentation
 - ✅ **Dark Mode** support
 - ✅ **Responsive Design** mobile-first
@@ -41,8 +41,8 @@ Frontend for MODELE-NEXTJS-FULLSTACK built with Next.js 16 and React 19.
 
 ### Prerequisites
 
-- Node.js 18+
-- npm or pnpm
+- Node.js 20.x or higher
+- pnpm 9.x or higher
 
 ### Setup
 

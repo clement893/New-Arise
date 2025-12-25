@@ -33,7 +33,7 @@ Thank you for your interest in contributing! This document provides guidelines a
 
 ```bash
 # Fork the repository on GitHub, then:
-git clone https://github.com/YOUR_USERNAME/MODELE-NEXTJS-FULLSTACK.git
+git clone https://github.com/clement893/MODELE-NEXTJS-FULLSTACK.git
 cd MODELE-NEXTJS-FULLSTACK
 ```
 

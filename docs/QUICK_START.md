@@ -10,7 +10,7 @@ Guide ultra-rapide pour démarrer avec le template en moins de 5 minutes.
 
 ```bash
 # Cloner le template
-git clone https://github.com/clement893/MODELE-NEXTJS-FULLSTACK.git mon-projet
+git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git mon-projet
 cd mon-projet
 
 # Configuration automatique
@@ -105,9 +105,9 @@ FRONTEND_URL=http://localhost:3001
 
 ## 📚 Documentation Complète
 
-- [Guide de Démarrage Complet](./GETTING_STARTED.md)
-- [Utilisation du Template](./TEMPLATE_USAGE.md)
-- [Guide de Migration](./MIGRATION_GUIDE.md)
+- [Guide de Démarrage Complet](../GETTING_STARTED.md)
+- [Guide de Développement](./DEVELOPMENT.md)
+- [Guide de Déploiement](../DEPLOYMENT.md)
 
 ---
 

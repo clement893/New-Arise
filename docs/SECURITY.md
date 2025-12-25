@@ -1,6 +1,6 @@
 # 🔒 Guide de Sécurité
 
-Bonnes pratiques de sécurité pour le template MODELE-NEXTJS-FULLSTACK.
+Bonnes pratiques de sécurité pour ce template full-stack.
 
 ## 📋 Table des Matières
 

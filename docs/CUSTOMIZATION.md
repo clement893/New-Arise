@@ -43,7 +43,7 @@ const customFont = Inter({
 
 ### Utiliser un Thème Personnalisé
 
-Voir [docs/COMPONENTS.md](./COMPONENTS.md) pour la documentation complète du système de thème.
+Voir [Theme Management Guide](./THEME_MANAGEMENT.md) et [Theme Setup](./THEME_SETUP.md) pour la documentation complète du système de thème.
 
 ---
 

@@ -19,7 +19,8 @@ A production-ready, comprehensive full-stack template for building modern SaaS a
 
 ### 🎨 UI & Styling
 - ✅ **Tailwind CSS** - Utility-first CSS framework
-- ✅ **40+ UI Components** - Complete component library (DataTable, Kanban, Calendar, Forms, etc.)
+- ✅ **255+ Components** - Complete component library (96 UI components + 159 feature components)
+- ✅ **22 Component Categories** - Organized by feature (UI, Auth, Billing, Analytics, etc.)
 - ✅ **Dark Mode** - Built-in theme support with persistence
 - ✅ **Theme System** - Customizable color palettes and presets
 - ✅ **Responsive Design** - Mobile-first, accessible components
@@ -132,12 +133,16 @@ MODELE-NEXTJS-FULLSTACK/
 │       │   │   ├── components/   # Component showcase pages
 │       │   │   ├── examples/    # SaaS example pages
 │       │   │   └── ...
-│       │   ├── components/       # React components
-│       │   │   ├── ui/          # UI component library
+│       │   ├── components/       # React components (255+ components)
+│       │   │   ├── ui/          # UI component library (96 components)
 │       │   │   ├── auth/        # Authentication components
+│       │   │   ├── billing/     # Billing and subscription components
+│       │   │   ├── analytics/   # Analytics and reporting components
 │       │   │   ├── layout/      # Layout components
-│       │   │   ├── performance/ # Performance components
-│       │   │   └── errors/      # Error handling components
+│       │   │   ├── monitoring/  # Monitoring and performance components
+│       │   │   ├── errors/      # Error handling components
+│       │   │   ├── i18n/        # Internationalization components
+│       │   │   └── ...          # 14+ more categories
 │       │   ├── lib/             # Utilities and libraries
 │       │   ├── hooks/           # Custom React hooks
 │       │   └── contexts/        # React contexts
@@ -248,16 +253,28 @@ export default function MyPage() {
 }
 ```
 
-### Available Component Categories
+### Available Component Categories (22 total)
 
-- **Forms**: Input, Select, Textarea, Checkbox, Radio, Switch, RichTextEditor
-- **Data Display**: DataTable, Chart, Kanban, Calendar, Badge, Card
+**Core UI Components:**
+- **Forms**: Input, Select, Textarea, Checkbox, Radio, Switch, RichTextEditor, DatePicker
+- **Data Display**: DataTable, Chart, Kanban, Calendar, Timeline, Badge, Card
 - **Navigation**: Tabs, Breadcrumbs, Pagination, CommandPalette
-- **Feedback**: Alert, Toast, Modal, Spinner, Progress
-- **Layout**: Container, Section, Grid, Stack
-- **Authentication**: MFA, SocialAuth
-- **Performance**: OfflineSupport, OptimisticUpdates, PerformanceDashboard
-- **Errors**: ErrorReporting
+- **Feedback**: Alert, Toast, Modal, Spinner, Progress, Loading
+- **Layout**: Container, Section, Grid, Stack, Sidebar, Header, Footer
+
+**Feature Components:**
+- **Authentication** (`/auth`) - MFA, SocialAuth, ProtectedRoute, Login, Signup
+- **Billing** (`/billing`) - Subscription management, invoices, payment forms
+- **Analytics** (`/analytics`) - Dashboards, reports, data export
+- **Monitoring** (`/monitoring`) - Performance dashboard, system metrics, health status
+- **Errors** (`/errors`) - ErrorBoundary, ErrorDisplay, error reporting
+- **i18n** (`/i18n`) - Language switcher, locale provider, RTL support
+- **Admin** (`/admin`) - User management, role management, team management
+- **Settings** (`/settings`) - User settings, organization settings, security
+- **Activity** (`/activity`) - Activity logs, audit trails, event history
+- **And 13+ more categories...**
+
+View all components at `/components` or see [Component Documentation](./apps/web/src/components/README.md)
 
 ---
 
@@ -274,6 +291,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 NEXTAUTH_SECRET=your-secret-key-change-in-production
 NEXTAUTH_URL=http://localhost:3000
 JWT_SECRET=your-jwt-secret
+# Note: next-auth is configured but JWT auth via FastAPI backend is primary
 
 # OAuth (Optional)
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id
@@ -363,16 +381,15 @@ docker run -p 3000:3000 your-app
 ### Essential Guides
 
 - **[Getting Started](./GETTING_STARTED.md)** - Complete setup and installation guide
-- **[Template Usage](./TEMPLATE_USAGE.md)** - How to use this template for your project
-- **[Development Guide](./DEVELOPMENT.md)** - Development tools, workflows, and best practices
+- **[Development Guide](./docs/DEVELOPMENT.md)** - Development tools, workflows, and best practices
 - **[Deployment Guide](./DEPLOYMENT.md)** - Production deployment instructions
 - **[Contributing](./CONTRIBUTING.md)** - How to contribute to the template
 
 ### Architecture & Design
 
 - **[Architecture Documentation](./docs/ARCHITECTURE.md)** - System architecture, diagrams, and design decisions
-- **[Deployment Guides](./docs/DEPLOYMENT_GUIDES.md)** - Comprehensive guides for Railway, Vercel, Docker, and more
 - **[Troubleshooting Guide](./docs/TROUBLESHOOTING.md)** - Common issues, solutions, and debugging tips
+- **[Quick Start Guide](./docs/QUICK_START.md)** - Quick reference for common tasks
 
 ### Database Documentation
 
@@ -380,14 +397,14 @@ docker run -p 3000:3000 your-app
 - **[Seed Data Guide](./docs/SEED_DATA.md)** - Seed data documentation and examples
 - **[Database Guide](./docs/DATABASE_GUIDE.md)** - Quick reference for database operations
 
-### Additional Documentation
+### Component & Development Documentation
 
-- **[Component Documentation](./docs/COMPONENTS.md)** - Complete UI component library reference
-- **[Custom Hooks](./docs/HOOKS.md)** - Documentation for custom React hooks
+- **[Component Library](./apps/web/src/components/README.md)** - Complete component library reference (255+ components)
 - **[Utilities](./docs/UTILS.md)** - Utility functions reference
 - **[Stripe Setup](./docs/STRIPE_SETUP.md)** - Payment integration guide
 - **[SendGrid Setup](./docs/SENDGRID_SETUP.md)** - Email service configuration
 - **[Security Guide](./docs/SECURITY.md)** - Security best practices
+- **[Monitoring Guide](./docs/MONITORING.md)** - Monitoring and observability setup
 
 ### Component Documentation
 

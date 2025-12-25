@@ -1,6 +1,6 @@
 # Backend - FastAPI
 
-FastAPI backend for MODELE-NEXTJS-FULLSTACK with PostgreSQL database, async support, and comprehensive security features.
+FastAPI backend with PostgreSQL database, async support, and comprehensive security features.
 
 ## 🚀 Features
 

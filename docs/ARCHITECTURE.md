@@ -1,6 +1,6 @@
 # 🏗️ Architecture Documentation
 
-Complete architecture overview of the MODELE-NEXTJS-FULLSTACK application.
+Complete architecture overview of this full-stack template application.
 
 ---
 

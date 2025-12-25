@@ -16,11 +16,11 @@ Guide complet pour développer avec le template MODELE-NEXTJS-FULLSTACK.
 
 ## 📦 Prérequis
 
-- **Node.js** 22+
-- **pnpm** 9+
-- **Python** 3.11+
-- **PostgreSQL** 14+
-- **Redis** 7+ (optionnel)
+- **Node.js** 20.x ou supérieur
+- **pnpm** 9.x ou supérieur
+- **Python** 3.11+ (optionnel, pour la génération de types)
+- **PostgreSQL** 14+ (ou Docker)
+- **Redis** 7+ (optionnel, pour les jobs en arrière-plan)
 - **Git**
 
 ---

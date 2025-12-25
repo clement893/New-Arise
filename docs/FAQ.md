@@ -11,8 +11,8 @@ Questions fréquemment posées par les utilisateurs du template.
 **R:** Voir le [Guide de Démarrage Rapide](./QUICK_START.md) pour une installation en 5 minutes.
 
 ```bash
-git clone https://github.com/clement893/MODELE-NEXTJS-FULLSTACK.git
-cd MODELE-NEXTJS-FULLSTACK
+git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+cd YOUR_REPO_NAME
 pnpm setup
 pnpm install
 ```
@@ -20,8 +20,8 @@ pnpm install
 ### Q: Le script `pnpm setup` ne fonctionne pas
 
 **R:** Vérifiez que :
-- Node.js 22+ est installé
-- pnpm est installé (`npm install -g pnpm`)
+- Node.js 20.x ou supérieur est installé
+- pnpm 9.x ou supérieur est installé (`npm install -g pnpm`)
 - Vous êtes dans le répertoire racine du projet
 
 ### Q: Comment générer les secrets manuellement ?

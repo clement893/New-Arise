@@ -61,23 +61,43 @@ Domain-specific components organized by feature:
 - **Monitoring** (`/monitoring`) - System metrics, health status, error tracking
 - **And more...**
 
-See [COMPONENTS_ORGANIZATION.md](./COMPONENTS_ORGANIZATION.md) for complete details.
+See the component showcase pages at `/components` for interactive examples.
 
 ## 🎨 Component Showcase
 
 View all components in action at `/components`:
 
-- `/components/data` - Data display components
-- `/components/forms` - Form components
-- `/components/feedback` - Feedback components
-- `/components/billing` - Billing components
-- `/components/auth` - Authentication components
-- `/components/monitoring` - Monitoring components
+**Available Showcase Pages:**
+- `/components` - Main component showcase index
+- `/components/monitoring` - Monitoring and performance components
 - `/components/errors` - Error handling components
 - `/components/i18n` - Internationalization components
-- `/components/admin` - Admin components
+- `/components/admin` - Admin management components
 - `/components/layout` - Layout components
-- And 15+ more categories...
+
+**Component Categories (22 total):**
+- `ui/` - Core UI components (96 components)
+- `auth/` - Authentication components
+- `billing/` - Billing and subscription components
+- `analytics/` - Analytics and reporting components
+- `monitoring/` - Monitoring and performance components
+- `errors/` - Error handling components
+- `i18n/` - Internationalization components
+- `admin/` - Admin management components
+- `layout/` - Layout components
+- `settings/` - Settings components
+- `activity/` - Activity tracking components
+- `notifications/` - Notification components
+- `performance/` - Performance optimization components
+- `rbac/` - Role-based access control components
+- `theme/` - Theme management components
+- `workflow/` - Workflow components
+- `collaboration/` - Collaboration components
+- `subscriptions/` - Subscription management components
+- `integrations/` - Integration components
+- `advanced/` - Advanced feature components
+- `sections/` - Section components
+- `providers/` - Provider components
 
 ## 📖 Documentation
 
