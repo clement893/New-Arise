@@ -237,7 +237,7 @@ export default function PaymentHistory({
         </div>
       </div>
 
-      <DataTable
+      <DataTable<Payment>
         data={filteredPayments}
         columns={columns}
         pageSize={10}
