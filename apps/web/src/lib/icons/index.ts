@@ -73,7 +73,6 @@ export {
   // Media
   Play,
   Pause,
-  Stop,
   Volume2,
   VolumeX,
 } from 'lucide-react';
