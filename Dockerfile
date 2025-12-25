@@ -117,6 +117,6 @@ EXPOSE 3000
 ENV PORT=${PORT:-3000}
 ENV HOSTNAME="0.0.0.0"
 
-ENTRYPOINT ["/entrypoint.sh"]
-CMD []
+# Set CMD directly to avoid Railway trying to parse shell scripts
+CMD ["node", "/app/server.js"]
 
