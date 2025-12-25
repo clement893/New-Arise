@@ -16,19 +16,35 @@ from app.core.config import settings
 from app.core.database import Base
 
 # Import all models here for autogenerate
+# This ensures Alembic can detect all table changes
 from app.models import user  # noqa: F401
 from app.models import role  # noqa: F401
 from app.models import team  # noqa: F401
 from app.models import invitation  # noqa: F401
 from app.models import theme  # noqa: F401
 from app.models import project  # noqa: F401
+from app.models import file  # noqa: F401
+from app.models import plan  # noqa: F401
+from app.models import subscription  # noqa: F401
+from app.models import invoice  # noqa: F401
+from app.models import api_key  # noqa: F401
+from app.models import webhook_event  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
 # Set the database URL from settings
-config.set_main_option("sqlalchemy.url", str(settings.DATABASE_URL))
+# Convert async URL to sync URL for Alembic (Alembic uses sync SQLAlchemy)
+database_url = str(settings.DATABASE_URL)
+# Replace asyncpg with psycopg2 for Alembic
+if "postgresql+asyncpg://" in database_url:
+    database_url = database_url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
+elif "postgresql://" in database_url and "+" not in database_url:
+    # If it's plain postgresql://, add psycopg2 driver
+    database_url = database_url.replace("postgresql://", "postgresql+psycopg2://")
+
+config.set_main_option("sqlalchemy.url", database_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
