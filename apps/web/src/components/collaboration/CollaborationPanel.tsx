@@ -92,9 +92,11 @@ export default function CollaborationPanel({
                 variant="outline"
                 size="sm"
                 onClick={onStartCall}
-                icon={<Video className="w-4 h-4" />}
               >
-                Call
+                <span className="flex items-center gap-2">
+                  <Video className="w-4 h-4" />
+                  Call
+                </span>
               </Button>
             )}
             {onShare && (
@@ -102,9 +104,11 @@ export default function CollaborationPanel({
                 variant="outline"
                 size="sm"
                 onClick={onShare}
-                icon={<Share2 className="w-4 h-4" />}
               >
-                Share
+                <span className="flex items-center gap-2">
+                  <Share2 className="w-4 h-4" />
+                  Share
+                </span>
               </Button>
             )}
           </div>
@@ -116,8 +120,11 @@ export default function CollaborationPanel({
             <Users className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
             <p className="text-gray-600 dark:text-gray-400 mb-4">No collaborators yet</p>
             {onInvite && (
-              <Button variant="primary" onClick={onInvite} icon={<Users className="w-4 h-4" />}>
-                Invite Collaborators
+              <Button variant="primary" onClick={onInvite}>
+                <span className="flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  Invite Collaborators
+                </span>
               </Button>
             )}
           </div>
@@ -181,9 +188,11 @@ export default function CollaborationPanel({
               variant="outline"
               fullWidth
               onClick={onInvite}
-              icon={<Users className="w-4 h-4" />}
             >
-              Invite More People
+              <span className="flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                Invite More People
+              </span>
             </Button>
           </div>
         )}
