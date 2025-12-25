@@ -92,7 +92,14 @@ export default function PaymentHistory({
     };
 
     const { variant, icon, label } = config[status];
-    return <Badge variant={variant} icon={icon}>{label}</Badge>;
+    return (
+      <Badge variant={variant}>
+        <span className="flex items-center gap-1">
+          {icon}
+          {label}
+        </span>
+      </Badge>
+    );
   };
 
   const columns: Column<Payment>[] = [
