@@ -8,7 +8,7 @@ from app.dependencies import get_current_user
 from app.models import User
 from app.services.ai_service import AIService, AIProvider
 
-router = APIRouter(prefix="/api/v1/ai", tags=["ai"])
+router = APIRouter(prefix="/ai", tags=["ai"])
 
 
 class ChatMessage(BaseModel):
