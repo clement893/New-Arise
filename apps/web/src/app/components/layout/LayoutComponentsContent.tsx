@@ -78,11 +78,14 @@ export default function LayoutComponentsContent() {
           <ExampleCard
             title="Example Component"
             description="This is an example card component used for showcasing components"
-            code={`<ExampleCard
+          >
+            <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded text-sm overflow-x-auto">
+              <code>{`<ExampleCard
   title="Example"
   description="Description"
-/>`}
-          />
+/>`}</code>
+            </pre>
+          </ExampleCard>
         </Section>
 
         <Section title="Internal Layout">
