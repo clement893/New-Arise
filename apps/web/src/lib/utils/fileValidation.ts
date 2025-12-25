@@ -104,7 +104,8 @@ export function validateFileSize(
 export function getFileExtension(fileName: string): string {
   const parts = fileName.split('.');
   if (parts.length < 2) return '';
-  return parts[parts.length - 1].toLowerCase();
+  const extension = parts[parts.length - 1];
+  return extension ? extension.toLowerCase() : '';
 }
 
 /**
