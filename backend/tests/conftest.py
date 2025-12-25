@@ -70,11 +70,10 @@ async def test_user(db: AsyncSession) -> User:
     """Create a test user"""
     user = User(
         email="test@example.com",
-        password_hash=get_password_hash("testpassword123"),
+        hashed_password=get_password_hash("testpassword123"),
         first_name="Test",
         last_name="User",
         is_active=True,
-        is_superuser=False,
     )
     db.add(user)
     await db.commit()
@@ -87,17 +86,17 @@ async def admin_user(db: AsyncSession) -> User:
     """Create an admin test user"""
     user = User(
         email="admin@example.com",
-        password_hash=get_password_hash("adminpassword123"),
+        hashed_password=get_password_hash("adminpassword123"),
         first_name="Admin",
         last_name="User",
         is_active=True,
-        is_superuser=True,
     )
     db.add(user)
     await db.commit()
     await db.refresh(user)
     
-    # Add access token for convenience
+    # Add admin role (would need Role and UserRole setup)
+    # For now, just add access token for convenience
     token = create_access_token({"sub": user.email})
     user.access_token = token
     return user
@@ -108,11 +107,10 @@ async def authenticated_user(db: AsyncSession) -> User:
     """Create an authenticated test user with token"""
     user = User(
         email="auth@example.com",
-        password_hash=get_password_hash("authpassword123"),
+        hashed_password=get_password_hash("authpassword123"),
         first_name="Auth",
         last_name="User",
         is_active=True,
-        is_superuser=False,
     )
     db.add(user)
     await db.commit()
