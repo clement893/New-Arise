@@ -1,5 +1,6 @@
 /**
  * Home Page - Enhanced with template presentation
+ * Uses reusable section components from @/components/sections
  * With next-intl, this page is automatically served for the default locale
  */
 
@@ -7,6 +8,7 @@
 
 import Link from 'next/link';
 import { Button, Card, Container, Badge, StatsCard } from '@/components/ui';
+import { Hero, Features, TechStack, Stats, CTA } from '@/components/sections';
 import { 
   CheckCircle, 
   Zap, 
@@ -22,7 +24,7 @@ import {
 } from 'lucide-react';
 
 export default function HomePage() {
-  const features = [
+  const customFeatures = [
     {
       icon: <Code className="w-6 h-6" />,
       title: '206 Composants React',
@@ -61,15 +63,6 @@ export default function HomePage() {
     },
   ];
 
-  const techStack = [
-    { name: 'Next.js 16', description: 'App Router & Server Components' },
-    { name: 'React 19', description: 'Dernières fonctionnalités React' },
-    { name: 'TypeScript', description: 'Type safety strict' },
-    { name: 'FastAPI', description: 'Backend Python moderne' },
-    { name: 'PostgreSQL', description: 'Base de données relationnelle' },
-    { name: 'Tailwind CSS', description: 'Styling utility-first' },
-  ];
-
   const useCases = [
     {
       title: 'Applications SaaS',
@@ -95,73 +88,42 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
-      {/* Hero Section */}
-      <Container className="py-20">
-        <div className="text-center mb-16">
-          <Badge variant="info" className="mb-6 text-sm px-4 py-1">
-            Template Full-Stack Production-Ready
-          </Badge>
-          <h1 className="text-6xl md:text-7xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-            Démarrez votre projet
-            <br />
-            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
-              en quelques minutes
-            </span>
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 mb-8 max-w-3xl mx-auto">
-            Template complet avec <strong>206 composants React</strong>, backend FastAPI, authentification, 
-            gestion d'abonnements et bien plus encore. Prêt pour la production.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/docs#installation">
-              <Button variant="primary" size="lg" className="text-lg px-8 py-6">
-                <Rocket className="w-5 h-5 mr-2" />
-                Commencer maintenant
-              </Button>
-            </Link>
-            <Link href="/components">
-              <Button variant="outline" size="lg" className="text-lg px-8 py-6">
-                Voir les composants
-              </Button>
-            </Link>
-            <Link href="/docs">
-              <Button variant="ghost" size="lg" className="text-lg px-8 py-6">
-                Documentation
-              </Button>
-            </Link>
+      {/* Hero Section - Using Hero component */}
+      <Hero />
+
+      {/* Stats Section - Custom stats with StatsCard component */}
+      <div className="bg-white dark:bg-gray-800 py-12">
+        <Container>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <StatsCard
+              title="Composants"
+              value="206"
+              change={{ value: 0, type: 'increase', period: 'production-ready' }}
+              icon={<Code className="w-6 h-6" />}
+            />
+            <StatsCard
+              title="Catégories"
+              value="25"
+              change={{ value: 0, type: 'increase', period: 'organisées' }}
+              icon={<Layers className="w-6 h-6" />}
+            />
+            <StatsCard
+              title="Technologies"
+              value="15+"
+              change={{ value: 0, type: 'increase', period: 'intégrées' }}
+              icon={<Zap className="w-6 h-6" />}
+            />
+            <StatsCard
+              title="Sécurité"
+              value="100%"
+              change={{ value: 0, type: 'increase', period: 'auditée' }}
+              icon={<Shield className="w-6 h-6" />}
+            />
           </div>
-        </div>
+        </Container>
+      </div>
 
-        {/* Stats Section */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-20">
-          <StatsCard
-            title="Composants"
-            value="206"
-            change={{ value: 0, type: 'increase', period: 'production-ready' }}
-            icon={<Code className="w-6 h-6" />}
-          />
-          <StatsCard
-            title="Catégories"
-            value="25"
-            change={{ value: 0, type: 'increase', period: 'organisées' }}
-            icon={<Layers className="w-6 h-6" />}
-          />
-          <StatsCard
-            title="Technologies"
-            value="15+"
-            change={{ value: 0, type: 'increase', period: 'intégrées' }}
-            icon={<Zap className="w-6 h-6" />}
-          />
-          <StatsCard
-            title="Sécurité"
-            value="100%"
-            change={{ value: 0, type: 'increase', period: 'auditée' }}
-            icon={<Shield className="w-6 h-6" />}
-          />
-        </div>
-      </Container>
-
-      {/* Features Section */}
+      {/* Features Section - Custom features using Card component */}
       <div className="bg-white dark:bg-gray-800 py-20">
         <Container>
           <div className="text-center mb-16">
@@ -174,7 +136,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            {features.map((feature, index) => (
+            {customFeatures.map((feature, index) => (
               <Card key={index} hover className="p-6">
                 <div className={`${feature.color} mb-4`}>
                   {feature.icon}
@@ -191,53 +153,10 @@ export default function HomePage() {
         </Container>
       </div>
 
-      {/* Tech Stack Section */}
-      <div className="bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 py-20">
-        <Container>
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-              Stack Technologique Moderne
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Construit avec les dernières technologies et meilleures pratiques
-            </p>
-          </div>
+      {/* Tech Stack Section - Using TechStack component */}
+      <TechStack />
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-12">
-            {techStack.map((tech, index) => (
-              <Card key={index} className="p-6 text-center hover:shadow-lg transition-shadow">
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{tech.name}</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{tech.description}</p>
-              </Card>
-            ))}
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 border border-gray-200 dark:border-gray-700">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
-              Architecture Monorepo
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">Frontend</div>
-                <p className="text-gray-600 dark:text-gray-400">Next.js 16 + React 19</p>
-                <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">apps/web</p>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">Backend</div>
-                <p className="text-gray-600 dark:text-gray-400">FastAPI + PostgreSQL</p>
-                <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">backend</p>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">Shared</div>
-                <p className="text-gray-600 dark:text-gray-400">Types & Utils</p>
-                <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">packages/types</p>
-              </div>
-            </div>
-          </div>
-        </Container>
-      </div>
-
-      {/* Use Cases Section */}
+      {/* Use Cases Section - Custom section using Card component */}
       <div className="bg-white dark:bg-gray-800 py-20">
         <Container>
           <div className="text-center mb-16">
@@ -271,11 +190,11 @@ export default function HomePage() {
         </Container>
       </div>
 
-      {/* Key Features List */}
+      {/* Key Features List - Custom section using Card component */}
       <div className="bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 py-20">
         <Container>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div>
+            <Card className="p-8">
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
                 Fonctionnalités SaaS
               </h2>
@@ -294,8 +213,8 @@ export default function HomePage() {
                   </li>
                 ))}
               </ul>
-            </div>
-            <div>
+            </Card>
+            <Card className="p-8">
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
                 Expérience Développeur
               </h2>
@@ -314,39 +233,15 @@ export default function HomePage() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </Card>
           </div>
         </Container>
       </div>
 
-      {/* CTA Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700 py-20">
-        <Container>
-          <div className="text-center text-white">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Prêt à démarrer ?
-            </h2>
-            <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
-              Clonez le repository et lancez votre projet en quelques minutes avec notre guide de démarrage rapide.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/docs#installation">
-                <Button variant="secondary" size="lg" className="text-lg px-8 py-6 bg-white text-blue-600 hover:bg-gray-100">
-                  <Rocket className="w-5 h-5 mr-2" />
-                  Guide d'installation
-                </Button>
-              </Link>
-              <Link href="/components">
-                <Button variant="outline" size="lg" className="text-lg px-8 py-6 border-white text-white hover:bg-white/10">
-                  Explorer les composants
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </Container>
-      </div>
+      {/* CTA Section - Using CTA component */}
+      <CTA />
 
-      {/* Quick Links */}
+      {/* Quick Links - Custom section using Card component */}
       <div className="bg-white dark:bg-gray-800 py-16">
         <Container>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
