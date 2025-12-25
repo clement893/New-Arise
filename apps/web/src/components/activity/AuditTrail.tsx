@@ -16,7 +16,7 @@ import { Shield, Filter } from 'lucide-react';
 import Avatar from '@/components/ui/Avatar';
 import Modal from '@/components/ui/Modal';
 
-export interface AuditTrailEntry {
+export interface AuditTrailEntry extends Record<string, unknown> {
   id: string;
   timestamp: string;
   user: {

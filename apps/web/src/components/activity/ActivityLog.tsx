@@ -14,7 +14,7 @@ import type { Column } from '@/components/ui/DataTable';
 import { Filter, User, Search } from 'lucide-react';
 import Avatar from '@/components/ui/Avatar';
 
-export interface ActivityLogEntry {
+export interface ActivityLogEntry extends Record<string, unknown> {
   id: string;
   timestamp: string;
   user: {

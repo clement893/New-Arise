@@ -13,7 +13,7 @@ import DataTable from '@/components/ui/DataTable';
 import type { Column } from '@/components/ui/DataTable';
 import { History, Filter, Search } from 'lucide-react';
 
-export interface EventHistoryEntry {
+export interface EventHistoryEntry extends Record<string, unknown> {
   id: string;
   timestamp: string;
   eventType: string;
