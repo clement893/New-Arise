@@ -107,6 +107,7 @@ ENV HOSTNAME="0.0.0.0"
 
 # Use ENTRYPOINT to prevent Railway from overriding the command
 # This ensures Railway executes node directly without shell parsing
-ENTRYPOINT ["node"]
+# Use exec form to avoid shell interpretation
+ENTRYPOINT ["/usr/bin/env", "node"]
 CMD ["/app/server.js"]
 
