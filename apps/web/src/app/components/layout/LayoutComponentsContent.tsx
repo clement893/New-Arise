@@ -55,10 +55,8 @@ export default function LayoutComponentsContent() {
 
         <Section title="Page Navigation">
           <PageNavigation
-            items={[
-              { label: 'Previous', href: '/components/data' },
-              { label: 'Next', href: '/components/forms' },
-            ]}
+            prev={{ label: 'Previous', href: '/components/data' }}
+            next={{ label: 'Next', href: '/components/forms' }}
           />
         </Section>
 
