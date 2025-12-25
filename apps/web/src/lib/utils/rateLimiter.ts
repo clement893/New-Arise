@@ -1,8 +1,25 @@
 /**
  * Client-Side Rate Limiter
- * Prevents excessive API calls from the client
  * 
- * Security: Protects against abuse and reduces server load
+ * Prevents excessive API calls from the client to protect against abuse
+ * and reduce server load. Uses a sliding window algorithm to track requests.
+ * 
+ * @module rateLimiter
+ * @example
+ * ```typescript
+ * // Check if request is allowed
+ * if (rateLimiter.isAllowed('api:/users', 60, 60000)) {
+ *   await fetch('/api/users');
+ * } else {
+ *   console.log('Rate limit exceeded');
+ * }
+ * 
+ * // Use endpoint-specific config
+ * const config = getRateLimitConfig('/api/auth/login');
+ * if (rateLimiter.isAllowed('/api/auth/login', config.maxRequests, config.windowMs)) {
+ *   // Make request
+ * }
+ * ```
  */
 
 interface RateLimitEntry {
@@ -24,11 +41,30 @@ class RateLimiter {
   }
 
   /**
-   * Check if request is allowed
-   * @param key Unique identifier for the rate limit (e.g., endpoint, user ID)
-   * @param maxRequests Maximum requests allowed in the window
-   * @param windowMs Time window in milliseconds
-   * @returns True if request is allowed
+   * Check if request is allowed within rate limit
+   * 
+   * Uses a sliding window algorithm:
+   - If no entry exists or window expired, creates new entry and allows request
+   - If limit exceeded, denies request
+   - Otherwise, increments count and allows request
+   * 
+   * @param key - Unique identifier for the rate limit (e.g., endpoint URL, user ID)
+   * @param maxRequests - Maximum requests allowed in the window (defaults to defaultMaxRequests)
+   * @param windowMs - Time window in milliseconds (defaults to defaultWindowMs)
+   * @returns True if request is allowed, false if rate limit exceeded
+   * 
+   * @example
+   * ```typescript
+   * // Check with defaults (60 requests per minute)
+   * if (rateLimiter.isAllowed('api:/users')) {
+   *   await fetch('/api/users');
+   * }
+   * 
+   * // Custom limits (10 requests per 30 seconds)
+   * if (rateLimiter.isAllowed('api:/auth/login', 10, 30000)) {
+   *   await login();
+   * }
+   * ```
    */
   isAllowed(
     key: string,
@@ -59,9 +95,18 @@ class RateLimiter {
 
   /**
    * Get remaining requests for a key
-   * @param key Unique identifier
-   * @param maxRequests Maximum requests allowed
-   * @returns Number of remaining requests, or -1 if no limit set
+   * 
+   * Calculates how many requests are still allowed within the current window.
+   * 
+   * @param key - Unique identifier for the rate limit
+   * @param maxRequests - Maximum requests allowed (defaults to defaultMaxRequests)
+   * @returns Number of remaining requests (0 if limit exceeded, maxRequests if no entry)
+   * 
+   * @example
+   * ```typescript
+   * const remaining = rateLimiter.getRemaining('api:/users', 60);
+   * console.log(`${remaining} requests remaining`);
+   * ```
    */
   getRemaining(
     key: string,
@@ -82,8 +127,17 @@ class RateLimiter {
 
   /**
    * Get time until reset for a key
-   * @param key Unique identifier
-   * @returns Milliseconds until reset, or 0 if no limit set
+   * 
+   * Calculates how long until the rate limit window resets.
+   * 
+   * @param key - Unique identifier for the rate limit
+   * @returns Milliseconds until reset (0 if no entry exists or already reset)
+   * 
+   * @example
+   * ```typescript
+   * const resetIn = rateLimiter.getResetTime('api:/users');
+   * console.log(`Rate limit resets in ${resetIn}ms`);
+   * ```
    */
   getResetTime(key: string): number {
     const entry = this.limits.get(key);
@@ -96,8 +150,18 @@ class RateLimiter {
   }
 
   /**
-   * Reset rate limit for a key
-   * @param key Unique identifier
+   * Reset rate limit for a specific key
+   * 
+   * Removes the rate limit entry for the given key, effectively
+   * resetting the limit immediately.
+   * 
+   * @param key - Unique identifier for the rate limit to reset
+   * 
+   * @example
+   * ```typescript
+   * // Reset limit after successful authentication
+   * rateLimiter.reset('api:/auth/login');
+   * ```
    */
   reset(key: string): void {
     this.limits.delete(key);
@@ -105,13 +169,34 @@ class RateLimiter {
 
   /**
    * Clear all rate limits
+   * 
+   * Removes all rate limit entries. Useful for testing or
+   * when resetting all limits is needed.
+   * 
+   * @example
+   * ```typescript
+   * // Clear all limits (e.g., on logout)
+   * rateLimiter.clear();
+   * ```
    */
   clear(): void {
     this.limits.clear();
   }
 
   /**
-   * Clean up expired entries (call periodically)
+   * Clean up expired entries
+   * 
+   * Removes all rate limit entries that have exceeded their reset time.
+   * This prevents memory leaks from accumulating expired entries.
+   * 
+   * Called automatically every 5 minutes, but can be called manually
+   * if needed for more frequent cleanup.
+   * 
+   * @example
+   * ```typescript
+   * // Manual cleanup
+   * rateLimiter.cleanup();
+   * ```
    */
   cleanup(): void {
     const now = Date.now();
@@ -161,8 +246,21 @@ export const RATE_LIMIT_CONFIG = {
 
 /**
  * Get rate limit key from endpoint URL
- * @param url API endpoint URL
- * @returns Rate limit key
+ * 
+ * Extracts a rate limit key from an API endpoint URL by categorizing
+ * the endpoint (auth, upload, search, or general API).
+ * 
+ * @param url - API endpoint URL (can be relative or absolute)
+ * @returns Rate limit key with category prefix (e.g., 'auth:/api/auth/login')
+ * 
+ * @example
+ * ```typescript
+ * const key = getRateLimitKey('/api/auth/login');
+ * // Returns: 'auth:/api/auth/login'
+ * 
+ * const key2 = getRateLimitKey('/api/users/search');
+ * // Returns: 'search:/api/users/search'
+ * ```
  */
 export function getRateLimitKey(url: string): string {
   try {
@@ -187,9 +285,22 @@ export function getRateLimitKey(url: string): string {
 }
 
 /**
- * Get rate limit config for endpoint
- * @param url API endpoint URL
- * @returns Rate limit configuration
+ * Get rate limit configuration for an endpoint
+ * 
+ * Determines the appropriate rate limit configuration based on the
+ * endpoint URL category (auth, upload, search, or general API).
+ * 
+ * @param url - API endpoint URL
+ * @returns Rate limit configuration with maxRequests and windowMs
+ * 
+ * @example
+ * ```typescript
+ * const config = getRateLimitConfig('/api/auth/login');
+ * // Returns: { maxRequests: 10, windowMs: 60000 }
+ * 
+ * const config2 = getRateLimitConfig('/api/users');
+ * // Returns: { maxRequests: 60, windowMs: 60000 }
+ * ```
  */
 export function getRateLimitConfig(url: string): {
   maxRequests: number;

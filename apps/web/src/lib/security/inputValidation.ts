@@ -1,8 +1,28 @@
 /**
  * Input Validation Utilities
  * 
- * Provides comprehensive input validation and sanitization
- * Prevents injection attacks, XSS, and other input-based vulnerabilities
+ * Provides comprehensive input validation and sanitization to prevent
+ * injection attacks, XSS, and other input-based vulnerabilities.
+ * 
+ * @module inputValidation
+ * @example
+ * ```typescript
+ * // Validate email
+ * const emailResult = validateEmail('user@example.com');
+ * if (!emailResult.valid) {
+ *   console.error(emailResult.error);
+ * }
+ * 
+ * // Sanitize HTML
+ * const safeHtml = sanitizeHtml('<script>alert("xss")</script><p>Safe</p>');
+ * // Returns: '<p>Safe</p>'
+ * 
+ * // Validate and sanitize
+ * const result = sanitizeAndValidate(userInput, 'email', 'Email Address');
+ * if (result.valid) {
+ *   // Use result.sanitized
+ * }
+ * ```
  */
 
 import DOMPurify from 'isomorphic-dompurify';
@@ -34,6 +54,22 @@ export const MIN_LENGTHS = {
 
 /**
  * Validate input length
+ * 
+ * Checks if a string value meets minimum and maximum length requirements.
+ * 
+ * @param value - The string value to validate
+ * @param min - Minimum allowed length (inclusive)
+ * @param max - Maximum allowed length (inclusive)
+ * @param fieldName - Name of the field for error messages (default: 'Field')
+ * @returns Validation result with error message if invalid
+ * 
+ * @example
+ * ```typescript
+ * const result = validateLength('username', 3, 50, 'Username');
+ * if (!result.valid) {
+ *   console.error(result.error); // "Username must be at least 3 characters"
+ * }
+ * ```
  */
 export function validateLength(
   value: string,
@@ -59,7 +95,24 @@ export function validateLength(
 }
 
 /**
- * Sanitize HTML input (XSS protection)
+ * Sanitize HTML input to prevent XSS attacks
+ * 
+ * Removes potentially dangerous HTML tags and attributes while preserving
+ * safe formatting. Uses DOMPurify for robust sanitization.
+ * 
+ * @param html - Raw HTML string to sanitize
+ * @param allowedTags - Optional array of allowed HTML tags (defaults to common safe tags)
+ * @returns Sanitized HTML string safe for rendering
+ * 
+ * @example
+ * ```typescript
+ * // Basic usage
+ * const safe = sanitizeHtml('<script>alert("xss")</script><p>Safe</p>');
+ * // Returns: '<p>Safe</p>'
+ * 
+ * // Custom allowed tags
+ * const custom = sanitizeHtml(html, ['p', 'strong', 'em']);
+ * ```
  */
 export function sanitizeHtml(html: string, allowedTags?: string[]): string {
   const defaultTags = [
@@ -78,7 +131,19 @@ export function sanitizeHtml(html: string, allowedTags?: string[]): string {
 }
 
 /**
- * Sanitize plain text (remove HTML)
+ * Sanitize plain text by removing all HTML tags
+ * 
+ * Strips all HTML tags and attributes from text, leaving only plain text.
+ * Useful for sanitizing user input that should not contain HTML.
+ * 
+ * @param text - Text that may contain HTML
+ * @returns Plain text with all HTML removed
+ * 
+ * @example
+ * ```typescript
+ * const plain = sanitizeText('<p>Hello <strong>World</strong></p>');
+ * // Returns: 'Hello World'
+ * ```
  */
 export function sanitizeText(text: string): string {
   return DOMPurify.sanitize(text, {
@@ -89,6 +154,24 @@ export function sanitizeText(text: string): string {
 
 /**
  * Validate email format
+ * 
+ * Checks if an email address is valid by:
+ * - Ensuring it's not empty
+ * - Validating length (max 254 characters per RFC 5321)
+ * - Checking format with regex pattern
+ * 
+ * @param email - Email address to validate
+ * @returns Validation result with error message if invalid
+ * 
+ * @example
+ * ```typescript
+ * const result = validateEmail('user@example.com');
+ * if (result.valid) {
+ *   // Email is valid
+ * } else {
+ *   console.error(result.error);
+ * }
+ * ```
  */
 export function validateEmail(email: string): { valid: boolean; error?: string } {
   if (!email || email.length === 0) {
@@ -110,6 +193,21 @@ export function validateEmail(email: string): { valid: boolean; error?: string }
 
 /**
  * Validate URL format
+ * 
+ * Validates that a string is a properly formatted URL by:
+ * - Checking length constraints
+ * - Using the URL constructor to validate format
+ * 
+ * @param url - URL string to validate
+ * @returns Validation result with error message if invalid
+ * 
+ * @example
+ * ```typescript
+ * const result = validateUrl('https://example.com');
+ * if (!result.valid) {
+ *   console.error(result.error);
+ * }
+ * ```
  */
 export function validateUrl(url: string): { valid: boolean; error?: string } {
   if (!url || url.length === 0) {
@@ -131,6 +229,27 @@ export function validateUrl(url: string): { valid: boolean; error?: string } {
 
 /**
  * Validate password strength
+ * 
+ * Validates password meets security requirements and calculates strength:
+ * - Minimum length: 8 characters
+ * - Maximum length: 128 characters
+ * - Strength based on: length, lowercase, uppercase, numbers, special characters
+ * 
+ * Strength levels:
+ * - Weak: Less than 3 criteria met
+ * - Medium: 3 criteria met
+ * - Strong: 4+ criteria met
+ * 
+ * @param password - Password to validate
+ * @returns Validation result with strength indicator
+ * 
+ * @example
+ * ```typescript
+ * const result = validatePassword('MyP@ssw0rd123');
+ * if (result.valid) {
+ *   console.log(`Password strength: ${result.strength}`); // 'strong'
+ * }
+ * ```
  */
 export function validatePassword(password: string): { valid: boolean; error?: string; strength?: 'weak' | 'medium' | 'strong' } {
   if (!password || password.length === 0) {
@@ -168,6 +287,29 @@ export function validatePassword(password: string): { valid: boolean; error?: st
 
 /**
  * Sanitize and validate input based on type
+ * 
+ * Performs type-specific sanitization and validation:
+ * - **email**: Trims, lowercases, and validates email format
+ * - **url**: Trims and validates URL format
+ * - **html**: Sanitizes HTML while preserving safe tags
+ * - **password**: Validates strength (no sanitization)
+ * - **text**: Removes HTML and validates length
+ * 
+ * @param value - Input value to sanitize and validate
+ * @param type - Type of input ('text' | 'email' | 'url' | 'html' | 'password')
+ * @param fieldName - Optional field name for error messages
+ * @returns Validation result with sanitized value
+ * 
+ * @example
+ * ```typescript
+ * // Validate email
+ * const emailResult = sanitizeAndValidate('  USER@EXAMPLE.COM  ', 'email', 'Email');
+ * // Returns: { valid: true, sanitized: 'user@example.com' }
+ * 
+ * // Sanitize HTML
+ * const htmlResult = sanitizeAndValidate('<script>alert("xss")</script><p>Safe</p>', 'html');
+ * // Returns: { valid: true, sanitized: '<p>Safe</p>' }
+ * ```
  */
 export function sanitizeAndValidate(
   value: string,
@@ -202,7 +344,7 @@ export function sanitizeAndValidate(
     case 'text':
     default:
       sanitized = sanitizeText(value.trim());
-      const maxLength = fieldName && MAX_LENGTHS[fieldName as keyof typeof MAX_LENGTHS]
+      const maxLength: number = (fieldName && fieldName in MAX_LENGTHS)
         ? MAX_LENGTHS[fieldName as keyof typeof MAX_LENGTHS]
         : MAX_LENGTHS.text;
       validation = validateLength(sanitized, 0, maxLength, fieldName || 'Text');

@@ -3,10 +3,33 @@
  * Validates required environment variables on startup
  * 
  * Security: Ensures critical configuration is present before runtime
+ * 
+ * @module envValidation
+ * @example
+ * ```typescript
+ * // Validate at startup
+ * validateAndLogEnvironmentVariables();
+ * 
+ * // Get validated env var
+ * const apiUrl = getEnvVar('NEXT_PUBLIC_API_URL');
+ * 
+ * // Get boolean env var with default
+ * const isDev = getBooleanEnvVar('NODE_ENV', false);
+ * ```
  */
 
 import { logger } from '@/lib/logger';
 
+/**
+ * Configuration for an environment variable
+ * 
+ * @interface EnvVarConfig
+ * @property {string} name - Environment variable name
+ * @property {boolean} required - Whether the variable is required
+ * @property {string} [defaultValue] - Default value if not set
+ * @property {(value: string) => boolean} [validate] - Custom validation function
+ * @property {string} [errorMessage] - Custom error message for validation failures
+ */
 interface EnvVarConfig {
   name: string;
   required: boolean;
@@ -41,9 +64,23 @@ const ENV_VAR_CONFIGS: EnvVarConfig[] = [
 ];
 
 /**
- * Validate environment variables
- * @param configs Array of environment variable configurations
- * @returns Object with validation results
+ * Validate environment variables against provided configurations
+ * 
+ * Checks each configured environment variable for:
+ * - Presence (if required)
+ * - Custom validation (if provided)
+ * - Default value usage (if applicable)
+ * 
+ * @param configs - Array of environment variable configurations (defaults to ENV_VAR_CONFIGS)
+ * @returns Validation result with errors and warnings
+ * 
+ * @example
+ * ```typescript
+ * const result = validateEnvironmentVariables();
+ * if (!result.valid) {
+ *   console.error('Validation errors:', result.errors);
+ * }
+ * ```
  */
 export function validateEnvironmentVariables(
   configs: EnvVarConfig[] = ENV_VAR_CONFIGS
@@ -92,7 +129,19 @@ export function validateEnvironmentVariables(
 
 /**
  * Validate environment variables and log results
- * Should be called at application startup
+ * 
+ * Validates all configured environment variables and logs warnings/errors.
+ * In production, throws an error if validation fails to prevent startup with invalid config.
+ * 
+ * Should be called at application startup before any other initialization.
+ * 
+ * @throws {Error} In production if validation fails
+ * 
+ * @example
+ * ```typescript
+ * // In app startup code
+ * validateAndLogEnvironmentVariables();
+ * ```
  */
 export function validateAndLogEnvironmentVariables(): void {
   const result = validateEnvironmentVariables();
@@ -119,9 +168,23 @@ export function validateAndLogEnvironmentVariables(): void {
 
 /**
  * Get environment variable with validation
- * @param name Environment variable name
- * @param defaultValue Default value if not set
- * @returns Environment variable value
+ * 
+ * Retrieves an environment variable and throws an error if it's not set
+ * (unless a default value is provided).
+ * 
+ * @param name - Environment variable name
+ * @param defaultValue - Optional default value if variable is not set
+ * @returns Environment variable value (never undefined)
+ * @throws {Error} If variable is not set and no default value provided
+ * 
+ * @example
+ * ```typescript
+ * // Required variable (throws if not set)
+ * const apiUrl = getEnvVar('NEXT_PUBLIC_API_URL');
+ * 
+ * // Optional variable with default
+ * const port = getEnvVar('PORT', '3000');
+ * ```
  */
 export function getEnvVar(name: string, defaultValue?: string): string {
   const value = process.env[name];
@@ -138,9 +201,21 @@ export function getEnvVar(name: string, defaultValue?: string): string {
 
 /**
  * Get boolean environment variable
- * @param name Environment variable name
- * @param defaultValue Default value if not set
- * @returns Boolean value
+ * 
+ * Parses an environment variable as a boolean. Accepts:
+ * - "true" or "1" → true
+ * - "false" or "0" → false
+ * - Empty/undefined → defaultValue
+ * 
+ * @param name - Environment variable name
+ * @param defaultValue - Default value if variable is not set (default: false)
+ * @returns Parsed boolean value
+ * 
+ * @example
+ * ```typescript
+ * const enableFeature = getBooleanEnvVar('ENABLE_FEATURE', false);
+ * const isDebug = getBooleanEnvVar('DEBUG', true);
+ * ```
  */
 export function getBooleanEnvVar(name: string, defaultValue: boolean = false): boolean {
   const value = process.env[name];
@@ -154,9 +229,23 @@ export function getBooleanEnvVar(name: string, defaultValue: boolean = false): b
 
 /**
  * Get number environment variable
- * @param name Environment variable name
- * @param defaultValue Default value if not set
- * @returns Number value
+ * 
+ * Parses an environment variable as a number. Validates that the value
+ * is a valid number before returning.
+ * 
+ * @param name - Environment variable name
+ * @param defaultValue - Optional default value if variable is not set
+ * @returns Parsed number value
+ * @throws {Error} If variable is not set and no default provided, or if value is not a valid number
+ * 
+ * @example
+ * ```typescript
+ * // Required number (throws if not set or invalid)
+ * const maxConnections = getNumberEnvVar('MAX_CONNECTIONS');
+ * 
+ * // Optional number with default
+ * const timeout = getNumberEnvVar('TIMEOUT_MS', 5000);
+ * ```
  */
 export function getNumberEnvVar(name: string, defaultValue?: number): number {
   const value = process.env[name];

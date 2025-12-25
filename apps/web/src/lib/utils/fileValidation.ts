@@ -1,6 +1,22 @@
 /**
  * File Validation Utilities
- * Server-side file validation for security
+ * 
+ * Server-side file validation for security. Provides comprehensive validation
+ * including file size, MIME type, extension matching, and filename sanitization.
+ * 
+ * @module fileValidation
+ * @example
+ * ```typescript
+ * // Validate a file
+ * const result = validateFile(file, {
+ *   allowedTypes: ALLOWED_MIME_TYPES.images,
+ *   maxSize: 5 * 1024 * 1024, // 5MB
+ * });
+ * 
+ * if (result.valid) {
+ *   // Use result.sanitizedName for safe storage
+ * }
+ * ```
  */
 
 export interface FileValidationResult {
@@ -47,8 +63,25 @@ export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 /**
  * Sanitize file name to prevent directory traversal and other attacks
- * @param fileName Original file name
+ * 
+ * Removes dangerous characters and path components:
+ * - Strips directory separators (/, \)
+ * - Replaces non-alphanumeric characters (except . _ -) with underscores
+ * - Removes leading/trailing dots
+ * - Limits length to 255 characters
+ * - Generates fallback name if result is empty
+ * 
+ * @param fileName - Original file name (may contain path components)
  * @returns Sanitized file name safe for storage
+ * 
+ * @example
+ * ```typescript
+ * const safe = sanitizeFileName('../../../etc/passwd');
+ * // Returns: 'etc_passwd'
+ * 
+ * const safe2 = sanitizeFileName('my file<script>.exe');
+ * // Returns: 'my_file_script_.exe'
+ * ```
  */
 export function sanitizeFileName(fileName: string): string {
   // Remove path components (directory traversal protection)
@@ -71,10 +104,23 @@ export function sanitizeFileName(fileName: string): string {
 }
 
 /**
- * Validate file MIME type
- * @param mimeType File MIME type
- * @param allowedTypes Array of allowed MIME types (default: all)
- * @returns True if valid
+ * Validate file MIME type against allowed list
+ * 
+ * Checks if the file's MIME type is in the allowed list. This prevents
+ * uploading files with dangerous MIME types.
+ * 
+ * @param mimeType - File MIME type (e.g., 'image/jpeg', 'application/pdf')
+ * @param allowedTypes - Array of allowed MIME types (defaults to all allowed types)
+ * @returns True if MIME type is allowed
+ * 
+ * @example
+ * ```typescript
+ * const isValid = validateMimeType('image/jpeg', ALLOWED_MIME_TYPES.images);
+ * // Returns: true
+ * 
+ * const isInvalid = validateMimeType('application/x-executable', ALLOWED_MIME_TYPES.images);
+ * // Returns: false
+ * ```
  */
 export function validateMimeType(
   mimeType: string,
@@ -85,9 +131,23 @@ export function validateMimeType(
 
 /**
  * Validate file size
- * @param size File size in bytes
- * @param maxSize Maximum allowed size in bytes (default: MAX_FILE_SIZE)
- * @returns True if valid
+ * 
+ * Checks if file size is within acceptable limits:
+ * - Must be greater than 0
+ * - Must not exceed maximum size
+ * 
+ * @param size - File size in bytes
+ * @param maxSize - Maximum allowed size in bytes (default: MAX_FILE_SIZE = 10MB)
+ * @returns True if file size is valid
+ * 
+ * @example
+ * ```typescript
+ * const isValid = validateFileSize(1024 * 1024, 5 * 1024 * 1024); // 1MB < 5MB
+ * // Returns: true
+ * 
+ * const isTooLarge = validateFileSize(10 * 1024 * 1024, 5 * 1024 * 1024); // 10MB > 5MB
+ * // Returns: false
+ * ```
  */
 export function validateFileSize(
   size: number,
@@ -98,8 +158,24 @@ export function validateFileSize(
 
 /**
  * Get file extension from file name
- * @param fileName File name
- * @returns File extension (lowercase, without dot)
+ * 
+ * Extracts the file extension from a filename and returns it in lowercase
+ * without the leading dot.
+ * 
+ * @param fileName - File name (may include path)
+ * @returns File extension in lowercase without dot, or empty string if no extension
+ * 
+ * @example
+ * ```typescript
+ * const ext = getFileExtension('document.pdf');
+ * // Returns: 'pdf'
+ * 
+ * const ext2 = getFileExtension('image.JPEG');
+ * // Returns: 'jpeg'
+ * 
+ * const noExt = getFileExtension('README');
+ * // Returns: ''
+ * ```
  */
 export function getFileExtension(fileName: string): string {
   const parts = fileName.split('.');
@@ -110,9 +186,25 @@ export function getFileExtension(fileName: string): string {
 
 /**
  * Validate file extension matches MIME type
- * @param fileName File name
- * @param mimeType File MIME type
+ * 
+ * Prevents MIME type spoofing by ensuring the file extension matches
+ * the declared MIME type. This is a security measure to prevent malicious
+ * files from being uploaded with misleading MIME types.
+ * 
+ * @param fileName - File name (used to extract extension)
+ * @param mimeType - Declared MIME type of the file
  * @returns True if extension matches MIME type
+ * 
+ * @example
+ * ```typescript
+ * // Valid match
+ * const valid = validateExtensionMatchesMimeType('image.jpg', 'image/jpeg');
+ * // Returns: true
+ * 
+ * // Invalid match (potential spoofing)
+ * const invalid = validateExtensionMatchesMimeType('script.exe', 'image/jpeg');
+ * // Returns: false
+ * ```
  */
 export function validateExtensionMatchesMimeType(
   fileName: string,
@@ -145,9 +237,35 @@ export function validateExtensionMatchesMimeType(
 
 /**
  * Comprehensive file validation
- * @param file File object or file metadata
- * @param options Validation options
- * @returns Validation result
+ * 
+ * Performs complete file validation including:
+ * - File size validation
+ * - MIME type validation
+ * - Extension-to-MIME-type matching (prevents spoofing)
+ * - Filename sanitization
+ * 
+ * @param file - File object or file metadata with name, size, and type
+ * @param options - Validation options
+ * @param options.allowedTypes - Array of allowed MIME types (defaults to all allowed types)
+ * @param options.maxSize - Maximum file size in bytes (defaults to MAX_FILE_SIZE = 10MB)
+ * @param options.requireExtensionMatch - Whether to require extension matches MIME type (default: true)
+ * @returns Validation result with sanitized filename if valid
+ * 
+ * @example
+ * ```typescript
+ * const result = validateFile(uploadedFile, {
+ *   allowedTypes: ALLOWED_MIME_TYPES.images,
+ *   maxSize: 5 * 1024 * 1024, // 5MB
+ *   requireExtensionMatch: true,
+ * });
+ * 
+ * if (result.valid) {
+ *   // File is safe, use result.sanitizedName for storage
+ *   await saveFile(result.sanitizedName, file);
+ * } else {
+ *   console.error(result.error);
+ * }
+ * ```
  */
 export function validateFile(
   file: { name: string; size: number; type: string },
@@ -197,9 +315,26 @@ export function validateFile(
 }
 
 /**
- * Generate a unique file name using UUID pattern
- * @param originalFileName Original file name
- * @returns Unique file name with UUID prefix
+ * Generate a unique file name using timestamp and random identifier
+ * 
+ * Creates a unique filename by:
+ * - Sanitizing the original filename
+ * - Preserving the file extension
+ * - Appending a timestamp and random identifier
+ * 
+ * Useful for preventing filename collisions when storing files.
+ * 
+ * @param originalFileName - Original file name
+ * @returns Unique file name with timestamp-random identifier prefix
+ * 
+ * @example
+ * ```typescript
+ * const unique = generateUniqueFileName('document.pdf');
+ * // Returns: 'document-1704067200000-abc123xyz.pdf'
+ * 
+ * const unique2 = generateUniqueFileName('image.jpg');
+ * // Returns: 'image-1704067200001-def456uvw.jpg'
+ * ```
  */
 export function generateUniqueFileName(originalFileName: string): string {
   const sanitized = sanitizeFileName(originalFileName);
