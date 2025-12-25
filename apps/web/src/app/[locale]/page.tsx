@@ -1,66 +1,396 @@
 /**
- * Home Page
+ * Home Page - Enhanced with template presentation
  * With next-intl, this page is automatically served for the default locale
  */
 
+'use client';
+
 import Link from 'next/link';
-import { Button, Card, Container } from '@/components/ui';
+import { Button, Card, Container, Badge, StatsCard } from '@/components/ui';
+import { 
+  CheckCircle, 
+  Zap, 
+  Shield, 
+  Code, 
+  Database, 
+  Globe, 
+  Rocket,
+  Layers,
+  Users,
+  Palette,
+  Smartphone
+} from 'lucide-react';
 
 export default function HomePage() {
+  const features = [
+    {
+      icon: <Code className="w-6 h-6" />,
+      title: '206 Composants React',
+      description: 'Bibliothèque complète de composants UI et fonctionnels, prêts à l\'emploi',
+      color: 'text-blue-600 dark:text-blue-400',
+    },
+    {
+      icon: <Shield className="w-6 h-6" />,
+      title: 'Sécurité Enterprise',
+      description: 'Authentification JWT, OAuth, MFA, RBAC et protection XSS intégrées',
+      color: 'text-green-600 dark:text-green-400',
+    },
+    {
+      icon: <Zap className="w-6 h-6" />,
+      title: 'Performance Optimisée',
+      description: 'Code splitting automatique, optimisation d\'images, monitoring Web Vitals',
+      color: 'text-yellow-600 dark:text-yellow-400',
+    },
+    {
+      icon: <Database className="w-6 h-6" />,
+      title: 'Backend FastAPI',
+      description: 'API REST moderne avec PostgreSQL, migrations Alembic, et validation Pydantic',
+      color: 'text-purple-600 dark:text-purple-400',
+    },
+    {
+      icon: <Globe className="w-6 h-6" />,
+      title: 'i18n Intégré',
+      description: 'Support multilingue avec next-intl (FR/EN/AR/HE), routing automatique',
+      color: 'text-indigo-600 dark:text-indigo-400',
+    },
+    {
+      icon: <Palette className="w-6 h-6" />,
+      title: 'Thème Personnalisable',
+      description: 'Dark mode, système de thème dynamique, et personnalisation complète',
+      color: 'text-pink-600 dark:text-pink-400',
+    },
+  ];
+
+  const techStack = [
+    { name: 'Next.js 16', description: 'App Router & Server Components' },
+    { name: 'React 19', description: 'Dernières fonctionnalités React' },
+    { name: 'TypeScript', description: 'Type safety strict' },
+    { name: 'FastAPI', description: 'Backend Python moderne' },
+    { name: 'PostgreSQL', description: 'Base de données relationnelle' },
+    { name: 'Tailwind CSS', description: 'Styling utility-first' },
+  ];
+
+  const useCases = [
+    {
+      title: 'Applications SaaS',
+      description: 'Parfait pour créer des applications SaaS B2B ou B2C avec gestion d\'abonnements',
+      icon: <Rocket className="w-5 h-5" />,
+    },
+    {
+      title: 'Dashboards Admin',
+      description: 'Tableaux de bord administratifs complets avec gestion des utilisateurs et analytics',
+      icon: <Layers className="w-5 h-5" />,
+    },
+    {
+      title: 'E-commerce',
+      description: 'Plateformes e-commerce avec gestion de produits, commandes et paiements',
+      icon: <Smartphone className="w-5 h-5" />,
+    },
+    {
+      title: 'Applications Multi-tenant',
+      description: 'Support natif pour les applications multi-organisations avec isolation des données',
+      icon: <Users className="w-5 h-5" />,
+    },
+  ];
+
   return (
-    <Container className="py-12">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-          Bienvenue sur MODELE-NEXTJS-FULLSTACK
-        </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
-          Template full-stack avec Next.js 16 et FastAPI
-        </p>
-        <div className="flex gap-4 justify-center">
-          <Link href="/auth/login">
-            <Button variant="primary" size="lg">
-              Se connecter
-            </Button>
-          </Link>
-          <Link href="/auth/register">
-            <Button variant="outline" size="lg">
-              S'inscrire
-            </Button>
-          </Link>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+      {/* Hero Section */}
+      <Container className="py-20">
+        <div className="text-center mb-16">
+          <Badge variant="info" className="mb-6 text-sm px-4 py-1">
+            Template Full-Stack Production-Ready
+          </Badge>
+          <h1 className="text-6xl md:text-7xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+            Démarrez votre projet
+            <br />
+            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
+              en quelques minutes
+            </span>
+          </h1>
+          <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 mb-8 max-w-3xl mx-auto">
+            Template complet avec <strong>206 composants React</strong>, backend FastAPI, authentification, 
+            gestion d'abonnements et bien plus encore. Prêt pour la production.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link href="/docs#installation">
+              <Button variant="primary" size="lg" className="text-lg px-8 py-6">
+                <Rocket className="w-5 h-5 mr-2" />
+                Commencer maintenant
+              </Button>
+            </Link>
+            <Link href="/components">
+              <Button variant="outline" size="lg" className="text-lg px-8 py-6">
+                Voir les composants
+              </Button>
+            </Link>
+            <Link href="/docs">
+              <Button variant="ghost" size="lg" className="text-lg px-8 py-6">
+                Documentation
+              </Button>
+            </Link>
+          </div>
         </div>
+
+        {/* Stats Section */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-20">
+          <StatsCard
+            title="Composants"
+            value="206"
+            change={{ value: 0, type: 'increase', period: 'production-ready' }}
+            icon={<Code className="w-6 h-6" />}
+          />
+          <StatsCard
+            title="Catégories"
+            value="25"
+            change={{ value: 0, type: 'increase', period: 'organisées' }}
+            icon={<Layers className="w-6 h-6" />}
+          />
+          <StatsCard
+            title="Technologies"
+            value="15+"
+            change={{ value: 0, type: 'increase', period: 'intégrées' }}
+            icon={<Zap className="w-6 h-6" />}
+          />
+          <StatsCard
+            title="Sécurité"
+            value="100%"
+            change={{ value: 0, type: 'increase', period: 'auditée' }}
+            icon={<Shield className="w-6 h-6" />}
+          />
+        </div>
+      </Container>
+
+      {/* Features Section */}
+      <div className="bg-white dark:bg-gray-800 py-20">
+        <Container>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+              Tout ce dont vous avez besoin
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              Un template complet avec toutes les fonctionnalités essentielles pour démarrer rapidement
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            {features.map((feature, index) => (
+              <Card key={index} hover className="p-6">
+                <div className={`${feature.color} mb-4`}>
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  {feature.description}
+                </p>
+              </Card>
+            ))}
+          </div>
+        </Container>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-        <Card className="p-6">
-          <h2 className="text-2xl font-semibold mb-4">Dashboard</h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Accédez à votre tableau de bord pour gérer vos projets et données.
-          </p>
-          <Link href="/dashboard">
-            <Button variant="ghost">Accéder au dashboard</Button>
-          </Link>
-        </Card>
+      {/* Tech Stack Section */}
+      <div className="bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 py-20">
+        <Container>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+              Stack Technologique Moderne
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              Construit avec les dernières technologies et meilleures pratiques
+            </p>
+          </div>
 
-        <Card className="p-6">
-          <h2 className="text-2xl font-semibold mb-4">Composants</h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Explorez notre bibliothèque de composants réutilisables.
-          </p>
-          <Link href="/components">
-            <Button variant="ghost">Voir les composants</Button>
-          </Link>
-        </Card>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-12">
+            {techStack.map((tech, index) => (
+              <Card key={index} className="p-6 text-center hover:shadow-lg transition-shadow">
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{tech.name}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{tech.description}</p>
+              </Card>
+            ))}
+          </div>
 
-        <Card className="p-6">
-          <h2 className="text-2xl font-semibold mb-4">Documentation</h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Consultez la documentation pour apprendre à utiliser l'application.
-          </p>
-          <Link href="/docs">
-            <Button variant="ghost">Lire la documentation</Button>
-          </Link>
-        </Card>
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 border border-gray-200 dark:border-gray-700">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+              Architecture Monorepo
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">Frontend</div>
+                <p className="text-gray-600 dark:text-gray-400">Next.js 16 + React 19</p>
+                <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">apps/web</p>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">Backend</div>
+                <p className="text-gray-600 dark:text-gray-400">FastAPI + PostgreSQL</p>
+                <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">backend</p>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">Shared</div>
+                <p className="text-gray-600 dark:text-gray-400">Types & Utils</p>
+                <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">packages/types</p>
+              </div>
+            </div>
+          </div>
+        </Container>
       </div>
-    </Container>
+
+      {/* Use Cases Section */}
+      <div className="bg-white dark:bg-gray-800 py-20">
+        <Container>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+              Cas d'usage
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              Parfait pour différents types d'applications web modernes
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+            {useCases.map((useCase, index) => (
+              <Card key={index} hover className="p-8">
+                <div className="flex items-start gap-4">
+                  <div className="text-blue-600 dark:text-blue-400 flex-shrink-0">
+                    {useCase.icon}
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                      {useCase.title}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      {useCase.description}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </Container>
+      </div>
+
+      {/* Key Features List */}
+      <div className="bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 py-20">
+        <Container>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+                Fonctionnalités SaaS
+              </h2>
+              <ul className="space-y-4">
+                {[
+                  'Gestion d\'abonnements avec Stripe',
+                  'Gestion d\'équipes multi-utilisateurs',
+                  'Système d\'invitations par email',
+                  'RBAC avec permissions granulaires',
+                  'Tableau de bord analytics intégré',
+                  'Support multi-organisations',
+                ].map((feature, index) => (
+                  <li key={index} className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                    <span className="text-gray-700 dark:text-gray-300">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+                Expérience Développeur
+              </h2>
+              <ul className="space-y-4">
+                {[
+                  'Génération de code CLI intégrée',
+                  'Types TypeScript auto-générés',
+                  'Hot reload frontend & backend',
+                  'Tests unitaires et E2E inclus',
+                  'CI/CD avec GitHub Actions',
+                  'Docker Compose pour le développement',
+                ].map((feature, index) => (
+                  <li key={index} className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                    <span className="text-gray-700 dark:text-gray-300">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </Container>
+      </div>
+
+      {/* CTA Section */}
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700 py-20">
+        <Container>
+          <div className="text-center text-white">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Prêt à démarrer ?
+            </h2>
+            <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
+              Clonez le repository et lancez votre projet en quelques minutes avec notre guide de démarrage rapide.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/docs#installation">
+                <Button variant="secondary" size="lg" className="text-lg px-8 py-6 bg-white text-blue-600 hover:bg-gray-100">
+                  <Rocket className="w-5 h-5 mr-2" />
+                  Guide d'installation
+                </Button>
+              </Link>
+              <Link href="/components">
+                <Button variant="outline" size="lg" className="text-lg px-8 py-6 border-white text-white hover:bg-white/10">
+                  Explorer les composants
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </Container>
+      </div>
+
+      {/* Quick Links */}
+      <div className="bg-white dark:bg-gray-800 py-16">
+        <Container>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <Layers className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                Dashboard
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Accédez à votre tableau de bord pour gérer vos projets et données.
+              </p>
+              <Link href="/dashboard">
+                <Button variant="ghost" className="w-full">Accéder au dashboard</Button>
+              </Link>
+            </Card>
+
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <Code className="w-6 h-6 text-green-600 dark:text-green-400" />
+                Composants
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Explorez notre bibliothèque de 206 composants réutilisables.
+              </p>
+              <Link href="/components">
+                <Button variant="ghost" className="w-full">Voir les composants</Button>
+              </Link>
+            </Card>
+
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <Globe className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                Documentation
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Consultez la documentation complète pour apprendre à utiliser le template.
+              </p>
+              <Link href="/docs">
+                <Button variant="ghost" className="w-full">Lire la documentation</Button>
+              </Link>
+            </Card>
+          </div>
+        </Container>
+      </div>
+    </div>
   );
 }
