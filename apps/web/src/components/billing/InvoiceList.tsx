@@ -60,7 +60,7 @@ export default function InvoiceList({
       key: 'number',
       label: 'Invoice #',
       sortable: true,
-      render: (value, invoice) => (
+      render: (_value, invoice) => (
         <div className="flex items-center gap-2">
           <FileText className="w-4 h-4 text-gray-400 dark:text-gray-500" />
           <span className="font-medium text-gray-900 dark:text-gray-100">{invoice.number}</span>
