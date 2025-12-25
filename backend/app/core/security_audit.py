@@ -83,7 +83,7 @@ class SecurityAuditLog(Base):
     
     # Event details
     description = Column(Text, nullable=False)
-    metadata = Column(JSON, nullable=True)  # Additional structured data
+    event_metadata = Column("metadata", JSON, nullable=True)  # Additional structured data (DB column name: metadata)
     
     # Result
     success = Column(String(10), default="unknown", nullable=False)  # success, failure, unknown
@@ -144,7 +144,7 @@ class SecurityAuditLogger:
             request_path=request_path,
             severity=severity,
             success=success,
-            metadata=metadata or {},
+            event_metadata=metadata or {},
         )
         
         db.add(audit_log)
