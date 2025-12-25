@@ -220,7 +220,7 @@ export default function Mentions({
           {users
             .filter((user) => value.includes(`@${user.name}`))
             .map((user) => (
-              <Badge key={user.id} variant="info" size="sm" className="flex items-center gap-1">
+              <Badge key={user.id} variant="info" className="flex items-center gap-1">
                 <AtSign className="w-3 h-3" />
                 {user.name}
               </Badge>
