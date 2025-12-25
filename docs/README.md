@@ -14,7 +14,6 @@ Bienvenue dans la documentation du template MODELE-NEXTJS-FULLSTACK.
 - [Dépannage](./TROUBLESHOOTING.md) - Résolution des problèmes courants
 
 ### 🔒 Sécurité
-- [Audit de Sécurité](./SECURITY_AUDIT_REPORT.md) - Rapport d'audit complet
 - [Bonnes Pratiques de Sécurité](./SECURITY.md) - Guide des bonnes pratiques
 
 ### 🔧 Configuration
@@ -23,9 +22,8 @@ Bienvenue dans la documentation du template MODELE-NEXTJS-FULLSTACK.
 - [Guide des Abonnements](./SUBSCRIPTIONS_GUIDE.md) - Système d'abonnements
 
 ### 📦 Développement
-- [Hooks Personnalisés](./HOOKS.md) - Documentation des hooks React
 - [Utilitaires](./UTILS.md) - Documentation des utilitaires
-- [Composants UI](./COMPONENTS.md) - Documentation des composants
+- [Composants UI](../apps/web/src/components/README.md) - Documentation des composants
 
 ### 📊 Monitoring
 - [Monitoring et Observabilité](./MONITORING.md) - Configuration du monitoring
@@ -42,13 +40,10 @@ docs/
 ├── TESTING.md                   # Guide des tests
 ├── TROUBLESHOOTING.md           # Dépannage
 ├── SECURITY.md                  # Sécurité
-├── SECURITY_AUDIT_REPORT.md     # Audit de sécurité
 ├── SENDGRID_SETUP.md            # Configuration SendGrid
 ├── STRIPE_SETUP.md              # Configuration Stripe
 ├── SUBSCRIPTIONS_GUIDE.md       # Guide des abonnements
-├── HOOKS.md                     # Hooks personnalisés
 ├── UTILS.md                     # Utilitaires
-├── COMPONENTS.md                # Composants UI
 ├── MONITORING.md                # Monitoring
 └── EMAIL_SYSTEM.md              # Système email
 ```
@@ -62,7 +57,7 @@ docs/
 - **Écrire des tests ?** → [Guide des Tests](./TESTING.md)
 - **Configurer SendGrid ?** → [Configuration SendGrid](./SENDGRID_SETUP.md)
 - **Configurer Stripe ?** → [Configuration Stripe](./STRIPE_SETUP.md)
-- **Questions de sécurité ?** → [Audit de Sécurité](./SECURITY_AUDIT_REPORT.md)
+- **Questions de sécurité ?** → [Bonnes Pratiques de Sécurité](./SECURITY.md)
 
 ---
 
