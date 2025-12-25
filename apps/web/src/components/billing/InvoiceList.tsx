@@ -91,7 +91,7 @@ export default function InvoiceList({
       key: 'amount',
       label: 'Amount',
       sortable: true,
-      render: (value, invoice) => (
+      render: (_value, invoice) => (
         <span className="font-semibold text-gray-900 dark:text-gray-100">
           {invoice.currency} {invoice.amount.toFixed(2)}
         </span>
