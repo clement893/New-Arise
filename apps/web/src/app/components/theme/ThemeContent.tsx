@@ -118,7 +118,7 @@ function ThemePageContent() {
           <Card>
             <div className="space-y-4 text-gray-700 dark:text-gray-300">
               <div>
-                <h4 className="font-semibold mb-2">Fonctionnalités:</h4>
+                <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Fonctionnalités:</h4>
                 <ul className="list-disc list-inside space-y-1 text-sm">
                   <li>Support de trois modes : Light, Dark, et System (suit les préférences système)</li>
                   <li>Persistance du choix dans localStorage</li>
@@ -128,7 +128,7 @@ function ThemePageContent() {
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold mb-2">Utilisation:</h4>
+                <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Utilisation:</h4>
                 <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg text-sm overflow-x-auto">
 {`import { useTheme } from '@/contexts/ThemeContext';
 import { ThemeToggle } from '@/components/ui';
@@ -149,7 +149,7 @@ function MyComponent() {
           <Card>
             <div className="space-y-4 text-gray-700 dark:text-gray-300">
               <div>
-                <h4 className="font-semibold mb-2">Gestion du Thème:</h4>
+                <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Gestion du Thème:</h4>
                 <p className="text-sm mb-4">
                   Pour personnaliser votre thème (mode clair/sombre) et vos préférences, veuillez vous rendre sur la page{' '}
                   <a href="/dashboard/theme" className="text-primary-600 dark:text-primary-400 underline font-semibold">

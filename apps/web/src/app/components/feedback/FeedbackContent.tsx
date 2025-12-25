@@ -145,15 +145,15 @@ export default function FeedbackContent() {
         <Section title="Stepper">
           <div className="space-y-6">
             <div>
-              <h4 className="text-sm font-semibold mb-4">Stepper horizontal</h4>
+              <h4 className="text-sm font-semibold mb-4 text-gray-900 dark:text-white">Stepper horizontal</h4>
               <Stepper steps={stepperSteps} currentStep={1} />
             </div>
             <div>
-              <h4 className="text-sm font-semibold mb-4">Stepper vertical</h4>
+              <h4 className="text-sm font-semibold mb-4 text-gray-900 dark:text-white">Stepper vertical</h4>
               <Stepper steps={stepperSteps} currentStep={2} orientation="vertical" />
             </div>
             <div>
-              <h4 className="text-sm font-semibold mb-4">Stepper avec erreur</h4>
+              <h4 className="text-sm font-semibold mb-4 text-gray-900 dark:text-white">Stepper avec erreur</h4>
               <Stepper steps={[{ ...stepperSteps[0]!, error: true } as Step, ...stepperSteps.slice(1)]} currentStep={0} />
             </div>
           </div>
@@ -191,7 +191,7 @@ export default function FeedbackContent() {
                 trigger={<Button>Ouvrir Popover</Button>}
                 content={
                   <div className="p-4 space-y-2">
-                    <h4 className="font-semibold">Titre du Popover</h4>
+                    <h4 className="font-semibold text-gray-900 dark:text-white">Titre du Popover</h4>
                     <p className="text-sm text-gray-600">Ceci est le contenu du popover.</p>
                     <Button size="sm" variant="primary">Action</Button>
                   </div>

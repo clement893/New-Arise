@@ -81,14 +81,14 @@ export default function I18nComponentsContent() {
             <Card className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-semibold mb-2">LTR Languages</h4>
+                  <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">LTR Languages</h4>
                   <ul className="space-y-2 text-sm">
                     <li>🇬🇧 English (en)</li>
                     <li>🇫🇷 French (fr)</li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-semibold mb-2">RTL Languages</h4>
+                  <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">RTL Languages</h4>
                   <ul className="space-y-2 text-sm">
                     <li>🇸🇦 Arabic (ar)</li>
                     <li>🇮🇱 Hebrew (he)</li>

@@ -161,7 +161,7 @@ export default function UtilsContent() {
         <Section title="Autocomplete">
           <div className="space-y-4">
             <div>
-              <h4 className="text-sm font-semibold mb-2">Recherche de ville</h4>
+              <h4 className="text-sm font-semibold mb-2 text-gray-900 dark:text-white">Recherche de ville</h4>
               <Autocomplete
                 options={autocompleteOptions}
                 placeholder="Tapez pour rechercher une ville..."
@@ -170,7 +170,7 @@ export default function UtilsContent() {
               />
             </div>
             <div>
-              <h4 className="text-sm font-semibold mb-2">Avec minimum de caractères</h4>
+              <h4 className="text-sm font-semibold mb-2 text-gray-900 dark:text-white">Avec minimum de caractères</h4>
               <Autocomplete
                 options={autocompleteOptions}
                 placeholder="Tapez au moins 2 caractères..."
@@ -183,11 +183,11 @@ export default function UtilsContent() {
         <Section title="TreeView">
           <div className="space-y-4">
             <div>
-              <h4 className="text-sm font-semibold mb-2">Arborescence de fichiers</h4>
+              <h4 className="text-sm font-semibold mb-2 text-gray-900 dark:text-white">Arborescence de fichiers</h4>
               <TreeView nodes={treeNodes} />
             </div>
             <div>
-              <h4 className="text-sm font-semibold mb-2">Avec sélection multiple</h4>
+              <h4 className="text-sm font-semibold mb-2 text-gray-900 dark:text-white">Avec sélection multiple</h4>
               <TreeView nodes={treeNodes} multiSelect />
             </div>
           </div>

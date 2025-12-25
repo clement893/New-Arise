@@ -110,9 +110,9 @@ function AppContent({ children }: { children: React.ReactNode }) {
 
   // For public pages, show Header and Footer
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900">
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 bg-white dark:bg-gray-900">
         {children}
       </main>
       <Footer />

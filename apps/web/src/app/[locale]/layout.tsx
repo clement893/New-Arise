@@ -93,7 +93,7 @@ export default async function LocaleLayout({
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className} bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100`}>
         <SchemaMarkup
           type="organization"
           data={{

@@ -124,7 +124,7 @@ export default function ErrorComponentsContent() {
         <Section title="Error States Examples">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card className="p-6">
-              <h4 className="font-semibold mb-2">404 Not Found</h4>
+              <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">404 Not Found</h4>
               <ErrorDisplay
                 error={new Error('Resource not found')}
                 code={ErrorCode.NOT_FOUND}
@@ -134,7 +134,7 @@ export default function ErrorComponentsContent() {
             </Card>
 
             <Card className="p-6">
-              <h4 className="font-semibold mb-2">500 Server Error</h4>
+              <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">500 Server Error</h4>
               <ErrorDisplay
                 error={new Error('Internal server error')}
                 code={ErrorCode.INTERNAL_SERVER_ERROR}
@@ -144,7 +144,7 @@ export default function ErrorComponentsContent() {
             </Card>
 
             <Card className="p-6">
-              <h4 className="font-semibold mb-2">403 Forbidden</h4>
+              <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">403 Forbidden</h4>
               <ErrorDisplay
                 error={new Error('You do not have permission to access this resource')}
                 code={ErrorCode.FORBIDDEN}
@@ -154,7 +154,7 @@ export default function ErrorComponentsContent() {
             </Card>
 
             <Card className="p-6">
-              <h4 className="font-semibold mb-2">Network Error</h4>
+              <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Network Error</h4>
               <ErrorDisplay
                 error={new Error('Network request failed')}
                 code={ErrorCode.NETWORK_ERROR}

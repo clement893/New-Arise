@@ -110,7 +110,7 @@ export default function DataContent() {
         <Section title="DataTable">
           <div className="space-y-6">
             <div>
-              <h4 className="text-sm font-semibold mb-4">Tableau de données simple</h4>
+              <h4 className="text-sm font-semibold mb-4 text-gray-900 dark:text-white">Tableau de données simple</h4>
               <DataTable
                 data={sampleData}
                 columns={[
@@ -128,7 +128,7 @@ export default function DataContent() {
         <Section title="DataTableEnhanced">
           <div className="space-y-6">
             <div>
-              <h4 className="text-sm font-semibold mb-4">Tableau de données avancé</h4>
+              <h4 className="text-sm font-semibold mb-4 text-gray-900 dark:text-white">Tableau de données avancé</h4>
               <DataTableEnhanced
                 data={sampleData}
                 columns={[
@@ -234,7 +234,7 @@ export default function DataContent() {
         <Section title="Timeline">
           <div className="space-y-6">
             <div>
-              <h4 className="text-sm font-semibold mb-4">Timeline verticale</h4>
+              <h4 className="text-sm font-semibold mb-4 text-gray-900 dark:text-white">Timeline verticale</h4>
               <Timeline
                 items={[
                   { id: '1', title: 'Commande créée', description: 'La commande #1234 a été créée', timestamp: '2024-12-20 10:00', status: 'completed', color: 'success' },
@@ -245,7 +245,7 @@ export default function DataContent() {
               />
             </div>
             <div>
-              <h4 className="text-sm font-semibold mb-4">Timeline horizontale</h4>
+              <h4 className="text-sm font-semibold mb-4 text-gray-900 dark:text-white">Timeline horizontale</h4>
               <Timeline
                 items={[
                   { id: '1', title: 'Étape 1', description: 'Complétée', status: 'completed' },
@@ -261,7 +261,7 @@ export default function DataContent() {
         <Section title="List">
           <div className="space-y-6">
             <div>
-              <h4 className="text-sm font-semibold mb-4">Liste simple</h4>
+              <h4 className="text-sm font-semibold mb-4 text-gray-900 dark:text-white">Liste simple</h4>
               <List
                 items={[
                   { id: '1', content: 'Premier élément', onClick: () => alert('Cliqué sur élément 1') },
@@ -272,7 +272,7 @@ export default function DataContent() {
               />
             </div>
             <div>
-              <h4 className="text-sm font-semibold mb-4">Liste avec bordures</h4>
+              <h4 className="text-sm font-semibold mb-4 text-gray-900 dark:text-white">Liste avec bordures</h4>
               <List
                 items={[
                   { id: '1', content: 'Élément avec icône', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> },
@@ -283,7 +283,7 @@ export default function DataContent() {
               />
             </div>
             <div>
-              <h4 className="text-sm font-semibold mb-4">Liste divisée</h4>
+              <h4 className="text-sm font-semibold mb-4 text-gray-900 dark:text-white">Liste divisée</h4>
               <List
                 items={[
                   { id: '1', content: 'Notification 1', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg> },

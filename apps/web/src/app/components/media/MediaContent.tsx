@@ -110,7 +110,7 @@ export default function MediaContent() {
           <Card>
             <div className="space-y-4 text-gray-700 dark:text-gray-300">
               <div>
-                <h4 className="font-semibold mb-2">Composants disponibles:</h4>
+                <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Composants disponibles:</h4>
                 <ul className="list-disc list-inside space-y-1 text-sm">
                   <li>
                     <strong>VideoPlayer:</strong> Lecteur vidéo avec contrôles complets, recherche, volume, plein écran
@@ -121,7 +121,7 @@ export default function MediaContent() {
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold mb-2">Utilisation:</h4>
+                <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Utilisation:</h4>
                 <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg text-sm overflow-x-auto">
 {`import { VideoPlayer, AudioPlayer } from '@/components/ui';
 
@@ -146,7 +146,7 @@ export default function MediaContent() {
                 </pre>
               </div>
               <div>
-                <h4 className="font-semibold mb-2">Fonctionnalités:</h4>
+                <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Fonctionnalités:</h4>
                 <ul className="list-disc list-inside space-y-1 text-sm">
                   <li>Contrôles de lecture/pause</li>
                   <li>Contrôle du volume avec mute</li>

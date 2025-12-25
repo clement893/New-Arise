@@ -115,7 +115,7 @@ export default function FormsContent() {
         <Section title="Form & FormField">
           <div className="space-y-6">
             <div>
-              <h4 className="text-sm font-semibold mb-4">Formulaire structuré avec Form</h4>
+              <h4 className="text-sm font-semibold mb-4 text-gray-900 dark:text-white">Formulaire structuré avec Form</h4>
               <Form
                 onSubmit={(data) => {
                   logger.debug('Form submitted', { fields: Object.keys(data) });

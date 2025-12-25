@@ -196,7 +196,7 @@ export default function ChartsContent() {
           <Card>
             <div className="space-y-4 text-gray-700 dark:text-gray-300">
               <div>
-                <h4 className="font-semibold mb-2">Types de graphiques disponibles:</h4>
+                <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Types de graphiques disponibles:</h4>
                 <ul className="list-disc list-inside space-y-1 text-sm">
                   <li><strong>Line:</strong> Graphique en ligne pour visualiser des tendances</li>
                   <li><strong>Bar:</strong> Graphique en barres pour comparer des valeurs</li>
@@ -208,7 +208,7 @@ export default function ChartsContent() {
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold mb-2">Utilisation:</h4>
+                <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Utilisation:</h4>
                 <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg text-sm overflow-x-auto">
 {`import { Chart, AdvancedCharts } from '@/components/ui';
 import type { ChartDataPoint, ScatterDataPoint } from '@/components/ui';

@@ -34,7 +34,7 @@ export default function NavigationContent() {
         <Section title="Breadcrumb" description="Fil d'Ariane pour la navigation">
           <div className="space-y-6">
             <div>
-              <h4 className="text-sm font-semibold mb-4">Navigation produits</h4>
+              <h4 className="text-sm font-semibold mb-4 text-gray-900 dark:text-white">Navigation produits</h4>
               <Breadcrumb
                 items={[
                   { label: 'Produits', href: '/products' },
@@ -44,7 +44,7 @@ export default function NavigationContent() {
               />
             </div>
             <div>
-              <h4 className="text-sm font-semibold mb-4">Navigation dashboard</h4>
+              <h4 className="text-sm font-semibold mb-4 text-gray-900 dark:text-white">Navigation dashboard</h4>
               <Breadcrumb
                 items={[
                   { label: 'Dashboard', href: '/dashboard' },
@@ -55,7 +55,7 @@ export default function NavigationContent() {
               />
             </div>
             <div>
-              <h4 className="text-sm font-semibold mb-4">Avec icÃ´nes</h4>
+              <h4 className="text-sm font-semibold mb-4 text-gray-900 dark:text-white">Avec icônes</h4>
               <Breadcrumb
                 items={[
                   { label: 'Administration', href: '/admin', icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg> },
@@ -70,7 +70,7 @@ export default function NavigationContent() {
         <Section title="Divider" description="SÃ©parateur visuel">
           <div className="space-y-6">
             <div>
-              <h4 className="text-sm font-semibold mb-4">Divider horizontal</h4>
+              <h4 className="text-sm font-semibold mb-4 text-gray-900 dark:text-white">Divider horizontal</h4>
               <div className="space-y-4">
                 <p>Contenu au-dessus</p>
                 <Divider />
@@ -78,7 +78,7 @@ export default function NavigationContent() {
               </div>
             </div>
             <div>
-              <h4 className="text-sm font-semibold mb-4">Divider avec label</h4>
+              <h4 className="text-sm font-semibold mb-4 text-gray-900 dark:text-white">Divider avec label</h4>
               <Divider label="OU" />
             </div>
             <div>
