@@ -105,7 +105,8 @@ EXPOSE 3000
 ENV PORT=${PORT:-3000}
 ENV HOSTNAME="0.0.0.0"
 
-# Use CMD with absolute path to ensure Railway executes directly
-# This prevents Railway from trying to parse shell scripts or use cd commands
-CMD ["node", "/app/server.js"]
+# Use ENTRYPOINT to prevent Railway from overriding the command
+# This ensures Railway executes node directly without shell parsing
+ENTRYPOINT ["node"]
+CMD ["/app/server.js"]
 
