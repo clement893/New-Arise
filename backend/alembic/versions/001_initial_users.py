@@ -19,22 +19,35 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # Create users table
-    op.create_table(
-        'users',
-        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column('email', sa.String(255), nullable=False, unique=True),
-        sa.Column('name', sa.String(255), nullable=False),
-        sa.Column('password_hash', sa.String(255), nullable=False),
-        sa.Column('is_active', sa.Boolean(), nullable=False, server_default='true'),
-        sa.Column('is_verified', sa.Boolean(), nullable=False, server_default='false'),
-        sa.Column('created_at', sa.DateTime(), nullable=False, server_default=sa.func.now()),
-        sa.Column('updated_at', sa.DateTime(), nullable=False, server_default=sa.func.now(), onupdate=sa.func.now()),
-    )
+    # Check if users table already exists
+    conn = op.get_bind()
+    inspector = sa.inspect(conn)
+    tables = inspector.get_table_names()
     
-    # Create indexes
-    op.create_index('idx_users_email', 'users', ['email'], unique=True)
-    op.create_index('idx_users_created_at', 'users', ['created_at'])
+    if 'users' not in tables:
+        # Create users table
+        op.create_table(
+            'users',
+            sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
+            sa.Column('email', sa.String(255), nullable=False, unique=True),
+            sa.Column('name', sa.String(255), nullable=False),
+            sa.Column('password_hash', sa.String(255), nullable=False),
+            sa.Column('is_active', sa.Boolean(), nullable=False, server_default='true'),
+            sa.Column('is_verified', sa.Boolean(), nullable=False, server_default='false'),
+            sa.Column('created_at', sa.DateTime(), nullable=False, server_default=sa.func.now()),
+            sa.Column('updated_at', sa.DateTime(), nullable=False, server_default=sa.func.now(), onupdate=sa.func.now()),
+        )
+        
+        # Create indexes
+        op.create_index('idx_users_email', 'users', ['email'], unique=True)
+        op.create_index('idx_users_created_at', 'users', ['created_at'])
+    else:
+        # Table already exists, check and create indexes if they don't exist
+        indexes = [idx['name'] for idx in inspector.get_indexes('users')]
+        if 'idx_users_email' not in indexes:
+            op.create_index('idx_users_email', 'users', ['email'], unique=True)
+        if 'idx_users_created_at' not in indexes:
+            op.create_index('idx_users_created_at', 'users', ['created_at'])
 
 
 def downgrade() -> None:
