@@ -97,6 +97,8 @@ def create_app() -> FastAPI:
     setup_cors(app)
 
     # Request logging middleware (after CORS to log all requests)
+    # Note: This runs AFTER CORS middleware (FastAPI executes middlewares in reverse order)
+    # So CORS will catch errors first and add headers before logging sees them
     @app.middleware("http")
     async def log_requests_middleware(request: Request, call_next):
         from app.core.logging import logger
@@ -111,7 +113,13 @@ def create_app() -> FastAPI:
         except Exception as e:
             process_time = time.time() - start_time
             logger.error(f"Request failed: {request.method} {request.url.path} - {str(e)} ({process_time:.4f}s)", exc_info=True)
-            raise
+            # Don't re-raise - let CORS middleware handle it and add headers
+            # If we re-raise here, CORS middleware won't be able to add headers to error response
+            from fastapi.responses import JSONResponse
+            return JSONResponse(
+                status_code=500,
+                content={"detail": f"Internal server error: {str(e)}"}
+            )
 
     # Compression Middleware (after CORS)
     # Enhanced compression with Brotli support

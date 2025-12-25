@@ -120,7 +120,7 @@ def setup_cors(app: FastAPI) -> None:
     )
     
     # Add a middleware to ensure CORS headers are always present
-    # This middleware runs BEFORE routes to catch errors and add CORS headers
+    # This middleware runs AFTER CORSMiddleware but BEFORE routes
     # Note: In FastAPI, middlewares are executed in reverse order of addition
     # So this middleware (added after CORSMiddleware) runs BEFORE CORSMiddleware
     # This ensures we can add CORS headers even if CORSMiddleware doesn't
@@ -146,9 +146,20 @@ def setup_cors(app: FastAPI) -> None:
         
         allowed_origin = get_allowed_origin()
         
+        # Helper function to add CORS headers to any response
+        def add_cors_to_response(resp):
+            if allowed_origin and "Access-Control-Allow-Origin" not in resp.headers:
+                resp.headers["Access-Control-Allow-Origin"] = allowed_origin
+                resp.headers["Access-Control-Allow-Credentials"] = "true"
+                resp.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+                resp.headers["Access-Control-Allow-Headers"] = ", ".join(allowed_headers)
+            return resp
+        
         # Process the request
         try:
             response = await call_next(request)
+            # Ensure CORS headers are present on successful response
+            return add_cors_to_response(response)
         except Exception as e:
             # If there's an error, create a response with CORS headers
             from fastapi.responses import JSONResponse
@@ -158,26 +169,7 @@ def setup_cors(app: FastAPI) -> None:
                 content={"detail": "Internal server error"}
             )
             # Always add CORS headers to error response
-            if allowed_origin:
-                error_response.headers["Access-Control-Allow-Origin"] = allowed_origin
-                error_response.headers["Access-Control-Allow-Credentials"] = "true"
-                error_response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, PATCH, OPTIONS"
-                error_response.headers["Access-Control-Allow-Headers"] = ", ".join(allowed_headers)
-            return error_response
-        
-        # If response doesn't have CORS headers, add them
-        if "Access-Control-Allow-Origin" not in response.headers:
-            if allowed_origin:
-                response.headers["Access-Control-Allow-Origin"] = allowed_origin
-                # Add other CORS headers if not present
-                if "Access-Control-Allow-Credentials" not in response.headers:
-                    response.headers["Access-Control-Allow-Credentials"] = "true"
-                if "Access-Control-Allow-Methods" not in response.headers:
-                    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, PATCH, OPTIONS"
-                if "Access-Control-Allow-Headers" not in response.headers:
-                    response.headers["Access-Control-Allow-Headers"] = ", ".join(allowed_headers)
-        
-        return response
+            return add_cors_to_response(error_response)
     
     logger.info("✅ CORS middleware configured with tightened security")
 
