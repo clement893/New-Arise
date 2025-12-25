@@ -32,7 +32,7 @@ interface Subscription {
   billing_period: 'month' | 'year';
 }
 
-interface Payment {
+interface Payment extends Record<string, unknown> {
   id: string;
   amount: number;
   currency: string;
