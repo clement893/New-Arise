@@ -192,7 +192,6 @@ export default function IntegrationList({
                     </h4>
                     <Badge
                       variant={categoryColors[integration.category] as any}
-                      size="sm"
                       className="mt-1"
                     >
                       {integration.category}
