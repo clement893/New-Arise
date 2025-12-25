@@ -7,6 +7,7 @@ Create Date: 2025-12-21
 """
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy import inspect
 
 
 # revision identifiers, used by Alembic.
@@ -17,56 +18,89 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # Add indexes to users table
-    op.create_index('idx_users_is_active', 'users', ['is_active'], unique=False)
-    op.create_index('idx_users_created_at', 'users', ['created_at'], unique=False)
-    op.create_index('idx_users_updated_at', 'users', ['updated_at'], unique=False)
-    op.create_index('idx_users_first_name', 'users', ['first_name'], unique=False)
-    op.create_index('idx_users_last_name', 'users', ['last_name'], unique=False)
+    conn = op.get_bind()
+    inspector = sa.inspect(conn)
+    
+    # Add indexes to users table (check if they exist first)
+    users_indexes = {idx['name'] for idx in inspector.get_indexes('users')}
+    
+    if 'idx_users_is_active' not in users_indexes:
+        op.create_index('idx_users_is_active', 'users', ['is_active'], unique=False)
+    if 'idx_users_created_at' not in users_indexes:
+        op.create_index('idx_users_created_at', 'users', ['created_at'], unique=False)
+    if 'idx_users_updated_at' not in users_indexes:
+        op.create_index('idx_users_updated_at', 'users', ['updated_at'], unique=False)
+    
+    # Check if columns exist before creating indexes on them
+    users_columns = {col['name'] for col in inspector.get_columns('users')}
+    if 'first_name' in users_columns and 'idx_users_first_name' not in users_indexes:
+        op.create_index('idx_users_first_name', 'users', ['first_name'], unique=False)
+    if 'last_name' in users_columns and 'idx_users_last_name' not in users_indexes:
+        op.create_index('idx_users_last_name', 'users', ['last_name'], unique=False)
     
     # Add composite index for common queries (active users sorted by creation date)
-    op.create_index('idx_users_active_created', 'users', ['is_active', 'created_at'], unique=False)
+    if 'idx_users_active_created' not in users_indexes:
+        op.create_index('idx_users_active_created', 'users', ['is_active', 'created_at'], unique=False)
     
     # Add indexes to organizations table if it exists
-    try:
-        op.create_index('idx_organizations_name', 'organizations', ['name'], unique=False)
-        op.create_index('idx_organizations_is_active', 'organizations', ['is_active'], unique=False)
-        op.create_index('idx_organizations_created_at', 'organizations', ['created_at'], unique=False)
-    except Exception:
-        pass  # Table might not exist yet
+    tables = inspector.get_table_names()
+    if 'organizations' in tables:
+        org_indexes = {idx['name'] for idx in inspector.get_indexes('organizations')}
+        if 'idx_organizations_name' not in org_indexes:
+            op.create_index('idx_organizations_name', 'organizations', ['name'], unique=False)
+        if 'idx_organizations_is_active' not in org_indexes:
+            op.create_index('idx_organizations_is_active', 'organizations', ['is_active'], unique=False)
+        if 'idx_organizations_created_at' not in org_indexes:
+            op.create_index('idx_organizations_created_at', 'organizations', ['created_at'], unique=False)
     
     # Add indexes to organization_members table if it exists
-    try:
-        op.create_index('idx_org_members_user_id', 'organization_members', ['user_id'], unique=False)
-        op.create_index('idx_org_members_org_id', 'organization_members', ['organization_id'], unique=False)
-        op.create_index('idx_org_members_role', 'organization_members', ['role'], unique=False)
+    if 'organization_members' in tables:
+        org_members_indexes = {idx['name'] for idx in inspector.get_indexes('organization_members')}
+        if 'idx_org_members_user_id' not in org_members_indexes:
+            op.create_index('idx_org_members_user_id', 'organization_members', ['user_id'], unique=False)
+        if 'idx_org_members_org_id' not in org_members_indexes:
+            op.create_index('idx_org_members_org_id', 'organization_members', ['organization_id'], unique=False)
+        if 'idx_org_members_role' not in org_members_indexes:
+            op.create_index('idx_org_members_role', 'organization_members', ['role'], unique=False)
         # Composite index for common query: get user's organizations
-        op.create_index('idx_org_members_user_active', 'organization_members', ['user_id', 'is_active'], unique=False)
-    except Exception:
-        pass  # Table might not exist yet
+        if 'idx_org_members_user_active' not in org_members_indexes:
+            org_members_columns = {col['name'] for col in inspector.get_columns('organization_members')}
+            if 'is_active' in org_members_columns:
+                op.create_index('idx_org_members_user_active', 'organization_members', ['user_id', 'is_active'], unique=False)
     
     # Add indexes to donateurs table if it exists
-    try:
-        op.create_index('idx_donateurs_email', 'donateurs', ['email'], unique=False)
-        op.create_index('idx_donateurs_org_id', 'donateurs', ['organization_id'], unique=False)
-        op.create_index('idx_donateurs_is_active', 'donateurs', ['is_active'], unique=False)
-        op.create_index('idx_donateurs_created_at', 'donateurs', ['created_at'], unique=False)
-        op.create_index('idx_donateurs_segment', 'donateurs', ['segment'], unique=False)
+    if 'donateurs' in tables:
+        donateurs_indexes = {idx['name'] for idx in inspector.get_indexes('donateurs')}
+        if 'idx_donateurs_email' not in donateurs_indexes:
+            op.create_index('idx_donateurs_email', 'donateurs', ['email'], unique=False)
+        if 'idx_donateurs_org_id' not in donateurs_indexes:
+            op.create_index('idx_donateurs_org_id', 'donateurs', ['organization_id'], unique=False)
+        if 'idx_donateurs_is_active' not in donateurs_indexes:
+            op.create_index('idx_donateurs_is_active', 'donateurs', ['is_active'], unique=False)
+        if 'idx_donateurs_created_at' not in donateurs_indexes:
+            op.create_index('idx_donateurs_created_at', 'donateurs', ['created_at'], unique=False)
+        if 'idx_donateurs_segment' not in donateurs_indexes:
+            donateurs_columns = {col['name'] for col in inspector.get_columns('donateurs')}
+            if 'segment' in donateurs_columns:
+                op.create_index('idx_donateurs_segment', 'donateurs', ['segment'], unique=False)
         # Composite index for common query: active donateurs by organization
-        op.create_index('idx_donateurs_org_active', 'donateurs', ['organization_id', 'is_active'], unique=False)
-    except Exception:
-        pass  # Table might not exist yet
+        if 'idx_donateurs_org_active' not in donateurs_indexes:
+            op.create_index('idx_donateurs_org_active', 'donateurs', ['organization_id', 'is_active'], unique=False)
     
     # Add indexes to donations table if it exists
-    try:
-        op.create_index('idx_donations_donateur_id', 'donations', ['donateur_id'], unique=False)
-        op.create_index('idx_donations_org_id', 'donations', ['organization_id'], unique=False)
-        op.create_index('idx_donations_status', 'donations', ['payment_status'], unique=False)
-        op.create_index('idx_donations_date', 'donations', ['donation_date'], unique=False)
+    if 'donations' in tables:
+        donations_indexes = {idx['name'] for idx in inspector.get_indexes('donations')}
+        if 'idx_donations_donateur_id' not in donations_indexes:
+            op.create_index('idx_donations_donateur_id', 'donations', ['donateur_id'], unique=False)
+        if 'idx_donations_org_id' not in donations_indexes:
+            op.create_index('idx_donations_org_id', 'donations', ['organization_id'], unique=False)
+        if 'idx_donations_status' not in donations_indexes:
+            op.create_index('idx_donations_status', 'donations', ['payment_status'], unique=False)
+        if 'idx_donations_date' not in donations_indexes:
+            op.create_index('idx_donations_date', 'donations', ['donation_date'], unique=False)
         # Composite index for common query: completed donations by date
-        op.create_index('idx_donations_status_date', 'donations', ['payment_status', 'donation_date'], unique=False)
-    except Exception:
-        pass  # Table might not exist yet
+        if 'idx_donations_status_date' not in donations_indexes:
+            op.create_index('idx_donations_status_date', 'donations', ['payment_status', 'donation_date'], unique=False)
 
 
 def downgrade() -> None:
