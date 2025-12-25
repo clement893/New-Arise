@@ -55,7 +55,7 @@ export default function PaymentHistory({ payments }: PaymentHistoryProps) {
       sortable: false,
       render: (value, _row) => (
         <div>
-          {value && (
+          {value ? (
             <a
               href={String(value)}
               target="_blank"
@@ -64,7 +64,7 @@ export default function PaymentHistory({ payments }: PaymentHistoryProps) {
             >
               Download Invoice
             </a>
-          )}
+          ) : null}
         </div>
       ),
     },
