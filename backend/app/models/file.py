@@ -15,7 +15,7 @@ class File(Base):
     __table_args__ = (
         Index("idx_files_user_id", "user_id"),
         Index("idx_files_created_at", "created_at"),
-        Index("idx_files_file_key", "file_key", unique=True),
+        Index("idx_files_file_path", "file_path", unique=True),
         Index("idx_files_storage_type", "storage_type"),
         Index("idx_files_is_public", "is_public"),
     )

@@ -12,7 +12,7 @@ from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import text
 
 from app.core.database import AsyncSessionLocal, engine
-from app.core.cache import get_redis_client
+from app.core.cache import cache_backend
 from app.core.config import settings
 
 router = APIRouter()
@@ -61,7 +61,7 @@ async def readiness_check() -> Dict[str, Any]:
     
     # Cache check (optional)
     try:
-        redis_client = get_redis_client()
+        redis_client = cache_backend.redis_client
         if redis_client:
             await redis_client.ping()
             checks["checks"]["cache"] = "healthy"
@@ -131,7 +131,7 @@ async def startup_check() -> Dict[str, Any]:
     
     # Cache check
     try:
-        redis_client = get_redis_client()
+        redis_client = cache_backend.redis_client
         if redis_client:
             await redis_client.ping()
             checks["checks"]["cache"] = {
@@ -215,7 +215,7 @@ async def detailed_health_check() -> Dict[str, Any]:
     # Cache detailed check
     cache_status = {"status": "not_configured"}
     try:
-        redis_client = get_redis_client()
+        redis_client = cache_backend.redis_client
         if redis_client:
             await redis_client.ping()
             cache_status["status"] = "healthy"
