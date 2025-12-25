@@ -6,6 +6,5 @@ export { default as LanguageSwitcher } from './LanguageSwitcher';
 export { default as LocaleSwitcher } from './LocaleSwitcher';
 export { default as RTLProvider } from './RTLProvider';
 
-export type { LocaleSwitcherProps } from './LocaleSwitcher';
 export type { RTLProviderProps } from './RTLProvider';
 
