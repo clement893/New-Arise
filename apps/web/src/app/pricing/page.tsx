@@ -1,5 +1,9 @@
 'use client';
 
+// Force dynamic rendering to avoid static generation
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+
 import { useState } from 'react';
 import Container from '@/components/ui/Container';
 import PricingCardSimple from '@/components/ui/PricingCardSimple';
