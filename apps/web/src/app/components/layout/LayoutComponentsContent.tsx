@@ -14,16 +14,8 @@ import ErrorState from '@/components/layout/ErrorState';
 import ExampleCard from '@/components/layout/ExampleCard';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { Card } from '@/components/ui';
-import { useState } from 'react';
 
 export default function LayoutComponentsContent() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  const sidebarItems = [
-    { id: '1', label: 'Dashboard', href: '/dashboard', icon: '📊' },
-    { id: '2', label: 'Projects', href: '/projects', icon: '📁' },
-    { id: '3', label: 'Settings', href: '/settings', icon: '⚙️' },
-  ];
 
   return (
     <PageContainer>
