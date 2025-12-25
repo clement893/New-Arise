@@ -15,7 +15,14 @@ export function registerServiceWorker() {
   }
 
   // Only register in production or when explicitly enabled
+  // Also check if sw.js file exists to avoid registration errors
   if (!isProduction && process.env.NEXT_PUBLIC_ENABLE_SW !== 'true') {
+    return;
+  }
+  
+  // Skip registration if NEXT_PUBLIC_ENABLE_SW is not explicitly set to 'true'
+  // This prevents errors when sw.js doesn't exist
+  if (isProduction && process.env.NEXT_PUBLIC_ENABLE_SW !== 'true') {
     return;
   }
 
