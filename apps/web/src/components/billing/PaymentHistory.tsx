@@ -102,7 +102,7 @@ export default function PaymentHistory({
     );
   };
 
-  const columns: Column<Payment>[] = useMemo(() => [
+  const columns = useMemo<Column<Payment>[]>(() => [
     {
       key: 'date',
       label: 'Date',
