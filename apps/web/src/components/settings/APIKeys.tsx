@@ -195,7 +195,7 @@ export default function APIKeys({
                     </div>
                     <div className="flex items-center gap-2 mt-2">
                       {key.scopes.map((scope) => (
-                        <Badge key={scope} variant="info" size="sm">
+                        <Badge key={scope} variant="info" className="text-xs px-2 py-0.5">
                           {scope}
                         </Badge>
                       ))}
