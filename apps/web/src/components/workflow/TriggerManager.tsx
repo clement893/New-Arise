@@ -11,6 +11,7 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import Switch from '@/components/ui/Switch';
+import type { ColorVariant } from '@/components/ui/types';
 import { Zap, Plus, Trash2, Edit, CheckCircle, XCircle, Calendar, Database } from 'lucide-react';
 import { logger } from '@/lib/logger';
 
@@ -44,12 +45,12 @@ const triggerTypeIcons = {
   manual: <CheckCircle className="w-4 h-4" />,
 };
 
-const triggerTypeColors = {
-  event: 'primary',
+const triggerTypeColors: Record<Trigger['type'], ColorVariant> = {
+  event: 'info',
   schedule: 'warning',
   webhook: 'info',
   manual: 'success',
-} as const;
+};
 
 export default function TriggerManager({
   triggers = [],
@@ -143,11 +144,12 @@ export default function TriggerManager({
                     <h4 className="font-semibold text-gray-900 dark:text-gray-100">
                       {trigger.name}
                     </h4>
-                    <Badge variant={triggerTypeColors[trigger.type] as any}>
+                    <Badge variant={triggerTypeColors[trigger.type]}>
                       {trigger.type}
                     </Badge>
                     {trigger.enabled ? (
-                      <Badge variant="success" icon={<CheckCircle className="w-3 h-3" />}>
+                      <Badge variant="success">
+                        <CheckCircle className="w-3 h-3 mr-1" />
                         Enabled
                       </Badge>
                     ) : (
