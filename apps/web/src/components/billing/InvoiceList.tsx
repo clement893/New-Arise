@@ -112,17 +112,21 @@ export default function InvoiceList({
             variant="ghost"
             size="sm"
             onClick={() => onViewInvoice?.(invoice)}
-            icon={<Eye className="w-4 h-4" />}
           >
-            View
+            <span className="flex items-center gap-2">
+              <Eye className="w-4 h-4" />
+              View
+            </span>
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => onDownloadInvoice?.(invoice)}
-            icon={<Download className="w-4 h-4" />}
           >
-            Download
+            <span className="flex items-center gap-2">
+              <Download className="w-4 h-4" />
+              Download
+            </span>
           </Button>
         </div>
       ),
