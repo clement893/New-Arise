@@ -49,7 +49,32 @@ export default function LoginPage() {
       window.location.href = auth_url;
     } catch (err) {
       const axiosError = err as AxiosError<ApiErrorResponse>;
-      const message = axiosError.response?.data?.detail || 'Failed to initiate Google login';
+      
+      // Check for CORS or network errors
+      if (!axiosError.response) {
+        // Network error or CORS blocked
+        const isCorsError = axiosError.message?.includes('CORS') || 
+                           axiosError.message?.includes('Failed to fetch') ||
+                           axiosError.code === 'ERR_NETWORK';
+        const message = isCorsError 
+          ? 'Erreur de connexion au serveur. Vérifiez que le backend est accessible et que CORS est configuré correctement.'
+          : 'Erreur de connexion au serveur. Veuillez réessayer plus tard.';
+        setLocalError(message);
+        setError(message);
+        return;
+      }
+      
+      // Check for 502 Bad Gateway
+      if (axiosError.response.status === 502) {
+        setLocalError('Le serveur backend est temporairement indisponible. Veuillez réessayer plus tard.');
+        setError('Le serveur backend est temporairement indisponible.');
+        return;
+      }
+      
+      // Other API errors
+      const message = axiosError.response?.data?.detail || 
+                     axiosError.response?.data?.message || 
+                     'Échec de la connexion Google. Veuillez réessayer.';
       setLocalError(message);
       setError(message);
     }
