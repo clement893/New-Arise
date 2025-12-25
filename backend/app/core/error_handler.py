@@ -136,7 +136,12 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
     )
 
     # En production, ne pas exposer les détails de l'exception
-    if settings.ENVIRONMENT == "production":
+    import os
+    is_production = (
+        os.getenv("ENVIRONMENT", "").lower() == "production" or
+        os.getenv("RAILWAY_ENVIRONMENT") is not None
+    )
+    if is_production:
         error_response = {
             "success": False,
             "error": {

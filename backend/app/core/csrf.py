@@ -37,7 +37,26 @@ class CSRFMiddleware(BaseHTTPMiddleware):
             )
             return response
         
-        # For unsafe methods (POST, PUT, DELETE, PATCH), validate CSRF token
+        # Skip CSRF for API endpoints that use JWT authentication
+        # CSRF protection is not needed for API endpoints using Bearer tokens
+        # as they are protected by CORS and JWT validation
+        path = request.url.path
+        if path.startswith("/api/") or path.startswith("/docs") or path.startswith("/redoc") or path.startswith("/openapi.json"):
+            # For API endpoints, skip CSRF check but still set cookie for browser-based requests
+            response = await call_next(request)
+            # Optionally set CSRF token cookie for API endpoints too
+            csrf_token = secrets.token_urlsafe(32)
+            response.set_cookie(
+                key=self.cookie_name,
+                value=csrf_token,
+                httponly=False,
+                secure=request.url.scheme == "https",
+                samesite="strict",
+                max_age=3600,
+            )
+            return response
+        
+        # For unsafe methods (POST, PUT, DELETE, PATCH) on non-API endpoints, validate CSRF token
         csrf_token_cookie = request.cookies.get(self.cookie_name)
         csrf_token_header = request.headers.get(self.header_name)
         
