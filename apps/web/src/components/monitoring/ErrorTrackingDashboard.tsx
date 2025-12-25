@@ -1,135 +1,38 @@
 /**
  * Error Tracking Dashboard Component
  * Displays error statistics and recent errors
+ * Uses abstraction layers (service and hook) for business logic
  */
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
-import { AlertCircle, TrendingUp, AlertTriangle, XCircle, RefreshCw } from 'lucide-react';
-
-interface ErrorStats {
-  totalErrors: number;
-  errorsLast24h: number;
-  errorsLast7d: number;
-  criticalErrors: number;
-  warningErrors: number;
-}
-
-interface RecentError {
-  id: string;
-  message: string;
-  level: 'error' | 'warning' | 'info';
-  timestamp: Date;
-  url?: string;
-  userAgent?: string;
-}
+import { AlertCircle, TrendingUp, RefreshCw } from 'lucide-react';
+import { useErrorTracking } from '@/hooks/monitoring/useErrorTracking';
+import { ErrorStatisticsService } from '@/services/errorStatisticsService';
+import { getErrorLevelConfig } from '@/utils/errorLevelUtils';
 
 export default function ErrorTrackingDashboard() {
-  const [stats, setStats] = useState<ErrorStats>({
-    totalErrors: 0,
-    errorsLast24h: 0,
-    errorsLast7d: 0,
-    criticalErrors: 0,
-    warningErrors: 0,
-  });
+  // Use custom hook for data fetching and statistics
+  const { errors, stats, isLoading, refresh } = useErrorTracking();
 
-  const [recentErrors, setRecentErrors] = useState<RecentError[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [refreshKey, setRefreshKey] = useState(0);
-
-  // In a real implementation, this would fetch from your backend/Sentry API
-  useEffect(() => {
-    const fetchErrorData = async () => {
-      setIsLoading(true);
-      try {
-        // TODO: Replace with actual API call to fetch error data
-        // For now, we'll use localStorage to track client-side errors
-        const storedErrors = localStorage.getItem('error_tracking');
-        const errors: RecentError[] = storedErrors ? JSON.parse(storedErrors) : [];
-
-        // Calculate stats
-        const now = new Date();
-        const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-        const last7d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-
-        const errorsLast24h = errors.filter(
-          (e) => new Date(e.timestamp) > last24h
-        ).length;
-        const errorsLast7d = errors.filter(
-          (e) => new Date(e.timestamp) > last7d
-        ).length;
-        const criticalErrors = errors.filter((e) => e.level === 'error').length;
-        const warningErrors = errors.filter((e) => e.level === 'warning').length;
-
-        setStats({
-          totalErrors: errors.length,
-          errorsLast24h,
-          errorsLast7d,
-          criticalErrors,
-          warningErrors,
-        });
-
-        // Get recent errors (last 10)
-        setRecentErrors(
-          errors
-            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-            .slice(0, 10)
-        );
-      } catch (error) {
-        console.error('Failed to fetch error data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchErrorData();
-  }, [refreshKey]);
+  // Get recent errors using the service
+  const recentErrors = useMemo(
+    () => ErrorStatisticsService.getRecentErrors(errors, 10),
+    [errors]
+  );
 
   const handleRefresh = () => {
-    setRefreshKey((prev) => prev + 1);
+    refresh();
   };
 
   const handleClearErrors = () => {
     if (confirm('Are you sure you want to clear all error logs?')) {
       localStorage.removeItem('error_tracking');
-      setStats({
-        totalErrors: 0,
-        errorsLast24h: 0,
-        errorsLast7d: 0,
-        criticalErrors: 0,
-        warningErrors: 0,
-      });
-      setRecentErrors([]);
-    }
-  };
-
-  const getLevelColor = (level: string) => {
-    switch (level) {
-      case 'error':
-        return 'error';
-      case 'warning':
-        return 'warning';
-      case 'info':
-        return 'info';
-      default:
-        return 'default';
-    }
-  };
-
-  const getLevelIcon = (level: string) => {
-    switch (level) {
-      case 'error':
-        return <XCircle className="w-4 h-4" />;
-      case 'warning':
-        return <AlertTriangle className="w-4 h-4" />;
-      case 'info':
-        return <AlertCircle className="w-4 h-4" />;
-      default:
-        return null;
+      refresh(); // Refresh to update UI
     }
   };
 
@@ -244,30 +147,35 @@ export default function ErrorTrackingDashboard() {
           </div>
         ) : (
           <div className="space-y-3">
-            {recentErrors.map((error) => (
-              <div
-                key={error.id}
-                className="flex items-start justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
-              >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    {getLevelIcon(error.level)}
-                    <Badge variant={getLevelColor(error.level)}>{error.level}</Badge>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {new Date(error.timestamp).toLocaleString()}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-900 dark:text-gray-100 font-medium">
-                    {error.message}
-                  </p>
-                  {error.url && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      {error.url}
+            {recentErrors.map((error) => {
+              const levelConfig = getErrorLevelConfig(error.level);
+              const LevelIcon = levelConfig.icon;
+              
+              return (
+                <div
+                  key={error.id}
+                  className="flex items-start justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <LevelIcon className="w-4 h-4" />
+                      <Badge variant={levelConfig.color}>{error.level}</Badge>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {new Date(error.timestamp).toLocaleString()}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-900 dark:text-gray-100 font-medium">
+                      {error.message}
                     </p>
-                  )}
+                    {error.url && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        {error.url}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </Card>
