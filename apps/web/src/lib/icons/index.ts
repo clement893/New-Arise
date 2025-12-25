@@ -64,8 +64,6 @@ export {
   Star,
   Heart,
   Globe,
-  Settings,
-  Edit,
   Database,
   Zap,
   Workflow,
