@@ -250,11 +250,11 @@ export default function APIDocumentation({
                               <code className="font-mono text-primary-600 dark:text-primary-400">
                                 {param.name}
                               </code>
-                              <Badge variant="default" size="sm">
+                              <Badge variant="default">
                                 {param.type}
                               </Badge>
                               {param.required && (
-                                <Badge variant="error" size="sm">
+                                <Badge variant="error">
                                   Required
                                 </Badge>
                               )}
