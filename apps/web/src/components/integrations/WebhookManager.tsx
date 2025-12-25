@@ -12,7 +12,7 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import Switch from '@/components/ui/Switch';
-import { Plus, Webhook, Trash2, Edit, CheckCircle, Activity } from 'lucide-react';
+import { Plus, Webhook, Trash2, CheckCircle, Activity } from 'lucide-react';
 import Modal from '@/components/ui/Modal';
 import { logger } from '@/lib/logger';
 
@@ -213,18 +213,12 @@ export default function WebhookManager({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => setEditingWebhook(webhook)}
-                      icon={<Edit className="w-4 h-4" />}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
                       onClick={() => handleDelete(webhook.id)}
-                      icon={<Trash2 className="w-4 h-4" />}
                     >
-                      Delete
+                      <span className="flex items-center gap-2">
+                        <Trash2 className="w-4 h-4" />
+                        Delete
+                      </span>
                     </Button>
                   </div>
                 </div>
