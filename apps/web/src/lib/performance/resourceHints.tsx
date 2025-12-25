@@ -44,6 +44,9 @@ export function ResourceHints() {
       if (process.env.NODE_ENV === 'development') {
         console.warn('Failed to initialize resource hints:', error);
       }
+      return () => {
+        // Return cleanup function even if initialization failed
+      };
     }
   }, []);
 
