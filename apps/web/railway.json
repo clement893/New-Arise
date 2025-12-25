@@ -8,6 +8,6 @@
     "numReplicas": 1,
     "sleepApplication": false,
     "restartPolicyMaxRetries": 10,
-    "startCommand": "node /app/server.js"
+    "startCommand": "node /app/apps/web/server.js"
   }
 }
