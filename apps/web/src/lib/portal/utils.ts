@@ -4,15 +4,65 @@
  * Utility functions for portal detection, routing, and permissions
  */
 
-import type {
-  PortalType,
-  PortalUser,
-  ClientPortalUser,
-  EmployeePortalUser,
-  PortalRole,
-  PortalPermissionCheck,
-  PortalRouteMetadata,
-} from '@repo/types/portal';
+// Portal type definitions
+export type PortalType = 'client' | 'employee' | 'admin';
+
+export type PortalRole = 
+  | 'client' 
+  | 'client_admin' 
+  | 'employee' 
+  | 'sales' 
+  | 'accounting' 
+  | 'inventory' 
+  | 'manager' 
+  | 'admin';
+
+/**
+ * Base User interface from auth store
+ * This matches the User interface from apps/web/src/lib/store.ts
+ */
+export interface BaseUser {
+  id: string;
+  email: string;
+  name: string;
+  is_active: boolean;
+  is_verified: boolean;
+  is_admin?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+/**
+ * Portal User interface extending base User
+ * Includes portal-specific properties like roles and permissions
+ */
+export interface PortalUser extends BaseUser {
+  roles?: PortalRole[];
+  permissions?: string[];
+  portalType?: PortalType;
+}
+
+export interface ClientPortalUser extends PortalUser {
+  portalType: 'client';
+  clientId?: string;
+}
+
+export interface EmployeePortalUser extends PortalUser {
+  portalType: 'employee';
+  employeeId?: string;
+}
+
+export interface PortalPermissionCheck {
+  hasPermission: boolean;
+  permission: string;
+  reason?: string;
+}
+
+export interface PortalRouteMetadata {
+  portalType: PortalType;
+  isPublic: boolean;
+  layout: string;
+}
 import { PORTAL_PATH_PATTERNS, PORTAL_DEFAULT_ROUTES } from '@/lib/constants/portal';
 
 /**
@@ -36,18 +86,18 @@ export function detectPortalType(pathname: string): PortalType | null {
  */
 export function getPortalTypeFromUser(user: PortalUser): PortalType {
   // Check if user has client role
-  const hasClientRole = user.roles.some((role) => 
+  const hasClientRole = user.roles.some((role: PortalRole) => 
     role === 'client' || role === 'client_admin'
   );
   
-  if (hasClientRole && !user.roles.some((role) => 
+  if (hasClientRole && !user.roles.some((role: PortalRole) => 
     role === 'employee' || role === 'admin' || role === 'manager'
   )) {
     return 'client';
   }
   
   // Check if user has employee/admin role
-  const hasEmployeeRole = user.roles.some((role) => 
+  const hasEmployeeRole = user.roles.some((role: PortalRole) => 
     role === 'employee' || 
     role === 'sales' || 
     role === 'accounting' || 

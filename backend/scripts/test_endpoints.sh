@@ -123,3 +123,4 @@ test_endpoint "GET" "/health" "" "Health check" || true
 echo ""
 echo -e "${GREEN}✅ Endpoint testing complete!${NC}"
 
+

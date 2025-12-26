@@ -9,6 +9,7 @@
 
 import { ERPNavigation } from '@/components/erp';
 import { Container } from '@/components/ui';
+import { ErrorBoundary } from '@/components/errors';
 
 export default function ERPPortalLayout({
   children,
@@ -16,25 +17,31 @@ export default function ERPPortalLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Sidebar Navigation */}
-      <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 p-6 overflow-y-auto">
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-            ERP Portal
-          </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Manage orders, inventory, clients, and more
-          </p>
-        </div>
-        <ERPNavigation />
-      </aside>
+    <ErrorBoundary>
+      <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+        {/* Sidebar Navigation */}
+        <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 p-6 overflow-y-auto">
+          <div className="mb-6">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+              ERP Portal
+            </h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Manage orders, inventory, clients, and more
+            </p>
+          </div>
+          <ErrorBoundary>
+            <ERPNavigation />
+          </ErrorBoundary>
+        </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 p-6 overflow-y-auto">
-        <Container>{children}</Container>
-      </main>
-    </div>
+        {/* Main Content */}
+        <main className="flex-1 p-6 overflow-y-auto">
+          <Container>
+            <ErrorBoundary>{children}</ErrorBoundary>
+          </Container>
+        </main>
+      </div>
+    </ErrorBoundary>
   );
 }
 

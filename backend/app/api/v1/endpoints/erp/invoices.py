@@ -16,6 +16,7 @@ from app.schemas.erp import (
     ERPInvoiceListResponse,
 )
 from app.services.erp_service import ERPService
+from app.utils.invoice_helpers import convert_invoice_to_erp_response
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
@@ -51,31 +52,11 @@ async def get_erp_invoices(
     page = (skip // limit) + 1 if limit > 0 else 1
     
     # Convert to ERP response format
-    invoice_items = []
-    for invoice in invoices:
-        # Load user relationship
-        invoice_query = select(Invoice).where(Invoice.id == invoice.id).options(selectinload(Invoice.user))
-        invoice_result = await db.execute(invoice_query)
-        invoice_with_user = invoice_result.scalar_one()
-        
-        invoice_dict = {
-            "id": invoice_with_user.id,
-            "invoice_number": invoice_with_user.invoice_number or f"INV-{invoice_with_user.id}",
-            "amount": str(invoice_with_user.amount_due),
-            "amount_paid": str(invoice_with_user.amount_paid),
-            "currency": invoice_with_user.currency,
-            "status": invoice_with_user.status.value if hasattr(invoice_with_user.status, 'value') else str(invoice_with_user.status),
-            "invoice_date": invoice_with_user.created_at,  # Use created_at as invoice date
-            "due_date": invoice_with_user.due_date,
-            "paid_at": invoice_with_user.paid_at,
-            "client_id": invoice_with_user.user_id,
-            "client_name": f"{invoice_with_user.user.first_name or ''} {invoice_with_user.user.last_name or ''}".strip() if invoice_with_user.user else None,
-            "client_email": invoice_with_user.user.email if invoice_with_user.user else None,
-            "pdf_url": invoice_with_user.invoice_pdf_url or invoice_with_user.hosted_invoice_url,
-            "created_at": invoice_with_user.created_at,
-            "updated_at": invoice_with_user.updated_at,
-        }
-        invoice_items.append(ERPInvoiceResponse.model_validate(invoice_dict))
+    # Note: User relationship is already loaded via selectinload in ERPService
+    invoice_items = [
+        ERPInvoiceResponse.model_validate(convert_invoice_to_erp_response(invoice))
+        for invoice in invoices
+    ]
     
     return ERPInvoiceListResponse(
         items=invoice_items,
@@ -107,29 +88,12 @@ async def get_erp_invoice(
             detail="Invoice not found",
         )
     
-    # Load user relationship
-    invoice_query = select(Invoice).where(Invoice.id == invoice.id).options(selectinload(Invoice.user))
-    invoice_result = await db.execute(invoice_query)
-    invoice_with_user = invoice_result.scalar_one()
+    # Load user relationship if not already loaded
+    if not hasattr(invoice, 'user') or invoice.user is None:
+        invoice_query = select(Invoice).where(Invoice.id == invoice.id).options(selectinload(Invoice.user))
+        invoice_result = await db.execute(invoice_query)
+        invoice = invoice_result.scalar_one()
     
     # Convert to ERP response format
-    invoice_dict = {
-        "id": invoice_with_user.id,
-        "invoice_number": invoice_with_user.invoice_number or f"INV-{invoice_with_user.id}",
-        "amount": str(invoice_with_user.amount_due),
-        "amount_paid": str(invoice_with_user.amount_paid),
-        "currency": invoice_with_user.currency,
-        "status": invoice_with_user.status.value if hasattr(invoice_with_user.status, 'value') else str(invoice_with_user.status),
-        "invoice_date": invoice_with_user.created_at,  # Use created_at as invoice date
-        "due_date": invoice_with_user.due_date,
-        "paid_at": invoice_with_user.paid_at,
-        "client_id": invoice_with_user.user_id,
-        "client_name": f"{invoice_with_user.user.first_name or ''} {invoice_with_user.user.last_name or ''}".strip() if invoice_with_user.user else None,
-        "client_email": invoice_with_user.user.email if invoice_with_user.user else None,
-        "pdf_url": invoice_with_user.invoice_pdf_url or invoice_with_user.hosted_invoice_url,
-        "created_at": invoice_with_user.created_at,
-        "updated_at": invoice_with_user.updated_at,
-    }
-    
-    return ERPInvoiceResponse.model_validate(invoice_dict)
+    return ERPInvoiceResponse.model_validate(convert_invoice_to_erp_response(invoice))
 

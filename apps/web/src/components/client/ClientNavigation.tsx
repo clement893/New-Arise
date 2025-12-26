@@ -13,7 +13,7 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { CLIENT_PORTAL_NAVIGATION } from '@/lib/constants/portal';
-import { hasPermission } from '@/lib/portal/utils';
+import { hasPermission, type PortalUser } from '@/lib/portal/utils';
 import { useAuthStore } from '@/lib/store';
 import { clsx } from 'clsx';
 
@@ -42,7 +42,13 @@ export function ClientNavigation({ className }: ClientNavigationProps) {
   // Filter navigation items based on permissions
   const visibleItems = CLIENT_PORTAL_NAVIGATION.filter((item) => {
     if (!item.permission || !user) return true;
-    return hasPermission(user as any, item.permission).hasPermission;
+    // Convert store User to PortalUser format
+    const portalUser: PortalUser = {
+      ...user,
+      roles: user.is_admin ? ['admin'] : ['client'],
+      permissions: [], // Permissions would come from API in production
+    };
+    return hasPermission(portalUser, item.permission).hasPermission;
   });
 
   return (

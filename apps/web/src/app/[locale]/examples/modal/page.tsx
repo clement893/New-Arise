@@ -5,9 +5,9 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Container from '@/components/ui/Container';
-import { Modal, ConfirmModal } from '@/components/ui/Modal';
+import Modal, { ConfirmModal } from '@/components/ui/Modal';
 import { useToast } from '@/components/ui';
-import { Plus, Edit, Trash2, Info, AlertCircle } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 export default function ExampleModalPage() {
   const { showToast } = useToast();

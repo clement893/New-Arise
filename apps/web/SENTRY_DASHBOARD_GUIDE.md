@@ -169,3 +169,4 @@ Si le problème persiste :
 - Consultez `SENTRY_TROUBLESHOOTING.md` pour plus de détails
 - Activez le mode debug et partagez les logs
 
+

@@ -4,7 +4,32 @@
  * Constants for Client Portal and Employee/ERP Portal
  */
 
-import type { PortalRoute, PortalNavigationItem, ClientPortalNavigation, EmployeePortalNavigation } from '@repo/types/portal';
+// Portal type definitions
+export interface PortalRoute {
+  path: string;
+  label: string;
+  icon: string;
+  permission?: string;
+  children?: PortalRoute[];
+}
+
+export interface PortalNavigationItem {
+  id: string;
+  label: string;
+  path: string;
+  icon: string;
+  permission?: string;
+  module?: string;
+  children?: PortalNavigationItem[];
+}
+
+export interface ClientPortalNavigation extends PortalNavigationItem {
+  // Client-specific navigation properties
+}
+
+export interface EmployeePortalNavigation extends PortalNavigationItem {
+  module: string;
+}
 
 /**
  * Portal route prefixes

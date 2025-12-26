@@ -4,9 +4,10 @@ import { useState } from 'react';
 import Card from '@/components/ui/Card';
 import Container from '@/components/ui/Container';
 import DataTableEnhanced from '@/components/ui/DataTableEnhanced';
-import type { Column, BulkAction, ExportOption } from '@/components/ui/DataTableEnhanced';
+import type { BulkAction, ExportOption } from '@/components/ui/DataTableEnhanced';
+import type { Column } from '@/components/ui/DataTable';
 import { useToast } from '@/components/ui';
-import { Download, Trash2, Edit, MoreVertical } from 'lucide-react';
+import { Trash2, Edit } from 'lucide-react';
 // Simple export functions
 const exportToCSV = (data: User[], filename: string, headers: string[]) => {
   const csvContent = [
@@ -32,7 +33,7 @@ const exportToExcel = (data: User[], filename: string, headers: string[]) => {
   exportToCSV(data, filename.replace('.xlsx', '.csv'), headers);
 };
 
-interface User {
+interface User extends Record<string, unknown> {
   id: number;
   name: string;
   email: string;
@@ -104,7 +105,7 @@ export default function ExampleDataTablePage() {
       label: 'Rôle',
       sortable: true,
       filterable: true,
-      render: (value) => (
+      render: (value: unknown) => (
         <span className="px-2 py-1 text-xs rounded bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
           {value as string}
         </span>
@@ -115,7 +116,7 @@ export default function ExampleDataTablePage() {
       label: 'Statut',
       sortable: true,
       filterable: true,
-      render: (value) => (
+      render: (value: unknown) => (
         <span
           className={`px-2 py-1 text-xs rounded ${
             value === 'active'

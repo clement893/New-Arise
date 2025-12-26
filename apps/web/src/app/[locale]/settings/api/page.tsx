@@ -83,9 +83,15 @@ export default function APISettingsPage() {
       setApiSettings(data);
       setToastMessage(t('success.saved') || 'API settings saved successfully');
       logger.info('API settings saved successfully');
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to save API settings', error instanceof Error ? error : new Error(String(error)));
-      const errorMessage = error?.response?.data?.detail || error?.message || t('errors.saveFailed') || 'Failed to save API settings. Please try again.';
+      const errorMessage = 
+        (error && typeof error === 'object' && 'response' in error && 
+         error.response && typeof error.response === 'object' && 'data' in error.response &&
+         error.response.data && typeof error.response.data === 'object' && 'detail' in error.response.data
+         ? String(error.response.data.detail)
+         : error instanceof Error ? error.message : String(error)) || 
+        t('errors.saveFailed') || 'Failed to save API settings. Please try again.';
       setError(errorMessage);
       throw error;
     }

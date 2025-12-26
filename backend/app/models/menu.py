@@ -43,3 +43,4 @@ class Menu(Base):
     def __repr__(self) -> str:
         return f"<Menu(id={self.id}, name={self.name}, location={self.location})>"
 
+

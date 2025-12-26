@@ -42,7 +42,19 @@ export default function TemplatesManagementPage() {
       const response = await apiClient.get('/v1/templates');
       const backendTemplates = response.data;
       
-      const mappedTemplates: ContentTemplate[] = backendTemplates.map((tpl: any) => ({
+      interface BackendTemplate {
+        id: number | string;
+        name: string;
+        content?: string;
+        content_html?: string;
+        entity_type?: string;
+        category?: string;
+        description?: string;
+        variables?: Record<string, unknown>;
+        is_public?: boolean;
+      }
+      
+      const mappedTemplates: ContentTemplate[] = (backendTemplates as BackendTemplate[]).map((tpl) => ({
         id: tpl.id,
         name: tpl.name,
         content: tpl.content,
@@ -140,4 +152,5 @@ export default function TemplatesManagementPage() {
     </ProtectedRoute>
   );
 }
+
 

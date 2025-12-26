@@ -92,3 +92,4 @@ class TicketMessage(Base):
     def __repr__(self) -> str:
         return f"<TicketMessage(id={self.id}, ticket_id={self.ticket_id}, is_staff={self.is_staff})>"
 
+

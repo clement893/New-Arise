@@ -235,3 +235,4 @@ class TenancyMetrics:
             "tenants": all_stats
         }
 
+

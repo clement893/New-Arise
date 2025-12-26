@@ -20,9 +20,23 @@ export const defaultSurveySettings: SurveySettings = {
 };
 
 /**
+ * Backend Form API response structure
+ */
+interface BackendForm {
+  id: number | string;
+  name?: string;
+  description?: string;
+  fields?: Array<Record<string, unknown>>;
+  settings?: SurveySettings;
+  submit_button_text?: string;
+  success_message?: string;
+  status?: string;
+}
+
+/**
  * Convert Form API response to Survey format
  */
-export function formToSurvey(form: any): Survey {
+export function formToSurvey(form: BackendForm): Survey {
   return {
     id: String(form.id),
     name: form.name || '',

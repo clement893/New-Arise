@@ -33,7 +33,7 @@ export default function SurveysPage() {
       const response = await surveysAPI.list();
       if (response.data) {
         // Convert form data to survey format using utility function
-        setSurveys(response.data.map((form: any) => formToSurvey(form)));
+        setSurveys(response.data.map((form) => formToSurvey(form)));
       }
     } catch (error) {
       logger.error('Failed to load surveys', error instanceof Error ? error : new Error(String(error)));

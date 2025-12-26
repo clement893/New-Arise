@@ -5,7 +5,7 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Container from '@/components/ui/Container';
 import { useToast } from '@/components/ui';
-import { Upload, X, File, Image as ImageIcon, FileText } from 'lucide-react';
+import { X, Image as ImageIcon, FileText } from 'lucide-react';
 // Simple validation functions
 const validateImageFile = (file: File): boolean => {
   const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];

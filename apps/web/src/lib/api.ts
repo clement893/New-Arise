@@ -104,7 +104,17 @@ apiClient.interceptors.request.use(
           url: config.url,
           sessionStorageAvailable: typeof sessionStorage !== 'undefined'
         });
-        const error = new Error('Authentication required: No token available') as any;
+        const error = new Error('Authentication required: No token available') as Error & {
+          config: InternalAxiosRequestConfig;
+          isAxiosError: boolean;
+          response: {
+            status: number;
+            statusText: string;
+            data: { detail: string };
+            headers: Record<string, string>;
+            config: InternalAxiosRequestConfig;
+          };
+        };
         error.config = config;
         error.isAxiosError = true;
         error.response = {
@@ -112,7 +122,7 @@ apiClient.interceptors.request.use(
           statusText: 'Unauthorized',
           data: { detail: 'Authentication required: No token available' },
           headers: {},
-          config: config as any,
+          config: config,
         };
         return Promise.reject(error);
       }

@@ -55,3 +55,4 @@ class Page(Base):
     def __repr__(self) -> str:
         return f"<Page(id={self.id}, title={self.title}, slug={self.slug}, status={self.status})>"
 
+

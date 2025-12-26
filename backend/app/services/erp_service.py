@@ -85,10 +85,9 @@ class ERPService:
         total_result = await self.db.execute(count_query)
         total = total_result.scalar() or 0
         
-        # Get paginated results with user relationship
-        from sqlalchemy.orm import selectinload
+        # Get paginated results with user relationship (eager loading to prevent N+1)
         query = query.options(selectinload(Invoice.user))
-        query = query.order_by(Invoice.invoice_date.desc()).offset(skip).limit(limit)
+        query = query.order_by(Invoice.created_at.desc()).offset(skip).limit(limit)
         result = await self.db.execute(query)
         invoices = result.scalars().all()
         

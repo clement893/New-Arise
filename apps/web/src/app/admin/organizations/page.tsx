@@ -5,3 +5,4 @@ export default function AdminOrganizationsRedirect() {
   redirect(`/${routing.defaultLocale}/admin/organizations`);
 }
 
+

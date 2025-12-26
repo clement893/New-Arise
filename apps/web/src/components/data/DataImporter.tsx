@@ -92,10 +92,16 @@ export function DataImporter({
       }
 
       onImportComplete?.(response.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Import error:', error);
+      const errorMessage = 
+        (error && typeof error === 'object' && 'response' in error && 
+         error.response && typeof error.response === 'object' && 'data' in error.response &&
+         error.response.data && typeof error.response.data === 'object' && 'detail' in error.response.data
+         ? String(error.response.data.detail)
+         : 'Failed to import data.');
       showToast({
-        message: error.response?.data?.detail || 'Failed to import data.',
+        message: errorMessage,
         type: 'error',
       });
     } finally {

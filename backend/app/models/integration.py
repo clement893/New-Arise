@@ -46,3 +46,4 @@ class Integration(Base):
     def __repr__(self) -> str:
         return f"<Integration(id={self.id}, user_id={self.user_id}, type={self.type}, enabled={self.enabled})>"
 
+

@@ -5,3 +5,4 @@ export default function AdminStatisticsRedirect() {
   redirect(`/${routing.defaultLocale}/admin/statistics`);
 }
 
+

@@ -79,6 +79,7 @@ export function ErrorDisplay({
       onRetry();
       setCountdown(null);
     }
+    return undefined;
   }, [countdown, onRetry]);
 
   // Log error

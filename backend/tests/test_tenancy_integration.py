@@ -237,3 +237,4 @@ class TestTenancyIntegration:
             assert len(projects) == 1
             assert projects[0].team_id == test_team.id
 
+

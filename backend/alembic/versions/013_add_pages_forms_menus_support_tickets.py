@@ -167,3 +167,4 @@ def downgrade() -> None:
     op.drop_index('idx_pages_slug', table_name='pages')
     op.drop_table('pages')
 
+

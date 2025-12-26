@@ -90,3 +90,4 @@ async def update_seo_settings(
     
     return SEOSettingsResponse(settings=preference.value if isinstance(preference.value, dict) else {})
 
+

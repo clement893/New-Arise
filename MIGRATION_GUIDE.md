@@ -65,3 +65,4 @@ curl http://localhost:8000/api/v1/seo/settings
 - Foreign key constraints ensure data integrity
 - All timestamps are timezone-aware
 
+
