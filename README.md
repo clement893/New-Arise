@@ -19,8 +19,8 @@ A production-ready, comprehensive full-stack template for building modern SaaS a
 
 ### 🎨 UI & Styling
 - ✅ **Tailwind CSS** - Utility-first CSS framework
-- ✅ **255+ Components** - Complete component library (96 UI components + 159 feature components)
-- ✅ **22 Component Categories** - Organized by feature (UI, Auth, Billing, Analytics, etc.)
+- ✅ **270+ Components** - Complete component library (96 UI components + 171 feature components)
+- ✅ **32 Component Categories** - Organized by feature (UI, Auth, Billing, Analytics, Feature Flags, Preferences, etc.)
 - ✅ **Dark Mode** - Built-in theme support with persistence
 - ✅ **Theme System** - Customizable color palettes and presets
 - ✅ **Responsive Design** - Mobile-first, accessible components
@@ -253,7 +253,7 @@ export default function MyPage() {
 }
 ```
 
-### Available Component Categories (22 total)
+### Available Component Categories (32 total)
 
 **Core UI Components:**
 - **Forms**: Input, Select, Textarea, Checkbox, Radio, Switch, RichTextEditor, DatePicker
@@ -272,7 +272,17 @@ export default function MyPage() {
 - **Admin** (`/admin`) - User management, role management, team management
 - **Settings** (`/settings`) - User settings, organization settings, security
 - **Activity** (`/activity`) - Activity logs, audit trails, event history
-- **And 13+ more categories...**
+- **Feature Flags** (`/feature-flags`) - Feature flag management for gradual rollouts
+- **Preferences** (`/preferences`) - User preferences and custom settings
+- **Announcements** (`/announcements`) - System announcements and banners
+- **Feedback** (`/feedback`) - User feedback and support ticket system
+- **Onboarding** (`/onboarding`) - Multi-step onboarding wizard
+- **Documentation** (`/documentation`) - Help articles and documentation system
+- **Scheduled Tasks** (`/scheduled-tasks`) - Background tasks and scheduled jobs
+- **Backups** (`/backups`) - Backup and restore management
+- **Email Templates** (`/email-templates`) - Email template management with versioning
+- **Audit Trail** (`/audit-trail`) - Security audit log viewer
+- **And 20+ more categories...**
 
 View all components at `/components` or see [Component Documentation](./apps/web/src/components/README.md)
 
@@ -401,7 +411,7 @@ docker run -p 3000:3000 your-app
 
 ### Component & Development Documentation
 
-- **[Component Library](./apps/web/src/components/README.md)** - Complete component library reference (255+ components)
+- **[Component Library](./apps/web/src/components/README.md)** - Complete component library reference (270+ components)
 - **[Utilities](./docs/UTILS.md)** - Utility functions reference
 - **[Stripe Setup](./docs/STRIPE_SETUP.md)** - Payment integration guide
 - **[SendGrid Setup](./docs/SENDGRID_SETUP.md)** - Email service configuration

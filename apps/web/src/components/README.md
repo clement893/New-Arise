@@ -1,6 +1,6 @@
 # Component Library
 
-A comprehensive, production-ready React component library with **255+ components** built with Next.js 16, React 19, TypeScript, and Tailwind CSS.
+A comprehensive, production-ready React component library with **270+ components** built with Next.js 16, React 19, TypeScript, and Tailwind CSS.
 
 ## 📚 Overview
 
@@ -41,7 +41,7 @@ export default function MyPage() {
 
 ## 📁 Component Organization
 
-Components are organized into **22 categories**:
+Components are organized into **32 categories**:
 
 ### Core UI Components (`/ui`)
 Foundation components used throughout the application:
@@ -75,7 +75,7 @@ View all components in action at `/components`:
 - `/components/admin` - Admin management components
 - `/components/layout` - Layout components
 
-**Component Categories (22 total):**
+**Component Categories (32 total):**
 - `ui/` - Core UI components (96 components)
 - `auth/` - Authentication components
 - `billing/` - Billing and subscription components
@@ -98,6 +98,16 @@ View all components in action at `/components`:
 - `advanced/` - Advanced feature components
 - `sections/` - Section components
 - `providers/` - Provider components
+- `feature-flags/` - Feature flag management components
+- `preferences/` - User preferences components
+- `announcements/` - Announcements and banners components
+- `feedback/` - Feedback and support components
+- `onboarding/` - Onboarding wizard components
+- `documentation/` - Documentation and help components
+- `scheduled-tasks/` - Scheduled tasks management components
+- `backups/` - Backup and restore components
+- `email-templates/` - Email template management components
+- `audit-trail/` - Audit trail viewer components
 
 ## 📖 Documentation
 
@@ -222,11 +232,11 @@ pnpm storybook
 
 ## 📊 Component Statistics
 
-- **Total Components**: 255+
-- **UI Components**: 80
-- **Feature Components**: 175+
+- **Total Components**: 270+
+- **UI Components**: 96
+- **Feature Components**: 171+
 - **Storybook Stories**: 61+
-- **Showcase Pages**: 25
+- **Showcase Pages**: 35
 - **TypeScript Coverage**: 100%
 
 ## 🔧 Development

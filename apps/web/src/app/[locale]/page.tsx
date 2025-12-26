@@ -27,7 +27,7 @@ export default function HomePage() {
   const customFeatures = [
     {
       icon: <Code className="w-6 h-6" />,
-      title: '206 Composants React',
+      title: '270+ Composants React',
       description: 'Bibliothèque complète de composants UI et fonctionnels, prêts à l\'emploi',
       color: 'text-blue-600 dark:text-blue-400',
     },
@@ -97,13 +97,13 @@ export default function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <StatsCard
               title="Composants"
-              value="206"
+              value="270+"
               change={{ value: 0, type: 'increase', period: 'production-ready' }}
               icon={<Code className="w-6 h-6" />}
             />
             <StatsCard
               title="Catégories"
-              value="25"
+              value="32"
               change={{ value: 0, type: 'increase', period: 'organisées' }}
               icon={<Layers className="w-6 h-6" />}
             />
@@ -206,6 +206,16 @@ export default function HomePage() {
                   'RBAC avec permissions granulaires',
                   'Tableau de bord analytics intégré',
                   'Support multi-organisations',
+                  'Feature flags pour déploiements progressifs',
+                  'Système de préférences utilisateur',
+                  'Annonces et bannières système',
+                  'Feedback et support intégré',
+                  'Onboarding multi-étapes',
+                  'Documentation et aide intégrées',
+                  'Tâches planifiées et jobs en arrière-plan',
+                  'Sauvegardes et restauration',
+                  'Gestion de modèles d\'email',
+                  'Audit trail de sécurité',
                 ].map((feature, index) => (
                   <li key={index} className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
@@ -264,7 +274,7 @@ export default function HomePage() {
                 Composants
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-4">
-                Explorez notre bibliothèque de 206 composants réutilisables.
+                Explorez notre bibliothèque de 270+ composants réutilisables.
               </p>
               <Link href="/components">
                 <Button variant="ghost" className="w-full">Voir les composants</Button>

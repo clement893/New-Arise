@@ -6,7 +6,6 @@
 
 import { PageHeader, PageContainer, Section } from '@/components/layout';
 import { FeatureFlagManager } from '@/components/feature-flags';
-import { logger } from '@/lib/logger';
 
 export default function FeatureFlagsComponentsContent() {
   return (
