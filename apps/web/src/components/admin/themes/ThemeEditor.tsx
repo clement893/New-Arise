@@ -16,6 +16,7 @@ import Tabs, { TabList, Tab, TabPanels, TabPanel } from '@/components/ui/Tabs';
 import type { Theme, ThemeCreate, ThemeUpdate } from '@modele/types';
 import { Palette, Type, Layout, Eye, Save, X } from 'lucide-react';
 import { FontInstaller } from './FontInstaller';
+import { FontInstaller } from './FontInstaller';
 
 // Font options with preview
 const FONT_OPTIONS = [
@@ -370,9 +371,28 @@ export function ThemeEditor({ theme, onSubmit, onCancel, isLoading = false }: Th
 
               <TabPanel value="typography">
                 <div className="space-y-6 mt-4">
+                  {/* Font Installation */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Installer une police</h3>
+                    <Card className="p-4">
+                      <FontInstaller
+                        onFontSelect={(fontFamily, fontUrl) => {
+                          if (fontFamily) {
+                            updateConfig('typography.fontFamily', `${fontFamily}, sans-serif`);
+                            if (fontUrl) {
+                              // Store font URL in config for loading
+                              updateConfig('typography.fontUrl', fontUrl);
+                            }
+                          }
+                        }}
+                        currentFont={getConfigValue('typography.fontFamily', '').split(',')[0]}
+                      />
+                    </Card>
+                  </div>
+
                   {/* Font Families */}
                   <div>
-                    <h3 className="text-lg font-semibold mb-4">Polices</h3>
+                    <h3 className="text-lg font-semibold mb-4">Polices configurées</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
                         <label className="block text-sm font-medium mb-2">Police principale</label>
