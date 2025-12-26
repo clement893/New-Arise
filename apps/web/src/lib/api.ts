@@ -135,13 +135,15 @@ apiClient.interceptors.response.use(
       if (refreshToken) {
         // If a refresh is already in progress, wait for it
         if (!refreshTokenPromise) {
-          refreshTokenPromise = axios.post(`${API_URL}/api/auth/refresh`, {
+          // Use the current access token if available, otherwise use refresh_token
+          const currentToken = TokenStorage.getToken();
+          refreshTokenPromise = apiClient.post('/v1/auth/refresh', {
+            token: currentToken || undefined,
             refresh_token: refreshToken,
-          }, {
-            withCredentials: true, // Include cookies
           }).then(async response => {
-            const { access_token, refresh_token: newRefreshToken } = response.data;
-            await TokenStorage.setToken(access_token, newRefreshToken);
+            // Response format: { access_token: string, token_type: string }
+            const { access_token, token_type } = response.data;
+            await TokenStorage.setToken(access_token, refreshToken); // Keep same refresh token
             return access_token;
           }).catch(async refreshError => {
             // Refresh failed, clear tokens and redirect
