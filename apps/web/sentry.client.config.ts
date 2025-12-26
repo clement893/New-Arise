@@ -41,30 +41,30 @@ if (SENTRY_DSN) {
       if (SENTRY_ENVIRONMENT === 'development' && process.env.NEXT_PUBLIC_SENTRY_ENABLE_DEV !== 'true') {
         return null;
       }
-    
-    // Filter out known non-critical errors
-    const error = hint.originalException;
-    if (error instanceof Error) {
-      // Ignore network errors that are likely user-related (offline, etc.)
-      if (
-        error.message.includes('NetworkError') ||
-        error.message.includes('Failed to fetch') ||
-        error.message.includes('Network request failed')
-      ) {
-        return null;
+      
+      // Filter out known non-critical errors
+      const error = hint.originalException;
+      if (error instanceof Error) {
+        // Ignore network errors that are likely user-related (offline, etc.)
+        if (
+          error.message.includes('NetworkError') ||
+          error.message.includes('Failed to fetch') ||
+          error.message.includes('Network request failed')
+        ) {
+          return null;
+        }
+        
+        // Ignore ResizeObserver errors (common browser quirk)
+        if (error.message.includes('ResizeObserver loop')) {
+          return null;
+        }
       }
       
-      // Ignore ResizeObserver errors (common browser quirk)
-      if (error.message.includes('ResizeObserver loop')) {
-        return null;
-      }
-    }
+      return event;
+    },
     
-    return event;
-  },
-  
-  // Ignore specific URLs
-  ignoreErrors: [
+    // Ignore specific URLs
+    ignoreErrors: [
     // Browser extensions
     'top.GLOBALS',
     'originalCreateNotification',
@@ -80,14 +80,20 @@ if (SENTRY_DSN) {
     'NetworkError',
     'Failed to fetch',
     
-    // ResizeObserver
-    'ResizeObserver loop',
-  ],
-  
-  // Set user context
-  initialScope: {
-    tags: {
-      component: 'client',
+      // ResizeObserver
+      'ResizeObserver loop',
+    ],
+    
+    // Set user context
+    initialScope: {
+      tags: {
+        component: 'client',
+      },
     },
-  },
-});
+  });
+} else {
+  // Log warning if Sentry is not configured
+  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+    console.warn('[Sentry] NEXT_PUBLIC_SENTRY_DSN is not set. Sentry error tracking is disabled.');
+  }
+}
