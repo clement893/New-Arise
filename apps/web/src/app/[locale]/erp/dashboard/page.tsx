@@ -11,7 +11,7 @@
 
 import { ERPDashboard } from '@/components/erp';
 import { Card } from '@/components/ui';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 /**
  * ERP Dashboard Page

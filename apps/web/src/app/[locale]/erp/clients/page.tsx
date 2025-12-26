@@ -12,7 +12,7 @@ import { useState } from 'react';
 import { useApi } from '@/hooks/useApi';
 import { erpPortalAPI, ERPClientListResponse } from '@/lib/api/erp-portal';
 import { DataTable } from '@/components/ui';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import type { Column } from '@/components/ui';
 
 /**

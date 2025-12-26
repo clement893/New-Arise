@@ -12,7 +12,7 @@ import { useState } from 'react';
 import { useApi } from '@/hooks/useApi';
 import { clientPortalAPI, ClientInvoiceListResponse } from '@/lib/api/client-portal';
 import { DataTable } from '@/components/ui';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import type { Column } from '@/components/ui';
 
 /**

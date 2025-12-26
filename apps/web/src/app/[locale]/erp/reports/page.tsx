@@ -9,7 +9,7 @@
 'use client';
 
 import { Card } from '@/components/ui';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 /**
  * ERP Reports Page

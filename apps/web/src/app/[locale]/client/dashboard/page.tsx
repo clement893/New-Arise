@@ -11,7 +11,7 @@
 
 import { ClientDashboard } from '@/components/client';
 import { Card } from '@/components/ui';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 /**
  * Client Dashboard Page
