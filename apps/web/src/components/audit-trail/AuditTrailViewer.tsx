@@ -1,12 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Shield, Filter, Download, AlertCircle, CheckCircle, XCircle, Info, AlertTriangle } from 'lucide-react';
+import { Shield, Download, AlertCircle, CheckCircle, XCircle, Info, AlertTriangle } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
 import { apiClient } from '@/lib/api/client';
-import { useToast } from '@/components/ui';
 
 interface AuditLog {
   id: number;
@@ -63,7 +62,6 @@ export function AuditTrailViewer({ className = '' }: AuditTrailViewerProps) {
     start_date: '',
     end_date: '',
   });
-  const { showToast } = useToast();
 
   useEffect(() => {
     fetchLogs();
