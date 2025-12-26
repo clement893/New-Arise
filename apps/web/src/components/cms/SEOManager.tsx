@@ -2,8 +2,28 @@
  * SEO Manager Component
  * 
  * Manages SEO meta tags and settings for pages and content.
+ * Provides a comprehensive interface for managing all SEO-related settings.
  * 
  * @component
+ * @example
+ * ```tsx
+ * <SEOManager
+ *   initialSettings={seoSettings}
+ *   onSave={async (settings) => {
+ *     await seoAPI.updateSettings(settings);
+ *   }}
+ * />
+ * ```
+ * 
+ * @features
+ * - Basic SEO meta tags (title, description, keywords)
+ * - Open Graph tags for social media
+ * - Twitter Card tags
+ * - Schema.org structured data
+ * - Canonical URL management
+ * - Robots meta tag configuration
+ * 
+ * @see {@link https://github.com/your-repo/docs/components/seo-manager} Component Documentation
  */
 
 'use client';

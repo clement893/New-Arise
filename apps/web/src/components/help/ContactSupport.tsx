@@ -1,9 +1,27 @@
 /**
  * Contact Support Component
  * 
- * Form for contacting support team.
+ * Form for contacting support team. Allows users to submit support tickets
+ * with category, priority, and message details.
  * 
  * @component
+ * @example
+ * ```tsx
+ * <ContactSupport
+ *   onSubmit={async (data) => {
+ *     await supportTicketsAPI.create(data);
+ *   }}
+ * />
+ * ```
+ * 
+ * @features
+ * - Support ticket creation
+ * - Category selection (technical, billing, feature, general, bug)
+ * - Priority selection (low, medium, high, urgent)
+ * - Form validation
+ * - Success/error handling
+ * 
+ * @see {@link https://github.com/your-repo/docs/components/contact-support} Component Documentation
  */
 
 'use client';

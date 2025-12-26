@@ -2,8 +2,28 @@
  * CMS Form Builder Component
  * 
  * Advanced drag-and-drop form builder for creating dynamic forms.
+ * Allows users to create custom forms with various field types and validation rules.
  * 
  * @component
+ * @example
+ * ```tsx
+ * <CMSFormBuilder
+ *   form={formData}
+ *   onSave={async (form) => {
+ *     await formsAPI.update(form.id, form);
+ *   }}
+ * />
+ * ```
+ * 
+ * @features
+ * - Drag-and-drop form field reordering
+ * - Multiple field types (text, email, textarea, select, checkbox, radio, number, date, file)
+ * - Field validation configuration
+ * - Required field support
+ * - Options for select/radio/checkbox fields
+ * - Form submission handling
+ * 
+ * @see {@link https://github.com/your-repo/docs/components/form-builder} Component Documentation
  */
 
 'use client';

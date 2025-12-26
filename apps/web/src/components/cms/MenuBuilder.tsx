@@ -2,8 +2,27 @@
  * Menu Builder Component
  * 
  * Drag-and-drop menu builder for CMS navigation management.
+ * Allows users to create and manage navigation menus with drag-and-drop functionality.
  * 
  * @component
+ * @example
+ * ```tsx
+ * <MenuBuilder
+ *   menu={menuData}
+ *   onSave={async (menu) => {
+ *     await menusAPI.update(menu.id, menu);
+ *   }}
+ * />
+ * ```
+ * 
+ * @features
+ * - Drag-and-drop menu item reordering
+ * - Add/edit/delete menu items
+ * - Support for nested menu items
+ * - Multiple menu locations (header, footer, sidebar)
+ * - Real-time preview
+ * 
+ * @see {@link https://github.com/your-repo/docs/components/menu-builder} Component Documentation
  */
 
 'use client';
