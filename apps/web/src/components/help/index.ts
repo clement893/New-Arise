@@ -9,3 +9,6 @@ export type { HelpCategory, HelpCenterProps } from './HelpCenter';
 export { default as FAQ } from './FAQ';
 export type { FAQItem, FAQProps } from './FAQ';
 
+export { default as ContactSupport } from './ContactSupport';
+export type { ContactSupportProps } from './ContactSupport';
+
