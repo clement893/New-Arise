@@ -59,12 +59,13 @@ const nextConfig = {
   webpack: (config, { isServer, dev, webpack }) => {
     // Optimize webpack cache for faster builds
     if (!dev) {
+      const path = require('path');
       config.cache = {
         type: 'filesystem',
         buildDependencies: {
           config: [__filename],
         },
-        cacheDirectory: '.next/cache/webpack',
+        cacheDirectory: path.resolve(__dirname, '.next/cache/webpack'),
       };
     }
 
