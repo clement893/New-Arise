@@ -72,6 +72,14 @@ export const sitePages: Record<string, SitemapPage[]> = {
       requiresAuth: true,
     },
     { 
+      path: '/dashboard/analytics', 
+      title: 'Analytics', 
+      description: 'Métriques et analyses de performance',
+      priority: 0.8,
+      changefreq: 'daily',
+      requiresAuth: true,
+    },
+    { 
       path: '/profile', 
       title: 'Profile', 
       description: 'Gérer votre profil utilisateur',

@@ -1,0 +1,127 @@
+/**
+ * Dashboard Analytics Page
+ * 
+ * Analytics dashboard showing business metrics, charts, and performance data.
+ * Uses existing AnalyticsDashboard component.
+ * Accessible via dashboard navigation.
+ */
+
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { useAuthStore } from '@/lib/store';
+import { AnalyticsDashboard } from '@/components/analytics';
+import type { AnalyticsMetric } from '@/components/analytics';
+import { PageHeader, PageContainer, Section } from '@/components/layout';
+import { Loading, Alert } from '@/components/ui';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import { logger } from '@/lib/logger';
+import { apiClient } from '@/lib/api';
+
+export default function DashboardAnalyticsPage() {
+  const router = useRouter();
+  const t = useTranslations('dashboard.analytics');
+  const { isAuthenticated } = useAuthStore();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [metrics, setMetrics] = useState<AnalyticsMetric[]>([]);
+  const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
+    start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    end: new Date().toISOString().split('T')[0],
+  });
+
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      router.push('/auth/login');
+      return;
+    }
+
+    loadAnalytics();
+  }, [isAuthenticated, router, dateRange]);
+
+  const loadAnalytics = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      // TODO: Replace with actual analytics API endpoint when available
+      // For now, use default metrics from AnalyticsDashboard component
+      // const response = await apiClient.get('/v1/analytics/metrics', {
+      //   params: { start_date: dateRange.start, end_date: dateRange.end },
+      // });
+      // if (response.data) {
+      //   setMetrics(response.data.metrics);
+      // }
+      
+      // Using default metrics for now
+      setMetrics([]);
+    } catch (error: any) {
+      logger.error('Failed to load analytics', error instanceof Error ? error : new Error(String(error)));
+      setError(t('errors.loadFailed') || 'Failed to load analytics. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDateRangeChange = (range: { start: string; end: string }) => {
+    setDateRange(range);
+  };
+
+  const handleExport = async () => {
+    try {
+      // TODO: Implement export functionality
+      logger.info('Export analytics requested', { dateRange });
+    } catch (error) {
+      logger.error('Failed to export analytics', error instanceof Error ? error : new Error(String(error)));
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <ProtectedRoute>
+        <PageContainer>
+          <div className="flex items-center justify-center min-h-[400px]">
+            <Loading />
+          </div>
+        </PageContainer>
+      </ProtectedRoute>
+    );
+  }
+
+  return (
+    <ProtectedRoute>
+      <PageContainer>
+        <PageHeader
+          title={t('title') || 'Analytics'}
+          description={t('description') || 'Track your business metrics and performance'}
+          breadcrumbs={[
+            { label: t('breadcrumbs.dashboard') || 'Dashboard', href: '/dashboard' },
+            { label: t('breadcrumbs.analytics') || 'Analytics' },
+          ]}
+        />
+
+        {error && (
+          <div className="mt-6">
+            <Alert variant="error" onClose={() => setError(null)}>
+              {error}
+            </Alert>
+          </div>
+        )}
+
+        <div className="mt-8">
+          <Section title={t('section.title') || 'Analytics Dashboard'} className="mt-6">
+            <AnalyticsDashboard
+              metrics={metrics.length > 0 ? metrics : undefined}
+              dateRange={dateRange}
+              onDateRangeChange={handleDateRangeChange}
+              onExport={handleExport}
+            />
+          </Section>
+        </div>
+      </PageContainer>
+    </ProtectedRoute>
+  );
+}
+

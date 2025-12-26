@@ -44,7 +44,24 @@
     "about": "About",
     "contact": "Contact",
     "pricing": "Pricing",
-    "features": "Features"
+    "features": "Features",
+    "analytics": "Analytics"
+  },
+  "dashboard": {
+    "analytics": {
+      "title": "Analytics",
+      "description": "Track your business metrics and performance",
+      "breadcrumbs": {
+        "dashboard": "Dashboard",
+        "analytics": "Analytics"
+      },
+      "section": {
+        "title": "Analytics Dashboard"
+      },
+      "errors": {
+        "loadFailed": "Failed to load analytics. Please try again."
+      }
+    }
   },
   "language": {
     "switchLanguage": "Switch language",

@@ -50,6 +50,11 @@ function DashboardLayoutContent({
       icon: <LayoutDashboard className="w-5 h-5" />,
     },
     {
+      label: 'Analytics',
+      href: '/dashboard/analytics',
+      icon: <LayoutDashboard className="w-5 h-5" />,
+    },
+    {
       label: 'Profile',
       href: '/profile',
       icon: <User className="w-5 h-5" />,
