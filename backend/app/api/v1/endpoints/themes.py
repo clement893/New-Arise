@@ -168,22 +168,36 @@ async def list_themes(
         # Ignore errors - migration should handle this, but we try anyway
         await db.rollback()
     
-    # Ensure TemplateTheme (ID 32) exists - create it if it doesn't
-    try:
-        template_theme = await ensure_default_theme(db, created_by=current_user.id)
-    except Exception:
-        # If ensure_default_theme fails, try to get existing TemplateTheme
-        template_result = await db.execute(select(Theme).where(Theme.id == 32))
+    # Get ALL themes first to see what exists
+    all_themes_result = await db.execute(select(Theme).order_by(Theme.id))
+    all_existing_themes = all_themes_result.scalars().all()
+    
+    # Get TemplateTheme (ID 32) - it should exist in the database
+    template_result = await db.execute(select(Theme).where(Theme.id == 32))
+    template_theme = template_result.scalar_one_or_none()
+    
+    # Also check for TemplateTheme by name in case ID is different
+    if not template_theme:
+        template_result = await db.execute(select(Theme).where(Theme.name == 'TemplateTheme'))
         template_theme = template_result.scalar_one_or_none()
     
-    # Get all other themes (excluding ID 32 and "default" theme to avoid duplicates) with pagination
+    # If still no TemplateTheme, check if there's any active theme (might be the TemplateTheme with different ID)
+    if not template_theme:
+        active_result = await db.execute(select(Theme).where(Theme.is_active == True))
+        active_theme = active_result.scalar_one_or_none()
+        if active_theme:
+            # Use the active theme as TemplateTheme if no TemplateTheme found
+            template_theme = active_theme
+    
+    # Get all other themes (excluding TemplateTheme ID and "default" theme) with pagination
     # Filter out TemplateTheme (ID 32) and any theme with name="default", id=0, or display_name="Default Theme"
+    template_theme_id = template_theme.id if template_theme else None
     other_themes_result = await db.execute(
         select(Theme).where(
-            (Theme.id != 32) & 
             (Theme.id != 0) & 
             (Theme.name != 'default') &
-            (Theme.display_name != 'Default Theme')
+            (Theme.display_name != 'Default Theme') &
+            (Theme.id != template_theme_id if template_theme_id else True)
         ).order_by(Theme.id).offset(skip).limit(limit)
     )
     other_themes = other_themes_result.scalars().all()
@@ -193,12 +207,13 @@ async def list_themes(
     themes_list = []
     if template_theme:
         themes_list.append(template_theme)
-    # Filter out any remaining "default" themes (double-check)
+    # Filter out any remaining "default" themes and TemplateTheme (double-check)
     themes_list.extend([
         t for t in other_themes 
         if t.id != 0 
         and t.name != 'default' 
         and t.display_name != 'Default Theme'
+        and (template_theme_id is None or t.id != template_theme_id)
     ])
     
     # Get total count for pagination (all themes including TemplateTheme, excluding "default" theme)
