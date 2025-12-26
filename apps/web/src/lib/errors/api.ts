@@ -185,7 +185,7 @@ export function handleApiError(error: unknown): AppError {
     return appError;
   }
 
-  // Network error - provide clear guidance
+  // Network error - provide clear guidance with retry suggestion
   if (error instanceof Error) {
     if (error.message.includes('Network Error') || error.message.includes('timeout')) {
       const networkError = new AppError(
@@ -195,6 +195,8 @@ export function handleApiError(error: unknown): AppError {
         {
           originalMessage: error.message,
           suggestion: 'Check your network connection or try again in a few moments.',
+          retryable: true,
+          retryDelay: 2000, // Suggest retry after 2 seconds
         }
       );
       

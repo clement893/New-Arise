@@ -34,6 +34,8 @@ export interface AppErrorType {
   statusCode?: number;
   timestamp?: string;
   stack?: string;
+  retryable?: boolean;
+  retryDelay?: number;
 }
 
 export interface ValidationErrorDetail {
