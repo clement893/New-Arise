@@ -543,87 +543,89 @@ export function ThemeEditor({ theme, onSubmit, onCancel, isLoading = false }: Th
 
               <TabPanel value="preview">
                 <div className="space-y-6 mt-4">
-              <div className="p-6 border-2 border-dashed rounded-lg" style={previewStyles}>
-                <div className="space-y-4">
-                  <h3
-                    className="text-2xl font-bold"
-                    style={{
-                      fontFamily: 'var(--preview-font-heading)',
-                      color: getConfigValue('typography.textHeading', '#111827'),
-                    }}
-                  >
-                    Titre principal du thème
-                  </h3>
-                  <h4
-                    className="text-lg font-semibold"
-                    style={{
-                      fontFamily: 'var(--preview-font-heading)',
-                      color: getConfigValue('typography.textSubheading', '#374151'),
-                    }}
-                  >
-                    Sous-titre du thème
-                  </h4>
-                  <p
-                    className="text-base"
-                    style={{
-                      fontFamily: 'var(--preview-font-family)',
-                      color: getConfigValue('typography.textBody', '#1f2937'),
-                    }}
-                  >
-                    Ceci est un exemple de texte principal. Il utilise la police principale du thème
-                    et la couleur de texte définie. Vous pouvez voir comment le thème apparaîtra
-                    dans votre application.
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      className="px-4 py-2 rounded-lg text-white"
-                      style={{ backgroundColor: config.primary }}
-                    >
-                      Bouton Principal
-                    </button>
-                    <button
-                      className="px-4 py-2 rounded-lg text-white"
-                      style={{ backgroundColor: config.secondary }}
-                    >
-                      Bouton Secondaire
-                    </button>
-                    <button
-                      className="px-4 py-2 rounded-lg text-white"
-                      style={{ backgroundColor: config.danger }}
-                    >
-                      Danger
-                    </button>
-                    <button
-                      className="px-4 py-2 rounded-lg text-white"
-                      style={{ backgroundColor: config.warning }}
-                    >
-                      Avertissement
-                    </button>
-                    <button
-                      className="px-4 py-2 rounded-lg text-white"
-                      style={{ backgroundColor: config.info }}
-                    >
-                      Information
-                    </button>
-                    <button
-                      className="px-4 py-2 rounded-lg text-white"
-                      style={{ backgroundColor: config.success || '#10b981' }}
-                    >
-                      Succès
-                    </button>
+                  <div className="p-6 border-2 border-dashed rounded-lg" style={previewStyles}>
+                    <div className="space-y-4">
+                      <h3
+                        className="text-2xl font-bold"
+                        style={{
+                          fontFamily: 'var(--preview-font-heading)',
+                          color: getConfigValue('typography.textHeading', '#111827'),
+                        }}
+                      >
+                        Titre principal du thème
+                      </h3>
+                      <h4
+                        className="text-lg font-semibold"
+                        style={{
+                          fontFamily: 'var(--preview-font-heading)',
+                          color: getConfigValue('typography.textSubheading', '#374151'),
+                        }}
+                      >
+                        Sous-titre du thème
+                      </h4>
+                      <p
+                        className="text-base"
+                        style={{
+                          fontFamily: 'var(--preview-font-family)',
+                          color: getConfigValue('typography.textBody', '#1f2937'),
+                        }}
+                      >
+                        Ceci est un exemple de texte principal. Il utilise la police principale du thème
+                        et la couleur de texte définie. Vous pouvez voir comment le thème apparaîtra
+                        dans votre application.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          className="px-4 py-2 rounded-lg text-white"
+                          style={{ backgroundColor: config.primary }}
+                        >
+                          Bouton Principal
+                        </button>
+                        <button
+                          className="px-4 py-2 rounded-lg text-white"
+                          style={{ backgroundColor: config.secondary }}
+                        >
+                          Bouton Secondaire
+                        </button>
+                        <button
+                          className="px-4 py-2 rounded-lg text-white"
+                          style={{ backgroundColor: config.danger }}
+                        >
+                          Danger
+                        </button>
+                        <button
+                          className="px-4 py-2 rounded-lg text-white"
+                          style={{ backgroundColor: config.warning }}
+                        >
+                          Avertissement
+                        </button>
+                        <button
+                          className="px-4 py-2 rounded-lg text-white"
+                          style={{ backgroundColor: config.info }}
+                        >
+                          Information
+                        </button>
+                        <button
+                          className="px-4 py-2 rounded-lg text-white"
+                          style={{ backgroundColor: config.success || '#10b981' }}
+                        >
+                          Succès
+                        </button>
+                      </div>
+                      <div className="p-4 rounded-lg" style={{ backgroundColor: getConfigValue('colors.muted', '#f3f4f6') }}>
+                        <p style={{ color: getConfigValue('colors.mutedForeground', '#6b7280') }}>
+                          Zone avec fond atténué
+                        </p>
+                      </div>
+                      <a
+                        href="#"
+                        className="underline"
+                        style={{ color: getConfigValue('typography.textLink', config.primary) }}
+                      >
+                        Exemple de lien
+                      </a>
+                    </div>
                   </div>
-                  <div className="p-4 rounded-lg" style={{ backgroundColor: getConfigValue('colors.muted', '#f3f4f6') }}>
-                    <p style={{ color: getConfigValue('colors.mutedForeground', '#6b7280') }}>
-                      Zone avec fond atténué
-                    </p>
-                  </div>
-                  <a
-                    href="#"
-                    className="underline"
-                    style={{ color: getConfigValue('typography.textLink', config.primary) }}
-                  >
-                    Exemple de lien
-                  </a>
                 </div>
               </TabPanel>
             </TabPanels>
