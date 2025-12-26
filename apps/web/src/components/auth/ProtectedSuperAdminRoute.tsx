@@ -89,24 +89,43 @@ export default function ProtectedSuperAdminRoute({ children }: ProtectedSuperAdm
         }
       } catch (err) {
         const error = err instanceof Error ? err : new Error('Failed to check superadmin status');
+        const statusCode = (err as any)?.statusCode || (err as any)?.response?.status;
+        
         logger.error('Failed to check superadmin status', error, {
           email: user?.email,
           has_token: !!(token || tokenFromStorage),
           pathname,
-          error_message: error.message
+          error_message: error.message,
+          status_code: statusCode
         });
         
-        // Check if error is about token expiration/refresh failure
-        if (error.message.includes('expired') || error.message.includes('refresh') || error.message.includes('log in')) {
-          logger.warn('Token expired during superadmin check, redirecting to login', { pathname });
-          router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}&error=session_expired`);
+        // Check if error is 401 (unauthorized) - token invalid/expired
+        if (statusCode === 401 || error.message.includes('expired') || error.message.includes('refresh') || error.message.includes('log in') || error.message.includes('session')) {
+          logger.warn('Token expired or invalid during superadmin check, redirecting to login', { 
+            pathname,
+            status_code: statusCode 
+          });
+          router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}&error=unauthorized`);
           return;
         }
         
-        // On other errors, fallback to is_admin check (but log warning)
+        // Check if error is 403 (forbidden) - user is authenticated but not superadmin
+        if (statusCode === 403 || error.message.includes('permission') || error.message.includes('forbidden')) {
+          logger.warn('User is authenticated but not superadmin, redirecting to dashboard', { 
+            email: user?.email,
+            pathname,
+            status_code: statusCode 
+          });
+          router.replace('/dashboard?error=unauthorized_superadmin');
+          return;
+        }
+        
+        // On other errors (network, 500, etc.), fallback to is_admin check (but log warning)
         logger.warn('Using is_admin fallback due to API error', { 
           is_admin: user?.is_admin,
-          pathname 
+          pathname,
+          status_code: statusCode,
+          error_message: error.message
         });
         if (!user?.is_admin) {
           router.replace('/dashboard?error=unauthorized_superadmin');

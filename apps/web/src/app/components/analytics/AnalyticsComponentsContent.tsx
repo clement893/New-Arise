@@ -5,14 +5,42 @@
 'use client';
 
 import { PageHeader, PageContainer, Section } from '@/components/layout';
-import {
-  AnalyticsDashboard,
-  ReportBuilder,
-  ReportViewer,
-  DataExport,
-} from '@/components/analytics';
+import dynamic from 'next/dynamic';
 import { logger } from '@/lib/logger';
 import { useState } from 'react';
+
+// Dynamically import heavy analytics components for code splitting
+const AnalyticsDashboard = dynamic(
+  () => import('@/components/analytics/AnalyticsDashboard'),
+  {
+    loading: () => <div className="h-64 flex items-center justify-center">Loading dashboard...</div>,
+    ssr: false, // Analytics dashboard doesn't need SSR
+  }
+);
+
+const ReportBuilder = dynamic(
+  () => import('@/components/analytics/ReportBuilder'),
+  {
+    loading: () => <div className="h-64 flex items-center justify-center">Loading report builder...</div>,
+    ssr: false,
+  }
+);
+
+const ReportViewer = dynamic(
+  () => import('@/components/analytics/ReportViewer'),
+  {
+    loading: () => <div className="h-64 flex items-center justify-center">Loading report viewer...</div>,
+    ssr: false,
+  }
+);
+
+const DataExport = dynamic(
+  () => import('@/components/analytics/DataExport'),
+  {
+    loading: () => <div className="h-32 flex items-center justify-center">Loading export...</div>,
+    ssr: false,
+  }
+);
 
 export default function AnalyticsComponentsContent() {
   const [savedReport, setSavedReport] = useState<{

@@ -194,6 +194,11 @@ export default function VideoPlayer({
               max={duration || 0}
               value={currentTime}
               onChange={handleSeek}
+              aria-label="Video progress"
+              aria-valuemin={0}
+              aria-valuemax={duration || 0}
+              aria-valuenow={currentTime}
+              aria-valuetext={`${formatTime(currentTime)} of ${formatTime(duration)}`}
               className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-primary-500"
             />
           </div>
@@ -205,25 +210,28 @@ export default function VideoPlayer({
                 variant="ghost"
                 size="sm"
                 onClick={togglePlay}
+                aria-label={isPlaying ? 'Pause video' : 'Play video'}
                 className="text-white hover:bg-white/20"
               >
-                {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                {isPlaying ? <Pause className="w-5 h-5" aria-hidden="true" /> : <Play className="w-5 h-5" aria-hidden="true" />}
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => skip(-10)}
+                aria-label="Rewind 10 seconds"
                 className="text-white hover:bg-white/20"
               >
-                <SkipBack className="w-4 h-4" />
+                <SkipBack className="w-4 h-4" aria-hidden="true" />
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => skip(10)}
+                aria-label="Forward 10 seconds"
                 className="text-white hover:bg-white/20"
               >
-                <SkipForward className="w-4 h-4" />
+                <SkipForward className="w-4 h-4" aria-hidden="true" />
               </Button>
               <div className="text-white text-sm">
                 {formatTime(currentTime)} / {formatTime(duration)}
@@ -236,9 +244,10 @@ export default function VideoPlayer({
                   variant="ghost"
                   size="sm"
                   onClick={toggleMute}
+                  aria-label={isMuted ? 'Unmute video' : 'Mute video'}
                   className="text-white hover:bg-white/20"
                 >
-                  {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+                  {isMuted ? <VolumeX className="w-5 h-5" aria-hidden="true" /> : <Volume2 className="w-5 h-5" aria-hidden="true" />}
                 </Button>
                 <input
                   type="range"
@@ -247,6 +256,11 @@ export default function VideoPlayer({
                   step="0.01"
                   value={volume}
                   onChange={handleVolumeChange}
+                  aria-label="Volume control"
+                  aria-valuemin={0}
+                  aria-valuemax={1}
+                  aria-valuenow={volume}
+                  aria-valuetext={`${Math.round(volume * 100)}%`}
                   className="w-20 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-primary-500"
                 />
               </div>
@@ -254,9 +268,10 @@ export default function VideoPlayer({
                 variant="ghost"
                 size="sm"
                 onClick={toggleFullscreen}
+                aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
                 className="text-white hover:bg-white/20"
               >
-                {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
+                {isFullscreen ? <Minimize className="w-5 h-5" aria-hidden="true" /> : <Maximize className="w-5 h-5" aria-hidden="true" />}
               </Button>
             </div>
           </div>
