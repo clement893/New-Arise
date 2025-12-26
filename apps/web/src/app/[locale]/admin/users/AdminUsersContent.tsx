@@ -40,8 +40,8 @@ export default function AdminUsersContent() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const { apiClient } = await import('@/lib/api/client');
-      const response = await apiClient.get('/v1/users?skip=0&limit=100');
+      const { apiClient } = await import('@/lib/api');
+      const response = await apiClient.get('/v1/users?page=1&page_size=100');
       
       // Backend returns paginated response: { items: [...], total: ..., page: ..., page_size: ... }
       interface PaginatedResponse<T> {
