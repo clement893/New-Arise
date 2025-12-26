@@ -26,9 +26,22 @@ function LoginContent() {
   useEffect(() => {
     const errorParam = searchParams.get('error');
     if (errorParam) {
-      const decodedError = decodeURIComponent(errorParam);
-      setLocalError(decodedError);
-      setError(decodedError);
+      let errorMessage = decodeURIComponent(errorParam);
+      
+      // Translate common error codes to user-friendly messages
+      const errorMessages: Record<string, string> = {
+        'unauthorized': 'Votre session a expiré ou vous n\'êtes pas autorisé. Veuillez vous reconnecter.',
+        'session_expired': 'Votre session a expiré. Veuillez vous reconnecter.',
+        'unauthorized_superadmin': 'Vous devez être superadmin pour accéder à cette page.',
+        'forbidden': 'Accès refusé. Vous n\'avez pas les permissions nécessaires.',
+      };
+      
+      if (errorMessages[errorParam]) {
+        errorMessage = errorMessages[errorParam];
+      }
+      
+      setLocalError(errorMessage);
+      setError(errorMessage);
     }
   }, [searchParams, setError]);
 
