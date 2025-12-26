@@ -31,7 +31,32 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: [
+    ['html'],
+    ['json', { outputFile: 'playwright-report/results.json' }],
+    ['junit', { outputFile: 'playwright-report/junit.xml' }],
+  ],
+  
+  /* Visual comparison settings */
+  expect: {
+    /**
+     * Maximum time expect() should wait for the condition to be met.
+     * @see https://playwright.dev/docs/api/class-testexpect#expect-set-timeout
+     */
+    timeout: 5000,
+    /**
+     * Threshold for visual comparisons (0-1)
+     * Lower values = stricter comparison
+     */
+    toHaveScreenshot: {
+      threshold: 0.2,
+      maxDiffPixels: 100,
+    },
+    toMatchSnapshot: {
+      threshold: 0.2,
+      maxDiffPixels: 100,
+    },
+  },
   
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {

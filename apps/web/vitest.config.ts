@@ -32,10 +32,36 @@ export default defineConfig({
         '**/__tests__/**',
       ],
       thresholds: {
+        // General thresholds
         lines: 80,
         functions: 80,
         branches: 75,
         statements: 80,
+        // Critical path thresholds (higher requirements)
+        '**/components/auth/**': {
+          lines: 90,
+          functions: 90,
+          branches: 85,
+          statements: 90,
+        },
+        '**/components/billing/**': {
+          lines: 90,
+          functions: 90,
+          branches: 85,
+          statements: 90,
+        },
+        '**/lib/security/**': {
+          lines: 95,
+          functions: 95,
+          branches: 90,
+          statements: 95,
+        },
+        '**/lib/api/**': {
+          lines: 85,
+          functions: 85,
+          branches: 80,
+          statements: 85,
+        },
       },
       reportsDirectory: './coverage',
     },

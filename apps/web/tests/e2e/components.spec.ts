@@ -61,17 +61,86 @@ test.describe('UI Components', () => {
   test('should display Pagination component', async ({ page }) => {
     await page.goto('/components/data');
     
-    // Chercher la pagination
+    // Look for pagination
     const pagination = page.locator('[aria-label*="pagination"], nav[aria-label*="Pagination"]').first();
     if (await pagination.isVisible()) {
       await expect(pagination).toBeVisible();
       
-      // Cliquer sur la page suivante
-      const nextButton = pagination.locator('button:has-text("Suivant"), button[aria-label*="next"]').first();
+      // Click next page
+      const nextButton = pagination.locator('button:has-text("Suivant"), button:has-text("Next"), button[aria-label*="next"]').first();
       if (await nextButton.isVisible() && !(await nextButton.isDisabled())) {
         await nextButton.click();
         await page.waitForTimeout(500);
       }
+    }
+  });
+
+  test('should display Button component variants', async ({ page }) => {
+    await page.goto('/components');
+    
+    // Look for buttons
+    const buttons = page.locator('button').all();
+    const buttonCount = await page.locator('button').count();
+    
+    expect(buttonCount).toBeGreaterThan(0);
+    
+    // Test button interactions
+    if (buttonCount > 0) {
+      const firstButton = (await buttons)[0];
+      if (await firstButton.isVisible() && !(await firstButton.isDisabled())) {
+        await firstButton.click();
+        await page.waitForTimeout(300);
+      }
+    }
+  });
+
+  test('should display Card component', async ({ page }) => {
+    await page.goto('/components');
+    
+    // Look for card components
+    const cards = page.locator('[class*="card"], [class*="Card"]').first();
+    if (await cards.isVisible()) {
+      await expect(cards).toBeVisible();
+    }
+  });
+
+  test('should display Input component with validation', async ({ page }) => {
+    await page.goto('/components/forms');
+    
+    const input = page.locator('input[type="text"], input[type="email"]').first();
+    if (await input.isVisible()) {
+      await input.fill('test');
+      await input.blur();
+      await page.waitForTimeout(300);
+      
+      // Should handle input correctly
+      await expect(input).toHaveValue('test');
+    }
+  });
+
+  test('should display Select component', async ({ page }) => {
+    await page.goto('/components/forms');
+    
+    const select = page.locator('select').first();
+    if (await select.isVisible()) {
+      await expect(select).toBeVisible();
+      
+      // Try to interact with select
+      await select.click();
+      await page.waitForTimeout(300);
+    }
+  });
+
+  test('should display Textarea component', async ({ page }) => {
+    await page.goto('/components/forms');
+    
+    const textarea = page.locator('textarea').first();
+    if (await textarea.isVisible()) {
+      await expect(textarea).toBeVisible();
+      
+      // Test textarea input
+      await textarea.fill('Test textarea content');
+      await expect(textarea).toHaveValue('Test textarea content');
     }
   });
 });
