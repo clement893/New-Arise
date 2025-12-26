@@ -156,6 +156,15 @@ export function AdminThemeManager({ authToken }: ThemeManagerProps) {
         />
       )}
 
+      {themes.length === 0 && !isLoading && (
+        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-yellow-800">
+            No themes found. The default theme should be created automatically. 
+            Please refresh the page or create a new theme.
+          </p>
+        </div>
+      )}
+
       <div className="grid gap-4">
         {themes.map((theme) => (
           <div
