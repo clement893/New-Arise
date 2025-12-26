@@ -75,23 +75,58 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
           try {
             const authToken = tokenFromStorage || token;
             if (authToken) {
+              logger.debug('Checking superadmin status', {
+                hasToken: !!authToken,
+                tokenLength: authToken.length,
+                userEmail: user?.email
+              });
               const status = await checkMySuperAdminStatus(authToken);
               isAdmin = status.is_superadmin;
               if (status.is_superadmin) {
                 logger.debug('User is superadmin, granting admin access');
+              } else {
+                logger.debug('User is not superadmin', { userEmail: user?.email });
               }
             } else {
-              logger.warn('No token available for superadmin check');
+              logger.warn('No token available for superadmin check', {
+                hasTokenFromStorage: !!tokenFromStorage,
+                hasTokenFromStore: !!token,
+                userEmail: user?.email
+              });
             }
           } catch (err: any) {
-            // If superadmin check fails with 401/422, token might be invalid
+            // If superadmin check fails with 401/422, token might be invalid or expired
             if (err?.response?.status === 401 || err?.response?.status === 422) {
-              logger.warn('Superadmin check failed due to authentication error, redirecting to login');
-              router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}&error=unauthorized`);
-              return;
+              logger.warn('Superadmin check failed due to authentication error', {
+                status: err?.response?.status,
+                hasToken: !!authToken,
+                error: err?.message
+              });
+              
+              // Try to get fresh token from storage one more time
+              const freshToken = TokenStorage.getToken();
+              if (freshToken && freshToken !== authToken) {
+                logger.debug('Found fresh token, retrying superadmin check');
+                try {
+                  const retryStatus = await checkMySuperAdminStatus(freshToken);
+                  isAdmin = retryStatus.is_superadmin;
+                  if (retryStatus.is_superadmin) {
+                    logger.debug('User is superadmin after retry, granting admin access');
+                  }
+                } catch (retryErr: any) {
+                  logger.warn('Retry also failed, redirecting to login', { error: retryErr?.message });
+                  router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}&error=unauthorized`);
+                  return;
+                }
+              } else {
+                logger.warn('No valid token available, redirecting to login');
+                router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}&error=unauthorized`);
+                return;
+              }
+            } else {
+              // For other errors, fallback to is_admin check
+              logger.warn('Failed to check superadmin status, using is_admin fallback', { error: String(err) });
             }
-            // For other errors, fallback to is_admin check
-            logger.warn('Failed to check superadmin status, using is_admin fallback', { error: String(err) });
           }
         }
         
