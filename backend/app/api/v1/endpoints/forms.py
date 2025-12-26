@@ -11,7 +11,7 @@ from sqlalchemy import select, func
 
 from app.models.form import Form, FormSubmission
 from app.models.user import User
-from app.dependencies import get_current_user, get_db
+from app.dependencies import get_current_user, get_db, is_superadmin
 from app.core.security_audit import SecurityAuditLogger
 from app.core.tenancy_helpers import apply_tenant_scope
 
@@ -162,7 +162,7 @@ async def update_form(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Form not found")
     
     # Check ownership or admin
-    if form.user_id != current_user.id and not current_user.is_superadmin:
+    if form.user_id != current_user.id and not await is_superadmin(current_user, db):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to update this form"
@@ -209,7 +209,7 @@ async def delete_form(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Form not found")
     
     # Check ownership or admin
-    if form.user_id != current_user.id and not current_user.is_superadmin:
+    if form.user_id != current_user.id and not await is_superadmin(current_user, db):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to delete this form"
@@ -286,7 +286,7 @@ async def list_submissions(
     if not form:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Form not found")
     
-    if form.user_id != current_user.id and not current_user.is_superadmin:
+    if form.user_id != current_user.id and not await is_superadmin(current_user, db):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to view submissions for this form"
@@ -322,10 +322,12 @@ async def delete_submission(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Submission not found")
     
     # Get form to check ownership
-    result = await db.execute(select(Form).where(Form.id == submission.form_id))
+    query = select(Form).where(Form.id == submission.form_id)
+    query = apply_tenant_scope(query, Form)
+    result = await db.execute(query)
     form = result.scalar_one_or_none()
     
-    if form and form.user_id != current_user.id and not current_user.is_superadmin:
+    if form and form.user_id != current_user.id and not await is_superadmin(current_user, db):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to delete this submission"

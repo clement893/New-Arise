@@ -11,7 +11,7 @@ from sqlalchemy import select, func
 
 from app.models.support_ticket import SupportTicket, TicketMessage, TicketStatus, TicketPriority
 from app.models.user import User
-from app.dependencies import get_current_user, get_db
+from app.dependencies import get_current_user, get_db, is_superadmin, is_admin_or_superadmin
 from app.core.security_audit import SecurityAuditLogger
 
 router = APIRouter()
@@ -98,7 +98,7 @@ async def get_ticket(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket not found")
     
     # Check ownership or admin
-    if ticket.user_id != current_user.id and not current_user.is_superadmin:
+    if ticket.user_id != current_user.id and not await is_superadmin(current_user, db):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to view this ticket"
@@ -121,7 +121,7 @@ async def get_ticket_messages(
     if not ticket:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket not found")
     
-    if ticket.user_id != current_user.id and not current_user.is_superadmin:
+    if ticket.user_id != current_user.id and not await is_superadmin(current_user, db):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to view this ticket"
@@ -201,17 +201,18 @@ async def add_ticket_message(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket not found")
     
     # Check ownership or admin
-    if ticket.user_id != current_user.id and not current_user.is_superadmin:
+    if ticket.user_id != current_user.id and not await is_superadmin(current_user, db):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to add messages to this ticket"
         )
     
+    is_staff_user = await is_admin_or_superadmin(current_user, db)
     message = TicketMessage(
         ticket_id=ticket_id,
         message=message_data.message,
         user_id=current_user.id,
-        is_staff=current_user.is_superadmin or current_user.is_admin,
+        is_staff=is_staff_user,
     )
     
     # Update ticket last_reply_at
@@ -247,7 +248,7 @@ async def update_ticket(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket not found")
     
     # Check ownership or admin
-    if ticket.user_id != current_user.id and not current_user.is_superadmin:
+    if ticket.user_id != current_user.id and not await is_superadmin(current_user, db):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to update this ticket"

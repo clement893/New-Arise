@@ -11,7 +11,7 @@ from sqlalchemy import select, func
 
 from app.models.page import Page
 from app.models.user import User
-from app.dependencies import get_current_user, get_db
+from app.dependencies import get_current_user, get_db, is_superadmin
 from app.core.security_audit import SecurityAuditLogger
 from app.core.tenancy_helpers import apply_tenant_scope
 
@@ -177,7 +177,7 @@ async def update_page(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Page not found")
     
     # Check ownership or admin
-    if page.user_id != current_user.id and not current_user.is_superadmin:
+    if page.user_id != current_user.id and not await is_superadmin(current_user, db):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to update this page"
@@ -244,7 +244,7 @@ async def delete_page(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Page not found")
     
     # Check ownership or admin
-    if page.user_id != current_user.id and not current_user.is_superadmin:
+    if page.user_id != current_user.id and not await is_superadmin(current_user, db):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to delete this page"

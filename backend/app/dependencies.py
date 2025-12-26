@@ -22,24 +22,85 @@ def get_current_user(
 
 
 async def is_superadmin(
-    current_user: Annotated[User, Depends(get_current_user)],
-    db: Annotated[AsyncSession, Depends(get_db)]
+    user: User,
+    db: AsyncSession
 ) -> bool:
     """
-    Check if current user is a superadmin.
+    Check if a user has the superadmin role.
     Returns True if user has superadmin role, False otherwise.
+    
+    Args:
+        user: User object to check
+        db: Database session
+    
+    Returns:
+        True if user is superadmin, False otherwise
     """
     result = await db.execute(
         select(UserRole)
         .join(Role)
         .where(
-            UserRole.user_id == current_user.id,
+            UserRole.user_id == user.id,
             Role.slug == "superadmin",
             Role.is_active == True
         )
     )
     user_role = result.scalar_one_or_none()
     return user_role is not None
+
+
+async def is_admin(
+    user: User,
+    db: AsyncSession
+) -> bool:
+    """
+    Check if a user has the admin role (not superadmin).
+    Returns True if user has admin role, False otherwise.
+    
+    Note: Superadmins are automatically considered admins,
+    but this function specifically checks for the "admin" role.
+    
+    Args:
+        user: User object to check
+        db: Database session
+    
+    Returns:
+        True if user has admin role, False otherwise
+    """
+    result = await db.execute(
+        select(UserRole)
+        .join(Role)
+        .where(
+            UserRole.user_id == user.id,
+            Role.slug == "admin",
+            Role.is_active == True
+        )
+    )
+    admin_role = result.scalar_one_or_none()
+    return admin_role is not None
+
+
+async def is_admin_or_superadmin(
+    user: User,
+    db: AsyncSession
+) -> bool:
+    """
+    Check if a user has admin OR superadmin role.
+    Superadmins are automatically considered admins.
+    
+    Args:
+        user: User object to check
+        db: Database session
+    
+    Returns:
+        True if user is admin or superadmin, False otherwise
+    """
+    # Check superadmin first (superadmins are automatically admins)
+    if await is_superadmin(user, db):
+        return True
+    
+    # Check admin role
+    return await is_admin(user, db)
 
 
 async def require_superadmin(
@@ -70,20 +131,12 @@ async def require_admin_or_superadmin(
     Superadmins are automatically considered admins.
     Raises HTTPException if user is neither admin nor superadmin.
     """
-    # Check if user is admin (is_admin flag)
-    if current_user.is_admin:
-        return None
-    
-    # Check if user is superadmin
-    is_super = await is_superadmin(current_user, db)
-    if is_super:
-        return None
-    
-    # User is neither admin nor superadmin
-    raise HTTPException(
-        status_code=status.HTTP_403_FORBIDDEN,
-        detail="Admin or superadmin access required"
-    )
+    if not await is_admin_or_superadmin(current_user, db):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin or superadmin access required"
+        )
+    return None
 
 
 async def get_optional_user(

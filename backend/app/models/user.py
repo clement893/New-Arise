@@ -48,5 +48,50 @@ class User(Base):
     subscriptions = relationship("Subscription", back_populates="user", cascade="all, delete-orphan")
     invoices = relationship("Invoice", back_populates="user", cascade="all, delete-orphan")
 
+    @property
+    def is_superadmin(self) -> bool:
+        """
+        Check if user has superadmin role.
+        
+        NOTE: This property requires the 'roles' relationship to be loaded.
+        For better performance, use selectinload(User.roles) when querying users.
+        If roles are not loaded, this will return False.
+        
+        For async contexts, use: await is_superadmin(user, db) from app.dependencies
+        """
+        if not hasattr(self, 'roles') or not self.roles:
+            return False
+        
+        for user_role in self.roles:
+            if hasattr(user_role, 'role') and user_role.role:
+                role = user_role.role
+                if hasattr(role, 'slug') and role.slug == "superadmin":
+                    if hasattr(role, 'is_active') and role.is_active:
+                        return True
+        return False
+    
+    @property
+    def is_admin(self) -> bool:
+        """
+        Check if user has admin role (not superadmin).
+        
+        NOTE: This property requires the 'roles' relationship to be loaded.
+        For better performance, use selectinload(User.roles) when querying users.
+        If roles are not loaded, this will return False.
+        
+        Superadmins are automatically considered admins, but this property
+        specifically checks for the "admin" role (not "superadmin").
+        """
+        if not hasattr(self, 'roles') or not self.roles:
+            return False
+        
+        for user_role in self.roles:
+            if hasattr(user_role, 'role') and user_role.role:
+                role = user_role.role
+                if hasattr(role, 'slug') and role.slug == "admin":
+                    if hasattr(role, 'is_active') and role.is_active:
+                        return True
+        return False
+
     def __repr__(self) -> str:
         return f"<User(id={self.id}, email={self.email})>"
