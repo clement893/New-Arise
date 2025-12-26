@@ -117,16 +117,29 @@ export default function Card({
 }: CardProps) {
   // Use actions as footer if footer is not provided
   const cardFooter = footer || actions;
+  
+  // Generate aria-label for clickable cards without title
+  const ariaLabel = onClick && !title ? 'Clickable card' : undefined;
+  
   return (
     <div
       className={clsx(
         'bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700',
         'shadow-sm',
         hover && 'transition-shadow hover:shadow-md',
-        onClick && 'cursor-pointer',
+        onClick && 'cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:ring-offset-2',
         className
       )}
       onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      aria-label={ariaLabel}
+      onKeyDown={onClick ? (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      } : undefined}
       {...props}
     >
       {(title || subtitle || header) && (

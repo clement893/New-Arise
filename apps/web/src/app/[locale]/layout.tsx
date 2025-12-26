@@ -19,6 +19,7 @@ import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import { SchemaMarkup } from '@/components/seo';
 import { GoogleAnalytics } from '@/components/marketing/GoogleAnalytics';
 import RTLProvider from '@/components/i18n/RTLProvider';
+import SkipLink from '@/components/ui/SkipLink';
 import type { Locale } from '@/i18n/routing';
 
 const inter = Inter({ 
@@ -94,6 +95,7 @@ export default async function LocaleLayout({
         <meta name="twitter:card" content="summary_large_image" />
       </head>
       <body className={`${inter.className} bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100`}>
+        <SkipLink />
         <SchemaMarkup
           type="organization"
           data={{
