@@ -166,6 +166,42 @@ async def database_exception_handler(request: Request, exc: SQLAlchemyError) -> 
     return _add_cors_headers(response, request)
 
 
+async def http_exception_handler(request: Request, exc: FastAPIHTTPException) -> JSONResponse:
+    """Handle FastAPI HTTP exceptions"""
+    context = sanitize_log_data({
+        "status_code": exc.status_code,
+        "detail": exc.detail,
+        "path": request.url.path,
+        "method": request.method,
+    })
+    
+    # Log warnings for client errors (4xx), errors for server errors (5xx)
+    if exc.status_code >= 500:
+        logger.error(
+            f"HTTP exception: {exc.status_code}",
+            context=context,
+        )
+    else:
+        logger.warning(
+            f"HTTP exception: {exc.status_code}",
+            context=context,
+        )
+
+    response = JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "success": False,
+            "error": {
+                "code": f"HTTP_{exc.status_code}",
+                "message": exc.detail if isinstance(exc.detail, str) else "An error occurred",
+                "details": exc.detail if not isinstance(exc.detail, str) else None,
+            },
+            "timestamp": None,
+        },
+    )
+    return _add_cors_headers(response, request)
+
+
 async def general_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """Handle all other exceptions"""
     from app.core.config import settings
