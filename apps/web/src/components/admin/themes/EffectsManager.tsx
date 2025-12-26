@@ -89,8 +89,13 @@ export function EffectsManager({ effects, onEffectsChange }: EffectsManagerProps
         const [key, value] = pair.split(':').map((s) => s.trim());
         if (key && value) {
           // Convert kebab-case to camelCase for CSS-in-JS
-          const camelKey = key.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
-          cssObject[camelKey] = value;
+          const camelKey = key.replace(/-([a-z])/g, (g) => {
+            const match = g[1];
+            return match ? match.toUpperCase() : '';
+          });
+          if (camelKey) {
+            cssObject[camelKey] = value;
+          }
         }
       });
     }
@@ -161,10 +166,12 @@ export function EffectsManager({ effects, onEffectsChange }: EffectsManagerProps
             onChange={handleFileUpload}
             className="hidden"
           />
-          <Button variant="outline" type="button" as="span">
-            <Upload className="w-4 h-4 mr-2" />
-            Importer depuis JSON
-          </Button>
+          <span className="inline-block">
+            <Button variant="outline" type="button" onClick={(e) => e.preventDefault()}>
+              <Upload className="w-4 h-4 mr-2" />
+              Importer depuis JSON
+            </Button>
+          </span>
         </label>
         <Button variant="outline" onClick={exportEffects}>
           <FileJson className="w-4 h-4 mr-2" />

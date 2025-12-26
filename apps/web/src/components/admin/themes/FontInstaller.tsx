@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Card from '@/components/ui/Card';
-import { Search, Download, Upload, X, Check } from 'lucide-react';
+import { Search, Upload, X, Check } from 'lucide-react';
 
 interface GoogleFont {
   family: string;
@@ -103,7 +103,7 @@ export function FontInstaller({ onFontSelect, currentFont }: FontInstallerProps)
             placeholder="Rechercher une police..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            icon={<Search className="w-4 h-4" />}
+            leftIcon={<Search className="w-4 h-4" />}
           />
         </div>
         <Button
@@ -126,16 +126,10 @@ export function FontInstaller({ onFontSelect, currentFont }: FontInstallerProps)
                 const file = e.target.files?.[0];
                 if (file) {
                   // Handle custom font upload
-                  const reader = new FileReader();
-                  reader.onload = (event) => {
-                    const fontData = event.target?.result;
-                    // Create font-face and apply
-                    const fontName = file.name.replace(/\.[^/.]+$/, '');
-                    const fontUrl = URL.createObjectURL(file);
-                    onFontSelect(fontName, fontUrl);
-                    setSelectedFont(fontName);
-                  };
-                  reader.readAsDataURL(file);
+                  const fontName = file.name.replace(/\.[^/.]+$/, '');
+                  const fontUrl = URL.createObjectURL(file);
+                  onFontSelect(fontName, fontUrl);
+                  setSelectedFont(fontName);
                 }
               }}
             />

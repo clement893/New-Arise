@@ -5,8 +5,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { clsx } from 'clsx';
+import { useState, useMemo } from 'react';
 import ColorPicker from '@/components/ui/ColorPicker';
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
@@ -51,13 +50,13 @@ interface ThemeEditorProps {
 }
 
 interface ThemeConfig {
-  mode: string;
-  primary: string;
-  secondary: string;
-  danger: string;
-  warning: string;
-  info: string;
-  success: string;
+  mode?: string;
+  primary?: string;
+  secondary?: string;
+  danger?: string;
+  warning?: string;
+  info?: string;
+  success?: string;
   colors?: {
     background?: string;
     foreground?: string;
@@ -104,7 +103,9 @@ interface ThemeConfig {
       direction?: string; // e.g., "to-br", "to-r", "to-b"
       intensity?: number; // 0-1
     };
+    [key: string]: any; // Allow custom effects
   };
+  [key: string]: any; // Allow any additional properties for flexibility
 }
 
 export function ThemeEditor({ theme, onSubmit, onCancel, isLoading = false }: ThemeEditorProps) {
@@ -114,7 +115,7 @@ export function ThemeEditor({ theme, onSubmit, onCancel, isLoading = false }: Th
   const [activeTab, setActiveTab] = useState('colors');
   
   // Parse existing config or use defaults
-  const initialConfig: ThemeConfig = theme?.config || {
+  const initialConfig: ThemeConfig = (theme?.config as ThemeConfig) || {
     mode: 'system',
     primary: '#3b82f6',
     secondary: '#8b5cf6',
@@ -178,13 +179,13 @@ export function ThemeEditor({ theme, onSubmit, onCancel, isLoading = false }: Th
       ? ({
           display_name: displayName,
           description: description || null,
-          config,
+          config: config as any, // ThemeUpdate expects Partial<ThemeConfig> but we're using extended config
         } as ThemeUpdate)
       : ({
           name: name.trim().toLowerCase().replace(/[^a-z0-9-_]/g, '-'),
           display_name: displayName,
           description: description || null,
-          config,
+          config: config as any, // ThemeCreate expects ThemeConfig but we're using extended config
         } as ThemeCreate);
 
     await onSubmit(themeData);
