@@ -45,8 +45,10 @@ RUN cd packages/types && pnpm build && ls -la dist/
 # Verify types package was built correctly
 RUN test -f packages/types/dist/theme.d.ts || (echo "ERROR: theme.d.ts not found after build" && exit 1)
 
-# Copy rest of the code
-COPY . .
+# Copy source code (copy last to maximize cache hits)
+# Copy only what's needed for build (apps/web and shared packages)
+COPY apps/web ./apps/web
+COPY packages ./packages
 
 # Reinstall to ensure workspace links are correct after types package build
 RUN pnpm install --offline --no-frozen-lockfile || pnpm install --no-frozen-lockfile
@@ -73,27 +75,17 @@ ENV NEXT_PUBLIC_GOOGLE_CLIENT_ID=${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-}
 
 ENV PATH="/app/node_modules/.bin:$PATH"
 
-# Debug: Print environment variables before preparing build env
-RUN echo "=== Environment variables before build ===" && \
-    echo "All NEXT_PUBLIC_* vars:" && \
-    (env | grep "^NEXT_PUBLIC_" || echo "No NEXT_PUBLIC_* variables found") && \
-    echo "=========================================="
-
 # Prepare build environment: create .env.local from environment variables
 # Railway passes environment variables, but they may not be available as build args
 # This script reads them from the environment and creates .env.local for Next.js
 RUN cd apps/web && node scripts/prepare-build-env.js
-
-# Verify .env.local was created
-RUN echo "=== .env.local contents ===" && \
-    (cat apps/web/.env.local 2>/dev/null | sed 's/=.*/=***/' || echo "No .env.local file created") && \
-    echo "==========================="
 
 # Build Next.js application
 # Uses Webpack by default in production (more stable with next-auth catch-all routes)
 # Turbopack has issues with vendored Next.js modules in catch-all routes
 # Next.js will read variables from .env.local (created above) or ENV
 # To use Turbopack instead, set USE_TURBOPACK=true in Railway environment variables
+# Type checking is optimized with incremental builds (tsconfig.tsbuildinfo)
 RUN cd apps/web && USE_WEBPACK=true pnpm build
 
 # Production image

@@ -2,7 +2,15 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "DOCKERFILE",
-    "dockerfilePath": "Dockerfile"
+    "dockerfilePath": "Dockerfile",
+    "cache": {
+      "enabled": true,
+      "paths": [
+        ".next/cache",
+        "node_modules",
+        ".pnpm-store"
+      ]
+    }
   },
   "deploy": {
     "startCommand": "node /app/apps/web/server.js",
