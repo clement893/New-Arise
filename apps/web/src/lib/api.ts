@@ -234,7 +234,16 @@ export const authAPI = {
     return apiClient.post('/v1/auth/login', { email, password });
   },
   register: (email: string, password: string, name: string) => {
-    return apiClient.post('/v1/auth/register', { email, password, name });
+    // Split name into first_name and last_name
+    const nameParts = name.trim().split(/\s+/);
+    const first_name = nameParts[0] || '';
+    const last_name = nameParts.slice(1).join(' ') || '';
+    return apiClient.post('/v1/auth/register', { 
+      email, 
+      password, 
+      first_name,
+      last_name: last_name || undefined // Send undefined if empty to match backend Optional[str]
+    });
   },
   refresh: (refreshToken: string) => {
     return apiClient.post('/v1/auth/refresh', { refresh_token: refreshToken });
