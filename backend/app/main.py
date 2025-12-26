@@ -320,6 +320,8 @@ def create_app() -> FastAPI:
     app.include_router(stripe_webhook_router.router)
 
     # Register exception handlers
+    from fastapi.exceptions import HTTPException as FastAPIHTTPException
+    app.add_exception_handler(FastAPIHTTPException, http_exception_handler)
     app.add_exception_handler(AppException, app_exception_handler)
     app.add_exception_handler(PydanticValidationError, validation_exception_handler)
     app.add_exception_handler(SQLAlchemyError, database_exception_handler)
