@@ -13,6 +13,7 @@ from app.models.invoice import Invoice, InvoiceStatus
 from app.models.webhook_event import WebhookEvent
 from app.models.api_key import APIKey
 from app.models.tag import Tag, Category, EntityTag
+from app.models.comment import Comment, CommentReaction
 from app.core.security_audit import SecurityAuditLog
 
 __all__ = [
@@ -36,6 +37,8 @@ __all__ = [
     "Tag",
     "Category",
     "EntityTag",
+    "Comment",
+    "CommentReaction",
     "SecurityAuditLog",
 ]
 

@@ -22,7 +22,7 @@ class ActivityResponse(BaseModel):
     id: int
     action: str
     entity_type: str
-    entity_id: Optional[str]
+    entity_id: Optional[str] = None
     user_id: int
     timestamp: str
     event_metadata: Optional[dict] = None
@@ -45,14 +45,16 @@ async def get_activities(
     Get activity feed with optional filters
     """
     try:
-        query = select(SecurityAuditLog).order_by(desc(SecurityAuditLog.created_at))
+        query = select(SecurityAuditLog).order_by(desc(SecurityAuditLog.timestamp))
         
         # Apply filters
         filters = []
         if entity_type:
-            filters.append(SecurityAuditLog.entity_type == entity_type)
-        if entity_id:
-            filters.append(SecurityAuditLog.entity_id == str(entity_id))
+            # Filter by event_type or description containing entity_type
+            filters.append(
+                (SecurityAuditLog.event_type.ilike(f'%{entity_type}%')) |
+                (SecurityAuditLog.description.ilike(f'%{entity_type}%'))
+            )
         if user_id:
             filters.append(SecurityAuditLog.user_id == user_id)
         
@@ -68,11 +70,11 @@ async def get_activities(
         return [
             ActivityResponse(
                 id=activity.id,
-                action=activity.action,
-                entity_type=activity.entity_type or '',
-                entity_id=activity.entity_id,
-                user_id=activity.user_id,
-                timestamp=activity.created_at.isoformat() if activity.created_at else '',
+                action=activity.event_type or activity.description or 'unknown',
+                entity_type=entity_type or 'system',
+                entity_id=str(activity.id) if entity_id else None,
+                user_id=activity.user_id or 0,
+                timestamp=activity.timestamp.isoformat() if activity.timestamp else '',
                 event_metadata=activity.event_metadata
             )
             for activity in activities

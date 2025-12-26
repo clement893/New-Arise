@@ -9,7 +9,7 @@ from urllib.parse import urlencode
 import httpx
 import bcrypt
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -222,7 +222,12 @@ async def login(
         expires_delta=access_token_expires,
     )
 
-    return Token(access_token=access_token, token_type="bearer")
+    # Return JSONResponse explicitly to work with rate limiting middleware
+    token_data = Token(access_token=access_token, token_type="bearer")
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content=token_data.model_dump()
+    )
 
 
 @router.post("/refresh", response_model=Token)
@@ -307,7 +312,12 @@ async def refresh_token(
         
         logger.info(f"Token refreshed for user {user.email}")
         
-        return Token(access_token=access_token, token_type="bearer")
+        # Return JSONResponse explicitly to work with rate limiting middleware
+        token_data = Token(access_token=access_token, token_type="bearer")
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=token_data.model_dump()
+        )
         
     except jwt.ExpiredSignatureError:
         # Token is expired, but we can still refresh it if user exists
@@ -328,7 +338,12 @@ async def refresh_token(
                         expires_delta=access_token_expires,
                     )
                     logger.info(f"Expired token refreshed for user {user.email}")
-                    return Token(access_token=access_token, token_type="bearer")
+                    # Return JSONResponse explicitly to work with rate limiting middleware
+                    token_data = Token(access_token=access_token, token_type="bearer")
+                    return JSONResponse(
+                        status_code=status.HTTP_200_OK,
+                        content=token_data.model_dump()
+                    )
         except Exception:
             pass
         
