@@ -166,43 +166,47 @@ async def list_themes(
     """
     List all themes.
     Requires superadmin authentication.
-    Creates a default theme if none exists.
+    Ensures TemplateTheme (ID 32) exists.
     Note: Cache disabled to ensure fresh data when themes are created/updated.
     """
-    # Check if any themes exist, if not create default theme
-    result = await db.execute(select(Theme))
+    # Ensure TemplateTheme (ID 32) exists
+    try:
+        await ensure_default_theme(db, created_by=current_user.id)
+    except Exception as e:
+        # Log error but continue - TemplateTheme might already exist
+        pass
+    
+    # Get all themes with pagination
+    result = await db.execute(select(Theme).order_by(Theme.id).offset(skip).limit(limit))
     themes = result.scalars().all()
     
-    if not themes:
-        # Create default theme if none exists
-        try:
-            await ensure_default_theme(db, created_by=current_user.id)
-            # Invalidate cache to ensure fresh data
-            from app.core.cache import invalidate_cache_pattern
-            invalidate_cache_pattern("themes:*")
-            invalidate_cache_pattern("theme:*")
-            # Refresh the query to get the newly created theme
-            result = await db.execute(select(Theme).offset(skip).limit(limit))
-            themes = result.scalars().all()
-        except Exception as e:
-            # If we can't create a theme, return empty list
-            # This shouldn't happen but handle gracefully
-            return ThemeListResponse(
-                themes=[],
-                total=0,
-                active_theme_id=None
-            )
+    # Get total count for pagination
+    total_result = await db.execute(select(Theme))
+    all_themes = total_result.scalars().all()
+    total_count = len(all_themes)
     
     active_result = await db.execute(select(Theme).where(Theme.is_active == True))
     active_theme = active_result.scalar_one_or_none()
     
-    # If no active theme but themes exist, activate the first one
+    # If no active theme but themes exist, activate TemplateTheme (ID 32) or first theme
     if not active_theme and themes:
-        first_theme = themes[0]
-        first_theme.is_active = True
-        await db.commit()
-        await db.refresh(first_theme)
-        active_theme = first_theme
+        # Try to activate TemplateTheme (ID 32) first
+        template_theme_result = await db.execute(select(Theme).where(Theme.id == 32))
+        template_theme = template_theme_result.scalar_one_or_none()
+        
+        if template_theme:
+            template_theme.is_active = True
+            await db.commit()
+            await db.refresh(template_theme)
+            active_theme = template_theme
+        else:
+            # Fallback to first theme
+            first_theme = themes[0]
+            first_theme.is_active = True
+            await db.commit()
+            await db.refresh(first_theme)
+            active_theme = first_theme
+        
         # Invalidate cache after activating theme
         from app.core.cache import invalidate_cache_pattern
         invalidate_cache_pattern("themes:*")
@@ -210,7 +214,7 @@ async def list_themes(
     
     return ThemeListResponse(
         themes=[ThemeResponse.model_validate(theme) for theme in themes],
-        total=len(themes),
+        total=total_count,
         active_theme_id=active_theme.id if active_theme else None
     )
 
