@@ -180,7 +180,7 @@ def get_stripe_service(
 # ============================================================================
 
 async def get_tenant_scope(
-    current_user: Optional[User] = None,
+    current_user: Optional[User] = Depends(get_current_user),
     db: Annotated[AsyncSession, Depends(get_db)] = None,
 ) -> Optional[int]:
     """
