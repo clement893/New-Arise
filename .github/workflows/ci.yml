@@ -89,6 +89,22 @@ jobs:
       - name: Generate coverage report
         run: pnpm test:web:coverage
 
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+        continue-on-error: true
+
+      - name: Run E2E tests
+        run: pnpm test:e2e:all
+        continue-on-error: true
+        env:
+          PLAYWRIGHT_TEST_BASE_URL: http://localhost:3000
+
+      - name: Run visual regression tests
+        run: pnpm test:visual
+        continue-on-error: true
+        env:
+          PLAYWRIGHT_TEST_BASE_URL: http://localhost:3000
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
