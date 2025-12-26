@@ -15,7 +15,13 @@ import Footer from '@/components/layout/Footer';
 function AppContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const isInternalPage = pathname?.startsWith('/dashboard');
+  
+  // Check if it's an internal page (dashboard, admin, profile, settings, etc.)
+  // Works with locales: /fr/dashboard, /en/dashboard, etc.
+  const isInternalPage = pathname?.includes('/dashboard') || 
+                         pathname?.includes('/admin') || 
+                         pathname?.includes('/profile') || 
+                         pathname?.includes('/settings');
 
   useEffect(() => {
     // Track page views
