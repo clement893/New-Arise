@@ -29,7 +29,8 @@ export function FontInstaller({ onFontSelect, currentFont }: FontInstallerProps)
   const [selectedFont, setSelectedFont] = useState<string | null>(currentFont || null);
   const [showUpload, setShowUpload] = useState(false);
 
-  // Popular Google Fonts (fallback if API fails)
+  // Popular Google Fonts - Static list to avoid CSP issues
+  // Users can still search and select fonts, and the font URL will be generated
   const popularFonts: GoogleFont[] = [
     { family: 'Inter', variants: ['400', '500', '600', '700'], category: 'sans-serif' },
     { family: 'Roboto', variants: ['300', '400', '500', '700'], category: 'sans-serif' },
@@ -38,8 +39,27 @@ export function FontInstaller({ onFontSelect, currentFont }: FontInstallerProps)
     { family: 'Lato', variants: ['400', '700'], category: 'sans-serif' },
     { family: 'Montserrat', variants: ['400', '600', '700'], category: 'sans-serif' },
     { family: 'Raleway', variants: ['400', '600', '700'], category: 'sans-serif' },
+    { family: 'Nunito', variants: ['400', '600', '700'], category: 'sans-serif' },
+    { family: 'Source Sans Pro', variants: ['400', '600', '700'], category: 'sans-serif' },
+    { family: 'Ubuntu', variants: ['400', '500', '700'], category: 'sans-serif' },
+    { family: 'Oswald', variants: ['400', '600', '700'], category: 'sans-serif' },
+    { family: 'Noto Sans', variants: ['400', '600', '700'], category: 'sans-serif' },
+    { family: 'Roboto Condensed', variants: ['400', '700'], category: 'sans-serif' },
     { family: 'Playfair Display', variants: ['400', '700'], category: 'serif' },
     { family: 'Merriweather', variants: ['400', '700'], category: 'serif' },
+    { family: 'Lora', variants: ['400', '600', '700'], category: 'serif' },
+    { family: 'PT Serif', variants: ['400', '700'], category: 'serif' },
+    { family: 'Crimson Text', variants: ['400', '600'], category: 'serif' },
+    { family: 'Libre Baskerville', variants: ['400', '700'], category: 'serif' },
+    { family: 'Dancing Script', variants: ['400', '600', '700'], category: 'handwriting' },
+    { family: 'Pacifico', variants: ['400'], category: 'handwriting' },
+    { family: 'Caveat', variants: ['400', '600', '700'], category: 'handwriting' },
+    { family: 'Indie Flower', variants: ['400'], category: 'handwriting' },
+    { family: 'Shadows Into Light', variants: ['400'], category: 'handwriting' },
+    { family: 'Roboto Mono', variants: ['400', '500', '700'], category: 'monospace' },
+    { family: 'Source Code Pro', variants: ['400', '600', '700'], category: 'monospace' },
+    { family: 'Fira Code', variants: ['400', '500', '600', '700'], category: 'monospace' },
+    { family: 'Courier Prime', variants: ['400', '700'], category: 'monospace' },
   ];
 
   useEffect(() => {
