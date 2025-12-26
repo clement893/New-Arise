@@ -1,6 +1,6 @@
 """Add integrations table
 
-Revision ID: 012_add_integrations
+Revision ID: 012_add_integrations_table
 Revises: 011_fix_file_model
 Create Date: 2025-01-25
 """
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '012_add_integrations'
+revision = '012_add_integrations_table'
 down_revision = '011_fix_file_model'
 branch_labels = None
 depends_on = None

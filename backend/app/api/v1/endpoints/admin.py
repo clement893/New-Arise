@@ -7,7 +7,8 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Header
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from pydantic import BaseModel, EmailStr
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from pydantic import BaseModel, EmailStr, ValidationError
 import os
 
 from app.core.database import get_db
@@ -134,12 +135,26 @@ async def make_user_superadmin(
         
     except HTTPException:
         raise
-    except Exception as e:
+    except IntegrityError as e:
         await db.rollback()
-        logger.error(f"Error making user superadmin: {e}", exc_info=True)
+        logger.error(f"Database integrity error making user superadmin: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Failed to assign superadmin role due to database constraint violation"
+        )
+    except SQLAlchemyError as e:
+        await db.rollback()
+        logger.error(f"Database error making user superadmin: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to make user superadmin: {str(e)}"
+            detail="Database error occurred while assigning superadmin role"
+        )
+    except Exception as e:
+        await db.rollback()
+        logger.error(f"Unexpected error making user superadmin: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected error occurred"
         )
 
 
