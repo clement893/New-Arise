@@ -5,7 +5,7 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Container from '@/components/ui/Container';
-import { Modal, ConfirmModal } from '@/components/ui/Modal';
+import Modal, { ConfirmModal } from '@/components/ui/Modal';
 import { useToast } from '@/components/ui';
 import { Plus, Edit, Trash2, Check, X } from 'lucide-react';
 
@@ -382,7 +382,7 @@ export default function ExampleCRUDPage() {
         confirmText="Supprimer"
         cancelText="Annuler"
         variant="danger"
-        isLoading={isSubmitting}
+        loading={isSubmitting}
       />
 
       {/* Code Example */}

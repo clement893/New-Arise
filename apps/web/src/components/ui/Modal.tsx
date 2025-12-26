@@ -71,7 +71,7 @@ const sizeClasses = {
   full: 'max-w-full mx-4',
 };
 
-export default function Modal({
+function Modal({
   isOpen,
   onClose,
   title,
@@ -229,3 +229,7 @@ export function ConfirmModal({
     </Modal>
   );
 }
+
+// Export Modal as both default and named export for compatibility
+export default Modal;
+export { Modal };
