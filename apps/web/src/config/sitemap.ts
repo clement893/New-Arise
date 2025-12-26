@@ -219,6 +219,51 @@ export const sitePages: Record<string, SitemapPage[]> = {
       changefreq: 'daily',
     },
   ],
+  'Aide & Support': [
+    {
+      path: '/help',
+      title: 'Help Center',
+      description: 'Centre d\'aide et de support',
+      priority: 0.8,
+      changefreq: 'weekly',
+    },
+    {
+      path: '/help/faq',
+      title: 'FAQ',
+      description: 'Questions fréquemment posées',
+      priority: 0.7,
+      changefreq: 'monthly',
+    },
+    {
+      path: '/help/contact',
+      title: 'Contact Support',
+      description: 'Contacter le support',
+      priority: 0.7,
+      changefreq: 'monthly',
+    },
+    {
+      path: '/help/tickets',
+      title: 'Support Tickets',
+      description: 'Gérer vos tickets de support',
+      priority: 0.7,
+      changefreq: 'daily',
+      requiresAuth: true,
+    },
+    {
+      path: '/help/guides',
+      title: 'User Guides',
+      description: 'Guides utilisateur et documentation',
+      priority: 0.7,
+      changefreq: 'monthly',
+    },
+    {
+      path: '/help/videos',
+      title: 'Video Tutorials',
+      description: 'Tutoriels vidéo',
+      priority: 0.7,
+      changefreq: 'monthly',
+    },
+  ],
   'Paramètres': [
     { 
       path: '/settings', 
