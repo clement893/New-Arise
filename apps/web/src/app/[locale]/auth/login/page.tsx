@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useRouter, Link, useSearchParams } from '@/i18n/routing';
+import { useRouter, Link } from '@/i18n/routing';
+import { useSearchParams } from 'next/navigation';
 import { AxiosError } from 'axios';
 import { authAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store';
