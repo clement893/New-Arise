@@ -36,6 +36,15 @@ export const config = {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Exclude non-localized routes from i18n middleware
+  const nonLocalizedRoutes = ['/sitemap.xml', '/robots.txt', '/api'];
+  const shouldSkipI18n = nonLocalizedRoutes.some(route => pathname.startsWith(route));
+  
+  if (shouldSkipI18n) {
+    // Skip i18n middleware for these routes
+    return NextResponse.next();
+  }
+
   // Handle i18n routing first
   const response = intlMiddleware(request);
   
