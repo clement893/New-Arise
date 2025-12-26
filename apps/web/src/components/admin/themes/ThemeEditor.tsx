@@ -16,6 +16,7 @@ import Tabs, { TabList, Tab, TabPanels, TabPanel } from '@/components/ui/Tabs';
 import type { Theme, ThemeCreate, ThemeUpdate } from '@modele/types';
 import { Palette, Type, Layout, Eye, Save, X, Sparkles } from 'lucide-react';
 import { FontInstaller } from './FontInstaller';
+import { EffectsManager } from './EffectsManager';
 
 // Font options with preview
 const FONT_OPTIONS = [
