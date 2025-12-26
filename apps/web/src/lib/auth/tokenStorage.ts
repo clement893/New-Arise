@@ -37,7 +37,7 @@ export class TokenStorage {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ token, refreshToken }),
+        body: JSON.stringify({ accessToken: token, refreshToken }),
         credentials: 'include', // Important: include cookies
       });
 

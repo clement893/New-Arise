@@ -100,6 +100,11 @@ async def get_current_user(
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    
+    # Handle case where token might be None (shouldn't happen with oauth2_scheme, but be safe)
+    if not token:
+        raise credentials_exception
+    
     try:
         logger.info(f"Decoding token: {token[:20]}...")
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])

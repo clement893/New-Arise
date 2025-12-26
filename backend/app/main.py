@@ -103,13 +103,18 @@ def create_app() -> FastAPI:
     @app.middleware("http")
     async def log_requests_middleware(request: Request, call_next):
         from app.core.logging import logger
+        from starlette.responses import Response
         import time
         start_time = time.time()
         logger.info(f"Incoming request: {request.method} {request.url.path} from {request.client.host if request.client else 'unknown'}")
         try:
             response = await call_next(request)
             process_time = time.time() - start_time
-            logger.info(f"Request completed: {request.method} {request.url.path} - {response.status_code} ({process_time:.4f}s)")
+            # Ensure response is a Response instance before accessing status_code
+            if isinstance(response, Response):
+                logger.info(f"Request completed: {request.method} {request.url.path} - {response.status_code} ({process_time:.4f}s)")
+            else:
+                logger.info(f"Request completed: {request.method} {request.url.path} ({process_time:.4f}s)")
             return response
         except Exception as e:
             process_time = time.time() - start_time
