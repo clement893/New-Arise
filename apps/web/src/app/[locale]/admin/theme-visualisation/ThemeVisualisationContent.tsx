@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { getActiveTheme } from '@/lib/api/theme';
-import type { ThemeConfigResponse, ThemeConfig } from '@modele/types';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Alert } from '@/components/ui/Alert';
+import type { ThemeConfigResponse } from '@modele/types';
+import Card from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
+import Alert from '@/components/ui/Alert';
 import { RefreshCw, Palette, Type, Layout, Sparkles } from 'lucide-react';
 
 export function ThemeVisualisationContent() {
