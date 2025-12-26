@@ -4,7 +4,7 @@ Feature flags for gradual rollouts and A/B testing
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Index, func, Boolean, JSON, Float
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Index, func, Boolean, JSON, Float
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
