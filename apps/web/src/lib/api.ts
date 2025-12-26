@@ -408,8 +408,8 @@ export const subscriptionsAPI = {
 };
 
 export const teamsAPI = {
-  list: () => {
-    return apiClient.get('/v1/teams');
+  list: (skip = 0, limit = 100) => {
+    return apiClient.get(`/v1/teams?skip=${skip}&limit=${limit}`);
   },
   get: (teamId: string) => {
     return apiClient.get(`/v1/teams/${teamId}`);
