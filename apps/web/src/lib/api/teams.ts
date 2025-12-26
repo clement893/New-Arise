@@ -81,39 +81,39 @@ export interface TeamListResponse {
 
 export const teamsAPI = {
   list: async (skip = 0, limit = 100): Promise<ApiResponse<TeamListResponse>> => {
-    return apiClient.get<TeamListResponse>(`/teams?skip=${skip}&limit=${limit}`);
+    return apiClient.get<TeamListResponse>(`/v1/teams?skip=${skip}&limit=${limit}`);
   },
   listTeams: async (skip = 0, limit = 100): Promise<ApiResponse<TeamListResponse>> => {
-    return apiClient.get<TeamListResponse>(`/teams?skip=${skip}&limit=${limit}`);
+    return apiClient.get<TeamListResponse>(`/v1/teams?skip=${skip}&limit=${limit}`);
   },
   getTeam: async (teamId: number): Promise<ApiResponse<Team>> => {
-    return apiClient.get<Team>(`/teams/${teamId}`);
+    return apiClient.get<Team>(`/v1/teams/${teamId}`);
   },
   create: async (data: TeamCreate): Promise<ApiResponse<Team>> => {
-    return apiClient.post<Team>('/teams', data);
+    return apiClient.post<Team>('/v1/teams', data);
   },
   createTeam: async (data: TeamCreate): Promise<ApiResponse<Team>> => {
-    return apiClient.post<Team>('/teams', data);
+    return apiClient.post<Team>('/v1/teams', data);
   },
   updateTeam: async (teamId: number, data: TeamUpdate): Promise<ApiResponse<Team>> => {
-    return apiClient.put<Team>(`/teams/${teamId}`, data);
+    return apiClient.put<Team>(`/v1/teams/${teamId}`, data);
   },
   deleteTeam: async (teamId: number): Promise<ApiResponse<void>> => {
-    return apiClient.delete<void>(`/teams/${teamId}`);
+    return apiClient.delete<void>(`/v1/teams/${teamId}`);
   },
   getTeamMembers: async (teamId: number): Promise<ApiResponse<TeamMember[]>> => {
-    return apiClient.get<TeamMember[]>(`/teams/${teamId}/members`);
+    return apiClient.get<TeamMember[]>(`/v1/teams/${teamId}/members`);
   },
   addTeamMember: async (teamId: number, data: TeamMemberAdd): Promise<ApiResponse<TeamMember>> => {
-    return apiClient.post<TeamMember>(`/teams/${teamId}/members`, data);
+    return apiClient.post<TeamMember>(`/v1/teams/${teamId}/members`, data);
   },
   updateTeamMember: async (teamId: number, memberId: number, data: TeamMemberUpdate): Promise<ApiResponse<TeamMember>> => {
-    return apiClient.put<TeamMember>(`/teams/${teamId}/members/${memberId}`, data);
+    return apiClient.put<TeamMember>(`/v1/teams/${teamId}/members/${memberId}`, data);
   },
   removeTeamMember: async (teamId: number, memberId: number): Promise<ApiResponse<void>> => {
-    return apiClient.delete<void>(`/teams/${teamId}/members/${memberId}`);
+    return apiClient.delete<void>(`/v1/teams/${teamId}/members/${memberId}`);
   },
   getMyTeams: async (): Promise<ApiResponse<TeamListResponse>> => {
-    return apiClient.get<TeamListResponse>('/teams');
+    return apiClient.get<TeamListResponse>('/v1/teams');
   },
 };
