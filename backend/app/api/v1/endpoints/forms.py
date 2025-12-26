@@ -13,6 +13,7 @@ from app.models.form import Form, FormSubmission
 from app.models.user import User
 from app.dependencies import get_current_user, get_db
 from app.core.security_audit import SecurityAuditLogger
+from app.core.tenancy_helpers import apply_tenant_scope
 
 router = APIRouter()
 
@@ -84,7 +85,10 @@ async def list_forms(
     db: AsyncSession = Depends(get_db),
 ):
     """List all forms"""
-    result = await db.execute(select(Form).order_by(Form.created_at.desc()))
+    query = select(Form).order_by(Form.created_at.desc())
+    # Apply tenant scoping if tenancy is enabled
+    query = apply_tenant_scope(query, Form)
+    result = await db.execute(query)
     forms = result.scalars().all()
     return [FormResponse.model_validate(form) for form in forms]
 
@@ -96,7 +100,10 @@ async def get_form(
     db: AsyncSession = Depends(get_db),
 ):
     """Get a form by ID"""
-    result = await db.execute(select(Form).where(Form.id == form_id))
+    query = select(Form).where(Form.id == form_id)
+    # Apply tenant scoping if tenancy is enabled
+    query = apply_tenant_scope(query, Form)
+    result = await db.execute(query)
     form = result.scalar_one_or_none()
     
     if not form:
@@ -145,7 +152,10 @@ async def update_form(
     db: AsyncSession = Depends(get_db),
 ):
     """Update a form"""
-    result = await db.execute(select(Form).where(Form.id == form_id))
+    query = select(Form).where(Form.id == form_id)
+    # Apply tenant scoping if tenancy is enabled
+    query = apply_tenant_scope(query, Form)
+    result = await db.execute(query)
     form = result.scalar_one_or_none()
     
     if not form:
@@ -189,7 +199,10 @@ async def delete_form(
     db: AsyncSession = Depends(get_db),
 ):
     """Delete a form"""
-    result = await db.execute(select(Form).where(Form.id == form_id))
+    query = select(Form).where(Form.id == form_id)
+    # Apply tenant scoping if tenancy is enabled
+    query = apply_tenant_scope(query, Form)
+    result = await db.execute(query)
     form = result.scalar_one_or_none()
     
     if not form:
@@ -224,7 +237,10 @@ async def create_submission(
     """Submit a form"""
     from fastapi import Request as FastAPIRequest
     
-    result = await db.execute(select(Form).where(Form.id == form_id))
+    query = select(Form).where(Form.id == form_id)
+    # Apply tenant scoping if tenancy is enabled
+    query = apply_tenant_scope(query, Form)
+    result = await db.execute(query)
     form = result.scalar_one_or_none()
     
     if not form:
