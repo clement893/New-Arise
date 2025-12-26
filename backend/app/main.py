@@ -42,28 +42,50 @@ from app.api.webhooks import stripe as stripe_webhook_router
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Lifespan context manager for startup and shutdown events"""
-    from app.core.logging import logger
+    import sys
     import os
+    
+    # Use print for critical startup messages to ensure they're visible even if logging fails
+    print("=" * 50, file=sys.stderr)
+    print("FastAPI Application Starting...", file=sys.stderr)
+    print("=" * 50, file=sys.stderr)
+    
+    try:
+        from app.core.logging import logger
+    except Exception as e:
+        print(f"WARNING: Failed to initialize logger: {e}", file=sys.stderr)
+        logger = None
     
     # Startup - make database initialization resilient
     try:
         await init_db()
-        logger.info("Database initialized successfully")
+        if logger:
+            logger.info("Database initialized successfully")
+        print("✓ Database initialized", file=sys.stderr)
     except Exception as e:
-        logger.error(f"Database initialization failed: {e}. App will continue but database features may be unavailable.")
-        logger.warning("The app will start, but database operations will fail until connection is established.")
+        error_msg = f"Database initialization failed: {e}. App will continue but database features may be unavailable."
+        if logger:
+            logger.error(error_msg)
+            logger.warning("The app will start, but database operations will fail until connection is established.")
+        print(f"⚠ {error_msg}", file=sys.stderr)
     
     try:
         await init_cache()
-        logger.info("Cache initialized successfully")
+        if logger:
+            logger.info("Cache initialized successfully")
+        print("✓ Cache initialized", file=sys.stderr)
     except Exception as e:
-        logger.warning(f"Cache initialization failed: {e}. App will continue without cache.")
+        warning_msg = f"Cache initialization failed: {e}. App will continue without cache."
+        if logger:
+            logger.warning(warning_msg)
+        print(f"⚠ {warning_msg}", file=sys.stderr)
     
     # Ensure required columns exist (auto-migration) - only if DB is available
     try:
         await ensure_theme_preference_column()
     except Exception as e:
-        logger.warning(f"Theme preference column migration skipped: {e}")
+        if logger:
+            logger.warning(f"Theme preference column migration skipped: {e}")
     
     # Create recommended indexes (non-blocking, runs concurrently)
     try:
@@ -72,31 +94,46 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         
         async with AsyncSessionLocal() as session:
             index_results = await create_recommended_indexes(session)
-            if index_results["created"]:
-                logger.info(f"Created {len(index_results['created'])} indexes")
-            if index_results["errors"]:
-                logger.warning(f"Failed to create {len(index_results['errors'])} indexes")
+            if index_results.get("created"):
+                if logger:
+                    logger.info(f"Created {len(index_results['created'])} indexes")
+            if index_results.get("errors"):
+                if logger:
+                    logger.warning(f"Failed to create {len(index_results['errors'])} indexes")
             
             # Analyze tables to update statistics
             await analyze_tables(session)
     except Exception as e:
-        logger.warning(f"Index creation/analysis skipped: {e}")
+        if logger:
+            logger.warning(f"Index creation/analysis skipped: {e}")
     
-    logger.info(f"CORS Origins configured: {settings.CORS_ORIGINS}")
-    logger.info(f"ENVIRONMENT: {os.getenv('ENVIRONMENT', 'NOT SET')}")
-    logger.info(f"RAILWAY_ENVIRONMENT: {os.getenv('RAILWAY_ENVIRONMENT', 'NOT SET')}")
-    logger.info(f"RAILWAY_SERVICE_NAME: {os.getenv('RAILWAY_SERVICE_NAME', 'NOT SET')}")
-    logger.info("Application startup complete")
+    if logger:
+        logger.info(f"CORS Origins configured: {settings.CORS_ORIGINS}")
+        logger.info(f"ENVIRONMENT: {os.getenv('ENVIRONMENT', 'NOT SET')}")
+        logger.info(f"RAILWAY_ENVIRONMENT: {os.getenv('RAILWAY_ENVIRONMENT', 'NOT SET')}")
+        logger.info(f"RAILWAY_SERVICE_NAME: {os.getenv('RAILWAY_SERVICE_NAME', 'NOT SET')}")
+        logger.info("Application startup complete")
+    
+    print("=" * 50, file=sys.stderr)
+    print("✓ FastAPI Application Started Successfully", file=sys.stderr)
+    print(f"  Environment: {os.getenv('ENVIRONMENT', 'development')}", file=sys.stderr)
+    print(f"  Port: {os.getenv('PORT', '8000')}", file=sys.stderr)
+    print("=" * 50, file=sys.stderr)
+    
     yield
+    
     # Shutdown
+    print("Shutting down application...", file=sys.stderr)
     try:
         await close_cache()
     except Exception as e:
-        logger.warning(f"Cache shutdown error: {e}")
+        if logger:
+            logger.warning(f"Cache shutdown error: {e}")
     try:
         await close_db()
     except Exception as e:
-        logger.warning(f"Database shutdown error: {e}")
+        if logger:
+            logger.warning(f"Database shutdown error: {e}")
 
 
 def create_app() -> FastAPI:
