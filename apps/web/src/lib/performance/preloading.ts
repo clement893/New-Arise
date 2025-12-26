@@ -111,7 +111,8 @@ export function initializePreloading() {
 
     // Preload critical API endpoints
     preloadAPIEndpoint('/api/v1/health/');
-    preloadAPIEndpoint('/api/v1/users/me');
+    // Note: /api/v1/auth/me requires authentication, so we don't preload it
+    // Preloading authenticated endpoints can cause 422 errors if user is not logged in
   } catch (error) {
     // Silently fail preloading - it's a performance optimization, not critical
     if (process.env.NODE_ENV === 'development') {
