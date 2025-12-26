@@ -58,5 +58,63 @@
     "unauthorized": "Non autorisé",
     "forbidden": "Interdit",
     "serverError": "Erreur serveur"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "description": "Gérez les paramètres et préférences de l'application",
+    "breadcrumbs": {
+      "dashboard": "Tableau de bord",
+      "settings": "Paramètres"
+    },
+    "navigation": {
+      "general": "Général",
+      "generalDescription": "Paramètres et préférences de base de l'application",
+      "organization": "Organisation",
+      "organizationDescription": "Nom de l'organisation, logo et paramètres de domaine",
+      "team": "Équipe",
+      "teamDescription": "Gérer les membres de l'équipe et les permissions",
+      "billing": "Facturation",
+      "billingDescription": "Gestion de la facturation et des abonnements",
+      "integrations": "Intégrations",
+      "integrationsDescription": "Intégrations et connexions tierces",
+      "api": "API",
+      "apiDescription": "Configuration et paramètres de l'API",
+      "security": "Sécurité",
+      "securityDescription": "Paramètres de sécurité, 2FA et sessions",
+      "notifications": "Notifications",
+      "notificationsDescription": "Préférences et paramètres de notification",
+      "preferences": "Préférences",
+      "preferencesDescription": "Préférences utilisateur et personnalisation"
+    },
+    "errors": {
+      "loadFailed": "Échec du chargement des paramètres. Veuillez réessayer.",
+      "updateFailed": "Échec de la mise à jour des paramètres. Veuillez réessayer."
+    },
+    "general": {
+      "title": "Paramètres généraux",
+      "description": "Gérer les paramètres et préférences générales de l'application",
+      "breadcrumbs": {
+        "dashboard": "Tableau de bord",
+        "settings": "Paramètres",
+        "general": "Général"
+      },
+      "errors": {
+        "loadFailed": "Échec du chargement des paramètres généraux. Veuillez réessayer.",
+        "saveFailed": "Échec de l'enregistrement des paramètres généraux. Veuillez réessayer."
+      }
+    },
+    "organization": {
+      "title": "Paramètres de l'organisation",
+      "description": "Gérez les paramètres et la configuration de votre organisation",
+      "breadcrumbs": {
+        "dashboard": "Tableau de bord",
+        "settings": "Paramètres",
+        "organization": "Organisation"
+      },
+      "errors": {
+        "loadFailed": "Échec du chargement des paramètres de l'organisation. Veuillez réessayer.",
+        "saveFailed": "Échec de l'enregistrement des paramètres de l'organisation. Veuillez réessayer."
+      }
+    }
   }
 }
