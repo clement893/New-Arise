@@ -1,0 +1,96 @@
+/**
+ * Blog Post Detail Page
+ * 
+ * Public page displaying a single blog post by slug.
+ */
+
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { BlogPost } from '@/components/blog';
+import { PageContainer } from '@/components/layout';
+import { Loading, Alert } from '@/components/ui';
+import { logger } from '@/lib/logger';
+import type { BlogPost as BlogPostType } from '@/components/content';
+
+export default function BlogPostPage() {
+  const t = useTranslations('blog');
+  const params = useParams();
+  const slug = params?.slug as string;
+  const [post, setPost] = useState<BlogPostType | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (slug) {
+      loadPost(slug);
+    }
+  }, [slug]);
+
+  const loadPost = async (postSlug: string) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      // TODO: Replace with actual blog post API endpoint when available
+      // Example: const response = await apiClient.get(`/v1/blog/posts/${postSlug}`);
+      
+      // Placeholder: null for now
+      setPost(null);
+      
+      setIsLoading(false);
+    } catch (error) {
+      logger.error('Failed to load blog post', error instanceof Error ? error : new Error(String(error)));
+      setError(t('errors.loadFailed') || 'Failed to load blog post. Please try again.');
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <PageContainer>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loading />
+        </div>
+      </PageContainer>
+    );
+  }
+
+  if (error) {
+    return (
+      <PageContainer>
+        <div className="mt-6">
+          <Alert variant="error">
+            {error}
+          </Alert>
+        </div>
+      </PageContainer>
+    );
+  }
+
+  if (!post) {
+    return (
+      <PageContainer>
+        <div className="text-center py-12">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+            Post Not Found
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            The blog post you're looking for doesn't exist.
+          </p>
+        </div>
+      </PageContainer>
+    );
+  }
+
+  return (
+    <PageContainer>
+      <div className="max-w-4xl mx-auto">
+        <BlogPost post={post} />
+      </div>
+    </PageContainer>
+  );
+}
+
