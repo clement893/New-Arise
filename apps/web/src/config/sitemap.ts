@@ -219,6 +219,16 @@ export const sitePages: Record<string, SitemapPage[]> = {
       changefreq: 'daily',
     },
   ],
+  'Page Builder': [
+    {
+      path: '/pages',
+      title: 'Pages',
+      description: 'Gestion des pages',
+      priority: 0.8,
+      changefreq: 'weekly',
+      requiresAuth: true,
+    },
+  ],
   'Aide & Support': [
     {
       path: '/help',
