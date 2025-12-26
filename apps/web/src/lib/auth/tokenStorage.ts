@@ -30,8 +30,15 @@ export class TokenStorage {
       return; // Server-side, skip
     }
 
+    // Store in sessionStorage FIRST (synchronously) so it's immediately available
+    // This prevents race conditions where API calls are made before the token is stored
+    sessionStorage.setItem(TOKEN_KEY, token);
+    if (refreshToken) {
+      sessionStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    }
+
     try {
-      // Set tokens via API route (httpOnly cookies)
+      // Set tokens via API route (httpOnly cookies) - this is async but token is already in sessionStorage
       await fetch(TOKEN_API_ENDPOINT, {
         method: 'POST',
         headers: {
@@ -40,18 +47,11 @@ export class TokenStorage {
         body: JSON.stringify({ accessToken: token, refreshToken }),
         credentials: 'include', // Important: include cookies
       });
-
-      // Also store in sessionStorage for backward compatibility
-      // This will be removed once all code is migrated to cookie-based auth
-      sessionStorage.setItem(TOKEN_KEY, token);
-      if (refreshToken) {
-        sessionStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-      }
     } catch (error) {
-      // Fallback to sessionStorage if API call fails
-      sessionStorage.setItem(TOKEN_KEY, token);
-      if (refreshToken) {
-        sessionStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+      // Token is already in sessionStorage, so API call failure is not critical
+      // Log error but don't throw - token is still available for immediate use
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Failed to set token via API route, but token is stored in sessionStorage:', error);
       }
     }
   }
