@@ -24,6 +24,7 @@ from app.models.announcement import Announcement, AnnouncementDismissal, Announc
 from app.models.feedback import Feedback, FeedbackAttachment, FeedbackType, FeedbackStatus
 from app.models.onboarding import OnboardingStep, UserOnboarding
 from app.models.documentation import DocumentationArticle, DocumentationCategory, DocumentationFeedback
+from app.models.scheduled_task import ScheduledTask, TaskExecutionLog, TaskStatus, TaskType
 from app.core.security_audit import SecurityAuditLog
 
 __all__ = [
@@ -72,6 +73,10 @@ __all__ = [
     "DocumentationArticle",
     "DocumentationCategory",
     "DocumentationFeedback",
+    "ScheduledTask",
+    "TaskExecutionLog",
+    "TaskStatus",
+    "TaskType",
     "SecurityAuditLog",
 ]
 
