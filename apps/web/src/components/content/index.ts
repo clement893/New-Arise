@@ -21,3 +21,6 @@ export type { Category, CategoriesManagerProps } from './CategoriesManager';
 export { default as TagsManager } from './TagsManager';
 export type { TagItem, TagsManagerProps } from './TagsManager';
 
+export { default as TemplatesManager } from './TemplatesManager';
+export type { ContentTemplate, TemplatesManagerProps } from './TemplatesManager';
+
