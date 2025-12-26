@@ -229,6 +229,32 @@ export const sitePages: Record<string, SitemapPage[]> = {
       requiresAuth: true,
     },
   ],
+  'CMS Features': [
+    {
+      path: '/menus',
+      title: 'Menu Management',
+      description: 'Gestion des menus de navigation',
+      priority: 0.7,
+      changefreq: 'monthly',
+      requiresAuth: true,
+    },
+    {
+      path: '/forms',
+      title: 'Form Builder',
+      description: 'Création de formulaires dynamiques',
+      priority: 0.7,
+      changefreq: 'monthly',
+      requiresAuth: true,
+    },
+    {
+      path: '/seo',
+      title: 'SEO Management',
+      description: 'Gestion des paramètres SEO',
+      priority: 0.7,
+      changefreq: 'monthly',
+      requiresAuth: true,
+    },
+  ],
   'Aide & Support': [
     {
       path: '/help',
