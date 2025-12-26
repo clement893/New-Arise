@@ -46,7 +46,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@modele/types": ["../../packages/types/src"]
+      "@modele/types": ["../../packages/types/src"],
+      "@modele/types/theme": ["../../packages/types/dist/theme"],
+      "@modele/types/portal": ["../../packages/types/dist/portal"]
     },
     
     // Next.js 16 specific

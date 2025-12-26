@@ -40,10 +40,16 @@ RUN pnpm install --offline --no-frozen-lockfile || pnpm install --no-frozen-lock
 
 # Copy and build types package first (required for web app build)
 COPY packages/types ./packages/types
-RUN cd packages/types && pnpm build
+RUN cd packages/types && pnpm build && ls -la dist/
+
+# Verify types package was built correctly
+RUN test -f packages/types/dist/theme.d.ts || (echo "ERROR: theme.d.ts not found after build" && exit 1)
 
 # Copy rest of the code
 COPY . .
+
+# Reinstall to ensure workspace links are correct after types package build
+RUN pnpm install --offline --no-frozen-lockfile || pnpm install --no-frozen-lockfile
 
 # Railway passes environment variables, but they need to be available during build
 # We use ARG to accept them and ENV to make them available to Next.js
