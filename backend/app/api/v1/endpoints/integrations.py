@@ -63,13 +63,38 @@ async def list_integrations(
     db: AsyncSession = Depends(get_db),
 ):
     """Get all integrations for the current user"""
-    result = await db.execute(
-        select(Integration)
-        .where(Integration.user_id == current_user.id)
-        .order_by(Integration.created_at.desc())
-    )
-    integrations = result.scalars().all()
-    return integrations
+    try:
+        result = await db.execute(
+            select(Integration)
+            .where(Integration.user_id == current_user.id)
+            .order_by(Integration.created_at.desc())
+        )
+        integrations = result.scalars().all()
+        
+        # Convert to response models with proper date serialization
+        return [
+            IntegrationResponse(
+                id=integration.id,
+                type=integration.type,
+                name=integration.name,
+                description=integration.description,
+                enabled=integration.enabled,
+                config=integration.config,
+                last_sync_at=integration.last_sync_at.isoformat() if integration.last_sync_at else None,
+                last_error=integration.last_error,
+                error_count=integration.error_count,
+                created_at=integration.created_at.isoformat() if integration.created_at else "",
+                updated_at=integration.updated_at.isoformat() if integration.updated_at else "",
+            )
+            for integration in integrations
+        ]
+    except Exception as e:
+        from app.core.logging import logger
+        logger.error(f"Error listing integrations: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve integrations"
+        )
 
 
 @router.get("/{integration_id}", response_model=IntegrationResponse, tags=["integrations"])
