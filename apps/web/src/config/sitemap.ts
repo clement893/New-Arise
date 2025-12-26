@@ -96,6 +96,14 @@ export const sitePages: Record<string, SitemapPage[]> = {
       requiresAuth: true,
     },
     { 
+      path: '/dashboard/insights', 
+      title: 'Business Insights', 
+      description: 'Métriques et tendances business',
+      priority: 0.8,
+      changefreq: 'daily',
+      requiresAuth: true,
+    },
+    { 
       path: '/profile', 
       title: 'Profile', 
       description: 'Gérer votre profil utilisateur',

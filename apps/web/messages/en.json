@@ -97,6 +97,26 @@
       "errors": {
         "loadFailed": "Failed to load activity feed. Please try again."
       }
+    },
+    "insights": {
+      "title": "Business Insights",
+      "description": "Key business metrics and trends",
+      "breadcrumbs": {
+        "dashboard": "Dashboard",
+        "insights": "Insights"
+      },
+      "sections": {
+        "metrics": "Key Metrics",
+        "revenue": "Revenue Trends",
+        "users": "User Growth"
+      },
+      "charts": {
+        "revenue": "Monthly Revenue",
+        "users": "Active Users Over Time"
+      },
+      "errors": {
+        "loadFailed": "Failed to load insights. Please try again."
+      }
     }
   },
   "language": {
