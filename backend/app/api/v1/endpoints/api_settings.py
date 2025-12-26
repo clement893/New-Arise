@@ -4,7 +4,7 @@ Manage API configuration settings for users
 """
 
 from typing import Dict, Any, Optional
-from fastapi import APIRouter, Depends, HTTPException, status, Body
+from fastapi import APIRouter, Depends, HTTPException, status, Body, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel, Field, field_validator
 
@@ -48,6 +48,7 @@ class APISettingsResponse(BaseModel):
 @router.get("/", response_model=APISettingsResponse, tags=["api-settings"])
 @rate_limit_decorator("30/minute")
 async def get_api_settings(
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -68,6 +69,7 @@ async def get_api_settings(
 @rate_limit_decorator("20/minute")
 async def update_api_settings(
     settings: APISettingsData = Body(...),
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):

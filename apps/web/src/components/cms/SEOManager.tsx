@@ -10,7 +10,7 @@
 
 import { useState } from 'react';
 import { Card, Input, Textarea, Button, Alert } from '@/components/ui';
-import { Save, Search } from 'lucide-react';
+import { Save } from 'lucide-react';
 
 export interface SEOSettings {
   title?: string;

@@ -79,8 +79,8 @@ async def setup_two_factor(
 @router.post("/verify")
 @rate_limit_decorator("10/minute")
 async def verify_two_factor_setup(
-    http_request: Request,
-    request: TwoFactorVerifyRequest,
+    request: Request,
+    data: TwoFactorVerifyRequest,
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
@@ -94,7 +94,7 @@ async def verify_two_factor_setup(
     # Verify token
     is_valid = TwoFactorAuth.verify_totp(
         secret=current_user.two_factor_secret,
-        token=request.token,
+        token=data.token,
     )
     
     if not is_valid:
@@ -115,8 +115,8 @@ async def verify_two_factor_setup(
 @router.post("/disable")
 @rate_limit_decorator("5/minute")
 async def disable_two_factor(
-    http_request: Request,
-    request: TwoFactorDisableRequest,
+    request: Request,
+    data: TwoFactorDisableRequest,
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
@@ -137,8 +137,8 @@ async def disable_two_factor(
 @router.post("/verify-login")
 @rate_limit_decorator("10/minute")
 async def verify_two_factor_login(
-    http_request: Request,
-    request: TwoFactorVerifyRequest,
+    request: Request,
+    data: TwoFactorVerifyRequest,
     current_user: Annotated[User, Depends(get_current_user)],
 ):
     """Verify 2FA token during login"""
@@ -157,7 +157,7 @@ async def verify_two_factor_login(
     # Verify TOTP token
     is_valid = TwoFactorAuth.verify_totp(
         secret=current_user.two_factor_secret,
-        token=request.token,
+        token=data.token,
     )
     
     if not is_valid:
