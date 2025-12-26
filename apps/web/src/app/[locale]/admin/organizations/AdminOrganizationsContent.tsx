@@ -67,6 +67,17 @@ export default function AdminOrganizationsContent() {
     }
   };
 
+  // Helper function to generate slug from name
+  const generateSlug = (name: string): string => {
+    return name
+      .toLowerCase()
+      .normalize('NFD') // Normalize to decomposed form for handling accents
+      .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+      .replace(/[^a-z0-9-]/g, '-') // Replace non-alphanumeric with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+      .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+  };
+
   const handleCreateTeam = async () => {
     if (!newTeamName.trim()) {
       setError('Le nom de l\'organisation est requis');
@@ -75,17 +86,36 @@ export default function AdminOrganizationsContent() {
 
     try {
       setLoading(true);
+      setError(null);
+      
+      // Generate slug from name
+      const slug = generateSlug(newTeamName);
+      
+      if (!slug) {
+        setError('Le nom doit contenir au moins un caractère alphanumérique');
+        return;
+      }
+
       const { teamsAPI } = await import('@/lib/api');
-      await teamsAPI.create({
-        name: newTeamName,
-        description: newTeamDescription || undefined,
+      await teamsAPI.createTeam({
+        name: newTeamName.trim(),
+        slug: slug,
+        description: newTeamDescription.trim() || undefined,
       });
       await loadTeams();
       setShowCreateModal(false);
       setNewTeamName('');
       setNewTeamDescription('');
     } catch (err: unknown) {
-      setError(getErrorDetail(err) || getErrorMessage(err, 'Erreur lors de la création de l\'organisation'));
+      const errorDetail = getErrorDetail(err);
+      const errorMessage = getErrorMessage(err, 'Erreur lors de la création de l\'organisation');
+      
+      // Check if error is about slug already existing
+      if (errorDetail?.includes('slug') || errorDetail?.includes('already exists')) {
+        setError('Une organisation avec ce nom existe déjà. Veuillez choisir un autre nom.');
+      } else {
+        setError(errorDetail || errorMessage);
+      }
     } finally {
       setLoading(false);
     }
