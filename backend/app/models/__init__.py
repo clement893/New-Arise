@@ -25,6 +25,7 @@ from app.models.feedback import Feedback, FeedbackAttachment, FeedbackType, Feed
 from app.models.onboarding import OnboardingStep, UserOnboarding
 from app.models.documentation import DocumentationArticle, DocumentationCategory, DocumentationFeedback
 from app.models.scheduled_task import ScheduledTask, TaskExecutionLog, TaskStatus, TaskType
+from app.models.backup import Backup, RestoreOperation, BackupType, BackupStatus
 from app.core.security_audit import SecurityAuditLog
 
 __all__ = [
@@ -77,6 +78,10 @@ __all__ = [
     "TaskExecutionLog",
     "TaskStatus",
     "TaskType",
+    "Backup",
+    "RestoreOperation",
+    "BackupType",
+    "BackupStatus",
     "SecurityAuditLog",
 ]
 

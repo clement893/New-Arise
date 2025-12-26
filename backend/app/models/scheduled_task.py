@@ -85,7 +85,7 @@ class TaskExecutionLog(Base):
     __table_args__ = (
         Index("idx_task_execution_logs_task", "task_id"),
         Index("idx_task_execution_logs_status", "status"),
-        Index("idx_task_execution_logs_executed_at", "executed_at"),
+        Index("idx_task_execution_logs_started_at", "started_at"),
     )
     
     id = Column(Integer, primary_key=True, index=True)
