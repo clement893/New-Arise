@@ -115,6 +115,19 @@
         "loadFailed": "Échec du chargement des paramètres de l'organisation. Veuillez réessayer.",
         "saveFailed": "Échec de l'enregistrement des paramètres de l'organisation. Veuillez réessayer."
       }
+    },
+    "preferences": {
+      "title": "Paramètres des préférences",
+      "description": "Gérez vos préférences utilisateur et la personnalisation",
+      "breadcrumbs": {
+        "dashboard": "Tableau de bord",
+        "settings": "Paramètres",
+        "preferences": "Préférences"
+      },
+      "errors": {
+        "loadFailed": "Échec du chargement des préférences. Veuillez réessayer.",
+        "saveFailed": "Échec de l'enregistrement des préférences. Veuillez réessayer."
+      }
     }
   }
 }
