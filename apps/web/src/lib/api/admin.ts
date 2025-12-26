@@ -107,7 +107,7 @@ export async function makeSuperAdmin(
  */
 export async function checkMySuperAdminStatus(
   token?: string
-): Promise<{ is_superadmin: boolean }> {
+): Promise<{ is_superadmin: boolean; email?: string; user_id?: number; is_active?: boolean }> {
   try {
     // Use apiClient which handles token refresh automatically
     // If a token is provided, temporarily set it in storage for this request
@@ -116,7 +116,15 @@ export async function checkMySuperAdminStatus(
       await TokenStorage.setToken(token); // Set token for this request
       try {
         const response = await apiClient.get(`/v1/admin/check-my-superadmin-status`);
-        return response.data;
+        // Backend returns data directly: { email, user_id, is_superadmin, is_active }
+        // apiClient wraps it in ApiResponse, so we need to check response.data.data or response.data
+        const data = (response as any).data?.data || (response as any).data || response.data;
+        return {
+          is_superadmin: data.is_superadmin === true,
+          email: data.email,
+          user_id: data.user_id,
+          is_active: data.is_active
+        };
       } finally {
         // Restore original token if it was different
         if (originalToken) {
@@ -127,7 +135,15 @@ export async function checkMySuperAdminStatus(
     
     // Use apiClient which automatically handles token refresh on 401
     const response = await apiClient.get(`/v1/admin/check-my-superadmin-status`);
-    return response.data;
+    // Backend returns data directly: { email, user_id, is_superadmin, is_active }
+    // apiClient wraps it in ApiResponse, so we need to check response.data.data or response.data
+    const data = (response as any).data?.data || (response as any).data || response.data;
+    return {
+      is_superadmin: data.is_superadmin === true,
+      email: data.email,
+      user_id: data.user_id,
+      is_active: data.is_active
+    };
   } catch (error: any) {
     // Handle network errors
     if (error instanceof Error && (error.name === 'AbortError' || error.message.includes('Failed to fetch'))) {

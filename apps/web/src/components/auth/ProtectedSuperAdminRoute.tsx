@@ -52,26 +52,41 @@ export default function ProtectedSuperAdminRoute({ children }: ProtectedSuperAdm
             return;
           }
           
-          logger.debug('Checking superadmin status', { email: user.email, pathname });
+          logger.debug('Checking superadmin status', { 
+            email: user.email, 
+            pathname,
+            has_token: !!authToken,
+            token_length: authToken?.length 
+          });
+          
           const status = await checkMySuperAdminStatus(authToken);
           
           logger.debug('Superadmin status check result', { 
             email: user.email, 
             is_superadmin: status.is_superadmin,
+            status_full: status,
             pathname 
           });
           
-          setIsSuperAdmin(status.is_superadmin);
+          // Handle both response formats: { is_superadmin } or full response
+          const isSuperAdmin = status.is_superadmin === true || (status as any).is_superadmin === true;
+          setIsSuperAdmin(isSuperAdmin);
           
-          if (!status.is_superadmin) {
+          if (!isSuperAdmin) {
             logger.warn('User is not superadmin, redirecting', { 
               email: user.email, 
               pathname,
-              user_is_admin: user.is_admin
+              user_is_admin: user.is_admin,
+              status_response: status
             });
             router.replace('/dashboard?error=unauthorized_superadmin');
             return;
           }
+          
+          logger.info('User is superadmin, granting access', { 
+            email: user.email, 
+            pathname 
+          });
         } else {
           // Fallback: check is_admin if email is not available
           // This is a temporary fallback - ideally all users should have email
