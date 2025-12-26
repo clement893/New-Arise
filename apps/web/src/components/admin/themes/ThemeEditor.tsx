@@ -12,7 +12,7 @@ import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
-import Tabs from '@/components/ui/Tabs';
+import Tabs, { TabList, Tab, TabPanels, TabPanel } from '@/components/ui/Tabs';
 import type { Theme, ThemeCreate, ThemeUpdate } from '@modele/types';
 import { Palette, Type, Layout, Eye, Save, X } from 'lucide-react';
 
