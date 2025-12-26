@@ -83,6 +83,17 @@ export default function AdminContent() {
             </Button>
           </Link>
         </Card>
+
+        <Card title="Visualisation du Thème" className="flex flex-col">
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            Visualiser et modifier le thème actif de la plateforme.
+          </p>
+          <Link href="/admin/theme-visualisation">
+            <Button variant="primary" className="w-full">
+              Visualiser le thème
+            </Button>
+          </Link>
+        </Card>
       </div>
 
       <Section title="Statut du système" className="mt-8">
