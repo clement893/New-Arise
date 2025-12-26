@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { PageHeader, PageContainer } from '@/components/layout';
-import { apiClient } from '@/lib/api/client';
+import { apiClient } from '@/lib/api';
 import { getErrorMessage } from '@/lib/errors';
 import { Button, Card, Badge, Alert, Input, Loading, DataTable, Select } from '@/components/ui';
 import type { Column } from '@/components/ui/DataTable';

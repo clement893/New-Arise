@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { PageHeader, PageContainer, Section } from '@/components/layout';
-import { apiClient } from '@/lib/api/client';
+import { apiClient } from '@/lib/api';
 import { getErrorMessage } from '@/lib/errors';
 import { Card, Badge, Alert, Loading } from '@/components/ui';
 
@@ -29,7 +29,7 @@ export default function AdminStatisticsContent() {
       setError(null);
       
       // Load users
-      const usersResponse = await apiClient.get('/v1/users?limit=1');
+      const usersResponse = await apiClient.get('/v1/users?page=1&page_size=1');
       interface PaginatedResponse<T> {
         data?: T | { data?: T; total?: number };
         total?: number;
@@ -53,7 +53,7 @@ export default function AdminStatisticsContent() {
       let totalLogs = 0;
       let recentActivities = 0;
       try {
-        const logsResponse = await apiClient.get('/v1/audit-trail/audit-trail?limit=1');
+        const logsResponse = await apiClient.get('/v1/audit-trail/audit-trail?limit=1&offset=0');
         const logsResponseData = (logsResponse as PaginatedResponse<AuditLog[]>).data;
         const logsData = logsResponseData && typeof logsResponseData === 'object' && 'data' in logsResponseData
           ? (logsResponseData as { data?: AuditLog[] }).data

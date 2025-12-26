@@ -5,7 +5,7 @@ import { Shield, Download, AlertCircle, CheckCircle, XCircle, Info, AlertTriangl
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
-import { apiClient } from '@/lib/api/client';
+import { apiClient } from '@/lib/api';
 
 interface AuditLog {
   id: number;
@@ -76,7 +76,7 @@ export function AuditTrailViewer({ className = '' }: AuditTrailViewerProps) {
       if (filters.start_date) params.start_date = filters.start_date;
       if (filters.end_date) params.end_date = filters.end_date;
 
-      const response = await apiClient.get<AuditLog[]>('/api/v1/audit-trail/audit-trail', { params });
+      const response = await apiClient.get<AuditLog[]>('/v1/audit-trail/audit-trail', { params });
       if (response.data) {
         setLogs(response.data);
       }
