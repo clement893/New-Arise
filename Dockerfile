@@ -90,10 +90,11 @@ RUN echo "=== .env.local contents ===" && \
     echo "==========================="
 
 # Build Next.js application
-# Uses Turbopack by default (faster), Webpack as fallback via USE_WEBPACK=true
+# Uses Webpack by default in production (more stable with next-auth catch-all routes)
+# Turbopack has issues with vendored Next.js modules in catch-all routes
 # Next.js will read variables from .env.local (created above) or ENV
-# To use Webpack fallback, set USE_WEBPACK=true in Railway environment variables
-RUN cd apps/web && pnpm build
+# To use Turbopack instead, set USE_TURBOPACK=true in Railway environment variables
+RUN cd apps/web && USE_WEBPACK=true pnpm build
 
 # Production image
 FROM base AS runner
