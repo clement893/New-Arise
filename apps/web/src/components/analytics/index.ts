@@ -4,6 +4,7 @@
 
 export { default as AnalyticsDashboard } from './AnalyticsDashboard';
 export { default as ReportBuilder } from './ReportBuilder';
+export { EnhancedReportBuilder } from './EnhancedReportBuilder';
 export { default as ReportViewer } from './ReportViewer';
 export { default as DataExport } from './DataExport';
 
