@@ -3,6 +3,7 @@
  */
 
 export { default as Comments } from './Comments';
+export { CommentThread } from './CommentThread';
 export { default as Mentions } from './Mentions';
 export { default as CollaborationPanel } from './CollaborationPanel';
 

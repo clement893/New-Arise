@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Reply, Heart, ThumbsUp, ThumbsDown, Smile, MoreVertical, Edit2, Trash2 } from 'lucide-react';
+import { Reply, Heart, ThumbsUp, ThumbsDown, Smile, Edit2, Trash2 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Avatar from '@/components/ui/Avatar';
 import { apiClient } from '@/lib/api/client';
