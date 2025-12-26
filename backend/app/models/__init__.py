@@ -20,6 +20,7 @@ from app.models.version import Version
 from app.models.share import Share, ShareAccessLog, PermissionLevel
 from app.models.feature_flag import FeatureFlag, FeatureFlagLog
 from app.models.user_preference import UserPreference
+from app.models.integration import Integration
 from app.models.announcement import Announcement, AnnouncementDismissal, AnnouncementType, AnnouncementPriority
 from app.models.feedback import Feedback, FeedbackAttachment, FeedbackType, FeedbackStatus
 from app.models.onboarding import OnboardingStep, UserOnboarding
@@ -62,6 +63,7 @@ __all__ = [
     "FeatureFlag",
     "FeatureFlagLog",
     "UserPreference",
+    "Integration",
     "Announcement",
     "AnnouncementDismissal",
     "AnnouncementType",
