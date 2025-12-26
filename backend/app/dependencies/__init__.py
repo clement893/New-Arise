@@ -45,24 +45,18 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    user_id: Optional[str] = payload.get("sub")
-    if not user_id:
+    # The 'sub' claim in the token contains the user's email (not ID)
+    # This matches the implementation in app/api/v1/endpoints/auth.py
+    email: Optional[str] = payload.get("sub")
+    if not email:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Fetch user from database
-    # User.id is Integer, not UUID, so convert string to int
-    try:
-        user_id_int = int(user_id) if isinstance(user_id, str) else user_id
-    except (ValueError, TypeError):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid user ID format",
-        )
-    result = await db.execute(select(User).where(User.id == user_id_int))
+    # Fetch user from database by email
+    result = await db.execute(select(User).where(User.email == email))
     user = result.scalar_one_or_none()
 
     if not user:
