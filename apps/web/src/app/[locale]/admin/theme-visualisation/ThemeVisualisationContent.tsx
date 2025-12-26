@@ -1,22 +1,28 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getActiveTheme } from '@/lib/api/theme';
-import type { ThemeConfigResponse } from '@modele/types';
+import { getActiveTheme, listThemes, activateTheme } from '@/lib/api/theme';
+import type { ThemeConfigResponse, ThemeListResponse, Theme } from '@modele/types';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Alert from '@/components/ui/Alert';
+import Select from '@/components/ui/Select';
 import { RefreshCw, Palette, Type, Layout, Sparkles } from 'lucide-react';
 
 export function ThemeVisualisationContent() {
   const [theme, setTheme] = useState<ThemeConfigResponse | null>(null);
+  const [themesList, setThemesList] = useState<Theme[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingThemes, setLoadingThemes] = useState(false);
+  const [activating, setActivating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const fetchTheme = async () => {
     try {
       setLoading(true);
       setError(null);
+      setSuccessMessage(null);
       const activeTheme = await getActiveTheme();
       setTheme(activeTheme);
     } catch (err) {
@@ -26,8 +32,46 @@ export function ThemeVisualisationContent() {
     }
   };
 
+  const fetchThemesList = async () => {
+    try {
+      setLoadingThemes(true);
+      const response: ThemeListResponse = await listThemes();
+      setThemesList(response.themes || []);
+    } catch (err) {
+      console.error('Failed to load themes list:', err);
+    } finally {
+      setLoadingThemes(false);
+    }
+  };
+
+  const handleThemeChange = async (themeId: string) => {
+    const selectedThemeId = parseInt(themeId, 10);
+    if (isNaN(selectedThemeId)) return;
+
+    try {
+      setActivating(true);
+      setError(null);
+      setSuccessMessage(null);
+      
+      await activateTheme(selectedThemeId);
+      
+      setSuccessMessage(`Thème "${themesList.find(t => t.id === selectedThemeId)?.display_name || 'inconnu'}" activé avec succès !`);
+      
+      // Refresh both theme and themes list
+      await Promise.all([fetchTheme(), fetchThemesList()]);
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to activate theme');
+    } finally {
+      setActivating(false);
+    }
+  };
+
   useEffect(() => {
     fetchTheme();
+    fetchThemesList();
   }, []);
 
   if (loading) {
@@ -93,6 +137,11 @@ export function ThemeVisualisationContent() {
     return value.trim() || fallback;
   };
 
+  const selectOptions = themesList.map((t) => ({
+    label: `${t.display_name}${t.is_active ? ' (Actif)' : ''}`,
+    value: t.id.toString(),
+  }));
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -105,11 +154,68 @@ export function ThemeVisualisationContent() {
             Thème: <span className="font-semibold">{theme.display_name}</span> (ID: {theme.id})
           </p>
         </div>
-        <Button onClick={fetchTheme} variant="secondary" size="sm">
+        <Button onClick={() => { fetchTheme(); fetchThemesList(); }} variant="secondary" size="sm">
           <RefreshCw className="w-4 h-4 mr-2" />
           Actualiser
         </Button>
       </div>
+
+      {/* Success Message */}
+      {successMessage && (
+        <Alert variant="success" title="Succès">
+          {successMessage}
+        </Alert>
+      )}
+
+      {/* Error Message */}
+      {error && (
+        <Alert variant="error" title="Erreur">
+          {error}
+        </Alert>
+      )}
+
+      {/* Theme Selector */}
+      <Card title="Changer le Thème Actif">
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Sélectionnez un thème pour l'activer. Le thème actif sera appliqué à toute l'application.
+          </p>
+          <div className="flex items-end gap-4">
+            <div className="flex-1">
+              <Select
+                label="Thème"
+                options={selectOptions}
+                value={theme.id.toString()}
+                onChange={(e) => {
+                  const selectedId = e.target.value;
+                  if (selectedId !== theme.id.toString()) {
+                    handleThemeChange(selectedId);
+                  }
+                }}
+                disabled={activating || loadingThemes}
+                placeholder="Sélectionner un thème..."
+              />
+            </div>
+            <Button
+              onClick={() => {
+                if (theme) {
+                  handleThemeChange(theme.id.toString());
+                }
+              }}
+              variant="primary"
+              disabled={activating || loadingThemes}
+              loading={activating}
+            >
+              {activating ? 'Activation...' : 'Activer le thème sélectionné'}
+            </Button>
+          </div>
+          {loadingThemes && (
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Chargement de la liste des thèmes...
+            </p>
+          )}
+        </div>
+      </Card>
 
       {/* Theme Info Card */}
       <Card title="Informations du Thème">
