@@ -13,7 +13,6 @@ import { useAuthStore } from '@/lib/store';
 import { RichTextEditor } from '@/components/ui';
 import { PageHeader, PageContainer } from '@/components/layout';
 import { Card, Input, Textarea, Button, Select, Alert } from '@/components/ui';
-import type { SelectOption } from '@/components/ui';
 import { Save, Eye, ArrowLeft } from 'lucide-react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { logger } from '@/lib/logger';
@@ -219,7 +218,7 @@ export default function BlogPostEditPage() {
                     Content *
                   </label>
                   <RichTextEditor
-                    value={post.content_html || post.content || ''}
+                    value={(post.content_html || post.content || '') as string}
                     onChange={(html) => setPost({ ...post, content_html: html, content: html })}
                     placeholder="Write your post content..."
                     minHeight="500px"
