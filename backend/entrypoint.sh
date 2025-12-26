@@ -10,7 +10,20 @@ echo "Backend startup configuration:"
 echo "PORT environment variable: ${PORT}"
 echo "DATABASE_URL set: $([ -n "$DATABASE_URL" ] && echo 'yes' || echo 'no')"
 echo "Environment: ${ENVIRONMENT:-development}"
+echo "Python version: $(python --version 2>&1 || echo 'unknown')"
+echo "Working directory: $(pwd)"
 echo "=========================================="
+
+# Verify Python and uvicorn are available
+if ! command -v python >/dev/null 2>&1; then
+    echo "ERROR: Python not found!"
+    exit 1
+fi
+
+if ! python -c "import uvicorn" 2>/dev/null; then
+    echo "ERROR: uvicorn not installed!"
+    exit 1
+fi
 
 # Run database migrations before starting the server (non-blocking)
 if [ -n "$DATABASE_URL" ]; then
@@ -22,7 +35,9 @@ if [ -n "$DATABASE_URL" ]; then
     # No need to modify DATABASE_URL here
     
     # Run migrations with error handling - don't fail if migrations fail
-    alembic upgrade head || {
+    if alembic upgrade head; then
+        echo "✅ Database migrations completed successfully"
+    else
         echo "⚠️  Database migrations failed or skipped!"
         echo "This may be due to:"
         echo "  - Database connection issues"
@@ -31,7 +46,7 @@ if [ -n "$DATABASE_URL" ]; then
         echo ""
         echo "Continuing startup anyway - the application will attempt to start."
         echo "Database operations may fail until migrations are resolved."
-    }
+    fi
 else
     echo "⚠️  Warning: DATABASE_URL not set, skipping migrations..."
     echo "The application will start but database operations may fail."
@@ -42,5 +57,11 @@ fi
 echo "=========================================="
 echo "Starting Uvicorn on 0.0.0.0:$PORT..."
 echo "=========================================="
-exec uvicorn app.main:app --host 0.0.0.0 --port "$PORT" --log-level info
+echo "Application will be available at http://0.0.0.0:$PORT"
+echo "Health check endpoint: http://0.0.0.0:$PORT/api/v1/health"
+echo "=========================================="
+
+# Use exec to replace shell process with uvicorn
+# This ensures signals are properly handled
+exec python -m uvicorn app.main:app --host 0.0.0.0 --port "$PORT" --log-level info --access-log
 

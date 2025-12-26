@@ -150,6 +150,16 @@ def create_app() -> FastAPI:
         redoc_url="/redoc",
         lifespan=lifespan,
     )
+    
+    # Add a simple root route that doesn't require any dependencies
+    @app.get("/")
+    async def root():
+        """Root endpoint - simple health check"""
+        return {
+            "status": "ok",
+            "service": settings.PROJECT_NAME,
+            "version": settings.VERSION,
+        }
 
     # CORS Middleware - MUST be added FIRST to handle preflight requests
     # Using enhanced CORS configuration with tightened security

@@ -47,9 +47,9 @@ EXPOSE 8000
 
 # Health check - uses PORT env var or defaults to 8000
 # Note: HEALTHCHECK runs inside container, so it uses the same PORT as the app
-# Railway healthcheck uses /api/v1/health/ but internal healthcheck uses /api/v1/health
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD sh -c 'PORT=${PORT:-8000}; python -c "import requests; r=requests.get(f\"http://localhost:{PORT}/api/v1/health\"); exit(0 if r.status_code==200 else 1)"' || exit 1
+# Use Python's urllib instead of requests for better reliability
+HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
+    CMD sh -c 'PORT=${PORT:-8000}; python -c "import urllib.request; import sys; r=urllib.request.urlopen(f\"http://localhost:{PORT}/api/v1/health\", timeout=5); sys.exit(0 if r.getcode()==200 else 1)"' || exit 1
 
 # Use entrypoint.sh from the repo
 ENTRYPOINT ["./entrypoint.sh"]
