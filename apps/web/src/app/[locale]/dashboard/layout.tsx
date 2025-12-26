@@ -51,6 +51,16 @@ function DashboardLayoutContent({
       icon: <LayoutDashboard className="w-5 h-5" />,
     },
     {
+      label: 'Profile',
+      href: '/profile',
+      icon: <User className="w-5 h-5" />,
+    },
+    {
+      label: 'Settings',
+      href: '/settings',
+      icon: <Settings className="w-5 h-5" />,
+    },
+    {
       label: 'Projets',
       href: '/dashboard/projects',
       icon: <FolderKanban className="w-5 h-5" />,
@@ -78,12 +88,12 @@ function DashboardLayoutContent({
       <header className="xl:hidden bg-white dark:bg-gray-800 shadow border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30">
         <div className="px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between">
           <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white truncate flex-1 mr-2">
-            {pathname === '/dashboard' && 'Dashboard'}
             {pathname === '/dashboard/projects' && 'Projets'}
             {pathname === '/dashboard/become-superadmin' && 'Super Admin'}
             {pathname === '/profile' && 'Profile'}
             {pathname === '/settings' && 'Settings'}
             {pathname?.startsWith('/admin') && 'Administration'}
+            {(pathname === '/dashboard' || !pathname) && ''}
           </h1>
           <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
             <Button
@@ -166,12 +176,12 @@ function DashboardLayoutContent({
           <header className="hidden xl:block bg-white dark:bg-gray-800 shadow border-b border-gray-200 dark:border-gray-700">
             <div className="px-4 md:px-6 xl:px-8 2xl:px-10 py-3 md:py-4 2xl:py-5 flex items-center justify-between">
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                {pathname === '/dashboard' && 'Dashboard'}
                 {pathname === '/dashboard/projects' && 'Projets'}
                 {pathname === '/dashboard/become-superadmin' && 'Super Admin'}
                 {pathname === '/profile' && 'Profile'}
                 {pathname === '/settings' && 'Settings'}
                 {pathname?.startsWith('/admin') && 'Administration'}
+                {(pathname === '/dashboard' || !pathname) && ''}
               </h1>
               <div className="flex items-center gap-3">
                 <Button

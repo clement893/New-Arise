@@ -84,6 +84,12 @@
     "serverError": "Erreur serveur. Veuillez réessayer plus tard."
   },
   "settings": {
+    "title": "Paramètres",
+    "description": "Gérez vos paramètres et préférences",
+    "breadcrumbs": {
+      "dashboard": "Tableau de bord",
+      "settings": "Paramètres"
+    },
     "api": {
       "title": "Paramètres API",
       "description": "Gérez la configuration et les paramètres de l'API",
@@ -98,6 +104,38 @@
       },
       "success": {
         "saved": "Paramètres API enregistrés avec succès"
+      }
+    },
+    "billing": {
+      "title": "Paramètres de facturation",
+      "description": "Gérez vos paramètres de facturation et préférences",
+      "breadcrumbs": {
+        "dashboard": "Tableau de bord",
+        "settings": "Paramètres",
+        "billing": "Facturation"
+      },
+      "errors": {
+        "loadFailed": "Échec du chargement des paramètres de facturation. Veuillez réessayer.",
+        "saveFailed": "Échec de l'enregistrement des paramètres de facturation. Veuillez réessayer."
+      },
+      "success": {
+        "saved": "Paramètres de facturation enregistrés avec succès"
+      }
+    },
+    "organization": {
+      "title": "Paramètres de l'organisation",
+      "description": "Gérez les paramètres et la configuration de votre organisation",
+      "breadcrumbs": {
+        "dashboard": "Tableau de bord",
+        "settings": "Paramètres",
+        "organization": "Organisation"
+      },
+      "errors": {
+        "loadFailed": "Échec du chargement des paramètres de l'organisation. Veuillez réessayer.",
+        "saveFailed": "Échec de l'enregistrement des paramètres de l'organisation. Veuillez réessayer."
+      },
+      "success": {
+        "saved": "Paramètres de l'organisation enregistrés avec succès"
       }
     }
   }
