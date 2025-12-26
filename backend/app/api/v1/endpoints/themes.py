@@ -168,17 +168,8 @@ async def list_themes(
         # Ignore errors - migration should handle this, but we try anyway
         await db.rollback()
     
-    # Get TemplateTheme (ID 32) - it should exist in the database
-    template_result = await db.execute(select(Theme).where(Theme.id == 32))
-    template_theme = template_result.scalar_one_or_none()
-    
-    # Also check for TemplateTheme by name in case ID is different
-    if not template_theme:
-        template_result = await db.execute(select(Theme).where(Theme.name == 'TemplateTheme'))
-        template_theme = template_result.scalar_one_or_none()
-    
-    # Get ALL themes excluding only "default" theme (id=0, name='default', display_name='Default Theme')
-    # This ensures we return all existing themes including TemplateTheme
+    # Get ALL themes from database, excluding only "default" theme
+    # Simple query: return everything except id=0, name='default', display_name='Default Theme'
     all_themes_result = await db.execute(
         select(Theme).where(
             (Theme.id != 0) & 
@@ -188,34 +179,13 @@ async def list_themes(
     )
     all_themes = all_themes_result.scalars().all()
     
-    # If TemplateTheme exists, ensure it's first in the list
-    themes_list = []
-    if template_theme and template_theme not in all_themes:
-        # TemplateTheme exists but wasn't in the query (shouldn't happen, but handle it)
-        themes_list.append(template_theme)
+    # Simply return all themes found (no complex pagination logic)
+    # TemplateTheme will be included if it exists and matches the filter
+    themes_list = list(all_themes)
     
-    # Add all other themes (excluding TemplateTheme if it was already added)
-    template_theme_id = template_theme.id if template_theme else None
-    for theme in all_themes:
-        if template_theme_id is None or theme.id != template_theme_id:
-            themes_list.append(theme)
-        elif theme.id == template_theme_id and template_theme not in themes_list:
-            # TemplateTheme is in the list, add it first
-            themes_list.insert(0, theme)
-    
-    # Apply pagination to the final list (but TemplateTheme should always be first)
-    if template_theme and template_theme in themes_list:
-        # Remove TemplateTheme from list, add it first, then add paginated others
-        themes_list = [t for t in themes_list if t.id != template_theme_id]
-        themes_list.insert(0, template_theme)
-        # Apply pagination to other themes (skip TemplateTheme)
-        other_themes = themes_list[1:][skip:skip+limit]
-        themes_list = [template_theme] + other_themes
-    else:
-        themes_list = themes_list[skip:skip+limit]
-    
-    # Get total count for pagination (all themes excluding "default" theme)
-    total_count = len([t for t in all_themes if t.id != 0 and t.name != 'default' and t.display_name != 'Default Theme'])
+    # Apply simple pagination
+    total_count = len(themes_list)
+    themes_list = themes_list[skip:skip+limit]
     
     # Get active theme
     active_result = await db.execute(select(Theme).where(Theme.is_active == True))
