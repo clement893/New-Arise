@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AxiosError } from 'axios';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { Button, Card, Input, Alert, Badge, Tabs, TabList, Tab, Container, Loading } from '@/components/ui';
+import { Button, Card, Alert, Badge, Tabs, TabList, Tab, Container, Loading } from '@/components/ui';
 import { subscriptionsAPI } from '@/lib/api';
 
 interface ApiErrorResponse {
