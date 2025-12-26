@@ -37,6 +37,12 @@ COPY --from=deps /app/apps/web/package.json ./apps/web/package.json
 COPY --from=deps /app/packages/types/package.json ./packages/types/package.json
 # Reinstall to recreate symlinks for binaries (offline mode to use cached packages)
 RUN pnpm install --offline --no-frozen-lockfile || pnpm install --no-frozen-lockfile
+
+# Copy and build types package first (required for web app build)
+COPY packages/types ./packages/types
+RUN cd packages/types && pnpm build
+
+# Copy rest of the code
 COPY . .
 
 # Railway passes environment variables, but they need to be available during build
