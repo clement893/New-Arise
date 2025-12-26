@@ -95,6 +95,14 @@ export const sitePages: Record<string, SitemapPage[]> = {
       changefreq: 'monthly',
       requiresAuth: true,
     },
+    { 
+      path: '/profile/notifications', 
+      title: 'Profile Notifications', 
+      description: 'Préférences de notifications',
+      priority: 0.7,
+      changefreq: 'monthly',
+      requiresAuth: true,
+    },
   ],
   'Abonnements': [
     { 

@@ -111,6 +111,22 @@
         "loadFailed": "Failed to load security settings. Please try again.",
         "updateFailed": "Failed to update security settings. Please try again."
       }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Manage your notification preferences",
+      "breadcrumbs": {
+        "dashboard": "Dashboard",
+        "profile": "Profile",
+        "notifications": "Notifications"
+      },
+      "section": {
+        "title": "Notification Preferences"
+      },
+      "errors": {
+        "loadFailed": "Failed to load notification settings. Please try again.",
+        "updateFailed": "Failed to update notification settings. Please try again."
+      }
     }
   }
 }
