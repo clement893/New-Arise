@@ -4,8 +4,10 @@ import { useState } from 'react';
 import { Reply, Heart, ThumbsUp, ThumbsDown, Smile, Edit2, Trash2 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Avatar from '@/components/ui/Avatar';
+import { SafeHTML } from '@/components/ui/SafeHTML';
 import { apiClient } from '@/lib/api/client';
 import { useToast } from '@/components/ui';
+import { getErrorMessage } from '@/lib/types/common';
 import { formatDistanceToNow } from '@/lib/utils/dateUtils';
 
 interface Comment {
@@ -82,9 +84,9 @@ export function CommentThread({
         message: 'Reply posted successfully',
         type: 'success',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to post reply',
+        message: getErrorMessage(error) || 'Failed to post reply',
         type: 'error',
       });
     }
@@ -103,9 +105,9 @@ export function CommentThread({
         message: 'Comment updated successfully',
         type: 'success',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to update comment',
+        message: getErrorMessage(error) || 'Failed to update comment',
         type: 'error',
       });
     }
@@ -121,9 +123,9 @@ export function CommentThread({
         message: 'Comment deleted successfully',
         type: 'success',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to delete comment',
+        message: getErrorMessage(error) || 'Failed to delete comment',
         type: 'error',
       });
     }
@@ -135,9 +137,9 @@ export function CommentThread({
         reaction_type: reactionType,
       });
       onUpdate?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to add reaction',
+        message: getErrorMessage(error) || 'Failed to add reaction',
         type: 'error',
       });
     }
@@ -204,7 +206,7 @@ export function CommentThread({
               <>
                 <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap mb-2">
                   {comment.content_html ? (
-                    <div dangerouslySetInnerHTML={{ __html: comment.content_html }} />
+                    <SafeHTML html={comment.content_html} />
                   ) : (
                     comment.content
                   )}

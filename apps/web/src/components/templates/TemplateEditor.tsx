@@ -7,6 +7,7 @@ import Input from '@/components/ui/Input';
 import Card from '@/components/ui/Card';
 import { apiClient } from '@/lib/api/client';
 import { useToast } from '@/components/ui';
+import { getErrorMessage } from '@/lib/types/common';
 
 interface TemplateEditorProps {
   entityType: string;
@@ -75,9 +76,9 @@ export function TemplateEditor({
           });
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to save template',
+        message: getErrorMessage(error) || 'Failed to save template',
         type: 'error',
       });
     } finally {

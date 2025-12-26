@@ -79,9 +79,9 @@ export function TagInput({
       onTagsChange([...selectedTags, tag]);
       setInputValue('');
       setShowSuggestions(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to add tag',
+        message: getErrorMessage(error) || 'Failed to add tag',
         type: 'error',
       });
     }
@@ -115,9 +115,9 @@ export function TagInput({
           type: 'success',
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to create tag',
+        message: getErrorMessage(error) || 'Failed to create tag',
         type: 'error',
       });
     }
@@ -127,9 +127,9 @@ export function TagInput({
     try {
       await apiClient.delete(`/api/v1/tags/${tagId}/entities/${entityType}/${entityId}`);
       onTagsChange(selectedTags.filter((t) => t.id !== tagId));
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to remove tag',
+        message: getErrorMessage(error) || 'Failed to remove tag',
         type: 'error',
       });
     }

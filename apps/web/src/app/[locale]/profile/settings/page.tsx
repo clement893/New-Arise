@@ -19,6 +19,7 @@ import { Loading, Alert, Tabs, TabList, Tab, TabPanels, TabPanel } from '@/compo
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { logger } from '@/lib/logger';
 import { usersAPI } from '@/lib/api';
+import { getErrorMessage } from '@/lib/types/common';
 
 interface UserData {
   id: string | number;
@@ -108,9 +109,9 @@ export default function ProfileSettingsPage() {
         setUser(updatedUser);
         logger.info('User settings updated successfully');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to update user settings', error instanceof Error ? error : new Error(String(error)));
-      const errorMessage = error?.response?.data?.detail || error?.message || t('errors.updateFailed') || 'Failed to update settings. Please try again.';
+      const errorMessage = getErrorMessage(error) || t('errors.updateFailed') || 'Failed to update settings. Please try again.';
       setError(errorMessage);
       throw error;
     }

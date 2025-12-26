@@ -160,3 +160,7 @@ export { default as StatusCard } from './StatusCard';
 export { default as FAQItem } from './FAQItem';
 export { default as PricingCardSimple } from './PricingCardSimple';
 export { default as BillingPeriodToggle } from './BillingPeriodToggle';
+
+// Security Components
+export { SafeHTML } from './SafeHTML';
+export type { SafeHTMLProps } from './SafeHTML';

@@ -97,8 +97,8 @@ export function AIChat({
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.detail || err.message || 'Failed to send message';
+    } catch (err: unknown) {
+      const errorMessage = getErrorMessage(err) || 'Failed to send message';
       setError(errorMessage);
       
       // Add error message to chat

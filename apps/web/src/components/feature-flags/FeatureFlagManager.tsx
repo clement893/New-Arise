@@ -57,9 +57,9 @@ export function FeatureFlagManager({ className = '' }: FeatureFlagManagerProps) 
         message: `Feature flag ${!flag.enabled ? 'enabled' : 'disabled'}`,
         type: 'success',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to update feature flag',
+        message: getErrorMessage(error) || 'Failed to update feature flag',
         type: 'error',
       });
     }
@@ -75,7 +75,7 @@ export function FeatureFlagManager({ className = '' }: FeatureFlagManagerProps) 
         message: 'Feature flag deleted successfully',
         type: 'success',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
         message: error.response?.data?.detail || 'Failed to delete feature flag',
         type: 'error',

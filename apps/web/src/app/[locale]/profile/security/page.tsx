@@ -17,6 +17,7 @@ import { PageHeader, PageContainer, Section } from '@/components/layout';
 import { Loading, Alert, Tabs, TabList, Tab, TabPanels, TabPanel } from '@/components/ui';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { logger } from '@/lib/logger';
+import { getErrorMessage } from '@/lib/types/common';
 
 interface UserData {
   id: string | number;
@@ -34,7 +35,16 @@ export default function ProfileSecurityPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('security');
-  const [apiKeys, setApiKeys] = useState<any[]>([]);
+  interface APIKey {
+    id: number | string;
+    name: string;
+    key_prefix: string;
+    created_at: string;
+    last_used_at?: string;
+    [key: string]: unknown;
+  }
+  
+  const [apiKeys, setApiKeys] = useState<APIKey[]>([]);
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -83,9 +93,9 @@ export default function ProfileSecurityPage() {
     try {
       // TODO: Implement security settings save
       logger.info('Security settings saved', { data });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to save security settings', error instanceof Error ? error : new Error(String(error)));
-      const errorMessage = error?.response?.data?.detail || error?.message || t('errors.updateFailed') || 'Failed to update security settings. Please try again.';
+      const errorMessage = getErrorMessage(error) || t('errors.updateFailed') || 'Failed to update security settings. Please try again.';
       setError(errorMessage);
       throw error;
     }
@@ -125,7 +135,8 @@ export default function ProfileSecurityPage() {
       return {
         id: `key-${Date.now()}`,
         name,
-        key: 'sk_test_' + Math.random().toString(36).substring(2, 15),
+        // SECURITY: This is a placeholder for UI display only, not a real API key
+        key: 'sk_test_' + 'PLACEHOLDER_KEY_DO_NOT_USE',
         prefix: 'sk_test_',
         createdAt: new Date().toISOString(),
         scopes,

@@ -122,28 +122,37 @@ export async function checkMySuperAdminStatus(
         // But FastAPI doesn't wrap it, so axios response.data is the dict directly
         // apiClient.get returns response.data, which should be ApiResponse<T>, but FastAPI returns dict directly
         // So we need to handle both cases: response.data (if ApiResponse) or response (if dict)
-        let data: any;
+        interface SuperAdminStatusResponse {
+          is_superadmin: boolean;
+          email?: string;
+          user_id?: number;
+          is_active?: boolean;
+        }
+        
+        interface ApiResponseWrapper {
+          data?: SuperAdminStatusResponse;
+        }
+        
+        let data: SuperAdminStatusResponse | undefined;
         
         // Check if response has the expected structure
         if (response && typeof response === 'object') {
           // If response has 'data' property and 'is_superadmin' is in data.data, it's ApiResponse format
           if ('data' in response && response.data && typeof response.data === 'object' && 'is_superadmin' in response.data) {
-            data = response.data;
+            data = response.data as SuperAdminStatusResponse;
           }
           // If response has 'is_superadmin' directly, it's the dict format
           else if ('is_superadmin' in response) {
-            data = response;
+            data = response as SuperAdminStatusResponse;
           }
           // If response.data exists and has is_superadmin, use it
-          else if ((response as any).data && typeof (response as any).data === 'object' && 'is_superadmin' in (response as any).data) {
-            data = (response as any).data;
+          else if ('data' in response && (response as ApiResponseWrapper).data && typeof (response as ApiResponseWrapper).data === 'object' && 'is_superadmin' in (response as ApiResponseWrapper).data!) {
+            data = (response as ApiResponseWrapper).data;
           }
-          // Last resort: try response directly
-          else {
-            data = response;
+          // Last resort: try response.data directly
+          else if (response.data && typeof response.data === 'object' && 'is_superadmin' in response.data) {
+            data = response.data as SuperAdminStatusResponse;
           }
-        } else {
-          data = response;
         }
         
         if (data && typeof data === 'object' && 'is_superadmin' in data) {
@@ -168,20 +177,29 @@ export async function checkMySuperAdminStatus(
     const response = await apiClient.get<{ email: string; user_id: number; is_superadmin: boolean; is_active: boolean }>(`/v1/admin/check-my-superadmin-status`);
     
     // Same logic as above
-    let data: any;
+    interface SuperAdminStatusResponse {
+      is_superadmin: boolean;
+      email?: string;
+      user_id?: number;
+      is_active?: boolean;
+    }
+    
+    interface ApiResponseWrapper {
+      data?: SuperAdminStatusResponse;
+    }
+    
+    let data: SuperAdminStatusResponse | undefined;
     
     if (response && typeof response === 'object') {
       if ('data' in response && response.data && typeof response.data === 'object' && 'is_superadmin' in response.data) {
-        data = response.data;
+        data = response.data as SuperAdminStatusResponse;
       } else if ('is_superadmin' in response) {
-        data = response;
-      } else if ((response as any).data && typeof (response as any).data === 'object' && 'is_superadmin' in (response as any).data) {
-        data = (response as any).data;
-      } else {
-        data = response;
-      }
-    } else {
-      data = response;
+        data = response as SuperAdminStatusResponse;
+      } else if ('data' in response && (response as ApiResponseWrapper).data && typeof (response as ApiResponseWrapper).data === 'object' && 'is_superadmin' in (response as ApiResponseWrapper).data!) {
+        data = (response as ApiResponseWrapper).data;
+        } else {
+          data = response as unknown as SuperAdminStatusResponse;
+        }
     }
     
     if (data && typeof data === 'object' && 'is_superadmin' in data) {
@@ -194,7 +212,7 @@ export async function checkMySuperAdminStatus(
     }
     
     throw new Error(`Unexpected response format: ${JSON.stringify(response)}`);
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Handle network errors
     if (error instanceof Error && (error.name === 'AbortError' || error.message.includes('Failed to fetch'))) {
       throw new Error(`Le backend n'est pas accessible. Assurez-vous que le serveur backend est démarré sur ${API_URL}`);
@@ -235,7 +253,7 @@ export async function checkSuperAdminStatus(
     // Use apiClient which automatically handles token refresh on 401
     const response = await apiClient.get(`/v1/admin/check-superadmin/${encodeURIComponent(email)}`);
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Handle network errors
     if (error instanceof Error && (error.name === 'AbortError' || error.message.includes('Failed to fetch'))) {
       throw new Error(`Le backend n'est pas accessible. Assurez-vous que le serveur backend est démarré sur ${API_URL}`);

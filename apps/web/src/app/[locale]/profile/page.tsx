@@ -18,6 +18,7 @@ import { Loading, Alert } from '@/components/ui';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { sanitizeInput } from '@/utils/edgeCaseHandlers';
 import { logger } from '@/lib/logger';
+import { getErrorMessage } from '@/lib/types/common';
 
 interface UserData {
   id: string | number;
@@ -117,9 +118,9 @@ export default function ProfilePage() {
         
         logger.info('Profile updated successfully', { email: response.data.email });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to update profile', error instanceof Error ? error : new Error(String(error)));
-      const errorMessage = error?.response?.data?.detail || error?.message || t('errors.updateFailed') || 'Failed to update profile. Please try again.';
+      const errorMessage = getErrorMessage(error) || t('errors.updateFailed') || 'Failed to update profile. Please try again.';
       setError(errorMessage);
       throw error;
     } finally {

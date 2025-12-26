@@ -62,9 +62,9 @@ export function TagManager({ entityType, className = '' }: TagManagerProps) {
         message: 'Tag deleted successfully',
         type: 'success',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to delete tag',
+        message: getErrorMessage(error) || 'Failed to delete tag',
         type: 'error',
       });
     }
@@ -85,9 +85,9 @@ export function TagManager({ entityType, className = '' }: TagManagerProps) {
         message: 'Tag update feature coming soon',
         type: 'info',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to update tag',
+        message: getErrorMessage(error) || 'Failed to update tag',
         type: 'error',
       });
     }

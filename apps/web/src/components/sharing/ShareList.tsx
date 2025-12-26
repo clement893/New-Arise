@@ -63,9 +63,9 @@ export function ShareList({ entityType, entityId, className = '' }: ShareListPro
         message: 'Share removed successfully',
         type: 'success',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to remove share',
+        message: getErrorMessage(error) || 'Failed to remove share',
         type: 'error',
       });
     }

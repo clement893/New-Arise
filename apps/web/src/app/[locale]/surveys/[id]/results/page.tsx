@@ -43,7 +43,16 @@ export default function SurveyResultsPage() {
       }
 
       if (submissionsResponse.data) {
-        setSubmissions(submissionsResponse.data.map((sub: any) => ({
+        interface BackendSubmission {
+          id: number | string;
+          form_id: number | string;
+          data: Record<string, unknown>;
+          user_id?: number | string;
+          submitted_at: string;
+          ip_address?: string;
+        }
+        
+        setSubmissions((submissionsResponse.data as BackendSubmission[]).map((sub) => ({
           id: sub.id,
           survey_id: String(sub.form_id),
           data: sub.data,

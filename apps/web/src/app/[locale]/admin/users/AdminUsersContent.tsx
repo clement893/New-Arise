@@ -44,7 +44,13 @@ export default function AdminUsersContent() {
       const response = await apiClient.get('/v1/users?skip=0&limit=100');
       
       // Backend returns paginated response: { items: [...], total: ..., page: ..., page_size: ... }
-      const data = (response as any).data?.items || (response as any).data || [];
+      interface PaginatedResponse<T> {
+        data?: T | { items?: T[] };
+      }
+      const responseData = (response as PaginatedResponse<unknown[]>).data;
+      const data = (responseData && typeof responseData === 'object' && 'items' in responseData
+        ? (responseData as { items?: unknown[] }).items
+        : Array.isArray(responseData) ? responseData : []) as unknown[];
       setUsers(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(getErrorMessage(err, 'Erreur lors du chargement des utilisateurs'));

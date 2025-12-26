@@ -52,7 +52,7 @@ export function useConfirm() {
 /**
  * useConfirmAction - Higher-order hook for actions requiring confirmation
  */
-export function useConfirmAction<T extends (...args: any[]) => any>(
+export function useConfirmAction<T extends (...args: unknown[]) => unknown>(
   action: T,
   options: string | ConfirmOptions
 ): T {

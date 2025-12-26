@@ -6,4 +6,5 @@
 export * from './types';
 export * from './AppError';
 export * from './api';
+export * from './utils';
 

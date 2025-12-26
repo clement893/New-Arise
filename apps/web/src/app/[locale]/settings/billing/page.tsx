@@ -66,9 +66,9 @@ export default function BillingSettingsPage() {
         language: data.language,
       });
       logger.info('Billing settings saved successfully');
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to save billing settings', error instanceof Error ? error : new Error(String(error)));
-      const errorMessage = error?.response?.data?.detail || error?.message || t('errors.saveFailed') || 'Failed to save billing settings. Please try again.';
+      const errorMessage = getErrorMessage(error) || t('errors.saveFailed') || 'Failed to save billing settings. Please try again.';
       setError(errorMessage);
       throw error;
     }

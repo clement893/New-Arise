@@ -69,8 +69,8 @@ export function NewsletterSignup({
       } else {
         throw new Error(response.data?.message || 'Subscription failed');
       }
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.detail || err.message || 'Failed to subscribe';
+    } catch (err: unknown) {
+      const errorMessage = getErrorMessage(err) || 'Failed to subscribe';
       setStatus('error');
       setMessage(errorMessage);
       onError?.(errorMessage);

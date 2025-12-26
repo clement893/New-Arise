@@ -73,8 +73,8 @@ export function LeadCaptureForm({
       } else {
         throw new Error(response.data?.message || 'Submission failed');
       }
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.detail || err.message || 'Failed to submit form';
+    } catch (err: unknown) {
+      const errorMessage = getErrorMessage(err) || 'Failed to submit form';
       setStatus('error');
       setMessage(errorMessage);
     } finally {

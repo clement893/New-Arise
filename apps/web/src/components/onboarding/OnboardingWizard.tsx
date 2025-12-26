@@ -77,9 +77,9 @@ export function OnboardingWizard({ className = '', onComplete }: OnboardingWizar
           onComplete();
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to complete step',
+        message: getErrorMessage(error) || 'Failed to complete step',
         type: 'error',
       });
     } finally {
@@ -97,9 +97,9 @@ export function OnboardingWizard({ className = '', onComplete }: OnboardingWizar
       if (currentStepIndex < steps.length - 1) {
         setCurrentStepIndex(currentStepIndex + 1);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to skip step',
+        message: getErrorMessage(error) || 'Failed to skip step',
         type: 'error',
       });
     }

@@ -1,164 +1,98 @@
 /**
- * Logger Structuré Frontend
- * Logging structuré pour le frontend avec niveaux et contexte
+ * Secure Logger Utility
+ * 
+ * Provides secure logging that:
+ * - Removes console.log in production
+ * - Sanitizes sensitive data
+ * - Provides structured logging
+ * 
+ * @module logger
  */
 
-type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+type LogLevel = 'log' | 'info' | 'warn' | 'error' | 'debug';
 
-export interface LogContext {
+interface LogContext {
   [key: string]: unknown;
 }
 
-/**
- * Sanitize sensitive data from logs
- */
-function sanitizeData(data: unknown): unknown {
-  if (typeof data !== 'object' || data === null) {
-    return data;
-  }
+class SecureLogger {
+  private isDevelopment = process.env.NODE_ENV === 'development';
+  private isProduction = process.env.NODE_ENV === 'production';
 
-  if (Array.isArray(data)) {
-    return data.map(sanitizeData);
-  }
+  /**
+   * Sanitize sensitive data from log context
+   */
+  private sanitize(context: LogContext | undefined): LogContext | undefined {
+    if (!context) return undefined;
 
-  const sensitiveKeys = [
-    'password',
-    'secret',
-    'token',
-    'apiKey',
-    'api_key',
-    'accessToken',
-    'refreshToken',
-    'authorization',
-    'auth',
-    'creditCard',
-    'credit_card',
-    'ssn',
-    'socialSecurityNumber',
-  ];
+    const sensitiveKeys = [
+      'password',
+      'token',
+      'secret',
+      'api_key',
+      'authorization',
+      'access_token',
+      'refresh_token',
+      'secret_key',
+      'private_key',
+      'credit_card',
+      'card_number',
+      'cvv',
+    ];
 
-  const sanitized: Record<string, unknown> = {};
-  
-  for (const [key, value] of Object.entries(data)) {
-    const lowerKey = key.toLowerCase();
-    const isSensitive = sensitiveKeys.some(sensitive => lowerKey.includes(sensitive));
-    
-    if (isSensitive && typeof value === 'string') {
-      sanitized[key] = '[REDACTED]';
-    } else if (typeof value === 'object' && value !== null) {
-      sanitized[key] = sanitizeData(value);
-    } else {
-      sanitized[key] = value;
-    }
-  }
-  
-  return sanitized;
-}
-
-class Logger {
-  private isDevelopment: boolean;
-  private isProduction: boolean;
-
-  constructor() {
-    // Safely check NODE_ENV to prevent crashes during SSR
-    try {
-      this.isDevelopment = process.env.NODE_ENV === 'development';
-      this.isProduction = process.env.NODE_ENV === 'production';
-    } catch {
-      // Fallback if process.env is not available
-      this.isDevelopment = false;
-      this.isProduction = false;
-    }
-  }
-
-  private formatMessage(level: LogLevel, message: string, context?: LogContext): string {
-    const timestamp = new Date().toISOString();
-    const contextStr = context ? ` ${JSON.stringify(context)}` : '';
-    return `[${timestamp}] [${level.toUpperCase()}] ${message}${contextStr}`;
-  }
-
-  private log(level: LogLevel, message: string, context?: LogContext, error?: Error): void {
-    // Sanitize sensitive data before logging
-    const sanitizedContext = context ? sanitizeData(context) as LogContext : undefined;
-    
-    if (this.isDevelopment) {
-      const formatted = this.formatMessage(level, message, sanitizedContext);
-      
-      switch (level) {
-        case 'debug':
-          console.debug(formatted);
-          break;
-        case 'info':
-          console.info(formatted);
-          break;
-        case 'warn':
-          console.warn(formatted);
-          break;
-        case 'error':
-          console.error(formatted, error);
-          break;
+    const sanitized = { ...context };
+    for (const key in sanitized) {
+      const keyLower = key.toLowerCase();
+      if (sensitiveKeys.some(sensitive => keyLower.includes(sensitive))) {
+        sanitized[key] = '***REDACTED***';
       }
     }
 
-    // En production, envoyer à votre service de logging
-    if (this.isProduction && level === 'error') {
-      // Exemple: envoyer à Sentry, LogRocket, etc.
-      try {
-        if (typeof window !== 'undefined' && window.Sentry) {
-          window.Sentry.captureException(error || new Error(message), {
-            contexts: {
-              custom: sanitizedContext,
-            },
-          });
-        }
-      } catch (e) {
-        // Silently fail if Sentry is not available or errors
-        // Don't let error reporting break the app
-      }
-    }
+    return sanitized;
   }
 
-  debug(message: string, context?: LogContext): void {
-    this.log('debug', message, context);
+  /**
+   * Log a message (only in development)
+   */
+  log(message: string, context?: LogContext): void {
+    if (!this.isDevelopment) return;
+    const sanitized = this.sanitize(context);
+    console.log(`[LOG] ${message}`, sanitized || '');
   }
 
+  /**
+   * Log an info message (only in development)
+   */
   info(message: string, context?: LogContext): void {
-    this.log('info', message, context);
+    if (!this.isDevelopment) return;
+    const sanitized = this.sanitize(context);
+    console.info(`[INFO] ${message}`, sanitized || '');
   }
 
+  /**
+   * Log a warning (always logged, but sanitized)
+   */
   warn(message: string, context?: LogContext): void {
-    this.log('warn', message, context);
+    const sanitized = this.sanitize(context);
+    console.warn(`[WARN] ${message}`, sanitized || '');
   }
 
-  error(message: string, error?: Error, context?: LogContext): void {
-    this.log('error', message, context, error);
+  /**
+   * Log an error (always logged, but sanitized)
+   */
+  error(message: string, error?: Error | unknown, context?: LogContext): void {
+    const sanitized = this.sanitize(context);
+    console.error(`[ERROR] ${message}`, error || '', sanitized || '');
   }
 
-  // Méthodes spécialisées
-  apiError(endpoint: string, error: Error, statusCode?: number): void {
-    this.error(`API Error: ${endpoint}`, error, {
-      endpoint,
-      statusCode,
-      type: 'api',
-    });
-  }
-
-  userAction(action: string, context?: LogContext): void {
-    this.info(`User Action: ${action}`, {
-      ...context,
-      type: 'user_action',
-    });
-  }
-
-  performance(metric: string, value: number, unit: string = 'ms'): void {
-    this.info(`Performance: ${metric}`, {
-      metric,
-      value,
-      unit,
-      type: 'performance',
-    });
+  /**
+   * Log a debug message (only in development)
+   */
+  debug(message: string, context?: LogContext): void {
+    if (!this.isDevelopment) return;
+    const sanitized = this.sanitize(context);
+    console.debug(`[DEBUG] ${message}`, sanitized || '');
   }
 }
 
-export const logger = new Logger();
-
+export const logger = new SecureLogger();

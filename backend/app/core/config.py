@@ -118,7 +118,7 @@ class Settings(BaseSettings):
 
     # Database
     DATABASE_URL: PostgresDsn = Field(
-        default="postgresql+asyncpg://user:password@localhost:5432/modele",
+        default="postgresql+asyncpg://user:CHANGE_PASSWORD@localhost:5432/modele",
         description="Database connection URL",
     )
 

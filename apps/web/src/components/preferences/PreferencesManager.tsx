@@ -38,7 +38,7 @@ export function PreferencesManager({ className = '' }: PreferencesManagerProps) 
     }
   };
 
-  const handleChange = (key: string, value: any) => {
+  const handleChange = (key: string, value: unknown) => {
     setEditedPreferences({
       ...editedPreferences,
       [key]: value,
@@ -54,9 +54,9 @@ export function PreferencesManager({ className = '' }: PreferencesManagerProps) 
         message: 'Preferences saved successfully',
         type: 'success',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to save preferences',
+        message: getErrorMessage(error) || 'Failed to save preferences',
         type: 'error',
       });
     } finally {

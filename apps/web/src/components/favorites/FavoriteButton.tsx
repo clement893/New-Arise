@@ -5,6 +5,7 @@ import { Heart } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { apiClient } from '@/lib/api/client';
 import { useToast } from '@/components/ui';
+import { getErrorMessage } from '@/lib/types/common';
 
 interface FavoriteButtonProps {
   entityType: string;
@@ -86,9 +87,9 @@ export function FavoriteButton({
           type: 'success',
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to update favorite',
+        message: getErrorMessage(error) || 'Failed to update favorite',
         type: 'error',
       });
     } finally {

@@ -44,7 +44,17 @@ export default function TagsManagementPage() {
       const backendTags = response.data;
       
       // Map backend tags to component format
-      const mappedTags: TagItem[] = backendTags.map((tag: any) => ({
+      interface BackendTag {
+        id: number | string;
+        name: string;
+        slug: string;
+        color?: string;
+        description?: string;
+        entity_type?: string;
+        usage_count?: number;
+      }
+      
+      const mappedTags: TagItem[] = (backendTags as BackendTag[]).map((tag) => ({
         id: tag.id,
         name: tag.name,
         slug: tag.slug,

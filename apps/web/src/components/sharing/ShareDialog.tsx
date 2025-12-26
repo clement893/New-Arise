@@ -70,9 +70,9 @@ export function ShareDialog({
       });
       onShare?.();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to share',
+        message: getErrorMessage(error) || 'Failed to share',
         type: 'error',
       });
     } finally {

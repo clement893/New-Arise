@@ -94,13 +94,14 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
                 userEmail: user?.email
               });
             }
-          } catch (err: any) {
+          } catch (err: unknown) {
             // If superadmin check fails with 401/422, token might be invalid or expired
-            if (err?.response?.status === 401 || err?.response?.status === 422) {
+            const statusCode = getErrorStatus(err);
+            if (statusCode === 401 || statusCode === 422) {
               logger.warn('Superadmin check failed due to authentication error', {
-                status: err?.response?.status,
+                status: statusCode,
                 hasToken: !!authToken,
-                error: err?.message
+                error: err instanceof Error ? err.message : String(err)
               });
               
               // Try to get fresh token from storage one more time
@@ -113,8 +114,8 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
                   if (retryStatus.is_superadmin) {
                     logger.debug('User is superadmin after retry, granting admin access');
                   }
-                } catch (retryErr: any) {
-                  logger.warn('Retry also failed, redirecting to login', { error: retryErr?.message });
+                } catch (retryErr: unknown) {
+                  logger.warn('Retry also failed, redirecting to login', { error: retryErr instanceof Error ? retryErr.message : String(retryErr) });
                   router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}&error=unauthorized`);
                   return;
                 }

@@ -112,7 +112,7 @@ export default function DashboardInsightsPage() {
       setMetrics(mockMetrics);
       setTrendData(mockTrendData);
       setUserGrowthData(mockUserGrowth);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to load insights', error instanceof Error ? error : new Error(String(error)));
       setError(t('errors.loadFailed') || 'Failed to load insights. Please try again.');
     } finally {

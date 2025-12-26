@@ -7,6 +7,7 @@ import Card from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
 import { apiClient } from '@/lib/api/client';
 import { useToast } from '@/components/ui';
+import { getErrorMessage } from '@/lib/types/common';
 
 interface EmailTemplate {
   id: number;
@@ -79,9 +80,9 @@ export function EmailTemplateManager({ className = '' }: EmailTemplateManagerPro
       });
       setIsEditing(false);
       fetchTemplates();
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to update template',
+        message: getErrorMessage(error) || 'Failed to update template',
         type: 'error',
       });
     }
@@ -109,9 +110,9 @@ export function EmailTemplateManager({ className = '' }: EmailTemplateManagerPro
         setSelectedTemplate(null);
         setIsEditing(false);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to delete template',
+        message: getErrorMessage(error) || 'Failed to delete template',
         type: 'error',
       });
     }

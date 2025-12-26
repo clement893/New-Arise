@@ -146,11 +146,12 @@ export function useAuth() {
           if (response.data) {
             setUser(response.data);
           }
-        } catch (err: any) {
+        } catch (err: unknown) {
           // Token might be invalid, try refresh
-          if (storedRefreshToken && (err?.response?.status === 401 || err?.response?.status === 422)) {
+          const statusCode = getErrorStatus(err);
+          if (storedRefreshToken && (statusCode === 401 || statusCode === 422)) {
             await refreshToken();
-          } else if (err?.response?.status === 401 || err?.response?.status === 422) {
+          } else if (statusCode === 401 || statusCode === 422) {
             // No refresh token or refresh failed, logout
             handleLogout();
           }

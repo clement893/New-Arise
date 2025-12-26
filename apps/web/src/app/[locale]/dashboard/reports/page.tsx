@@ -51,7 +51,7 @@ export default function DashboardReportsPage() {
       
       // For now, use empty array
       setSavedReports([]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to load reports', error instanceof Error ? error : new Error(String(error)));
       setError(t('errors.loadFailed') || 'Failed to load reports. Please try again.');
     } finally {
@@ -89,9 +89,9 @@ export default function DashboardReportsPage() {
       setSavedReports([...savedReports, mockReport]);
       setActiveTab('viewer');
       setSelectedReport(mockReport);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to save report', error instanceof Error ? error : new Error(String(error)));
-      const errorMessage = error?.response?.data?.detail || error?.message || t('errors.saveFailed') || 'Failed to save report. Please try again.';
+      const errorMessage = getErrorMessage(error) || t('errors.saveFailed') || 'Failed to save report. Please try again.';
       setError(errorMessage);
       throw error;
     }

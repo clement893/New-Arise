@@ -56,7 +56,7 @@ export default function DashboardAnalyticsPage() {
       
       // Using default metrics for now
       setMetrics([]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to load analytics', error instanceof Error ? error : new Error(String(error)));
       setError(t('errors.loadFailed') || 'Failed to load analytics. Please try again.');
     } finally {

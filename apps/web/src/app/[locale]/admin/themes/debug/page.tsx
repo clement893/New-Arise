@@ -8,8 +8,20 @@ import ProtectedSuperAdminRoute from '@/components/auth/ProtectedSuperAdminRoute
 import Container from '@/components/ui/Container';
 
 export default function ThemeDebugPage() {
-  const [activeTheme, setActiveTheme] = useState<any>(null);
-  const [allThemes, setAllThemes] = useState<any>(null);
+  interface Theme {
+    id: number | string;
+    name: string;
+    is_active: boolean;
+    [key: string]: unknown;
+  }
+  
+  interface ThemesResponse {
+    themes: Theme[];
+    [key: string]: unknown;
+  }
+  
+  const [activeTheme, setActiveTheme] = useState<Theme | null>(null);
+  const [allThemes, setAllThemes] = useState<ThemesResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -84,7 +96,7 @@ export default function ThemeDebugPage() {
           {allThemes && (
             <Card title={`All Themes (${allThemes.total} total)`}>
               <div className="space-y-4">
-                {allThemes.themes.map((theme: any) => (
+                {allThemes.themes.map((theme) => (
                   <div
                     key={theme.id}
                     className={`p-4 border rounded-lg ${
@@ -141,7 +153,7 @@ export default function ThemeDebugPage() {
               </div>
               <div>
                 <strong>Themes with is_active=True:</strong>{' '}
-                {allThemes?.themes?.filter((t: any) => t.is_active).length ?? 0}
+                {allThemes?.themes?.filter((t) => t.is_active).length ?? 0}
               </div>
               {activeTheme?.id === 0 && (
                 <Alert variant="warning" className="mt-4">

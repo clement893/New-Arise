@@ -62,7 +62,21 @@ export default function DashboardActivityPage() {
       
       if (response.data) {
         // Transform API response to match ActivityItem format
-        const transformedActivities: ActivityItem[] = response.data.map((activity: any) => ({
+        interface BackendActivity {
+          id: number | string;
+          action?: string;
+          event_type?: string;
+          entity_type?: string;
+          entity_id?: number | string;
+          user_id?: number | string;
+          user_name?: string;
+          user_email?: string;
+          timestamp: string;
+          event_metadata?: Record<string, unknown>;
+          metadata?: Record<string, unknown>;
+        }
+        
+        const transformedActivities: ActivityItem[] = (response.data as BackendActivity[]).map((activity) => ({
           id: String(activity.id),
           action: activity.action || activity.event_type || 'unknown',
           entity_type: activity.entity_type || 'system',
@@ -76,7 +90,7 @@ export default function DashboardActivityPage() {
         
         setActivities(transformedActivities);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to load dashboard activities', error instanceof Error ? error : new Error(String(error)));
       setError(t('errors.loadFailed') || 'Failed to load activity feed. Please try again.');
     } finally {

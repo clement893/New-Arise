@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { ThumbsUp, ThumbsDown, Eye, BookOpen } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
+import { SafeHTML } from '@/components/ui/SafeHTML';
 import { apiClient } from '@/lib/api/client';
 import { useToast } from '@/components/ui';
 
@@ -43,8 +44,9 @@ export function ArticleViewer({ slug, className = '' }: ArticleViewerProps) {
       if (response.data) {
         setArticle(response.data);
       }
-    } catch (error: any) {
-      if (error.response?.status === 404) {
+    } catch (error: unknown) {
+      const statusCode = getErrorStatus(error);
+      if (statusCode === 404) {
         showToast({
           message: 'Article not found',
           type: 'error',
@@ -71,9 +73,9 @@ export function ArticleViewer({ slug, className = '' }: ArticleViewerProps) {
       
       // Refresh article to get updated counts
       fetchArticle();
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to submit feedback',
+        message: getErrorMessage(error) || 'Failed to submit feedback',
         type: 'error',
       });
     }
@@ -115,9 +117,9 @@ export function ArticleViewer({ slug, className = '' }: ArticleViewerProps) {
           </div>
         </header>
 
-        <div
+        <SafeHTML
+          html={article.content}
           className="prose dark:prose-invert max-w-none mb-8"
-          dangerouslySetInnerHTML={{ __html: article.content }}
         />
 
         {article.tags && article.tags.length > 0 && (

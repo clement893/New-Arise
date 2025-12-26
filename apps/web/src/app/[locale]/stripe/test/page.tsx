@@ -27,7 +27,13 @@ function StripeTestContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [mySubscription, setMySubscription] = useState<any>(null);
+  interface Subscription {
+    id: string;
+    status: string;
+    [key: string]: unknown;
+  }
+  
+  const [mySubscription, setMySubscription] = useState<Subscription | null>(null);
 
   useEffect(() => {
     loadPlans();

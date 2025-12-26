@@ -41,7 +41,13 @@ export default function AdminLogsContent() {
       params.append('limit', '100');
 
       const response = await apiClient.get(`/v1/audit-trail/audit-trail?${params.toString()}`);
-      const data = (response as any).data?.data || (response as any).data || response.data;
+      interface ApiResponse<T> {
+        data?: T | { data?: T; results?: T[] };
+      }
+      const responseData = (response as ApiResponse<unknown[]>).data;
+      const data = (responseData && typeof responseData === 'object' && 'data' in responseData 
+        ? (responseData as { data?: unknown[]; results?: unknown[] }).data || (responseData as { data?: unknown[]; results?: unknown[] }).results
+        : Array.isArray(responseData) ? responseData : response.data) as unknown[] | undefined;
       
       if (Array.isArray(data)) {
         setLogs(data);

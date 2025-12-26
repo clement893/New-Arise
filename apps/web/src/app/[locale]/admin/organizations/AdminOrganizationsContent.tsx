@@ -38,7 +38,16 @@ export default function AdminOrganizationsContent() {
       if (response.data) {
         // Backend returns { teams: [...], total: ... }
         const teamsData = response.data.teams || response.data;
-        setTeams((Array.isArray(teamsData) ? teamsData : []).map((team: any) => ({
+        interface BackendTeam {
+          id: number | string;
+          name: string;
+          description?: string;
+          member_count?: number;
+          organization_id?: string;
+          created_at: string;
+        }
+        
+        setTeams((Array.isArray(teamsData) ? teamsData : []).map((team: BackendTeam) => ({
           id: String(team.id),
           name: team.name,
           description: team.description,

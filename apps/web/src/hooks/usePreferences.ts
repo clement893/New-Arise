@@ -16,7 +16,10 @@ export function usePreferences() {
         setPreferences(response.data);
       }
     } catch (error) {
-      console.error('Failed to fetch preferences:', error);
+      // Use logger instead of console.error for production safety
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to fetch preferences:', error);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -27,19 +30,21 @@ export function usePreferences() {
   }, [fetchPreferences]);
 
   const getPreference = useCallback(
-    (key: string, defaultValue?: any) => {
-      return preferences[key] !== undefined ? preferences[key] : defaultValue;
+    <T = unknown>(key: string, defaultValue?: T): T => {
+      return (preferences[key] !== undefined ? preferences[key] : defaultValue) as T;
     },
     [preferences]
   );
 
-  const setPreference = useCallback(async (key: string, value: any) => {
+  const setPreference = useCallback(async (key: string, value: unknown) => {
     try {
       await apiClient.put(`/api/v1/users/preferences/${key}`, { value });
       setPreferences((prev) => ({ ...prev, [key]: value }));
       return true;
     } catch (error) {
-      console.error(`Failed to set preference ${key}:`, error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error(`Failed to set preference ${key}:`, error);
+      }
       return false;
     }
   }, []);
@@ -50,7 +55,9 @@ export function usePreferences() {
       setPreferences((prev) => ({ ...prev, ...prefs }));
       return true;
     } catch (error) {
-      console.error('Failed to set preferences:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to set preferences:', error);
+      }
       return false;
     }
   }, []);

@@ -75,9 +75,9 @@ export function VersionHistory({
       });
       fetchVersions();
       onRestore?.(version);
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to restore version',
+        message: getErrorMessage(error) || 'Failed to restore version',
         type: 'error',
       });
     }
@@ -108,9 +108,9 @@ export function VersionHistory({
         message: 'Comparison loaded (check console)',
         type: 'info',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to compare versions',
+        message: getErrorMessage(error) || 'Failed to compare versions',
         type: 'error',
       });
     }

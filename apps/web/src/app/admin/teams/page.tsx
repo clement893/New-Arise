@@ -81,7 +81,12 @@ export default function TeamsPage() {
           member_count?: number;
           organization_id?: string;
           created_at: string;
-          members?: any[];
+          members?: Array<{
+            id: number | string;
+            user_id: number | string;
+            role: string;
+            [key: string]: unknown;
+          }>;
         }) => ({
           id: String(team.id),
           name: team.name,

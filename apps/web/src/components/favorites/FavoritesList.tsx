@@ -5,6 +5,7 @@ import { Heart, Tag, FileText, Folder, User, X } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import { apiClient } from '@/lib/api/client';
 import { useToast } from '@/components/ui';
+import { getErrorMessage } from '@/lib/types/common';
 import { formatDistanceToNow } from '@/lib/utils/dateUtils';
 
 interface Favorite {
@@ -76,9 +77,9 @@ export function FavoritesList({
         message: 'Removed from favorites',
         type: 'success',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to remove favorite',
+        message: getErrorMessage(error) || 'Failed to remove favorite',
         type: 'error',
       });
     }

@@ -15,6 +15,7 @@
 
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { handleApiError, isClientError, isNetworkError } from './errors/api';
+import { getErrorMessage, getErrorStatus, isApiError, isAxiosErrorType } from './errors/utils';
 import { TokenStorage } from './auth/tokenStorage';
 import { logger } from '@/lib/logger';
 

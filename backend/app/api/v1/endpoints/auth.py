@@ -106,35 +106,35 @@ async def get_current_user(
         raise credentials_exception
     
     try:
-        logger.info(f"Decoding token: {token[:20]}...")
+        # SECURITY: Do not log token content to prevent information disclosure
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        logger.info(f"Token decoded successfully, payload: {payload}")
         # Verify token type
         token_type = payload.get("type")
         if token_type != "access":
-            logger.warning(f"Invalid token type: {token_type}, expected 'access'")
+            logger.warning("Invalid token type, expected 'access'")
             raise credentials_exception
         username: str = payload.get("sub")
         if username is None:
             logger.warning("No 'sub' claim in token payload")
             raise credentials_exception
         token_data = TokenData(username=username)
-        logger.info(f"Token data extracted, username: {username}")
+        # SECURITY: Only log username (email), not token or payload
+        logger.debug(f"Token validated for user: {username}")
     except JWTError as e:
         logger.error(f"JWT decode error: {e}")
         raise credentials_exception
 
     # Get user from database
     try:
-        logger.info(f"Querying database for user with email: {token_data.username}")
         result = await db.execute(
             select(User).where(User.email == token_data.username)
         )
         user = result.scalar_one_or_none()
         if user is None:
-            logger.warning(f"User not found in database: {token_data.username}")
+            logger.warning("User not found in database for authenticated token")
             raise credentials_exception
-        logger.info(f"User found: {user.email}, id: {user.id}")
+        # SECURITY: Only log user ID, not email or other sensitive data
+        logger.debug(f"User authenticated: id={user.id}")
         return user
     except (ConnectionError, TimeoutError) as e:
         logger.error(f"Database connection error in get_current_user: {e}", exc_info=True)

@@ -6,6 +6,7 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { apiClient } from '@/lib/api/client';
 import { useToast } from '@/components/ui';
+import { getErrorMessage } from '@/lib/types/common';
 
 interface ScheduledTask {
   id: number;
@@ -72,9 +73,9 @@ export function TaskManager({ className = '' }: TaskManagerProps) {
         type: 'success',
       });
       fetchTasks();
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to cancel task',
+        message: getErrorMessage(error) || 'Failed to cancel task',
         type: 'error',
       });
     }
@@ -90,7 +91,7 @@ export function TaskManager({ className = '' }: TaskManagerProps) {
         type: 'success',
       });
       fetchTasks();
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
         message: error.response?.data?.detail || 'Failed to delete task',
         type: 'error',

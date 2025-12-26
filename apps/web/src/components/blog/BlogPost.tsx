@@ -9,6 +9,7 @@
 'use client';
 
 import { Card, Badge } from '@/components/ui';
+import { SafeHTML } from '@/components/ui/SafeHTML';
 import { Link } from '@/i18n/routing';
 import { Calendar, User, Tag, ArrowLeft } from 'lucide-react';
 import type { BlogPost } from '@/components/content';
@@ -95,7 +96,7 @@ export default function BlogPost({ post, className }: BlogPostProps) {
         {/* Post Content */}
         <div className="prose prose-lg dark:prose-invert max-w-none mb-8">
           {post.content_html ? (
-            <div dangerouslySetInnerHTML={{ __html: post.content_html }} />
+            <SafeHTML html={post.content_html} />
           ) : (
             <div className="whitespace-pre-wrap">{post.content}</div>
           )}

@@ -85,10 +85,10 @@ export function DataExporter({
         message: `Data exported as ${format.toUpperCase()} successfully.`,
         type: 'success',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Export error:', error);
       showToast({
-        message: error.response?.data?.detail || 'Failed to export data.',
+        message: getErrorMessage(error) || 'Failed to export data.',
         type: 'error',
       });
     } finally {

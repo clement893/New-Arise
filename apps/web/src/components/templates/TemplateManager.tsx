@@ -6,6 +6,7 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { apiClient } from '@/lib/api/client';
 import { useToast } from '@/components/ui';
+import { getErrorMessage } from '@/lib/types/common';
 import { logger } from '@/lib/logger';
 
 interface Template {
@@ -76,9 +77,9 @@ export function TemplateManager({
         type: 'success',
       });
       fetchTemplates();
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to duplicate template',
+        message: getErrorMessage(error) || 'Failed to duplicate template',
         type: 'error',
       });
     }

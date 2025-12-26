@@ -16,6 +16,7 @@ import { PageHeader, PageContainer } from '@/components/layout';
 import { Loading, Alert } from '@/components/ui';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { logger } from '@/lib/logger';
+import { getErrorMessage } from '@/lib/types/common';
 
 export default function GeneralSettingsPage() {
   const router = useRouter();
@@ -73,9 +74,9 @@ export default function GeneralSettingsPage() {
       setSettings(data);
       logger.info('General settings saved successfully');
       // Show success message (could use toast)
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to save general settings', error instanceof Error ? error : new Error(String(error)));
-      const errorMessage = error?.response?.data?.detail || error?.message || t('errors.saveFailed') || 'Failed to save settings. Please try again.';
+      const errorMessage = getErrorMessage(error) || t('errors.saveFailed') || 'Failed to save settings. Please try again.';
       setError(errorMessage);
       throw error;
     }

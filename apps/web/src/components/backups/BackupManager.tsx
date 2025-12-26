@@ -6,6 +6,7 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { apiClient } from '@/lib/api/client';
 import { useToast } from '@/components/ui';
+import { getErrorMessage } from '@/lib/types/common';
 
 interface Backup {
   id: number;
@@ -80,9 +81,9 @@ export function BackupManager({ className = '' }: BackupManagerProps) {
         message: 'Restore operation started',
         type: 'success',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to start restore',
+        message: getErrorMessage(error) || 'Failed to start restore',
         type: 'error',
       });
     }
@@ -98,9 +99,9 @@ export function BackupManager({ className = '' }: BackupManagerProps) {
         type: 'success',
       });
       fetchBackups();
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to delete backup',
+        message: getErrorMessage(error) || 'Failed to delete backup',
         type: 'error',
       });
     }

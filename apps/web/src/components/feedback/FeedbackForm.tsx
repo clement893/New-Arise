@@ -7,6 +7,7 @@ import Card from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
 import { apiClient } from '@/lib/api/client';
 import { useToast } from '@/components/ui';
+import { getErrorMessage } from '@/lib/types/common';
 
 interface FeedbackFormProps {
   className?: string;
@@ -65,9 +66,9 @@ export function FeedbackForm({ className = '', onSuccess }: FeedbackFormProps) {
       if (onSuccess) {
         onSuccess();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast({
-        message: error.response?.data?.detail || 'Failed to submit feedback',
+        message: getErrorMessage(error) || 'Failed to submit feedback',
         type: 'error',
       });
     } finally {
@@ -89,7 +90,10 @@ export function FeedbackForm({ className = '', onSuccess }: FeedbackFormProps) {
                 <button
                   key={ft.value}
                   type="button"
-                  onClick={() => setType(ft.value as any)}
+                  onClick={() => {
+                    const validType = ft.value as 'bug' | 'feature_request' | 'question' | 'complaint' | 'praise' | 'other';
+                    setType(validType);
+                  }}
                   className={`flex items-center gap-2 p-2 rounded-lg border transition-colors ${
                     type === ft.value
                       ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'

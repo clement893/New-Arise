@@ -9,6 +9,7 @@
 'use client';
 
 import { Modal } from '@/components/ui';
+import { SafeHTML } from '@/components/ui/SafeHTML';
 
 export interface ContentPreviewProps {
   title: string;
@@ -51,9 +52,9 @@ export default function ContentPreview({
     >
       <div className={className}>
         {contentHtml ? (
-          <div
+          <SafeHTML
+            html={contentHtml}
             className="prose prose-lg dark:prose-invert max-w-none"
-            dangerouslySetInnerHTML={{ __html: contentHtml }}
           />
         ) : (
           <div className="prose prose-lg dark:prose-invert max-w-none whitespace-pre-wrap">

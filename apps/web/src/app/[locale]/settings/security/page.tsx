@@ -17,6 +17,7 @@ import { PageHeader, PageContainer, Section } from '@/components/layout';
 import { Loading, Alert, Tabs, TabList, Tab, TabPanels, TabPanel } from '@/components/ui';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { logger } from '@/lib/logger';
+import { getErrorMessage } from '@/lib/types/common';
 
 export default function SecuritySettingsPage() {
   const router = useRouter();
@@ -68,9 +69,9 @@ export default function SecuritySettingsPage() {
         suspiciousActivityAlerts: data.suspiciousActivityAlerts,
       });
       logger.info('Security settings saved successfully');
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to save security settings', error instanceof Error ? error : new Error(String(error)));
-      const errorMessage = error?.response?.data?.detail || error?.message || t('errors.saveFailed') || 'Failed to save security settings. Please try again.';
+      const errorMessage = getErrorMessage(error) || t('errors.saveFailed') || 'Failed to save security settings. Please try again.';
       setError(errorMessage);
       throw error;
     }

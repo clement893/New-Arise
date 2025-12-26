@@ -42,7 +42,20 @@ export default function ScheduledContentPage() {
       const response = await apiClient.get('/v1/scheduled-tasks');
       const backendTasks = response.data;
       
-      const mappedContent: ScheduledContent[] = backendTasks.map((task: any) => ({
+      interface BackendScheduledTask {
+        id: number | string;
+        name: string;
+        description?: string;
+        task_type: string;
+        scheduled_at: string;
+        recurrence?: string;
+        status: string;
+        started_at?: string;
+        completed_at?: string;
+        error_message?: string;
+      }
+      
+      const mappedContent: ScheduledContent[] = (backendTasks as BackendScheduledTask[]).map((task) => ({
         id: task.id,
         name: task.name,
         description: task.description,

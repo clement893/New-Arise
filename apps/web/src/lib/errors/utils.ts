@@ -1,5 +1,6 @@
 /**
- * Common TypeScript types to replace 'any' usage
+ * Error Handling Utilities
+ * Consolidated error handling utilities for API errors and general errors
  */
 
 import { AxiosError, AxiosRequestConfig } from 'axios';
@@ -48,23 +49,25 @@ export function isAxiosErrorType(error: unknown): error is AxiosError {
 
 /**
  * Extract error message from various error types
+ * Supports both English and French fallback messages
  */
-export function getErrorMessage(error: unknown): string {
+export function getErrorMessage(error: unknown, fallback?: string): string {
   if (isApiError(error)) {
     return (
       error.response?.data?.detail ||
       error.response?.data?.message ||
       error.message ||
+      fallback ||
       'An error occurred'
     );
   }
   if (error instanceof Error) {
-    return error.message;
+    return error.message || fallback || 'An error occurred';
   }
   if (typeof error === 'string') {
     return error;
   }
-  return 'An unknown error occurred';
+  return fallback || 'An unknown error occurred';
 }
 
 /**

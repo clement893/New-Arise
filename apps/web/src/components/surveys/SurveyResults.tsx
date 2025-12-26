@@ -537,8 +537,15 @@ export default function SurveyResults({
                               {row}
                             </td>
                             {chartData.columns?.map((col: string) => {
-                              const cellData = chartData.data.find(
-                                (d: any) => d.row === row && d.col === col
+                              interface ChartDataPoint {
+                                row: string;
+                                col: string;
+                                value: number | string;
+                                [key: string]: unknown;
+                              }
+                              
+                              const cellData = (chartData.data as ChartDataPoint[]).find(
+                                (d) => d.row === row && d.col === col
                               );
                               return (
                                 <td key={col} className="border border-gray-300 dark:border-gray-600 p-2 text-center">

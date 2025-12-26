@@ -69,7 +69,7 @@ export default function ProtectedSuperAdminRoute({ children }: ProtectedSuperAdm
           });
           
           // Handle both response formats: { is_superadmin } or full response
-          const isSuperAdmin = status.is_superadmin === true || (status as any).is_superadmin === true;
+          const isSuperAdmin = status.is_superadmin === true;
           setIsSuperAdmin(isSuperAdmin);
           
           if (!isSuperAdmin) {
@@ -104,7 +104,7 @@ export default function ProtectedSuperAdminRoute({ children }: ProtectedSuperAdm
         }
       } catch (err) {
         const error = err instanceof Error ? err : new Error('Failed to check superadmin status');
-        const statusCode = (err as any)?.statusCode || (err as any)?.response?.status;
+        const statusCode = getErrorStatus(err);
         
         logger.error('Failed to check superadmin status', error, {
           email: user?.email,

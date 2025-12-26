@@ -18,6 +18,7 @@ import { Loading, Alert } from '@/components/ui';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { logger } from '@/lib/logger';
 import { apiClient } from '@/lib/api';
+import { getErrorMessage, getErrorStatus } from '@/lib/types/common';
 
 export default function ProfileNotificationsPage() {
   const router = useRouter();
@@ -25,7 +26,39 @@ export default function ProfileNotificationsPage() {
   const { isAuthenticated } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [notificationSettings, setNotificationSettings] = useState<any>(null);
+  const [notificationSettings, setNotificationSettings] = useState<{
+    email: {
+      enabled: boolean;
+      frequency: 'instant' | 'daily' | 'weekly';
+      types: {
+        marketing: boolean;
+        product: boolean;
+        security: boolean;
+        billing: boolean;
+        system: boolean;
+      };
+    };
+    push: {
+      enabled: boolean;
+      types: {
+        marketing: boolean;
+        product: boolean;
+        security: boolean;
+        billing: boolean;
+        system: boolean;
+      };
+    };
+    inApp: {
+      enabled: boolean;
+      types: {
+        marketing: boolean;
+        product: boolean;
+        security: boolean;
+        billing: boolean;
+        system: boolean;
+      };
+    };
+  } | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -81,9 +114,10 @@ export default function ProfileNotificationsPage() {
           },
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If preference doesn't exist, use defaults
-      if (error?.response?.status === 404) {
+      const statusCode = getErrorStatus(error);
+      if (statusCode === 404) {
         setNotificationSettings({
           email: {
             enabled: true,
@@ -169,9 +203,9 @@ export default function ProfileNotificationsPage() {
       
       setNotificationSettings(data);
       logger.info('Notification settings saved successfully');
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to save notification settings', error instanceof Error ? error : new Error(String(error)));
-      const errorMessage = error?.response?.data?.detail || error?.message || t('errors.updateFailed') || 'Failed to update notification settings. Please try again.';
+      const errorMessage = getErrorMessage(error) || t('errors.updateFailed') || 'Failed to update notification settings. Please try again.';
       setError(errorMessage);
       throw error;
     }

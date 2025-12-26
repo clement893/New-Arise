@@ -30,18 +30,34 @@ export default function AdminStatisticsContent() {
       
       // Load users
       const usersResponse = await apiClient.get('/v1/users?limit=1');
-      const usersData = (usersResponse as any).data?.data || (usersResponse as any).data || usersResponse.data;
-      const totalUsers = usersData?.total || 0;
+      interface PaginatedResponse<T> {
+        data?: T | { data?: T; total?: number };
+        total?: number;
+      }
+      
+      interface AuditLog {
+        timestamp: string;
+        [key: string]: unknown;
+      }
+      
+      const usersResponseData = (usersResponse as PaginatedResponse<{ total?: number }>).data;
+      const usersData = usersResponseData && typeof usersResponseData === 'object' && 'total' in usersResponseData
+        ? usersResponseData
+        : usersResponse.data;
+      const totalUsers = (usersData && typeof usersData === 'object' && 'total' in usersData ? usersData.total : 0) || 0;
 
       // Load audit trail stats
       let totalLogs = 0;
       let recentActivities = 0;
       try {
         const logsResponse = await apiClient.get('/v1/audit-trail/audit-trail?limit=1');
-        const logsData = (logsResponse as any).data?.data || (logsResponse as any).data || logsResponse.data;
+        const logsResponseData = (logsResponse as PaginatedResponse<AuditLog[]>).data;
+        const logsData = logsResponseData && typeof logsResponseData === 'object' && 'data' in logsResponseData
+          ? (logsResponseData as { data?: AuditLog[] }).data
+          : Array.isArray(logsResponseData) ? logsResponseData : logsResponse.data;
         if (Array.isArray(logsData)) {
           totalLogs = logsData.length;
-          recentActivities = logsData.filter((log: any) => {
+          recentActivities = logsData.filter((log) => {
             const logDate = new Date(log.timestamp);
             const weekAgo = new Date();
             weekAgo.setDate(weekAgo.getDate() - 7);

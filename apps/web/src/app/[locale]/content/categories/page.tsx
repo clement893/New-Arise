@@ -44,7 +44,17 @@ export default function CategoriesManagementPage() {
       const backendCategories = response.data;
       
       // Map backend categories to component format
-      const mappedCategories: Category[] = backendCategories.map((cat: any) => ({
+      interface BackendCategory {
+        id: number | string;
+        name: string;
+        slug: string;
+        description?: string;
+        parent_id?: number | string;
+        color?: string;
+        icon?: string;
+      }
+      
+      const mappedCategories: Category[] = (backendCategories as BackendCategory[]).map((cat) => ({
         id: cat.id,
         name: cat.name,
         slug: cat.slug,
