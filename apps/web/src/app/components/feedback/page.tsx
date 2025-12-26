@@ -1,8 +1,13 @@
-import FeedbackContent from './FeedbackContent';
+import nextDynamic from 'next/dynamic';
 
-// Force dynamic rendering to avoid CSS file issues during build
+const FeedbackComponentsContent = nextDynamic(
+  () => import('./FeedbackComponentsContent'),
+  { ssr: true }
+);
+
 export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
 
 export default function FeedbackPage() {
-  return <FeedbackContent />;
+  return <FeedbackComponentsContent />;
 }
