@@ -176,7 +176,7 @@ export default function ProfileSettingsPage() {
                   <UserSettings
                     user={{
                       id: String(user.id),
-                      name: user.name || (user.email ? user.email.split('@')[0] : ''),
+                      name: user.name || (user.email ? user.email.split('@')[0] || '' : ''),
                       email: user.email || '',
                       phone: user.phone || undefined,
                       avatar: user.avatar || undefined,

@@ -18,7 +18,6 @@ import { PageHeader, PageContainer, Section } from '@/components/layout';
 import { Loading, Alert } from '@/components/ui';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { logger } from '@/lib/logger';
-import { apiClient } from '@/lib/api';
 
 export default function DashboardAnalyticsPage() {
   const router = useRouter();
@@ -28,8 +27,8 @@ export default function DashboardAnalyticsPage() {
   const [error, setError] = useState<string | null>(null);
   const [metrics, setMetrics] = useState<AnalyticsMetric[]>([]);
   const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
-    start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    end: new Date().toISOString().split('T')[0],
+    start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] || '',
+    end: new Date().toISOString().split('T')[0] || '',
   });
 
   useEffect(() => {
