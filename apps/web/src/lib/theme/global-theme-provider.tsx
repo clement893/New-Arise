@@ -35,21 +35,17 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
       setError(null);
       const activeTheme = await getActiveTheme();
       setTheme(activeTheme);
-      // Always apply theme config, even if it's the default
+      // Apply theme config from backend (TemplateTheme or active theme)
       applyThemeConfig(activeTheme.config);
     } catch (err) {
-      // This should rarely happen now since getActiveTheme returns default theme
       const error = err instanceof Error ? err : new Error('Failed to load theme');
       setError(error);
-      logger.warn('Failed to fetch global theme, using default', { message: error.message, name: error.name });
-      // Still try to apply a basic default theme
-      try {
-        const defaultTheme = await getActiveTheme();
-        applyThemeConfig(defaultTheme.config);
-      } catch {
-        // If even that fails, just log and continue
-        logger.error('Could not apply default theme');
-      }
+      logger.error('Failed to fetch global theme from backend', { 
+        message: error.message, 
+        name: error.name 
+      });
+      // Don't apply any theme if backend is unavailable
+      // The application will continue without theme customization
     } finally {
       setIsLoading(false);
     }

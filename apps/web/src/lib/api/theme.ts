@@ -55,51 +55,18 @@ function extractFastApiData<T>(response: unknown): T {
 }
 
 /**
- * Default theme configuration used when backend is unavailable
- */
-const DEFAULT_THEME_CONFIG: ThemeConfigResponse = {
-  id: 0,
-  name: 'default',
-  display_name: 'Default Theme',
-  config: {
-    primary_color: '#3B82F6',
-    secondary_color: '#10B981',
-    danger_color: '#EF4444',
-    warning_color: '#F59E0B',
-    info_color: '#06B6D4',
-    success_color: '#10B981',
-    font_family: 'Inter',
-    border_radius: '0.5rem',
-  },
-};
-
-/**
  * Get the currently active theme configuration.
  * Public endpoint - no authentication required.
- * Falls back to default theme if backend is unavailable.
+ * Requires backend to be available - throws error if backend is unavailable.
+ * The backend will always return TemplateTheme (ID 32) if no theme is active.
  */
 export async function getActiveTheme(): Promise<ThemeConfigResponse> {
-  try {
-    const response = await apiClient.get<ThemeConfigResponse>('/v1/themes/active', {
-      timeout: 5000, // 5 second timeout
-    });
-    
-    // FastAPI returns data directly
-    return extractFastApiData<ThemeConfigResponse>(response);
-  } catch (error) {
-    // Handle network errors, timeouts, and connection refused
-    if (error instanceof Error) {
-      if (error.message.includes('timeout') || error.message.includes('Timeout')) {
-        logger.warn(`Theme fetch timeout. Using default theme. Make sure the backend is running.`);
-      } else if (error.message.includes('fetch') || error.message.includes('Failed to fetch') || error.message.includes('ERR_CONNECTION_REFUSED') || error.message.includes('Network Error')) {
-        logger.warn(`Backend not available. Using default theme. Make sure the backend is running.`);
-      } else {
-        logger.warn(`Failed to fetch theme: ${error.message} - Using default theme.`);
-      }
-    }
-    // Return default theme instead of throwing
-    return DEFAULT_THEME_CONFIG;
-  }
+  const response = await apiClient.get<ThemeConfigResponse>('/v1/themes/active', {
+    timeout: 5000, // 5 second timeout
+  });
+  
+  // FastAPI returns data directly
+  return extractFastApiData<ThemeConfigResponse>(response);
 }
 
 /**

@@ -43,36 +43,18 @@ const getApiUrl = () => {
 const API_URL = getApiUrl();
 
 /**
- * Default theme configuration used when backend is unavailable
- */
-const DEFAULT_THEME_CONFIG: ThemeConfigResponse = {
-  id: 0,
-  name: 'default',
-  display_name: 'Default Theme',
-  config: {
-    primary_color: '#3B82F6',
-    secondary_color: '#10B981',
-    danger_color: '#EF4444',
-    warning_color: '#F59E0B',
-    info_color: '#06B6D4',
-    success_color: '#10B981',
-    font_family: 'Inter',
-    border_radius: '0.5rem',
-  },
-};
-
-/**
  * GET /api/themes/active
  * Proxy to backend to get active theme.
  * Public endpoint - no authentication required.
- * Falls back to default theme if backend is unavailable.
+ * Requires backend to be available - returns error if backend is unavailable.
+ * The backend will always return TemplateTheme (ID 32) if no theme is active.
  */
 export async function GET() {
-  try {
-    // Create an AbortController for timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+  // Create an AbortController for timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
+  try {
     const response = await fetch(`${API_URL}/api/v1/themes/active`, {
       method: 'GET',
       headers: {
@@ -85,25 +67,39 @@ export async function GET() {
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      // If backend returns an error, use default theme
-      logger.warn(`Backend returned ${response.status}. Using default theme.`);
-      return NextResponse.json(DEFAULT_THEME_CONFIG);
+      logger.error(`Backend returned ${response.status} when fetching active theme.`);
+      return NextResponse.json(
+        { error: `Backend returned ${response.status}` },
+        { status: response.status }
+      );
     }
 
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
+    clearTimeout(timeoutId);
+    
     // Handle network errors, timeouts, and connection refused
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
-        logger.warn('Theme fetch timeout. Using default theme.');
+        logger.error('Theme fetch timeout. Backend is not responding.');
+        return NextResponse.json(
+          { error: 'Backend timeout - theme service unavailable' },
+          { status: 503 }
+        );
       } else {
-        logger.warn('Backend not available. Using default theme.', { message: error.message });
+        logger.error('Backend not available when fetching theme.', { message: error.message });
+        return NextResponse.json(
+          { error: 'Backend unavailable - theme service not accessible' },
+          { status: 503 }
+        );
       }
     } else {
       logger.error('Error fetching active theme', error instanceof Error ? error : new Error(String(error)));
+      return NextResponse.json(
+        { error: 'Unknown error fetching theme' },
+        { status: 500 }
+      );
     }
-    // Return default theme instead of error
-    return NextResponse.json(DEFAULT_THEME_CONFIG);
   }
 }
