@@ -14,7 +14,10 @@ from app.core.logging import logger
 
 
 # Default threshold: 1 second
-SLOW_QUERY_THRESHOLD = float(getattr(settings, 'SLOW_QUERY_THRESHOLD', 1.0))
+try:
+    SLOW_QUERY_THRESHOLD = float(settings.SLOW_QUERY_THRESHOLD)
+except AttributeError:
+    SLOW_QUERY_THRESHOLD = 1.0
 
 
 def log_slow_query(query: Select, execution_time: float, threshold: float = SLOW_QUERY_THRESHOLD):
