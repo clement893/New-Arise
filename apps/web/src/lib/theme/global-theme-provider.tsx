@@ -183,7 +183,7 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
       root.style.setProperty('--border-radius', config.border_radius);
     }
     
-    // Apply CSS effects (glassmorphism, shadows, gradients)
+    // Apply CSS effects (glassmorphism, shadows, gradients, and custom effects)
     const effects = (config as any).effects;
     if (effects) {
       // Glassmorphism
@@ -208,6 +208,22 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
         root.style.setProperty('--gradient-direction', effects.gradients.direction || 'to-br');
         root.style.setProperty('--gradient-intensity', String(effects.gradients.intensity || 0.3));
       }
+      
+      // Apply custom effects as CSS variables
+      // Exclude predefined effects (glassmorphism, shadows, gradients)
+      const predefinedKeys = ['glassmorphism', 'shadows', 'gradients'];
+      Object.entries(effects).forEach(([key, value]) => {
+        if (!predefinedKeys.includes(key) && typeof value === 'object' && value !== null) {
+          // Convert effect properties to CSS variables
+          Object.entries(value as Record<string, any>).forEach(([propKey, propValue]) => {
+            if (propKey !== 'description' && typeof propValue === 'string') {
+              // Convert camelCase to kebab-case for CSS variables
+              const cssVarName = `--effect-${key}-${propKey.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
+              root.style.setProperty(cssVarName, propValue);
+            }
+          });
+        }
+      });
     }
     
     // Update status colors to use theme colors

@@ -593,9 +593,23 @@ export function ThemeEditor({ theme, onSubmit, onCancel, isLoading = false }: Th
 
               <TabPanel value="effects">
                 <div className="space-y-6 mt-4">
-                  {/* Glassmorphism */}
+                  {/* Custom Effects Manager */}
                   <div>
-                    <h3 className="text-lg font-semibold mb-4">Glassmorphism</h3>
+                    <h3 className="text-lg font-semibold mb-4">Gestion des effets personnalisés</h3>
+                    <EffectsManager
+                      effects={config.effects || {}}
+                      onEffectsChange={(newEffects) => {
+                        setConfig((prev) => ({
+                          ...prev,
+                          effects: newEffects,
+                        }));
+                      }}
+                    />
+                  </div>
+
+                  {/* Glassmorphism (Example) */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Glassmorphism (Exemple)</h3>
                     <Card className="p-4">
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
