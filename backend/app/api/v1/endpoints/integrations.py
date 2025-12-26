@@ -106,20 +106,42 @@ async def get_integration(
     db: AsyncSession = Depends(get_db),
 ):
     """Get a specific integration by ID"""
-    result = await db.execute(
-        select(Integration)
-        .where(Integration.id == integration_id)
-        .where(Integration.user_id == current_user.id)
-    )
-    integration = result.scalar_one_or_none()
-    
-    if not integration:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Integration not found"
+    try:
+        result = await db.execute(
+            select(Integration)
+            .where(Integration.id == integration_id)
+            .where(Integration.user_id == current_user.id)
         )
-    
-    return integration
+        integration = result.scalar_one_or_none()
+        
+        if not integration:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Integration not found"
+            )
+        
+        return IntegrationResponse(
+            id=integration.id,
+            type=integration.type,
+            name=integration.name,
+            description=integration.description,
+            enabled=integration.enabled,
+            config=integration.config,
+            last_sync_at=integration.last_sync_at.isoformat() if integration.last_sync_at else None,
+            last_error=integration.last_error,
+            error_count=integration.error_count,
+            created_at=integration.created_at.isoformat() if integration.created_at else "",
+            updated_at=integration.updated_at.isoformat() if integration.updated_at else "",
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        from app.core.logging import logger
+        logger.error(f"Error getting integration {integration_id}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve integration"
+        )
 
 
 @router.post("/", response_model=IntegrationResponse, status_code=status.HTTP_201_CREATED, tags=["integrations"])
@@ -160,7 +182,19 @@ async def create_integration(
     await db.commit()
     await db.refresh(integration)
     
-    return integration
+    return IntegrationResponse(
+        id=integration.id,
+        type=integration.type,
+        name=integration.name,
+        description=integration.description,
+        enabled=integration.enabled,
+        config=integration.config,
+        last_sync_at=integration.last_sync_at.isoformat() if integration.last_sync_at else None,
+        last_error=integration.last_error,
+        error_count=integration.error_count,
+        created_at=integration.created_at.isoformat() if integration.created_at else "",
+        updated_at=integration.updated_at.isoformat() if integration.updated_at else "",
+    )
 
 
 @router.put("/{integration_id}", response_model=IntegrationResponse, tags=["integrations"])
@@ -201,7 +235,19 @@ async def update_integration(
     await db.commit()
     await db.refresh(integration)
     
-    return integration
+    return IntegrationResponse(
+        id=integration.id,
+        type=integration.type,
+        name=integration.name,
+        description=integration.description,
+        enabled=integration.enabled,
+        config=integration.config,
+        last_sync_at=integration.last_sync_at.isoformat() if integration.last_sync_at else None,
+        last_error=integration.last_error,
+        error_count=integration.error_count,
+        created_at=integration.created_at.isoformat() if integration.created_at else "",
+        updated_at=integration.updated_at.isoformat() if integration.updated_at else "",
+    )
 
 
 @router.patch("/{integration_id}/toggle", response_model=IntegrationResponse, tags=["integrations"])
@@ -230,7 +276,19 @@ async def toggle_integration(
     await db.commit()
     await db.refresh(integration)
     
-    return integration
+    return IntegrationResponse(
+        id=integration.id,
+        type=integration.type,
+        name=integration.name,
+        description=integration.description,
+        enabled=integration.enabled,
+        config=integration.config,
+        last_sync_at=integration.last_sync_at.isoformat() if integration.last_sync_at else None,
+        last_error=integration.last_error,
+        error_count=integration.error_count,
+        created_at=integration.created_at.isoformat() if integration.created_at else "",
+        updated_at=integration.updated_at.isoformat() if integration.updated_at else "",
+    )
 
 
 @router.delete("/{integration_id}", status_code=status.HTTP_204_NO_CONTENT, tags=["integrations"])
