@@ -53,14 +53,27 @@ async def get_api_settings(
     db: AsyncSession = Depends(get_db),
 ):
     """Get API settings for the current user"""
-    service = UserPreferenceService(db)
-    settings_data = await service.get_preference(current_user.id, API_SETTINGS_KEY)
-    
-    if settings_data:
-        # Return existing settings
-        return APISettingsResponse(settings=APISettingsData(**settings_data.value))
-    else:
-        # Return default settings
+    try:
+        service = UserPreferenceService(db)
+        settings_data = await service.get_preference(current_user.id, API_SETTINGS_KEY)
+        
+        if settings_data and settings_data.value:
+            # Ensure value is a dict
+            if isinstance(settings_data.value, dict):
+                # Return existing settings
+                return APISettingsResponse(settings=APISettingsData(**settings_data.value))
+            else:
+                # If value is not a dict, return defaults
+                default_settings = APISettingsData()
+                return APISettingsResponse(settings=default_settings)
+        else:
+            # Return default settings
+            default_settings = APISettingsData()
+            return APISettingsResponse(settings=default_settings)
+    except Exception as e:
+        from app.core.logging import logger
+        logger.error(f"Error getting API settings: {e}", exc_info=True)
+        # Return default settings on error
         default_settings = APISettingsData()
         return APISettingsResponse(settings=default_settings)
 
@@ -74,17 +87,30 @@ async def update_api_settings(
     db: AsyncSession = Depends(get_db),
 ):
     """Update API settings for the current user"""
-    service = UserPreferenceService(db)
-    
-    # Convert to dict for storage
-    settings_dict = settings.model_dump(exclude_none=True)
-    
-    # Save settings
-    preference = await service.set_preference(
-        current_user.id,
-        API_SETTINGS_KEY,
-        settings_dict
-    )
-    
-    return APISettingsResponse(settings=APISettingsData(**preference.value))
+    try:
+        service = UserPreferenceService(db)
+        
+        # Convert to dict for storage
+        settings_dict = settings.model_dump(exclude_none=True)
+        
+        # Save settings
+        preference = await service.set_preference(
+            current_user.id,
+            API_SETTINGS_KEY,
+            settings_dict
+        )
+        
+        # Ensure value is a dict
+        if isinstance(preference.value, dict):
+            return APISettingsResponse(settings=APISettingsData(**preference.value))
+        else:
+            # Fallback to provided settings if preference value is invalid
+            return APISettingsResponse(settings=settings)
+    except Exception as e:
+        from app.core.logging import logger
+        logger.error(f"Error updating API settings: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to update API settings"
+        )
 
