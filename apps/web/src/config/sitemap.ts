@@ -88,6 +88,14 @@ export const sitePages: Record<string, SitemapPage[]> = {
       requiresAuth: true,
     },
     { 
+      path: '/dashboard/activity', 
+      title: 'Activity Feed', 
+      description: 'Flux d\'activité récentes',
+      priority: 0.8,
+      changefreq: 'daily',
+      requiresAuth: true,
+    },
+    { 
       path: '/profile', 
       title: 'Profile', 
       description: 'Gérer votre profil utilisateur',

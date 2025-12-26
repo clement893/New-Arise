@@ -82,6 +82,21 @@
         "loadFailed": "Failed to load reports. Please try again.",
         "saveFailed": "Failed to save report. Please try again."
       }
+    },
+    "activity": {
+      "title": "Activity Feed",
+      "description": "View recent activities across the platform",
+      "breadcrumbs": {
+        "dashboard": "Dashboard",
+        "activity": "Activity"
+      },
+      "section": {
+        "title": "Recent Activity"
+      },
+      "empty": "No activity found",
+      "errors": {
+        "loadFailed": "Failed to load activity feed. Please try again."
+      }
     }
   },
   "language": {
