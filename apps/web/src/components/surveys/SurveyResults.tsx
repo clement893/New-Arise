@@ -229,7 +229,7 @@ export default function SurveyResults({
         if (row) {
           matrixData[row] = {};
           columns.forEach((col) => {
-            if (col) {
+            if (col && matrixData[row]) {
               matrixData[row][col] = 0;
             }
           });

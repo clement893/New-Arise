@@ -498,8 +498,9 @@ export default function SurveyTaker({
                           const newRanking = [...rankingValue];
                           const currentIndex = newRanking.indexOf(option.value);
                           if (currentIndex > 0 && newRanking[currentIndex] !== undefined && newRanking[currentIndex - 1] !== undefined) {
-                            const temp = newRanking[currentIndex];
-                            newRanking[currentIndex] = newRanking[currentIndex - 1];
+                            const temp = newRanking[currentIndex]!;
+                            const prev = newRanking[currentIndex - 1]!;
+                            newRanking[currentIndex] = prev;
                             newRanking[currentIndex - 1] = temp;
                             setResponses({ ...responses, [question.name]: newRanking });
                           }
@@ -516,8 +517,9 @@ export default function SurveyTaker({
                           const currentIndex = newRanking.indexOf(option.value);
                           if (currentIndex >= 0 && currentIndex < newRanking.length - 1 && 
                               newRanking[currentIndex] !== undefined && newRanking[currentIndex + 1] !== undefined) {
-                            const temp = newRanking[currentIndex];
-                            newRanking[currentIndex] = newRanking[currentIndex + 1];
+                            const temp = newRanking[currentIndex]!;
+                            const next = newRanking[currentIndex + 1]!;
+                            newRanking[currentIndex] = next;
                             newRanking[currentIndex + 1] = temp;
                             setResponses({ ...responses, [question.name]: newRanking });
                           } else if (currentIndex === -1) {
