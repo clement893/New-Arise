@@ -23,7 +23,7 @@ import Button from '@/components/ui/Button';
 import Select from '@/components/ui/Select';
 import Switch from '@/components/ui/Switch';
 import type { SelectOption } from '@/components/ui/Select';
-import { Save, Globe, Palette, Bell } from 'lucide-react';
+import { Save } from 'lucide-react';
 
 export interface GeneralSettingsProps {
   settings?: {
