@@ -18,3 +18,6 @@ export type { MediaItem, ViewMode, MediaLibraryProps } from './MediaLibrary';
 export { default as CategoriesManager } from './CategoriesManager';
 export type { Category, CategoriesManagerProps } from './CategoriesManager';
 
+export { default as TagsManager } from './TagsManager';
+export type { TagItem, TagsManagerProps } from './TagsManager';
+
