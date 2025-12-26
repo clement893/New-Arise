@@ -9,3 +9,6 @@ export type { PageSection, PageEditorProps } from './PageEditor';
 export { default as PagePreview } from './PagePreview';
 export type { PagePreviewProps } from './PagePreview';
 
+export { default as SectionTemplates } from './SectionTemplates';
+export type { SectionTemplate, SectionTemplatesProps } from './SectionTemplates';
+
