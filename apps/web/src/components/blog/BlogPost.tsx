@@ -93,10 +93,13 @@ export default function BlogPost({ post, className }: BlogPostProps) {
         )}
 
         {/* Post Content */}
-        <div
-          className="prose prose-lg dark:prose-invert max-w-none mb-8"
-          dangerouslySetInnerHTML={{ __html: post.content }}
-        />
+        <div className="prose prose-lg dark:prose-invert max-w-none mb-8">
+          {post.content_html ? (
+            <div dangerouslySetInnerHTML={{ __html: post.content_html }} />
+          ) : (
+            <div className="whitespace-pre-wrap">{post.content}</div>
+          )}
+        </div>
 
         {/* Tags */}
         {post.tags && post.tags.length > 0 && (
