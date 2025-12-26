@@ -80,6 +80,14 @@ export const sitePages: Record<string, SitemapPage[]> = {
       requiresAuth: true,
     },
     { 
+      path: '/dashboard/reports', 
+      title: 'Reports', 
+      description: 'Créer et consulter des rapports personnalisés',
+      priority: 0.8,
+      changefreq: 'weekly',
+      requiresAuth: true,
+    },
+    { 
       path: '/profile', 
       title: 'Profile', 
       description: 'Gérer votre profil utilisateur',
