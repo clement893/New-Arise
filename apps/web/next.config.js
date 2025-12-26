@@ -162,7 +162,8 @@ const nextConfig = {
     
     const cspDirectives = [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.railway.app", // Required for Next.js dev mode
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.railway.app blob:", // Required for Next.js dev mode and Sentry workers
+      "worker-src 'self' blob:", // Required for Sentry workers and web workers
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.railway.app", // Required for Tailwind CSS
       "font-src 'self' https://fonts.gstatic.com data:",
       "img-src 'self' data: https: blob:",
