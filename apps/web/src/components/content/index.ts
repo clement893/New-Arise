@@ -24,3 +24,6 @@ export type { TagItem, TagsManagerProps } from './TagsManager';
 export { default as TemplatesManager } from './TemplatesManager';
 export type { ContentTemplate, TemplatesManagerProps } from './TemplatesManager';
 
+export { default as ScheduledContentManager } from './ScheduledContentManager';
+export type { ScheduledContent, ScheduledContentManagerProps } from './ScheduledContentManager';
+
