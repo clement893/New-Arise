@@ -45,9 +45,21 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
       // Fetch fresh theme from backend (non-blocking)
       const activeTheme = await getActiveTheme();
       
-      // Only update if theme actually changed to prevent unnecessary re-renders
+      // Check if theme changed (ID or config)
       const currentThemeId = theme?.id;
-      if (currentThemeId !== activeTheme.id) {
+      const themeIdChanged = currentThemeId !== activeTheme.id;
+      
+      // Compare config to detect changes even if ID is the same
+      const configChanged = themeIdChanged || JSON.stringify(theme?.config) !== JSON.stringify(activeTheme.config);
+      
+      if (configChanged) {
+        logger.info('[Theme] Theme changed, applying new configuration', {
+          oldId: currentThemeId,
+          newId: activeTheme.id,
+          idChanged: themeIdChanged,
+          configChanged: !themeIdChanged && configChanged,
+        });
+        
         setTheme(activeTheme);
         // Apply theme config from backend (TemplateTheme or active theme)
         // BUT: Don't override if manual theme is active (for preview mode)

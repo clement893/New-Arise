@@ -11,6 +11,7 @@ import { DEFAULT_THEME_CONFIG } from '@/lib/theme/default-theme-config';
 import { validateThemeConfig } from '@/lib/theme/theme-validator';
 import { formatValidationErrors } from '@/lib/api/theme-errors';
 import { logger } from '@/lib/logger';
+import { clearThemeCache } from '@/lib/theme/theme-cache';
 import type { ThemeConfigResponse, ThemeConfig, ThemeUpdate } from '@modele/types';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -134,14 +135,19 @@ export function ThemeVisualisationContent() {
       setSuccessMessage(`Thème "${theme.display_name}" mis à jour avec succès !`);
       setIsEditing(false);
       
+      // Clear cache to force fresh fetch
+      clearThemeCache();
+      
       // Refresh theme data
       await fetchTheme();
       
       // If this is the active theme, apply the changes immediately
       if (theme.is_active) {
+        // Clear cache to ensure fresh theme is loaded
+        clearThemeCache();
         // Apply the updated config immediately using the imported function
         applyThemeConfigDirectly(configToSave);
-        // Also refresh from backend to ensure consistency
+        // Also refresh from backend to ensure consistency (this will detect config change)
         await refreshTheme();
       } else {
         // If not active, just refresh (won't change anything but ensures consistency)
