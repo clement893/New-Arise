@@ -6,6 +6,7 @@ Manages user preferences and settings
 from typing import List, Optional, Dict, Any
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import ProgrammingError, OperationalError
 
 from app.models.user_preference import UserPreference
 from app.core.logging import logger
@@ -33,6 +34,10 @@ class UserPreferenceService:
                 )
             )
             return result.scalar_one_or_none()
+        except (ProgrammingError, OperationalError) as e:
+            # Table doesn't exist or database error
+            logger.warning(f"Table user_preferences may not exist yet: {e}")
+            return None
         except Exception as e:
             logger.error(f"Error getting preference {key} for user {user_id}: {e}", exc_info=True)
             # Return None if table doesn't exist or other error occurs
@@ -51,6 +56,10 @@ class UserPreferenceService:
             )
             preferences = result.scalars().all()
             return {pref.key: pref.value for pref in preferences}
+        except (ProgrammingError, OperationalError) as e:
+            # Table doesn't exist or database error
+            logger.warning(f"Table user_preferences may not exist yet: {e}")
+            return {}
         except Exception as e:
             logger.error(f"Error getting all preferences for user {user_id}: {e}", exc_info=True)
             # Return empty dict if table doesn't exist or other error occurs

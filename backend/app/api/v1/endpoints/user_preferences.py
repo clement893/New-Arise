@@ -5,12 +5,14 @@ User Preferences API Endpoints
 from typing import Dict, Any, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Body
 from pydantic import BaseModel
+from sqlalchemy.exc import ProgrammingError, OperationalError
 
 from app.services.user_preference_service import UserPreferenceService
 from app.models.user import User
 from app.dependencies import get_current_user
 from app.core.database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.logging import logger
 
 router = APIRouter()
 
@@ -37,8 +39,11 @@ async def get_all_preferences(
         service = UserPreferenceService(db)
         preferences = await service.get_all_preferences(current_user.id)
         return preferences
+    except (ProgrammingError, OperationalError) as e:
+        # Table doesn't exist yet - return empty dict
+        logger.warning(f"Table user_preferences may not exist yet: {e}")
+        return {}
     except Exception as e:
-        from app.core.logging import logger
         logger.error(f"Error getting preferences: {e}", exc_info=True)
         # Return empty dict if there's an error (e.g., table doesn't exist yet)
         return {}
