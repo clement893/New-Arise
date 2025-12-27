@@ -87,12 +87,12 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-background to-secondary-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-background to-secondary-50 dark:from-muted dark:via-muted dark:to-muted">
       {/* Hero Section - Using Hero component */}
       <Hero />
 
       {/* Stats Section - Custom stats with StatsCard component */}
-      <div className="bg-background dark:bg-gray-800 py-12">
+      <div className="bg-background py-12">
         <Container>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <StatsCard
@@ -127,7 +127,7 @@ export default function HomePage() {
       <div className="bg-background dark:bg-gray-800 py-20">
         <Container>
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-foreground dark:text-white mb-4">
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
               Tout ce dont vous avez besoin
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -141,7 +141,7 @@ export default function HomePage() {
                 <div className={`${feature.color} mb-4`}>
                   {feature.icon}
                 </div>
-                <h3 className="text-xl font-semibold text-foreground dark:text-white mb-2">
+                <h3 className="text-xl font-semibold text-foreground mb-2">
                   {feature.title}
                 </h3>
                 <p className="text-muted-foreground">
@@ -160,7 +160,7 @@ export default function HomePage() {
       <div className="bg-background dark:bg-gray-800 py-20">
         <Container>
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-foreground dark:text-white mb-4">
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
               Cas d'usage
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -176,7 +176,7 @@ export default function HomePage() {
                     {useCase.icon}
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-foreground dark:text-white mb-2">
+                    <h3 className="text-xl font-semibold text-foreground mb-2">
                       {useCase.title}
                     </h3>
                     <p className="text-muted-foreground">
@@ -191,7 +191,7 @@ export default function HomePage() {
       </div>
 
       {/* Key Features List - Custom section using Card component */}
-      <div className="bg-gradient-to-br from-secondary-50 to-primary-50 dark:from-gray-900 dark:to-gray-800 py-20">
+      <div className="bg-gradient-to-br from-secondary-50 to-primary-50 dark:from-muted dark:to-muted py-20">
         <Container>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <Card className="p-8">
@@ -219,7 +219,7 @@ export default function HomePage() {
                 ].map((feature, index) => (
                   <li key={index} className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-success-600 dark:text-success-400 flex-shrink-0 mt-0.5" />
-                    <span className="text-foreground dark:text-gray-300">{feature}</span>
+                    <span className="text-foreground">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -239,7 +239,7 @@ export default function HomePage() {
                 ].map((feature, index) => (
                   <li key={index} className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-primary-600 dark:text-primary-400 flex-shrink-0 mt-0.5" />
-                    <span className="text-foreground dark:text-gray-300">{feature}</span>
+                    <span className="text-foreground">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -256,7 +256,7 @@ export default function HomePage() {
         <Container>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="p-6 hover:shadow-lg transition-shadow">
-              <h2 className="text-2xl font-semibold text-foreground dark:text-white mb-4 flex items-center gap-2">
+              <h2 className="text-2xl font-semibold text-foreground mb-4 flex items-center gap-2">
                 <Layers className="w-6 h-6 text-primary-600 dark:text-primary-400" />
                 Dashboard
               </h2>
@@ -269,7 +269,7 @@ export default function HomePage() {
             </Card>
 
             <Card className="p-6 hover:shadow-lg transition-shadow">
-              <h2 className="text-2xl font-semibold text-foreground dark:text-white mb-4 flex items-center gap-2">
+              <h2 className="text-2xl font-semibold text-foreground mb-4 flex items-center gap-2">
                 <Code className="w-6 h-6 text-success-600 dark:text-success-400" />
                 Composants
               </h2>
@@ -282,7 +282,7 @@ export default function HomePage() {
             </Card>
 
             <Card className="p-6 hover:shadow-lg transition-shadow">
-              <h2 className="text-2xl font-semibold text-foreground dark:text-white mb-4 flex items-center gap-2">
+              <h2 className="text-2xl font-semibold text-foreground mb-4 flex items-center gap-2">
                 <Globe className="w-6 h-6 text-secondary-600 dark:text-secondary-400" />
                 Documentation
               </h2>

@@ -80,11 +80,11 @@ export default function PricingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-muted dark:to-muted">
       <Container className="py-16">
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">Tarifs</h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
+          <h1 className="text-5xl font-bold text-foreground mb-4">Tarifs</h1>
+          <p className="text-xl text-muted-foreground mb-8">
             Choisissez le plan qui correspond à vos besoins
           </p>
 
@@ -106,7 +106,7 @@ export default function PricingPage() {
 
         {/* FAQ Section */}
         <div className="mt-16 max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-gray-100 mb-8">
+          <h2 className="text-3xl font-bold text-center text-foreground mb-8">
             Questions fréquentes
           </h2>
           <div className="space-y-4">
