@@ -121,6 +121,18 @@
   --color-ring: #60a5fa;  /* Blue 400 - lighter for dark mode */
 }
 
+/* Ensure body uses theme variables */
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+/* Dark mode body styles - ensure dark mode applies to body */
+.dark body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
 /* RTL Support */
 [dir="rtl"] {
   direction: rtl;
