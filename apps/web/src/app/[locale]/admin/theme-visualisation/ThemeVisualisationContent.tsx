@@ -38,6 +38,7 @@ export function ThemeVisualisationContent() {
   const [uploadedFonts, setUploadedFonts] = useState<ThemeFont[]>([]);
   const [uploadingFont, setUploadingFont] = useState(false);
   const [selectedFontFile, setSelectedFontFile] = useState<File | null>(null);
+  const [forceUpdate, setForceUpdate] = useState(0); // Force re-render after JSON application
 
   const fetchTheme = async () => {
     try {
@@ -378,19 +379,32 @@ export function ThemeVisualisationContent() {
 
   // Allow editing all themes
   const canEdit = true;
-  const config = isEditing && editedConfig ? editedConfig : theme.config;
+  // Use editedConfig if available (when JSON is applied), otherwise use theme.config
+  // forceUpdate is used to trigger re-render when JSON is applied - accessing it here ensures re-render
+  const config = editedConfig || (isEditing && editedConfig ? editedConfig : theme.config);
+  // Access forceUpdate to trigger re-render when it changes
+  void forceUpdate;
   const typography = (config as any).typography || {};
   const effects = (config as any).effects || {};
 
+  // Get computed CSS variables to show actual applied colors
+  const getComputedColor = (varName: string, fallback: string) => {
+    if (typeof window === 'undefined') return fallback;
+    const root = document.documentElement;
+    const value = getComputedStyle(root).getPropertyValue(varName);
+    return value.trim() || fallback;
+  };
+
   // Extract color values - support both flat and nested color structures
+  // Try to get colors from CSS variables first (if manually applied), then fallback to config
   const colorsConfig = (config as any).colors || {};
   const colors = {
-    primary: config.primary_color || colorsConfig.primary || '#3b82f6',
-    secondary: config.secondary_color || colorsConfig.secondary || '#8b5cf6',
-    danger: config.danger_color || colorsConfig.destructive || colorsConfig.danger || '#ef4444',
-    warning: config.warning_color || colorsConfig.warning || '#f59e0b',
-    info: config.info_color || colorsConfig.info || '#06b6d4',
-    success: config.success_color || colorsConfig.success || '#10b981',
+    primary: getComputedColor('--color-primary-500', config.primary_color || colorsConfig.primary || '#3b82f6'),
+    secondary: getComputedColor('--color-secondary-500', config.secondary_color || colorsConfig.secondary || '#8b5cf6'),
+    danger: getComputedColor('--color-danger-500', config.danger_color || colorsConfig.danger_color || colorsConfig.destructive || colorsConfig.danger || '#ef4444'),
+    warning: getComputedColor('--color-warning-500', config.warning_color || colorsConfig.warning || '#f59e0b'),
+    info: getComputedColor('--color-info-500', config.info_color || colorsConfig.info || '#06b6d4'),
+    success: getComputedColor('--color-success-500', config.success_color || colorsConfig.success || '#10b981'),
   };
 
   // Extract font family - support both flat and nested typography structures
@@ -407,14 +421,6 @@ export function ThemeVisualisationContent() {
   
   // Extract shadows if available
   const shadows = (config as any).shadow || effects.shadows || {};
-
-  // Get computed CSS variables
-  const getComputedColor = (varName: string, fallback: string) => {
-    if (typeof window === 'undefined') return fallback;
-    const root = document.documentElement;
-    const value = getComputedStyle(root).getPropertyValue(varName);
-    return value.trim() || fallback;
-  };
 
   return (
     <div className="space-y-8">
@@ -924,6 +930,9 @@ export function ThemeVisualisationContent() {
                           // Update jsonInput to reflect the parsed and normalized JSON
                           // This ensures the JSON is properly formatted
                           setJsonInput(JSON.stringify(updatedConfig, null, 2));
+                          
+                          // Force re-render to update color displays
+                          setForceUpdate(prev => prev + 1);
                           
                           console.log('[Theme Preview] Application du thème avec bypassDarkModeProtection...', {
                             hasColors: !!(updatedConfig as any).colors,
