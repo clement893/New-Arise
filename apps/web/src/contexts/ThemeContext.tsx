@@ -1,7 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useLayoutEffect, useState, useMemo, ReactNode, startTransition } from 'react';
-import { getActiveTheme } from '@/lib/api/theme';
+import { createContext, useContext, useEffect, useState, useMemo, ReactNode } from 'react';
 
 type Theme = 'light' | 'dark' | 'system';
 
