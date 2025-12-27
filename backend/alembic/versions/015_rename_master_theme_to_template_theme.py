@@ -104,10 +104,11 @@ def upgrade():
             conn.execute(sa.text("DELETE FROM themes WHERE id = :master_id"), {"master_id": master_id})
             
             # Insert TemplateTheme with ID 32
+            # Use CAST for proper JSONB conversion with psycopg2
             conn.execute(sa.text("""
                 INSERT INTO themes (id, name, display_name, description, config, is_active, created_by, created_at, updated_at)
                 VALUES (32, 'TemplateTheme', 'Template Theme', 'Master theme that controls all components', 
-                        :config::jsonb, :is_active, 1, :created_at, :updated_at)
+                        CAST(:config AS jsonb), :is_active, 1, :created_at, :updated_at)
             """), {
                 "config": json.dumps(default_config),
                 "is_active": is_active,
@@ -131,10 +132,11 @@ def upgrade():
                 print(f"Warning: Could not update sequence: {e}")
         
         # Insert TemplateTheme with ID 32
+        # Use CAST for proper JSONB conversion with psycopg2
         conn.execute(sa.text("""
             INSERT INTO themes (id, name, display_name, description, config, is_active, created_by, created_at, updated_at)
             VALUES (32, 'TemplateTheme', 'Template Theme', 'Master theme that controls all components', 
-                    :config::jsonb, true, 1, :created_at, :updated_at)
+                    CAST(:config AS jsonb), true, 1, :created_at, :updated_at)
         """), {
             "config": json.dumps(default_config),
             "created_at": datetime.utcnow(),

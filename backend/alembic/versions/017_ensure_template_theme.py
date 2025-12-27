@@ -73,10 +73,11 @@ def upgrade():
         config_json = json.dumps(default_config)
         
         # Insert TemplateTheme with ID 32
+        # Use CAST for proper JSONB conversion with psycopg2
         conn.execute(text("""
             INSERT INTO themes (id, name, display_name, description, config, is_active, created_by, created_at, updated_at)
             VALUES (32, 'TemplateTheme', 'Template Theme', 'Master theme that controls all components', 
-                    :config::jsonb, :is_active, 1, NOW(), NOW())
+                    CAST(:config AS jsonb), :is_active, 1, NOW(), NOW())
         """), {
             "config": config_json,
             "is_active": is_active
