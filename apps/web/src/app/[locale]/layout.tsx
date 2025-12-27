@@ -75,9 +75,9 @@ export default async function LocaleLayout({
   const appDescription = process.env.NEXT_PUBLIC_APP_DESCRIPTION || 'Full-stack template with Next.js 16 frontend and FastAPI backend';
 
   return (
-    <html lang={locale} className={inter.variable} data-api-url={apiUrl}>
+    <html lang={locale} className={inter.variable} data-api-url={apiUrl} suppressHydrationWarning>
       <head>
-        {/* Critical theme styles - applied immediately to prevent color flash */}
+        {/* Critical theme styles - MUST be first to prevent color flash */}
         <style
           dangerouslySetInnerHTML={{
             __html: `
@@ -209,7 +209,11 @@ export default async function LocaleLayout({
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
       </head>
-      <body className={`${inter.className} bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100`} style={{ fontFamily: 'var(--font-family, Inter, system-ui, sans-serif)' }}>
+      <body 
+        className={`${inter.className} bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100`} 
+        style={{ fontFamily: 'var(--font-family, Inter, system-ui, sans-serif)' }}
+        suppressHydrationWarning
+      >
         <SkipLink />
         <SchemaMarkup
           type="organization"
