@@ -243,7 +243,9 @@
       "notifications": "Notifications",
       "notificationsDescription": "Notification preferences and settings",
       "preferences": "Preferences",
-      "preferencesDescription": "User preferences and personalization"
+      "preferencesDescription": "User preferences and personalization",
+      "logs": "Logs",
+      "logsDescription": "View system logs and audit trail"
     },
     "errors": {
       "loadFailed": "Failed to load settings. Please try again.",
@@ -363,6 +365,46 @@
         "dashboard": "Dashboard",
         "settings": "Settings",
         "preferences": "Preferences"
+      }
+    },
+    "logs": {
+      "title": "System Logs",
+      "description": "View system logs and audit trail",
+      "breadcrumbs": {
+        "dashboard": "Dashboard",
+        "settings": "Settings",
+        "logs": "Logs"
+      },
+      "columns": {
+        "timestamp": "Date/Time",
+        "severity": "Severity",
+        "eventType": "Type",
+        "message": "Message",
+        "user": "User",
+        "ipAddress": "IP",
+        "system": "System"
+      },
+      "filters": {
+        "allTypes": "All types",
+        "login": "Login",
+        "logout": "Logout",
+        "create": "Create",
+        "update": "Update",
+        "delete": "Delete",
+        "eventType": "Event type",
+        "allSeverities": "All severities",
+        "info": "Info",
+        "warning": "Warning",
+        "error": "Error",
+        "critical": "Critical",
+        "severity": "Severity"
+      },
+      "searchPlaceholder": "Search logs...",
+      "refresh": "Refresh",
+      "empty": "No logs found",
+      "errors": {
+        "loadFailed": "Failed to load logs. Please try again.",
+        "unauthorized": "You do not have permission to view logs"
       }
     }
   },

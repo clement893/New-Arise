@@ -26,7 +26,8 @@ import {
   Key, 
   Shield, 
   Bell, 
-  UserCog
+  UserCog,
+  FileText
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -115,6 +116,13 @@ export default function SettingsNavigation({ className }: SettingsNavigationProp
       href: '/settings/preferences',
       icon: <UserCog className="w-6 h-6" />,
       description: t('navigation.preferencesDescription') || 'User preferences and personalization',
+    },
+    {
+      id: 'logs',
+      label: t('navigation.logs') || 'Logs',
+      href: '/settings/logs',
+      icon: <FileText className="w-6 h-6" />,
+      description: t('navigation.logsDescription') || 'View system logs and audit trail',
     },
   ];
 

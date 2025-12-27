@@ -84,7 +84,9 @@
       "notifications": "Notifications",
       "notificationsDescription": "Préférences et paramètres de notification",
       "preferences": "Préférences",
-      "preferencesDescription": "Préférences utilisateur et personnalisation"
+      "preferencesDescription": "Préférences utilisateur et personnalisation",
+      "logs": "Logs",
+      "logsDescription": "Consulter les logs système et la piste d'audit"
     },
     "errors": {
       "loadFailed": "Échec du chargement des paramètres. Veuillez réessayer.",
@@ -143,6 +145,46 @@
       "errors": {
         "loadFailed": "Échec du chargement des préférences. Veuillez réessayer.",
         "saveFailed": "Échec de l'enregistrement des préférences. Veuillez réessayer."
+      }
+    },
+    "logs": {
+      "title": "Logs système",
+      "description": "Consulter les logs système et la piste d'audit",
+      "breadcrumbs": {
+        "dashboard": "Tableau de bord",
+        "settings": "Paramètres",
+        "logs": "Logs"
+      },
+      "columns": {
+        "timestamp": "Date/Heure",
+        "severity": "Sévérité",
+        "eventType": "Type",
+        "message": "Message",
+        "user": "Utilisateur",
+        "ipAddress": "IP",
+        "system": "Système"
+      },
+      "filters": {
+        "allTypes": "Tous les types",
+        "login": "Login",
+        "logout": "Logout",
+        "create": "Création",
+        "update": "Modification",
+        "delete": "Suppression",
+        "eventType": "Type d'événement",
+        "allSeverities": "Toutes les sévérités",
+        "info": "Info",
+        "warning": "Warning",
+        "error": "Error",
+        "critical": "Critical",
+        "severity": "Sévérité"
+      },
+      "searchPlaceholder": "Rechercher dans les logs...",
+      "refresh": "Actualiser",
+      "empty": "Aucun log trouvé",
+      "errors": {
+        "loadFailed": "Échec du chargement des logs. Veuillez réessayer.",
+        "unauthorized": "Vous n'avez pas la permission de consulter les logs"
       }
     },
     "billing": {
