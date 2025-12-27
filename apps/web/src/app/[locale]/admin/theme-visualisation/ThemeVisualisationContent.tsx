@@ -11,9 +11,8 @@ import Button from '@/components/ui/Button';
 import Alert from '@/components/ui/Alert';
 import Input from '@/components/ui/Input';
 import ColorPicker from '@/components/ui/ColorPicker';
-import Textarea from '@/components/ui/Textarea';
-import Textarea from '@/components/ui/Textarea';
-import { RefreshCw, Palette, Type, Layout, Sparkles, Save, Edit2, Upload, Download, Code } from 'lucide-react';
+import TextareaComponent from '@/components/ui/Textarea';
+import { RefreshCw, Palette, Type, Layout, Sparkles, Save, Edit2, Download, Code } from 'lucide-react';
 import Select from '@/components/ui/Select';
 
 export function ThemeVisualisationContent() {
@@ -28,7 +27,7 @@ export function ThemeVisualisationContent() {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [jsonInput, setJsonInput] = useState<string>('');
-  const [showJsonImport, setShowJsonImport] = useState(false);
+  // Removed unused state variables: showJsonImport, uploadedFonts, uploadingFont, selectedFontFile
 
   const fetchTheme = async () => {
     try {
@@ -544,7 +543,7 @@ export function ThemeVisualisationContent() {
                       (Les modifications sont appliquées en temps réel)
                     </span>
                   </label>
-                  <Textarea
+                  <TextareaComponent
                     value={jsonInput}
                     onChange={(e) => {
                       setJsonInput(e.target.value);
