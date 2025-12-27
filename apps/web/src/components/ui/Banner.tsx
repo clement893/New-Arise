@@ -22,7 +22,7 @@ const variantStyles: Record<BannerVariant, { bg: string; border: string; text: s
   info: {
     bg: 'bg-info-50 dark:bg-info-900/20',
     border: 'border-info-200 dark:border-info-800',
-    text: 'text-info-800 dark:text-info-200',
+    text: 'text-info-900 dark:text-info-200',
     icon: <Info className="w-5 h-5" />,
   },
   success: {

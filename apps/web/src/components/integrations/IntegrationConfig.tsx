@@ -155,7 +155,7 @@ export default function IntegrationConfig({
           <div className="p-4 bg-info-50 dark:bg-info-900/20 rounded-lg border border-info-200 dark:border-info-800">
             <div className="flex items-start gap-2">
               <AlertCircle className="w-5 h-5 text-info-600 dark:text-info-400 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-info-800 dark:text-info-200">
+              <div className="text-sm text-info-900 dark:text-info-200">
                 <div className="font-medium mb-1">No Configuration Required</div>
                 <div>This integration doesn't require any additional configuration.</div>
               </div>

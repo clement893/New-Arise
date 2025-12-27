@@ -33,7 +33,7 @@ const colorClasses = {
   },
   info: {
     border: 'border-info-200 dark:border-info-800',
-    bg: 'bg-gradient-to-br from-info-100 to-info-200 dark:from-info-900/60 dark:to-info-800/60',
+    bg: 'bg-gradient-to-br from-info-50 to-info-100 dark:from-info-900/60 dark:to-info-800/60',
     hoverBorder: 'hover:border-info-400 dark:hover:border-info-600',
     iconBg: 'bg-info-600 dark:bg-info-500',
     text: 'text-info-900 dark:text-info-100',

@@ -267,7 +267,7 @@ export default function WebhooksSettings({
           <div className="p-3 bg-info-50 dark:bg-info-900/20 rounded-lg border border-info-200 dark:border-info-800">
             <div className="flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-info-600 dark:text-info-400 flex-shrink-0 mt-0.5" />
-              <div className="text-xs text-info-800 dark:text-info-200">
+              <div className="text-xs text-info-900 dark:text-info-200">
                 We'll send a POST request to your URL with event data. Make sure your endpoint is ready to receive webhooks.
               </div>
             </div>

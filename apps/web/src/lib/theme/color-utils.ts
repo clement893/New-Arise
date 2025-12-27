@@ -150,15 +150,18 @@ export function generateColorShades(baseColor: string): {
   const baseSaturation = hsl.s;
   const baseHue = hsl.h;
 
-  // For very light colors, increase saturation for lighter shades
-  // For very dark colors, decrease saturation for darker shades
+  // Improved saturation adjustment for better contrast
+  // Ensures lighter shades have enough saturation for visibility
+  // and darker shades have rich, vibrant colors
   const adjustSaturation = (lightness: number, targetLightness: number): number => {
     if (targetLightness > lightness) {
-      // Lighter shades: reduce saturation slightly for pastel effect
-      return Math.max(0, baseSaturation * (1 - (targetLightness - lightness) / 100));
+      // Lighter shades: maintain minimum saturation for contrast
+      // Reduce saturation less aggressively to maintain color identity
+      const reduction = (targetLightness - lightness) / 150; // Less aggressive reduction
+      return Math.max(20, baseSaturation * (1 - reduction)); // Minimum 20% saturation
     } else {
-      // Darker shades: increase saturation slightly for richer colors
-      return Math.min(100, baseSaturation * (1 + (lightness - targetLightness) / 200));
+      // Darker shades: increase saturation for richer colors
+      return Math.min(100, baseSaturation * (1 + (lightness - targetLightness) / 150));
     }
   };
 
@@ -168,18 +171,20 @@ export function generateColorShades(baseColor: string): {
     return rgbToHex(shadeRgb.r, shadeRgb.g, shadeRgb.b);
   };
 
+  // Improved lightness values for better contrast
+  // Ensure sufficient difference between adjacent shades
   return {
-    50: generateShade(95),   // Very light
-    100: generateShade(90),  // Light
-    200: generateShade(80),  // Lighter
-    300: generateShade(70),  // Light
-    400: generateShade(60),  // Medium-light
+    50: generateShade(97),   // Very light (increased from 95 for better contrast)
+    100: generateShade(92),  // Light (increased from 90)
+    200: generateShade(85),  // Lighter (increased from 80)
+    300: generateShade(75),  // Light (increased from 70)
+    400: generateShade(65),  // Medium-light (increased from 60)
     500: baseColor,          // Base color (original)
-    600: generateShade(40),  // Medium-dark
-    700: generateShade(30),  // Dark
-    800: generateShade(20),  // Darker
-    900: generateShade(10),  // Very dark
-    950: generateShade(5),   // Darkest
+    600: generateShade(45),  // Medium-dark (increased from 40)
+    700: generateShade(35),  // Dark (increased from 30)
+    800: generateShade(25),  // Darker (increased from 20)
+    900: generateShade(15),  // Very dark (increased from 10)
+    950: generateShade(8),   // Darkest (increased from 5)
   };
 }
 
