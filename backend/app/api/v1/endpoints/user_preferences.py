@@ -29,7 +29,21 @@ class PreferenceResponse(BaseModel):
         from_attributes = True
 
 
-@router.get("/preferences", response_model=Dict[str, Any], tags=["user-preferences"])
+class PreferencesDictResponse(BaseModel):
+    """Response model for preferences dictionary"""
+    # Use a flexible model that accepts any key-value pairs
+    class Config:
+        extra = "allow"
+        json_schema_extra = {
+            "example": {
+                "theme": "dark",
+                "language": "en",
+                "email_notifications": True
+            }
+        }
+
+
+@router.get("/preferences", tags=["user-preferences"])
 async def get_all_preferences(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -38,7 +52,9 @@ async def get_all_preferences(
     try:
         service = UserPreferenceService(db)
         preferences = await service.get_all_preferences(current_user.id)
-        return preferences
+        # Return preferences directly without strict validation
+        # FastAPI will serialize Dict[str, Any] correctly
+        return preferences or {}
     except (ProgrammingError, OperationalError) as e:
         # Table doesn't exist yet - return empty dict
         logger.warning(f"Table user_preferences may not exist yet: {e}")

@@ -13,14 +13,20 @@ export function usePreferences() {
     try {
       setIsLoading(true);
       const response = await apiClient.get<Record<string, any>>('/v1/users/preferences');
-      if (response.data) {
-        setPreferences(response.data);
+      // FastAPI returns data directly, not wrapped in ApiResponse
+      // apiClient.get returns response.data from axios, which is already the FastAPI response
+      // So response is already the data, or response.data if wrapped
+      const data = (response as any).data || response;
+      if (data && typeof data === 'object') {
+        setPreferences(data);
       }
     } catch (error) {
       // Use logger instead of console.error for production safety
       if (process.env.NODE_ENV === 'development') {
         logger.error('', 'Failed to fetch preferences:', error);
       }
+      // Set empty preferences on error to prevent UI issues
+      setPreferences({});
     } finally {
       setIsLoading(false);
     }

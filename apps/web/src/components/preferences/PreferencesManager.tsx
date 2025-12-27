@@ -29,12 +29,19 @@ export function PreferencesManager({ className = '' }: PreferencesManagerProps) 
     setIsLoading(true);
     try {
       const response = await apiClient.get<Record<string, any>>('/v1/users/preferences');
-      if (response.data) {
-        setPreferences(response.data);
-        setEditedPreferences(response.data);
+      // FastAPI returns data directly, not wrapped in ApiResponse
+      // apiClient.get returns response.data from axios, which is already the FastAPI response
+      // So response is already the data, or response.data if wrapped
+      const data = (response as any).data || response;
+      if (data && typeof data === 'object') {
+        setPreferences(data);
+        setEditedPreferences(data);
       }
     } catch (error) {
       logger.error('', 'Failed to fetch preferences:', error);
+      // Set empty preferences on error to prevent UI issues
+      setPreferences({});
+      setEditedPreferences({});
     } finally {
       setIsLoading(false);
     }
