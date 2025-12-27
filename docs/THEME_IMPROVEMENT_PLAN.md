@@ -243,7 +243,8 @@
 | 4 | Ajustement Couleurs par Défaut | ✅ COMPLÉTÉ | 2025-12-27 | feat(theme): adjust default colors for WCAG compliance (batch 4) |
 | 5 | Mode Sombre - Configuration | ✅ COMPLÉTÉ | 2025-12-27 | feat(theme): add dark mode configuration (batch 5) |
 | 6 | Mode Sombre - Application | ✅ COMPLÉTÉ | 2025-12-27 | feat(theme): apply dark mode dynamically (batch 6) |
-| 7 | Cache LocalStorage | ⏳ EN ATTENTE | - | - |
+| 7 | Cache LocalStorage | ✅ COMPLÉTÉ | 2025-12-27 | feat(theme): add localStorage cache for theme (batch 7) |
+| 8 | Préchargement Polices | 🔄 EN COURS | 2025-12-27 | - |
 | 3 | Validation de Contraste Thème | ⏳ EN ATTENTE | - | - |
 | 4 | Ajustement Couleurs par Défaut | ⏳ EN ATTENTE | - | - |
 | 5 | Mode Sombre - Configuration | ⏳ EN ATTENTE | - | - |
