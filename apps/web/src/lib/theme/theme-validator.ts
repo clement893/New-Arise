@@ -49,7 +49,7 @@ function isValidRgbColor(color: string): boolean {
   
   const cleanColor = color.trim();
   const rgbMatch = cleanColor.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*[\d.]+)?\s*\)$/i);
-  if (rgbMatch) {
+  if (rgbMatch && rgbMatch[1] && rgbMatch[2] && rgbMatch[3]) {
     const r = parseInt(rgbMatch[1], 10);
     const g = parseInt(rgbMatch[2], 10);
     const b = parseInt(rgbMatch[3], 10);
@@ -57,7 +57,7 @@ function isValidRgbColor(color: string): boolean {
   }
   
   const commaMatch = cleanColor.match(/^(\d+),\s*(\d+),\s*(\d+)$/);
-  if (commaMatch) {
+  if (commaMatch && commaMatch[1] && commaMatch[2] && commaMatch[3]) {
     const r = parseInt(commaMatch[1], 10);
     const g = parseInt(commaMatch[2], 10);
     const b = parseInt(commaMatch[3], 10);
@@ -77,7 +77,7 @@ function isValidHslColor(color: string): boolean {
   
   const cleanColor = color.trim();
   const hslMatch = cleanColor.match(/^hsla?\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%(?:\s*,\s*[\d.]+)?\s*\)$/i);
-  if (hslMatch) {
+  if (hslMatch && hslMatch[1] && hslMatch[2] && hslMatch[3]) {
     const h = parseInt(hslMatch[1], 10);
     const s = parseInt(hslMatch[2], 10);
     const l = parseInt(hslMatch[3], 10);
