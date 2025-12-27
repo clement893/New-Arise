@@ -175,10 +175,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     // Apply immediately (synchronous for user interactions)
     const root = window.document.documentElement;
     const resolved = resolveTheme(newTheme);
+    const currentClass = root.classList.contains('dark') ? 'dark' : root.classList.contains('light') ? 'light' : null;
     
     setResolvedTheme(resolved);
-    root.classList.remove('light', 'dark');
-    root.classList.add(resolved);
+    
+    // Only update if different
+    if (currentClass !== resolved) {
+      root.classList.remove('light', 'dark');
+      root.classList.add(resolved);
+    }
   };
 
   const toggleTheme = () => {
