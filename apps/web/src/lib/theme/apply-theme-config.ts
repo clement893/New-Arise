@@ -12,14 +12,17 @@ export function applyThemeConfigDirectly(config: ThemeConfig) {
 
   const root = document.documentElement;
   
-  // Support both flat format (primary_color) and nested format (colors.primary)
+  // Support multiple formats:
+  // 1. Flat format: primary_color, secondary_color, etc.
+  // 2. Short format: primary, secondary, etc. (directly in config)
+  // 3. Nested format: colors.primary, colors.secondary, etc.
   const colorsConfig = (config as any).colors || {};
-  const primaryColor = config.primary_color || colorsConfig.primary_color || colorsConfig.primary;
-  const secondaryColor = config.secondary_color || colorsConfig.secondary_color || colorsConfig.secondary;
-  const dangerColor = config.danger_color || colorsConfig.danger_color || colorsConfig.destructive || colorsConfig.danger;
-  const warningColor = config.warning_color || colorsConfig.warning_color || colorsConfig.warning;
-  const infoColor = config.info_color || colorsConfig.info_color || colorsConfig.info;
-  const successColor = config.success_color || colorsConfig.success_color || colorsConfig.success;
+  const primaryColor = (config as any).primary || config.primary_color || colorsConfig.primary_color || colorsConfig.primary;
+  const secondaryColor = (config as any).secondary || config.secondary_color || colorsConfig.secondary_color || colorsConfig.secondary;
+  const dangerColor = (config as any).danger || config.danger_color || colorsConfig.danger_color || colorsConfig.destructive || colorsConfig.danger;
+  const warningColor = (config as any).warning || config.warning_color || colorsConfig.warning_color || colorsConfig.warning;
+  const infoColor = (config as any).info || config.info_color || colorsConfig.info_color || colorsConfig.info;
+  const successColor = (config as any).success || config.success_color || colorsConfig.success_color || colorsConfig.success;
   
   // Generate color shades from base colors
   if (primaryColor) {
