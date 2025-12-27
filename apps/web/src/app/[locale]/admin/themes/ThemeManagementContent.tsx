@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { listThemes, activateTheme, createTheme, deleteTheme, getActiveTheme } from '@/lib/api/theme';
+import { listThemes, activateTheme, createTheme, deleteTheme } from '@/lib/api/theme';
 import { useGlobalTheme } from '@/lib/theme/global-theme-provider';
 import { DEFAULT_THEME_CONFIG } from '@/lib/theme/default-theme-config';
 import type { Theme, ThemeCreate, ThemeListResponse } from '@modele/types';

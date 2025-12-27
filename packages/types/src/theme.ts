@@ -23,7 +23,7 @@ export interface ThemeBase {
 }
 
 export interface ThemeCreate extends ThemeBase {
-  // Same as ThemeBase
+  is_active?: boolean;
 }
 
 export interface ThemeUpdate {
