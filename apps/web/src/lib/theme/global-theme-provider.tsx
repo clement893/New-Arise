@@ -9,6 +9,7 @@ import { logger } from '@/lib/logger';
 import type { ThemeConfigResponse, ThemeConfig } from '@modele/types';
 import { generateColorShades, generateRgb } from './color-utils';
 import { watchDarkModePreference, getThemeConfigForMode, applyDarkModeClass } from './dark-mode-utils';
+import { getThemeFromCache, saveThemeToCache, hasValidThemeCache } from './theme-cache';
 
 interface GlobalThemeContextType {
   theme: ThemeConfigResponse | null;
@@ -34,10 +35,28 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
     try {
       setIsLoading(true);
       setError(null);
+      
+      // Try to get theme from cache first
+      const cachedTheme = getThemeFromCache();
+      if (cachedTheme) {
+        // Apply cached theme immediately for faster initial load
+        const cachedThemeResponse: ThemeConfigResponse = {
+          config: cachedTheme,
+        } as ThemeConfigResponse;
+        setTheme(cachedThemeResponse);
+        applyThemeConfig(cachedTheme);
+        logger.info('[Theme] Loaded theme from cache');
+      }
+      
+      // Fetch fresh theme from backend
       const activeTheme = await getActiveTheme();
       setTheme(activeTheme);
+      
       // Apply theme config from backend (TemplateTheme or active theme)
       applyThemeConfig(activeTheme.config);
+      
+      // Cache the theme for next time
+      saveThemeToCache(activeTheme.config, activeTheme.id);
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to load theme');
       setError(error);
@@ -45,8 +64,18 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
         message: error.message, 
         name: error.name 
       });
-      // Don't apply any theme if backend is unavailable
-      // The application will continue without theme customization
+      
+      // If we have a cached theme, use it as fallback
+      const cachedTheme = getThemeFromCache();
+      if (cachedTheme) {
+        const cachedThemeResponse: ThemeConfigResponse = {
+          config: cachedTheme,
+        } as ThemeConfigResponse;
+        setTheme(cachedThemeResponse);
+        applyThemeConfig(cachedTheme);
+        logger.info('[Theme] Using cached theme as fallback');
+      }
+      // Otherwise, the application will continue without theme customization
     } finally {
       setIsLoading(false);
     }
