@@ -17,6 +17,7 @@
 
 'use client';
 
+import type { ReactNode } from 'react';
 import { Link } from '@/i18n/routing';
 import { clsx } from 'clsx';
 import type { ButtonVariant, Size } from './types';
@@ -111,7 +112,7 @@ export interface ButtonLinkProps {
   /** Additional CSS classes */
   className?: string;
   /** Button content */
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 /**

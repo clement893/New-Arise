@@ -3,6 +3,7 @@ User Preferences API Endpoints
 """
 
 from typing import Dict, Any, Optional
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status, Body
 from pydantic import BaseModel
 from sqlalchemy.exc import ProgrammingError, OperationalError
@@ -15,6 +16,31 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.logging import logger
 
 router = APIRouter()
+
+
+def clean_preference_value(value: Any) -> Any:
+    """Recursively clean preference values to ensure JSON serialization"""
+    if value is None:
+        return None
+    elif isinstance(value, (str, int, float, bool)):
+        return value
+    elif isinstance(value, datetime):
+        # Convert datetime to ISO format string
+        return value.isoformat() if hasattr(value, 'isoformat') else str(value)
+    elif isinstance(value, dict):
+        return {k: clean_preference_value(v) for k, v in value.items()}
+    elif isinstance(value, (list, tuple)):
+        return [clean_preference_value(item) for item in value]
+    else:
+        # For any other type, try to convert to string
+        try:
+            # Try JSON serialization first
+            import json
+            json.dumps(value)
+            return value
+        except (TypeError, ValueError):
+            # If not serializable, convert to string
+            return str(value)
 
 
 class PreferenceUpdate(BaseModel):
@@ -52,9 +78,17 @@ async def get_all_preferences(
     try:
         service = UserPreferenceService(db)
         preferences = await service.get_all_preferences(current_user.id)
-        # Return preferences directly without strict validation
-        # FastAPI will serialize Dict[str, Any] correctly
-        return preferences or {}
+        
+        if not preferences:
+            return {}
+        
+        # Clean all preference values to ensure JSON serialization
+        cleaned_preferences = {
+            key: clean_preference_value(value) 
+            for key, value in preferences.items()
+        }
+        
+        return cleaned_preferences
     except (ProgrammingError, OperationalError) as e:
         # Table doesn't exist yet - return empty dict
         logger.warning(f"Table user_preferences may not exist yet: {e}")
@@ -80,7 +114,9 @@ async def get_preference(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Preference not found"
             )
-        return {"key": preference.key, "value": preference.value}
+        # Clean the preference value to ensure JSON serialization
+        cleaned_value = clean_preference_value(preference.value)
+        return {"key": preference.key, "value": cleaned_value}
     except HTTPException:
         raise
     except Exception as e:
@@ -107,7 +143,9 @@ async def set_preference(
             key,
             preference_data.value
         )
-        return PreferenceResponse(key=preference.key, value=preference.value)
+        # Clean the preference value to ensure JSON serialization
+        cleaned_value = clean_preference_value(preference.value)
+        return PreferenceResponse(key=preference.key, value=cleaned_value)
     except Exception as e:
         from app.core.logging import logger
         logger.error(f"Error setting preference {key}: {e}", exc_info=True)

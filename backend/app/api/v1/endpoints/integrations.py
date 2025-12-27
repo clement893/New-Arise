@@ -19,6 +19,30 @@ from app.dependencies import get_current_user
 router = APIRouter()
 
 
+def safe_datetime_to_str(dt: Optional[datetime]) -> Optional[str]:
+    """Safely convert datetime to ISO format string"""
+    if dt is None:
+        return None
+    try:
+        if hasattr(dt, 'isoformat'):
+            return dt.isoformat()
+        return str(dt)
+    except Exception:
+        return str(dt) if dt else None
+
+
+def safe_datetime_to_str_required(dt: Optional[datetime]) -> str:
+    """Safely convert datetime to ISO format string, returning empty string if None"""
+    if dt is None:
+        return ""
+    try:
+        if hasattr(dt, 'isoformat'):
+            return dt.isoformat()
+        return str(dt)
+    except Exception:
+        return str(dt) if dt else ""
+
+
 class IntegrationCreate(BaseModel):
     """Schema for creating an integration"""
     type: str = Field(..., min_length=1, max_length=100, description="Integration type (e.g., 'slack', 'github')")
@@ -72,22 +96,31 @@ async def list_integrations(
         integrations = result.scalars().all()
         
         # Convert to response models with proper date serialization
-        return [
-            IntegrationResponse(
-                id=integration.id,
-                type=integration.type,
-                name=integration.name,
-                description=integration.description,
-                enabled=integration.enabled,
-                config=integration.config,
-                last_sync_at=integration.last_sync_at.isoformat() if integration.last_sync_at else None,
-                last_error=integration.last_error,
-                error_count=integration.error_count,
-                created_at=integration.created_at.isoformat() if integration.created_at else "",
-                updated_at=integration.updated_at.isoformat() if integration.updated_at else "",
-            )
-            for integration in integrations
-        ]
+        response_list = []
+        for integration in integrations:
+            try:
+                response_list.append(
+                    IntegrationResponse(
+                        id=integration.id,
+                        type=integration.type,
+                        name=integration.name,
+                        description=integration.description,
+                        enabled=integration.enabled,
+                        config=integration.config,
+                        last_sync_at=safe_datetime_to_str(integration.last_sync_at),
+                        last_error=integration.last_error,
+                        error_count=integration.error_count,
+                        created_at=safe_datetime_to_str_required(integration.created_at),
+                        updated_at=safe_datetime_to_str_required(integration.updated_at),
+                    )
+                )
+            except Exception as e:
+                from app.core.logging import logger
+                logger.error(f"Error serializing integration {integration.id}: {e}", exc_info=True)
+                # Skip this integration if serialization fails
+                continue
+        
+        return response_list
     except Exception as e:
         from app.core.logging import logger
         logger.error(f"Error listing integrations: {e}", exc_info=True)
@@ -127,11 +160,11 @@ async def get_integration(
             description=integration.description,
             enabled=integration.enabled,
             config=integration.config,
-            last_sync_at=integration.last_sync_at.isoformat() if integration.last_sync_at else None,
+            last_sync_at=safe_datetime_to_str(integration.last_sync_at),
             last_error=integration.last_error,
             error_count=integration.error_count,
-            created_at=integration.created_at.isoformat() if integration.created_at else "",
-            updated_at=integration.updated_at.isoformat() if integration.updated_at else "",
+            created_at=safe_datetime_to_str_required(integration.created_at),
+            updated_at=safe_datetime_to_str_required(integration.updated_at),
         )
     except HTTPException:
         raise
@@ -189,11 +222,11 @@ async def create_integration(
         description=integration.description,
         enabled=integration.enabled,
         config=integration.config,
-        last_sync_at=integration.last_sync_at.isoformat() if integration.last_sync_at else None,
+        last_sync_at=safe_datetime_to_str(integration.last_sync_at),
         last_error=integration.last_error,
         error_count=integration.error_count,
-        created_at=integration.created_at.isoformat() if integration.created_at else "",
-        updated_at=integration.updated_at.isoformat() if integration.updated_at else "",
+        created_at=safe_datetime_to_str_required(integration.created_at),
+        updated_at=safe_datetime_to_str_required(integration.updated_at),
     )
 
 
@@ -242,11 +275,11 @@ async def update_integration(
         description=integration.description,
         enabled=integration.enabled,
         config=integration.config,
-        last_sync_at=integration.last_sync_at.isoformat() if integration.last_sync_at else None,
+        last_sync_at=safe_datetime_to_str(integration.last_sync_at),
         last_error=integration.last_error,
         error_count=integration.error_count,
-        created_at=integration.created_at.isoformat() if integration.created_at else "",
-        updated_at=integration.updated_at.isoformat() if integration.updated_at else "",
+        created_at=safe_datetime_to_str_required(integration.created_at),
+        updated_at=safe_datetime_to_str_required(integration.updated_at),
     )
 
 
@@ -283,11 +316,11 @@ async def toggle_integration(
         description=integration.description,
         enabled=integration.enabled,
         config=integration.config,
-        last_sync_at=integration.last_sync_at.isoformat() if integration.last_sync_at else None,
+        last_sync_at=safe_datetime_to_str(integration.last_sync_at),
         last_error=integration.last_error,
         error_count=integration.error_count,
-        created_at=integration.created_at.isoformat() if integration.created_at else "",
-        updated_at=integration.updated_at.isoformat() if integration.updated_at else "",
+        created_at=safe_datetime_to_str_required(integration.created_at),
+        updated_at=safe_datetime_to_str_required(integration.updated_at),
     )
 
 

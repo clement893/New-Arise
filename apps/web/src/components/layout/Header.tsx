@@ -3,13 +3,15 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/store';
+import { useAuth } from '@/hooks/useAuth';
 import Button from '../ui/Button';
 import { ThemeToggleWithIcon } from '../ui/ThemeToggle';
 import LanguageSwitcher from '../i18n/LanguageSwitcher';
 import { Menu, X } from 'lucide-react';
 
 export default function Header() {
-  const { isAuthenticated, user, logout } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
+  const { handleLogout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -66,7 +68,7 @@ export default function Header() {
                     Dashboard
                   </Button>
                 </Link>
-                <Button size="sm" variant="outline" onClick={logout}>
+                <Button size="sm" variant="outline" onClick={handleLogout}>
                   Déconnexion
                 </Button>
               </>
@@ -150,7 +152,7 @@ export default function Header() {
                         Dashboard
                       </Button>
                     </Link>
-                    <Button size="sm" variant="outline" onClick={logout} className="w-full">
+                    <Button size="sm" variant="outline" onClick={handleLogout} className="w-full">
                       Déconnexion
                     </Button>
                   </div>

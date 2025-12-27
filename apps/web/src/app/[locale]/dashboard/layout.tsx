@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
+import { useAuth } from '@/hooks/useAuth';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Sidebar from '@/components/ui/Sidebar';
 import Button from '@/components/ui/Button';
@@ -33,14 +34,10 @@ function DashboardLayoutContent({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { logout, user } = useAuthStore();
+  const { user } = useAuthStore();
+  const { handleLogout } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const handleLogout = () => {
-    logout();
-    router.push('/');
-  };
 
   // Check if user is admin or superadmin
   const isAdmin = user?.is_admin;

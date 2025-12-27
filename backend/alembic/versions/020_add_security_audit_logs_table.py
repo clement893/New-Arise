@@ -1,7 +1,7 @@
 """add security audit logs table
 
 Revision ID: 020_security_audit_logs
-Revises: 019_add_user_preferences_table
+Revises: 019_add_user_preferences
 Create Date: 2025-01-27 12:00:00.000000
 
 """
@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = '020_security_audit_logs'
-down_revision = '019_add_user_preferences_table'
+down_revision = '019_add_user_preferences'
 branch_labels = None
 depends_on = None
 

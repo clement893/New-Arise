@@ -53,25 +53,48 @@ async def get_api_settings(
     db: AsyncSession = Depends(get_db),
 ):
     """Get API settings for the current user"""
+    from app.core.logging import logger
+    
     try:
         service = UserPreferenceService(db)
         settings_data = await service.get_preference(current_user.id, API_SETTINGS_KEY)
         
-        if settings_data and settings_data.value:
-            # Ensure value is a dict
-            if isinstance(settings_data.value, dict):
-                # Return existing settings
-                return APISettingsResponse(settings=APISettingsData(**settings_data.value))
-            else:
-                # If value is not a dict, return defaults
-                default_settings = APISettingsData()
-                return APISettingsResponse(settings=default_settings)
-        else:
-            # Return default settings
-            default_settings = APISettingsData()
-            return APISettingsResponse(settings=default_settings)
+        if settings_data and settings_data.value is not None:
+            try:
+                # Ensure value is a dict
+                if isinstance(settings_data.value, dict):
+                    # Clean the dict to ensure all values are JSON-serializable
+                    cleaned_value = {}
+                    for key, val in settings_data.value.items():
+                        # Skip non-serializable types (like datetime objects)
+                        if isinstance(val, (str, int, float, bool, type(None))):
+                            cleaned_value[key] = val
+                        elif isinstance(val, dict):
+                            # Recursively clean nested dicts
+                            cleaned_value[key] = {
+                                k: v for k, v in val.items() 
+                                if isinstance(v, (str, int, float, bool, type(None)))
+                            }
+                        # Skip other types (datetime, etc.)
+                    
+                    # Try to create APISettingsData from cleaned value
+                    try:
+                        # Use model_validate to safely create the model
+                        settings_obj = APISettingsData.model_validate(cleaned_value)
+                        return APISettingsResponse(settings=settings_obj)
+                    except Exception as validation_error:
+                        logger.warning(f"Validation error for API settings, using defaults: {validation_error}")
+                        # Fall through to return defaults
+                else:
+                    logger.warning(f"API settings value is not a dict, type: {type(settings_data.value)}")
+            except Exception as parse_error:
+                logger.error(f"Error parsing API settings value: {parse_error}", exc_info=True)
+                # Fall through to return defaults
+        
+        # Return default settings
+        default_settings = APISettingsData()
+        return APISettingsResponse(settings=default_settings)
     except Exception as e:
-        from app.core.logging import logger
         logger.error(f"Error getting API settings: {e}", exc_info=True)
         # Return default settings on error
         default_settings = APISettingsData()
@@ -100,9 +123,27 @@ async def update_api_settings(
             settings_dict
         )
         
-        # Ensure value is a dict
+        # Ensure value is a dict and safely create response
         if isinstance(preference.value, dict):
-            return APISettingsResponse(settings=APISettingsData(**preference.value))
+            try:
+                # Clean the dict to ensure all values are JSON-serializable
+                cleaned_value = {}
+                for key, val in preference.value.items():
+                    if isinstance(val, (str, int, float, bool, type(None))):
+                        cleaned_value[key] = val
+                    elif isinstance(val, dict):
+                        cleaned_value[key] = {
+                            k: v for k, v in val.items() 
+                            if isinstance(v, (str, int, float, bool, type(None)))
+                        }
+                
+                # Use model_validate to safely create the model
+                settings_obj = APISettingsData.model_validate(cleaned_value)
+                return APISettingsResponse(settings=settings_obj)
+            except Exception as e:
+                logger.warning(f"Error parsing saved preference value, using provided settings: {e}")
+                # Fallback to provided settings if preference value is invalid
+                return APISettingsResponse(settings=settings)
         else:
             # Fallback to provided settings if preference value is invalid
             return APISettingsResponse(settings=settings)

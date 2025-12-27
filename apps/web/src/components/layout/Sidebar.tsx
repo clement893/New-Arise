@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
+import { useAuth } from '@/hooks/useAuth';
 import Button from '@/components/ui/Button';
 import { ThemeToggleWithIcon } from '@/components/ui/ThemeToggle';
 
@@ -14,7 +15,8 @@ interface NavItem {
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { logout, user } = useAuthStore();
+  const { user } = useAuthStore();
+  const { handleLogout } = useAuth();
 
   // Check if user is admin or superadmin
   const isAdmin = user?.is_admin;
@@ -109,7 +111,7 @@ export default function Sidebar() {
           <Button
             size="sm"
             variant="ghost"
-            onClick={logout}
+            onClick={handleLogout}
             className="flex-1"
           >
             Deconnexion
