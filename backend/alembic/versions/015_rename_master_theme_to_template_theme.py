@@ -56,11 +56,14 @@ def upgrade():
     # Default config for TemplateTheme
     default_config = {
         "mode": "system",
-        "primary": "#3b82f6",
-        "secondary": "#8b5cf6",
-        "danger": "#ef4444",
-        "warning": "#f59e0b",
-        "info": "#06b6d4",
+        "primary_color": "#3b82f6",
+        "secondary_color": "#8b5cf6",
+        "danger_color": "#ef4444",
+        "warning_color": "#f59e0b",
+        "info_color": "#06b6d4",
+        "success_color": "#10b981",
+        "font_family": "Inter",
+        "border_radius": "8px",
     }
     
     if master_theme:
