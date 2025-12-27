@@ -123,8 +123,9 @@ export function ThemeVisualisationContent() {
       setSuccessMessage(null);
 
       // Reset to default theme configuration
+      const defaultConfig = DEFAULT_THEME_CONFIG;
       const updateData: ThemeUpdate = {
-        config: DEFAULT_THEME_CONFIG as Partial<ThemeConfig>,
+        config: defaultConfig as Partial<ThemeConfig>,
       };
 
       await updateTheme(32, updateData);
