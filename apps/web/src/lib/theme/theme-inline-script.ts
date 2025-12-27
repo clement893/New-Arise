@@ -98,8 +98,16 @@ export const themeInlineScript = `
       var adjustedSaturation = baseSaturation;
       if (targetLightness > baseLightness) {
         // Lighter shades: maintain minimum saturation for contrast
-        var reduction = (targetLightness - baseLightness) / 150; // Less aggressive reduction
-        adjustedSaturation = Math.max(20, baseSaturation * (1 - reduction)); // Minimum 20% saturation
+        // For very light shades (90+), maintain higher saturation for better contrast
+        if (targetLightness >= 90) {
+          // Keep at least 30% saturation for very light shades to ensure visibility
+          var reduction = (targetLightness - baseLightness) / 200; // Even less aggressive reduction
+          adjustedSaturation = Math.max(30, baseSaturation * (1 - reduction * 0.5)); // Minimum 30% saturation
+        } else {
+          // For medium-light shades, reduce more gradually
+          var reduction = (targetLightness - baseLightness) / 150;
+          adjustedSaturation = Math.max(25, baseSaturation * (1 - reduction)); // Minimum 25% saturation
+        }
       } else {
         // Darker shades: increase saturation for richer colors
         adjustedSaturation = Math.min(100, baseSaturation * (1 + (baseLightness - targetLightness) / 150));
@@ -109,18 +117,19 @@ export const themeInlineScript = `
     }
     
     // Improved lightness values for better contrast
+    // Increased gaps between shades for better contrast
     const shades = {
-      50: generateShade(97),   // Very light (increased from 95)
-      100: generateShade(92),  // Light (increased from 90)
-      200: generateShade(85),  // Lighter (increased from 80)
-      300: generateShade(75),  // Light (increased from 70)
-      400: generateShade(65),  // Medium-light (increased from 60)
+      50: generateShade(98),   // Very light (increased for maximum contrast)
+      100: generateShade(93),  // Light (increased gap from 50)
+      200: generateShade(86),  // Lighter (increased gap from 100)
+      300: generateShade(76),  // Light (increased gap from 200)
+      400: generateShade(66),  // Medium-light (increased gap from 300)
       500: hex,                // Base color
-      600: generateShade(45),  // Medium-dark (increased from 40)
-      700: generateShade(35),  // Dark (increased from 30)
-      800: generateShade(25),  // Darker (increased from 20)
-      900: generateShade(15),  // Very dark (increased from 10)
-      950: generateShade(8)    // Darkest (increased from 5)
+      600: generateShade(46),  // Medium-dark (increased gap from 500)
+      700: generateShade(36),  // Dark (increased gap from 600)
+      800: generateShade(26),  // Darker (increased gap from 700)
+      900: generateShade(16),  // Very dark (increased gap from 800)
+      950: generateShade(9)    // Darkest (increased gap from 900)
     };
     
     return shades;

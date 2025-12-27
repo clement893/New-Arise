@@ -156,9 +156,16 @@ export function generateColorShades(baseColor: string): {
   const adjustSaturation = (lightness: number, targetLightness: number): number => {
     if (targetLightness > lightness) {
       // Lighter shades: maintain minimum saturation for contrast
-      // Reduce saturation less aggressively to maintain color identity
-      const reduction = (targetLightness - lightness) / 150; // Less aggressive reduction
-      return Math.max(20, baseSaturation * (1 - reduction)); // Minimum 20% saturation
+      // For very light shades (90+), maintain higher saturation for better contrast
+      if (targetLightness >= 90) {
+        // Keep at least 30% saturation for very light shades to ensure visibility
+        const reduction = (targetLightness - lightness) / 200; // Even less aggressive reduction
+        return Math.max(30, baseSaturation * (1 - reduction * 0.5)); // Minimum 30% saturation
+      } else {
+        // For medium-light shades, reduce more gradually
+        const reduction = (targetLightness - lightness) / 150;
+        return Math.max(25, baseSaturation * (1 - reduction)); // Minimum 25% saturation
+      }
     } else {
       // Darker shades: increase saturation for richer colors
       return Math.min(100, baseSaturation * (1 + (lightness - targetLightness) / 150));
