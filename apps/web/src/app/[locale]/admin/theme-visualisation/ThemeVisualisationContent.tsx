@@ -65,8 +65,8 @@ export function ThemeVisualisationContent() {
   };
 
   const handleSave = async () => {
-    if (!theme || !editedConfig || theme.id !== 32) {
-      setError('Seul le TemplateTheme (ID: 32) peut être modifié depuis cette page.');
+    if (!theme || !editedConfig) {
+      setError('Aucun thème ou configuration à sauvegarder.');
       return;
     }
 
@@ -79,15 +79,15 @@ export function ThemeVisualisationContent() {
         config: editedConfig as Partial<ThemeConfig>,
       };
 
-      await updateTheme(32, updateData);
+      await updateTheme(theme.id, updateData);
       
-      setSuccessMessage('Thème TemplateTheme mis à jour avec succès !');
+      setSuccessMessage(`Thème "${theme.display_name}" mis à jour avec succès !`);
       setIsEditing(false);
       
       // Refresh theme data
       await fetchTheme();
       
-      // Refresh global theme immediately to apply changes site-wide
+      // Refresh global theme immediately to apply changes site-wide if this is the active theme
       await refreshTheme();
       
       // Clear success message after 3 seconds
@@ -108,8 +108,8 @@ export function ThemeVisualisationContent() {
   };
 
   const handleResetToDefault = async () => {
-    if (!theme || theme.id !== 32) {
-      setError('Seul le TemplateTheme (ID: 32) peut être réinitialisé.');
+    if (!theme) {
+      setError('Aucun thème à réinitialiser.');
       return;
     }
 
@@ -128,7 +128,7 @@ export function ThemeVisualisationContent() {
         config: defaultConfig as Partial<ThemeConfig>,
       };
 
-      await updateTheme(32, updateData);
+          await updateTheme(theme.id, updateData);
       
       setSuccessMessage('Thème restauré aux valeurs par défaut avec succès !');
       setIsEditing(false);
@@ -216,8 +216,8 @@ export function ThemeVisualisationContent() {
     );
   }
 
-  // Only allow editing TemplateTheme (ID: 32)
-  const canEdit = theme.id === 32;
+  // Allow editing all themes
+  const canEdit = true;
   const config = isEditing && editedConfig ? editedConfig : theme.config;
   const typography = (config as any).typography || {};
   const effects = (config as any).effects || {};
