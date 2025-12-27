@@ -5,7 +5,6 @@
 
 import { useMemo } from 'react';
 import { logger } from '@/lib/logger';
-import type { LogContext } from '@/lib/logger';
 
 export function useLogger() {
   return useMemo(
