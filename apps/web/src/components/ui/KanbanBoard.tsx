@@ -67,11 +67,11 @@ export default function KanbanBoard({
   const getPriorityColor = (priority?: string) => {
     switch (priority) {
       case 'high':
-        return 'bg-danger-100 dark:bg-danger-900/30 text-danger-800 dark:text-danger-300';
+        return 'bg-danger-50 dark:bg-danger-900/30 text-danger-900 dark:text-danger-300';
       case 'medium':
-        return 'bg-warning-100 dark:bg-warning-900/30 text-warning-800 dark:text-warning-300';
+        return 'bg-warning-50 dark:bg-warning-900/30 text-warning-900 dark:text-warning-300';
       case 'low':
-        return 'bg-secondary-100 dark:bg-secondary-900/30 text-secondary-800 dark:text-secondary-300';
+        return 'bg-secondary-50 dark:bg-secondary-900/30 text-secondary-900 dark:text-secondary-300';
       default:
         return 'bg-muted dark:bg-gray-700 text-foreground dark:text-gray-200';
     }
