@@ -93,6 +93,8 @@ RUN cd apps/web && node scripts/prepare-build-env.js
 # Next.js will read variables from .env.local (created above) or ENV
 # To use Turbopack instead, set USE_TURBOPACK=true in Railway environment variables
 # Type checking is optimized with incremental builds (tsconfig.tsbuildinfo)
+# Disable Next.js telemetry for faster builds (no network calls during build)
+ENV NEXT_TELEMETRY_DISABLED=1
 RUN cd apps/web && USE_WEBPACK=true pnpm build
 
 # Production image
