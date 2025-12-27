@@ -79,10 +79,15 @@ def validate_font_file(file: UploadFile) -> tuple[str, str]:
     font_format = format_map[file_ext]
     
     # Check MIME type if provided
+    # If MIME type is application/octet-stream, rely on file extension validation instead
+    # This is common when browsers don't recognize font file types
     if file.content_type:
-        # Normalize MIME type
         normalized_mime = file.content_type.lower()
-        if normalized_mime not in ALLOWED_FONT_MIME_TYPES:
+        # Allow application/octet-stream as fallback when extension is valid
+        if normalized_mime == 'application/octet-stream':
+            # Extension validation already passed, so we accept this MIME type
+            pass
+        elif normalized_mime not in ALLOWED_FONT_MIME_TYPES:
             # Try alternative MIME types
             mime_map = {
                 'application/font-woff': 'font/woff',
