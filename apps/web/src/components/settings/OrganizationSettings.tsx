@@ -141,7 +141,7 @@ export default function OrganizationSettings({
     <div className={clsx('space-y-6', className)}>
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Organization Information */}
-        <Card title="Organization Information" className="bg-white dark:bg-gray-800">
+        <Card title="Organization Information" className="bg-background">
           <div className="space-y-4">
             <Input
               label="Organization Name"
@@ -196,7 +196,7 @@ export default function OrganizationSettings({
         </Card>
 
         {/* Address */}
-        <Card title="Address" className="bg-white dark:bg-gray-800">
+        <Card title="Address" className="bg-background">
           <div className="space-y-4">
             <Input
               label="Address Line 1"
@@ -248,7 +248,7 @@ export default function OrganizationSettings({
         </Card>
 
         {/* Regional Settings */}
-        <Card title="Regional Settings" className="bg-white dark:bg-gray-800">
+        <Card title="Regional Settings" className="bg-background">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Select
               label="Timezone"

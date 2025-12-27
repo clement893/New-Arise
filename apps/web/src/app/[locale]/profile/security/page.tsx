@@ -181,7 +181,7 @@ export default function ProfileSecurityPage() {
         <PageContainer>
           <PageHeader title={t('title') || 'Security'} description={t('description') || 'Manage your security settings'} />
           <div className="text-center py-12">
-            <p className="text-gray-600 dark:text-gray-400">{t('errors.loadFailed') || 'Failed to load security settings'}</p>
+            <p className="text-muted-foreground">{t('errors.loadFailed') || 'Failed to load security settings'}</p>
           </div>
         </PageContainer>
       </ProtectedRoute>

@@ -150,7 +150,7 @@ export default function ProfilePage() {
         <PageContainer>
           <PageHeader title="Profile" description="User profile page" />
           <div className="text-center py-12">
-            <p className="text-gray-600 dark:text-gray-400">Failed to load profile</p>
+            <p className="text-muted-foreground">Failed to load profile</p>
           </div>
         </PageContainer>
       </ProtectedRoute>

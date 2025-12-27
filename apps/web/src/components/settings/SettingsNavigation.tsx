@@ -155,7 +155,7 @@ export default function SettingsNavigation({ className }: SettingsNavigationProp
                     'flex-shrink-0 p-3 rounded-lg',
                     active
                       ? 'bg-primary-100 dark:bg-primary-900/40 text-primary-600 dark:text-primary-400'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                      : 'bg-muted text-muted-foreground'
                   )}
                 >
                   {item.icon}
@@ -167,7 +167,7 @@ export default function SettingsNavigation({ className }: SettingsNavigationProp
                         'text-lg font-semibold',
                         active
                           ? 'text-primary-900 dark:text-primary-100'
-                          : 'text-gray-900 dark:text-gray-100'
+                          : 'text-foreground'
                       )}
                     >
                       {item.label}
@@ -178,7 +178,7 @@ export default function SettingsNavigation({ className }: SettingsNavigationProp
                       </span>
                     )}
                   </div>
-                  <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                  <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
                     {item.description}
                   </p>
                 </div>

@@ -158,7 +158,7 @@ export default function GeneralSettings({
       <Card title="Language & Localization">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Language
             </label>
             <Select
@@ -170,7 +170,7 @@ export default function GeneralSettings({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Timezone
             </label>
             <Select
@@ -182,7 +182,7 @@ export default function GeneralSettings({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Date Format
             </label>
             <Select
@@ -194,7 +194,7 @@ export default function GeneralSettings({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Time Format
             </label>
             <Select
@@ -206,7 +206,7 @@ export default function GeneralSettings({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Week Starts On
             </label>
             <Select
@@ -223,7 +223,7 @@ export default function GeneralSettings({
       <Card title="Appearance">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Theme
             </label>
             <Select
@@ -241,10 +241,10 @@ export default function GeneralSettings({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="block text-sm font-medium text-foreground">
                 Enable Notifications
               </label>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-sm text-muted-foreground">
                 Receive in-app notifications
               </p>
             </div>
@@ -256,10 +256,10 @@ export default function GeneralSettings({
 
           <div className="flex items-center justify-between">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="block text-sm font-medium text-foreground">
                 Email Notifications
               </label>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-sm text-muted-foreground">
                 Receive notifications via email
               </p>
             </div>

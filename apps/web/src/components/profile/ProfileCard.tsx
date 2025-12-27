@@ -100,7 +100,7 @@ export function ProfileCard({
         <div className="flex-1 space-y-4">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              <h2 className="text-2xl font-bold text-foreground">
                 {displayName}
               </h2>
               {user.is_admin && (
@@ -114,7 +114,7 @@ export function ProfileCard({
               )}
             </div>
 
-            <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+            <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4" />
                 <span>{user.email}</span>

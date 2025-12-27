@@ -193,12 +193,12 @@ export default function NotificationSettings({
     const isEnabled = channelData.enabled;
 
     return (
-      <Card title={title} className="bg-white dark:bg-gray-800">
+      <Card title={title} className="bg-background">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               {icon}
-              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              <span className="text-sm font-medium text-foreground">
                 Enable {title}
               </span>
             </div>
@@ -219,8 +219,8 @@ export default function NotificationSettings({
                 />
               )}
 
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
+              <div className="pt-4 border-t border-border">
+                <div className="text-sm font-medium text-foreground mb-3">
                   Notification Types
                 </div>
                 <div className="space-y-3">
@@ -230,10 +230,10 @@ export default function NotificationSettings({
                       className="flex items-center justify-between py-2"
                     >
                       <div className="flex-1">
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        <div className="text-sm font-medium text-foreground">
                           {type.label}
                         </div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                        <div className="text-xs text-muted-foreground">
                           {type.description}
                         </div>
                       </div>

@@ -139,7 +139,7 @@ export default function ProfileSettingsPage() {
         <PageContainer>
           <PageHeader title={t('title') || 'Settings'} description={t('description') || 'Manage your account settings'} />
           <div className="text-center py-12">
-            <p className="text-gray-600 dark:text-gray-400">{t('errors.loadFailed') || 'Failed to load settings'}</p>
+            <p className="text-muted-foreground">{t('errors.loadFailed') || 'Failed to load settings'}</p>
           </div>
         </PageContainer>
       </ProtectedRoute>

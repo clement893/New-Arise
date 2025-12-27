@@ -109,7 +109,7 @@ export default function UserSettings({
     <div className={clsx('space-y-6', className)}>
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Profile Picture */}
-        <Card title="Profile Picture" className="bg-white dark:bg-gray-800">
+        <Card title="Profile Picture" className="bg-background">
           <div className="flex items-center gap-6">
             <div className="relative">
               <Avatar
@@ -132,7 +132,7 @@ export default function UserSettings({
               </label>
             </div>
             <div className="flex-1">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              <p className="text-sm text-muted-foreground mb-2">
                 Upload a new profile picture. JPG, PNG or GIF. Max size 5MB.
               </p>
               {errors.avatar && (
@@ -143,7 +143,7 @@ export default function UserSettings({
         </Card>
 
         {/* Personal Information */}
-        <Card title="Personal Information" className="bg-white dark:bg-gray-800">
+        <Card title="Personal Information" className="bg-background">
           <div className="space-y-4">
             <Input
               label="Full Name"
@@ -190,7 +190,7 @@ export default function UserSettings({
               error={errors.website}
             />
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Bio
               </label>
               <textarea
@@ -200,9 +200,9 @@ export default function UserSettings({
                 rows={4}
                 className={clsx(
                   'w-full px-4 py-2 border rounded-lg',
-                  'bg-white dark:bg-gray-700',
-                  'text-gray-900 dark:text-gray-100',
-                  'border-gray-300 dark:border-gray-600',
+                  'bg-background',
+                  'text-foreground',
+                  'border-border',
                   'focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400',
                   errors.bio && 'border-danger-500 dark:border-danger-400'
                 )}

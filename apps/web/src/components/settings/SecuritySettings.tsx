@@ -91,15 +91,15 @@ export default function SecuritySettings({
     <div className={clsx('space-y-6', className)}>
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Password */}
-        <Card title="Password" className="bg-white dark:bg-gray-800">
+        <Card title="Password" className="bg-background">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                <div className="text-sm font-medium text-foreground flex items-center gap-2">
                   <Key className="w-4 h-4" />
                   Password
                 </div>
-                <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                <div className="text-xs text-muted-foreground mt-1">
                   Last changed 30 days ago
                 </div>
               </div>
@@ -109,12 +109,12 @@ export default function SecuritySettings({
                 </Button>
               )}
             </div>
-            <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between pt-2 border-t border-border">
               <div>
-                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                <div className="text-sm font-medium text-foreground">
                   Require Strong Password
                 </div>
-                <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                <div className="text-xs text-muted-foreground mt-1">
                   Enforce password complexity requirements
                 </div>
               </div>
@@ -127,20 +127,20 @@ export default function SecuritySettings({
         </Card>
 
         {/* Two-Factor Authentication */}
-        <Card title="Two-Factor Authentication" className="bg-white dark:bg-gray-800">
+        <Card title="Two-Factor Authentication" className="bg-background">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <Shield className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <span className="text-sm font-medium text-foreground">
                     Two-Factor Authentication
                   </span>
                   {formData.twoFactorEnabled && (
                     <Badge variant="success">Enabled</Badge>
                   )}
                 </div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">
+                <div className="text-xs text-muted-foreground">
                   Add an extra layer of security to your account
                 </div>
               </div>
@@ -165,10 +165,10 @@ export default function SecuritySettings({
         </Card>
 
         {/* Session Management */}
-        <Card title="Session Management" className="bg-white dark:bg-gray-800">
+        <Card title="Session Management" className="bg-background">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Session Timeout (minutes)
               </label>
               <Input
@@ -182,7 +182,7 @@ export default function SecuritySettings({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Password Expiry (days)
               </label>
               <Input
@@ -199,14 +199,14 @@ export default function SecuritySettings({
         </Card>
 
         {/* Security Notifications */}
-        <Card title="Security Notifications" className="bg-white dark:bg-gray-800">
+        <Card title="Security Notifications" className="bg-background">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                <div className="text-sm font-medium text-foreground">
                   Login Notifications
                 </div>
-                <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                <div className="text-xs text-muted-foreground mt-1">
                   Get notified when someone logs into your account
                 </div>
               </div>
@@ -215,12 +215,12 @@ export default function SecuritySettings({
                 onChange={(e) => handleChange('loginNotifications', e.target.checked)}
               />
             </div>
-            <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between pt-2 border-t border-border">
               <div>
-                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                <div className="text-sm font-medium text-foreground">
                   Suspicious Activity Alerts
                 </div>
-                <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                <div className="text-xs text-muted-foreground mt-1">
                   Receive alerts for unusual account activity
                 </div>
               </div>
