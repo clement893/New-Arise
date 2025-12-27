@@ -2,6 +2,10 @@
  * Error Tracking Dashboard Page
  */
 
+// Force dynamic rendering to avoid static generation
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+
 import ErrorTrackingDashboard from '@/components/monitoring/ErrorTrackingDashboard';
 
 export const metadata = {
