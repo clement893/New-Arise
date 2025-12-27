@@ -88,7 +88,7 @@ export default function AdminContent() {
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             Visualiser et modifier le thème actif de la plateforme.
           </p>
-          <Link href="/admin/theme-visualisation">
+          <Link href="/admin/theme-visualisation?themeId=32">
             <Button variant="primary" className="w-full">
               Visualiser le thème
             </Button>
