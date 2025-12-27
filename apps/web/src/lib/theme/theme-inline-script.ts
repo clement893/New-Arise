@@ -202,29 +202,58 @@ export const themeInlineScript = `
     }
   }
   
-  // Try to load theme from API synchronously using XMLHttpRequest
+  // Try to load theme from API asynchronously
   // This runs before React hydration to prevent FOUC
-  try {
-    var apiUrl = window.__NEXT_DATA__?.env?.NEXT_PUBLIC_API_URL || 
-                 (typeof process !== 'undefined' && process.env && process.env.NEXT_PUBLIC_API_URL) ||
-                 'http://localhost:8000';
-    
-    // Use XMLHttpRequest for synchronous loading (only for initial load)
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', apiUrl + '/api/v1/themes/active', false); // false = synchronous
-    xhr.setRequestHeader('Accept', 'application/json');
-    xhr.send();
-    
-    if (xhr.status === 200) {
-      var response = JSON.parse(xhr.responseText);
-      if (response && response.config) {
-        applyThemeConfig(response.config);
+  // We use fetch with immediate execution to load theme as fast as possible
+  (function() {
+    try {
+      // Get API URL from various sources
+      var apiUrl = '';
+      if (typeof window !== 'undefined') {
+        // Try to get from window.__NEXT_DATA__ first (Next.js)
+        if (window.__NEXT_DATA__ && window.__NEXT_DATA__.env && window.__NEXT_DATA__.env.NEXT_PUBLIC_API_URL) {
+          apiUrl = window.__NEXT_DATA__.env.NEXT_PUBLIC_API_URL;
+        }
+        // Try to get from data attribute on html element
+        else if (document.documentElement && document.documentElement.dataset && document.documentElement.dataset.apiUrl) {
+          apiUrl = document.documentElement.dataset.apiUrl;
+        }
+        // Fallback to default
+        else {
+          apiUrl = 'http://localhost:8000';
+        }
+      } else {
+        apiUrl = 'http://localhost:8000';
       }
+      
+      // Use fetch for async loading (non-blocking)
+      // This will apply theme as soon as it loads, even if after initial render
+      fetch(apiUrl + '/api/v1/themes/active', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json'
+        },
+        cache: 'no-cache'
+      })
+      .then(function(response) {
+        if (response.ok) {
+          return response.json();
+        }
+        throw new Error('Failed to load theme');
+      })
+      .then(function(data) {
+        if (data && data.config) {
+          applyThemeConfig(data.config);
+        }
+      })
+      .catch(function(error) {
+        // Silently fail - theme will be loaded by React component
+        // This prevents errors from blocking page load if API is unavailable
+      });
+    } catch (e) {
+      // Silently fail - theme will be loaded by React component
     }
-  } catch (e) {
-    // Silently fail - theme will be loaded by React component
-    // This prevents blocking page load if API is unavailable
-  }
+  })();
 })();
 `;
 
