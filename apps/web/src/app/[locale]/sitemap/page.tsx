@@ -167,14 +167,14 @@ function SitemapPageContent() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                   Pages protégées
                   <Badge variant="default" className="text-xs">Auth</Badge>
                 </h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                <p className="text-sm text-foreground mb-2">
                   Ces pages nécessitent une authentification. Si vous n'êtes pas connecté, vous serez redirigé vers la page de connexion :
                 </p>
-                <ul className="list-disc list-inside text-sm text-gray-600 dark:text-gray-400 space-y-1 ml-4">
+                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 ml-4">
                   <li>Tableau de bord (Dashboard)</li>
                   <li>Gestion des abonnements</li>
                   <li>Pages de confirmation d'abonnement</li>
