@@ -49,6 +49,7 @@ export function ThemeVisualisationContent() {
           name: themeResponse.name,
           display_name: themeResponse.display_name,
           config: themeResponse.config,
+          is_active: themeResponse.is_active,
         };
       } else {
         // Otherwise, fetch the active theme
@@ -633,12 +634,6 @@ export function ThemeVisualisationContent() {
         </Card>
       )}
 
-      {!canEdit && (
-        <Alert variant="info" title="Information">
-          Seul le TemplateTheme (ID: 32) peut être modifié depuis cette page. 
-          Le thème actuel est "{theme.display_name}" (ID: {theme.id}).
-        </Alert>
-      )}
 
       {/* Theme Info Card */}
       <Card title="Informations du Thème">
