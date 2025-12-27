@@ -6,7 +6,7 @@
 
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { Button, Card, Container, StatsCard } from '@/components/ui';
 import { Hero, TechStack, CTA } from '@/components/sections';
 import { 
