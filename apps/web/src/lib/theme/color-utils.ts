@@ -179,19 +179,19 @@ export function generateColorShades(baseColor: string): {
   };
 
   // Improved lightness values for better contrast
-  // Ensure sufficient difference between adjacent shades
+  // Increased gaps between shades for better contrast
   return {
-    50: generateShade(97),   // Very light (increased from 95 for better contrast)
-    100: generateShade(92),  // Light (increased from 90)
-    200: generateShade(85),  // Lighter (increased from 80)
-    300: generateShade(75),  // Light (increased from 70)
-    400: generateShade(65),  // Medium-light (increased from 60)
+    50: generateShade(98),   // Very light (increased for maximum contrast)
+    100: generateShade(93),  // Light (increased gap from 50)
+    200: generateShade(86),  // Lighter (increased gap from 100)
+    300: generateShade(76),  // Light (increased gap from 200)
+    400: generateShade(66),  // Medium-light (increased gap from 300)
     500: baseColor,          // Base color (original)
-    600: generateShade(45),  // Medium-dark (increased from 40)
-    700: generateShade(35),  // Dark (increased from 30)
-    800: generateShade(25),  // Darker (increased from 20)
-    900: generateShade(15),  // Very dark (increased from 10)
-    950: generateShade(8),   // Darkest (increased from 5)
+    600: generateShade(46),  // Medium-dark (increased gap from 500)
+    700: generateShade(36),  // Dark (increased gap from 600)
+    800: generateShade(26),  // Darker (increased gap from 700)
+    900: generateShade(16),  // Very dark (increased gap from 800)
+    950: generateShade(9),   // Darkest (increased gap from 900)
   };
 }
 
