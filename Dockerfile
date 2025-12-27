@@ -1,38 +1,34 @@
 # Multi-stage build for production
 FROM node:22-alpine AS base
 
-# Install pnpm and system dependencies for sharp
-RUN apk add --no-cache \
-    python3 \
-    make \
-    g++ \
-    vips-dev \
-    && npm install -g pnpm@9.15.9
+# Install pnpm only (Sharp will use prebuilt binaries - faster than building from source)
+# Removed vips-dev, python3, make, g++ - Sharp will download prebuilt binaries instead
+RUN npm install -g pnpm@9.15.9
 
 # Install dependencies (including devDependencies for build)
 FROM base AS deps
 WORKDIR /app
-
-# Sharp will automatically detect and use system libvips (vips-dev)
-# No need to download binaries when vips-dev is available
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/web/package.json ./apps/web/
 COPY packages/types/package.json ./packages/types/
 
 # Install dependencies
-# Sharp will use system libvips (vips-dev) instead of downloading binaries
+# Sharp will automatically download prebuilt binaries (faster than building from source)
+# Use BuildKit cache mounts to persist pnpm store between builds for faster subsequent builds
 # Railway automatically caches .pnpm-store via railway.json configuration
 # Configure pnpm to use a cache directory that Railway can cache (relative to workdir)
 RUN pnpm config set store-dir .pnpm-store
-RUN pnpm install --frozen-lockfile || \
+RUN --mount=type=cache,target=/app/.pnpm-store \
+    pnpm install --frozen-lockfile || \
     (echo "Retrying installation with relaxed lockfile..." && sleep 5 && pnpm install --no-frozen-lockfile) || \
-    (echo "Final retry with build from source..." && npm_config_build_from_source=true pnpm install --no-frozen-lockfile)
+    (echo "Final retry..." && pnpm install --no-frozen-lockfile)
 
 # Build application
 FROM base AS builder
 WORKDIR /app
 # Configure pnpm to use the same store directory as deps stage
+# This allows BuildKit cache mounts to share the pnpm store between stages
 RUN pnpm config set store-dir .pnpm-store
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./package.json
@@ -41,8 +37,10 @@ COPY --from=deps /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 COPY --from=deps /app/apps/web/package.json ./apps/web/package.json
 COPY --from=deps /app/packages/types/package.json ./packages/types/package.json
 # Reinstall to recreate symlinks for binaries
+# Use BuildKit cache mount to reuse pnpm store from deps stage
 # Use --prefer-offline to use cache if available, but don't fail if not
-RUN pnpm install --prefer-offline --no-frozen-lockfile
+RUN --mount=type=cache,target=/app/.pnpm-store \
+    pnpm install --prefer-offline --no-frozen-lockfile
 
 # Copy and build types package first (required for web app build)
 COPY packages/types ./packages/types
@@ -57,8 +55,10 @@ COPY apps/web ./apps/web
 COPY packages ./packages
 
 # Reinstall to ensure workspace links are correct after types package build
+# Use BuildKit cache mount to reuse pnpm store
 # Use --prefer-offline to use cache if available, but don't fail if not
-RUN pnpm install --prefer-offline --no-frozen-lockfile
+RUN --mount=type=cache,target=/app/.pnpm-store \
+    pnpm install --prefer-offline --no-frozen-lockfile
 
 # Railway passes environment variables, but they need to be available during build
 # We use ARG to accept them and ENV to make them available to Next.js

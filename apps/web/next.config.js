@@ -62,6 +62,9 @@ const nextConfig = {
     ],
     // Enable faster refresh for better dev experience
     optimizeCss: true,
+    // Disable build traces to speed up finalization phase (~10-30s faster)
+    // Build traces are used for analyzing bundle size but slow down builds
+    buildTraces: false,
   },
 
   // Image optimization
