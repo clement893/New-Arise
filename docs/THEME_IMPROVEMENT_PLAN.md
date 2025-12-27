@@ -247,11 +247,11 @@
 | 8 | Préchargement Polices | 🔄 EN COURS | 2025-12-27 | - |
 | 3 | Validation de Contraste Thème | ⏳ EN ATTENTE | - | - |
 | 4 | Ajustement Couleurs par Défaut | ⏳ EN ATTENTE | - | - |
-| 5 | Mode Sombre - Configuration | ⏳ EN ATTENTE | - | - |
-| 6 | Mode Sombre - Application | ⏳ EN ATTENTE | - | - |
-| 7 | Cache LocalStorage | ⏳ EN ATTENTE | - | - |
-| 8 | Préchargement Polices | ⏳ EN ATTENTE | - | - |
-| 9 | Validation Schéma Backend | ⏳ EN ATTENTE | - | - |
+| 5 | Mode Sombre - Configuration | ✅ COMPLÉTÉ | 2025-12-27 | feat(theme): add dark mode configuration (batch 5) |
+| 6 | Mode Sombre - Application | ✅ COMPLÉTÉ | 2025-12-27 | feat(theme): apply dark mode dynamically (batch 6) |
+| 7 | Cache LocalStorage | ✅ COMPLÉTÉ | 2025-12-27 | feat(theme): add localStorage cache for theme (batch 7) |
+| 8 | Préchargement Polices | ✅ COMPLÉTÉ | 2025-12-27 | feat(theme): add font preloading to prevent FOUT (batch 8) |
+| 9 | Validation Schéma Backend | 🔄 EN COURS | 2025-12-27 | - |
 | 10 | Tests d'Accessibilité Automatisés | ⏳ EN ATTENTE | - | - |
 | 11 | Documentation Complète | ⏳ EN ATTENTE | - | - |
 
