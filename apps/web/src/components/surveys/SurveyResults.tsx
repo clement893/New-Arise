@@ -63,7 +63,18 @@ export interface SurveyResultsProps {
   error?: string | null;
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#FFC658', '#FF7C7C'];
+// Use theme CSS variables for chart colors
+// These colors will adapt to the active theme
+const COLORS = [
+  'var(--color-primary-500)',      // Primary blue
+  'var(--color-success-500)',      // Success green
+  'var(--color-warning-500)',      // Warning yellow/amber
+  'var(--color-danger-500)',       // Danger red
+  'var(--color-info-500)',        // Info cyan
+  'var(--color-secondary-500)',    // Secondary indigo
+  'var(--color-warning-400)',      // Lighter warning
+  'var(--color-danger-400)',       // Lighter danger
+];
 
 export default function SurveyResults({
   survey,
@@ -454,7 +465,7 @@ export default function SurveyResults({
                     </div>
                   )}
                   {'npsScore' in chartData && chartData.npsScore !== undefined && (
-                    <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <div className="mb-4 p-4 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
                       <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                         NPS Score: {chartData.npsScore}
                       </p>
@@ -474,13 +485,14 @@ export default function SurveyResults({
                   {/* Simple bar chart using divs - recharts can be added later */}
                   <div className="space-y-2">
                     {chartData.data.map((item: { name: string; value: number; percentage: number; category?: string }, index: number) => {
+                      // Use theme colors based on category
                       const color = item.category === 'promoter' 
-                        ? 'bg-green-500' 
+                        ? 'bg-success-500'  // Success green for promoters
                         : item.category === 'detractor' 
-                        ? 'bg-red-500' 
+                        ? 'bg-danger-500'   // Danger red for detractors
                         : item.category === 'passive'
-                        ? 'bg-yellow-500'
-                        : 'bg-blue-500';
+                        ? 'bg-warning-500'  // Warning yellow for passive
+                        : 'bg-primary-500'; // Primary blue for others
                       return (
                         <div key={index} className="flex items-center gap-4">
                           <span className="w-20 text-sm">{item.name}</span>
@@ -575,7 +587,7 @@ export default function SurveyResults({
                         <span className="w-32 text-sm">{item.name}</span>
                         <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-6 relative">
                           <div
-                            className="bg-green-500 h-6 rounded-full flex items-center justify-end pr-2"
+                            className="bg-success-500 h-6 rounded-full flex items-center justify-end pr-2"
                             style={{ width: `${Math.min((item.value / Math.max(...chartData.data.map((d: { value: number }) => d.value))) * 100, 100)}%` }}
                           >
                             <span className="text-white text-xs">{item.value.toFixed(1)}</span>
@@ -601,7 +613,7 @@ export default function SurveyResults({
                         <span className="text-sm font-medium">{item.value}</span>
                         <div className="w-32 bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                           <div
-                            className="bg-blue-500 h-2 rounded-full"
+                            className="bg-primary-500 h-2 rounded-full"
                             style={{ width: `${item.percentage}%` }}
                           />
                         </div>
