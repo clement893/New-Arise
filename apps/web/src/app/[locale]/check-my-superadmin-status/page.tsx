@@ -74,17 +74,17 @@ function CheckMySuperAdminStatusContent() {
             <Card>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">Email:</span>
-                  <span className="text-gray-900 dark:text-white">{user.email}</span>
+                  <span className="text-foreground font-medium">Email:</span>
+                  <span className="text-foreground">{user.email}</span>
                 </div>
                 {user.id && (
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-700 dark:text-gray-300 font-medium">ID Utilisateur:</span>
-                    <span className="text-gray-900 dark:text-white">{user.id}</span>
+                    <span className="text-foreground font-medium">ID Utilisateur:</span>
+                    <span className="text-foreground">{user.id}</span>
                   </div>
                 )}
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">Admin:</span>
+                  <span className="text-foreground font-medium">Admin:</span>
                   <Badge variant={user.is_admin ? 'success' : 'default'}>
                     {user.is_admin ? (
                       <>
@@ -111,13 +111,13 @@ function CheckMySuperAdminStatusContent() {
               <div className="flex items-center justify-center py-8">
                 <div className="text-center">
                   <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600 dark:text-blue-400" />
-                  <p className="text-gray-600 dark:text-gray-400">Vérification en cours...</p>
+                  <p className="text-muted-foreground">Vérification en cours...</p>
                 </div>
               </div>
             ) : status ? (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">Statut Superadmin:</span>
+                  <span className="text-foreground font-medium">Statut Superadmin:</span>
                   <Badge variant={status.is_superadmin ? 'success' : 'default'} className="text-lg px-4 py-2">
                     {status.is_superadmin ? (
                       <>
@@ -134,19 +134,19 @@ function CheckMySuperAdminStatusContent() {
                 </div>
                 {status.email && (
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-700 dark:text-gray-300 font-medium">Email vérifié:</span>
-                    <span className="text-gray-900 dark:text-white">{status.email}</span>
+                    <span className="text-foreground font-medium">Email vérifié:</span>
+                    <span className="text-foreground">{status.email}</span>
                   </div>
                 )}
                 {status.user_id && (
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-700 dark:text-gray-300 font-medium">ID Utilisateur:</span>
-                    <span className="text-gray-900 dark:text-white">{status.user_id}</span>
+                    <span className="text-foreground font-medium">ID Utilisateur:</span>
+                    <span className="text-foreground">{status.user_id}</span>
                   </div>
                 )}
                 {status.is_active !== undefined && (
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-700 dark:text-gray-300 font-medium">Compte actif:</span>
+                    <span className="text-foreground font-medium">Compte actif:</span>
                     <Badge variant={status.is_active ? 'success' : 'default'}>
                       {status.is_active ? (
                         <>
@@ -162,7 +162,7 @@ function CheckMySuperAdminStatusContent() {
                     </Badge>
                   </div>
                 )}
-                <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="pt-4 border-t border-border">
                   <Button
                     onClick={checkStatus}
                     variant="outline"
@@ -200,7 +200,7 @@ function CheckMySuperAdminStatusContent() {
         {/* Information */}
         <Section title="Informations">
           <Card>
-            <div className="space-y-4 text-gray-700 dark:text-gray-300">
+            <div className="space-y-4 text-foreground">
               <div>
                 <h4 className="font-semibold mb-2 flex items-center gap-2">
                   <Shield className="w-5 h-5" />
