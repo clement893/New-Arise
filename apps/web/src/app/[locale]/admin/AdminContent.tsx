@@ -85,6 +85,17 @@ export default function AdminContent() {
           </Link>
         </Card>
 
+        <Card title="Gestion des Thèmes" className="flex flex-col">
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            Créer, activer et gérer les thèmes de la plateforme.
+          </p>
+          <Link href="/admin/themes">
+            <Button variant="primary" className="w-full">
+              Gérer les thèmes
+            </Button>
+          </Link>
+        </Card>
+
         <Card title="Visualisation du Thème" className="flex flex-col">
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             Visualiser et modifier le thème actif de la plateforme.
