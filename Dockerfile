@@ -32,15 +32,17 @@ RUN pnpm install --frozen-lockfile || \
 # Build application
 FROM base AS builder
 WORKDIR /app
+# Configure pnpm to use the same store directory as deps stage
+RUN pnpm config set store-dir .pnpm-store
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./package.json
 COPY --from=deps /app/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=deps /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 COPY --from=deps /app/apps/web/package.json ./apps/web/package.json
 COPY --from=deps /app/packages/types/package.json ./packages/types/package.json
-# Reinstall to recreate symlinks for binaries (offline mode to use cached packages)
-# Railway automatically caches .pnpm-store via railway.json configuration
-RUN pnpm install --offline --no-frozen-lockfile || pnpm install --no-frozen-lockfile
+# Reinstall to recreate symlinks for binaries
+# Use --prefer-offline to use cache if available, but don't fail if not
+RUN pnpm install --prefer-offline --no-frozen-lockfile
 
 # Copy and build types package first (required for web app build)
 COPY packages/types ./packages/types
@@ -55,8 +57,8 @@ COPY apps/web ./apps/web
 COPY packages ./packages
 
 # Reinstall to ensure workspace links are correct after types package build
-# Railway automatically caches .pnpm-store via railway.json configuration
-RUN pnpm install --offline --no-frozen-lockfile || pnpm install --no-frozen-lockfile
+# Use --prefer-offline to use cache if available, but don't fail if not
+RUN pnpm install --prefer-offline --no-frozen-lockfile
 
 # Railway passes environment variables, but they need to be available during build
 # We use ARG to accept them and ENV to make them available to Next.js
