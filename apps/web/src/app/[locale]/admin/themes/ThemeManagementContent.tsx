@@ -6,7 +6,7 @@ import { listThemes, activateTheme, createTheme, deleteTheme, ThemeValidationErr
 import { formatValidationErrors } from '@/lib/api/theme-errors';
 import { useGlobalTheme } from '@/lib/theme/global-theme-provider';
 import { DEFAULT_THEME_CONFIG } from '@/lib/theme/default-theme-config';
-import { validateThemeConfig, getValidationSummary } from '@/lib/theme/theme-validator';
+import { validateThemeConfig } from '@/lib/theme/theme-validator';
 import type { Theme, ThemeCreate, ThemeListResponse } from '@modele/types';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -20,8 +20,7 @@ import {
   Check, 
   Trash2, 
   RefreshCw,
-  Eye,
-  AlertTriangle
+  Eye
 } from 'lucide-react';
 import { useToast } from '@/components/ui';
 import { logger } from '@/lib/logger';

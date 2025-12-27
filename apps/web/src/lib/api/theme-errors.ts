@@ -51,7 +51,7 @@ export function parseThemeValidationErrors(error: Error): ThemeValidationError[]
           // Extract field and message
           // Format: "  - field: message"
           const match = trimmed.match(/-\s*([^:]+):\s*(.+)/);
-          if (match) {
+          if (match && match[1] && match[2]) {
             errors.push({
               type: 'color_format',
               field: match[1].trim(),
@@ -74,7 +74,7 @@ export function parseThemeValidationErrors(error: Error): ThemeValidationError[]
           // Extract element and message
           // Format: "  - element: message"
           const match = trimmed.match(/-\s*([^:]+):\s*(.+)/);
-          if (match) {
+          if (match && match[1] && match[2]) {
             errors.push({
               type: 'contrast',
               field: match[1].trim(),
