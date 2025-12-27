@@ -4,25 +4,46 @@ Dependencies for checking permissions and roles
 """
 
 from typing import List, Optional
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.dependencies import get_current_user
 from app.models import User
 from app.services.rbac_service import RBACService
+from app.core.security_audit import SecurityAuditLogger, SecurityEventType
 
 
 async def require_permission(
     permission: str,
     current_user: User,
     db: AsyncSession,
+    request: Optional[Request] = None,
 ) -> User:
     """Dependency to require a specific permission"""
     rbac_service = RBACService(db)
     has_permission = await rbac_service.has_permission(current_user.id, permission)
     
     if not has_permission:
+        # Log permission denied event
+        try:
+            await SecurityAuditLogger.log_event(
+                db=db,
+                event_type=SecurityEventType.PERMISSION_DENIED,
+                description=f"Permission denied: {permission}",
+                user_id=current_user.id,
+                user_email=current_user.email,
+                ip_address=request.client.host if request and request.client else None,
+                user_agent=request.headers.get("user-agent") if request else None,
+                request_method=request.method if request else None,
+                request_path=str(request.url.path) if request else None,
+                severity="warning",
+                success="failure",
+                metadata={"permission": permission}
+            )
+        except Exception:
+            pass  # Don't fail request if audit logging fails
+        
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Permission required: {permission}",

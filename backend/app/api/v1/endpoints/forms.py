@@ -12,8 +12,9 @@ from sqlalchemy import select, func
 from app.models.form import Form, FormSubmission
 from app.models.user import User
 from app.dependencies import get_current_user, get_db, is_superadmin
-from app.core.security_audit import SecurityAuditLogger
+from app.core.security_audit import SecurityAuditLogger, SecurityEventType
 from app.core.tenancy_helpers import apply_tenant_scope
+from fastapi import Request
 
 router = APIRouter()
 
@@ -114,6 +115,7 @@ async def get_form(
 
 @router.post("/forms", response_model=FormResponse, status_code=status.HTTP_201_CREATED, tags=["forms"])
 async def create_form(
+    request: Request,
     form_data: FormCreate,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -134,18 +136,31 @@ async def create_form(
     await db.commit()
     await db.refresh(form)
     
-    SecurityAuditLogger.log_event(
-        user_id=current_user.id,
-        event_type="form_created",
-        severity="info",
-        message=f"Form '{form.name}' created",
-    )
+    # Log data modification
+    try:
+        await SecurityAuditLogger.log_event(
+            db=db,
+            event_type=SecurityEventType.DATA_MODIFIED,
+            description=f"Form '{form.name}' created",
+            user_id=current_user.id,
+            user_email=current_user.email,
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
+            request_method=request.method,
+            request_path=str(request.url.path),
+            severity="info",
+            success="success",
+            metadata={"resource_type": "form", "form_id": form.id, "action": "created"}
+        )
+    except Exception:
+        pass  # Don't fail request if audit logging fails
     
     return FormResponse.model_validate(form)
 
 
 @router.put("/forms/{form_id}", response_model=FormResponse, tags=["forms"])
 async def update_form(
+    request: Request,
     form_id: int,
     form_data: FormUpdate,
     current_user: User = Depends(get_current_user),
@@ -182,18 +197,31 @@ async def update_form(
     await db.commit()
     await db.refresh(form)
     
-    SecurityAuditLogger.log_event(
-        user_id=current_user.id,
-        event_type="form_updated",
-        severity="info",
-        message=f"Form '{form.name}' updated",
-    )
+    # Log data modification
+    try:
+        await SecurityAuditLogger.log_event(
+            db=db,
+            event_type=SecurityEventType.DATA_MODIFIED,
+            description=f"Form '{form.name}' updated",
+            user_id=current_user.id,
+            user_email=current_user.email,
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
+            request_method=request.method,
+            request_path=str(request.url.path),
+            severity="info",
+            success="success",
+            metadata={"resource_type": "form", "form_id": form.id, "action": "updated"}
+        )
+    except Exception:
+        pass  # Don't fail request if audit logging fails
     
     return FormResponse.model_validate(form)
 
 
 @router.delete("/forms/{form_id}", status_code=status.HTTP_204_NO_CONTENT, tags=["forms"])
 async def delete_form(
+    request: Request,
     form_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -215,15 +243,28 @@ async def delete_form(
             detail="Not authorized to delete this form"
         )
     
+    form_name = form.name  # Save before deletion
     await db.delete(form)
     await db.commit()
     
-    SecurityAuditLogger.log_event(
-        user_id=current_user.id,
-        event_type="form_deleted",
-        severity="info",
-        message=f"Form '{form.name}' deleted",
-    )
+    # Log data deletion
+    try:
+        await SecurityAuditLogger.log_event(
+            db=db,
+            event_type=SecurityEventType.DATA_DELETED,
+            description=f"Form '{form_name}' deleted",
+            user_id=current_user.id,
+            user_email=current_user.email,
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
+            request_method=request.method,
+            request_path=str(request.url.path),
+            severity="info",
+            success="success",
+            metadata={"resource_type": "form", "form_id": form_id, "action": "deleted"}
+        )
+    except Exception:
+        pass  # Don't fail request if audit logging fails
 
 
 @router.post("/forms/{form_id}/submissions", response_model=FormSubmissionResponse, status_code=status.HTTP_201_CREATED, tags=["forms"])
@@ -415,6 +456,7 @@ async def get_form_statistics(
 
 @router.get("/forms/{form_id}/export", tags=["forms"])
 async def export_form_results(
+    request: Request,
     form_id: int,
     format: str = Query('csv', regex='^(csv|excel|json)$'),
     current_user: User = Depends(get_current_user),
@@ -489,6 +531,25 @@ async def export_form_results(
             media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             headers={'Content-Disposition': f'attachment; filename="form_{form_id}_results.xlsx"'}
         )
+    
+    # Log data export
+    try:
+        await SecurityAuditLogger.log_event(
+            db=db,
+            event_type=SecurityEventType.DATA_EXPORTED,
+            description=f"Form '{form.name}' results exported as {format}",
+            user_id=current_user.id,
+            user_email=current_user.email,
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
+            request_method=request.method,
+            request_path=str(request.url.path),
+            severity="info",
+            success="success",
+            metadata={"resource_type": "form", "form_id": form_id, "format": format, "submission_count": len(submissions)}
+        )
+    except Exception:
+        pass  # Don't fail request if audit logging fails
     
     return StreamingResponse(
         io.BytesIO(output.getvalue().encode()),

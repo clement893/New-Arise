@@ -4,13 +4,15 @@ API endpoints for role-based access control
 """
 
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, Request, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.dependencies import get_current_user
 from app.dependencies.rbac import require_permission, require_role
 from app.models import User
+from app.core.logging import logger
+from app.core.security_audit import SecurityAuditLogger, SecurityEventType
 from app.schemas.rbac import (
     RoleCreate,
     RoleUpdate,
@@ -31,13 +33,14 @@ router = APIRouter(prefix="/rbac", tags=["rbac"])
 
 @router.get("/roles", response_model=RoleListResponse)
 async def list_roles(
+    request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=100),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """List all roles (requires admin permission)"""
-    await require_permission("roles:read", current_user, db)
+    await require_permission("roles:read", current_user, db, request)
     
     rbac_service = RBACService(db)
     from app.models import Role
@@ -78,12 +81,13 @@ async def list_roles(
 
 @router.post("/roles", response_model=RoleResponse, status_code=status.HTTP_201_CREATED)
 async def create_role(
+    request: Request,
     role_data: RoleCreate,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Create a new role (requires admin permission)"""
-    await require_permission("roles:create", current_user, db)
+    await require_permission("roles:create", current_user, db, request)
     
     rbac_service = RBACService(db)
     role = await rbac_service.create_role(
@@ -98,12 +102,13 @@ async def create_role(
 
 @router.get("/roles/{role_id}", response_model=RoleResponse)
 async def get_role(
+    request: Request,
     role_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Get a role by ID"""
-    await require_permission("roles:read", current_user, db)
+    await require_permission("roles:read", current_user, db, request)
     
     from app.models import Role
     result = await db.execute(select(Role).where(Role.id == role_id))
@@ -131,13 +136,14 @@ async def get_role(
 
 @router.put("/roles/{role_id}", response_model=RoleResponse)
 async def update_role(
+    request: Request,
     role_id: int,
     role_data: RoleUpdate,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Update a role (requires admin permission)"""
-    await require_permission("roles:update", current_user, db)
+    await require_permission("roles:update", current_user, db, request)
     
     from app.models import Role
     result = await db.execute(select(Role).where(Role.id == role_id))
@@ -181,12 +187,13 @@ async def update_role(
 
 @router.delete("/roles/{role_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_role(
+    request: Request,
     role_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Delete a role (requires admin permission)"""
-    await require_permission("roles:delete", current_user, db)
+    await require_permission("roles:delete", current_user, db, request)
     
     from app.models import Role
     result = await db.execute(select(Role).where(Role.id == role_id))
@@ -209,13 +216,14 @@ async def delete_role(
 
 @router.post("/roles/{role_id}/permissions", response_model=RoleResponse)
 async def assign_permission_to_role(
+    request: Request,
     role_id: int,
     permission_data: RolePermissionAssign,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Assign a permission to a role"""
-    await require_permission("roles:update", current_user, db)
+    await require_permission("roles:update", current_user, db, request)
     
     rbac_service = RBACService(db)
     await rbac_service.assign_permission_to_role(role_id, permission_data.permission_id)
@@ -245,13 +253,14 @@ async def assign_permission_to_role(
 
 @router.delete("/roles/{role_id}/permissions/{permission_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_permission_from_role(
+    request: Request,
     role_id: int,
     permission_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Remove a permission from a role"""
-    await require_permission("roles:update", current_user, db)
+    await require_permission("roles:update", current_user, db, request)
     
     rbac_service = RBACService(db)
     await rbac_service.remove_permission_from_role(role_id, permission_id)
@@ -261,11 +270,12 @@ async def remove_permission_from_role(
 
 @router.get("/permissions", response_model=List[PermissionResponse])
 async def list_permissions(
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """List all permissions"""
-    await require_permission("permissions:read", current_user, db)
+    await require_permission("permissions:read", current_user, db, request)
     
     from app.models import Permission
     from sqlalchemy import select
@@ -278,12 +288,13 @@ async def list_permissions(
 
 @router.post("/permissions", response_model=PermissionResponse, status_code=status.HTTP_201_CREATED)
 async def create_permission(
+    request: Request,
     permission_data: PermissionCreate,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Create a new permission"""
-    await require_permission("permissions:create", current_user, db)
+    await require_permission("permissions:create", current_user, db, request)
     
     rbac_service = RBACService(db)
     permission = await rbac_service.create_permission(
@@ -297,18 +308,19 @@ async def create_permission(
 
 @router.post("/users/{user_id}/roles", response_model=UserRoleResponse)
 async def assign_role_to_user(
+    request: Request,
     user_id: int,
     role_data: UserRoleAssign,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Assign a role to a user"""
-    await require_permission("users:update", current_user, db)
+    await require_permission("users:update", current_user, db, request)
     
     rbac_service = RBACService(db)
     user_role = await rbac_service.assign_role(user_id, role_data.role_id)
     
-    from app.models import UserRole
+    from app.models import UserRole, Role
     from sqlalchemy.orm import selectinload
     
     result = await db.execute(
@@ -321,27 +333,101 @@ async def assign_role_to_user(
     if not user_role_with_role:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User role not found")
     
+    # Get role name for logging
+    role_result = await db.execute(select(Role).where(Role.id == role_data.role_id))
+    role = role_result.scalar_one_or_none()
+    role_name = role.name if role else f"role_id_{role_data.role_id}"
+    
+    # Get target user email for logging
+    from app.models.user import User as UserModel
+    target_user_result = await db.execute(select(UserModel).where(UserModel.id == user_id))
+    target_user = target_user_result.scalar_one_or_none()
+    
+    # Log role changed event
+    from app.core.security_audit import SecurityAuditLogger, SecurityEventType
+    try:
+        await SecurityAuditLogger.log_event(
+            db=db,
+            event_type=SecurityEventType.ROLE_CHANGED,
+            description=f"Role '{role_name}' assigned to user {target_user.email if target_user else user_id}",
+            user_id=current_user.id,
+            user_email=current_user.email,
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
+            request_method=request.method,
+            request_path=str(request.url.path),
+            severity="info",
+            success="success",
+            metadata={
+                "target_user_id": user_id,
+                "target_user_email": target_user.email if target_user else None,
+                "role_id": role_data.role_id,
+                "role_name": role_name,
+                "action": "assigned"
+            }
+        )
+    except Exception as e:
+        logger.warning(f"Failed to log role changed event: {e}")
+    
     return UserRoleResponse.model_validate(user_role_with_role)
 
 
 @router.delete("/users/{user_id}/roles/{role_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_role_from_user(
+    request: Request,
     user_id: int,
     role_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Remove a role from a user"""
-    await require_permission("users:update", current_user, db)
+    await require_permission("users:update", current_user, db, request)
+    
+    # Get role and user info before removal for logging
+    from app.models import Role
+    from app.models.user import User as UserModel
+    role_result = await db.execute(select(Role).where(Role.id == role_id))
+    role = role_result.scalar_one_or_none()
+    role_name = role.name if role else f"role_id_{role_id}"
+    
+    target_user_result = await db.execute(select(UserModel).where(UserModel.id == user_id))
+    target_user = target_user_result.scalar_one_or_none()
     
     rbac_service = RBACService(db)
     await rbac_service.remove_role(user_id, role_id)
+    
+    # Log role changed event
+    from app.core.security_audit import SecurityAuditLogger, SecurityEventType
+    try:
+        await SecurityAuditLogger.log_event(
+            db=db,
+            event_type=SecurityEventType.ROLE_CHANGED,
+            description=f"Role '{role_name}' removed from user {target_user.email if target_user else user_id}",
+            user_id=current_user.id,
+            user_email=current_user.email,
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
+            request_method=request.method,
+            request_path=str(request.url.path),
+            severity="info",
+            success="success",
+            metadata={
+                "target_user_id": user_id,
+                "target_user_email": target_user.email if target_user else None,
+                "role_id": role_id,
+                "role_name": role_name,
+                "action": "removed"
+            }
+        )
+    except Exception as e:
+        logger.warning(f"Failed to log role changed event: {e}")
     
     return None
 
 
 @router.get("/users/{user_id}/roles", response_model=List[RoleResponse])
 async def get_user_roles(
+    request: Request,
     user_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -349,7 +435,7 @@ async def get_user_roles(
     """Get all roles for a user"""
     # Users can view their own roles, admins can view anyone's
     if user_id != current_user.id:
-        await require_permission("users:read", current_user, db)
+        await require_permission("users:read", current_user, db, request)
     
     rbac_service = RBACService(db)
     roles = await rbac_service.get_user_roles(user_id)
@@ -375,6 +461,7 @@ async def get_user_roles(
 
 @router.get("/users/{user_id}/permissions", response_model=List[str])
 async def get_user_permissions(
+    request: Request,
     user_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -382,7 +469,7 @@ async def get_user_permissions(
     """Get all permissions for a user"""
     # Users can view their own permissions, admins can view anyone's
     if user_id != current_user.id:
-        await require_permission("users:read", current_user, db)
+        await require_permission("users:read", current_user, db, request)
     
     rbac_service = RBACService(db)
     permissions = await rbac_service.get_user_permissions(user_id)

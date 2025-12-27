@@ -25,6 +25,7 @@ async def login():
 
 from typing import Callable, Optional, Dict, Any
 from fastapi import Request, HTTPException, status, Response
+from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -32,6 +33,8 @@ from datetime import datetime, timedelta
 
 from app.core.config import settings
 from app.core.logging import logger
+from app.core.security_audit import SecurityAuditLogger, SecurityEventType
+from app.core.database import AsyncSessionLocal
 
 # Rate limit storage configuration
 def get_storage_uri() -> str:
@@ -210,6 +213,40 @@ def setup_rate_limiting(app) -> Any:
         
         Returns 429 Too Many Requests with rate limit information in headers.
         """
+        # Log rate limit exceeded event
+        try:
+            # Get user from request state if available
+            user = getattr(request.state, 'user', None)
+            user_id = user.id if user and hasattr(user, 'id') else None
+            user_email = user.email if user and hasattr(user, 'email') else None
+            
+            # Create a separate session for audit logging
+            db = AsyncSessionLocal()
+            try:
+                await SecurityAuditLogger.log_event(
+                    db=db,
+                    event_type=SecurityEventType.RATE_LIMIT_EXCEEDED,
+                    description=f"Rate limit exceeded for endpoint: {request.url.path}",
+                    user_id=user_id,
+                    user_email=user_email,
+                    ip_address=request.client.host if request.client else None,
+                    user_agent=request.headers.get("user-agent"),
+                    request_method=request.method,
+                    request_path=str(request.url.path),
+                    severity="warning",
+                    success="failure",
+                    metadata={
+                        "limit": str(getattr(exc, "limit", "unknown")),
+                        "remaining": str(getattr(exc, "remaining", 0)),
+                        "retry_after": str(getattr(exc, "retry_after", 60)),
+                    }
+                )
+            finally:
+                await db.close()
+        except Exception as e:
+            # Don't fail the request if audit logging fails
+            logger.warning(f"Failed to log rate limit exceeded event: {e}")
+        
         response = JSONResponse(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             content={

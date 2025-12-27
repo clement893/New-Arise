@@ -12,8 +12,9 @@ from sqlalchemy import select
 from app.models.menu import Menu
 from app.models.user import User
 from app.dependencies import get_current_user, get_db, is_superadmin
-from app.core.security_audit import SecurityAuditLogger
+from app.core.security_audit import SecurityAuditLogger, SecurityEventType
 from app.core.tenancy_helpers import apply_tenant_scope
+from fastapi import Request
 
 router = APIRouter()
 
@@ -89,6 +90,7 @@ async def get_menu(
 
 @router.post("/menus", response_model=MenuResponse, status_code=status.HTTP_201_CREATED, tags=["menus"])
 async def create_menu(
+    request: Request,
     menu_data: MenuCreate,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -107,18 +109,31 @@ async def create_menu(
     await db.commit()
     await db.refresh(menu)
     
-    SecurityAuditLogger.log_event(
-        user_id=current_user.id,
-        event_type="menu_created",
-        severity="info",
-        message=f"Menu '{menu.name}' created",
-    )
+    # Log data modification
+    try:
+        await SecurityAuditLogger.log_event(
+            db=db,
+            event_type=SecurityEventType.DATA_MODIFIED,
+            description=f"Menu '{menu.name}' created",
+            user_id=current_user.id,
+            user_email=current_user.email,
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
+            request_method=request.method,
+            request_path=str(request.url.path),
+            severity="info",
+            success="success",
+            metadata={"resource_type": "menu", "menu_id": menu.id, "action": "created"}
+        )
+    except Exception:
+        pass  # Don't fail request if audit logging fails
     
     return MenuResponse.model_validate(menu)
 
 
 @router.put("/menus/{menu_id}", response_model=MenuResponse, tags=["menus"])
 async def update_menu(
+    request: Request,
     menu_id: int,
     menu_data: MenuUpdate,
     current_user: User = Depends(get_current_user),
@@ -148,18 +163,31 @@ async def update_menu(
     await db.commit()
     await db.refresh(menu)
     
-    SecurityAuditLogger.log_event(
-        user_id=current_user.id,
-        event_type="menu_updated",
-        severity="info",
-        message=f"Menu '{menu.name}' updated",
-    )
+    # Log data modification
+    try:
+        await SecurityAuditLogger.log_event(
+            db=db,
+            event_type=SecurityEventType.DATA_MODIFIED,
+            description=f"Menu '{menu.name}' updated",
+            user_id=current_user.id,
+            user_email=current_user.email,
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
+            request_method=request.method,
+            request_path=str(request.url.path),
+            severity="info",
+            success="success",
+            metadata={"resource_type": "menu", "menu_id": menu.id, "action": "updated"}
+        )
+    except Exception:
+        pass  # Don't fail request if audit logging fails
     
     return MenuResponse.model_validate(menu)
 
 
 @router.delete("/menus/{menu_id}", status_code=status.HTTP_204_NO_CONTENT, tags=["menus"])
 async def delete_menu(
+    request: Request,
     menu_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -180,13 +208,26 @@ async def delete_menu(
             detail="Not authorized to delete this menu"
         )
     
+    menu_name = menu.name  # Save before deletion
     await db.delete(menu)
     await db.commit()
     
-    SecurityAuditLogger.log_event(
-        user_id=current_user.id,
-        event_type="menu_deleted",
-        severity="info",
-        message=f"Menu '{menu.name}' deleted",
-    )
+    # Log data deletion
+    try:
+        await SecurityAuditLogger.log_event(
+            db=db,
+            event_type=SecurityEventType.DATA_DELETED,
+            description=f"Menu '{menu_name}' deleted",
+            user_id=current_user.id,
+            user_email=current_user.email,
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
+            request_method=request.method,
+            request_path=str(request.url.path),
+            severity="info",
+            success="success",
+            metadata={"resource_type": "menu", "menu_id": menu_id, "action": "deleted"}
+        )
+    except Exception:
+        pass  # Don't fail request if audit logging fails
 

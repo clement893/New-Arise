@@ -11,6 +11,10 @@ from app.services.export_service import ExportService
 from app.models.user import User
 from app.dependencies import get_current_user
 from app.core.logging import logger
+from app.core.security_audit import SecurityAuditLogger, SecurityEventType
+from fastapi import Request
+from app.core.database import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
 
@@ -26,8 +30,10 @@ class ExportRequest(BaseModel):
 
 @router.post("/export", tags=["exports"])
 async def export_data(
+    http_request: Request,
     request: ExportRequest,
     current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ):
     """
     Export data to various formats (CSV, Excel, JSON, PDF)
@@ -77,6 +83,25 @@ async def export_data(
             )
         
         logger.info(f"User {current_user.id} exported {len(request.data)} rows as {request.format}")
+        
+        # Log data export
+        try:
+            await SecurityAuditLogger.log_event(
+                db=db,
+                event_type=SecurityEventType.DATA_EXPORTED,
+                description=f"Data exported as {request.format} ({len(request.data)} rows)",
+                user_id=current_user.id,
+                user_email=current_user.email,
+                ip_address=http_request.client.host if http_request.client else None,
+                user_agent=http_request.headers.get("user-agent"),
+                request_method=http_request.method,
+                request_path=str(http_request.url.path),
+                severity="info",
+                success="success",
+                metadata={"format": request.format, "row_count": len(request.data), "filename": filename}
+            )
+        except Exception:
+            pass  # Don't fail request if audit logging fails
         
         return StreamingResponse(
             buffer,

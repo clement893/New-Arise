@@ -12,8 +12,9 @@ from sqlalchemy import select, func
 from app.models.page import Page
 from app.models.user import User
 from app.dependencies import get_current_user, get_db, is_superadmin
-from app.core.security_audit import SecurityAuditLogger
+from app.core.security_audit import SecurityAuditLogger, SecurityEventType
 from app.core.tenancy_helpers import apply_tenant_scope
+from fastapi import Request
 
 router = APIRouter()
 
@@ -72,6 +73,7 @@ class PageResponse(BaseModel):
 
 @router.get("/pages", response_model=List[PageResponse], tags=["pages"])
 async def list_pages(
+    request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     status: Optional[str] = Query(None),
@@ -88,6 +90,26 @@ async def list_pages(
     
     result = await db.execute(query)
     pages = result.scalars().all()
+    
+    # Log data access
+    try:
+        await SecurityAuditLogger.log_event(
+            db=db,
+            event_type=SecurityEventType.DATA_ACCESSED,
+            description=f"Listed {len(pages)} pages",
+            user_id=current_user.id,
+            user_email=current_user.email,
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
+            request_method=request.method,
+            request_path=str(request.url.path),
+            severity="info",
+            success="success",
+            metadata={"resource_type": "pages", "count": len(pages)}
+        )
+    except Exception:
+        pass  # Don't fail request if audit logging fails
+    
     return [PageResponse.model_validate(page) for page in pages]
 
 
@@ -112,6 +134,7 @@ async def get_page(
 
 @router.post("/pages", response_model=PageResponse, status_code=status.HTTP_201_CREATED, tags=["pages"])
 async def create_page(
+    request: Request,
     page_data: PageCreate,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -150,18 +173,31 @@ async def create_page(
     await db.commit()
     await db.refresh(page)
     
-    SecurityAuditLogger.log_event(
-        user_id=current_user.id,
-        event_type="page_created",
-        severity="info",
-        message=f"Page '{page.title}' created",
-    )
+    # Log data modification
+    try:
+        await SecurityAuditLogger.log_event(
+            db=db,
+            event_type=SecurityEventType.DATA_MODIFIED,
+            description=f"Page '{page.title}' created",
+            user_id=current_user.id,
+            user_email=current_user.email,
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
+            request_method=request.method,
+            request_path=str(request.url.path),
+            severity="info",
+            success="success",
+            metadata={"resource_type": "page", "page_id": page.id, "page_slug": page.slug, "action": "created"}
+        )
+    except Exception:
+        pass  # Don't fail request if audit logging fails
     
     return PageResponse.model_validate(page)
 
 
 @router.put("/pages/{slug}", response_model=PageResponse, tags=["pages"])
 async def update_page(
+    request: Request,
     slug: str,
     page_data: PageUpdate,
     current_user: User = Depends(get_current_user),
@@ -218,18 +254,31 @@ async def update_page(
     await db.commit()
     await db.refresh(page)
     
-    SecurityAuditLogger.log_event(
-        user_id=current_user.id,
-        event_type="page_updated",
-        severity="info",
-        message=f"Page '{page.title}' updated",
-    )
+    # Log data modification
+    try:
+        await SecurityAuditLogger.log_event(
+            db=db,
+            event_type=SecurityEventType.DATA_MODIFIED,
+            description=f"Page '{page.title}' updated",
+            user_id=current_user.id,
+            user_email=current_user.email,
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
+            request_method=request.method,
+            request_path=str(request.url.path),
+            severity="info",
+            success="success",
+            metadata={"resource_type": "page", "page_id": page.id, "page_slug": page.slug, "action": "updated"}
+        )
+    except Exception:
+        pass  # Don't fail request if audit logging fails
     
     return PageResponse.model_validate(page)
 
 
 @router.delete("/pages/{slug}", status_code=status.HTTP_204_NO_CONTENT, tags=["pages"])
 async def delete_page(
+    request: Request,
     slug: str,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -250,13 +299,27 @@ async def delete_page(
             detail="Not authorized to delete this page"
         )
     
+    page_title = page.title  # Save before deletion
+    page_id = page.id
     await db.delete(page)
     await db.commit()
     
-    SecurityAuditLogger.log_event(
-        user_id=current_user.id,
-        event_type="page_deleted",
-        severity="info",
-        message=f"Page '{page.title}' deleted",
-    )
+    # Log data deletion
+    try:
+        await SecurityAuditLogger.log_event(
+            db=db,
+            event_type=SecurityEventType.DATA_DELETED,
+            description=f"Page '{page_title}' deleted",
+            user_id=current_user.id,
+            user_email=current_user.email,
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
+            request_method=request.method,
+            request_path=str(request.url.path),
+            severity="info",
+            success="success",
+            metadata={"resource_type": "page", "page_id": page_id, "page_slug": slug, "action": "deleted"}
+        )
+    except Exception:
+        pass  # Don't fail request if audit logging fails
 

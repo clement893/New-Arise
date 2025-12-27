@@ -113,16 +113,52 @@ async def get_current_user(
         token_type = payload.get("type")
         if token_type != "access":
             logger.warning("Invalid token type, expected 'access'")
+            # Log invalid token event
+            try:
+                await SecurityAuditLogger.log_event(
+                    db=db,
+                    event_type=SecurityEventType.INVALID_TOKEN,
+                    description="Invalid token type in authentication attempt",
+                    severity="warning",
+                    success="failure",
+                    metadata={"token_type": token_type, "expected": "access"}
+                )
+            except Exception:
+                pass  # Don't fail auth if audit logging fails
             raise credentials_exception
         username: str = payload.get("sub")
         if username is None:
             logger.warning("No 'sub' claim in token payload")
+            # Log invalid token event
+            try:
+                await SecurityAuditLogger.log_event(
+                    db=db,
+                    event_type=SecurityEventType.INVALID_TOKEN,
+                    description="Token missing 'sub' claim",
+                    severity="warning",
+                    success="failure",
+                    metadata={"reason": "missing_sub_claim"}
+                )
+            except Exception:
+                pass  # Don't fail auth if audit logging fails
             raise credentials_exception
         token_data = TokenData(username=username)
         # SECURITY: Only log username (email), not token or payload
         logger.debug(f"Token validated for user: {username}")
     except JWTError as e:
         logger.error(f"JWT decode error: {e}")
+        # Log invalid token event
+        try:
+            await SecurityAuditLogger.log_event(
+                db=db,
+                event_type=SecurityEventType.INVALID_TOKEN,
+                description=f"JWT decode error: {str(e)}",
+                severity="warning",
+                success="failure",
+                metadata={"error_type": type(e).__name__}
+            )
+        except Exception:
+            pass  # Don't fail auth if audit logging fails
         raise credentials_exception
 
     # Get user from database
