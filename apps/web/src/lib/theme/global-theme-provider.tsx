@@ -3,7 +3,7 @@
  */
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode, startTransition } from 'react';
+import { createContext, useContext, useEffect, useLayoutEffect, useState, ReactNode, startTransition } from 'react';
 import { getActiveTheme } from '@/lib/api/theme';
 import { logger } from '@/lib/logger';
 import type { ThemeConfigResponse, ThemeConfig } from '@modele/types';
@@ -37,12 +37,6 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
 
   const [theme, setTheme] = useState<ThemeConfigResponse | null>(initialTheme);
   const [error, setError] = useState<Error | null>(null);
-  
-  // Apply cached theme immediately on mount (synchronous)
-  if (cachedTheme && initialTheme && typeof window !== 'undefined') {
-    applyThemeConfig(cachedTheme);
-    logger.info('[Theme] Loaded theme from cache');
-  }
 
   const fetchTheme = async () => {
     try {
@@ -335,6 +329,14 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
     root.style.setProperty('--color-success', `var(--color-secondary-500)`);
     root.style.setProperty('--color-success-rgb', `var(--color-secondary-rgb)`);
   };
+
+  // Apply cached theme immediately on mount (synchronous, before first render)
+  useLayoutEffect(() => {
+    if (cachedTheme && typeof window !== 'undefined') {
+      applyThemeConfig(cachedTheme);
+      logger.info('[Theme] Loaded theme from cache');
+    }
+  }, []); // Only run once on mount
 
   useEffect(() => {
     // Fetch theme from API asynchronously (non-blocking, use startTransition)
