@@ -51,19 +51,45 @@ export function JSONEditor({ config, onChange, onValidationChange }: JSONEditorP
       }
 
       // Validate required color fields
-      const requiredColors = ['primary_color', 'secondary_color', 'danger_color', 'warning_color', 'info_color', 'success_color'];
+      // Support both formats: primary_color or primary (short format)
+      const colorMappings = {
+        primary: ['primary_color', 'primary'],
+        secondary: ['secondary_color', 'secondary'],
+        danger: ['danger_color', 'danger'],
+        warning: ['warning_color', 'warning'],
+        info: ['info_color', 'info'],
+        success: ['success_color', 'success'],
+      };
+      
       const missingColors: string[] = [];
       
-      for (const color of requiredColors) {
-        if (!parsed[color] || typeof parsed[color] !== 'string') {
-          missingColors.push(color);
+      for (const [colorName, possibleKeys] of Object.entries(colorMappings)) {
+        // Check if any of the possible keys exists
+        const hasColor = possibleKeys.some(key => {
+          // Check in root level
+          if (parsed[key] && typeof parsed[key] === 'string') {
+            return true;
+          }
+          // Check in colors object
+          if ((parsed as any).colors && (parsed as any).colors[key] && typeof (parsed as any).colors[key] === 'string') {
+            return true;
+          }
+          // Check in colors object with colorName (e.g., colors.primary)
+          if ((parsed as any).colors && (parsed as any).colors[colorName] && typeof (parsed as any).colors[colorName] === 'string') {
+            return true;
+          }
+          return false;
+        });
+        
+        if (!hasColor) {
+          missingColors.push(colorName);
         }
       }
 
       if (missingColors.length > 0) {
         return {
           isValid: false,
-          error: `Couleurs manquantes: ${missingColors.join(', ')}`,
+          error: `Couleurs manquantes: ${missingColors.map(c => `${c}_color ou ${c}`).join(', ')}`,
           parsed: null,
         };
       }
