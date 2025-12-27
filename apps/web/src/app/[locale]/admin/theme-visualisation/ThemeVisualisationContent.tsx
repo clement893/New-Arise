@@ -202,7 +202,62 @@ export function ThemeVisualisationContent() {
 
   useEffect(() => {
     fetchTheme();
+    fetchFonts();
   }, [themeIdParam]); // Re-fetch when themeId changes
+
+  const fetchFonts = async () => {
+    try {
+      const response = await listFonts(0, 100);
+      setUploadedFonts(response.fonts);
+    } catch (err) {
+      // Silently fail - fonts are optional
+      console.error('Failed to fetch fonts:', err);
+    }
+  };
+
+  const handleFontUpload = async () => {
+    if (!selectedFontFile) {
+      setError('Veuillez sélectionner un fichier de police.');
+      return;
+    }
+
+    try {
+      setUploadingFont(true);
+      setError(null);
+      
+      const font = await uploadFont(selectedFontFile, {
+        name: selectedFontFile.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
+      });
+      
+      setSuccessMessage(`Police "${font.name}" uploadée avec succès !`);
+      setSelectedFontFile(null);
+      
+      // Refresh fonts list
+      await fetchFonts();
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Échec de l\'upload de la police');
+    } finally {
+      setUploadingFont(false);
+    }
+  };
+
+  const handleFontDelete = async (fontId: number) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette police ?')) {
+      return;
+    }
+
+    try {
+      await deleteFont(fontId);
+      setSuccessMessage('Police supprimée avec succès !');
+      await fetchFonts();
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Échec de la suppression de la police');
+    }
+  };
 
   // Update JSON input when editedConfig changes (always keep in sync when editing)
   useEffect(() => {
@@ -466,7 +521,7 @@ export function ThemeVisualisationContent() {
                   placeholder="Inter, sans-serif"
                 />
                 <Input
-                  label="URL de la police (Google Fonts)"
+                  label="URL de la police (Google Fonts ou police uploadée)"
                   value={typography.fontUrl || ''}
                   onChange={(e) => {
                     const value = e.target.value;
@@ -475,8 +530,112 @@ export function ThemeVisualisationContent() {
                     }
                     updateConfigField(['typography', 'fontUrl'], value);
                   }}
-                  placeholder="https://fonts.googleapis.com/css2?family=..."
+                  placeholder="https://fonts.googleapis.com/css2?family=... ou URL de police uploadée"
                 />
+                
+                {/* Font Upload Section */}
+                <div className="mt-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900">
+                  <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                    <Upload className="w-4 h-4" />
+                    Uploader une police personnalisée
+                  </h4>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Fichier de police (woff, woff2, ttf, otf)
+                      </label>
+                      <input
+                        type="file"
+                        accept=".woff,.woff2,.ttf,.otf,font/woff,font/woff2,font/ttf,font/otf"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setSelectedFontFile(file);
+                          }
+                        }}
+                        className="block w-full text-sm text-gray-500 dark:text-gray-400
+                          file:mr-4 file:py-2 file:px-4
+                          file:rounded-lg file:border-0
+                          file:text-sm file:font-semibold
+                          file:bg-primary-600 file:text-white
+                          hover:file:bg-primary-700
+                          file:cursor-pointer
+                          dark:file:bg-primary-500 dark:hover:file:bg-primary-600"
+                      />
+                      {selectedFontFile && (
+                        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                          Fichier sélectionné: {selectedFontFile.name} ({(selectedFontFile.size / 1024).toFixed(2)} KB)
+                        </p>
+                      )}
+                    </div>
+                    <Button
+                      onClick={handleFontUpload}
+                      variant="primary"
+                      size="sm"
+                      disabled={!selectedFontFile || uploadingFont}
+                    >
+                      {uploadingFont ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                          Upload en cours...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-4 h-4 mr-2" />
+                          Uploader la police
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  
+                  {/* Uploaded Fonts List */}
+                  {uploadedFonts.length > 0 && (
+                    <div className="mt-4">
+                      <h5 className="text-sm font-semibold mb-2">Polices uploadées:</h5>
+                      <div className="space-y-2">
+                        {uploadedFonts.map((font) => (
+                          <div
+                            key={font.id}
+                            className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700"
+                          >
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">{font.name}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                {font.font_family} • {font.font_format.toUpperCase()} • {(font.file_size / 1024).toFixed(2)} KB
+                              </p>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                onClick={() => {
+                                  // Set font URL in theme config
+                                  if (!(config as any).typography) {
+                                    updateConfigField(['typography'], {});
+                                  }
+                                  updateConfigField(['typography', 'fontUrl'], font.url);
+                                  updateConfigField(['typography', 'fontFamily'], font.font_family);
+                                  updateConfigField(['font_family'], font.font_family);
+                                  setSuccessMessage(`Police "${font.name}" appliquée au thème !`);
+                                  setTimeout(() => setSuccessMessage(null), 3000);
+                                }}
+                                variant="secondary"
+                                size="sm"
+                              >
+                                Utiliser
+                              </Button>
+                              <Button
+                                onClick={() => handleFontDelete(font.id)}
+                                variant="danger"
+                                size="sm"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
