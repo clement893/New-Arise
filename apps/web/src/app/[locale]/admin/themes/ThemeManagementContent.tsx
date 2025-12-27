@@ -674,7 +674,7 @@ export function ThemeManagementContent() {
               Êtes-vous sûr de vouloir supprimer le thème{' '}
               <strong>{themeToDelete.display_name}</strong> ?
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-500">
+            <p className="text-sm text-muted-foreground">
               Cette action est irréversible. Le thème sera définitivement supprimé de la base de données.
             </p>
             <div className="flex justify-end gap-2 pt-4">

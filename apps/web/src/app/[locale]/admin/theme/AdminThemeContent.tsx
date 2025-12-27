@@ -46,7 +46,7 @@ export default function AdminThemeContent() {
               className={`p-4 border-2 rounded-lg cursor-pointer transition-colors ${
                 selectedTheme === theme.id
                   ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-                  : 'border-border hover:border-gray-300 dark:hover:border-gray-600'
+                  : 'border-border hover:border-border'
               }`}
               onClick={() => setSelectedTheme(theme.id)}
             >

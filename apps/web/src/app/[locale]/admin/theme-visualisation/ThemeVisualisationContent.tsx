@@ -802,7 +802,7 @@ export function ThemeVisualisationContent() {
                           <li key={index}>{issue}</li>
                         ))}
                         {accessibilityIssues.length > 5 && (
-                          <li className="text-xs text-gray-500">
+                          <li className="text-xs text-muted-foreground">
                             ... et {accessibilityIssues.length - 5} autre(s) problème(s)
                           </li>
                         )}
