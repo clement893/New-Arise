@@ -37,7 +37,44 @@ export function getThemeMode(config: ThemeConfig): 'light' | 'dark' | 'system' {
 }
 
 /**
+ * Base colors that should be protected in dark mode (use DARK_MODE_CONFIG defaults)
+ * These colors are essential for dark mode readability and should not be overridden
+ * by backend config unless explicitly provided in darkMode.colors
+ */
+const BASE_COLORS = [
+  'background',
+  'foreground',
+  'muted',
+  'mutedForeground',
+  'border',
+  'input',
+  'ring',
+] as const;
+
+/**
+ * Theme colors that can always be customized from backend (even in dark mode)
+ * These are brand/theme colors that can be personalized
+ */
+const THEME_COLORS = [
+  'primary',
+  'secondary',
+  'danger',
+  'warning',
+  'info',
+  'success',
+  'destructive',
+  'destructiveForeground',
+  'successForeground',
+  'warningForeground',
+] as const;
+
+/**
  * Get appropriate theme config based on mode
+ * 
+ * In dark mode:
+ * - Base colors (background, foreground, muted, etc.) are protected and use DARK_MODE_CONFIG defaults
+ * - Base colors can only be overridden if config.darkMode?.colors exists (for future backend extension)
+ * - Theme colors (primary, secondary, etc.) can always be customized from backend
  * 
  * @param config Theme configuration
  * @returns Theme config for current mode
@@ -46,17 +83,52 @@ export function getThemeConfigForMode(config: ThemeConfig): ThemeConfig {
   const mode = getThemeMode(config);
   
   if (mode === 'dark') {
-    // Merge dark mode config with custom config
     const configColors = (config as any).colors;
     const configTypography = (config as any).typography;
     const darkColors = DARK_MODE_CONFIG.colors as Record<string, any> | undefined;
     const darkTypography = DARK_MODE_CONFIG.typography as Record<string, any> | undefined;
-    const mergedColors = configColors && typeof configColors === 'object' && !Array.isArray(configColors) && darkColors && typeof darkColors === 'object'
-      ? { ...darkColors, ...configColors }
-      : (darkColors || {});
+    
+    // Check if backend has explicit dark mode colors (for future extension)
+    const darkModeColors = (config as any).darkMode?.colors;
+    const hasExplicitDarkMode = darkModeColors && typeof darkModeColors === 'object' && !Array.isArray(darkModeColors);
+    
+    // Start with dark mode defaults
+    const mergedColors: Record<string, any> = darkColors ? { ...darkColors } : {};
+    
+    // Apply base colors:
+    // - If backend has explicit darkMode.colors, use those for base colors
+    // - Otherwise, protect base colors (keep DARK_MODE_CONFIG defaults)
+    if (hasExplicitDarkMode) {
+      // Backend has explicit dark mode config - allow base color customization
+      BASE_COLORS.forEach(colorKey => {
+        if (darkModeColors[colorKey] !== undefined) {
+          mergedColors[colorKey] = darkModeColors[colorKey];
+        }
+      });
+    }
+    // If no explicit darkMode.colors, base colors remain from DARK_MODE_CONFIG (already set above)
+    
+    // Always allow theme color customization from backend (even in dark mode)
+    if (configColors && typeof configColors === 'object' && !Array.isArray(configColors)) {
+      THEME_COLORS.forEach(colorKey => {
+        if (configColors[colorKey] !== undefined) {
+          mergedColors[colorKey] = configColors[colorKey];
+        }
+      });
+      
+      // Also allow any other colors that are not base colors (for extensibility)
+      Object.keys(configColors).forEach(colorKey => {
+        if (!BASE_COLORS.includes(colorKey as any) && !THEME_COLORS.includes(colorKey as any)) {
+          mergedColors[colorKey] = configColors[colorKey];
+        }
+      });
+    }
+    
+    // Typography: merge dark mode defaults with backend config
     const mergedTypography = configTypography && typeof configTypography === 'object' && !Array.isArray(configTypography) && darkTypography && typeof darkTypography === 'object'
       ? { ...darkTypography, ...configTypography }
       : (darkTypography || {});
+    
     return {
       ...config,
       colors: mergedColors,
