@@ -544,10 +544,10 @@ export default function ComponentsContent() {
                 <div className={`${category.color} w-16 h-16 rounded-lg flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform`}>
                   {category.icon}
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                <h3 className="text-xl font-semibold text-foreground mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                   {category.title}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                <p className="text-muted-foreground text-sm">
                   {category.description}
                 </p>
                 <div className="mt-4 flex items-center text-primary-600 dark:text-primary-400 text-sm font-medium group-hover:translate-x-1 transition-transform">

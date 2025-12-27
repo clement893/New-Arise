@@ -45,10 +45,10 @@ export default function LayoutComponentsContent() {
 
         <Section title="Sidebar">
           <Card className="p-6">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               Sidebar provides navigation for internal pages. It automatically detects the current route and highlights the active item.
             </p>
-            <div className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-4">
+            <div className="border-2 border-dashed border-border rounded-lg p-4">
               <Sidebar />
             </div>
           </Card>
@@ -80,7 +80,7 @@ export default function LayoutComponentsContent() {
             title="Example Component"
             description="This is an example card component used for showcasing components"
           >
-            <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded text-sm overflow-x-auto">
+            <pre className="bg-muted p-4 rounded text-sm overflow-x-auto">
               <code>{`<ExampleCard
   title="Example"
   description="Description"
@@ -91,12 +91,12 @@ export default function LayoutComponentsContent() {
 
         <Section title="Internal Layout">
           <Card className="p-6">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               InternalLayout provides a consistent layout structure for internal pages with header, sidebar, and content area.
             </p>
             <div className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-8">
               <InternalLayout>
-                <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded">
+                <div className="p-4 bg-muted rounded">
                   <p className="text-sm">Content area</p>
                 </div>
               </InternalLayout>
