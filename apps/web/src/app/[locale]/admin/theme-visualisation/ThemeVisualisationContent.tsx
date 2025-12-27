@@ -893,11 +893,15 @@ export function ThemeVisualisationContent() {
                       variant="primary"
                       size="sm"
                       onClick={() => {
+                        // Message immédiat pour confirmer que le bouton fonctionne
+                        setSuccessMessage('⏳ Application du JSON en cours...');
+                        setError(null);
+                        console.log('[Theme Preview] Bouton cliqué - Début de l\'application du JSON...');
+                        
                         try {
-                          console.log('[Theme Preview] Début de l\'application du JSON...');
-                          
                           if (!jsonInput.trim()) {
-                            setError('Le JSON ne peut pas être vide.');
+                            setError('❌ Le JSON ne peut pas être vide.');
+                            setSuccessMessage(null);
                             console.error('[Theme Preview] JSON vide');
                             return;
                           }
@@ -907,7 +911,8 @@ export function ThemeVisualisationContent() {
                           
                           // Validate that it's an object
                           if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-                            setError('Le JSON doit être un objet valide.');
+                            setError('❌ Le JSON doit être un objet valide.');
+                            setSuccessMessage(null);
                             console.error('[Theme Preview] JSON n\'est pas un objet valide');
                             return;
                           }
@@ -980,7 +985,8 @@ export function ThemeVisualisationContent() {
                             setError(null);
                           } catch (applyError) {
                             console.error('[Theme Preview] Erreur lors de l\'application du thème:', applyError);
-                            setError(`Erreur lors de l'application du thème : ${applyError instanceof Error ? applyError.message : 'Erreur inconnue'}. Vérifiez la console pour plus de détails.`);
+                            setError(`❌ Erreur lors de l'application du thème : ${applyError instanceof Error ? applyError.message : 'Erreur inconnue'}. Vérifiez la console pour plus de détails.`);
+                            setSuccessMessage(null);
                             throw applyError;
                           }
                         } catch (err) {
@@ -991,6 +997,7 @@ export function ThemeVisualisationContent() {
                           } else {
                             setError(`❌ Erreur lors de l'application : ${errorMessage}. Vérifiez la console pour plus de détails.`);
                           }
+                          setSuccessMessage(null);
                         }
                       }}
                     >
