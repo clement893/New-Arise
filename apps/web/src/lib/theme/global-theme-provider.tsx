@@ -8,7 +8,7 @@ import { getActiveTheme } from '@/lib/api/theme';
 import { logger } from '@/lib/logger';
 import type { ThemeConfigResponse, ThemeConfig } from '@modele/types';
 import { generateColorShades, generateRgb } from './color-utils';
-import { watchDarkModePreference, getThemeConfigForMode, applyDarkModeClass } from './dark-mode-utils';
+import { watchDarkModePreference, getThemeConfigForMode } from './dark-mode-utils';
 import { getThemeFromCache, saveThemeToCache } from './theme-cache';
 
 interface GlobalThemeContextType {
@@ -83,13 +83,9 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
     // Get theme config for current mode (light/dark/system)
     const modeConfig = getThemeConfigForMode(config);
     
-    // Apply dark mode class if needed
-    const mode = (config as any).mode || 'system';
-    if (mode === 'dark' || (mode === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      applyDarkModeClass(true);
-    } else {
-      applyDarkModeClass(false);
-    }
+    // Note: We do NOT manage light/dark classes here - that's ThemeProvider's responsibility
+    // ThemeProvider is the single source of truth for light/dark mode classes
+    // We only manage CSS variables (colors, fonts, effects, etc.)
     
     // Apply CSS variables to document root
     const root = document.documentElement;
