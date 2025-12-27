@@ -49,12 +49,14 @@ export function getThemeConfigForMode(config: ThemeConfig): ThemeConfig {
     // Merge dark mode config with custom config
     const configColors = (config as any).colors;
     const configTypography = (config as any).typography;
-    const mergedColors = configColors && typeof configColors === 'object' && !Array.isArray(configColors)
-      ? { ...DARK_MODE_CONFIG.colors, ...configColors }
-      : DARK_MODE_CONFIG.colors;
-    const mergedTypography = configTypography && typeof configTypography === 'object' && !Array.isArray(configTypography)
-      ? { ...DARK_MODE_CONFIG.typography, ...configTypography }
-      : DARK_MODE_CONFIG.typography;
+    const darkColors = DARK_MODE_CONFIG.colors as Record<string, any> | undefined;
+    const darkTypography = DARK_MODE_CONFIG.typography as Record<string, any> | undefined;
+    const mergedColors = configColors && typeof configColors === 'object' && !Array.isArray(configColors) && darkColors && typeof darkColors === 'object'
+      ? { ...darkColors, ...configColors }
+      : (darkColors || {});
+    const mergedTypography = configTypography && typeof configTypography === 'object' && !Array.isArray(configTypography) && darkTypography && typeof darkTypography === 'object'
+      ? { ...darkTypography, ...configTypography }
+      : (darkTypography || {});
     return {
       ...config,
       colors: mergedColors,
@@ -65,12 +67,14 @@ export function getThemeConfigForMode(config: ThemeConfig): ThemeConfig {
   // Light mode - use default or provided config
   const configColors = (config as any).colors;
   const configTypography = (config as any).typography;
-  const mergedColors = configColors && typeof configColors === 'object' && !Array.isArray(configColors)
-    ? { ...DEFAULT_THEME_CONFIG.colors, ...configColors }
-    : DEFAULT_THEME_CONFIG.colors;
-  const mergedTypography = configTypography && typeof configTypography === 'object' && !Array.isArray(configTypography)
-    ? { ...DEFAULT_THEME_CONFIG.typography, ...configTypography }
-    : DEFAULT_THEME_CONFIG.typography;
+  const defaultColors = DEFAULT_THEME_CONFIG.colors as Record<string, any> | undefined;
+  const defaultTypography = DEFAULT_THEME_CONFIG.typography as Record<string, any> | undefined;
+  const mergedColors = configColors && typeof configColors === 'object' && !Array.isArray(configColors) && defaultColors && typeof defaultColors === 'object'
+    ? { ...defaultColors, ...configColors }
+    : (defaultColors || {});
+  const mergedTypography = configTypography && typeof configTypography === 'object' && !Array.isArray(configTypography) && defaultTypography && typeof defaultTypography === 'object'
+    ? { ...defaultTypography, ...configTypography }
+    : (defaultTypography || {});
   return {
     ...DEFAULT_THEME_CONFIG,
     ...config,
