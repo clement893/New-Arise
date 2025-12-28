@@ -985,6 +985,10 @@ async def google_oauth_callback(
             
             logger.info(f"Final frontend base URL: {frontend_base}, state: {state}")
             
+            # Default locale for next-intl (usually 'en' or 'fr')
+            # This ensures the redirect goes to the correct localized route
+            default_locale = os.getenv("DEFAULT_LOCALE", "fr")
+            
             if state and state.startswith(("http://", "https://")):
                 # State is already a full URL, use it directly
                 frontend_url = state.rstrip("/")
@@ -994,10 +998,15 @@ async def google_oauth_callback(
                 # Ensure it starts with / and doesn't end with /
                 state_path = state if state.startswith("/") else f"/{state}"
                 state_path = state_path.rstrip("/")
-                redirect_url = f"{frontend_base}{state_path}?token={jwt_token}&type=google"
+                
+                # If state doesn't include locale, add it for next-intl compatibility
+                if not state_path.startswith(f"/{default_locale}/"):
+                    redirect_url = f"{frontend_base}/{default_locale}{state_path}?token={jwt_token}&type=google"
+                else:
+                    redirect_url = f"{frontend_base}{state_path}?token={jwt_token}&type=google"
             else:
-                # No state provided, use default callback URL
-                redirect_url = f"{frontend_base}/auth/callback?token={jwt_token}&type=google"
+                # No state provided, use default callback URL with locale
+                redirect_url = f"{frontend_base}/{default_locale}/auth/callback?token={jwt_token}&type=google"
             
             logger.info(f"Google OAuth successful for user {email}, redirecting to {redirect_url}")
             
