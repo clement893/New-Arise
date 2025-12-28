@@ -5,7 +5,7 @@ import { apiClient } from '@/lib/api/client';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { Button, Card, Alert, Badge } from '@/components/ui';
 import { getErrorMessage } from '@/lib/errors';
-import { RefreshCw, CheckCircle, Download, FileText } from 'lucide-react';
+import { RefreshCw, CheckCircle, Download, FileText, ExternalLink, Eye } from 'lucide-react';
 import { PageHeader, PageContainer } from '@/components/layout';
 import { ClientOnly } from '@/components/ui/ClientOnly';
 
@@ -161,6 +161,117 @@ function APIConnectionTestContent() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+    }
+  };
+
+  const openReportInNewTab = () => {
+    if (report?.reportContent) {
+      // Create HTML from markdown
+      const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Connection Report</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #fff;
+      color: #333;
+    }
+    pre {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+      border: 1px solid #ddd;
+    }
+    code {
+      background: #f5f5f5;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+    pre code {
+      background: none;
+      padding: 0;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 24px;
+      margin-bottom: 16px;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    h1 { font-size: 2em; border-bottom: 1px solid #eaecef; padding-bottom: 10px; }
+    h2 { font-size: 1.5em; border-bottom: 1px solid #eaecef; padding-bottom: 8px; }
+    h3 { font-size: 1.25em; }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 16px 0;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    th {
+      background-color: #f5f5f5;
+      font-weight: 600;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    ul, ol {
+      padding-left: 30px;
+    }
+    blockquote {
+      border-left: 4px solid #ddd;
+      padding-left: 16px;
+      margin: 16px 0;
+      color: #666;
+    }
+    .markdown-body {
+      box-sizing: border-box;
+      min-width: 200px;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 45px;
+    }
+    @media (max-width: 767px) {
+      .markdown-body {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="markdown-body">
+    <pre>${report.reportContent.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+  </div>
+</body>
+</html>`;
+      
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      // Clean up after a delay
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+    }
+  };
+
+  const openReportAsMarkdown = () => {
+    if (report?.reportContent) {
+      const blob = new Blob([report.reportContent], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      // Clean up after a delay
+      setTimeout(() => URL.revokeObjectURL(url), 100);
     }
   };
 
@@ -419,16 +530,35 @@ function APIConnectionTestContent() {
               disabled={isLoading}
             >
               <FileText className="h-4 w-4 mr-2" />
-              Generate Report
+              {isLoading ? 'Generating...' : 'Generate Report'}
             </Button>
             {report?.reportContent && (
-              <Button
-                variant="outline"
-                onClick={downloadReport}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download
-              </Button>
+              <>
+                <Button
+                  variant="outline"
+                  onClick={openReportInNewTab}
+                  title="Open report in new tab (HTML)"
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  View
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={openReportAsMarkdown}
+                  title="Open report as Markdown in new tab"
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Open MD
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={downloadReport}
+                  title="Download report as file"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -443,15 +573,23 @@ function APIConnectionTestContent() {
             )}
 
             {report.reportContent && (
-              <div>
-                <h3 className="font-medium mb-2">Report Preview</h3>
-                <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg max-h-96 overflow-auto">
-                  <pre className="text-xs whitespace-pre-wrap">{report.reportContent.substring(0, 2000)}</pre>
-                  {report.reportContent.length > 2000 && (
-                    <p className="text-xs text-gray-500 mt-2">
-                      ... (truncated, use download button for full report)
-                    </p>
-                  )}
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-medium mb-2">Report Preview</h3>
+                  <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg max-h-96 overflow-auto">
+                    <pre className="text-xs whitespace-pre-wrap font-mono">
+                      {report.reportContent.substring(0, 3000)}
+                    </pre>
+                    {report.reportContent.length > 3000 && (
+                      <p className="text-xs text-gray-500 mt-2">
+                        ... (truncated, use "View" or "Download" button for full report)
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex gap-2 text-sm text-gray-600">
+                  <span>📄 Report length: {report.reportContent.length.toLocaleString()} characters</span>
+                  {report.reportPath && <span>• Path: {report.reportPath}</span>}
                 </div>
               </div>
             )}
