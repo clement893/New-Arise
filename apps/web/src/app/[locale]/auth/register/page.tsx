@@ -112,7 +112,7 @@ export default function RegisterPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="••••••••"
-              helperText="Must be at least 8 characters"
+              helperText="Must be at least 8 characters with uppercase, lowercase, and a number"
               fullWidth
             />
 
