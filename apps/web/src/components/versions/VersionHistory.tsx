@@ -70,7 +70,7 @@ export function VersionHistory({
     }
 
     try {
-      await apiClient.post(`/api/v1/versions/versions/${version.id}/restore`);
+      await apiClient.post(`/v1/versions/${version.id}/restore`);
       showToast({
         message: `Restored to version ${version.version_number}`,
         type: 'success',
@@ -96,7 +96,7 @@ export function VersionHistory({
 
     try {
       const response = await apiClient.get(
-        `/api/v1/versions/versions/${entityType}/${entityId}/compare`,
+        `/v1/versions/${entityType}/${entityId}/compare`,
         {
           params: {
             version1: selectedVersions[0],

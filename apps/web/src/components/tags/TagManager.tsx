@@ -58,7 +58,7 @@ export function TagManager({ entityType, className = '' }: TagManagerProps) {
     if (!confirm('Are you sure you want to delete this tag?')) return;
 
     try {
-      await apiClient.delete(`/api/v1/tags/tags/${tagId}`);
+      await apiClient.delete(`/v1/tags/${tagId}`);
       setTags(tags.filter((t) => t.id !== tagId));
       showToast({
         message: 'Tag deleted successfully',

@@ -65,7 +65,7 @@ export function FavoriteButton({
     setIsLoading(true);
     try {
       if (isFavorited) {
-        await apiClient.delete(`/api/v1/favorites/${entityType}/${entityId}`);
+        await apiClient.delete(`/v1/favorites/${entityType}/${entityId}`);
         setIsFavorited(false);
         if (showCount) {
           setFavoritesCount((prev) => Math.max(0, prev - 1));
@@ -75,7 +75,7 @@ export function FavoriteButton({
           type: 'success',
         });
       } else {
-        await apiClient.post('/api/v1/favorites/favorites', {
+        await apiClient.post('/v1/favorites', {
           entity_type: entityType,
           entity_id: entityId,
         });

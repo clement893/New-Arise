@@ -71,7 +71,7 @@ export function TemplateManager({
 
   const handleDuplicate = async (template: Template) => {
     try {
-      await apiClient.post(`/api/v1/templates/templates/${template.id}/duplicate`);
+      await apiClient.post(`/v1/templates/${template.id}/duplicate`);
       showToast({
         message: 'Template duplicated successfully',
         type: 'success',
@@ -98,7 +98,7 @@ export function TemplateManager({
     if (!confirm('Are you sure you want to delete this template?')) return;
 
     try {
-      await apiClient.delete(`/api/v1/templates/templates/${templateId}`);
+      await apiClient.delete(`/v1/templates/${templateId}`);
       
       // Edge case: Handle concurrent deletions
       setTemplates((prevTemplates) => {

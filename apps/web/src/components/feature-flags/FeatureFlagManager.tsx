@@ -49,7 +49,7 @@ export function FeatureFlagManager({ className = '' }: FeatureFlagManagerProps) 
 
   const handleToggle = async (flag: FeatureFlag) => {
     try {
-      await apiClient.put(`/api/v1/feature-flags/feature-flags/${flag.id}`, {
+      await apiClient.put(`/v1/feature-flags/${flag.id}`, {
         enabled: !flag.enabled,
       });
       setFlags(
@@ -71,7 +71,7 @@ export function FeatureFlagManager({ className = '' }: FeatureFlagManagerProps) 
     if (!confirm('Are you sure you want to delete this feature flag?')) return;
 
     try {
-      await apiClient.delete(`/api/v1/feature-flags/feature-flags/${flagId}`);
+      await apiClient.delete(`/v1/feature-flags/${flagId}`);
       setFlags(flags.filter((f) => f.id !== flagId));
       showToast({
         message: 'Feature flag deleted successfully',

@@ -40,15 +40,15 @@ export function OnboardingWizard({ className = '', onComplete }: OnboardingWizar
     setIsLoading(true);
     try {
       // Initialize if needed
-      await apiClient.post('/api/v1/onboarding/onboarding/initialize');
+      await apiClient.post('/v1/onboarding/initialize');
       
       // Get steps
-      const stepsResponse = await apiClient.get<OnboardingStep[]>('/api/v1/onboarding/onboarding/steps');
+      const stepsResponse = await apiClient.get<OnboardingStep[]>('/v1/onboarding/steps');
       if (stepsResponse.data) {
         setSteps(stepsResponse.data);
         
         // Get current step
-        const nextStepResponse = await apiClient.get<OnboardingStep | null>('/api/v1/onboarding/onboarding/next-step');
+        const nextStepResponse = await apiClient.get<OnboardingStep | null>('/v1/onboarding/next-step');
         if (nextStepResponse.data) {
           const currentIndex = stepsResponse.data.findIndex(s => s.key === nextStepResponse.data?.key);
           if (currentIndex >= 0) {
@@ -69,7 +69,7 @@ export function OnboardingWizard({ className = '', onComplete }: OnboardingWizar
 
     setIsCompleting(true);
     try {
-      await apiClient.post(`/api/v1/onboarding/onboarding/steps/${currentStep.key}/complete`);
+      await apiClient.post(`/v1/onboarding/steps/${currentStep.key}/complete`);
       
       if (currentStepIndex < steps.length - 1) {
         setCurrentStepIndex(currentStepIndex + 1);
@@ -94,7 +94,7 @@ export function OnboardingWizard({ className = '', onComplete }: OnboardingWizar
     if (!currentStep || currentStep.required) return;
 
     try {
-      await apiClient.post(`/api/v1/onboarding/onboarding/steps/${currentStep.key}/skip`);
+      await apiClient.post(`/v1/onboarding/steps/${currentStep.key}/skip`);
       
       if (currentStepIndex < steps.length - 1) {
         setCurrentStepIndex(currentStepIndex + 1);

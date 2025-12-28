@@ -41,7 +41,7 @@ export function ArticleViewer({ slug, className = '' }: ArticleViewerProps) {
   const fetchArticle = async () => {
     setIsLoading(true);
     try {
-      const response = await apiClient.get<Article>(`/api/v1/documentation/documentation/articles/${slug}`);
+      const response = await apiClient.get<Article>(`/v1/documentation/articles/${slug}`);
       if (response.data) {
         setArticle(response.data);
       }
@@ -62,7 +62,7 @@ export function ArticleViewer({ slug, className = '' }: ArticleViewerProps) {
     if (!article || feedbackSubmitted) return;
 
     try {
-      await apiClient.post(`/api/v1/documentation/documentation/articles/${article.id}/feedback`, {
+      await apiClient.post(`/v1/documentation/articles/${article.id}/feedback`, {
         is_helpful: isHelpful,
       });
       

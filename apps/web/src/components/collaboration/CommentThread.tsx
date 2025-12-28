@@ -71,7 +71,7 @@ export function CommentThread({
     if (!replyContent.trim()) return;
 
     try {
-      await apiClient.post('/api/v1/comments/comments', {
+      await apiClient.post('/v1/comments', {
         content: replyContent.trim(),
         entity_type: entityType,
         entity_id: entityId,
@@ -96,7 +96,7 @@ export function CommentThread({
     if (!editContent.trim()) return;
 
     try {
-      await apiClient.put(`/api/v1/comments/comments/${comment.id}`, {
+      await apiClient.put(`/v1/comments/${comment.id}`, {
         content: editContent.trim(),
       });
       setIsEditing(false);
@@ -117,7 +117,7 @@ export function CommentThread({
     if (!confirm('Are you sure you want to delete this comment?')) return;
 
     try {
-      await apiClient.delete(`/api/v1/comments/comments/${comment.id}`);
+      await apiClient.delete(`/v1/comments/${comment.id}`);
       onUpdate?.();
       showToast({
         message: 'Comment deleted successfully',
@@ -133,7 +133,7 @@ export function CommentThread({
 
   const handleReaction = async (reactionType: ReactionType) => {
     try {
-      await apiClient.post(`/api/v1/comments/comments/${comment.id}/reactions`, {
+      await apiClient.post(`/v1/comments/${comment.id}/reactions`, {
         reaction_type: reactionType,
       });
       onUpdate?.();

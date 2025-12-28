@@ -44,7 +44,7 @@ export function TemplateEditor({
     try {
       if (templateId) {
         // Update existing template
-        await apiClient.put(`/api/v1/templates/templates/${templateId}`, {
+        await apiClient.put(`/v1/templates/${templateId}`, {
           name,
           content,
           description,

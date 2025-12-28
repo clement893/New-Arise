@@ -48,7 +48,7 @@ export function AnnouncementBanner({ className = '', showOnLogin = false }: Anno
 
   const fetchAnnouncements = async () => {
     try {
-      const response = await apiClient.get<Announcement[]>('/api/v1/announcements/announcements', {
+      const response = await apiClient.get<Announcement[]>('/v1/announcements', {
         params: {
           show_on_login: showOnLogin || undefined,
         },
@@ -63,7 +63,7 @@ export function AnnouncementBanner({ className = '', showOnLogin = false }: Anno
 
   const handleDismiss = async (announcementId: number) => {
     try {
-      await apiClient.post(`/api/v1/announcements/announcements/${announcementId}/dismiss`);
+      await apiClient.post(`/v1/announcements/${announcementId}/dismiss`);
       setDismissedIds(new Set([...dismissedIds, announcementId]));
     } catch (error) {
       logger.error('', 'Failed to dismiss announcement:', error);

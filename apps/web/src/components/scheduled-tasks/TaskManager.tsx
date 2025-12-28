@@ -68,7 +68,7 @@ export function TaskManager({ className = '' }: TaskManagerProps) {
 
   const handleCancel = async (taskId: number) => {
     try {
-      await apiClient.post(`/api/v1/scheduled-tasks/scheduled-tasks/${taskId}/cancel`);
+      await apiClient.post(`/v1/scheduled-tasks/${taskId}/cancel`);
       showToast({
         message: 'Task cancelled successfully',
         type: 'success',
@@ -86,7 +86,7 @@ export function TaskManager({ className = '' }: TaskManagerProps) {
     if (!confirm('Are you sure you want to delete this task?')) return;
 
     try {
-      await apiClient.delete(`/api/v1/scheduled-tasks/scheduled-tasks/${taskId}`);
+      await apiClient.delete(`/v1/scheduled-tasks/${taskId}`);
       showToast({
         message: 'Task deleted successfully',
         type: 'success',

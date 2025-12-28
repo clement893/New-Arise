@@ -72,7 +72,7 @@ export function FavoritesList({
 
   const handleRemove = async (favorite: Favorite) => {
     try {
-      await apiClient.delete(`/api/v1/favorites/${favorite.entity_type}/${favorite.entity_id}`);
+      await apiClient.delete(`/v1/favorites/${favorite.entity_type}/${favorite.entity_id}`);
       setFavorites(favorites.filter((f) => f.id !== favorite.id));
       showToast({
         message: 'Removed from favorites',

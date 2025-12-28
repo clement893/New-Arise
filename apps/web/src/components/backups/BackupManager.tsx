@@ -62,7 +62,7 @@ export function BackupManager({ className = '' }: BackupManagerProps) {
   const fetchBackups = async () => {
     setIsLoading(true);
     try {
-      const response = await apiClient.get<Backup[]>('/api/v1/backups/backups');
+      const response = await apiClient.get<Backup[]>('/v1/backups');
       if (response.data) {
         setBackups(response.data);
       }
@@ -77,7 +77,7 @@ export function BackupManager({ className = '' }: BackupManagerProps) {
     if (!confirm('Are you sure you want to restore from this backup? This action cannot be undone.')) return;
 
     try {
-      await apiClient.post(`/api/v1/backups/backups/${backupId}/restore`);
+      await apiClient.post(`/v1/backups/${backupId}/restore`);
       showToast({
         message: 'Restore operation started',
         type: 'success',
@@ -94,7 +94,7 @@ export function BackupManager({ className = '' }: BackupManagerProps) {
     if (!confirm('Are you sure you want to delete this backup?')) return;
 
     try {
-      await apiClient.delete(`/api/v1/backups/backups/${backupId}`);
+      await apiClient.delete(`/v1/backups/${backupId}`);
       showToast({
         message: 'Backup deleted successfully',
         type: 'success',

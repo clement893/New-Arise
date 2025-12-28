@@ -53,7 +53,7 @@ export function ShareDialog({
 
     setIsSharing(true);
     try {
-      await apiClient.post('/api/v1/shares/shares', {
+      await apiClient.post('/v1/shares', {
         entity_type: entityType,
         entity_id: entityId,
         shared_with_type: isPublicLink ? 'public' : shareWithType,

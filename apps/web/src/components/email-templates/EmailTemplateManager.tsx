@@ -74,7 +74,7 @@ export function EmailTemplateManager({ className = '' }: EmailTemplateManagerPro
     if (!selectedTemplate) return;
 
     try {
-      await apiClient.put(`/api/v1/email-templates/email-templates/${selectedTemplate.id}`, editForm);
+      await apiClient.put(`/v1/email-templates/${selectedTemplate.id}`, editForm);
       showToast({
         message: 'Template updated successfully',
         type: 'success',
@@ -101,7 +101,7 @@ export function EmailTemplateManager({ className = '' }: EmailTemplateManagerPro
     if (!confirm('Are you sure you want to delete this template?')) return;
 
     try {
-      await apiClient.delete(`/api/v1/email-templates/email-templates/${templateId}`);
+      await apiClient.delete(`/v1/email-templates/${templateId}`);
       showToast({
         message: 'Template deleted successfully',
         type: 'success',

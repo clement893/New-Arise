@@ -77,7 +77,7 @@ export function TagInput({
 
   const handleAddTag = async (tag: Tag) => {
     try {
-      await apiClient.post(`/api/v1/tags/${tag.id}/entities/${entityType}/${entityId}`);
+      await apiClient.post(`/v1/tags/${tag.id}/entities/${entityType}/${entityId}`);
       onTagsChange([...selectedTags, tag]);
       setInputValue('');
       setShowSuggestions(false);
@@ -127,7 +127,7 @@ export function TagInput({
 
   const handleRemoveTag = async (tagId: number) => {
     try {
-      await apiClient.delete(`/api/v1/tags/${tagId}/entities/${entityType}/${entityId}`);
+      await apiClient.delete(`/v1/tags/${tagId}/entities/${entityType}/${entityId}`);
       onTagsChange(selectedTags.filter((t) => t.id !== tagId));
     } catch (error: unknown) {
       showToast({

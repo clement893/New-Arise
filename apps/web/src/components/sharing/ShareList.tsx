@@ -59,7 +59,7 @@ export function ShareList({ entityType, entityId, className = '' }: ShareListPro
     if (!confirm('Are you sure you want to remove this share?')) return;
 
     try {
-      await apiClient.delete(`/api/v1/shares/shares/${shareId}`);
+      await apiClient.delete(`/v1/shares/${shareId}`);
       setShares(shares.filter((s) => s.id !== shareId));
       showToast({
         message: 'Share removed successfully',
