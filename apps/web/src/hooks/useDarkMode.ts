@@ -1,6 +1,6 @@
 /**
  * Simple Dark Mode Hook
- * Dark mode is only applied when user explicitly toggles it - no auto-application on mount
+ * Dark mode follows system preference by default, or user preference if set
  */
 
 'use client';
@@ -11,10 +11,11 @@ type ThemeMode = 'light' | 'dark' | 'system';
 
 /**
  * Get current theme mode from localStorage (user preference)
+ * Defaults to 'system' to follow system preferences
  */
 function getThemeMode(): ThemeMode {
-  if (typeof window === 'undefined') return 'light'; // Default to light, not system
-  return (localStorage.getItem('theme') as ThemeMode | null) || 'light';
+  if (typeof window === 'undefined') return 'system';
+  return (localStorage.getItem('theme') as ThemeMode | null) || 'system';
 }
 
 /**
@@ -39,8 +40,8 @@ function applyThemeClass(isDark: boolean) {
 /**
  * Simple Dark Mode Hook
  * 
- * IMPORTANT: Dark mode is NOT auto-applied on mount. User must explicitly toggle it.
- * This prevents color flashes and ensures theme colors load first.
+ * Dark mode follows system preference by default, or user preference if explicitly set.
+ * The inline script in layout.tsx applies the correct mode before first paint.
  * 
  * @returns { isDark: boolean, toggle: () => void, setMode: (mode: ThemeMode) => void, mode: ThemeMode }
  * 
@@ -56,14 +57,13 @@ function applyThemeClass(isDark: boolean) {
  * ```
  */
 export function useDarkMode() {
-  // Start with light mode (no dark class) - user must explicitly toggle
+  // Read current state from DOM (already set by inline script)
   const [isDark, setIsDark] = useState(() => {
-    // Only check DOM state, don't auto-apply from localStorage
     if (typeof window === 'undefined') return false;
     return document.documentElement.classList.contains('dark');
   });
   
-  // Get mode from localStorage but don't auto-apply
+  // Get mode from localStorage (defaults to 'system')
   const [mode, setModeState] = useState<ThemeMode>(() => getThemeMode());
 
   // Sync with DOM changes (e.g., from external changes)
@@ -84,7 +84,7 @@ export function useDarkMode() {
     return () => observer.disconnect();
   }, [isDark]);
 
-  // Listen to system preference changes (only if mode is 'system' AND user has explicitly set it)
+  // Listen to system preference changes (when mode is 'system')
   useEffect(() => {
     if (mode !== 'system') return;
 
@@ -94,6 +94,13 @@ export function useDarkMode() {
       applyThemeClass(resolved === 'dark');
       setIsDark(resolved === 'dark');
     };
+
+    // Apply initial system preference if not already set
+    const initialResolved = resolveTheme('system');
+    if (document.documentElement.classList.contains('dark') !== (initialResolved === 'dark')) {
+      applyThemeClass(initialResolved === 'dark');
+      setIsDark(initialResolved === 'dark');
+    }
 
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
