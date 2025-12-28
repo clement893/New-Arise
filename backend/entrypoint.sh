@@ -35,18 +35,67 @@ if [ -n "$DATABASE_URL" ]; then
     # Note: Alembic env.py handles URL conversion automatically
     # No need to modify DATABASE_URL here
     
+    # Check for multiple heads (migration overlap) and merge if needed
+    echo "Checking for migration conflicts..."
+    MIGRATION_OUTPUT=$(alembic heads 2>&1)
+    HEAD_COUNT=$(echo "$MIGRATION_OUTPUT" | grep -c "revision" || echo "0")
+    
+    # If multiple heads detected, try to merge them
+    if [ "$HEAD_COUNT" -gt 1 ]; then
+        echo "⚠️  Multiple migration heads detected. Attempting to merge..."
+        # Get all head revisions
+        HEADS=$(alembic heads | grep -oE "[a-f0-9]+_[a-z_]+" | tr '\n' ' ')
+        if [ -n "$HEADS" ]; then
+            # Create a merge migration
+            MERGE_OUTPUT=$(alembic merge -m "Merge migration heads" $HEADS 2>&1)
+            if echo "$MERGE_OUTPUT" | grep -q "Generating.*merge"; then
+                echo "✅ Merge migration created successfully"
+            else
+                echo "⚠️  Could not create merge migration (may already exist)"
+            fi
+        fi
+    fi
+    
     # Run migrations with timeout (60 seconds max) - don't fail if migrations fail
     # Use timeout command if available, otherwise run directly
     if command -v timeout >/dev/null 2>&1; then
-        if timeout 60 alembic upgrade head 2>&1; then
+        MIGRATION_RESULT=$(timeout 60 alembic upgrade head 2>&1)
+        MIGRATION_EXIT_CODE=$?
+        echo "$MIGRATION_RESULT"
+        if [ $MIGRATION_EXIT_CODE -eq 0 ]; then
             MIGRATION_STATUS="success"
+        elif echo "$MIGRATION_RESULT" | grep -q "overlaps with other requested revisions"; then
+            echo "⚠️  Migration overlap detected. Attempting to resolve..."
+            # Try to merge heads again
+            HEADS=$(alembic heads 2>&1 | grep -oE "[a-f0-9]+_[a-z_]+" | tr '\n' ' ')
+            if [ -n "$HEADS" ]; then
+                alembic merge -m "Auto-merge migration heads" $HEADS 2>&1 || true
+                # Retry upgrade after merge
+                timeout 60 alembic upgrade head 2>&1 && MIGRATION_STATUS="success" || MIGRATION_STATUS="timeout_or_failed"
+            else
+                MIGRATION_STATUS="timeout_or_failed"
+            fi
         else
             MIGRATION_STATUS="timeout_or_failed"
         fi
     else
         # Fallback: run without timeout if timeout command not available
-        if alembic upgrade head 2>&1; then
+        MIGRATION_RESULT=$(alembic upgrade head 2>&1)
+        MIGRATION_EXIT_CODE=$?
+        echo "$MIGRATION_RESULT"
+        if [ $MIGRATION_EXIT_CODE -eq 0 ]; then
             MIGRATION_STATUS="success"
+        elif echo "$MIGRATION_RESULT" | grep -q "overlaps with other requested revisions"; then
+            echo "⚠️  Migration overlap detected. Attempting to resolve..."
+            # Try to merge heads again
+            HEADS=$(alembic heads 2>&1 | grep -oE "[a-f0-9]+_[a-z_]+" | tr '\n' ' ')
+            if [ -n "$HEADS" ]; then
+                alembic merge -m "Auto-merge migration heads" $HEADS 2>&1 || true
+                # Retry upgrade after merge
+                alembic upgrade head 2>&1 && MIGRATION_STATUS="success" || MIGRATION_STATUS="failed"
+            else
+                MIGRATION_STATUS="failed"
+            fi
         else
             MIGRATION_STATUS="failed"
         fi
