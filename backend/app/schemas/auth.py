@@ -89,6 +89,7 @@ class TokenWithUser(BaseModel):
     """Token response schema with user data"""
     access_token: str = Field(..., description="JWT access token")
     token_type: str = Field(default="bearer", description="Token type")
+    refresh_token: Optional[str] = Field(None, description="JWT refresh token")
     user: UserResponse = Field(..., description="User data")
     
     model_config = {
@@ -96,6 +97,7 @@ class TokenWithUser(BaseModel):
             "example": {
                 "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
                 "token_type": "bearer",
+                "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
                 "user": {
                     "id": 1,
                     "email": "user@example.com",

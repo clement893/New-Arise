@@ -20,6 +20,7 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.core.rate_limit import rate_limit_decorator
 from app.core.logging import logger
+from app.core.security import create_refresh_token
 from app.core.security_audit import SecurityAuditLogger, SecurityEventType
 from app.models.user import User
 from app.schemas.auth import Token, TokenData, UserCreate, UserResponse, RefreshTokenRequest, TokenWithUser
@@ -387,6 +388,11 @@ async def login(
         data={"sub": user.email, "type": "access"},
         expires_delta=access_token_expires,
     )
+    
+    # Create refresh token
+    refresh_token = create_refresh_token(
+        data={"sub": user.email, "user_id": user.id, "type": "refresh"}
+    )
 
     # Log successful login
     # Note: log_authentication_event() commits internally, so we don't need to commit again
@@ -437,6 +443,7 @@ async def login(
     token_data = TokenWithUser(
         access_token=access_token,
         token_type="bearer",
+        refresh_token=refresh_token,
         user=user_response
     )
     return JSONResponse(
