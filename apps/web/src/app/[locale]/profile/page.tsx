@@ -87,7 +87,7 @@ export default function ProfilePage() {
       setError(null);
       
       // Sanitize input data
-      const updateData: { first_name?: string; last_name?: string; email?: string } = {};
+      const updateData: { first_name?: string; last_name?: string; email?: string; avatar?: string } = {};
       
       if (data.first_name !== undefined) {
         updateData.first_name = sanitizeInput(data.first_name, { maxLength: 100, trim: true });
@@ -97,6 +97,12 @@ export default function ProfilePage() {
       }
       if (data.email !== undefined) {
         updateData.email = sanitizeInput(data.email, { maxLength: 255, trim: true }).toLowerCase();
+      }
+      if (data.avatar !== undefined && data.avatar !== user.avatar) {
+        // Only update avatar if it's a URL (not a data URL from preview)
+        if (data.avatar.startsWith('http://') || data.avatar.startsWith('https://')) {
+          updateData.avatar = data.avatar;
+        }
       }
       
       logger.debug('Updating user profile', { fields: Object.keys(updateData) });

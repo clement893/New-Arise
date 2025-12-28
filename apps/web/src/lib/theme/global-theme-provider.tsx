@@ -291,6 +291,54 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
         root.style.setProperty('--font-family-subheading', String((configToApply as any).typography.fontFamilySubheading));
       }
       // Don't modify document.body or root directly - let CSS handle it via var(--font-family)
+      
+      // Check if fonts exist in database and warn user if not
+      if (typeof window !== 'undefined') {
+        const fontsToCheck: string[] = [];
+        if ((configToApply as any).typography.fontFamily) {
+          fontsToCheck.push(String((configToApply as any).typography.fontFamily));
+        }
+        if ((configToApply as any).typography.fontFamilyHeading) {
+          fontsToCheck.push(String((configToApply as any).typography.fontFamilyHeading));
+        }
+        if ((configToApply as any).typography.fontFamilySubheading) {
+          fontsToCheck.push(String((configToApply as any).typography.fontFamilySubheading));
+        }
+        
+        // Extract font names from CSS font-family strings (e.g., "Inter, sans-serif" -> "Inter")
+        const extractFontName = (fontFamily: string): string => {
+          const cleaned = fontFamily.replace(/['"]/g, '').trim();
+          const parts = cleaned.split(',');
+          return parts[0]?.trim() || cleaned;
+        };
+        
+        const fontNames = fontsToCheck.map(extractFontName).filter(Boolean);
+        
+        if (fontNames.length > 0) {
+          checkFonts(fontNames)
+            .then((fontCheckResult) => {
+              const missingFonts = Object.entries(fontCheckResult)
+                .filter(([_, exists]) => !exists)
+                .map(([name]) => name);
+              
+              if (missingFonts.length > 0) {
+                logger.warn(
+                  `[Theme] Fonts not found in database: ${missingFonts.join(', ')}. ` +
+                  `Please upload these fonts to ensure they are available.`
+                );
+                // Also log to console for visibility
+                console.warn(
+                  `⚠️ Theme Font Warning: The following fonts are not in the database: ${missingFonts.join(', ')}. ` +
+                  `Please upload them via the theme fonts management page to ensure proper display.`
+                );
+              }
+            })
+            .catch((error) => {
+              // Don't block theme application if font check fails
+              logger.warn('[Theme] Failed to check fonts in database', error);
+            });
+        }
+      }
     }
     
     // Apply border radius (support both string and object formats)

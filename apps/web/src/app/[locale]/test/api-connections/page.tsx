@@ -106,6 +106,55 @@ function APIConnectionTestContent() {
     }
   };
 
+  const analyzeFrontendFiles = async (): Promise<CheckResult> => {
+    // Try to fetch the API manifest generated at build time
+    try {
+      const manifestResponse = await fetch('/api-manifest.json');
+      if (manifestResponse.ok) {
+        const manifest = await manifestResponse.json();
+        
+        // Send analysis to backend
+        const response = await apiClient.post<CheckResult>('/v1/api-connection-check/frontend/analyze', {
+          pages: manifest.pages || [],
+          summary: manifest.summary || {
+            total: 0,
+            connected: 0,
+            partial: 0,
+            needsIntegration: 0,
+            static: 0,
+          },
+          timestamp: Date.now(),
+        });
+        return (response as unknown as CheckResult) ?? { success: false, error: 'No data returned' };
+      }
+    } catch (manifestErr) {
+      console.warn('Could not load API manifest:', manifestErr);
+    }
+
+    // Fallback: create basic analysis from known routes
+    // This is a simplified version for production when manifest is not available
+    const pages: Array<{ path: string; apiCalls: Array<{ method: string; endpoint: string }> }> = [];
+    const summary = {
+      total: 0,
+      connected: 0,
+      partial: 0,
+      needsIntegration: 0,
+      static: 0,
+    };
+
+    // Send analysis to backend
+    try {
+      const response = await apiClient.post<CheckResult>('/v1/api-connection-check/frontend/analyze', {
+        pages,
+        summary,
+        timestamp: Date.now(),
+      });
+      return (response as unknown as CheckResult) ?? { success: false, error: 'No data returned' };
+    } catch (err) {
+      throw err;
+    }
+  };
+
   const checkFrontend = async (detailed = false) => {
     setIsLoading(true);
     setError('');
@@ -114,10 +163,25 @@ function APIConnectionTestContent() {
     try {
       const params = detailed ? { detailed: 'true' } : {};
       const response = await apiClient.get<CheckResult>('/v1/api-connection-check/frontend', { params });
-      // apiClient.get returns response.data from axios, which is the FastAPI response directly
-      // FastAPI returns the data directly, not wrapped in ApiResponse
-      // So response is already CheckResult, not ApiResponse<CheckResult>
       const data = (response as unknown as CheckResult) ?? null;
+      
+      // If backend suggests using frontend analysis, do it
+      if (data && !data.success && (data as any).useFrontendAnalysis) {
+        // Try frontend analysis
+        try {
+          const frontendAnalysis = await analyzeFrontendFiles();
+          setFrontendCheck(frontendAnalysis);
+          return;
+        } catch (frontendErr) {
+          // If frontend analysis also fails, show the original error
+          setFrontendCheck(data);
+          if (data.error) {
+            setError(data.error + ' (Frontend analysis also unavailable)');
+          }
+          return;
+        }
+      }
+      
       setFrontendCheck(data);
       // If the response indicates failure, also set error for visibility
       if (data && !data.success && data.error) {

@@ -25,6 +25,7 @@ import Avatar from '@/components/ui/Avatar';
 import { useToast } from '@/components/ui/ToastContainer';
 import { Upload, User, Mail } from 'lucide-react';
 import type { ChangeEvent } from 'react';
+import { usersAPI } from '@/lib/api';
 
 export interface ProfileFormData {
   first_name?: string;
@@ -66,6 +67,7 @@ export function ProfileForm({
     avatar: user.avatar || '',
   });
   const [errors, setErrors] = useState<Partial<Record<keyof ProfileFormData, string>>>({});
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   const displayName = [formData.first_name, formData.last_name].filter(Boolean).join(' ') || formData.email?.split('@')[0] || '';
   const initials = displayName
@@ -133,8 +135,7 @@ export function ProfileForm({
       return;
     }
 
-    // TODO: Upload to backend and get URL
-    // For now, create a local preview
+    // Create local preview immediately
     const reader = new FileReader();
     reader.onloadend = () => {
       setFormData((prev) => ({
@@ -143,6 +144,32 @@ export function ProfileForm({
       }));
     };
     reader.readAsDataURL(file);
+
+    // Upload to backend
+    try {
+      setIsUploadingAvatar(true);
+      const avatarUrl = await usersAPI.uploadAvatar(file);
+      setFormData((prev) => ({
+        ...prev,
+        avatar: avatarUrl,
+      }));
+      showToast({
+        message: 'Avatar uploaded successfully',
+        type: 'success',
+      });
+    } catch (error) {
+      showToast({
+        message: error instanceof Error ? error.message : 'Failed to upload avatar',
+        type: 'error',
+      });
+      // Revert to previous avatar on error
+      setFormData((prev) => ({
+        ...prev,
+        avatar: user.avatar || '',
+      }));
+    } finally {
+      setIsUploadingAvatar(false);
+    }
   };
 
   return (
@@ -170,9 +197,10 @@ export function ProfileForm({
               variant="outline"
               size="sm"
               className="flex items-center gap-2"
+              disabled={isUploadingAvatar}
             >
               <Upload className="w-4 h-4" />
-              Upload Avatar
+              {isUploadingAvatar ? 'Uploading...' : 'Upload Avatar'}
             </Button>
           </label>
         </div>
