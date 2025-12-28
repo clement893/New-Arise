@@ -205,12 +205,16 @@ async def register(
     Returns:
         Created user
     """
+    # Log registration attempt
+    logger.info(f"Registration attempt for email: {user_data.email}")
+    
     # Check if user already exists
     result = await db.execute(
         User.__table__.select().where(User.email == user_data.email)
     )
     existing_user = result.scalar_one_or_none()
     if existing_user:
+        logger.warning(f"Registration failed: Email already registered - {user_data.email}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered",

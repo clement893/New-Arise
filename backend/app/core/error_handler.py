@@ -194,10 +194,17 @@ async def http_exception_handler(request: Request, exc: FastAPIHTTPException) ->
             context=context,
         )
     else:
-        logger.warning(
-            f"HTTP exception: {exc.status_code}",
-            context=context,
-        )
+        # For 400 errors, log with more detail to help debug
+        if exc.status_code == 400:
+            logger.warning(
+                f"HTTP exception: {exc.status_code} - {exc.detail if isinstance(exc.detail, str) else 'Bad Request'}",
+                context=context,
+            )
+        else:
+            logger.warning(
+                f"HTTP exception: {exc.status_code}",
+                context=context,
+            )
 
     response = JSONResponse(
         status_code=exc.status_code,
