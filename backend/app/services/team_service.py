@@ -70,11 +70,12 @@ class TeamService:
         return result.scalar_one_or_none()
 
     async def get_team_by_slug(self, slug: str) -> Optional[Team]:
-        """Get a team by slug"""
+        """Get a team by slug with eager loading to prevent N+1 queries"""
         result = await self.db.execute(
             select(Team)
             .where(Team.slug == slug)
             .where(Team.is_active == True)
+            .options(selectinload(Team.members), selectinload(Team.owner))
         )
         return result.scalar_one_or_none()
 

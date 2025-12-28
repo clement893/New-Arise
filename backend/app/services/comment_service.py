@@ -52,33 +52,52 @@ class CommentService:
         offset: int = 0
     ) -> List[Comment]:
         """Get all comments for an entity (threaded)"""
-        query = select(Comment).where(
+        # First, get all comments for this entity in one query (optimized)
+        all_comments_query = select(Comment).where(
             and_(
                 Comment.entity_type == entity_type,
-                Comment.entity_id == entity_id,
-                Comment.parent_id.is_(None)  # Only top-level comments
+                Comment.entity_id == entity_id
             )
         )
         
         if not include_deleted:
-            query = query.where(Comment.is_deleted == False)
+            all_comments_query = all_comments_query.where(Comment.is_deleted == False)
         
-        query = query.order_by(desc(Comment.created_at))
+        # Eager load user relationship to prevent N+1 queries
+        all_comments_query = all_comments_query.options(selectinload(Comment.user))
         
+        all_comments_result = await self.db.execute(all_comments_query)
+        all_comments = {comment.id: comment for comment in all_comments_result.scalars().all()}
+        
+        # Build threaded structure in memory
+        top_level_comments = []
+        for comment in all_comments.values():
+            if comment.parent_id is None:
+                top_level_comments.append(comment)
+            else:
+                # Attach to parent's replies
+                parent = all_comments.get(comment.parent_id)
+                if parent:
+                    if not hasattr(parent, 'replies') or parent.replies is None:
+                        parent.replies = []
+                    parent.replies.append(comment)
+        
+        # Sort top-level comments by created_at desc
+        top_level_comments.sort(key=lambda c: c.created_at, reverse=True)
+        
+        # Apply pagination to top-level comments only
         if limit:
-            query = query.limit(limit).offset(offset)
+            top_level_comments = top_level_comments[offset:offset + limit]
         
-        result = await self.db.execute(query)
-        comments = result.scalars().all()
-        
-        # Load replies for each comment
-        for comment in comments:
-            await self._load_replies(comment, include_deleted)
-        
-        return list(comments)
+        return top_level_comments
 
     async def _load_replies(self, comment: Comment, include_deleted: bool = False) -> None:
-        """Recursively load replies for a comment"""
+        """
+        Recursively load replies for a comment
+        
+        NOTE: This method is deprecated in favor of the optimized get_comments_for_entity
+        which loads all comments in one query. Kept for backward compatibility.
+        """
         query = select(Comment).where(
             and_(
                 Comment.parent_id == comment.id
@@ -88,6 +107,8 @@ class CommentService:
         if not include_deleted:
             query = query.where(Comment.is_deleted == False)
         
+        # Eager load user relationship to prevent N+1 queries
+        query = query.options(selectinload(Comment.user))
         query = query.order_by(Comment.created_at)
         
         result = await self.db.execute(query)

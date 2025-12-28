@@ -99,7 +99,8 @@ class ClientService:
         total_result = await self.db.execute(count_query)
         total = total_result.scalar() or 0
         
-        # Get paginated results
+        # Get paginated results with eager loading to prevent N+1 queries
+        query = query.options(selectinload(Invoice.user), selectinload(Invoice.subscription))
         query = query.order_by(Invoice.invoice_date.desc()).offset(skip).limit(limit)
         result = await self.db.execute(query)
         invoices = result.scalars().all()
@@ -126,6 +127,9 @@ class ClientService:
         
         # Apply tenant scoping
         query = apply_tenant_scope(query, Invoice)
+        
+        # Eager load relationships to prevent N+1 queries
+        query = query.options(selectinload(Invoice.user), selectinload(Invoice.subscription))
         
         result = await self.db.execute(query)
         return result.scalar_one_or_none()

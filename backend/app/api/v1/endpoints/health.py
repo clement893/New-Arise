@@ -18,6 +18,24 @@ from app.core.config import settings
 router = APIRouter()
 
 
+# Simple health check that always returns success (for Railway healthcheck)
+# This endpoint should be lightweight and not depend on database/cache
+@router.get("/health", response_model=Dict[str, Any])
+async def simple_health_check() -> Dict[str, Any]:
+    """
+    Simple health check endpoint for Railway/deployment healthchecks
+    Always returns success - does not check database/cache
+    
+    Returns:
+        Status and timestamp
+    """
+    return {
+        "status": "ok",
+        "service": "backend",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+
 @router.get("/", response_model=Dict[str, Any])
 @router.get("", response_model=Dict[str, Any])  # Handle both with and without trailing slash
 async def health_check() -> Dict[str, Any]:
@@ -27,12 +45,22 @@ async def health_check() -> Dict[str, Any]:
     Returns:
         Status and timestamp
     """
-    return {
-        "status": "healthy",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "version": os.getenv("VERSION", "1.0.0"),
-        "environment": os.getenv("ENVIRONMENT", "development"),
-    }
+    try:
+        return {
+            "status": "healthy",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "version": os.getenv("VERSION", "1.0.0"),
+            "environment": os.getenv("ENVIRONMENT", "development"),
+        }
+    except Exception as e:
+        # Fallback response even if something fails
+        return {
+            "status": "healthy",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "version": "1.0.0",
+            "environment": "unknown",
+            "error": str(e)
+        }
 
 
 @router.get("/ready", response_model=Dict[str, Any])
