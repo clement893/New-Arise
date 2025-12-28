@@ -10,6 +10,15 @@ import { transformApiUserToStoreUser } from '@/lib/auth/userTransform';
 import { handleApiError } from '@/lib/errors/api';
 import { Input, Button, Alert, Card, Container } from '@/components/ui';
 
+interface ApiErrorResponse {
+  detail?: string;
+  message?: string;
+  retry_after?: number;
+  error?: {
+    retry_after?: number;
+  };
+}
+
 export default function RegisterPage() {
   const router = useRouter();
   const { login, setError } = useAuthStore();

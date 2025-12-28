@@ -14,6 +14,9 @@ interface ApiErrorResponse {
   detail?: string;
   message?: string;
   retry_after?: number;
+  error?: {
+    retry_after?: number;
+  };
 }
 
 export default function RegisterPage() {

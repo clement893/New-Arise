@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '@/lib/api/client';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { Button, Card, Alert, Badge, Container } from '@/components/ui';
+import { Button, Card, Alert, Badge } from '@/components/ui';
 import { getErrorMessage } from '@/lib/errors';
-import { RefreshCw, CheckCircle, XCircle, AlertTriangle, Download, FileText } from 'lucide-react';
+import { RefreshCw, CheckCircle, Download, FileText } from 'lucide-react';
 import { PageHeader, PageContainer } from '@/components/layout';
 
 interface ConnectionStatus {
