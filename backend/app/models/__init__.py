@@ -35,6 +35,7 @@ from app.models.support_ticket import SupportTicket, TicketMessage, TicketStatus
 from app.models.theme import Theme
 from app.models.theme_font import ThemeFont
 from app.models.notification import Notification, NotificationType
+from app.models.report import Report
 from app.core.security_audit import SecurityAuditLog
 
 __all__ = [
@@ -106,6 +107,7 @@ __all__ = [
     "ThemeFont",
     "Notification",
     "NotificationType",
+    "Report",
     "SecurityAuditLog",
 ]
 

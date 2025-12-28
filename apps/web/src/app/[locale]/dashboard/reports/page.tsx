@@ -22,7 +22,8 @@ import { PageHeader, PageContainer, Section } from '@/components/layout';
 import { Loading, Alert, Tabs, TabList, Tab, TabPanels, TabPanel } from '@/components/ui';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { logger } from '@/lib/logger';
-import { getErrorMessage } from '@/lib/errors';
+import { handleApiError } from '@/lib/errors';
+import { reportsAPI } from '@/lib/api/reports';
 
 export default function DashboardReportsPage() {
   const router = useRouter();
@@ -48,17 +49,27 @@ export default function DashboardReportsPage() {
       setIsLoading(true);
       setError(null);
       
-      // TODO: Replace with actual reports API endpoint when available
-      // const response = await apiClient.get('/v1/reports');
-      // if (response.data) {
-      //   setSavedReports(response.data);
-      // }
+      const reports = await reportsAPI.list();
       
-      // For now, use empty array
-      setSavedReports([]);
+      // Convert API reports to ReportData format
+      const convertedReports: ReportData[] = reports.map((report) => ({
+        id: report.id.toString(),
+        name: report.name,
+        description: report.description,
+        dateRange: report.config.dateRange as { start: string; end: string },
+        format: report.config.format as 'table' | 'chart' | 'both',
+        data: report.data || {
+          table: [],
+          chart: [],
+        },
+        generatedAt: report.generated_at,
+      }));
+      
+      setSavedReports(convertedReports);
     } catch (error: unknown) {
       logger.error('Failed to load reports', error instanceof Error ? error : new Error(String(error)));
-      setError(t('errors.loadFailed') || 'Failed to load reports. Please try again.');
+      const appError = handleApiError(error);
+      setError(appError.message || t('errors.loadFailed') || 'Failed to load reports. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -68,36 +79,39 @@ export default function DashboardReportsPage() {
     try {
       setError(null);
       
-      // TODO: Replace with actual report save API endpoint when available
-      // const response = await apiClient.post('/v1/reports', config);
-      // if (response.data) {
-      //   setSavedReports([...savedReports, response.data]);
-      //   logger.info('Report saved successfully');
-      // }
-      
-      logger.info('Report save requested', { config });
-      
-      // For now, create a mock report
-      const mockReport: ReportData = {
-        id: `report-${Date.now()}`,
+      const report = await reportsAPI.create({
         name: config.name,
         description: config.description,
-        dateRange: config.dateRange,
-        format: config.format,
+        config: config as any,
         data: {
           table: [],
           chart: [],
         },
-        generatedAt: new Date().toISOString(),
+      });
+      
+      logger.info('Report saved successfully', { reportId: report.id });
+      
+      // Convert API report to ReportData format
+      const reportData: ReportData = {
+        id: report.id.toString(),
+        name: report.name,
+        description: report.description,
+        dateRange: report.config.dateRange as { start: string; end: string },
+        format: report.config.format as 'table' | 'chart' | 'both',
+        data: report.data || {
+          table: [],
+          chart: [],
+        },
+        generatedAt: report.generated_at,
       };
       
-      setSavedReports([...savedReports, mockReport]);
+      setSavedReports([...savedReports, reportData]);
       setActiveTab('viewer');
-      setSelectedReport(mockReport);
+      setSelectedReport(reportData);
     } catch (error: unknown) {
       logger.error('Failed to save report', error instanceof Error ? error : new Error(String(error)));
-      const errorMessage = getErrorMessage(error) || t('errors.saveFailed') || 'Failed to save report. Please try again.';
-      setError(errorMessage);
+      const appError = handleApiError(error);
+      setError(appError.message || t('errors.saveFailed') || 'Failed to save report. Please try again.');
       throw error;
     }
   };
@@ -112,15 +126,39 @@ export default function DashboardReportsPage() {
     
     try {
       setIsLoading(true);
-      // TODO: Replace with actual report refresh API endpoint when available
-      // const response = await apiClient.post(`/v1/reports/${selectedReport.id}/refresh`);
-      // if (response.data) {
-      //   setSelectedReport(response.data);
-      // }
+      setError(null);
       
-      logger.info('Report refresh requested', { reportId: selectedReport.id });
-    } catch (error) {
+      const reportId = parseInt(selectedReport.id, 10);
+      if (isNaN(reportId)) {
+        throw new Error('Invalid report ID');
+      }
+      
+      const report = await reportsAPI.refresh(reportId);
+      
+      // Convert API report to ReportData format
+      const reportData: ReportData = {
+        id: report.id.toString(),
+        name: report.name,
+        description: report.description,
+        dateRange: report.config.dateRange as { start: string; end: string },
+        format: report.config.format as 'table' | 'chart' | 'both',
+        data: report.data || {
+          table: [],
+          chart: [],
+        },
+        generatedAt: report.generated_at,
+      };
+      
+      setSelectedReport(reportData);
+      
+      // Update in savedReports list
+      setSavedReports(savedReports.map(r => r.id === reportData.id ? reportData : r));
+      
+      logger.info('Report refreshed successfully', { reportId: report.id });
+    } catch (error: unknown) {
       logger.error('Failed to refresh report', error instanceof Error ? error : new Error(String(error)));
+      const appError = handleApiError(error);
+      setError(appError.message || 'Failed to refresh report. Please try again.');
     } finally {
       setIsLoading(false);
     }
