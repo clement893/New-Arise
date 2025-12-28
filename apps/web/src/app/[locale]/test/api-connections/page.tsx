@@ -565,14 +565,24 @@ function APIConnectionTestContent() {
 
         {report && (
           <div className="space-y-4">
-            {report.reportPath && (
-              <Alert variant="success">
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Report generated successfully: {report.reportPath}
+            {!report.success && report.error ? (
+              <Alert variant="error">
+                <div>
+                  <p className="font-medium">{report.error || 'Report generation failed'}</p>
+                  {report.message && <p className="text-sm mt-1">{report.message}</p>}
+                  {report.hint && <p className="text-sm mt-1 text-gray-600">{report.hint}</p>}
+                </div>
               </Alert>
-            )}
+            ) : (
+              <>
+                {report.reportPath && (
+                  <Alert variant="success">
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Report generated successfully: {report.reportPath}
+                  </Alert>
+                )}
 
-            {report.reportContent && (
+                {report.reportContent && (
               <div className="space-y-4">
                 <div>
                   <h3 className="font-medium mb-2">Report Preview</h3>
