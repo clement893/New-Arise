@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { AxiosError } from 'axios';
 import { authAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store';
+import { transformApiUserToStoreUser } from '@/lib/auth/userTransform';
 import { handleApiError } from '@/lib/errors/api';
 import { Input, Button, Alert, Card, Container } from '@/components/ui';
 
@@ -13,9 +14,6 @@ interface ApiErrorResponse {
   detail?: string;
   message?: string;
   retry_after?: number;
-  error?: {
-    retry_after?: number;
-  };
 }
 
 export default function RegisterPage() {
@@ -61,27 +59,12 @@ export default function RegisterPage() {
     try {
       await authAPI.register(email, password, name);
       const loginResponse = await authAPI.login(email, password);
-      const { access_token, user } = loginResponse.data;
+      const { access_token, refresh_token, user } = loginResponse.data;
 
-      // Adapt user data to match store format
-      const userForStore = {
-        id: String(user.id),
-        email: user.email,
-        name: user.first_name && user.last_name 
-          ? `${user.first_name} ${user.last_name}` 
-          : user.first_name || user.last_name || user.email,
-        is_active: user.is_active ?? true,
-        is_verified: false, // Default value, update if available
-        is_admin: false, // Default value, update if available
-        created_at: user.created_at,
-        updated_at: user.updated_at,
-      };
+      // Transform user data to store format
+      const userForStore = transformApiUserToStoreUser(user);
 
-      await login(userForStore, access_token);
-      
-      // Small delay to ensure store is updated and persisted
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
+      login(userForStore, access_token, refresh_token);
       router.push('/dashboard');
     } catch (err) {
       const axiosError = err as AxiosError<ApiErrorResponse>;
