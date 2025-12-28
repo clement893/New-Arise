@@ -1,7 +1,6 @@
 /**
  * Simple Dark Mode Hook
- * Replaces ThemeContext with a simpler, direct approach
- * Reads from DOM (set by inline script) and localStorage
+ * Dark mode is only applied when user explicitly toggles it - no auto-application on mount
  */
 
 'use client';
@@ -19,11 +18,11 @@ function getIsDark(): boolean {
 }
 
 /**
- * Get current theme mode from localStorage
+ * Get current theme mode from localStorage (user preference)
  */
 function getThemeMode(): ThemeMode {
-  if (typeof window === 'undefined') return 'system';
-  return (localStorage.getItem('theme') as ThemeMode | null) || 'system';
+  if (typeof window === 'undefined') return 'light'; // Default to light, not system
+  return (localStorage.getItem('theme') as ThemeMode | null) || 'light';
 }
 
 /**
@@ -48,6 +47,9 @@ function applyThemeClass(isDark: boolean) {
 /**
  * Simple Dark Mode Hook
  * 
+ * IMPORTANT: Dark mode is NOT auto-applied on mount. User must explicitly toggle it.
+ * This prevents color flashes and ensures theme colors load first.
+ * 
  * @returns { isDark: boolean, toggle: () => void, setMode: (mode: ThemeMode) => void, mode: ThemeMode }
  * 
  * @example
@@ -62,10 +64,17 @@ function applyThemeClass(isDark: boolean) {
  * ```
  */
 export function useDarkMode() {
-  const [isDark, setIsDark] = useState(() => getIsDark());
+  // Start with light mode (no dark class) - user must explicitly toggle
+  const [isDark, setIsDark] = useState(() => {
+    // Only check DOM state, don't auto-apply from localStorage
+    if (typeof window === 'undefined') return false;
+    return document.documentElement.classList.contains('dark');
+  });
+  
+  // Get mode from localStorage but don't auto-apply
   const [mode, setModeState] = useState<ThemeMode>(() => getThemeMode());
 
-  // Sync with DOM changes (e.g., from inline script or external changes)
+  // Sync with DOM changes (e.g., from external changes)
   useEffect(() => {
     const root = document.documentElement;
     const observer = new MutationObserver(() => {
@@ -83,7 +92,7 @@ export function useDarkMode() {
     return () => observer.disconnect();
   }, [isDark]);
 
-  // Listen to system preference changes (only if mode is 'system')
+  // Listen to system preference changes (only if mode is 'system' AND user has explicitly set it)
   useEffect(() => {
     if (mode !== 'system') return;
 

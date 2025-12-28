@@ -39,7 +39,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: 'var(--color-primary-500)',
+  // themeColor will be set dynamically by theme system, using a neutral fallback here
+  themeColor: '#2563eb', // Fallback - will be overridden by theme when loaded
 };
 
 export function generateStaticParams() {
@@ -76,161 +77,25 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} className={inter.variable} data-api-url={apiUrl} suppressHydrationWarning>
       <head>
-        {/* Critical theme styles - MUST be first to prevent color flash */}
+        {/* Minimal CSS structure - no default colors. Theme colors come from API via GlobalThemeProvider */}
         <style
           dangerouslySetInnerHTML={{
             __html: `
+              /* Base structure - colors will be applied by GlobalThemeProvider from API theme */
               :root {
-                /* Apply default theme colors immediately - prevents flash */
-                --color-primary-50: #e9effd;
-                --color-primary-100: #d3e0fb;
-                --color-primary-200: #a8c1f7;
-                --color-primary-300: #7ca1f3;
-                --color-primary-400: #5182ef;
-                --color-primary-500: #2563eb;
-                --color-primary-600: #1e4fbc;
-                --color-primary-700: #163b8d;
-                --color-primary-800: #0f285e;
-                --color-primary-900: #07142f;
-                --color-primary-950: #040a17;
-                --color-primary-rgb: 37, 99, 235;
-                
-                --color-secondary-50: #eff0fe;
-                --color-secondary-100: #e0e0fc;
-                --color-secondary-200: #c1c2f9;
-                --color-secondary-300: #a1a3f7;
-                --color-secondary-400: #8285f4;
-                --color-secondary-500: #6366f1;
-                --color-secondary-600: #4f52c1;
-                --color-secondary-700: #3b3d91;
-                --color-secondary-800: #282960;
-                --color-secondary-900: #141430;
-                --color-secondary-950: #0a0a18;
-                --color-secondary-rgb: 99, 102, 241;
-                
-                --color-info-50: #ecfeff;
-                --color-info-100: #cffafe;
-                --color-info-200: #a5f3fc;
-                --color-info-300: #67e8f9;
-                --color-info-400: #22d3ee;
-                --color-info-500: #0891b2;
-                --color-info-600: #0e7490;
-                --color-info-700: #155e75;
-                --color-info-800: #164e63;
-                --color-info-900: #083344;
-                --color-info-950: #041a22;
-                
-                --color-success-50: #ecfdf5;
-                --color-success-100: #d1fae5;
-                --color-success-200: #a7f3d0;
-                --color-success-300: #6ee7b7;
-                --color-success-400: #34d399;
-                --color-success-500: #059669;
-                --color-success-600: #047857;
-                --color-success-700: #065f46;
-                --color-success-800: #064e3b;
-                --color-success-900: #022c22;
-                --color-success-950: #011611;
-                --color-success-rgb: 5, 150, 105;
-                
-                --color-danger-50: #fef2f2;
-                --color-danger-100: #fee2e2;
-                --color-danger-200: #fecaca;
-                --color-danger-300: #fca5a5;
-                --color-danger-400: #f87171;
-                --color-danger-500: #dc2626;
-                --color-danger-600: #b91c1c;
-                --color-danger-700: #991b1b;
-                --color-danger-800: #7f1d1d;
-                --color-danger-900: #450a0a;
-                --color-danger-950: #220505;
-                --color-danger-rgb: 220, 38, 38;
-                
-                --color-warning-50: #fffbeb;
-                --color-warning-100: #fef3c7;
-                --color-warning-200: #fde68a;
-                --color-warning-300: #fcd34d;
-                --color-warning-400: #fbbf24;
-                --color-warning-500: #d97706;
-                --color-warning-600: #b45309;
-                --color-warning-700: #92400e;
-                --color-warning-800: #78350f;
-                --color-warning-900: #451a03;
-                --color-warning-950: #230d02;
-                
+                /* Font and layout variables only - no colors */
                 --font-family: Inter, system-ui, -apple-system, sans-serif;
                 --font-family-heading: Inter, system-ui, -apple-system, sans-serif;
                 --font-family-subheading: Inter, system-ui, -apple-system, sans-serif;
                 --border-radius: 8px;
-                
-                /* Theme color variables - Default values to prevent flash */
-                --color-background: #ffffff;
-                --color-foreground: #0f172a;
-                --color-muted: #f1f5f9;
-                --color-muted-foreground: #64748b;
-                --color-border: #e2e8f0;
-                --color-input: #ffffff;
-                --color-ring: #2563eb;
               }
               
-              /* Dark mode styles - Use .dark class instead of @media for user preference */
-              /* This ensures styles apply when user chooses dark mode, not just system preference */
-              /* Match dark-mode-config.ts for consistency */
-              .dark {
-                --color-background: #0f172a;  /* Slate 900 - matches dark-mode-config.ts */
-                --color-foreground: #f8fafc;  /* Slate 50 - matches dark-mode-config.ts */
-                --color-muted: #1e293b;  /* Slate 800 - matches dark-mode-config.ts */
-                --color-muted-foreground: #cbd5e1;  /* Slate 300 - matches dark-mode-config.ts */
-                --color-border: #334155;  /* Slate 700 - matches dark-mode-config.ts */
-                --color-input: #1e293b;  /* Slate 800 - matches dark-mode-config.ts */
-                --color-ring: #60a5fa;  /* Blue 400 - lighter for dark mode */
-              }
-              
-              /* Apply background colors immediately to prevent flash */
-              /* Use CSS variables to avoid conflicts with React hydration */
-              /* Body styles are set via inline style prop in layout.tsx, this CSS ensures fallback */
+              /* Body uses CSS variables that will be set by theme system */
               body {
-                background-color: var(--color-background, #ffffff);
-                color: var(--color-foreground, #0f172a);
+                background-color: var(--color-background);
+                color: var(--color-foreground);
+                font-family: var(--font-family, Inter, system-ui, sans-serif);
               }
-              
-              /* Dark mode body styles - Use .dark class instead of @media */
-              .dark body {
-                background-color: var(--color-background, #0f172a);
-                color: var(--color-foreground, #f8fafc);
-              }
-            `,
-          }}
-        />
-        
-        {/* Apply dark class immediately from localStorage to prevent flash */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  const theme = localStorage.getItem('theme');
-                  const root = document.documentElement;
-                  
-                  // Remove any existing theme classes
-                  root.classList.remove('light', 'dark');
-                  
-                  // Determine resolved theme
-                  let resolved = 'light';
-                  if (theme === 'dark') {
-                    resolved = 'dark';
-                  } else if (theme === 'system' || !theme) {
-                    // Check system preference
-                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                    resolved = prefersDark ? 'dark' : 'light';
-                  }
-                  
-                  // Apply resolved theme class immediately
-                  root.classList.add(resolved);
-                } catch (e) {
-                  // Silently fail - ThemeProvider will handle it
-                }
-              })();
             `,
           }}
         />
