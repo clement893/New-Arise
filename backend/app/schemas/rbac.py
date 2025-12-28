@@ -108,3 +108,28 @@ class RoleListResponse(BaseModel):
     roles: List[RoleResponse]
     total: int
 
+
+class UserPermissionCreate(BaseModel):
+    """Schema for creating a custom user permission"""
+    permission_id: int = Field(..., description="ID of the permission to assign")
+
+
+class UserPermissionResponse(BaseModel):
+    """Schema for user permission response"""
+    id: int
+    user_id: int
+    permission_id: int
+    permission: PermissionResponse
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class BulkRoleUpdate(BaseModel):
+    """Schema for bulk updating user roles"""
+    role_ids: List[int] = Field(..., description="List of role IDs to assign to the user")
+
+
+class BulkPermissionUpdate(BaseModel):
+    """Schema for bulk updating role permissions"""
+    permission_ids: List[int] = Field(..., description="List of permission IDs to assign to the role")

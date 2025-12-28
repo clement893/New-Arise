@@ -25,6 +25,10 @@ from app.schemas.rbac import (
     PermissionCheckRequest,
     PermissionCheckResponse,
     RoleListResponse,
+    UserPermissionCreate,
+    UserPermissionResponse,
+    BulkRoleUpdate,
+    BulkPermissionUpdate,
 )
 from app.services.rbac_service import RBACService
 
@@ -466,7 +470,11 @@ async def get_user_permissions(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Get all permissions for a user"""
+    """
+    Get all permissions for a user (from roles + custom permissions).
+    
+    This endpoint now includes custom permissions in addition to role-based permissions.
+    """
     # Users can view their own permissions, admins can view anyone's
     if user_id != current_user.id:
         await require_permission("users:read", current_user, db, request)
