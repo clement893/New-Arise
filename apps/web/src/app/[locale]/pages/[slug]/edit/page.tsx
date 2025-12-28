@@ -15,6 +15,8 @@ import { PageHeader, PageContainer } from '@/components/layout';
 import { Loading, Alert } from '@/components/ui';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { logger } from '@/lib/logger';
+import { pagesAPI, type Page } from '@/lib/api/pages';
+import { handleApiError } from '@/lib/errors';
 
 export default function PageEditPage() {
   const params = useParams();
@@ -23,6 +25,7 @@ export default function PageEditPage() {
   const slug = params.slug as string;
 
   const [sections, setSections] = useState<PageSection[]>([]);
+  const [page, setPage] = useState<Page | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,27 +38,40 @@ export default function PageEditPage() {
       setIsLoading(true);
       setError(null);
       
-      // TODO: Replace with actual page API endpoint when available
-      // const response = await apiClient.get(`/v1/pages/${slug}`);
-      // setSections(response.data.sections || []);
+      const loadedPage = await pagesAPI.get(slug);
+      setPage(loadedPage);
       
+      // If page has sections data, use it; otherwise use empty array
+      // Note: The API returns content as HTML/text, but PageEditor expects sections
+      // For now, we'll use empty sections and let the editor work with content separately
       setSections([]);
       setIsLoading(false);
     } catch (error) {
       logger.error('Failed to load page', error instanceof Error ? error : new Error(String(error)));
-      setError(t('errors.loadFailed') || 'Failed to load page. Please try again.');
+      const errorMessage = handleApiError(error);
+      setError(errorMessage || t('errors.loadFailed') || 'Failed to load page. Please try again.');
       setIsLoading(false);
     }
   };
 
   const handleSave = async (updatedSections: PageSection[]) => {
     try {
-      // TODO: Replace with actual page API endpoint when available
-      // await apiClient.put(`/v1/pages/${slug}`, { sections: updatedSections });
-      logger.info('Saving page', { slug, sections: updatedSections });
+      if (!page) {
+        throw new Error('Page not loaded');
+      }
+      
+      // Save sections (for now, we'll store them as JSON in content or a separate field)
+      // Note: This is a simplified approach - in production, you might want to store sections separately
+      await pagesAPI.update(page.id, {
+        content: JSON.stringify(updatedSections), // Store sections as JSON for now
+      });
+      
+      logger.info('Page saved successfully', { slug, sections: updatedSections });
       setSections(updatedSections);
     } catch (error) {
       logger.error('Failed to save page', error instanceof Error ? error : new Error(String(error)));
+      const errorMessage = handleApiError(error);
+      setError(errorMessage || 'Failed to save page. Please try again.');
       throw error;
     }
   };

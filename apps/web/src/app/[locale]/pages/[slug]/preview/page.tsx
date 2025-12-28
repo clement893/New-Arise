@@ -15,6 +15,8 @@ import { PageHeader, PageContainer } from '@/components/layout';
 import { Loading, Alert } from '@/components/ui';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { logger } from '@/lib/logger';
+import { pagesAPI } from '@/lib/api/pages';
+import { handleApiError } from '@/lib/errors';
 
 export default function PagePreviewPage() {
   const params = useParams();
@@ -34,15 +36,26 @@ export default function PagePreviewPage() {
       setIsLoading(true);
       setError(null);
       
-      // TODO: Replace with actual page API endpoint when available
-      // const response = await apiClient.get(`/v1/pages/${slug}`);
-      // setSections(response.data.sections || []);
+      const page = await pagesAPI.get(slug);
       
-      setSections([]);
+      // Try to parse sections from content if it's JSON, otherwise use empty array
+      try {
+        const parsedSections = JSON.parse(page.content) as PageSection[];
+        if (Array.isArray(parsedSections)) {
+          setSections(parsedSections);
+        } else {
+          setSections([]);
+        }
+      } catch {
+        // Content is not JSON sections, use empty array
+        setSections([]);
+      }
+      
       setIsLoading(false);
     } catch (error) {
       logger.error('Failed to load page', error instanceof Error ? error : new Error(String(error)));
-      setError(t('errors.loadFailed') || 'Failed to load page. Please try again.');
+      const errorMessage = handleApiError(error);
+      setError(errorMessage || t('errors.loadFailed') || 'Failed to load page. Please try again.');
       setIsLoading(false);
     }
   };

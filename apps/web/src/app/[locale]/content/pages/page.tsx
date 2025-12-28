@@ -16,6 +16,8 @@ import { PageHeader, PageContainer } from '@/components/layout';
 import { Loading, Alert } from '@/components/ui';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { logger } from '@/lib/logger';
+import { pagesAPI } from '@/lib/api/pages';
+import { handleApiError } from '@/lib/errors';
 
 export default function PagesManagementPage() {
   const router = useRouter();
@@ -38,46 +40,62 @@ export default function PagesManagementPage() {
     try {
       setIsLoading(true);
       setError(null);
-      // TODO: Load pages from API when backend endpoints are ready
-      // For now, use empty array
-      setPages([]);
+      const loadedPages = await pagesAPI.list();
+      setPages(loadedPages);
       setIsLoading(false);
     } catch (error) {
       logger.error('Failed to load pages', error instanceof Error ? error : new Error(String(error)));
-      setError(t('errors.loadFailed') || 'Failed to load pages. Please try again.');
+      const errorMessage = handleApiError(error);
+      setError(errorMessage || t('errors.loadFailed') || 'Failed to load pages. Please try again.');
       setIsLoading(false);
     }
   };
 
   const handlePageCreate = async (pageData: Omit<Page, 'id' | 'created_at' | 'updated_at'>) => {
     try {
-      // TODO: Create page via API
-      logger.info('Creating page', pageData);
+      await pagesAPI.create({
+        slug: pageData.slug,
+        title: pageData.title,
+        content: pageData.content,
+        status: pageData.status,
+      });
+      logger.info('Page created successfully', pageData);
       await loadPages();
     } catch (error) {
       logger.error('Failed to create page', error instanceof Error ? error : new Error(String(error)));
+      const errorMessage = handleApiError(error);
+      setError(errorMessage || 'Failed to create page. Please try again.');
       throw error;
     }
   };
 
   const handlePageUpdate = async (id: number, pageData: Partial<Page>) => {
     try {
-      // TODO: Update page via API
-      logger.info('Updating page', { id, pageData });
+      await pagesAPI.update(id, {
+        slug: pageData.slug,
+        title: pageData.title,
+        content: pageData.content,
+        status: pageData.status,
+      });
+      logger.info('Page updated successfully', { id, pageData });
       await loadPages();
     } catch (error) {
       logger.error('Failed to update page', error instanceof Error ? error : new Error(String(error)));
+      const errorMessage = handleApiError(error);
+      setError(errorMessage || 'Failed to update page. Please try again.');
       throw error;
     }
   };
 
   const handlePageDelete = async (id: number) => {
     try {
-      // TODO: Delete page via API
-      logger.info('Deleting page', { id });
+      await pagesAPI.delete(id);
+      logger.info('Page deleted successfully', { id });
       await loadPages();
     } catch (error) {
       logger.error('Failed to delete page', error instanceof Error ? error : new Error(String(error)));
+      const errorMessage = handleApiError(error);
+      setError(errorMessage || 'Failed to delete page. Please try again.');
       throw error;
     }
   };
