@@ -8,6 +8,9 @@ Supports:
 - Role-based permissions (e.g., "admin", "user")
 - Custom permission checks
 
+NOTE: This module is being refactored to use RBACService (database-based) instead of hardcoded permissions.
+The async functions use RBACService, while sync functions are kept for backward compatibility.
+
 @example
 ```python
 from app.core.permissions import require_permission, Permission
@@ -16,7 +19,7 @@ from app.core.permissions import require_permission, Permission
 @require_permission("read:project")
 async def get_project(project_id: str, current_user: User = Depends(get_current_user)):
     # Check if user can read this specific project
-    if not has_resource_permission(current_user, "read:project", project_id):
+    if not await has_resource_permission(current_user, "read:project", project_id, db):
         raise HTTPException(403, "Access denied")
     return project
 ```
@@ -32,6 +35,7 @@ from app.models.user import User
 from app.models.role import Role, UserRole
 from app.core.database import get_db
 from app.dependencies import get_current_user
+from app.services.rbac_service import RBACService
 
 
 class Permission:
@@ -96,11 +100,12 @@ class Permission:
     INVENTORY_MANAGE_STOCK = "inventory:manage:stock"
 
 
-def get_user_permissions(user: User, db: AsyncSession) -> List[str]:
+async def get_user_permissions(user: User, db: AsyncSession) -> List[str]:
     """
-    Get all permissions for a user.
+    Get all permissions for a user (async version using RBACService).
     
-    Combines role-based permissions with user-specific permissions.
+    Combines role-based permissions with user-specific custom permissions.
+    Uses RBACService to fetch permissions from database.
     
     @param user - User object
     @param db - Database session
@@ -112,65 +117,51 @@ def get_user_permissions(user: User, db: AsyncSession) -> List[str]:
     # ["read:project", "update:project", "create:project"]
     ```
     """
-    permissions = []
-    
-    # Check if user has SuperAdmin role (has all permissions)
-    # SuperAdmin role grants admin:* permission
-    # 
-    # IMPORTANT: Roles must be loaded via relationship (e.g., selectinload(User.roles))
-    # when querying users to ensure proper permission checking.
-    if hasattr(user, 'roles') and user.roles:
-        for user_role in user.roles:
-            # UserRole has a 'role' relationship to Role
-            if hasattr(user_role, 'role') and user_role.role:
-                role = user_role.role
-                if hasattr(role, 'slug') and role.slug == "superadmin":
-                    if hasattr(role, 'is_active') and role.is_active:
-                        permissions.append(Permission.ADMIN_ALL)
-                        return permissions
-    
-    # Get role-based permissions from user's roles
-    if hasattr(user, 'roles') and user.roles:
-        for user_role in user.roles:
-            if hasattr(user_role, 'role') and user_role.role:
-                role = user_role.role
-                # Check by slug first (more reliable), then by name
-                if hasattr(role, 'slug'):
-                    permissions.extend(get_role_permissions(role.slug))
-                elif hasattr(role, 'name'):
-                    permissions.extend(get_role_permissions(role.name))
-    
-    # Default user permissions
-    permissions.extend([
-        Permission.READ_USER,
-        Permission.UPDATE_USER,
-        Permission.CREATE_PROJECT,
-        Permission.READ_PROJECT,
-        Permission.UPDATE_PROJECT,
-        Permission.DELETE_PROJECT,
-        Permission.LIST_PROJECTS,
-        Permission.CREATE_TEAM,
-        Permission.READ_TEAM,
-        Permission.UPDATE_TEAM,
-        Permission.READ_BILLING,
-        Permission.UPDATE_BILLING,
-    ])
-    
-    return list(set(permissions))  # Remove duplicates
+    rbac_service = RBACService(db)
+    permissions_set = await rbac_service.get_user_permissions(user.id)
+    return sorted(list(permissions_set))
 
 
-def get_role_permissions(role_name: str) -> List[str]:
+async def get_role_permissions(role_slug: str, db: AsyncSession) -> List[str]:
     """
-    Get permissions for a role.
+    Get permissions for a role from database (async version using RBACService).
     
-    @param role_name - Name of the role (or slug)
+    NOTE: This function now queries the database instead of using hardcoded permissions.
+    For backward compatibility, you can still use the hardcoded version via get_role_permissions_hardcoded().
+    
+    @param role_slug - Slug of the role (e.g., "admin", "user")
+    @param db - Database session
     @returns List of permission strings
     
     @example
     ```python
-    permissions = get_role_permissions("admin")
+    permissions = await get_role_permissions("admin", db)
     # ["admin:*", "read:user", "update:user", ...]
     ```
+    """
+    rbac_service = RBACService(db)
+    # First, get the role by slug
+    from app.models import Role
+    result = await db.execute(select(Role).where(Role.slug == role_slug))
+    role = result.scalar_one_or_none()
+    
+    if not role:
+        return []
+    
+    # Get permissions for this role
+    permissions = await rbac_service.get_role_permissions(role.id)
+    return [p.name for p in permissions]
+
+
+def get_role_permissions_hardcoded(role_name: str) -> List[str]:
+    """
+    Get permissions for a role (hardcoded version - DEPRECATED).
+    
+    This function is kept for backward compatibility and seeding purposes.
+    Use get_role_permissions() for database-based permissions.
+    
+    @param role_name - Name of the role (or slug)
+    @returns List of permission strings
     """
     role_permissions = {
         "superadmin": [
@@ -227,9 +218,9 @@ def get_role_permissions(role_name: str) -> List[str]:
     return role_permissions.get(role_name.lower(), [])
 
 
-def has_permission(user: User, permission: str, db: AsyncSession) -> bool:
+async def has_permission(user: User, permission: str, db: AsyncSession) -> bool:
     """
-    Check if user has a specific permission.
+    Check if user has a specific permission (async version using RBACService).
     
     @param user - User object
     @param permission - Permission string (e.g., "read:project")
@@ -243,25 +234,11 @@ def has_permission(user: User, permission: str, db: AsyncSession) -> bool:
         pass
     ```
     """
-    user_permissions = get_user_permissions(user, db)
-    
-    # Check exact permission
-    if permission in user_permissions:
-        return True
-    
-    # Check wildcard permissions
-    if Permission.ADMIN_ALL in user_permissions:
-        return True
-    
-    # Check resource-level permissions (e.g., "read:project:*")
-    resource_base = permission.split(":")[0]  # "read"
-    if f"{resource_base}:*" in user_permissions:
-        return True
-    
-    return False
+    rbac_service = RBACService(db)
+    return await rbac_service.has_permission(user.id, permission)
 
 
-def has_resource_permission(
+async def has_resource_permission(
     user: User,
     permission: str,
     resource_id: str,
@@ -299,7 +276,7 @@ def has_resource_permission(
     ```
     """
     # Check global permission first
-    if has_permission(user, permission, db):
+    if await has_permission(user, permission, db):
         return True
     
     # Check resource ownership if provided
@@ -347,7 +324,7 @@ def require_permission(permission: str):
                 # Try to get db from dependencies
                 db = kwargs.get('db_session') or Depends(get_db)
             
-            if not has_permission(current_user, permission, db):
+            if not await has_permission(current_user, permission, db):
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail=f"Permission denied: {permission}"
@@ -400,7 +377,7 @@ def require_resource_permission(
                     detail=f"Resource ID parameter '{resource_id_param}' not found"
                 )
             
-            if not has_resource_permission(
+            if not await has_resource_permission(
                 current_user,
                 permission,
                 resource_id,
@@ -441,7 +418,7 @@ async def check_permission_dependency(
         pass
     ```
     """
-    if not has_permission(current_user, permission, db):
+    if not await has_permission(current_user, permission, db):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Permission denied: {permission}"
