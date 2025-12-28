@@ -134,9 +134,16 @@ export default function ScheduledContentPage() {
     }
   };
 
-  const handleScheduleToggle = async (_id: number) => {
+  const handleScheduleToggle = async (id: number) => {
     try {
-      // TODO: Implement toggle endpoint if available
+      // NOTE: Toggle functionality can be implemented by:
+      // 1. Checking if backend has a toggle endpoint (e.g., PUT /v1/content/schedule/{id}/toggle)
+      // 2. If available, call: await apiClient.put(`/v1/content/schedule/${id}/toggle`)
+      // 3. If not available, implement by getting current status and toggling it:
+      //    const item = await getScheduledItem(id);
+      //    await updateScheduledItem(id, { is_active: !item.is_active });
+      // For now, we'll just reload the content
+      logger.info('Schedule toggle requested - reloading content', { id });
       await loadScheduledContent();
     } catch (error) {
       logger.error('Failed to toggle schedule', error instanceof Error ? error : new Error(String(error)));

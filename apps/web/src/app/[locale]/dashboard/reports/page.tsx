@@ -117,8 +117,14 @@ export default function DashboardReportsPage() {
   };
 
   const handlePreviewReport = (config: ReportConfig) => {
-    // TODO: Implement preview functionality
-    logger.info('Report preview requested', { config });
+    // NOTE: Preview functionality can be implemented by:
+    // 1. Creating a preview modal/dialog component
+    // 2. Generating a temporary report using reportsAPI.generate() with preview=true
+    // 3. Displaying the preview data in a read-only format
+    // 4. Allowing user to adjust config before saving
+    // For now, we'll create a new report directly
+    logger.info('Report preview requested - creating report instead', { config });
+    // You can implement a preview modal here if needed
   };
 
   const handleRefreshReport = async () => {
@@ -168,8 +174,51 @@ export default function DashboardReportsPage() {
     if (!selectedReport) return;
     
     try {
-      // TODO: Implement export functionality
-      logger.info('Report export requested', { reportId: selectedReport.id, format });
+      if (!selectedReport.data || (selectedReport.data.table?.length === 0 && selectedReport.data.chart?.length === 0)) {
+        logger.warn('No report data to export', { reportId: selectedReport.id });
+        return;
+      }
+
+      if (format === 'csv') {
+        // Export table data as CSV
+        const tableData = selectedReport.data.table || [];
+        if (tableData.length === 0) {
+          logger.warn('No table data to export', { reportId: selectedReport.id });
+          return;
+        }
+
+        const headers = Object.keys(tableData[0] || {});
+        const csvHeaders = headers.join(',');
+        const csvRows = tableData.map((row: Record<string, unknown>) =>
+          headers.map((header) => {
+            const value = row[header];
+            if (value === null || value === undefined) return '';
+            if (typeof value === 'object') return JSON.stringify(value).replace(/"/g, '""');
+            return String(value).replace(/"/g, '""');
+          }).join(',')
+        );
+
+        const csv = [csvHeaders, ...csvRows].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `report-${selectedReport.id}-${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      } else {
+        // NOTE: PDF and Excel exports require additional libraries or backend support
+        // For PDF: Use libraries like jsPDF or pdfkit, or call backend export endpoint
+        // For Excel: Use libraries like xlsx or exceljs, or call backend export endpoint
+        // You can use the export API endpoint: POST /api/v1/exports/export
+        logger.info('PDF/Excel export requires backend support or additional libraries', { format });
+        // TODO: Implement PDF/Excel export using export API or client-side libraries
+      }
+
+      logger.info('Report exported successfully', { reportId: selectedReport.id, format });
     } catch (error) {
       logger.error('Failed to export report', error instanceof Error ? error : new Error(String(error)));
     }

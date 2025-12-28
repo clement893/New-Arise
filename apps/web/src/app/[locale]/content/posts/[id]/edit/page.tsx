@@ -18,6 +18,8 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { logger } from '@/lib/logger';
 import { handleApiError } from '@/lib/errors';
 import { postsAPI } from '@/lib/api/posts';
+import { apiClient } from '@/lib/api/client';
+import { extractApiData } from '@/lib/api/utils';
 import { Link } from '@/i18n/routing';
 import type { BlogPost } from '@/components/content';
 
@@ -41,6 +43,8 @@ export default function BlogPostEditPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState(false);
+  const [categories, setCategories] = useState<Array<{ id: number; name: string; slug: string }>>([]);
+  const [tags, setTags] = useState<string[]>([]);
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -53,6 +57,7 @@ export default function BlogPostEditPage() {
     } else {
       setIsLoading(false);
     }
+    loadCategories();
   }, [isAuthenticated, router, postId, isNew]);
 
   const loadPost = useCallback(async () => {
@@ -79,6 +84,9 @@ export default function BlogPostEditPage() {
         meta_description: postData.meta_description,
         meta_keywords: postData.meta_keywords,
       });
+      if (postData.tags) {
+        setTags(Array.isArray(postData.tags) ? postData.tags : []);
+      }
     } catch (error: unknown) {
       logger.error('Failed to load blog post', error instanceof Error ? error : new Error(String(error)));
       const appError = handleApiError(error);
@@ -87,6 +95,19 @@ export default function BlogPostEditPage() {
       setIsLoading(false);
     }
   }, [postId, isNew, t]);
+
+  const loadCategories = useCallback(async () => {
+    try {
+      const response = await apiClient.get<Array<{ id: number; name: string; slug: string }>>('/v1/tags/categories/tree');
+      const categoriesData = extractApiData<Array<{ id: number; name: string; slug: string }>>(
+        response as unknown as Array<{ id: number; name: string; slug: string }> | import('@modele/types').ApiResponse<Array<{ id: number; name: string; slug: string }>>
+      );
+      setCategories(categoriesData || []);
+    } catch (error: unknown) {
+      logger.error('Failed to load categories', error instanceof Error ? error : new Error(String(error)));
+      // Don't show error to user, just log it - categories are optional
+    }
+  }, []);
 
   const handleSave = async (publish: boolean = false) => {
     try {
@@ -101,7 +122,7 @@ export default function BlogPostEditPage() {
         content_html: typeof post.content_html === 'string' ? post.content_html : undefined,
         status: publish ? 'published' : (post.status || 'draft'),
         category_id: typeof post.category_id === 'number' ? post.category_id : undefined,
-        tags: Array.isArray(post.tags) ? post.tags : undefined,
+        tags: tags.length > 0 ? tags : undefined,
         meta_title: typeof post.meta_title === 'string' ? post.meta_title : undefined,
         meta_description: typeof post.meta_description === 'string' ? post.meta_description : undefined,
         meta_keywords: typeof post.meta_keywords === 'string' ? post.meta_keywords : undefined,
@@ -305,7 +326,7 @@ export default function BlogPostEditPage() {
                   <Select
                     options={[
                       { label: 'Uncategorized', value: '' },
-                      // TODO: Load categories from API
+                      ...categories.map(cat => ({ label: cat.name, value: cat.id.toString() })),
                     ]}
                     value={post.category_id?.toString() || ''}
                     onChange={(e) => setPost({ ...post, category_id: e.target.value ? parseInt(e.target.value, 10) : undefined })}
@@ -318,8 +339,16 @@ export default function BlogPostEditPage() {
                   </label>
                   <Input
                     placeholder="Add tags (comma-separated)"
-                    // TODO: Implement tag input component
+                    value={tags.join(', ')}
+                    onChange={(e) => {
+                      const tagValues = e.target.value.split(',').map(t => t.trim()).filter(t => t.length > 0);
+                      setTags(tagValues);
+                      setPost({ ...post, tags: tagValues });
+                    }}
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Separate tags with commas
+                  </p>
                 </div>
               </div>
             </Card>

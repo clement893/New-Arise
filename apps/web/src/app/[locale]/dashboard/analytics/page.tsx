@@ -72,8 +72,36 @@ export default function DashboardAnalyticsPage() {
 
   const handleExport = async () => {
     try {
-      // TODO: Implement export functionality
-      logger.info('Export analytics requested', { dateRange });
+      if (metrics.length === 0) {
+        logger.warn('No analytics data to export', { dateRange });
+        return;
+      }
+
+      // Convert metrics to CSV
+      const headers = ['label', 'value', 'change', 'changeType'];
+      const csvHeaders = headers.join(',');
+      const csvRows = metrics.map((metric) =>
+        [
+          metric.label,
+          metric.value.toString(),
+          metric.change?.toString() || '',
+          metric.changeType || '',
+        ].join(',')
+      );
+
+      const csv = [csvHeaders, ...csvRows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `analytics-${dateRange.start}-to-${dateRange.end}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      logger.info('Analytics exported successfully', { dateRange, count: metrics.length });
     } catch (error) {
       logger.error('Failed to export analytics', error instanceof Error ? error : new Error(String(error)));
     }

@@ -73,8 +73,41 @@ export default function FormSubmissionsPage() {
   };
 
   const handleExport = () => {
-    // TODO: Implement CSV export
-    logger.info('Exporting submissions', { formId });
+    try {
+      if (submissions.length === 0) {
+        logger.warn('No submissions to export', { formId });
+        return;
+      }
+
+      // Convert submissions to CSV
+      const headers = Object.keys(submissions[0] || {});
+      const csvHeaders = headers.join(',');
+      const csvRows = submissions.map((submission) =>
+        headers.map((header) => {
+          const value = (submission as Record<string, unknown>)[header];
+          if (value === null || value === undefined) return '';
+          if (typeof value === 'object') return JSON.stringify(value).replace(/"/g, '""');
+          return String(value).replace(/"/g, '""');
+        }).join(',')
+      );
+
+      const csv = [csvHeaders, ...csvRows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `form-${formId}-submissions-${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      logger.info('Submissions exported successfully', { formId, count: submissions.length });
+    } catch (error) {
+      logger.error('Failed to export submissions', error instanceof Error ? error : new Error(String(error)));
+      throw error;
+    }
   };
 
   if (isLoading) {
