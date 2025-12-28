@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { AxiosError } from 'axios';
 import { authAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store';
 import { handleApiError } from '@/lib/errors/api';
