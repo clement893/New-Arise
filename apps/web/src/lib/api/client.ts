@@ -76,13 +76,21 @@ class ApiClient {
           if (refreshToken && typeof window !== 'undefined') {
             try {
               // Try to refresh the token
-              const refreshResponse = await axios.post(
-                `${this.client.defaults.baseURL}/v1/auth/refresh`,
-                { refresh_token: refreshToken },
-                { withCredentials: true }
+              // Use a separate axios instance to avoid interceptors recursion
+              const refreshAxios = axios.create({
+                baseURL: this.client.defaults.baseURL,
+                timeout: 10000,
+                withCredentials: true,
+              });
+              
+              const refreshResponse = await refreshAxios.post(
+                '/v1/auth/refresh',
+                { refresh_token: refreshToken }
               );
               
-              const { access_token } = refreshResponse.data;
+              // FastAPI returns data directly, not wrapped in ApiResponse
+              const responseData = refreshResponse.data;
+              const access_token = responseData?.access_token || responseData?.accessToken;
               
               if (access_token) {
                 // Update token in storage
@@ -94,6 +102,8 @@ class ApiClient {
                 
                 // Retry the original request
                 return this.client.request(originalRequest);
+              } else {
+                throw new Error('No access_token in refresh response');
               }
             } catch (refreshError) {
               // Refresh failed, clear tokens and redirect to login
