@@ -4,6 +4,7 @@ import { Suspense, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
 import { TokenStorage } from '@/lib/auth/tokenStorage';
+import { transformApiUserToStoreUser } from '@/lib/auth/userTransform';
 import { usersAPI } from '@/lib/api';
 import { logger } from '@/lib/logger';
 import { handleApiError } from '@/lib/errors/api';
@@ -87,19 +88,8 @@ function CallbackContent() {
       if (user) {
         logger.info('Logging in user', { userId: user.id, email: user.email });
         
-        // Ensure user object has the correct structure for the store
-        const userForStore = {
-          id: String(user.id),
-          email: user.email,
-          name: user.first_name && user.last_name 
-            ? `${user.first_name} ${user.last_name}` 
-            : user.first_name || user.last_name || user.email,
-          is_active: user.is_active ?? true,
-          is_verified: false, // Default value, update if available
-          is_admin: false, // Default value, update if available
-          created_at: user.created_at,
-          updated_at: user.updated_at,
-        };
+        // Transform user data to store format using centralized function
+        const userForStore = transformApiUserToStoreUser(user);
         
         await login(userForStore, accessToken, refreshToken ?? undefined);
         
