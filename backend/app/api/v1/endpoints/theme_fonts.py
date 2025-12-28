@@ -1,8 +1,8 @@
 """
 API endpoints for theme font management.
 """
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from typing import List, Dict
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func as sql_func
 from app.schemas.theme_font import ThemeFontCreate, ThemeFontResponse, ThemeFontListResponse
