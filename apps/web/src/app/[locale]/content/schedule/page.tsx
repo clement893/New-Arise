@@ -81,7 +81,8 @@ export default function ScheduledContentPage() {
       setIsLoading(false);
     } catch (error) {
       logger.error('Failed to load scheduled content', error instanceof Error ? error : new Error(String(error)));
-      setError(t('errors.loadFailed') || 'Failed to load scheduled content. Please try again.');
+      const errorMessage = handleApiError(error);
+      setError(errorMessage || t('errors.loadFailed') || 'Failed to load scheduled content. Please try again.');
       setIsLoading(false);
     }
   };
@@ -102,6 +103,8 @@ export default function ScheduledContentPage() {
       await loadScheduledContent();
     } catch (error) {
       logger.error('Failed to create schedule', error instanceof Error ? error : new Error(String(error)));
+      const errorMessage = handleApiError(error);
+      setError(errorMessage || 'Failed to create schedule. Please try again.');
       throw error;
     }
   };
@@ -112,6 +115,8 @@ export default function ScheduledContentPage() {
       await loadScheduledContent();
     } catch (error) {
       logger.error('Failed to update schedule', error instanceof Error ? error : new Error(String(error)));
+      const errorMessage = handleApiError(error);
+      setError(errorMessage || 'Failed to update schedule. Please try again.');
       throw error;
     }
   };
@@ -122,6 +127,8 @@ export default function ScheduledContentPage() {
       await loadScheduledContent();
     } catch (error) {
       logger.error('Failed to delete schedule', error instanceof Error ? error : new Error(String(error)));
+      const errorMessage = handleApiError(error);
+      setError(errorMessage || 'Failed to delete schedule. Please try again.');
       throw error;
     }
   };

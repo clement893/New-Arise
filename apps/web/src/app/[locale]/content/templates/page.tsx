@@ -17,6 +17,7 @@ import { Loading, Alert } from '@/components/ui';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { logger } from '@/lib/logger';
 import { apiClient } from '@/lib/api';
+import { handleApiError } from '@/lib/errors';
 
 export default function TemplatesManagementPage() {
   const router = useRouter();
@@ -72,7 +73,8 @@ export default function TemplatesManagementPage() {
       setIsLoading(false);
     } catch (error) {
       logger.error('Failed to load templates', error instanceof Error ? error : new Error(String(error)));
-      setError(t('errors.loadFailed') || 'Failed to load templates. Please try again.');
+      const errorMessage = handleApiError(error);
+      setError(errorMessage || t('errors.loadFailed') || 'Failed to load templates. Please try again.');
       setIsLoading(false);
     }
   };
@@ -83,6 +85,8 @@ export default function TemplatesManagementPage() {
       await loadTemplates();
     } catch (error) {
       logger.error('Failed to create template', error instanceof Error ? error : new Error(String(error)));
+      const errorMessage = handleApiError(error);
+      setError(errorMessage || 'Failed to create template. Please try again.');
       throw error;
     }
   };
@@ -93,6 +97,8 @@ export default function TemplatesManagementPage() {
       await loadTemplates();
     } catch (error) {
       logger.error('Failed to update template', error instanceof Error ? error : new Error(String(error)));
+      const errorMessage = handleApiError(error);
+      setError(errorMessage || 'Failed to update template. Please try again.');
       throw error;
     }
   };
@@ -103,6 +109,8 @@ export default function TemplatesManagementPage() {
       await loadTemplates();
     } catch (error) {
       logger.error('Failed to delete template', error instanceof Error ? error : new Error(String(error)));
+      const errorMessage = handleApiError(error);
+      setError(errorMessage || 'Failed to delete template. Please try again.');
       throw error;
     }
   };
