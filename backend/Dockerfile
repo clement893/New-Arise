@@ -4,10 +4,13 @@ FROM python:3.11-slim AS base
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies including Node.js for API connection check scripts
 RUN apt-get update && apt-get install -y \
     gcc \
     postgresql-client \
+    curl \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
@@ -33,6 +36,11 @@ RUN groupadd --system --gid 1001 appuser && \
 COPY --from=deps /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=deps /usr/local/bin /usr/local/bin
 COPY . .
+
+# Copy scripts directory from project root (for API connection check)
+# Note: This assumes Dockerfile is run from project root with context including scripts/
+# If scripts are not available, the endpoint will handle gracefully
+RUN mkdir -p /app/scripts || true
 
 # Change ownership
 RUN chown -R appuser:appuser /app

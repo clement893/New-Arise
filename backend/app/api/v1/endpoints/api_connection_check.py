@@ -1,0 +1,317 @@
+"""
+API Connection Check Endpoint
+Provides endpoint to check API connections status
+"""
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.database import get_db
+from app.core.auth import get_current_user
+from app.models.user import User
+from typing import Dict, List, Any
+import os
+import subprocess
+import json
+import asyncio
+from pathlib import Path
+
+router = APIRouter(prefix="/api-connection-check", tags=["api-connection-check"])
+
+
+async def run_node_script(script_path: str, args: List[str] = None) -> Dict[str, Any]:
+    """
+    Run a Node.js script and return its output
+    Works in production by finding scripts relative to backend or project root
+    """
+    try:
+        # Get project root - try multiple possible locations
+        # In production, scripts might be at different paths
+        current_file = Path(__file__)
+        
+        # Try different possible project root locations
+        possible_roots = [
+            current_file.parent.parent.parent.parent.parent,  # backend/app/api/v1/endpoints -> root
+            current_file.parent.parent.parent.parent.parent.parent,  # if backend is nested
+            Path("/app"),  # Docker default
+            Path("/app/backend").parent,  # If backend is in /app/backend
+        ]
+        
+        project_root = None
+        script_full_path = None
+        
+        # First, try direct paths
+        for script_path_test in possible_script_paths:
+            if script_path_test.exists():
+                project_root = script_path_test.parent.parent  # Assume scripts/ is at root
+                script_full_path = script_path_test
+                break
+        
+        # If not found, try relative to possible roots
+        if not script_full_path:
+            for root in possible_roots:
+                test_path = root / script_path
+                if test_path.exists():
+                    project_root = root
+                    script_full_path = test_path
+                    break
+        
+        # If script not found, try to find it in scripts directory
+        if not script_full_path:
+            for root in possible_roots:
+                scripts_dir = root / "scripts"
+                if scripts_dir.exists():
+                    test_path = scripts_dir / Path(script_path).name
+                    if test_path.exists():
+                        project_root = root
+                        script_full_path = test_path
+                        break
+        
+        # Also try scripts directly in /app/scripts
+        if not script_full_path:
+            direct_script = Path("/app/scripts") / Path(script_path).name
+            if direct_script.exists():
+                project_root = Path("/app")
+                script_full_path = direct_script
+        
+        if not script_full_path or not script_full_path.exists():
+            return {
+                "success": False,
+                "error": f"Script not found: {script_path}. Searched in {[str(r) for r in possible_roots]}",
+            }
+        
+        # Check if node is available
+        try:
+            node_check = subprocess.run(
+                ["node", "--version"],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            if node_check.returncode != 0:
+                return {
+                    "success": False,
+                    "error": "Node.js is not available. Please install Node.js in the container.",
+                }
+        except FileNotFoundError:
+            return {
+                "success": False,
+                "error": "Node.js is not installed. Please install Node.js in the container.",
+            }
+        
+        # Build command
+        cmd = ["node", str(script_full_path)]
+        if args:
+            cmd.extend(args)
+        
+        # Run script
+        result = subprocess.run(
+            cmd,
+            cwd=str(project_root),
+            capture_output=True,
+            text=True,
+            timeout=60  # 60 second timeout
+        )
+        
+        return {
+            "success": result.returncode == 0,
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+            "returncode": result.returncode,
+        }
+    except subprocess.TimeoutExpired:
+        return {
+            "success": False,
+            "error": "Script execution timeout (60s)",
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+        }
+
+
+@router.get("/frontend", response_model=Dict[str, Any])
+async def check_frontend_connections(
+    detailed: bool = False,
+    page: str = None,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Check frontend API connections
+    
+    Requires authentication and admin or superadmin role
+    """
+    # Check if user is admin or superadmin
+    if not (current_user.is_superadmin or current_user.is_admin):
+        raise HTTPException(
+            status_code=403,
+            detail="This endpoint requires admin or superadmin privileges"
+        )
+    
+    args = []
+    if detailed:
+        args.append("--detailed")
+    if page:
+        args.extend(["--page", page])
+    
+    result = await run_node_script("scripts/check-api-connections.js", args)
+    
+    if not result.get("success"):
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to run check: {result.get('error', result.get('stderr', 'Unknown error'))}"
+        )
+    
+    # Parse the output to extract structured data
+    output = result.get("stdout", "")
+    
+    # Try to extract summary from output
+    summary = {}
+    if "Summary:" in output:
+        # Extract numbers from summary
+        import re
+        total_match = re.search(r"Total pages analyzed: (\d+)", output)
+        connected_match = re.search(r"Connected: (\d+)", output)
+        partial_match = re.search(r"Partial: (\d+)", output)
+        needs_match = re.search(r"Needs integration: (\d+)", output)
+        static_match = re.search(r"Static: (\d+)", output)
+        
+        summary = {
+            "total": int(total_match.group(1)) if total_match else 0,
+            "connected": int(connected_match.group(1)) if connected_match else 0,
+            "partial": int(partial_match.group(1)) if partial_match else 0,
+            "needsIntegration": int(needs_match.group(1)) if needs_match else 0,
+            "static": int(static_match.group(1)) if static_match else 0,
+        }
+    
+    return {
+        "success": True,
+        "summary": summary,
+        "output": output,
+        "raw": result,
+    }
+
+
+@router.get("/backend", response_model=Dict[str, Any])
+async def check_backend_endpoints(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Check backend API endpoints registration
+    
+    Requires authentication and admin or superadmin role
+    """
+    # Check if user is admin or superadmin
+    if not (current_user.is_superadmin or current_user.is_admin):
+        raise HTTPException(
+            status_code=403,
+            detail="This endpoint requires admin or superadmin privileges"
+        )
+    
+    result = await run_node_script("scripts/check-api-connections-backend.js")
+    
+    if not result.get("success"):
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to run check: {result.get('error', result.get('stderr', 'Unknown error'))}"
+        )
+    
+    output = result.get("stdout", "")
+    
+    # Parse the output to extract structured data
+    summary = {}
+    if "Summary:" in output:
+        import re
+        registered_match = re.search(r"Registered modules: (\d+)", output)
+        unregistered_match = re.search(r"Unregistered modules: (\d+)", output)
+        
+        summary = {
+            "registered": int(registered_match.group(1)) if registered_match else 0,
+            "unregistered": int(unregistered_match.group(1)) if unregistered_match else 0,
+        }
+    
+    return {
+        "success": True,
+        "summary": summary,
+        "output": output,
+        "raw": result,
+    }
+
+
+@router.get("/report", response_model=Dict[str, Any])
+async def generate_report(
+    output_name: str = "API_CONNECTION_REPORT",
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Generate API connection report
+    
+    Requires authentication and admin or superadmin role
+    """
+    # Check if user is admin or superadmin
+    if not (current_user.is_superadmin or current_user.is_admin):
+        raise HTTPException(
+            status_code=403,
+            detail="This endpoint requires admin or superadmin privileges"
+        )
+    
+    result = await run_node_script(
+        "scripts/generate-api-connection-report.js",
+        ["--output", f"{output_name}.md"]
+    )
+    
+    if not result.get("success"):
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to generate report: {result.get('error', result.get('stderr', 'Unknown error'))}"
+        )
+    
+    # Try to read the generated report
+    project_root = Path(__file__).parent.parent.parent.parent.parent
+    report_path = project_root / f"{output_name}.md"
+    
+    report_content = None
+    if report_path.exists():
+        report_content = report_path.read_text(encoding="utf-8")
+    
+    return {
+        "success": True,
+        "output": result.get("stdout", ""),
+        "reportPath": str(report_path.relative_to(project_root)),
+        "reportContent": report_content,
+        "raw": result,
+    }
+
+
+@router.get("/status", response_model=Dict[str, Any])
+async def get_connection_status(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Get quick API connection status summary
+    
+    Requires authentication
+    """
+    # Run both checks
+    frontend_result = await check_frontend_connections(
+        detailed=False,
+        current_user=current_user,
+        db=db
+    )
+    
+    backend_result = await check_backend_endpoints(
+        current_user=current_user,
+        db=db
+    )
+    
+    return {
+        "success": True,
+        "frontend": frontend_result.get("summary", {}),
+        "backend": backend_result.get("summary", {}),
+        "timestamp": asyncio.get_event_loop().time(),
+    }
+

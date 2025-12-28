@@ -15,7 +15,12 @@
     "validate:env:frontend": "pnpm --filter @modele/web env:validate",
     "security:scan": "bash scripts/security-scan.sh || powershell -ExecutionPolicy Bypass -File scripts/security-scan.ps1",
     "security:audit": "pnpm audit --recursive && cd backend && safety check || echo 'safety not installed, skipping Python security check'",
-    "security:check": "pnpm security:scan && pnpm security:audit"
+    "security:check": "pnpm security:scan && pnpm security:audit",
+    "api:check": "node scripts/check-api-connections.js",
+    "api:check:detailed": "node scripts/check-api-connections.js --detailed",
+    "api:check:backend": "node scripts/check-api-connections-backend.js",
+    "api:report": "node scripts/generate-api-connection-report.js",
+    "api:report:custom": "node scripts/generate-api-connection-report.js --output"
   },
   "devDependencies": {
     "prettier": "^3.1.1"
