@@ -268,7 +268,7 @@ async def login(
         db: Database session
         
     Returns:
-        Access token
+        TokenWithUser: Access token and user data
     """
     # Determine if request is JSON or form-data
     content_type = request.headers.get("content-type", "")
@@ -421,16 +421,17 @@ async def login(
             pass
 
     # Convert user to UserResponse format
-    user_dict = {
-        "id": user.id,
-        "email": user.email,
-        "first_name": user.first_name,
-        "last_name": user.last_name,
-        "is_active": user.is_active,
-        "created_at": user.created_at.isoformat() if user.created_at else "",
-        "updated_at": user.updated_at.isoformat() if user.updated_at else "",
-    }
-    user_response = UserResponse.model_validate(user_dict)
+    # Use direct constructor for consistency with get_current_user_info endpoint
+    user_response = UserResponse(
+        id=user.id,
+        email=user.email,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        is_active=user.is_active,
+        theme_preference=user.theme_preference or 'system',  # Required field for API compatibility
+        created_at=user.created_at.isoformat() if user.created_at else "",
+        updated_at=user.updated_at.isoformat() if user.updated_at else "",
+    )
     
     # Return JSONResponse explicitly to work with rate limiting middleware
     token_data = TokenWithUser(

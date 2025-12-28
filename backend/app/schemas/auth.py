@@ -90,3 +90,22 @@ class TokenWithUser(BaseModel):
     access_token: str = Field(..., description="JWT access token")
     token_type: str = Field(default="bearer", description="Token type")
     user: UserResponse = Field(..., description="User data")
+    
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                "token_type": "bearer",
+                "user": {
+                    "id": 1,
+                    "email": "user@example.com",
+                    "first_name": "John",
+                    "last_name": "Doe",
+                    "is_active": True,
+                    "theme_preference": "system",
+                    "created_at": "2025-01-01T00:00:00Z",
+                    "updated_at": "2025-01-01T00:00:00Z"
+                }
+            }
+        }
+    }
