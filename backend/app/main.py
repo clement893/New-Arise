@@ -17,7 +17,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.core.config import settings
 from app.core.database import init_db, close_db
 from app.core.cache import init_cache, close_cache
-from app.core.migrations import ensure_theme_preference_column
+from app.core.migrations import ensure_theme_preference_column, ensure_avatar_column
 from app.core.exceptions import AppException
 from app.core.error_handler import (
     app_exception_handler,
@@ -133,6 +133,16 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             # Keep generic Exception for migration errors
             if logger:
                 logger.warning(f"Theme preference column migration skipped: {e}", exc_info=True)
+        
+        # Ensure avatar column exists
+        try:
+            await ensure_avatar_column()
+        except (ConnectionError, TimeoutError) as e:
+            if logger:
+                logger.warning(f"Avatar column migration skipped (connection error): {e}")
+        except Exception as e:
+            if logger:
+                logger.warning(f"Avatar column migration skipped: {e}", exc_info=True)
         
         # Ensure default theme exists - CRITICAL for template functionality
         # This must succeed for the application to work properly
