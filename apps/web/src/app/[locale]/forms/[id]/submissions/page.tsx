@@ -15,6 +15,8 @@ import { PageHeader, PageContainer } from '@/components/layout';
 import { Loading, Alert } from '@/components/ui';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { logger } from '@/lib/logger';
+import { formsAPI } from '@/lib/api';
+import { handleApiError } from '@/lib/errors';
 
 export default function FormSubmissionsPage() {
   const params = useParams();
@@ -34,27 +36,38 @@ export default function FormSubmissionsPage() {
       setIsLoading(true);
       setError(null);
       
-      // TODO: Replace with actual form submissions API endpoint when available
-      // const response = await apiClient.get(`/v1/forms/${formId}/submissions`);
-      // setSubmissions(response.data);
+      const formIdNum = parseInt(formId, 10);
+      if (isNaN(formIdNum)) {
+        throw new Error('Invalid form ID');
+      }
       
-      setSubmissions([]);
+      const response = await formsAPI.getSubmissions(formIdNum, { skip: 0, limit: 100 });
+      const data = (response as any).data || response;
+      
+      // Handle both array and paginated response formats
+      const submissionsList = Array.isArray(data) 
+        ? data 
+        : (data?.items || data?.submissions || []);
+      
+      setSubmissions(submissionsList);
       setIsLoading(false);
     } catch (error) {
       logger.error('Failed to load submissions', error instanceof Error ? error : new Error(String(error)));
-      setError(t('errors.loadFailed') || 'Failed to load submissions. Please try again.');
+      const errorMessage = handleApiError(error);
+      setError(errorMessage || t('errors.loadFailed') || 'Failed to load submissions. Please try again.');
       setIsLoading(false);
     }
   };
 
   const handleDelete = async (id: number) => {
     try {
-      // TODO: Replace with actual API endpoint when available
-      // await apiClient.delete(`/v1/forms/submissions/${id}`);
-      logger.info('Deleting submission', { submissionId: id });
+      await formsAPI.deleteSubmission(id);
+      logger.info('Submission deleted successfully', { submissionId: id });
       setSubmissions(submissions.filter((s) => s.id !== id));
     } catch (error) {
       logger.error('Failed to delete submission', error instanceof Error ? error : new Error(String(error)));
+      const errorMessage = handleApiError(error);
+      setError(errorMessage || 'Failed to delete submission. Please try again.');
       throw error;
     }
   };
