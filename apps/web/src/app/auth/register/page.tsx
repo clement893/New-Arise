@@ -29,6 +29,43 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setLocalError] = useState('');
 
+  const getPasswordStrength = (pwd: string): 'weak' | 'medium' | 'strong' => {
+    if (!pwd || pwd.length < 8) return 'weak';
+    
+    let score = 0;
+    const hasLower = /[a-z]/.test(pwd);
+    const hasUpper = /[A-Z]/.test(pwd);
+    const hasDigit = /[0-9]/.test(pwd);
+    const hasSpecial = /[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(pwd);
+    
+    // Length scoring
+    if (pwd.length >= 12) score += 2;
+    else if (pwd.length >= 8) score += 1;
+    
+    // Character type scoring
+    if (hasLower) score += 1;
+    if (hasUpper) score += 1;
+    if (hasDigit) score += 1;
+    if (hasSpecial) score += 2;
+    
+    // Check for weak patterns
+    const weakPatterns = ['123', 'abc', 'qwe', 'password', 'admin', 'letmein'];
+    const pwdLower = pwd.toLowerCase();
+    if (weakPatterns.some(pattern => pwdLower.includes(pattern))) {
+      score -= 1;
+    }
+    
+    // Sequential characters penalty
+    const sequential = ['12345', 'abcde', 'qwerty'];
+    if (sequential.some(seq => pwdLower.includes(seq))) {
+      score -= 2;
+    }
+    
+    if (score < 4) return 'weak';
+    if (score < 6) return 'medium';
+    return 'strong';
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLocalError('');
@@ -38,12 +75,32 @@ export default function RegisterPage() {
       return;
     }
 
+    // Check password strength
+    const strength = getPasswordStrength(password);
+    if (strength === 'weak') {
+      setLocalError(
+        'Password is too weak. Please use a stronger password with at least 12 characters, ' +
+        'uppercase, lowercase, numbers, and special characters.'
+      );
+      return;
+    }
+    if (strength === 'medium') {
+      setLocalError(
+        'Password strength is medium. Please use a stronger password with at least 12 characters, ' +
+        'uppercase, lowercase, numbers, and special characters for better security.'
+      );
+      return;
+    }
+
+    // Basic validation (backend will also validate)
     if (password.length < 8) {
       setLocalError('Password must be at least 8 characters');
       return;
     }
-
-    // Validate password strength (matching backend requirements)
+    if (password.length > 128) {
+      setLocalError('Password cannot exceed 128 characters');
+      return;
+    }
     if (!/[A-Z]/.test(password)) {
       setLocalError('Password must contain at least one uppercase letter');
       return;
