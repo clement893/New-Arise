@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useAuthStore } from '@/lib/store';
 import { getErrorMessage } from '@/lib/errors';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -28,7 +27,6 @@ interface User extends Record<string, unknown> {
 }
 
 export default function AdminUsersContent() {
-  const { token } = useAuthStore();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
