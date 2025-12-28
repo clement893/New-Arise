@@ -5,6 +5,8 @@ import { PageHeader, PageContainer } from '@/components/layout';
 import { getErrorMessage, getErrorDetail } from '@/lib/errors';
 import { Button, Card, Badge, Alert, Input, Textarea, Loading, Modal, DataTable } from '@/components/ui';
 import type { Column } from '@/components/ui/DataTable';
+import { Edit2, Trash2, Eye, Plus } from 'lucide-react';
+import OrganizationSettings, { type OrganizationSettingsData } from '@/components/settings/OrganizationSettings';
 
 interface TeamSettings {
   email?: string;
@@ -23,13 +25,15 @@ interface TeamSettings {
 }
 
 interface Team extends Record<string, unknown> {
-  id: string;
+  id: number | string;
   name: string;
   slug: string;
   description?: string;
-  member_count: number;
+  member_count?: number;
+  members?: Array<{ id: number; user_id: number }>;
   organization_id?: string;
   created_at: string;
+  updated_at?: string;
   settings?: TeamSettings | string;
   owner?: {
     id: number;
@@ -45,8 +49,26 @@ export default function AdminOrganizationsContent() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newTeamName, setNewTeamName] = useState('');
-  const [newTeamDescription, setNewTeamDescription] = useState('');
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
+  const [editingTeam, setEditingTeam] = useState<Team | null>(null);
+  const [formData, setFormData] = useState<OrganizationSettingsData>({
+    name: '',
+    slug: '',
+    email: '',
+    phone: '',
+    website: '',
+    address: {
+      line1: '',
+      city: '',
+      state: '',
+      postalCode: '',
+      country: '',
+    },
+    timezone: 'UTC',
+    locale: 'fr-FR',
+  });
 
   useEffect(() => {
     loadTeams();
@@ -60,7 +82,6 @@ export default function AdminOrganizationsContent() {
       const response = await teamsAPI.list();
       
       if (response.data) {
-        // Backend returns { teams: [...], total: ... }
         const teamsData = response.data.teams || response.data;
         interface BackendTeam {
           id: number | string;
@@ -68,8 +89,10 @@ export default function AdminOrganizationsContent() {
           slug?: string;
           description?: string;
           member_count?: number;
+          members?: Array<{ id: number; user_id: number }>;
           organization_id?: string;
           created_at: string;
+          updated_at?: string;
           settings?: TeamSettings | string;
           owner?: {
             id: number;
@@ -80,7 +103,6 @@ export default function AdminOrganizationsContent() {
         }
         
         setTeams((Array.isArray(teamsData) ? teamsData : []).map((team: BackendTeam) => {
-          // Parse settings if it's a string
           let settings: TeamSettings | undefined;
           if (team.settings) {
             if (typeof team.settings === 'string') {
@@ -95,13 +117,14 @@ export default function AdminOrganizationsContent() {
           }
           
           return {
-            id: String(team.id),
+            id: team.id,
             name: team.name,
             slug: team.slug || '',
             description: team.description,
-            member_count: team.member_count || 0,
+            member_count: team.member_count || (team.members ? team.members.length : 0),
             organization_id: team.organization_id || '',
             created_at: team.created_at,
+            updated_at: team.updated_at,
             settings: settings,
             owner: team.owner,
           };
@@ -122,25 +145,19 @@ export default function AdminOrganizationsContent() {
   const generateSlug = (name: string): string => {
     return name
       .toLowerCase()
-      .normalize('NFD') // Normalize to decomposed form for handling accents
-      .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
-      .replace(/[^a-z0-9-]/g, '-') // Replace non-alphanumeric with hyphens
-      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-      .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9-]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
   };
 
-  const handleCreateTeam = async () => {
-    if (!newTeamName.trim()) {
-      setError('Le nom de l\'organisation est requis');
-      return;
-    }
-
+  const handleCreateTeam = async (data: OrganizationSettingsData) => {
     try {
       setLoading(true);
       setError(null);
       
-      // Generate slug from name
-      const slug = generateSlug(newTeamName);
+      const slug = data.slug || generateSlug(data.name);
       
       if (!slug) {
         setError('Le nom doit contenir au moins un caractère alphanumérique');
@@ -148,20 +165,37 @@ export default function AdminOrganizationsContent() {
       }
 
       const { teamsAPI } = await import('@/lib/api/teams');
+      
+      // Prepare settings object
+      const settings: TeamSettings = {};
+      if (data.email) settings.email = data.email;
+      if (data.phone) settings.phone = data.phone;
+      if (data.website) settings.website = data.website;
+      if (data.address?.line1) settings.address = {
+        line1: data.address.line1,
+        line2: data.address.line2,
+        city: data.address.city,
+        state: data.address.state,
+        postalCode: data.address.postalCode,
+        country: data.address.country,
+      };
+      if (data.timezone) settings.timezone = data.timezone;
+      if (data.locale) settings.locale = data.locale;
+
       await teamsAPI.create({
-        name: newTeamName.trim(),
+        name: data.name.trim(),
         slug: slug,
-        description: newTeamDescription.trim() || undefined,
-      } as Parameters<typeof teamsAPI.create>[0]);
+        description: data.description || undefined,
+        settings: Object.keys(settings).length > 0 ? settings : undefined,
+      });
+      
       await loadTeams();
       setShowCreateModal(false);
-      setNewTeamName('');
-      setNewTeamDescription('');
+      resetForm();
     } catch (err: unknown) {
       const errorDetail = getErrorDetail(err);
       const errorMessage = getErrorMessage(err, 'Erreur lors de la création de l\'organisation');
       
-      // Check if error is about slug already existing
       if (errorDetail?.includes('slug') || errorDetail?.includes('already exists')) {
         setError('Une organisation avec ce nom existe déjà. Veuillez choisir un autre nom.');
       } else {
@@ -172,9 +206,125 @@ export default function AdminOrganizationsContent() {
     }
   };
 
+  const handleUpdateTeam = async (data: OrganizationSettingsData) => {
+    if (!editingTeam) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const { teamsAPI } = await import('@/lib/api/teams');
+      
+      // Prepare settings object
+      const settings: TeamSettings = {};
+      if (data.email) settings.email = data.email;
+      if (data.phone) settings.phone = data.phone;
+      if (data.website) settings.website = data.website;
+      if (data.address?.line1) settings.address = {
+        line1: data.address.line1,
+        line2: data.address.line2,
+        city: data.address.city,
+        state: data.address.state,
+        postalCode: data.address.postalCode,
+        country: data.address.country,
+      };
+      if (data.timezone) settings.timezone = data.timezone;
+      if (data.locale) settings.locale = data.locale;
+
+      await teamsAPI.updateTeam(Number(editingTeam.id), {
+        name: data.name.trim(),
+        description: data.description || undefined,
+        settings: Object.keys(settings).length > 0 ? settings : undefined,
+      });
+      
+      await loadTeams();
+      setShowEditModal(false);
+      setEditingTeam(null);
+      resetForm();
+    } catch (err: unknown) {
+      const errorDetail = getErrorDetail(err);
+      const errorMessage = getErrorMessage(err, 'Erreur lors de la mise à jour de l\'organisation');
+      setError(errorDetail || errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteTeam = async (team: Team) => {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer l'organisation "${team.name}" ?`)) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      const { teamsAPI } = await import('@/lib/api/teams');
+      await teamsAPI.deleteTeam(Number(team.id));
+      await loadTeams();
+    } catch (err: unknown) {
+      const errorDetail = getErrorDetail(err);
+      const errorMessage = getErrorMessage(err, 'Erreur lors de la suppression de l\'organisation');
+      setError(errorDetail || errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      slug: '',
+      description: '',
+      email: '',
+      phone: '',
+      website: '',
+      address: {
+        line1: '',
+        city: '',
+        state: '',
+        postalCode: '',
+        country: '',
+      },
+      timezone: 'UTC',
+      locale: 'fr-FR',
+    });
+  };
+
+  const openEditModal = (team: Team) => {
+    const settings = typeof team.settings === 'string' 
+      ? (() => { try { return JSON.parse(team.settings); } catch { return null; } })()
+      : team.settings;
+    
+    setEditingTeam(team);
+    setFormData({
+      name: team.name,
+      slug: team.slug,
+      description: team.description || '',
+      email: settings?.email || '',
+      phone: settings?.phone || '',
+      website: settings?.website || '',
+      address: settings?.address || {
+        line1: '',
+        city: '',
+        state: '',
+        postalCode: '',
+        country: '',
+      },
+      timezone: settings?.timezone || 'UTC',
+      locale: settings?.locale || 'fr-FR',
+    });
+    setShowEditModal(true);
+  };
+
+  const openViewModal = (team: Team) => {
+    setSelectedTeam(team);
+    setShowViewModal(true);
+  };
+
   const filteredTeams = teams.filter(team =>
     team.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    team.description?.toLowerCase().includes(searchTerm.toLowerCase())
+    team.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (typeof team.settings === 'object' && team.settings?.email?.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const columns: Column<Team>[] = [
@@ -205,6 +355,11 @@ export default function AdminOrganizationsContent() {
                 </a>
               </div>
             )}
+            {settings?.address && (
+              <div className="text-xs text-muted-foreground mt-1">
+                📍 {settings.address.line1}, {settings.address.city}, {settings.address.country}
+              </div>
+            )}
           </div>
         );
       },
@@ -233,7 +388,7 @@ export default function AdminOrganizationsContent() {
       key: 'member_count',
       label: 'Membres',
       render: (_value, team) => (
-        <Badge variant="default">{team.member_count}</Badge>
+        <Badge variant="default">{team.member_count || 0}</Badge>
       ),
     },
     {
@@ -243,6 +398,38 @@ export default function AdminOrganizationsContent() {
         <span className="text-sm text-muted-foreground">
           {new Date(team.created_at).toLocaleDateString('fr-FR')}
         </span>
+      ),
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      render: (_value, team) => (
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => openViewModal(team)}
+            title="Voir les détails"
+          >
+            <Eye className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => openEditModal(team)}
+            title="Modifier"
+          >
+            <Edit2 className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleDeleteTeam(team)}
+            title="Supprimer"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       ),
     },
   ];
@@ -260,7 +447,7 @@ export default function AdminOrganizationsContent() {
       />
 
       {error && (
-        <Alert variant="error" className="mb-4">
+        <Alert variant="error" className="mb-4" onClose={() => setError(null)}>
           {error}
         </Alert>
       )}
@@ -273,7 +460,11 @@ export default function AdminOrganizationsContent() {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-md"
         />
-        <Button onClick={() => setShowCreateModal(true)}>
+        <Button onClick={() => {
+          resetForm();
+          setShowCreateModal(true);
+        }}>
+          <Plus className="h-4 w-4 mr-2" />
           Créer une organisation
         </Button>
       </div>
@@ -294,53 +485,252 @@ export default function AdminOrganizationsContent() {
         </Card>
       )}
 
+      {/* Create Modal */}
       <Modal
         isOpen={showCreateModal}
         onClose={() => {
           setShowCreateModal(false);
-          setNewTeamName('');
-          setNewTeamDescription('');
+          resetForm();
         }}
         title="Créer une nouvelle organisation"
-        size="md"
+        size="lg"
         footer={
           <>
             <Button
               variant="outline"
               onClick={() => {
                 setShowCreateModal(false);
-                setNewTeamName('');
-                setNewTeamDescription('');
+                resetForm();
               }}
             >
               Annuler
             </Button>
-            <Button onClick={handleCreateTeam} disabled={loading}>
+            <Button 
+              onClick={() => handleCreateTeam(formData)} 
+              disabled={loading || !formData.name.trim()}
+            >
               Créer
             </Button>
           </>
         }
       >
-        <div className="space-y-4">
-          <Input
-            label="Nom de l'organisation *"
-            type="text"
-            value={newTeamName}
-            onChange={(e) => setNewTeamName(e.target.value)}
-            placeholder="Ex: Organisation Marketing"
-            fullWidth
-          />
-          <Textarea
-            label="Description"
-            value={newTeamDescription}
-            onChange={(e) => setNewTeamDescription(e.target.value)}
-            rows={3}
-            placeholder="Description de l'organisation..."
-            fullWidth
+        <div className="max-h-[70vh] overflow-y-auto">
+          <OrganizationSettings
+              organization={{
+                id: '',
+                name: formData.name,
+                slug: formData.slug,
+                description: formData.description,
+                email: formData.email,
+                phone: formData.phone,
+                website: formData.website,
+                address: formData.address,
+                timezone: formData.timezone,
+                locale: formData.locale,
+              }}
+            onChange={(data) => {
+              setFormData(data);
+            }}
+            onSave={async (data) => {
+              setFormData(data);
+              // Prevent default form submission
+            }}
           />
         </div>
+      </Modal>
+
+      {/* Edit Modal */}
+      <Modal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingTeam(null);
+          resetForm();
+        }}
+        title={`Modifier l'organisation: ${editingTeam?.name || ''}`}
+        size="lg"
+        footer={
+          <>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowEditModal(false);
+                setEditingTeam(null);
+                resetForm();
+              }}
+            >
+              Annuler
+            </Button>
+            <Button 
+              onClick={() => handleUpdateTeam(formData)} 
+              disabled={loading || !formData.name.trim()}
+            >
+              Enregistrer
+            </Button>
+          </>
+        }
+      >
+        <div className="max-h-[70vh] overflow-y-auto">
+          {editingTeam && (
+            <OrganizationSettings
+              organization={{
+                id: String(editingTeam.id),
+                name: formData.name,
+                slug: editingTeam.slug,
+                description: formData.description,
+                email: formData.email,
+                phone: formData.phone,
+                website: formData.website,
+                address: formData.address,
+                timezone: formData.timezone,
+                locale: formData.locale,
+              }}
+              onChange={(data) => {
+                setFormData(data);
+              }}
+              onSave={async (data) => {
+                setFormData(data);
+                // Prevent default form submission
+              }}
+            />
+          )}
+        </div>
+      </Modal>
+
+      {/* View Modal */}
+      <Modal
+        isOpen={showViewModal}
+        onClose={() => {
+          setShowViewModal(false);
+          setSelectedTeam(null);
+        }}
+        title={`Détails de l'organisation: ${selectedTeam?.name || ''}`}
+        size="lg"
+        footer={
+          <Button
+            variant="outline"
+            onClick={() => {
+              setShowViewModal(false);
+              setSelectedTeam(null);
+            }}
+          >
+            Fermer
+          </Button>
+        }
+      >
+        {selectedTeam && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Nom</label>
+                <p className="text-sm font-medium">{selectedTeam.name}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Slug</label>
+                <p className="text-sm font-mono">{selectedTeam.slug}</p>
+              </div>
+              {selectedTeam.description && (
+                <div className="col-span-2">
+                  <label className="text-sm font-medium text-muted-foreground">Description</label>
+                  <p className="text-sm">{selectedTeam.description}</p>
+                </div>
+              )}
+            </div>
+
+            {(() => {
+              const settings = typeof selectedTeam.settings === 'string' 
+                ? (() => { try { return JSON.parse(selectedTeam.settings); } catch { return null; } })()
+                : selectedTeam.settings;
+              
+              if (!settings) return null;
+
+              return (
+                <div className="border-t pt-4 space-y-4">
+                  <h3 className="font-semibold">Informations de contact</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    {settings.email && (
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Email</label>
+                        <p className="text-sm">{settings.email}</p>
+                      </div>
+                    )}
+                    {settings.phone && (
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Téléphone</label>
+                        <p className="text-sm">{settings.phone}</p>
+                      </div>
+                    )}
+                    {settings.website && (
+                      <div className="col-span-2">
+                        <label className="text-sm font-medium text-muted-foreground">Site web</label>
+                        <p className="text-sm">
+                          <a href={settings.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                            {settings.website}
+                          </a>
+                        </p>
+                      </div>
+                    )}
+                    {settings.address && (
+                      <div className="col-span-2">
+                        <label className="text-sm font-medium text-muted-foreground">Adresse</label>
+                        <p className="text-sm">
+                          {settings.address.line1}
+                          {settings.address.line2 && `, ${settings.address.line2}`}
+                          <br />
+                          {settings.address.city}, {settings.address.state} {settings.address.postalCode}
+                          <br />
+                          {settings.address.country}
+                        </p>
+                      </div>
+                    )}
+                    {settings.timezone && (
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Fuseau horaire</label>
+                        <p className="text-sm">{settings.timezone}</p>
+                      </div>
+                    )}
+                    {settings.locale && (
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Locale</label>
+                        <p className="text-sm">{settings.locale}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+
+            <div className="border-t pt-4">
+              <h3 className="font-semibold mb-2">Propriétaire</h3>
+              {selectedTeam.owner ? (
+                <div>
+                  <p className="text-sm font-medium">{selectedTeam.owner.email}</p>
+                  {(selectedTeam.owner.first_name || selectedTeam.owner.last_name) && (
+                    <p className="text-sm text-muted-foreground">
+                      {[selectedTeam.owner.first_name, selectedTeam.owner.last_name].filter(Boolean).join(' ')}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">-</p>
+              )}
+            </div>
+
+            <div className="border-t pt-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Membres</label>
+                  <p className="text-sm"><Badge>{selectedTeam.member_count || 0}</Badge></p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Créé le</label>
+                  <p className="text-sm">{new Date(selectedTeam.created_at).toLocaleDateString('fr-FR')}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </Modal>
     </PageContainer>
   );
 }
-

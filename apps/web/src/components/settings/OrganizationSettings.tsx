@@ -11,6 +11,7 @@ import { clsx } from 'clsx';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import Textarea from '@/components/ui/Textarea';
 import Select from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
 import { Save, Building2, Globe, MapPin, Mail } from 'lucide-react';
@@ -35,12 +36,14 @@ export interface OrganizationSettingsProps {
     locale?: string;
   };
   onSave?: (data: OrganizationSettingsData) => void | Promise<void>;
+  onChange?: (data: OrganizationSettingsData) => void;
   className?: string;
 }
 
 export interface OrganizationSettingsData {
   name: string;
   slug: string;
+  description?: string;
   email?: string;
   phone?: string;
   website?: string;
@@ -78,11 +81,13 @@ const localeOptions: SelectOption[] = [
 export default function OrganizationSettings({
   organization,
   onSave,
+  onChange,
   className,
 }: OrganizationSettingsProps) {
   const [formData, setFormData] = useState<OrganizationSettingsData>({
     name: organization?.name || '',
     slug: organization?.slug || '',
+    description: organization?.description || '',
     email: organization?.email || '',
     phone: organization?.phone || '',
     website: organization?.website || '',
@@ -100,20 +105,28 @@ export default function OrganizationSettings({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = (field: keyof OrganizationSettingsData, value: unknown) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => {
+      const updated = { ...prev, [field]: value };
+      onChange?.(updated);
+      return updated;
+    });
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: '' }));
     }
   };
 
   const handleAddressChange = (field: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      address: {
-        ...prev.address!,
-        [field]: value,
-      },
-    }));
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        address: {
+          ...prev.address!,
+          [field]: value,
+        },
+      };
+      onChange?.(updated);
+      return updated;
+    });
   };
 
   const handleSlugChange = (value: string) => {

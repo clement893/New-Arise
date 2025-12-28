@@ -51,12 +51,13 @@ async def create_team(
         slug=team_data.slug,
         owner_id=current_user.id,
         description=team_data.description,
-        settings=team_data.settings,
+        settings=team_data.settings if team_data.settings else None,
     )
     
     # Invalidate cache after creation
     await invalidate_cache_pattern_async("teams:*")
     
+    # Reload team with relationships properly loaded
     team = await team_service.get_team(created_team.id)
     if not team:
         raise HTTPException(
@@ -64,7 +65,19 @@ async def create_team(
             detail="Team was created but could not be retrieved",
         )
     
-    # Convert to response format
+    # Parse settings if it's a JSON string
+    settings_dict = None
+    if team.settings:
+        if isinstance(team.settings, str):
+            try:
+                import json
+                settings_dict = json.loads(team.settings)
+            except (json.JSONDecodeError, TypeError):
+                settings_dict = None
+        else:
+            settings_dict = team.settings
+    
+    # Convert to response format - ensure we access loaded relationships safely
     team_dict = {
         "id": team.id,
         "name": team.name,
@@ -72,17 +85,25 @@ async def create_team(
         "description": team.description,
         "owner_id": team.owner_id,
         "is_active": team.is_active,
-        "settings": team.settings,
-        "created_at": team.created_at,
-        "updated_at": team.updated_at,
-        "owner": {
+        "settings": settings_dict,
+        "created_at": team.created_at.isoformat() if hasattr(team.created_at, 'isoformat') else str(team.created_at),
+        "updated_at": team.updated_at.isoformat() if hasattr(team.updated_at, 'isoformat') else str(team.updated_at),
+        "owner": None,
+        "members": [],
+    }
+    
+    # Safely access owner relationship (should be loaded via selectinload)
+    if team.owner:
+        team_dict["owner"] = {
             "id": team.owner.id,
             "email": team.owner.email,
             "first_name": team.owner.first_name,
             "last_name": team.owner.last_name,
-        } if team.owner else None,
-        "members": [TeamMemberResponse.model_validate(m) for m in team.members],
-    }
+        }
+    
+    # Safely access members relationship (should be loaded via selectinload)
+    if team.members:
+        team_dict["members"] = [TeamMemberResponse.model_validate(m) for m in team.members]
     
     return TeamResponse.model_validate(team_dict)
 
