@@ -75,10 +75,10 @@ function APIConnectionTestContent() {
     try {
       const params = detailed ? { detailed: 'true' } : {};
       const response = await apiClient.get<CheckResult>('/v1/api-connection-check/frontend', { params });
-      // FastAPI returns data directly, apiClient.get returns ApiResponse<T> which has .data
-      // But FastAPI doesn't wrap in ApiResponse, so response.data is already the CheckResult
-      const data = (response as any).data ?? response ?? null;
-      console.log('Frontend check response:', { response, data });
+      // apiClient.get returns response.data from axios, which is the FastAPI response directly
+      // FastAPI returns the data directly, not wrapped in ApiResponse
+      // So response is already CheckResult, not ApiResponse<CheckResult>
+      const data = (response as unknown as CheckResult) ?? null;
       setFrontendCheck(data);
       // If the response indicates failure, also set error for visibility
       if (data && !data.success && data.error) {
@@ -103,10 +103,10 @@ function APIConnectionTestContent() {
 
     try {
       const response = await apiClient.get<CheckResult>('/v1/api-connection-check/backend');
-      // FastAPI returns data directly, apiClient.get returns ApiResponse<T> which has .data
-      // But FastAPI doesn't wrap in ApiResponse, so response.data is already the CheckResult
-      const data = (response as any).data ?? response ?? null;
-      console.log('Backend check response:', { response, data });
+      // apiClient.get returns response.data from axios, which is the FastAPI response directly
+      // FastAPI returns the data directly, not wrapped in ApiResponse
+      // So response is already CheckResult, not ApiResponse<CheckResult>
+      const data = (response as unknown as CheckResult) ?? null;
       setBackendCheck(data);
       // If the response indicates failure, also set error for visibility
       if (data && !data.success && data.error) {
