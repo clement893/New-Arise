@@ -30,7 +30,7 @@
 
 'use client';
 
-import { type ReactNode, useEffect } from 'react';
+import { type ReactNode, useEffect, useRef } from 'react';
 import { clsx } from 'clsx';
 import Button from './Button';
 
@@ -86,6 +86,11 @@ function Modal({
   'aria-labelledby': ariaLabelledBy,
   'aria-describedby': ariaDescribedBy,
 }: ModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const previousActiveElementRef = useRef<HTMLElement | null>(null);
+  const mainContentRef = useRef<HTMLElement | null>(null);
+
+  // Handle Escape key
   useEffect(() => {
     if (!isOpen || !closeOnEscape) return;
 
@@ -99,14 +104,102 @@ function Modal({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, closeOnEscape, onClose]);
 
+  // Handle body overflow and aria-hidden on main content
   useEffect(() => {
     if (isOpen) {
+      // Store the previously focused element
+      previousActiveElementRef.current = document.activeElement as HTMLElement;
+      
+      // Find the main content element (usually <main> or the root layout element)
+      const mainContent = document.querySelector('main') || 
+                         document.querySelector('[role="main"]') ||
+                         document.body.querySelector(':not([role="dialog"]):not([aria-modal="true"])') as HTMLElement;
+      
+      if (mainContent) {
+        mainContentRef.current = mainContent as HTMLElement;
+        mainContent.setAttribute('aria-hidden', 'true');
+      }
+
+      // Prevent body scroll
       document.body.style.overflow = 'hidden';
     } else {
+      // Restore aria-hidden on main content
+      if (mainContentRef.current) {
+        mainContentRef.current.removeAttribute('aria-hidden');
+      }
+
+      // Restore body scroll
       document.body.style.overflow = '';
+
+      // Restore focus to the previously focused element
+      if (previousActiveElementRef.current) {
+        // Use setTimeout to ensure the modal is fully removed from DOM
+        setTimeout(() => {
+          previousActiveElementRef.current?.focus();
+        }, 0);
+      }
     }
+
     return () => {
+      // Cleanup: ensure aria-hidden is removed and body scroll is restored
+      if (mainContentRef.current) {
+        mainContentRef.current.removeAttribute('aria-hidden');
+      }
       document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  // Focus management: move focus to modal when it opens
+  useEffect(() => {
+    if (isOpen && modalRef.current) {
+      // Find the first focusable element in the modal
+      const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      
+      const firstFocusable = focusableElements[0] || modalRef.current;
+      
+      // Use setTimeout to ensure the modal is fully rendered
+      setTimeout(() => {
+        firstFocusable.focus();
+      }, 0);
+    }
+  }, [isOpen]);
+
+  // Focus trapping: keep focus within the modal
+  useEffect(() => {
+    if (!isOpen || !modalRef.current) return;
+
+    const handleTabKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      const focusableElements = modalRef.current!.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+
+      if (focusableElements.length === 0) return;
+
+      const firstFocusable = focusableElements[0];
+      const lastFocusable = focusableElements[focusableElements.length - 1];
+
+      if (e.shiftKey) {
+        // Shift + Tab: if focus is on first element, move to last
+        if (document.activeElement === firstFocusable) {
+          e.preventDefault();
+          lastFocusable.focus();
+        }
+      } else {
+        // Tab: if focus is on last element, move to first
+        if (document.activeElement === lastFocusable) {
+          e.preventDefault();
+          firstFocusable.focus();
+        }
+      }
+    };
+
+    modalRef.current.addEventListener('keydown', handleTabKey);
+    return () => {
+      modalRef.current?.removeEventListener('keydown', handleTabKey);
     };
   }, [isOpen]);
 
@@ -123,6 +216,7 @@ function Modal({
       onClick={closeOnOverlayClick ? onClose : undefined}
     >
       <div
+        ref={modalRef}
         className={clsx(
           'bg-background shadow-xl',
           'w-full h-full',
@@ -136,6 +230,7 @@ function Modal({
         aria-modal="true"
         aria-labelledby={ariaLabelledBy}
         aria-describedby={ariaDescribedBy}
+        tabIndex={-1}
       >
         {/* Header */}
         {(title || showCloseButton) && (
