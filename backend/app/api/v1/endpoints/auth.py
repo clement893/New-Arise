@@ -347,15 +347,15 @@ async def login(
                 logger.error("❌ Login failure audit log returned None - logging may have failed silently")
         except Exception as e:
             # Don't fail the request if audit logging fails, but log prominently
-        error_msg = (
-            f"❌ FAILED TO LOG LOGIN FAILURE EVENT: {e}\n"
-            f"   Email: {normalized_email}\n"
-            f"   IP: {client_ip}\n"
-            f"   Error Type: {type(e).__name__}\n"
-            f"   Error Details: {str(e)}"
-        )
-        logger.error(error_msg, exc_info=True)
-        print(error_msg, flush=True)
+            error_msg = (
+                f"❌ FAILED TO LOG LOGIN FAILURE EVENT: {e}\n"
+                f"   Email: {normalized_email}\n"
+                f"   IP: {client_ip}\n"
+                f"   Error Type: {type(e).__name__}\n"
+                f"   Error Details: {str(e)}"
+            )
+            logger.error(error_msg, exc_info=True)
+            print(error_msg, flush=True)
         
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
