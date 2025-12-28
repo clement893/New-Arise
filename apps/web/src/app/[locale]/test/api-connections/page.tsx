@@ -588,7 +588,7 @@ function APIConnectionTestContent() {
         if (frontendCheck.summary) {
           reportData.push('### Summary\n');
           Object.entries(frontendCheck.summary).forEach(([key, value]) => {
-            reportData.push(`- ${key}: ${value}\n`);
+            reportData.push(`- ${key}: ${String(value)}\n`);
           });
           reportData.push('\n');
         }
