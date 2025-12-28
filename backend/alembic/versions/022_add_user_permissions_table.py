@@ -14,7 +14,7 @@ from sqlalchemy import inspect
 
 # revision identifiers, used by Alembic.
 revision: str = '022_add_user_permissions'
-down_revision: Union[str, None] = '023_merge_migration_heads'
+down_revision: Union[str, None] = '021_add_notifications'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
