@@ -1,56 +1,168 @@
-# Rapport de Progression - Batch 5
+# 📊 Batch 5 Progress Report: Content Media & Schedule
 
-## Batch 5 : Pages de Profil et Paramètres
+**Date**: [Date]  
+**Batch**: 5 - Content Media & Schedule  
+**Status**: ⚠️ Partially Completed
 
-**Date** : 2025-12-27  
-**Statut** : ✅ Terminé
+---
 
-### Pages Modifiées
+## 📋 Pages Traitées
 
-#### Pages de Profil (5 pages)
-1. ✅ `apps/web/src/app/[locale]/profile/page.tsx` - **MODIFIÉ** : Ajouté `force-dynamic`
-2. ✅ `apps/web/src/app/[locale]/profile/settings/page.tsx` - **MODIFIÉ** : Ajouté `force-dynamic`
-3. ✅ `apps/web/src/app/[locale]/profile/security/page.tsx` - **MODIFIÉ** : Ajouté `force-dynamic`
-4. ✅ `apps/web/src/app/[locale]/profile/activity/page.tsx` - **MODIFIÉ** : Ajouté `force-dynamic`
-5. ✅ `apps/web/src/app/[locale]/profile/notifications/page.tsx` - **MODIFIÉ** : Ajouté `force-dynamic`
+### ✅ `/content/schedule` - Contenu programmé
+- **Statut**: Déjà connecté, amélioration de la gestion d'erreurs
+- **Modifications**:
+  - Ajouté `handleApiError()` pour messages d'erreur standardisés
+  - Utilise déjà `apiClient.get('/v1/scheduled-tasks')`
+  - CRUD complet déjà implémenté
 
-#### Pages de Paramètres (10 pages)
-6. ✅ `apps/web/src/app/[locale]/settings/page.tsx` - **MODIFIÉ** : Ajouté `force-dynamic`
-7. ✅ `apps/web/src/app/[locale]/settings/general/page.tsx` - **MODIFIÉ** : Ajouté `force-dynamic`
-8. ✅ `apps/web/src/app/[locale]/settings/security/page.tsx` - **MODIFIÉ** : Ajouté `force-dynamic`
-9. ✅ `apps/web/src/app/[locale]/settings/billing/page.tsx` - **MODIFIÉ** : Ajouté `force-dynamic`
-10. ✅ `apps/web/src/app/[locale]/settings/notifications/page.tsx` - **MODIFIÉ** : Ajouté `force-dynamic`
-11. ✅ `apps/web/src/app/[locale]/settings/preferences/page.tsx` - **MODIFIÉ** : Ajouté `force-dynamic`
-12. ✅ `apps/web/src/app/[locale]/settings/organization/page.tsx` - **MODIFIÉ** : Ajouté `force-dynamic`
-13. ✅ `apps/web/src/app/[locale]/settings/team/page.tsx` - **MODIFIÉ** : Ajouté `force-dynamic`
-14. ✅ `apps/web/src/app/[locale]/settings/integrations/page.tsx` - **MODIFIÉ** : Ajouté `force-dynamic`
-15. ✅ `apps/web/src/app/[locale]/settings/api/page.tsx` - **MODIFIÉ** : Ajouté `force-dynamic`
-16. ✅ `apps/web/src/app/[locale]/settings/logs/page.tsx` - **MODIFIÉ** : Ajouté `force-dynamic`
+### ✅ `/content/templates` - Modèles de contenu
+- **Statut**: Déjà connecté, amélioration de la gestion d'erreurs
+- **Modifications**:
+  - Ajouté `handleApiError()` pour messages d'erreur standardisés
+  - Utilise déjà `apiClient.get('/v1/templates')`
+  - CRUD complet déjà implémenté
 
-### Modifications Apportées
+### ⚠️ `/content/media` - Bibliothèque média
+- **Statut**: Nécessite développement backend
+- **Problème**: Endpoints `/v1/media` n'existent pas encore
+- **Note**: Endpoint d'upload existe dans `backend/app/api/upload.py` mais pas intégré dans `/v1/`
+- **Action requise**: Créer endpoints backend pour media management
 
-**Pattern appliqué** :
+---
+
+## 🔌 API Endpoints Utilisés
+
+### Schedule (✅ Connecté)
+- ✅ `GET /api/v1/scheduled-tasks` - Liste des tâches programmées
+- ✅ `POST /api/v1/scheduled-tasks` - Créer une tâche
+- ✅ `PUT /api/v1/scheduled-tasks/{id}` - Mettre à jour une tâche
+- ✅ `DELETE /api/v1/scheduled-tasks/{id}` - Supprimer une tâche
+
+### Templates (✅ Connecté)
+- ✅ `GET /api/v1/templates` - Liste des templates
+- ✅ `POST /api/v1/templates` - Créer un template
+- ✅ `PUT /api/v1/templates/{id}` - Mettre à jour un template
+- ✅ `DELETE /api/v1/templates/{id}` - Supprimer un template
+
+### Media (❌ Manquant)
+- ❌ `GET /api/v1/media` - Liste des médias (à créer)
+- ❌ `POST /api/v1/media` - Upload média (à créer)
+- ❌ `DELETE /api/v1/media/{id}` - Supprimer média (à créer)
+
+**Note**: Endpoint `/api/upload/file` existe mais pas dans `/v1/` et pas pour media management spécifique
+
+---
+
+## 📦 Fichiers Modifiés
+
+### Modifiés
+- `apps/web/src/app/[locale]/content/schedule/page.tsx` - Amélioration gestion d'erreurs
+- `apps/web/src/app/[locale]/content/templates/page.tsx` - Amélioration gestion d'erreurs
+
+### Non Modifiés (nécessite backend)
+- `apps/web/src/app/[locale]/content/media/page.tsx` - Attend développement backend
+
+---
+
+## ✅ Vérifications Effectuées
+
+### TypeScript
+- ✅ Aucune erreur de compilation détectée
+
+### Lint
+- ✅ Aucune erreur de lint détectée
+
+### Fonctionnalités
+- ✅ Schedule fonctionne correctement
+- ✅ Templates fonctionne correctement
+- ⚠️ Media nécessite endpoints backend
+
+### API Connections
+- ✅ Schedule et Templates marqués comme "connected"
+- ⚠️ Media marqué comme "needs-integration"
+
+---
+
+## 📈 Statistiques
+
+### Avant Batch 5
+- Pages connectées: ~125
+
+### Après Batch 5
+- Pages connectées: +0 pages (déjà connectées)
+- **Total pages connectées**: ~125
+- **Améliorations**: Gestion d'erreurs standardisée sur 2 pages
+- **En attente**: 1 page nécessite développement backend
+
+### Progression
+- **2 pages** vérifiées et améliorées dans ce batch
+- **1 page** nécessite développement backend
+
+---
+
+## 🐛 Problèmes Rencontrés
+
+### Problème 1: Media endpoints manquants
+- **Problème**: Les endpoints `/v1/media` n'existent pas dans le backend
+- **Cause**: Endpoint d'upload existe mais pas intégré dans `/v1/` et pas de gestion complète des médias
+- **Solution**: Nécessite création d'endpoints backend pour media management
+- **Action**: Créer `backend/app/api/v1/endpoints/media.py` avec CRUD complet
+
+---
+
+## 📝 Notes Techniques
+
+### Structure de l'API Schedule
 ```typescript
-// Force dynamic rendering to avoid static generation
-export const dynamic = 'force-dynamic';
-export const dynamicParams = true;
+apiClient.get('/v1/scheduled-tasks')
+apiClient.post('/v1/scheduled-tasks', data)
+apiClient.put('/v1/scheduled-tasks/{id}', data)
+apiClient.delete('/v1/scheduled-tasks/{id}')
 ```
 
-**Fichiers modifiés** : 16 fichiers
-- 5 pages de profil
-- 11 pages de paramètres
+### Structure de l'API Templates
+```typescript
+apiClient.get('/v1/templates')
+apiClient.post('/v1/templates', data)
+apiClient.put('/v1/templates/{id}', data)
+apiClient.delete('/v1/templates/{id}')
+```
 
-### Vérifications
+### Media - À Créer
+```typescript
+// Nécessite création backend
+GET /api/v1/media
+POST /api/v1/media (upload)
+DELETE /api/v1/media/{id}
+```
 
-- ✅ TypeScript : Compilation réussie
+---
 
-### Impact Estimé
+## 🎯 Prochaines Étapes
 
-- **Pages statiques réduites** : ~16 pages × 4 locales = **64 pages statiques réduites**
-- **Note** : Toutes ces pages étaient statiques et nécessitent maintenant un rendu dynamique car elles dépendent de données utilisateur authentifiées.
+### Pour Media
+1. Créer `backend/app/api/v1/endpoints/media.py`
+2. Implémenter endpoints CRUD pour media
+3. Ajouter au router principal
+4. Créer `apps/web/src/lib/api/media.ts`
+5. Intégrer dans `/content/media/page.tsx`
 
-### Prochaines Étapes
+### Batch Suivant
+- Batch 6: Help Center (décision statique/dynamique nécessaire)
 
-1. Pousser les changements
-2. Passer au Batch 6 : Pages Client Portal
+---
 
+## ✅ Checklist Finale
+
+- [x] TypeScript compile sans erreurs
+- [x] Pas d'erreurs de lint
+- [x] Schedule et Templates fonctionnent correctement
+- [x] Gestion d'erreurs améliorée et standardisée
+- [x] Code commité et poussé
+- [ ] Media nécessite développement backend (documenté)
+
+---
+
+**Commit**: `302e355e`  
+**Branch**: `INITIALComponentRICH`  
+**Status**: ⚠️ Partially Complete - Media requires backend development
