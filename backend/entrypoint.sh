@@ -41,11 +41,13 @@ if [ -n "$DATABASE_URL" ]; then
     # Count actual head revisions (lines that contain revision IDs)
     HEAD_COUNT=$(echo "$HEADS_OUTPUT" | grep -E "^[a-f0-9]+_[a-z_]+" | wc -l | tr -d ' ')
     
-    # Check if merge migration 023 already exists
-    MERGE_EXISTS=$(ls alembic/versions/023_merge_migration_heads.py 2>/dev/null || echo "")
+    # Check if merge migration 023 already exists in filesystem
+    MERGE_FILE_EXISTS=$(ls alembic/versions/023_merge_migration_heads.py 2>/dev/null || echo "")
+    # Also check if any merge migration file exists (pattern: *merge*.py)
+    ANY_MERGE_EXISTS=$(ls alembic/versions/*merge*.py 2>/dev/null | head -1 || echo "")
     
-    # If multiple heads detected and merge doesn't exist, try to merge them
-    if [ "$HEAD_COUNT" -gt 1 ] && [ -z "$MERGE_EXISTS" ]; then
+    # If multiple heads detected and no merge exists, try to merge them
+    if [ "$HEAD_COUNT" -gt 1 ] && [ -z "$MERGE_FILE_EXISTS" ] && [ -z "$ANY_MERGE_EXISTS" ]; then
         echo "⚠️  Multiple migration heads detected ($HEAD_COUNT heads). Attempting to merge..."
         # Get all head revisions
         HEADS=$(echo "$HEADS_OUTPUT" | grep -E "^[a-f0-9]+_[a-z_]+" | tr '\n' ' ')
@@ -59,8 +61,12 @@ if [ -n "$DATABASE_URL" ]; then
                 echo "⚠️  Could not create merge migration (may already exist or error occurred)"
             fi
         fi
-    elif [ "$HEAD_COUNT" -gt 1 ] && [ -n "$MERGE_EXISTS" ]; then
-        echo "ℹ️  Multiple heads detected but merge migration 023 already exists - will use existing merge"
+    elif [ "$HEAD_COUNT" -gt 1 ]; then
+        if [ -n "$MERGE_FILE_EXISTS" ]; then
+            echo "ℹ️  Multiple heads detected but merge migration 023 already exists - will use existing merge"
+        elif [ -n "$ANY_MERGE_EXISTS" ]; then
+            echo "ℹ️  Multiple heads detected but merge migration already exists: $(basename $ANY_MERGE_EXISTS) - will use existing merge"
+        fi
     fi
     
     # Run migrations with timeout (60 seconds max) - don't fail if migrations fail
