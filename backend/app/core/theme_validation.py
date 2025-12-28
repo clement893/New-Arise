@@ -469,7 +469,13 @@ def validate_theme_contrast(config: Dict[str, Any], strict: bool = False) -> Tup
                     meets_aa = meets_wcag_aa(fg_hex, bg_hex, is_ui_component=True)
                     
                     if not meets_aa:
-                        level = 'AA' if ratio >= 3.0 else 'fail'
+                        # Classify issues by severity:
+                        # - 'warning': ratio >= 2.0 but < 3.0 (close to threshold, allow with warning)
+                        # - 'fail': ratio < 2.0 (too low, block)
+                        if ratio >= 2.0:
+                            level = 'warning'
+                        else:
+                            level = 'fail'
                         issues.append({
                             'type': 'ui',
                             'element': element,
