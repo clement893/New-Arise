@@ -5,6 +5,7 @@
 
 import { logger } from '@/lib/logger';
 import { getFont } from '@/lib/api/theme-font';
+import type { ThemeFont } from '@modele/types';
 
 interface FontLoadOptions {
   display?: 'auto' | 'block' | 'swap' | 'fallback' | 'optional';
@@ -184,3 +185,80 @@ export function waitForFont(
   });
 }
 
+/**
+ * Load theme fonts from S3 by font IDs
+ * Fetches font metadata and creates @font-face rules to load the fonts
+ * 
+ * @param fontIds Array of font IDs to load
+ * @returns Promise that resolves when all fonts are loaded
+ */
+export async function loadThemeFonts(fontIds: number[]): Promise<void> {
+  if (typeof document === 'undefined') {
+    return; // SSR, skip
+  }
+
+  if (!fontIds || fontIds.length === 0) {
+    return;
+  }
+
+  try {
+    // Fetch all fonts in parallel
+    const fontPromises = fontIds.map(id => getFont(id).catch((error) => {
+      logger.warn(`[Font Loader] Failed to fetch font ${id}`, { error, fontId: id });
+      return null; // Return null for failed fonts
+    }));
+
+    const fonts = await Promise.all(fontPromises);
+    const validFonts = fonts.filter((font): font is ThemeFont => font !== null);
+
+    if (validFonts.length === 0) {
+      logger.warn('[Font Loader] No valid fonts to load', { fontIds });
+      return;
+    }
+
+    // Create @font-face rules for each font
+    const styleId = 'theme-fonts-dynamic';
+    let styleElement = document.getElementById(styleId) as HTMLStyleElement | null;
+
+    if (!styleElement) {
+      styleElement = document.createElement('style');
+      styleElement.id = styleId;
+      document.head.appendChild(styleElement);
+    }
+
+    // Build @font-face rules
+    const fontFaceRules: string[] = [];
+
+    for (const font of validFonts) {
+      const fontFamily = font.font_family;
+      const fontUrl = font.url;
+      const fontWeight = font.font_weight || 'normal';
+      const fontStyle = font.font_style || 'normal';
+      const fontFormat = font.font_format || 'woff2';
+
+      // Create @font-face rule
+      const fontFaceRule = `
+@font-face {
+  font-family: "${fontFamily}";
+  src: url("${fontUrl}") format("${fontFormat}");
+  font-weight: ${fontWeight};
+  font-style: ${fontStyle};
+  font-display: swap;
+}`;
+      fontFaceRules.push(fontFaceRule);
+    }
+
+    // Append new rules to style element
+    styleElement.textContent += fontFaceRules.join('\n');
+
+    logger.info('[Font Loader] Loaded theme fonts', {
+      count: validFonts.length,
+      fontIds: validFonts.map(f => f.id),
+      fontFamilies: validFonts.map(f => f.font_family),
+    });
+
+  } catch (error) {
+    logger.error('[Font Loader] Failed to load theme fonts', { error, fontIds });
+    throw error;
+  }
+}

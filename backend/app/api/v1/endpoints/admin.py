@@ -26,6 +26,8 @@ from app.core.tenancy import (
 )
 from app.core.tenant_database_manager import TenantDatabaseManager
 from app.core.tenancy_metrics import TenancyMetrics
+from app.services.rbac_service import RBACService
+from app.models import Permission, RolePermission
 
 router = APIRouter()
 
@@ -724,4 +726,270 @@ async def update_tenancy_config(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to update tenancy configuration"
+        )
+
+
+class RBACDiagnosticResponse(BaseModel):
+    """Response model for RBAC diagnostic"""
+    roles_count: int
+    permissions_count: int
+    user_has_superadmin: bool
+    user_roles: List[str]
+    user_permissions: List[str]
+    required_permissions_status: dict
+    recommendations: List[str]
+
+
+class RBACFixRequest(BaseModel):
+    """Request model for fixing RBAC issues"""
+    user_email: EmailStr
+    seed_data: bool = True
+    assign_superadmin: bool = True
+
+
+class RBACFixResponse(BaseModel):
+    """Response model for RBAC fix"""
+    success: bool
+    message: str
+    roles_created: int = 0
+    permissions_created: int = 0
+    superadmin_assigned: bool = False
+
+
+@router.get(
+    "/rbac/diagnose",
+    response_model=RBACDiagnosticResponse,
+    tags=["admin", "rbac"]
+)
+async def diagnose_rbac(
+    user_email: Optional[str] = Query(None, description="Email of user to diagnose"),
+    db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
+):
+    """
+    Diagnose RBAC issues.
+    Can be called without authentication if user_email is provided.
+    """
+    from sqlalchemy import func
+    
+    rbac_service = RBACService(db)
+    recommendations = []
+    
+    # Check roles
+    roles_result = await db.execute(select(Role))
+    roles = roles_result.scalars().all()
+    roles_count = len(roles)
+    
+    # Check permissions
+    perms_result = await db.execute(select(Permission))
+    permissions = perms_result.scalars().all()
+    permissions_count = len(permissions)
+    
+    # Check user if provided
+    user_has_superadmin = False
+    user_roles = []
+    user_permissions = []
+    required_permissions_status = {}
+    
+    target_user = current_user
+    if user_email:
+        user_result = await db.execute(select(User).where(User.email == user_email))
+        target_user = user_result.scalar_one_or_none()
+    
+    if target_user:
+        user_roles_list = await rbac_service.get_user_roles(target_user.id)
+        user_roles = [role.slug for role in user_roles_list]
+        user_has_superadmin = await rbac_service.has_role(target_user.id, "superadmin")
+        user_permissions_set = await rbac_service.get_user_permissions(target_user.id)
+        user_permissions = sorted(list(user_permissions_set))
+        
+        # Check required permissions
+        required_perms = ["roles:read", "permissions:read", "users:read"]
+        for perm in required_perms:
+            has_perm = await rbac_service.has_permission(target_user.id, perm)
+            required_permissions_status[perm] = has_perm
+    
+    # Generate recommendations
+    if roles_count == 0:
+        recommendations.append("No roles found. Run seed script to create default roles.")
+    if permissions_count < 20:
+        recommendations.append("Very few permissions found. Run seed script to create default permissions.")
+    if target_user and not user_has_superadmin:
+        recommendations.append(f"User '{target_user.email}' does not have superadmin role. Assign superadmin role to fix RBAC access.")
+    if target_user:
+        missing_perms = [perm for perm, has_it in required_permissions_status.items() if not has_it]
+        if missing_perms:
+            recommendations.append(f"User is missing permissions: {', '.join(missing_perms)}")
+    
+    return RBACDiagnosticResponse(
+        roles_count=roles_count,
+        permissions_count=permissions_count,
+        user_has_superadmin=user_has_superadmin,
+        user_roles=user_roles,
+        user_permissions=user_permissions,
+        required_permissions_status=required_permissions_status,
+        recommendations=recommendations,
+    )
+
+
+@router.post(
+    "/rbac/fix",
+    response_model=RBACFixResponse,
+    tags=["admin", "rbac"]
+)
+async def fix_rbac(
+    request: RBACFixRequest,
+    bootstrap_key: Optional[str] = Header(None, alias="X-Bootstrap-Key", description="Bootstrap key from environment (optional)"),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Fix RBAC issues by seeding data and/or assigning superadmin role.
+    Can be called with bootstrap key (no auth required) or with superadmin auth.
+    """
+    # Check if bootstrap key is provided or if user is authenticated
+    if bootstrap_key:
+        expected_key = os.getenv("BOOTSTRAP_SUPERADMIN_KEY")
+        if not expected_key or bootstrap_key != expected_key:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid bootstrap key"
+            )
+    else:
+        # Try to get current user, but don't require it if bootstrap key is used
+        try:
+            from app.dependencies import get_current_user
+            current_user = await get_current_user()
+            # If we get here, user is authenticated, check if superadmin
+            rbac_service = RBACService(db)
+            if not await rbac_service.has_role(current_user.id, "superadmin"):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Superadmin permission required"
+                )
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authentication required or provide valid bootstrap key"
+            )
+    
+    rbac_service = RBACService(db)
+    roles_created = 0
+    permissions_created = 0
+    superadmin_assigned = False
+    
+    try:
+        # Seed permissions if requested
+        if request.seed_data:
+            # Define default permissions
+            default_permissions = [
+                ("users", "read", "Read user information"),
+                ("users", "create", "Create new users"),
+                ("users", "update", "Update user information"),
+                ("users", "delete", "Delete users"),
+                ("users", "list", "List all users"),
+                ("roles", "read", "Read role information"),
+                ("roles", "create", "Create new roles"),
+                ("roles", "update", "Update role information"),
+                ("roles", "delete", "Delete roles"),
+                ("roles", "list", "List all roles"),
+                ("permissions", "read", "Read permission information"),
+                ("permissions", "create", "Create new permissions"),
+                ("permissions", "update", "Update permission information"),
+                ("permissions", "delete", "Delete permissions"),
+                ("permissions", "list", "List all permissions"),
+                ("admin", "*", "All admin permissions"),
+            ]
+            
+            for resource, action, description in default_permissions:
+                name = f"{resource}:{action}"
+                perm_result = await db.execute(select(Permission).where(Permission.name == name))
+                existing = perm_result.scalar_one_or_none()
+                
+                if not existing:
+                    await rbac_service.create_permission(resource, action, description)
+                    permissions_created += 1
+            
+            # Define default roles
+            default_roles = [
+                {
+                    "name": "Super Admin",
+                    "slug": "superadmin",
+                    "description": "Super administrator with all permissions",
+                    "is_system": True,
+                    "permissions": ["admin:*"],
+                },
+                {
+                    "name": "Admin",
+                    "slug": "admin",
+                    "description": "Administrator with most permissions",
+                    "is_system": True,
+                    "permissions": ["admin:*", "users:read", "users:update", "users:list"],
+                },
+            ]
+            
+            for role_data in default_roles:
+                role_result = await db.execute(select(Role).where(Role.slug == role_data["slug"]))
+                existing_role = role_result.scalar_one_or_none()
+                
+                if not existing_role:
+                    role = await rbac_service.create_role(
+                        name=role_data["name"],
+                        slug=role_data["slug"],
+                        description=role_data["description"],
+                        is_system=role_data["is_system"],
+                    )
+                    roles_created += 1
+                    
+                    # Assign permissions to role
+                    for perm_name in role_data["permissions"]:
+                        perm_result = await db.execute(select(Permission).where(Permission.name == perm_name))
+                        perm = perm_result.scalar_one_or_none()
+                        
+                        if perm:
+                            try:
+                                await rbac_service.assign_permission_to_role(role.id, perm.id)
+                            except ValueError:
+                                pass  # Already assigned
+        
+        # Assign superadmin role if requested
+        if request.assign_superadmin:
+            user_result = await db.execute(select(User).where(User.email == request.user_email))
+            user = user_result.scalar_one_or_none()
+            
+            if not user:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"User with email '{request.user_email}' not found"
+                )
+            
+            role_result = await db.execute(select(Role).where(Role.slug == "superadmin"))
+            superadmin_role = role_result.scalar_one_or_none()
+            
+            if not superadmin_role:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Superadmin role not found. Please seed data first."
+                )
+            
+            has_role = await rbac_service.has_role(user.id, "superadmin")
+            if not has_role:
+                await rbac_service.assign_role(user.id, superadmin_role.id)
+                superadmin_assigned = True
+            else:
+                superadmin_assigned = True  # Already has it
+        
+        return RBACFixResponse(
+            success=True,
+            message="RBAC fix completed successfully",
+            roles_created=roles_created,
+            permissions_created=permissions_created,
+            superadmin_assigned=superadmin_assigned,
+        )
+    
+    except Exception as e:
+        logger.error(f"Error fixing RBAC: {e}", exc_info=True)
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fix RBAC: {str(e)}"
         )
