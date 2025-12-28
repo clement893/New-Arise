@@ -73,8 +73,8 @@ export default function TemplatesManagementPage() {
       setIsLoading(false);
     } catch (error) {
       logger.error('Failed to load templates', error instanceof Error ? error : new Error(String(error)));
-      const errorMessage = handleApiError(error);
-      setError(errorMessage || t('errors.loadFailed') || 'Failed to load templates. Please try again.');
+      const appError = handleApiError(error);
+      setError(appError.message || t('errors.loadFailed') || 'Failed to load templates. Please try again.');
       setIsLoading(false);
     }
   };
@@ -85,8 +85,8 @@ export default function TemplatesManagementPage() {
       await loadTemplates();
     } catch (error) {
       logger.error('Failed to create template', error instanceof Error ? error : new Error(String(error)));
-      const errorMessage = handleApiError(error);
-      setError(errorMessage || 'Failed to create template. Please try again.');
+      const appError = handleApiError(error);
+      setError(appError.message || 'Failed to create template. Please try again.');
       throw error;
     }
   };
@@ -97,8 +97,8 @@ export default function TemplatesManagementPage() {
       await loadTemplates();
     } catch (error) {
       logger.error('Failed to update template', error instanceof Error ? error : new Error(String(error)));
-      const errorMessage = handleApiError(error);
-      setError(errorMessage || 'Failed to update template. Please try again.');
+      const appError = handleApiError(error);
+      setError(appError.message || 'Failed to update template. Please try again.');
       throw error;
     }
   };
@@ -109,8 +109,8 @@ export default function TemplatesManagementPage() {
       await loadTemplates();
     } catch (error) {
       logger.error('Failed to delete template', error instanceof Error ? error : new Error(String(error)));
-      const errorMessage = handleApiError(error);
-      setError(errorMessage || 'Failed to delete template. Please try again.');
+      const appError = handleApiError(error);
+      setError(appError.message || 'Failed to delete template. Please try again.');
       throw error;
     }
   };

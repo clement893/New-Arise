@@ -64,8 +64,8 @@ export default function SurveyResultsPage() {
       }
     } catch (error) {
       logger.error('Failed to load survey results', error instanceof Error ? error : new Error(String(error)));
-      const errorMessage = handleApiError(error);
-      setError(errorMessage || t('errors.loadFailed') || 'Failed to load survey results. Please try again.');
+      const appError = handleApiError(error);
+      setError(appError.message || t('errors.loadFailed') || 'Failed to load survey results. Please try again.');
     } finally {
       setIsLoading(false);
     }

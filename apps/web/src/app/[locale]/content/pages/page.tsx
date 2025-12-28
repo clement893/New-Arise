@@ -16,7 +16,7 @@ import { PageHeader, PageContainer } from '@/components/layout';
 import { Loading, Alert } from '@/components/ui';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { logger } from '@/lib/logger';
-import { pagesAPI, type Page as ApiPage } from '@/lib/api/pages';
+import { pagesAPI } from '@/lib/api/pages';
 import { handleApiError } from '@/lib/errors';
 
 export default function PagesManagementPage() {

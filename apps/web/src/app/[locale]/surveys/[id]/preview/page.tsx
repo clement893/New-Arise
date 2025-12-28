@@ -39,8 +39,8 @@ export default function SurveyPreviewPage() {
       }
     } catch (error) {
       logger.error('Failed to load survey', error instanceof Error ? error : new Error(String(error)));
-      const errorMessage = handleApiError(error);
-      setError(errorMessage || t('errors.loadFailed') || 'Failed to load survey. Please try again.');
+      const appError = handleApiError(error);
+      setError(appError.message || t('errors.loadFailed') || 'Failed to load survey. Please try again.');
     } finally {
       setIsLoading(false);
     }

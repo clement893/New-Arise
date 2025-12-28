@@ -53,8 +53,8 @@ export default function FormSubmissionsPage() {
       setIsLoading(false);
     } catch (error) {
       logger.error('Failed to load submissions', error instanceof Error ? error : new Error(String(error)));
-      const errorMessage = handleApiError(error);
-      setError(errorMessage || t('errors.loadFailed') || 'Failed to load submissions. Please try again.');
+      const appError = handleApiError(error);
+      setError(appError.message || t('errors.loadFailed') || 'Failed to load submissions. Please try again.');
       setIsLoading(false);
     }
   };
@@ -66,8 +66,8 @@ export default function FormSubmissionsPage() {
       setSubmissions(submissions.filter((s) => s.id !== id));
     } catch (error) {
       logger.error('Failed to delete submission', error instanceof Error ? error : new Error(String(error)));
-      const errorMessage = handleApiError(error);
-      setError(errorMessage || 'Failed to delete submission. Please try again.');
+      const appError = handleApiError(error);
+      setError(appError.message || 'Failed to delete submission. Please try again.');
       throw error;
     }
   };
