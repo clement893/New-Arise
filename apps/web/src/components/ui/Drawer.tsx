@@ -192,6 +192,8 @@ export default function Drawer({
       const firstFocusable = focusableElements[0];
       const lastFocusable = focusableElements[focusableElements.length - 1];
 
+      if (!firstFocusable || !lastFocusable) return;
+
       if (e.shiftKey) {
         // Shift + Tab: if focus is on first element, move to last
         if (document.activeElement === firstFocusable) {
