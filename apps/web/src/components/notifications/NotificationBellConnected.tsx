@@ -7,7 +7,6 @@
 
 import { useRouter } from 'next/navigation';
 import { useNotifications } from '@/hooks/useNotifications';
-import { useNotificationCount } from '@/hooks/useNotificationCount';
 import NotificationBell from './NotificationBell';
 import type { NotificationUI } from '@/types/notification';
 
@@ -35,6 +34,7 @@ export default function NotificationBellConnected({
   // Get notifications (limited to recent 5 for dropdown)
   const {
     notifications,
+    unreadCount,
     loading: notificationsLoading,
     markAsRead,
     markAllAsRead,
@@ -42,11 +42,6 @@ export default function NotificationBellConnected({
   } = useNotifications({
     initialFilters: { skip: 0, limit: 5 },
     enableWebSocket,
-    autoFetch: true,
-  });
-
-  // Get unread count for badge (with polling)
-  const { loading: countLoading } = useNotificationCount({
     pollInterval,
     autoFetch: true,
   });
@@ -67,8 +62,8 @@ export default function NotificationBellConnected({
     }
   };
 
-  // Show loading state if both are loading
-  if (notificationsLoading && countLoading) {
+  // Show loading state
+  if (notificationsLoading) {
     return (
       <div className={className}>
         <div className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-700 animate-pulse" />
