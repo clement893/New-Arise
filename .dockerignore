@@ -76,6 +76,7 @@ apps/admin
 
 # Scripts (except build scripts)
 scripts
+!scripts/generate-frontend-api-manifest.js
 !apps/web/scripts/prepare-build-env.js
 
 # Tests
