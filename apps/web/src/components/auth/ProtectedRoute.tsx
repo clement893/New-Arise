@@ -44,7 +44,6 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
   const checkingRef = useRef(false);
   const lastUserRef = useRef(user);
   const lastTokenRef = useRef(token);
-  const hydrationCheckedRef = useRef(false);
 
   useEffect(() => {
     // If user or token changed, update refs but only reset if going from authenticated to unauthenticated
