@@ -7,7 +7,6 @@ import { apiClient } from '@/lib/api';
 import type {
   Notification,
   NotificationCreate,
-  NotificationUpdate,
   NotificationListResponse,
   NotificationUnreadCountResponse,
   NotificationFilters,

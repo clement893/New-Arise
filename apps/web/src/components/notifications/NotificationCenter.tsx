@@ -12,7 +12,7 @@ import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import { Bell, Check, X } from 'lucide-react';
 import Avatar from '@/components/ui/Avatar';
-import type { Notification as NotificationType, NotificationUI } from '@/types/notification';
+import type { NotificationUI } from '@/types/notification';
 
 export interface NotificationCenterProps {
   notifications: NotificationUI[];
@@ -162,7 +162,7 @@ export default function NotificationCenter({
               key={notification.id}
               className={clsx(
                 'p-4 rounded-lg border transition-colors',
-                getTypeStyles(notification.type),
+                getTypeStyles(notification.notification_type),
                 !notification.read && 'ring-2 ring-primary-500 dark:ring-primary-400'
               )}
             >
