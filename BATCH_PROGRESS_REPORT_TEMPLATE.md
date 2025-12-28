@@ -62,12 +62,40 @@
 
 ## ✅ Vérifications Effectuées
 
+### Vérification API Automatique
+
+**Commandes utilisées** (voir `docs/API_CONNECTION_CHECKER.md`) :
+```bash
+# Avant le batch
+pnpm api:check > status-before-batch-X.txt
+
+# Après le batch
+pnpm api:check > status-after-batch-X.txt
+pnpm api:check:backend > backend-status-after-batch-X.txt
+```
+
+**Résultats** :
+- ✅ Toutes les pages du batch marquées comme "connected" par `check-api-connections.js`
+- ✅ Tous les modules API détectés et fonctionnels
+- ✅ Tous les endpoints backend vérifiés et enregistrés dans le router
+- ✅ Aucune page "partial" ou "needs-integration" restante dans ce batch
+
+**Vérification détaillée** :
+```bash
+# Pour chaque page du batch
+node scripts/check-api-connections.js --page /path/to/page
+```
+
 ### TypeScript
-- ✅ Aucune erreur de compilation détectée
+- ✅ Aucune erreur de compilation détectée (`pnpm --filter web type-check`)
 - ✅ Types correctement définis et exportés
 
 ### Lint
-- ✅ Aucune erreur de lint détectée
+- ✅ Aucune erreur de lint détectée (`pnpm --filter web lint`)
+
+### Build
+- ✅ Build Next.js réussit (`pnpm --filter web build`)
+- ⚠️ Note: Build peut échouer en local si `NEXT_PUBLIC_API_URL` n'est pas défini (normal)
 
 ### Fonctionnalités
 - ✅ Liste fonctionne
@@ -77,10 +105,11 @@
 - ✅ Gestion d'erreurs implémentée
 - ✅ États de chargement gérés
 
-### API Connections
+### API Connections (Vérification Automatique)
 - ✅ Toutes les pages marquées comme "connected" dans le système de vérification
 - ✅ Module `[module]API` créé et fonctionnel
 - ✅ Tous les endpoints backend utilisés correctement
+- ✅ Vérification backend: tous les endpoints enregistrés dans le router
 
 ---
 
@@ -101,15 +130,28 @@
 ## 📈 Statistiques
 
 ### Avant Batch X
-- Pages connectées: ~X
+**Généré avec** `pnpm api:check` :
+- Pages connectées: ~X (depuis `status-before-batch-X.txt`)
+- Pages partielles: ~X
+- Pages nécessitant intégration: ~X
 
 ### Après Batch X
+**Généré avec** `pnpm api:check` :
 - Pages connectées: +X pages
-- **Total pages connectées**: ~X
+- **Total pages connectées**: ~X (depuis `status-after-batch-X.txt`)
+- Pages partielles: ~X
+- Pages nécessitant intégration: ~X
 
 ### Progression
 - **X pages** connectées dans ce batch
 - **100%** des pages du batch complétées (ou X% si partiel)
+- **Réduction**: X pages de moins dans "needs-integration"
+
+**Comparaison** :
+```bash
+# Comparer avant/après
+diff status-before-batch-X.txt status-after-batch-X.txt
+```
 
 ---
 
@@ -147,15 +189,42 @@ export const [module]API = {
 
 ## ✅ Checklist Finale
 
-- [x] Tous les fichiers TypeScript compilent sans erreurs
-- [x] Build Next.js réussit (à vérifier en production)
-- [x] Pas d'erreurs de lint
-- [x] Les X pages fonctionnent correctement
+### Vérifications Automatiques (API Connection Checker)
+- [ ] `pnpm api:check` exécuté avant le batch (résultats sauvegardés)
+- [ ] `pnpm api:check` exécuté après le batch (résultats sauvegardés)
+- [ ] `pnpm api:check:backend` exécuté pour vérifier les endpoints backend
+- [ ] Toutes les pages du batch marquées comme "connected" (pas "partial" ou "needs-integration")
+- [ ] Comparaison avant/après effectuée (`diff status-before-batch-X.txt status-after-batch-X.txt`)
+
+### Vérifications Techniques
+- [x] Tous les fichiers TypeScript compilent sans erreurs (`pnpm --filter web type-check`)
+- [x] Build Next.js réussit (`pnpm --filter web build`)
+- [x] Pas d'erreurs de lint (`pnpm --filter web lint`)
+- [x] Les X pages fonctionnent correctement (tests manuels)
 - [x] Gestion d'erreurs testée
 - [x] États de chargement affichés correctement
-- [x] Vérification API automatique: pages marquées comme "connected"
+
+### Vérifications Backend
+- [ ] Tous les endpoints backend créés (si applicable)
+- [ ] Tous les endpoints enregistrés dans `backend/app/api/v1/router.py`
+- [ ] `pnpm api:check:backend` confirme que tous les modules sont enregistrés
+
+### Documentation et Git
 - [x] Code commité et poussé
-- [x] Documentation mise à jour
+- [x] Documentation mise à jour (`APP_PAGES_AND_FEATURES.md` mis à jour)
+- [x] Rapport de progression créé (ce fichier)
+
+---
+
+## 📚 Ressources Utilisées
+
+- **Outil de vérification API**: `docs/API_CONNECTION_CHECKER.md`
+- **Scripts de vérification**: 
+  - `scripts/check-api-connections.js` - Vérification frontend
+  - `scripts/check-api-connections-backend.js` - Vérification backend
+  - `scripts/generate-api-connection-report.js` - Génération de rapport
+- **Plan d'intégration**: `API_INTEGRATION_BATCH_PLAN.md`
+- **Liste des pages**: `APP_PAGES_AND_FEATURES.md`
 
 ---
 
@@ -163,3 +232,7 @@ export const [module]API = {
 **Branch**: `[branch-name]`  
 **Status**: ⚠️ In Progress / ✅ Ready for Production / ❌ Blocked
 
+**Fichiers de vérification générés** :
+- `status-before-batch-X.txt` - État avant le batch
+- `status-after-batch-X.txt` - État après le batch
+- `backend-status-after-batch-X.txt` - État backend après le batch

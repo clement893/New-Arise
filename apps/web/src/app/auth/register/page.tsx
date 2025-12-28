@@ -124,7 +124,12 @@ export default function RegisterPage() {
       // Transform user data to store format
       const userForStore = transformApiUserToStoreUser(user);
 
-      login(userForStore, access_token, refresh_token);
+      // CRITICAL: Wait for token storage to complete before redirecting
+      await login(userForStore, access_token, refresh_token);
+      
+      // Small delay to ensure token is available in sessionStorage for ProtectedRoute
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
       router.push('/dashboard');
     } catch (err) {
       const axiosError = err as AxiosError<ApiErrorResponse>;
