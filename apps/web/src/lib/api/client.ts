@@ -110,7 +110,8 @@ class ApiClient {
               logger.warn('Token refresh failed', refreshError);
               await TokenStorage.removeTokens();
               
-              if (typeof window !== 'undefined') {
+              // Prevent redirect loop - check if already on login page
+              if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth/login')) {
                 window.location.href = '/auth/login?error=session_expired';
               }
               
@@ -121,7 +122,8 @@ class ApiClient {
             logger.warn('No refresh token available for 401 error');
             await TokenStorage.removeTokens();
             
-            if (typeof window !== 'undefined') {
+            // Prevent redirect loop - check if already on login page
+            if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth/login')) {
               window.location.href = '/auth/login?error=unauthorized';
             }
             

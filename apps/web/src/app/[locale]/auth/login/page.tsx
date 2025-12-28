@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 import { useRouter, Link } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
 import { AxiosError } from 'axios';
@@ -22,11 +22,20 @@ function LoginContent() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setLocalError] = useState('');
+  const errorProcessedRef = useRef<string | null>(null);
 
   // Read error from URL query parameter
   useEffect(() => {
     const errorParam = searchParams.get('error');
+    
     if (errorParam) {
+      // Prevent processing the same error multiple times
+      if (errorProcessedRef.current === errorParam) {
+        return;
+      }
+      
+      errorProcessedRef.current = errorParam;
+      
       let errorMessage = decodeURIComponent(errorParam);
       
       // Translate common error codes to user-friendly messages
@@ -43,8 +52,15 @@ function LoginContent() {
       
       setLocalError(errorMessage);
       setError(errorMessage);
+    } else {
+      // Clear error if no error param in URL
+      if (errorProcessedRef.current !== null) {
+        errorProcessedRef.current = null;
+        setLocalError('');
+        setError(null);
+      }
     }
-  }, [searchParams, setError]);
+  }, [searchParams]); // Removed setError from dependencies as it's stable from Zustand
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

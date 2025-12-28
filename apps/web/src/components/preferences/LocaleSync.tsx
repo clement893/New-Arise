@@ -86,6 +86,13 @@ export function LocaleSync({ children }: LocaleSyncProps) {
       // Get actual URL pathname (includes locale prefix)
       const actualPathname = typeof window !== 'undefined' ? window.location.pathname : pathname;
       
+      // Skip if on auth pages (login, register, callback) to avoid unnecessary API calls
+      if (actualPathname.includes('/auth/login') || 
+          actualPathname.includes('/auth/register') || 
+          actualPathname.includes('/auth/callback')) {
+        return;
+      }
+      
       // Skip if we've already checked this exact combination in this render cycle
       const checkKey = `${currentLocale}_${actualPathname}`;
       if (hasCheckedRef.current === checkKey && !userChanged && !tokenChanged && !pathnameChanged) {

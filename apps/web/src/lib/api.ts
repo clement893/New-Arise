@@ -184,7 +184,11 @@ apiClient.interceptors.response.use(
           }).catch(async refreshError => {
             // Refresh failed, clear tokens and redirect
             await TokenStorage.removeTokens();
-            window.location.href = '/auth/login?error=session_expired';
+            
+            // Prevent redirect loop - check if already on login page
+            if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth/login')) {
+              window.location.href = '/auth/login?error=session_expired';
+            }
             throw refreshError;
           }).finally(() => {
             refreshTokenPromise = null; // Reset after completion
@@ -207,7 +211,11 @@ apiClient.interceptors.response.use(
       } else {
         // No refresh token, clear tokens and redirect
         await TokenStorage.removeTokens();
-        window.location.href = '/auth/login?error=unauthorized';
+        
+        // Prevent redirect loop - check if already on login page
+        if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth/login')) {
+          window.location.href = '/auth/login?error=unauthorized';
+        }
       }
     }
 
