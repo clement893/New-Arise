@@ -8,7 +8,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { useAuthStore } from '@/lib/store';
 import { apiClient } from '@/lib/api/client';
@@ -31,11 +31,10 @@ interface LocaleSyncProps {
  * Should be placed in the layout to run on every page load.
  */
 export function LocaleSync({ children }: LocaleSyncProps) {
-  const router = useRouter();
   const pathname = usePathname();
   const currentLocale = useLocale() as Locale;
   const { isAuthenticated } = useAuthStore();
-  const [isChecking, setIsChecking] = useState(true);
+  const [_isChecking, setIsChecking] = useState(true);
   const [hasRedirected, setHasRedirected] = useState(false);
 
   useEffect(() => {
