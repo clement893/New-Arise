@@ -9,23 +9,6 @@ import { Edit2, Trash2, Eye, Plus } from 'lucide-react';
 import OrganizationSettings, { type OrganizationSettingsData } from '@/components/settings/OrganizationSettings';
 import type { TeamSettings } from '@/lib/api/teams';
 
-interface LocalTeamSettings {
-  email?: string;
-  phone?: string;
-  website?: string;
-  address?: {
-    line1: string;
-    line2?: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    country: string;
-  };
-  timezone?: string;
-  locale?: string;
-  [key: string]: string | number | boolean | null | undefined | { [key: string]: unknown };
-}
-
 interface Team extends Record<string, unknown> {
   id: number | string;
   name: string;
