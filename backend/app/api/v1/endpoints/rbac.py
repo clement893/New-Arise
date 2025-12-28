@@ -6,6 +6,8 @@ API endpoints for role-based access control
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Request, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from app.core.database import get_db
 from app.dependencies import get_current_user
@@ -293,7 +295,6 @@ async def list_permissions(
     await require_permission("permissions:read", current_user, db, request)
     
     from app.models import Permission
-    from sqlalchemy import select
     
     result = await db.execute(select(Permission).order_by(Permission.resource, Permission.action))
     permissions = result.scalars().all()
@@ -550,7 +551,6 @@ async def add_custom_permission(
     
     # Load permission for response
     from app.models import Permission
-    from sqlalchemy.orm import selectinload
     result = await db.execute(
         select(UserPermission)
         .where(UserPermission.id == user_permission.id)
@@ -668,7 +668,6 @@ async def get_user_custom_permissions(
     custom_permissions = await rbac_service.get_user_custom_permissions(user_id)
     
     # Convert to response format
-    from sqlalchemy.orm import selectinload
     result = await db.execute(
         select(UserPermission)
         .where(UserPermission.user_id == user_id)
