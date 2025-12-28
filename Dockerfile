@@ -52,6 +52,9 @@ COPY apps/web ./apps/web
 COPY packages ./packages
 # Copy scripts directory (needed for api:manifest script)
 COPY scripts ./scripts
+# Copy the API manifest script to apps/web/scripts for easier access during build
+# This allows the script to be found when running from apps/web directory
+RUN mkdir -p apps/web/scripts && cp scripts/generate-frontend-api-manifest.js apps/web/scripts/
 
 # Reinstall to ensure workspace links are correct after types package build
 # Railway caches .pnpm-store automatically via railway.json, so pnpm will reuse cached packages

@@ -13,8 +13,22 @@
 const fs = require('fs');
 const path = require('path');
 
-// Get root directory (scripts/ is at project root)
-const rootDir = path.join(__dirname, '..');
+// Get root directory by finding pnpm-workspace.yaml (project root marker)
+// This works regardless of where the script is located
+function findProjectRoot(startDir) {
+  let currentDir = startDir;
+  while (currentDir !== path.dirname(currentDir)) {
+    const workspaceFile = path.join(currentDir, 'pnpm-workspace.yaml');
+    if (fs.existsSync(workspaceFile)) {
+      return currentDir;
+    }
+    currentDir = path.dirname(currentDir);
+  }
+  // Fallback: if not found, assume we're in scripts/ directory
+  return path.join(__dirname, '..');
+}
+
+const rootDir = findProjectRoot(__dirname);
 const config = {
   frontendPath: path.join(rootDir, 'apps/web/src'),
   pagesPath: path.join(rootDir, 'apps/web/src/app/[locale]'),
