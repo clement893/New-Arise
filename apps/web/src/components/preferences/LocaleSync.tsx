@@ -39,10 +39,15 @@ export function LocaleSync({ children }: LocaleSyncProps) {
 
   useEffect(() => {
     const syncLocale = async () => {
-      // Skip if already redirected or not authenticated
-      if (hasRedirected || !isAuthenticated()) {
+      // Skip if not authenticated
+      if (!isAuthenticated()) {
         setIsChecking(false);
         return;
+      }
+
+      // Reset redirect flag when pathname changes (new page navigation)
+      if (hasRedirected) {
+        setHasRedirected(false);
       }
 
       try {
@@ -63,8 +68,8 @@ export function LocaleSync({ children }: LocaleSyncProps) {
               ? pathWithoutLocale 
               : `/${preferredLanguage}${pathWithoutLocale}`;
             
-            // Only redirect if path is different
-            if (newPath !== pathname) {
+            // Only redirect if path is different and we haven't redirected yet
+            if (newPath !== pathname && !hasRedirected) {
               logger.info(`Redirecting to preferred locale: ${preferredLanguage}`, {
                 currentLocale,
                 preferredLanguage,
@@ -87,7 +92,7 @@ export function LocaleSync({ children }: LocaleSyncProps) {
     };
 
     syncLocale();
-  }, [isAuthenticated, currentLocale, pathname, hasRedirected]);
+  }, [isAuthenticated, currentLocale, pathname]);
 
   // Show children immediately - don't block rendering
   return <>{children}</>;
