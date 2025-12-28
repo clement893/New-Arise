@@ -78,22 +78,18 @@ export default function AdminUsersContent() {
     if (!selectedUser) return;
 
     try {
-      const response = await fetch(`/api/v1/users/${selectedUser.id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete user');
-      }
+      const { apiClient } = await import('@/lib/api');
+      await apiClient.delete(`/v1/users/${selectedUser.id}`);
 
       setUsers(users.filter((u) => u.id !== selectedUser.id));
       setDeleteModalOpen(false);
       setSelectedUser(null);
+      
+      // Clear any previous errors
+      setError(null);
     } catch (err) {
-      setError(getErrorMessage(err));
+      const errorMessage = getErrorMessage(err, 'Erreur lors de la suppression de l\'utilisateur');
+      setError(errorMessage);
     }
   };
 
