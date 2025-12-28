@@ -39,7 +39,6 @@ export default function NotificationBellConnected({
     markAsRead,
     markAllAsRead,
     deleteNotification,
-    refresh,
   } = useNotifications({
     initialFilters: { skip: 0, limit: 5 },
     enableWebSocket,
@@ -47,7 +46,7 @@ export default function NotificationBellConnected({
   });
 
   // Get unread count for badge (with polling)
-  const { count: unreadCount, loading: countLoading } = useNotificationCount({
+  const { loading: countLoading } = useNotificationCount({
     pollInterval,
     autoFetch: true,
   });
