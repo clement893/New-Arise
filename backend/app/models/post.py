@@ -37,7 +37,7 @@ class Post(Base):
     author_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
     
     # Categorization
-    category_id = Column(Integer, ForeignKey("tags.id", ondelete="SET NULL"), nullable=True, index=True)  # Using tags table for categories
+    category_id = Column(Integer, ForeignKey("categories.id", ondelete="SET NULL"), nullable=True, index=True)
     tags = Column(JSON, nullable=True)  # Array of tag strings
     
     # SEO
