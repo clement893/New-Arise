@@ -3,6 +3,8 @@
 // Force dynamic rendering to avoid static generation
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 import { useAuthStore } from '@/lib/store';
 import { Card, Badge, Container, StatsCard, StatusCard, ServiceTestCard } from '@/components/ui';

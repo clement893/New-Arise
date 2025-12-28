@@ -3,11 +3,19 @@
 // Force dynamic rendering to avoid static generation
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 import { useAuthStore } from '@/lib/store';
 import { Card, Badge, Container, StatsCard, StatusCard, ServiceTestCard, Button } from '@/components/ui';
 import { Link } from '@/i18n/routing';
-import { TemplateAIChat } from '@/components/ai/TemplateAIChat';
+import dynamicImport from 'next/dynamic';
+
+// Lazy load TemplateAIChat to avoid circular dependency issues during build
+const TemplateAIChat = dynamicImport(
+  () => import('@/components/ai/TemplateAIChat').then(mod => ({ default: mod.TemplateAIChat })),
+  { ssr: false }
+);
 
 function DashboardContent() {
   const { user } = useAuthStore();
