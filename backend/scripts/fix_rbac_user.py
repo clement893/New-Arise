@@ -46,7 +46,19 @@ async def seed_default_permissions(rbac_service: RBACService, db: AsyncSession):
         ("permissions", "delete", "Delete permissions"),
         ("permissions", "list", "List all permissions"),
         
-        # Admin wildcard
+        # Admin sections permissions
+        ("admin", "users", "Access admin users section"),
+        ("admin", "invitations", "Access admin invitations section"),
+        ("admin", "organizations", "Access admin organizations section"),
+        ("admin", "themes", "Access admin themes section"),
+        ("admin", "settings", "Access admin settings section"),
+        ("admin", "logs", "Access admin logs section"),
+        ("admin", "statistics", "Access admin statistics section"),
+        ("admin", "rbac", "Access admin RBAC section"),
+        ("admin", "teams", "Access admin teams section"),
+        ("admin", "tenancy", "Access admin tenancy section"),
+        
+        # Admin wildcard (grants all admin permissions)
         ("admin", "*", "All admin permissions"),
     ]
     
@@ -71,35 +83,44 @@ async def seed_default_roles(rbac_service: RBACService, db: AsyncSession):
     """Seed default roles"""
     print("📝 Seeding default roles...")
     
-    # Define default roles
+    # Define default roles with their default permissions
     default_roles = [
         {
             "name": "Super Admin",
             "slug": "superadmin",
             "description": "Super administrator with all permissions",
             "is_system": True,
-            "permissions": ["admin:*"],  # Superadmin gets admin:* permission
+            "permissions": ["admin:*"],  # Superadmin gets admin:* (all permissions)
         },
         {
             "name": "Admin",
             "slug": "admin",
             "description": "Administrator with most permissions",
             "is_system": True,
-            "permissions": ["admin:*", "users:read", "users:update", "users:list"],
+            "permissions": [
+                "admin:*",  # Admin gets all admin permissions
+                "users:read", "users:create", "users:update", "users:list",
+                "roles:read", "roles:list",
+                "permissions:read", "permissions:list",
+            ],
         },
         {
             "name": "Manager",
             "slug": "manager",
             "description": "Manager with team management permissions",
             "is_system": True,
-            "permissions": ["users:read", "users:list"],
+            "permissions": [
+                "admin:users", "admin:teams", "admin:statistics",
+                "users:read", "users:list",
+                "teams:read", "teams:create", "teams:update", "teams:list",
+            ],
         },
         {
             "name": "User",
             "slug": "user",
             "description": "Standard user",
             "is_system": True,
-            "permissions": [],
+            "permissions": [],  # Standard users have no admin permissions
         },
     ]
     

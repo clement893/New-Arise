@@ -882,21 +882,36 @@ async def fix_rbac(
         if request.seed_data:
             # Define default permissions
             default_permissions = [
+                # User permissions
                 ("users", "read", "Read user information"),
                 ("users", "create", "Create new users"),
                 ("users", "update", "Update user information"),
                 ("users", "delete", "Delete users"),
                 ("users", "list", "List all users"),
+                # Role permissions
                 ("roles", "read", "Read role information"),
                 ("roles", "create", "Create new roles"),
                 ("roles", "update", "Update role information"),
                 ("roles", "delete", "Delete roles"),
                 ("roles", "list", "List all roles"),
+                # Permission permissions
                 ("permissions", "read", "Read permission information"),
                 ("permissions", "create", "Create new permissions"),
                 ("permissions", "update", "Update permission information"),
                 ("permissions", "delete", "Delete permissions"),
                 ("permissions", "list", "List all permissions"),
+                # Admin sections permissions
+                ("admin", "users", "Access admin users section"),
+                ("admin", "invitations", "Access admin invitations section"),
+                ("admin", "organizations", "Access admin organizations section"),
+                ("admin", "themes", "Access admin themes section"),
+                ("admin", "settings", "Access admin settings section"),
+                ("admin", "logs", "Access admin logs section"),
+                ("admin", "statistics", "Access admin statistics section"),
+                ("admin", "rbac", "Access admin RBAC section"),
+                ("admin", "teams", "Access admin teams section"),
+                ("admin", "tenancy", "Access admin tenancy section"),
+                # Admin wildcard (grants all admin permissions)
                 ("admin", "*", "All admin permissions"),
             ]
             
@@ -909,21 +924,44 @@ async def fix_rbac(
                     await rbac_service.create_permission(resource, action, description)
                     permissions_created += 1
             
-            # Define default roles
+            # Define default roles with their default permissions
             default_roles = [
                 {
                     "name": "Super Admin",
                     "slug": "superadmin",
                     "description": "Super administrator with all permissions",
                     "is_system": True,
-                    "permissions": ["admin:*"],
+                    "permissions": ["admin:*"],  # Superadmin gets admin:* (all permissions)
                 },
                 {
                     "name": "Admin",
                     "slug": "admin",
                     "description": "Administrator with most permissions",
                     "is_system": True,
-                    "permissions": ["admin:*", "users:read", "users:update", "users:list"],
+                    "permissions": [
+                        "admin:*",  # Admin gets all admin permissions
+                        "users:read", "users:create", "users:update", "users:list",
+                        "roles:read", "roles:list",
+                        "permissions:read", "permissions:list",
+                    ],
+                },
+                {
+                    "name": "Manager",
+                    "slug": "manager",
+                    "description": "Manager with team management permissions",
+                    "is_system": True,
+                    "permissions": [
+                        "admin:users", "admin:teams", "admin:statistics",
+                        "users:read", "users:list",
+                        "teams:read", "teams:create", "teams:update", "teams:list",
+                    ],
+                },
+                {
+                    "name": "User",
+                    "slug": "user",
+                    "description": "Standard user",
+                    "is_system": True,
+                    "permissions": [],  # Standard users have no admin permissions
                 },
             ]
             

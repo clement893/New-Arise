@@ -14,6 +14,7 @@ import DataTable from '@/components/ui/DataTable';
 import { Column } from '@/components/ui/DataTable';
 import UserRolesEditor from '@/components/admin/UserRolesEditor';
 import UserPermissionsEditor from '@/components/admin/UserPermissionsEditor';
+import RoleDefaultPermissionsEditor from '@/components/admin/RoleDefaultPermissionsEditor';
 import { useUserRoles } from '@/hooks/useRBAC';
 
 interface User extends Record<string, unknown> {
@@ -205,6 +206,15 @@ export default function AdminUsersContent() {
           pageSize={10}
         />
       </Card>
+
+      {/* Role Default Permissions Section */}
+      <div className="mb-6">
+        <RoleDefaultPermissionsEditor
+          onUpdate={() => {
+            fetchUsers();
+          }}
+        />
+      </div>
 
       {/* Roles Modal */}
       <Modal

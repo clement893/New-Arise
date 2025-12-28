@@ -268,3 +268,142 @@ class RBACService:
         permissions = await self.get_team_user_permissions(user_id, team_id)
         return permission_name in permissions
 
+    async def seed_default_permissions(self) -> List[Permission]:
+        """Seed default permissions in the database"""
+        default_permissions = [
+            # User permissions
+            ("users", "read", "Read user information"),
+            ("users", "create", "Create new users"),
+            ("users", "update", "Update user information"),
+            ("users", "delete", "Delete users"),
+            ("users", "list", "List all users"),
+            # Role permissions
+            ("roles", "read", "Read role information"),
+            ("roles", "create", "Create new roles"),
+            ("roles", "update", "Update role information"),
+            ("roles", "delete", "Delete roles"),
+            ("roles", "list", "List all roles"),
+            # Permission permissions
+            ("permissions", "read", "Read permission information"),
+            ("permissions", "create", "Create new permissions"),
+            ("permissions", "update", "Update permission information"),
+            ("permissions", "delete", "Delete permissions"),
+            ("permissions", "list", "List all permissions"),
+            # Admin sections permissions
+            ("admin", "users", "Access admin users section"),
+            ("admin", "invitations", "Access admin invitations section"),
+            ("admin", "organizations", "Access admin organizations section"),
+            ("admin", "themes", "Access admin themes section"),
+            ("admin", "settings", "Access admin settings section"),
+            ("admin", "logs", "Access admin logs section"),
+            ("admin", "statistics", "Access admin statistics section"),
+            ("admin", "rbac", "Access admin RBAC section"),
+            ("admin", "teams", "Access admin teams section"),
+            ("admin", "tenancy", "Access admin tenancy section"),
+            # Admin wildcard (grants all admin permissions)
+            ("admin", "*", "All admin permissions"),
+        ]
+        
+        created_permissions = []
+        for resource, action, description in default_permissions:
+            name = f"{resource}:{action}"
+            result = await self.db.execute(select(Permission).where(Permission.name == name))
+            existing = result.scalar_one_or_none()
+            
+            if not existing:
+                perm = await self.create_permission(resource, action, description)
+                created_permissions.append(perm)
+        
+        return created_permissions
+
+    async def seed_default_roles(self) -> dict:
+        """Seed default roles with their permissions"""
+        # First ensure all permissions exist
+        await self.seed_default_permissions()
+        
+        default_roles = [
+            {
+                "name": "Super Admin",
+                "slug": "superadmin",
+                "description": "Super administrator with all permissions",
+                "is_system": True,
+                "permissions": ["admin:*"],  # Superadmin gets admin:* (all permissions)
+            },
+            {
+                "name": "Admin",
+                "slug": "admin",
+                "description": "Administrator with most permissions",
+                "is_system": True,
+                "permissions": [
+                    "admin:*",  # Admin gets all admin permissions
+                    "users:read", "users:create", "users:update", "users:list",
+                    "roles:read", "roles:list",
+                    "permissions:read", "permissions:list",
+                ],
+            },
+            {
+                "name": "Manager",
+                "slug": "manager",
+                "description": "Manager with team management permissions",
+                "is_system": True,
+                "permissions": [
+                    "admin:users", "admin:teams", "admin:statistics",
+                    "users:read", "users:list",
+                    "teams:read", "teams:create", "teams:update", "teams:list",
+                ],
+            },
+            {
+                "name": "User",
+                "slug": "user",
+                "description": "Standard user",
+                "is_system": True,
+                "permissions": [],  # Standard users have no admin permissions
+            },
+        ]
+        
+        created_roles = {}
+        for role_data in default_roles:
+            result = await self.db.execute(select(Role).where(Role.slug == role_data["slug"]))
+            existing_role = result.scalar_one_or_none()
+            
+            if not existing_role:
+                role = await self.create_role(
+                    name=role_data["name"],
+                    slug=role_data["slug"],
+                    description=role_data["description"],
+                    is_system=role_data["is_system"],
+                )
+                created_roles[role_data["slug"]] = role
+            else:
+                created_roles[role_data["slug"]] = existing_role
+            
+            # Ensure permissions are assigned (even for existing roles)
+            for perm_name in role_data["permissions"]:
+                perm_result = await self.db.execute(select(Permission).where(Permission.name == perm_name))
+                perm = perm_result.scalar_one_or_none()
+                
+                if perm:
+                    # Check if already assigned
+                    from app.models import RolePermission
+                    rp_result = await self.db.execute(
+                        select(RolePermission)
+                        .where(RolePermission.role_id == created_roles[role_data["slug"]].id)
+                        .where(RolePermission.permission_id == perm.id)
+                    )
+                    if not rp_result.scalar_one_or_none():
+                        try:
+                            await self.assign_permission_to_role(created_roles[role_data["slug"]].id, perm.id)
+                        except ValueError:
+                            pass  # Already assigned
+        
+        return created_roles
+
+    async def seed_default_data(self) -> dict:
+        """Seed all default RBAC data (permissions and roles)"""
+        permissions = await self.seed_default_permissions()
+        roles = await self.seed_default_roles()
+        
+        return {
+            "permissions": permissions,
+            "roles": roles,
+        }
