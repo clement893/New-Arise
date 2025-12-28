@@ -9,6 +9,7 @@ import { useAuthStore } from '@/lib/store';
 import { authAPI, usersAPI } from '@/lib/api';
 import { handleApiError } from '@/lib/errors/api';
 import { TokenStorage } from '@/lib/auth/tokenStorage';
+import { transformApiUserToStoreUser } from '@/lib/auth/userTransform';
 import { logger } from '@/lib/logger';
 import { getErrorStatus } from '@/lib/errors';
 
@@ -35,27 +36,16 @@ export function useAuth() {
       try {
         setError(null);
         const response = await authAPI.login(credentials.email, credentials.password);
-        const { access_token, user: userData } = response.data;
+        const { access_token, refresh_token, user: userData } = response.data;
 
-        // Adapt user data to match store format
-        const userForStore = {
-          id: String(userData.id),
-          email: userData.email,
-          name: userData.first_name && userData.last_name 
-            ? `${userData.first_name} ${userData.last_name}` 
-            : userData.first_name || userData.last_name || userData.email,
-          is_active: userData.is_active ?? true,
-          is_verified: false, // Default value, update if available
-          is_admin: false, // Default value, update if available
-          created_at: userData.created_at,
-          updated_at: userData.updated_at,
-        };
+        // Transform user data to store format
+        const userForStore = transformApiUserToStoreUser(userData);
 
         // Store tokens securely
-        await TokenStorage.setToken(access_token);
+        await TokenStorage.setToken(access_token, refresh_token);
 
         // Update store
-        login(userForStore, access_token);
+        login(userForStore, access_token, refresh_token);
 
         return { success: true, user: userData };
       } catch (err) {
@@ -79,24 +69,14 @@ export function useAuth() {
 
         // Auto-login after registration
         const loginResponse = await authAPI.login(data.email, data.password);
-        const { access_token, user: loginUserData } = loginResponse.data;
+        const { access_token, refresh_token, user: loginUserData } = loginResponse.data;
 
-        // Adapt user data to match store format
-        const userForStore = {
-          id: String(loginUserData.id),
-          email: loginUserData.email,
-          name: loginUserData.first_name && loginUserData.last_name 
-            ? `${loginUserData.first_name} ${loginUserData.last_name}` 
-            : loginUserData.first_name || loginUserData.last_name || loginUserData.email,
-          is_active: loginUserData.is_active ?? true,
-          is_verified: false, // Default value, update if available
-          is_admin: false, // Default value, update if available
-          created_at: loginUserData.created_at,
-          updated_at: loginUserData.updated_at,
-        };
+        // Transform user data to store format
+        const userForStore = transformApiUserToStoreUser(loginUserData);
 
-        await TokenStorage.setToken(access_token);
-        await login(userForStore, access_token);
+        await TokenStorage.setToken(access_token, refresh_token);
+
+        login(userForStore, access_token, refresh_token);
         return { success: true, user: userData };
       } catch (err) {
         const appError = handleApiError(err);
@@ -173,20 +153,8 @@ export function useAuth() {
           try {
             const response = await usersAPI.getMe();
             if (response.data) {
-              // Adapt user data to match store format
-              const userData = response.data;
-              const userForStore = {
-                id: String(userData.id),
-                email: userData.email,
-                name: userData.first_name && userData.last_name 
-                  ? `${userData.first_name} ${userData.last_name}` 
-                  : userData.first_name || userData.last_name || userData.email,
-                is_active: userData.is_active ?? true,
-                is_verified: false, // Default value, update if available
-                is_admin: false, // Default value, update if available
-                created_at: userData.created_at,
-                updated_at: userData.updated_at,
-              };
+              // Transform user data to store format
+              const userForStore = transformApiUserToStoreUser(response.data);
               setUser(userForStore);
             }
           } catch (err: unknown) {
