@@ -191,7 +191,21 @@ function main() {
   }).filter(Boolean);
 
   console.log('📊 Generating report...');
-  generateMarkdownReport(analyses, outputPath);
+  
+  // Determine output path - use absolute path if in Docker, relative otherwise
+  const isDocker = process.env.DOCKER === 'true' || fs.existsSync('/.dockerenv') || __dirname.startsWith('/app');
+  const finalOutputPath = isDocker && !path.isAbsolute(outputPath)
+    ? path.join('/app', outputPath)  // In Docker, save to /app
+    : path.isAbsolute(outputPath)
+    ? outputPath
+    : path.join(process.cwd(), outputPath);  // Relative to current working directory
+  
+  generateMarkdownReport(analyses, finalOutputPath);
+  
+  console.log(`✅ Report generated: ${finalOutputPath}`);
+  
+  // Exit with code 0 even if there are issues (we want to return the report)
+  process.exit(0);
 }
 
 if (require.main === module) {
