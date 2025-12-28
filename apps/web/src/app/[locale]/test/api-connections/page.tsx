@@ -26,7 +26,7 @@ interface ConnectionStatus {
 
 interface CheckResult {
   success: boolean;
-  summary: {
+  summary?: {
     total?: number;
     connected?: number;
     partial?: number;
@@ -35,9 +35,12 @@ interface CheckResult {
     registered?: number;
     unregistered?: number;
   };
-  output: string;
+  output?: string;
   reportPath?: string;
   reportContent?: string;
+  error?: string;
+  message?: string;
+  hint?: string;
 }
 
 function APIConnectionTestContent() {
@@ -72,10 +75,19 @@ function APIConnectionTestContent() {
     try {
       const params = detailed ? { detailed: 'true' } : {};
       const response = await apiClient.get<CheckResult>('/v1/api-connection-check/frontend', { params });
-      setFrontendCheck(response.data ?? null);
+      const data = response.data ?? null;
+      setFrontendCheck(data);
+      // If the response indicates failure, also set error for visibility
+      if (data && !data.success && data.error) {
+        setError(data.error);
+      }
     } catch (err: unknown) {
       const errorMessage = getErrorMessage(err) || 'Failed to check frontend connections';
       setError(errorMessage);
+      setFrontendCheck({
+        success: false,
+        error: errorMessage,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -88,10 +100,19 @@ function APIConnectionTestContent() {
 
     try {
       const response = await apiClient.get<CheckResult>('/v1/api-connection-check/backend');
-      setBackendCheck(response.data ?? null);
+      const data = response.data ?? null;
+      setBackendCheck(data);
+      // If the response indicates failure, also set error for visibility
+      if (data && !data.success && data.error) {
+        setError(data.error);
+      }
     } catch (err: unknown) {
       const errorMessage = getErrorMessage(err) || 'Failed to check backend endpoints';
       setError(errorMessage);
+      setBackendCheck({
+        success: false,
+        error: errorMessage,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -241,6 +262,15 @@ function APIConnectionTestContent() {
 
         {frontendCheck && (
           <div className="space-y-4">
+            {!frontendCheck.success && (
+              <Alert variant="error">
+                <div>
+                  <p className="font-medium">{frontendCheck.error || 'Check failed'}</p>
+                  {frontendCheck.message && <p className="text-sm mt-1">{frontendCheck.message}</p>}
+                  {frontendCheck.hint && <p className="text-sm mt-1 text-gray-600">{frontendCheck.hint}</p>}
+                </div>
+              </Alert>
+            )}
             {frontendCheck.summary && (
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 {frontendCheck.summary.total !== undefined && (
@@ -313,6 +343,15 @@ function APIConnectionTestContent() {
 
         {backendCheck && (
           <div className="space-y-4">
+            {!backendCheck.success && (
+              <Alert variant="error">
+                <div>
+                  <p className="font-medium">{backendCheck.error || 'Check failed'}</p>
+                  {backendCheck.message && <p className="text-sm mt-1">{backendCheck.message}</p>}
+                  {backendCheck.hint && <p className="text-sm mt-1 text-gray-600">{backendCheck.hint}</p>}
+                </div>
+              </Alert>
+            )}
             {backendCheck.summary && (
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
