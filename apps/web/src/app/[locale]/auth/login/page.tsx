@@ -68,7 +68,11 @@ function LoginContent() {
         updated_at: user.updated_at,
       };
 
-      login(userForStore, access_token);
+      await login(userForStore, access_token);
+      
+      // Small delay to ensure store is updated and persisted
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       router.push('/dashboard'); // Will automatically use current locale
     } catch (err) {
       const axiosError = err as AxiosError<ApiErrorResponse>;

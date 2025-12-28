@@ -46,16 +46,25 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
   const lastTokenRef = useRef(token);
 
   useEffect(() => {
-    // If user or token changed, reset authorization state
+    // If user or token changed, update refs but only reset if going from authenticated to unauthenticated
     const userChanged = lastUserRef.current !== user;
     const tokenChanged = lastTokenRef.current !== token;
+    
+    // Only reset authorization if we're going from authenticated to unauthenticated
+    // If we're going from unauthenticated to authenticated, keep the current state
+    const wasAuthenticated = !!lastUserRef.current && !!lastTokenRef.current;
+    const isNowAuthenticated = !!user && !!token;
     
     if (userChanged || tokenChanged) {
       lastUserRef.current = user;
       lastTokenRef.current = token;
-      setIsAuthorized(false);
-      setIsChecking(true);
-      checkingRef.current = false;
+      
+      // Only reset if we lost authentication (not if we gained it)
+      if (wasAuthenticated && !isNowAuthenticated) {
+        setIsAuthorized(false);
+        setIsChecking(true);
+        checkingRef.current = false;
+      }
     }
 
     // Prevent multiple simultaneous checks
@@ -63,8 +72,8 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
       return;
     }
 
-    // If already authorized and nothing changed, don't check again
-    if (isAuthorized && !userChanged && !tokenChanged) {
+    // If already authorized and we're still authenticated, don't check again
+    if (isAuthorized && isNowAuthenticated && !userChanged && !tokenChanged) {
       setIsChecking(false);
       return;
     }
@@ -74,7 +83,7 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
       setIsChecking(true);
       
       // Wait a bit for Zustand persist to hydrate
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 150));
       
       // Check authentication - use user and token directly instead of isAuthenticated function
       const tokenFromStorage = typeof window !== 'undefined' ? TokenStorage.getToken() : null;
@@ -90,8 +99,20 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
           hasUser: !!user,
           isAuth,
           pathname,
-          isAuthorized
+          isAuthorized,
+          wasAuthenticated: !!lastUserRef.current && !!lastTokenRef.current,
+          isNowAuthenticated: isAuth
         });
+      }
+      
+      // If we just became authenticated (transition from unauthenticated to authenticated),
+      // authorize immediately without additional checks
+      if (!wasAuthenticated && isNowAuthenticated) {
+        logger.debug('User just authenticated, authorizing immediately', { pathname });
+        setIsAuthorized(true);
+        checkingRef.current = false;
+        setIsChecking(false);
+        return;
       }
       
       if (!isAuth) {

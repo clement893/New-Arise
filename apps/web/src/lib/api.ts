@@ -91,52 +91,10 @@ apiClient.interceptors.request.use(
     if (typeof window !== 'undefined' && config.headers) {
       const token = TokenStorage.getToken();
       
-      // Check if this is an authenticated endpoint
-      const isAuthenticatedEndpoint = config.url?.includes('/users/me') || 
-                                      config.url?.includes('/auth/me') || 
-                                      config.url?.includes('/admin/') ||
-                                      config.url?.includes('/v1/users/me') ||
-                                      config.url?.includes('/v1/auth/me');
-      
-      if (isAuthenticatedEndpoint && !token) {
-        // Reject the request immediately if it's an authenticated endpoint without token
-        logger.warn('Blocking authenticated request without token', { 
-          url: config.url,
-          sessionStorageAvailable: typeof sessionStorage !== 'undefined'
-        });
-        const error = new Error('Authentication required: No token available') as Error & {
-          config: InternalAxiosRequestConfig;
-          isAxiosError: boolean;
-          response: {
-            status: number;
-            statusText: string;
-            data: { detail: string };
-            headers: Record<string, string>;
-            config: InternalAxiosRequestConfig;
-          };
-        };
-        error.config = config;
-        error.isAxiosError = true;
-        error.response = {
-          status: 401,
-          statusText: 'Unauthorized',
-          data: { detail: 'Authentication required: No token available' },
-          headers: {},
-          config: config,
-        };
-        return Promise.reject(error);
-      }
-      
+      // Always add token if available (for all requests, not just specific endpoints)
+      // The backend will handle authentication checks
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
-        // Debug log to verify token is being sent
-        if (isAuthenticatedEndpoint) {
-          logger.debug('Sending authenticated request', { 
-            url: config.url,
-            hasToken: !!token,
-            tokenPrefix: token.substring(0, 20) + '...'
-          });
-        }
       }
     }
     return config;

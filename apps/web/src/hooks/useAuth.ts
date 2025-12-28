@@ -79,11 +79,24 @@ export function useAuth() {
 
         // Auto-login after registration
         const loginResponse = await authAPI.login(data.email, data.password);
-        const { access_token, refresh_token } = loginResponse.data;
+        const { access_token, user: loginUserData } = loginResponse.data;
 
-        await TokenStorage.setToken(access_token, refresh_token);
+        // Adapt user data to match store format
+        const userForStore = {
+          id: String(loginUserData.id),
+          email: loginUserData.email,
+          name: loginUserData.first_name && loginUserData.last_name 
+            ? `${loginUserData.first_name} ${loginUserData.last_name}` 
+            : loginUserData.first_name || loginUserData.last_name || loginUserData.email,
+          is_active: loginUserData.is_active ?? true,
+          is_verified: false, // Default value, update if available
+          is_admin: false, // Default value, update if available
+          created_at: loginUserData.created_at,
+          updated_at: loginUserData.updated_at,
+        };
 
-        login(userData, access_token);
+        await TokenStorage.setToken(access_token);
+        await login(userForStore, access_token);
         return { success: true, user: userData };
       } catch (err) {
         const appError = handleApiError(err);
@@ -160,7 +173,21 @@ export function useAuth() {
           try {
             const response = await usersAPI.getMe();
             if (response.data) {
-              setUser(response.data);
+              // Adapt user data to match store format
+              const userData = response.data;
+              const userForStore = {
+                id: String(userData.id),
+                email: userData.email,
+                name: userData.first_name && userData.last_name 
+                  ? `${userData.first_name} ${userData.last_name}` 
+                  : userData.first_name || userData.last_name || userData.email,
+                is_active: userData.is_active ?? true,
+                is_verified: false, // Default value, update if available
+                is_admin: false, // Default value, update if available
+                created_at: userData.created_at,
+                updated_at: userData.updated_at,
+              };
+              setUser(userForStore);
             }
           } catch (err: unknown) {
             // Token might be invalid, try refresh
