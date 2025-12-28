@@ -38,11 +38,11 @@ COPY --from=deps /usr/local/bin /usr/local/bin
 COPY . .
 
 # Copy Node.js scripts for API connection checking
-# Scripts are copied to backend/scripts before build
+# Scripts are in backend/scripts/ directory
 RUN mkdir -p /app/scripts
-COPY scripts/check-api-connections.js /app/scripts/check-api-connections.js
-COPY scripts/check-api-connections-backend.js /app/scripts/check-api-connections-backend.js
-COPY scripts/generate-api-connection-report.js /app/scripts/generate-api-connection-report.js
+COPY backend/scripts/check-api-connections.js /app/scripts/check-api-connections.js
+COPY backend/scripts/check-api-connections-backend.js /app/scripts/check-api-connections-backend.js
+COPY backend/scripts/generate-api-connection-report.js /app/scripts/generate-api-connection-report.js
 
 # Make scripts executable
 RUN chmod +x /app/scripts/*.js
