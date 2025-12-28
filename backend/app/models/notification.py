@@ -74,14 +74,4 @@ class Notification(Base):
         from datetime import datetime, timezone
         self.read = True
         self.read_at = datetime.now(timezone.utc)
-    
-    @property
-    def metadata(self) -> Optional[Dict[str, Any]]:
-        """Property to expose notification_metadata as 'metadata' for Pydantic serialization"""
-        return self.notification_metadata
-    
-    @metadata.setter
-    def metadata(self, value: Optional[Dict[str, Any]]) -> None:
-        """Setter to allow setting metadata property"""
-        self.notification_metadata = value
 

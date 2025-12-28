@@ -21,9 +21,15 @@ class NotificationBase(BaseModel):
     )
     action_url: Optional[str] = Field(None, max_length=500, description="Optional action URL")
     action_label: Optional[str] = Field(None, max_length=100, description="Optional action button label")
-    # Note: Field name is 'metadata' for API
-    # The model uses 'notification_metadata' attribute (with 'metadata' property for Pydantic)
-    metadata: Optional[Dict[str, Any]] = Field(None, description="Additional metadata (JSON)")
+    # Note: Field name is 'metadata' for API, but model attribute is 'notification_metadata'
+    # Using validation_alias for reading from model attributes, serialization_alias for JSON output
+    # Field name 'metadata' is used for JSON input (with populate_by_name=True)
+    metadata: Optional[Dict[str, Any]] = Field(
+        None,
+        validation_alias="notification_metadata",  # Read from model attribute
+        serialization_alias="metadata",  # Write as 'metadata' in JSON
+        description="Additional metadata (JSON)"
+    )
 
 
 class NotificationCreate(NotificationBase):
@@ -52,9 +58,13 @@ class NotificationUpdate(BaseModel):
     read: Optional[bool] = Field(None, description="Read status")
     action_url: Optional[str] = Field(None, max_length=500, description="Action URL")
     action_label: Optional[str] = Field(None, max_length=100, description="Action label")
-    # Note: Field name is 'metadata' for API
-    # The model uses 'notification_metadata' attribute (with 'metadata' property for Pydantic)
-    metadata: Optional[Dict[str, Any]] = Field(None, description="Metadata")
+    # Note: Field name is 'metadata' for API, but model attribute is 'notification_metadata'
+    metadata: Optional[Dict[str, Any]] = Field(
+        None,
+        validation_alias="notification_metadata",  # Read from model attribute
+        serialization_alias="metadata",  # Write as 'metadata' in JSON
+        description="Metadata"
+    )
 
 
 class NotificationResponse(NotificationBase):
