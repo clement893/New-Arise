@@ -31,6 +31,7 @@ interface EndpointTestResult {
   status: 'success' | 'error' | 'pending';
   message?: string;
   responseTime?: number;
+  category?: string;
 }
 
 interface CheckResult {
@@ -157,81 +158,168 @@ function APIConnectionTestContent() {
     setIsTestingEndpoints(true);
     setError('');
     
-    // Liste des endpoints critiques à tester
-    const endpointsToTest: Array<{ endpoint: string; method: string; requiresAuth?: boolean }> = [
-      // Authentication endpoints (Batch 5)
-      { endpoint: '/v1/auth/me', method: 'GET', requiresAuth: true },
+    // Liste COMPLÈTE de tous les endpoints critiques à tester
+    const endpointsToTest: Array<{ endpoint: string; method: string; requiresAuth?: boolean; category?: string }> = [
+      // ========== AUTHENTICATION & SECURITY ==========
+      { endpoint: '/v1/auth/me', method: 'GET', requiresAuth: true, category: 'Auth' },
+      { endpoint: '/v1/auth/2fa/status', method: 'GET', requiresAuth: true, category: 'Auth' },
+      { endpoint: '/v1/api-keys', method: 'GET', requiresAuth: true, category: 'Auth' },
       
-      // User Preferences (Batch 3)
-      { endpoint: '/v1/users/preferences/notifications', method: 'GET', requiresAuth: true },
+      // ========== USER MANAGEMENT ==========
+      { endpoint: '/v1/users/me', method: 'GET', requiresAuth: true, category: 'Users' },
+      { endpoint: '/v1/users/preferences', method: 'GET', requiresAuth: true, category: 'Users' },
+      { endpoint: '/v1/users/preferences/notifications', method: 'GET', requiresAuth: true, category: 'Users' },
       
-      // Admin/Tenancy (Batch 3)
-      { endpoint: '/v1/admin/tenancy/config', method: 'GET', requiresAuth: true },
+      // ========== ADMIN & TENANCY ==========
+      { endpoint: '/v1/admin/tenancy/config', method: 'GET', requiresAuth: true, category: 'Admin' },
+      { endpoint: '/v1/admin/statistics', method: 'GET', requiresAuth: true, category: 'Admin' },
+      { endpoint: '/v1/admin/users', method: 'GET', requiresAuth: true, category: 'Admin' },
+      { endpoint: '/v1/admin/organizations', method: 'GET', requiresAuth: true, category: 'Admin' },
       
-      // Media Validation (Batch 3)
-      { endpoint: '/v1/media/validate', method: 'POST', requiresAuth: true },
+      // ========== RBAC ==========
+      { endpoint: '/v1/rbac/roles', method: 'GET', requiresAuth: true, category: 'RBAC' },
+      { endpoint: '/v1/rbac/permissions', method: 'GET', requiresAuth: true, category: 'RBAC' },
       
-      // Tags (Batch 4)
-      { endpoint: '/v1/tags/', method: 'GET', requiresAuth: true },
+      // ========== MEDIA & UPLOADS ==========
+      { endpoint: '/v1/media', method: 'GET', requiresAuth: true, category: 'Media' },
+      { endpoint: '/v1/media/validate', method: 'POST', requiresAuth: true, category: 'Media' },
       
-      // Scheduled Tasks (Batch 4)
-      { endpoint: '/v1/scheduled-tasks', method: 'GET', requiresAuth: true },
+      // ========== CONTENT MANAGEMENT ==========
+      { endpoint: '/v1/pages', method: 'GET', requiresAuth: true, category: 'Content' },
+      { endpoint: '/v1/posts', method: 'GET', requiresAuth: false, category: 'Content' },
+      { endpoint: '/v1/templates', method: 'GET', requiresAuth: true, category: 'Content' },
+      { endpoint: '/v1/forms', method: 'GET', requiresAuth: true, category: 'Content' },
+      { endpoint: '/v1/menus', method: 'GET', requiresAuth: true, category: 'Content' },
       
-      // Pages (Batch 6)
-      { endpoint: '/v1/pages', method: 'GET', requiresAuth: true },
+      // ========== TAGS & CATEGORIES ==========
+      { endpoint: '/v1/tags', method: 'GET', requiresAuth: true, category: 'Tags' },
+      { endpoint: '/v1/tags/categories', method: 'GET', requiresAuth: true, category: 'Tags' },
       
-      // Posts
-      { endpoint: '/v1/posts', method: 'GET', requiresAuth: false },
+      // ========== PROJECTS ==========
+      { endpoint: '/v1/projects', method: 'GET', requiresAuth: true, category: 'Projects' },
       
-      // RBAC (Batch 7)
-      { endpoint: '/v1/rbac/roles', method: 'GET', requiresAuth: true },
+      // ========== THEMES ==========
+      { endpoint: '/v1/themes', method: 'GET', requiresAuth: true, category: 'Themes' },
+      { endpoint: '/v1/theme-fonts', method: 'GET', requiresAuth: true, category: 'Themes' },
       
-      // Health checks
-      { endpoint: '/v1/health/health', method: 'GET', requiresAuth: false },
+      // ========== COMMENTS & INTERACTIONS ==========
+      { endpoint: '/v1/comments/post/1', method: 'GET', requiresAuth: false, category: 'Comments' },
+      { endpoint: '/v1/favorites', method: 'GET', requiresAuth: true, category: 'Favorites' },
+      { endpoint: '/v1/activities', method: 'GET', requiresAuth: true, category: 'Activities' },
       
-      // Reports
-      { endpoint: '/v1/reports', method: 'GET', requiresAuth: true },
+      // ========== NOTIFICATIONS ==========
+      { endpoint: '/v1/notifications', method: 'GET', requiresAuth: true, category: 'Notifications' },
+      { endpoint: '/v1/announcements', method: 'GET', requiresAuth: true, category: 'Notifications' },
       
-      // Notifications
-      { endpoint: '/v1/notifications', method: 'GET', requiresAuth: true },
+      // ========== SEARCH ==========
+      { endpoint: '/v1/search/autocomplete', method: 'GET', requiresAuth: false, category: 'Search' },
       
-      // Comments
-      { endpoint: '/v1/comments/post/1', method: 'GET', requiresAuth: false },
+      // ========== FEATURE FLAGS ==========
+      { endpoint: '/v1/feature-flags', method: 'GET', requiresAuth: true, category: 'Feature Flags' },
       
-      // Favorites
-      { endpoint: '/v1/favorites', method: 'GET', requiresAuth: true },
+      // ========== SCHEDULED TASKS ==========
+      { endpoint: '/v1/scheduled-tasks', method: 'GET', requiresAuth: true, category: 'Tasks' },
       
-      // Templates
-      { endpoint: '/v1/templates', method: 'GET', requiresAuth: true },
+      // ========== REPORTS & ANALYTICS ==========
+      { endpoint: '/v1/reports', method: 'GET', requiresAuth: true, category: 'Reports' },
+      { endpoint: '/v1/analytics', method: 'GET', requiresAuth: true, category: 'Analytics' },
+      { endpoint: '/v1/insights', method: 'GET', requiresAuth: true, category: 'Insights' },
       
-      // Feature Flags
-      { endpoint: '/v1/feature-flags', method: 'GET', requiresAuth: true },
+      // ========== EXPORTS & IMPORTS ==========
+      { endpoint: '/v1/exports', method: 'GET', requiresAuth: true, category: 'Exports' },
+      { endpoint: '/v1/imports', method: 'GET', requiresAuth: true, category: 'Imports' },
+      
+      // ========== VERSIONS & SHARES ==========
+      { endpoint: '/v1/versions', method: 'GET', requiresAuth: true, category: 'Versions' },
+      { endpoint: '/v1/shares', method: 'GET', requiresAuth: true, category: 'Shares' },
+      
+      // ========== TEAMS & INVITATIONS ==========
+      { endpoint: '/v1/teams', method: 'GET', requiresAuth: true, category: 'Teams' },
+      { endpoint: '/v1/invitations', method: 'GET', requiresAuth: true, category: 'Invitations' },
+      
+      // ========== SUPPORT ==========
+      { endpoint: '/v1/support/tickets', method: 'GET', requiresAuth: true, category: 'Support' },
+      
+      // ========== SEO ==========
+      { endpoint: '/v1/seo', method: 'GET', requiresAuth: true, category: 'SEO' },
+      
+      // ========== INTEGRATIONS ==========
+      { endpoint: '/v1/integrations', method: 'GET', requiresAuth: true, category: 'Integrations' },
+      
+      // ========== SETTINGS ==========
+      { endpoint: '/v1/settings/organization', method: 'GET', requiresAuth: true, category: 'Settings' },
+      { endpoint: '/v1/api-settings', method: 'GET', requiresAuth: true, category: 'Settings' },
+      
+      // ========== BACKUPS & AUDIT ==========
+      { endpoint: '/v1/backups', method: 'GET', requiresAuth: true, category: 'Backups' },
+      { endpoint: '/v1/audit-trail', method: 'GET', requiresAuth: true, category: 'Audit' },
+      
+      // ========== EMAIL & NEWSLETTER ==========
+      { endpoint: '/v1/newsletter/subscriptions', method: 'GET', requiresAuth: true, category: 'Newsletter' },
+      { endpoint: '/v1/email-templates', method: 'GET', requiresAuth: true, category: 'Email' },
+      
+      // ========== ONBOARDING & FEEDBACK ==========
+      { endpoint: '/v1/onboarding', method: 'GET', requiresAuth: true, category: 'Onboarding' },
+      { endpoint: '/v1/feedback', method: 'GET', requiresAuth: true, category: 'Feedback' },
+      
+      // ========== DOCUMENTATION ==========
+      { endpoint: '/v1/documentation', method: 'GET', requiresAuth: true, category: 'Documentation' },
+      
+      // ========== CLIENT PORTAL ==========
+      { endpoint: '/v1/client/invoices', method: 'GET', requiresAuth: true, category: 'Client Portal' },
+      { endpoint: '/v1/client/projects', method: 'GET', requiresAuth: true, category: 'Client Portal' },
+      { endpoint: '/v1/client/tickets', method: 'GET', requiresAuth: true, category: 'Client Portal' },
+      { endpoint: '/v1/client/dashboard', method: 'GET', requiresAuth: true, category: 'Client Portal' },
+      
+      // ========== ERP PORTAL ==========
+      { endpoint: '/v1/erp/clients', method: 'GET', requiresAuth: true, category: 'ERP' },
+      { endpoint: '/v1/erp/orders', method: 'GET', requiresAuth: true, category: 'ERP' },
+      { endpoint: '/v1/erp/invoices', method: 'GET', requiresAuth: true, category: 'ERP' },
+      { endpoint: '/v1/erp/inventory', method: 'GET', requiresAuth: true, category: 'ERP' },
+      { endpoint: '/v1/erp/reports', method: 'GET', requiresAuth: true, category: 'ERP' },
+      { endpoint: '/v1/erp/dashboard', method: 'GET', requiresAuth: true, category: 'ERP' },
+      
+      // ========== HEALTH CHECKS ==========
+      { endpoint: '/v1/health/health', method: 'GET', requiresAuth: false, category: 'Health' },
+      { endpoint: '/v1/db-health', method: 'GET', requiresAuth: false, category: 'Health' },
+      
+      // ========== AI ==========
+      { endpoint: '/v1/ai/chat', method: 'POST', requiresAuth: true, category: 'AI' },
     ];
 
     const results: EndpointTestResult[] = [];
 
-    for (const { endpoint, method, requiresAuth } of endpointsToTest) {
+    for (const { endpoint, method, requiresAuth, category } of endpointsToTest) {
       const startTime = Date.now();
       const testResult: EndpointTestResult = {
         endpoint,
         method,
         status: 'pending',
+        category,
       };
       
       results.push(testResult);
       setEndpointTests([...results]);
 
       try {
-        let response;
         const testMethod = method.toLowerCase();
         
         if (testMethod === 'get') {
           await apiClient.get(endpoint);
         } else if (testMethod === 'post') {
-          // Pour POST, on envoie des données minimales
-          const testData = endpoint.includes('validate') 
-            ? { name: 'test.jpg', size: 1024, type: 'image/jpeg' }
-            : {};
+          // Pour POST, on envoie des données minimales selon le type d'endpoint
+          let testData: any = {};
+          
+          if (endpoint.includes('validate')) {
+            testData = { name: 'test.jpg', size: 1024, type: 'image/jpeg' };
+          } else if (endpoint.includes('chat')) {
+            testData = { message: 'test', context: {} };
+          } else if (endpoint.includes('search')) {
+            testData = { query: 'test' };
+          } else {
+            testData = {};
+          }
+          
           await apiClient.post(endpoint, testData);
         } else {
           throw new Error(`Method ${method} not supported in test`);
@@ -255,6 +343,10 @@ function APIConnectionTestContent() {
           // 404 peut être OK si l'endpoint existe mais la ressource n'existe pas
           testResult.status = 'success';
           testResult.message = `Endpoint exists (${responseTime}ms)`;
+        } else if (errorMessage.includes('422') || errorMessage.includes('400')) {
+          // 422/400 peut indiquer que l'endpoint existe mais les données sont invalides (ce qui est OK pour un test)
+          testResult.status = 'success';
+          testResult.message = `Endpoint exists - validation error (${responseTime}ms)`;
         } else {
           testResult.status = 'error';
           testResult.message = `${errorMessage.substring(0, 50)} (${responseTime}ms)`;
@@ -669,43 +761,106 @@ function APIConnectionTestContent() {
         </div>
 
         {endpointTests.length > 0 && (
-          <div className="space-y-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-              {endpointTests.map((test, index) => (
-                <div
-                  key={index}
-                  className={`p-3 rounded-lg border ${
-                    test.status === 'success'
-                      ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-                      : test.status === 'error'
-                      ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-                      : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-                  }`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        {test.status === 'success' ? (
-                          <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
-                        ) : test.status === 'error' ? (
-                          <XCircle className="h-4 w-4 text-red-600 flex-shrink-0" />
-                        ) : (
-                          <Loader2 className="h-4 w-4 text-gray-400 animate-spin flex-shrink-0" />
-                        )}
-                        <span className="font-mono text-xs font-medium truncate">
-                          {test.method} {test.endpoint}
-                        </span>
-                      </div>
-                      {test.message && (
-                        <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
-                          {test.message}
-                        </p>
-                      )}
+          <div className="space-y-4">
+            {/* Group by category */}
+            {Array.from(new Set(endpointTests.map(t => t.category).filter(Boolean))).map(category => {
+              const categoryTests = endpointTests.filter(t => t.category === category);
+              const successCount = categoryTests.filter(t => t.status === 'success').length;
+              const errorCount = categoryTests.filter(t => t.status === 'error').length;
+              const pendingCount = categoryTests.filter(t => t.status === 'pending').length;
+              
+              return (
+                <div key={category} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">{category}</h3>
+                    <div className="flex gap-4 text-sm">
+                      <span className="text-green-600">✓ {successCount}</span>
+                      <span className="text-red-600">✗ {errorCount}</span>
+                      {pendingCount > 0 && <span className="text-gray-400">⏳ {pendingCount}</span>}
                     </div>
                   </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                    {categoryTests.map((test, index) => (
+                      <div
+                        key={`${category}-${index}`}
+                        className={`p-3 rounded-lg border ${
+                          test.status === 'success'
+                            ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                            : test.status === 'error'
+                            ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                            : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              {test.status === 'success' ? (
+                                <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                              ) : test.status === 'error' ? (
+                                <XCircle className="h-4 w-4 text-red-600 flex-shrink-0" />
+                              ) : (
+                                <Loader2 className="h-4 w-4 text-gray-400 animate-spin flex-shrink-0" />
+                              )}
+                              <span className="font-mono text-xs font-medium truncate">
+                                {test.method} {test.endpoint}
+                              </span>
+                            </div>
+                            {test.message && (
+                              <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
+                                {test.message}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
+              );
+            })}
+            
+            {/* Tests without category */}
+            {endpointTests.filter(t => !t.category).length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold">Other</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                  {endpointTests.filter(t => !t.category).map((test, index) => (
+                    <div
+                      key={`other-${index}`}
+                      className={`p-3 rounded-lg border ${
+                        test.status === 'success'
+                          ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                          : test.status === 'error'
+                          ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                          : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            {test.status === 'success' ? (
+                              <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                            ) : test.status === 'error' ? (
+                              <XCircle className="h-4 w-4 text-red-600 flex-shrink-0" />
+                            ) : (
+                              <Loader2 className="h-4 w-4 text-gray-400 animate-spin flex-shrink-0" />
+                            )}
+                            <span className="font-mono text-xs font-medium truncate">
+                              {test.method} {test.endpoint}
+                            </span>
+                          </div>
+                          {test.message && (
+                            <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
+                              {test.message}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             
             <div className="mt-4 flex gap-4 text-sm">
               <div className="flex items-center gap-2">

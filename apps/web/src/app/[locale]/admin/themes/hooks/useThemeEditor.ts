@@ -26,7 +26,7 @@ export function useThemeEditor(initialTheme: Theme | null = null) {
   }, []);
 
   const setActiveTab = useCallback((tab: 'form' | 'json' | 'preview' | 'fonts') => {
-    setState((prev) => ({ ...prev, activeTab: tab }));
+    setState((prev): ThemeEditorState => ({ ...prev, activeTab: tab }));
   }, []);
 
   const reset = useCallback(() => {
