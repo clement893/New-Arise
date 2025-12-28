@@ -60,6 +60,7 @@ class Permission(Base):
 
     # Relationships
     role_permissions = relationship("RolePermission", back_populates="permission", cascade="all, delete-orphan")
+    user_permissions = relationship("UserPermission", back_populates="permission", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<Permission(id={self.id}, name={self.name})>"

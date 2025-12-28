@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_
 from sqlalchemy.orm import selectinload
 
-from app.models import User, Role, Permission, RolePermission, UserRole, TeamMember
+from app.models import User, Role, Permission, RolePermission, UserRole, UserPermission, TeamMember
 
 
 class RBACService:
@@ -28,8 +28,19 @@ class RBACService:
         return list(result.scalars().all())
 
     async def get_user_permissions(self, user_id: int) -> Set[str]:
-        """Get all permissions for a user (from all their roles)"""
-        result = await self.db.execute(
+        """
+        Get all permissions for a user (from roles + custom permissions).
+        
+        Custom permissions override role-based permissions.
+        Superadmin role grants admin:* permission (all permissions).
+        """
+        # Check if user has superadmin role (has all permissions)
+        has_superadmin = await self.has_role(user_id, "superadmin")
+        if has_superadmin:
+            return {"admin:*"}
+        
+        # Get permissions from roles
+        role_permissions_result = await self.db.execute(
             select(Permission.name)
             .join(RolePermission)
             .join(Role)
@@ -37,7 +48,20 @@ class RBACService:
             .where(UserRole.user_id == user_id)
             .where(Role.is_active == True)
         )
-        return set(result.scalars().all())
+        permissions = set(role_permissions_result.scalars().all())
+        
+        # Get custom permissions (override role permissions)
+        custom_permissions_result = await self.db.execute(
+            select(Permission.name)
+            .join(UserPermission)
+            .where(UserPermission.user_id == user_id)
+        )
+        custom_permissions = set(custom_permissions_result.scalars().all())
+        
+        # Combine: custom permissions override role permissions
+        permissions.update(custom_permissions)
+        
+        return permissions
 
     async def has_permission(self, user_id: int, permission_name: str) -> bool:
         """Check if user has a specific permission"""

@@ -75,7 +75,10 @@ function APIConnectionTestContent() {
     try {
       const params = detailed ? { detailed: 'true' } : {};
       const response = await apiClient.get<CheckResult>('/v1/api-connection-check/frontend', { params });
-      const data = response.data ?? null;
+      // FastAPI returns data directly, apiClient.get returns ApiResponse<T> which has .data
+      // But FastAPI doesn't wrap in ApiResponse, so response.data is already the CheckResult
+      const data = (response as any).data ?? response ?? null;
+      console.log('Frontend check response:', { response, data });
       setFrontendCheck(data);
       // If the response indicates failure, also set error for visibility
       if (data && !data.success && data.error) {
@@ -100,7 +103,10 @@ function APIConnectionTestContent() {
 
     try {
       const response = await apiClient.get<CheckResult>('/v1/api-connection-check/backend');
-      const data = response.data ?? null;
+      // FastAPI returns data directly, apiClient.get returns ApiResponse<T> which has .data
+      // But FastAPI doesn't wrap in ApiResponse, so response.data is already the CheckResult
+      const data = (response as any).data ?? response ?? null;
+      console.log('Backend check response:', { response, data });
       setBackendCheck(data);
       // If the response indicates failure, also set error for visibility
       if (data && !data.success && data.error) {
