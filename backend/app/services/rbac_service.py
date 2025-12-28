@@ -64,19 +64,46 @@ class RBACService:
         return permissions
 
     async def has_permission(self, user_id: int, permission_name: str) -> bool:
-        """Check if user has a specific permission"""
+        """
+        Check if user has a specific permission.
+        
+        Handles wildcard permissions:
+        - admin:* grants all permissions
+        - resource:* grants all permissions for that resource
+        """
         permissions = await self.get_user_permissions(user_id)
-        return permission_name in permissions
+        
+        # Check for exact match
+        if permission_name in permissions:
+            return True
+        
+        # Check for wildcard permissions
+        if "admin:*" in permissions:
+            # admin:* grants all permissions
+            return True
+        
+        # Check for resource-level wildcards (e.g., "users:*" grants "users:read", "users:create", etc.)
+        if ":" in permission_name:
+            resource, action = permission_name.split(":", 1)
+            resource_wildcard = f"{resource}:*"
+            if resource_wildcard in permissions:
+                return True
+        
+        return False
 
     async def has_any_permission(self, user_id: int, permission_names: List[str]) -> bool:
         """Check if user has any of the specified permissions"""
-        permissions = await self.get_user_permissions(user_id)
-        return bool(permissions.intersection(set(permission_names)))
+        for permission_name in permission_names:
+            if await self.has_permission(user_id, permission_name):
+                return True
+        return False
 
     async def has_all_permissions(self, user_id: int, permission_names: List[str]) -> bool:
         """Check if user has all of the specified permissions"""
-        permissions = await self.get_user_permissions(user_id)
-        return set(permission_names).issubset(permissions)
+        for permission_name in permission_names:
+            if not await self.has_permission(user_id, permission_name):
+                return False
+        return True
 
     async def has_role(self, user_id: int, role_slug: str) -> bool:
         """Check if user has a specific role"""

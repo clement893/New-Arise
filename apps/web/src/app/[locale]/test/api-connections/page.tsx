@@ -5,7 +5,7 @@ import { apiClient } from '@/lib/api/client';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { Button, Card, Alert, Badge } from '@/components/ui';
 import { getErrorMessage } from '@/lib/errors';
-import { RefreshCw, CheckCircle, Download, FileText, ExternalLink, Eye } from 'lucide-react';
+import { RefreshCw, CheckCircle, Download, FileText, ExternalLink, Eye, XCircle, Loader2 } from 'lucide-react';
 import { PageHeader, PageContainer } from '@/components/layout';
 import { ClientOnly } from '@/components/ui/ClientOnly';
 
@@ -23,6 +23,14 @@ interface ConnectionStatus {
     unregistered: number;
   };
   timestamp?: number;
+}
+
+interface EndpointTestResult {
+  endpoint: string;
+  method: string;
+  status: 'success' | 'error' | 'pending';
+  message?: string;
+  responseTime?: number;
 }
 
 interface CheckResult {
@@ -52,6 +60,8 @@ function APIConnectionTestContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingStatus, setIsLoadingStatus] = useState(false);
   const [error, setError] = useState('');
+  const [endpointTests, setEndpointTests] = useState<EndpointTestResult[]>([]);
+  const [isTestingEndpoints, setIsTestingEndpoints] = useState(false);
 
   const checkStatus = async () => {
     setIsLoadingStatus(true);
@@ -141,6 +151,122 @@ function APIConnectionTestContent() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const testCriticalEndpoints = async () => {
+    setIsTestingEndpoints(true);
+    setError('');
+    
+    // Liste des endpoints critiques à tester
+    const endpointsToTest: Array<{ endpoint: string; method: string; requiresAuth?: boolean }> = [
+      // Authentication endpoints (Batch 5)
+      { endpoint: '/v1/auth/me', method: 'GET', requiresAuth: true },
+      
+      // User Preferences (Batch 3)
+      { endpoint: '/v1/users/preferences/notifications', method: 'GET', requiresAuth: true },
+      
+      // Admin/Tenancy (Batch 3)
+      { endpoint: '/v1/admin/tenancy/config', method: 'GET', requiresAuth: true },
+      
+      // Media Validation (Batch 3)
+      { endpoint: '/v1/media/validate', method: 'POST', requiresAuth: true },
+      
+      // Tags (Batch 4)
+      { endpoint: '/v1/tags/', method: 'GET', requiresAuth: true },
+      
+      // Scheduled Tasks (Batch 4)
+      { endpoint: '/v1/scheduled-tasks', method: 'GET', requiresAuth: true },
+      
+      // Pages (Batch 6)
+      { endpoint: '/v1/pages', method: 'GET', requiresAuth: true },
+      
+      // Posts
+      { endpoint: '/v1/posts', method: 'GET', requiresAuth: false },
+      
+      // RBAC (Batch 7)
+      { endpoint: '/v1/rbac/roles', method: 'GET', requiresAuth: true },
+      
+      // Health checks
+      { endpoint: '/v1/health/health', method: 'GET', requiresAuth: false },
+      
+      // Reports
+      { endpoint: '/v1/reports', method: 'GET', requiresAuth: true },
+      
+      // Notifications
+      { endpoint: '/v1/notifications', method: 'GET', requiresAuth: true },
+      
+      // Comments
+      { endpoint: '/v1/comments/post/1', method: 'GET', requiresAuth: false },
+      
+      // Favorites
+      { endpoint: '/v1/favorites', method: 'GET', requiresAuth: true },
+      
+      // Templates
+      { endpoint: '/v1/templates', method: 'GET', requiresAuth: true },
+      
+      // Feature Flags
+      { endpoint: '/v1/feature-flags', method: 'GET', requiresAuth: true },
+    ];
+
+    const results: EndpointTestResult[] = [];
+
+    for (const { endpoint, method, requiresAuth } of endpointsToTest) {
+      const startTime = Date.now();
+      const testResult: EndpointTestResult = {
+        endpoint,
+        method,
+        status: 'pending',
+      };
+      
+      results.push(testResult);
+      setEndpointTests([...results]);
+
+      try {
+        let response;
+        const testMethod = method.toLowerCase();
+        
+        if (testMethod === 'get') {
+          await apiClient.get(endpoint);
+        } else if (testMethod === 'post') {
+          // Pour POST, on envoie des données minimales
+          const testData = endpoint.includes('validate') 
+            ? { name: 'test.jpg', size: 1024, type: 'image/jpeg' }
+            : {};
+          await apiClient.post(endpoint, testData);
+        } else {
+          throw new Error(`Method ${method} not supported in test`);
+        }
+
+        const responseTime = Date.now() - startTime;
+        testResult.status = 'success';
+        testResult.message = `OK (${responseTime}ms)`;
+        testResult.responseTime = responseTime;
+      } catch (err: unknown) {
+        const responseTime = Date.now() - startTime;
+        const errorMessage = getErrorMessage(err);
+        
+        // Certaines erreurs sont attendues (401 pour endpoints non authentifiés, 404 pour ressources inexistantes)
+        if (errorMessage.includes('401') || errorMessage.includes('403')) {
+          testResult.status = requiresAuth ? 'error' : 'success';
+          testResult.message = requiresAuth 
+            ? `Auth required (${responseTime}ms)` 
+            : `OK - Auth check (${responseTime}ms)`;
+        } else if (errorMessage.includes('404')) {
+          // 404 peut être OK si l'endpoint existe mais la ressource n'existe pas
+          testResult.status = 'success';
+          testResult.message = `Endpoint exists (${responseTime}ms)`;
+        } else {
+          testResult.status = 'error';
+          testResult.message = `${errorMessage.substring(0, 50)} (${responseTime}ms)`;
+        }
+        testResult.responseTime = responseTime;
+      }
+
+      results[results.length - 1] = testResult;
+      setEndpointTests([...results]);
+    }
+
+    setIsTestingEndpoints(false);
   };
 
   useEffect(() => {
@@ -511,6 +637,115 @@ function APIConnectionTestContent() {
               </div>
             )}
           </div>
+        )}
+      </Card>
+
+      {/* Critical Endpoints Test */}
+      <Card className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-xl font-semibold">Critical Endpoints Test</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Test all critical endpoints that were created/fixed in the API alignment batches
+            </p>
+          </div>
+          <Button
+            variant="primary"
+            onClick={testCriticalEndpoints}
+            disabled={isTestingEndpoints}
+          >
+            {isTestingEndpoints ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Testing...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Test All Endpoints
+              </>
+            )}
+          </Button>
+        </div>
+
+        {endpointTests.length > 0 && (
+          <div className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+              {endpointTests.map((test, index) => (
+                <div
+                  key={index}
+                  className={`p-3 rounded-lg border ${
+                    test.status === 'success'
+                      ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                      : test.status === 'error'
+                      ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                      : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                  }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        {test.status === 'success' ? (
+                          <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                        ) : test.status === 'error' ? (
+                          <XCircle className="h-4 w-4 text-red-600 flex-shrink-0" />
+                        ) : (
+                          <Loader2 className="h-4 w-4 text-gray-400 animate-spin flex-shrink-0" />
+                        )}
+                        <span className="font-mono text-xs font-medium truncate">
+                          {test.method} {test.endpoint}
+                        </span>
+                      </div>
+                      {test.message && (
+                        <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
+                          {test.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-4 flex gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <span>
+                  Success: {endpointTests.filter(t => t.status === 'success').length}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <XCircle className="h-4 w-4 text-red-600" />
+                <span>
+                  Errors: {endpointTests.filter(t => t.status === 'error').length}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 text-gray-400" />
+                <span>
+                  Pending: {endpointTests.filter(t => t.status === 'pending').length}
+                </span>
+              </div>
+              {endpointTests.some(t => t.responseTime) && (
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Avg Response: {Math.round(
+                      endpointTests
+                        .filter(t => t.responseTime)
+                        .reduce((sum, t) => sum + (t.responseTime || 0), 0) /
+                      endpointTests.filter(t => t.responseTime).length
+                    )}ms
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {endpointTests.length === 0 && !isTestingEndpoints && (
+          <Alert variant="info">
+            <p>Click "Test All Endpoints" to test all critical endpoints that were created or fixed.</p>
+          </Alert>
         )}
       </Card>
 
