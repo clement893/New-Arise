@@ -62,23 +62,23 @@ export function LocaleSync({ children }: LocaleSyncProps) {
       // Get actual URL pathname (includes locale prefix)
       const actualPathname = typeof window !== 'undefined' ? window.location.pathname : pathname;
       
-      // Check sessionStorage to prevent infinite loops
-      const syncKey = `${SYNC_KEY}_${actualPathname}`;
+      // Skip if we've already checked this exact combination in this render cycle
+      const checkKey = `${currentLocale}_${actualPathname}`;
+      if (hasCheckedRef.current === checkKey) {
+        return;
+      }
+
+      // Check sessionStorage to prevent infinite loops - use a more specific key
+      const syncKey = `${SYNC_KEY}_${currentLocale}_${actualPathname}`;
       const lastSync = typeof window !== 'undefined' ? sessionStorage.getItem(syncKey) : null;
       const now = Date.now();
       
       if (lastSync) {
         const timeSinceLastSync = now - parseInt(lastSync, 10);
-        // If we checked this path recently, skip to prevent infinite loops
+        // If we checked this locale/path combination recently, skip to prevent infinite loops
         if (timeSinceLastSync < SYNC_TIMEOUT) {
           return;
         }
-      }
-
-      // Skip if we've already checked this exact combination in this render cycle
-      const checkKey = `${currentLocale}_${actualPathname}`;
-      if (hasCheckedRef.current === checkKey) {
-        return;
       }
 
       isProcessingRef.current = true;
@@ -92,6 +92,15 @@ export function LocaleSync({ children }: LocaleSyncProps) {
         if (data && typeof data === 'object') {
           // Get language preference (could be 'language' or 'locale')
           const preferredLanguage = (data.language || data.locale) as Locale | undefined;
+          
+          // First check: if locale already matches preference, clear any sync flags and exit
+          if (preferredLanguage === currentLocale) {
+            if (typeof window !== 'undefined') {
+              sessionStorage.removeItem(syncKey);
+            }
+            isProcessingRef.current = false;
+            return;
+          }
           
           // Only redirect if preference exists, is valid, and differs from current locale
           if (
@@ -110,7 +119,7 @@ export function LocaleSync({ children }: LocaleSyncProps) {
             
             // Only redirect if path is actually different
             if (newPath !== actualPathname) {
-              // Mark that we've checked this path to prevent infinite loops
+              // Mark that we've checked this locale/path combination to prevent infinite loops
               if (typeof window !== 'undefined') {
                 sessionStorage.setItem(syncKey, now.toString());
               }
@@ -123,13 +132,9 @@ export function LocaleSync({ children }: LocaleSyncProps) {
               });
 
               // Use window.location.href for full page reload to ensure locale change
+              // This will cause the component to unmount, so we don't need to reset flags
               window.location.href = newPath;
               return;
-            }
-          } else if (preferredLanguage === currentLocale) {
-            // Locale matches preference, clear sync flag
-            if (typeof window !== 'undefined') {
-              sessionStorage.removeItem(syncKey);
             }
           }
         }
