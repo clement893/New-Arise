@@ -11,7 +11,7 @@ import Badge from '@/components/ui/Badge';
 import Alert from '@/components/ui/Alert';
 import Loading from '@/components/ui/Loading';
 import Input from '@/components/ui/Input';
-import { type Permission, type UserPermission } from '@/lib/api/rbac';
+import { type UserPermission } from '@/lib/api/rbac';
 import { useUserPermissions, usePermissions } from '@/hooks/useRBAC';
 import { logger } from '@/lib/logger';
 

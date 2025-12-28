@@ -10,7 +10,6 @@ import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import Alert from '@/components/ui/Alert';
 import Loading from '@/components/ui/Loading';
-import { type Role } from '@/lib/api/rbac';
 import { useUserRoles, useRoles } from '@/hooks/useRBAC';
 import { logger } from '@/lib/logger';
 

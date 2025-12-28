@@ -25,7 +25,7 @@ export default function RBACPage() {
   const router = useRouter();
   const { isAuthenticated, user } = useAuthStore();
   const { roles, loading: rolesLoading, createRole, updateRole, deleteRole, loadRoles } = useRoles();
-  const { permissions, loading: permissionsLoading } = usePermissions();
+  const { loading: permissionsLoading } = usePermissions();
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -46,10 +46,16 @@ export default function RBACPage() {
     }
   }, [isAuthenticated, user, router]);
 
-  const handleCreateRole = async (data: RoleCreate) => {
+  const handleCreateRole = async (data: RoleCreate | RoleUpdate) => {
     try {
       setError(null);
-      await createRole(data);
+      // Type guard to ensure we have RoleCreate (with slug) for creation
+      if ('slug' in data) {
+        await createRole(data as RoleCreate);
+      } else {
+        // This shouldn't happen in create mode, but handle it gracefully
+        throw new Error('Slug is required for creating a role');
+      }
       setShowCreateModal(false);
     } catch (err) {
       logger.error('Failed to create role', err instanceof Error ? err : new Error(String(err)));
