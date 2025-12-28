@@ -968,28 +968,58 @@ async def google_oauth_callback(
             
             logger.info(f"Google OAuth successful for user {email}, redirecting to {redirect_url}")
             
-            # Use HTML redirect page to ensure redirect works reliably
-            # This is more reliable for OAuth callbacks, especially in production
-            # where HTTP redirects might be blocked or not work as expected
-            html_content = f"""
-<!DOCTYPE html>
-<html>
+            # Try HTTP 302 redirect first (most reliable for OAuth)
+            # If that doesn't work, fallback to HTML redirect page
+            try:
+                logger.info(f"Attempting HTTP 302 redirect to: {redirect_url}")
+                return RedirectResponse(url=redirect_url, status_code=302)
+            except Exception as redirect_error:
+                logger.warning(f"HTTP redirect failed, using HTML fallback: {redirect_error}")
+                # Fallback to HTML redirect page if HTTP redirect fails
+                import json
+                redirect_url_js = json.dumps(redirect_url)
+                html_content = f"""<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redirecting...</title>
     <meta http-equiv="refresh" content="0;url={redirect_url}">
     <script>
         // Immediate JavaScript redirect as primary method
-        window.location.href = {repr(redirect_url)};
+        (function() {{
+            try {{
+                // Try immediate redirect using replace (doesn't add to history)
+                window.location.replace({redirect_url_js});
+            }} catch (e) {{
+                // Fallback to href if replace fails
+                try {{
+                    window.location.href = {redirect_url_js};
+                }} catch (e2) {{
+                    console.error('Redirect failed:', e2);
+                    // Last resort: show link
+                    document.body.innerHTML = '<p>Redirect failed. Please <a href="' + {redirect_url_js} + '">click here</a> to continue.</p>';
+                }}
+            }}
+        }})();
     </script>
 </head>
 <body>
     <p>Redirecting to application...</p>
     <p>If you are not redirected automatically, <a href="{redirect_url}">click here</a>.</p>
+    <script>
+        // Backup redirect after page load
+        setTimeout(function() {{
+            if (window.location.href.indexOf('callback') !== -1) {{
+                window.location.replace({redirect_url_js});
+            }}
+        }}, 100);
+    </script>
 </body>
-</html>
-"""
-            return HTMLResponse(content=html_content, status_code=200)
+</html>"""
+                logger.info(f"Returning HTML redirect page, redirect URL: {redirect_url}")
+                return HTMLResponse(content=html_content, status_code=200)
             
     except HTTPException:
         raise
