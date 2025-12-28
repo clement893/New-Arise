@@ -295,6 +295,33 @@ function updatePreferences(prefs: any) {
 }
 ```
 
+### API Calls
+
+**✅ Always use `apiClient` instead of `fetch()` for API calls:**
+
+```typescript
+// ✅ Good: Use apiClient
+import { apiClient } from '@/lib/api/client';
+import { extractApiData } from '@/lib/api/utils';
+
+const response = await apiClient.get<User[]>('/v1/users');
+const users = extractApiData(response);
+
+// ❌ Bad: Don't use fetch()
+const response = await fetch('/api/v1/users');
+const users = await response.json();
+```
+
+**✅ Use normalized API paths without duplicate prefixes:**
+
+```typescript
+// ✅ Good: Normalized path
+await apiClient.get('/v1/announcements');
+
+// ❌ Bad: Duplicate prefix
+await apiClient.get('/api/v1/announcements/announcements');
+```
+
 ### API Responses
 
 **✅ Use extractApiData helper for type-safe API responses:**

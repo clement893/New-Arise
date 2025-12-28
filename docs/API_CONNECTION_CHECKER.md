@@ -452,6 +452,32 @@ echo "✅ Verification complete!"
 
 ---
 
-*Document créé le: [Date]*
-*Dernière mise à jour: [Date]*
+## 🔄 Mises à Jour Récentes (2025-01-28)
+
+### Corrections Appliquées
+
+- ✅ **9 nouveaux endpoints créés** pour correspondre aux appels frontend
+- ✅ **5 fetch() calls convertis** en `apiClient` pour la cohérence
+- ✅ **15 fichiers corrigés** avec préfixes dupliqués dans les chemins API
+- ✅ **Tous les endpoints critiques vérifiés** (auth, RBAC, DELETE)
+
+### Nouveaux Endpoints Disponibles
+
+- User Preferences: `/v1/users/preferences/notifications` (GET, PUT)
+- Admin/Tenancy: `/v1/admin/tenancy/config` (GET, PUT)
+- Media Validation: `/v1/media/validate` (POST)
+- Tags CRUD: `/v1/tags/` (GET, PUT, DELETE)
+- Scheduled Tasks: `/v1/scheduled-tasks/{id}/toggle` (PUT)
+- Pages: `/v1/pages/id/{id}` (DELETE)
+
+### Bonnes Pratiques
+
+1. **Utiliser `apiClient`** au lieu de `fetch()` pour tous les appels API
+2. **Chemins normalisés** sans préfixes dupliqués (`/v1/resource` pas `/api/v1/resource/resource`)
+3. **Utiliser `extractApiData`** pour extraire les données des réponses API
+
+---
+
+*Document créé le: [Date]*  
+*Dernière mise à jour: 2025-01-28*
 
