@@ -7,6 +7,7 @@
 
 import { forwardRef, type InputHTMLAttributes } from 'react';
 import { clsx } from 'clsx';
+import { useComponentConfig } from '@/lib/theme/use-component-config';
 
 interface RadioProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
   label?: string;
@@ -27,6 +28,10 @@ const Radio = forwardRef<HTMLInputElement, RadioProps>(
     ref
   ) => {
     const radioId = id || `radio-${Math.random().toString(36).substring(7)}`;
+    const { getComponentSize } = useComponentConfig();
+    const sizeConfig = getComponentSize('radio', 'md');
+    
+    const size = sizeConfig.minHeight || '1rem';
 
     return (
       <div className={clsx('flex items-center', fullWidth && 'w-full')}>
@@ -35,19 +40,23 @@ const Radio = forwardRef<HTMLInputElement, RadioProps>(
           type="radio"
           id={radioId}
           className={clsx(
-            'w-4 h-4 text-primary-600 dark:text-primary-400 border-gray-300 dark:border-gray-600',
+            'text-primary-600 dark:text-primary-400 border-border',
             'focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:ring-offset-0',
             'disabled:opacity-50 disabled:cursor-not-allowed',
             error && 'border-error-500 dark:border-error-400',
             className
           )}
+          style={{
+            width: size,
+            height: size,
+          }}
           {...props}
         />
         {label && (
           <label
             htmlFor={radioId}
             className={clsx(
-              'ml-2 text-sm font-medium text-gray-700 dark:text-gray-300',
+              'ml-2 text-sm font-medium text-foreground',
               error && 'text-error-600 dark:text-error-400',
               props.disabled && 'opacity-50 cursor-not-allowed'
             )}

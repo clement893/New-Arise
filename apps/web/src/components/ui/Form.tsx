@@ -81,7 +81,7 @@ export default function Form({
           <div key={field.name} className="space-y-2">
             <label
               htmlFor={field.name}
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              className="block text-sm font-medium text-foreground"
             >
               {field.label}
               {field.required && <span className="text-error-500 dark:text-error-400 ml-1">*</span>}
@@ -147,7 +147,7 @@ export default function Form({
                 />
                 <label
                   htmlFor={field.name}
-                  className="ml-2 text-sm text-gray-700 dark:text-gray-300"
+                  className="ml-2 text-sm text-foreground"
                 >
                   {field.helpText}
                 </label>
@@ -177,7 +177,7 @@ export default function Form({
               <p className="text-sm text-error-600 dark:text-error-400">{error}</p>
             )}
             {field.helpText && !error && (
-              <p className="text-sm text-gray-500 dark:text-gray-400">{field.helpText}</p>
+              <p className="text-sm text-muted-foreground">{field.helpText}</p>
             )}
           </div>
         );
@@ -227,7 +227,7 @@ export function FormField({ label, name, required, error, helpText, children }: 
     <div className="space-y-2">
       <label
         htmlFor={name}
-        className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        className="block text-sm font-medium text-foreground"
       >
         {label}
         {required && <span className="text-error-500 dark:text-error-400 ml-1">*</span>}
@@ -247,7 +247,7 @@ export function FormField({ label, name, required, error, helpText, children }: 
         </p>
       )}
       {helpText && !error && (
-        <p id={`${name}-help`} className="text-sm text-gray-500 dark:text-gray-400">
+        <p id={`${name}-help`} className="text-sm text-muted-foreground">
           {helpText}
         </p>
       )}

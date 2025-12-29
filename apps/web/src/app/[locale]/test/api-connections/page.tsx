@@ -8,7 +8,7 @@ import { getErrorMessage } from '@/lib/errors';
 import { logger } from '@/lib/logger';
 import { RefreshCw, CheckCircle, Download, FileText, ExternalLink, Eye, XCircle, Loader2, Copy, Check } from 'lucide-react';
 import { PageHeader, PageContainer } from '@/components/layout';
-import type { ConnectionStatus, EndpointTestResult, CheckResult, ComponentTestResult } from './types/health.types';
+import type { ConnectionStatus, EndpointTestResult, CheckResult, ComponentTestResult, TestProgress } from './types/health.types';
 import { checkStatus, checkFrontend, checkBackend } from './services/healthChecker';
 import { testCriticalEndpoints } from './services/endpointTester';
 import { generateCompleteReport, generateReportPath } from './services/reportGenerator';
@@ -28,6 +28,7 @@ function APIConnectionTestContent() {
   const [error, setError] = useState('');
   const [endpointTests, setEndpointTests] = useState<EndpointTestResult[]>([]);
   const [isTestingEndpoints, setIsTestingEndpoints] = useState(false);
+  const [testProgress, setTestProgress] = useState<TestProgress | null>(null);
   const [copiedTestId, setCopiedTestId] = useState<string | null>(null);
   const [componentTests, setComponentTests] = useState<Array<{ name: string; status: 'pending' | 'success' | 'error'; message?: string }>>([]);
   const [isTestingComponents, setIsTestingComponents] = useState(false);
@@ -176,14 +177,24 @@ function APIConnectionTestContent() {
     setIsTestingEndpoints(true);
     setError('');
     setEndpointTests([]);
+    setTestProgress(null);
 
     try {
-      const results = await testCriticalEndpoints(signal, (updatedResults) => {
-        // Check if component is still mounted before updating state
-        if (isMountedRef.current) {
-          setEndpointTests([...updatedResults]);
+      const results = await testCriticalEndpoints(
+        signal,
+        (updatedResults) => {
+          // Check if component is still mounted before updating state
+          if (isMountedRef.current) {
+            setEndpointTests([...updatedResults]);
+          }
+        },
+        (progress) => {
+          // Update progress indicator
+          if (isMountedRef.current) {
+            setTestProgress(progress);
+          }
         }
-      });
+      );
       
       // Check if component is still mounted before updating state
       if (!isMountedRef.current) return;
@@ -198,6 +209,7 @@ function APIConnectionTestContent() {
     } finally {
       if (isMountedRef.current) {
         setIsTestingEndpoints(false);
+        // Keep progress visible even after completion
       }
     }
   };

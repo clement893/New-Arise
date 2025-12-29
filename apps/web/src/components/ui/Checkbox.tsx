@@ -44,6 +44,12 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     },
     ref
   ) => {
+    const { getComponentSize } = useComponentConfig();
+    const sizeConfig = getComponentSize('checkbox', 'md');
+    
+    const size = sizeConfig.minHeight || '1rem';
+    const borderRadius = sizeConfig.borderRadius || '0.25rem';
+
     return (
       <div className={clsx('flex flex-col', fullWidth && 'w-full')}>
         <label className="flex items-center cursor-pointer group">
@@ -61,19 +67,24 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             type="checkbox"
             checked={checked}
             className={clsx(
-              'w-4 h-4 text-primary-600 dark:text-primary-400 border-gray-300 dark:border-gray-600 rounded',
-              'bg-white dark:bg-gray-700',
+              'text-primary-600 dark:text-primary-400 border-border',
+              'bg-background',
               'focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:ring-offset-0',
               'disabled:opacity-50 disabled:cursor-not-allowed',
               error && 'border-error-500 dark:border-error-400',
               className
             )}
+            style={{
+              width: size,
+              height: size,
+              borderRadius,
+            }}
             {...props}
           />
           {label && (
             <span className={clsx(
               'ml-2 text-sm font-medium',
-              error ? 'text-error-600 dark:text-error-400' : 'text-gray-700 dark:text-gray-300',
+              error ? 'text-error-600 dark:text-error-400' : 'text-foreground',
               props.disabled && 'opacity-50'
             )}>
               {label}

@@ -87,3 +87,12 @@ export interface HealthMetrics {
   inactiveFeatures: number;
   errorFeatures: number;
 }
+
+export interface TestProgress {
+  total: number;
+  completed: number;
+  success: number;
+  error: number;
+  pending: number;
+  percentage: number; // 0-100
+}

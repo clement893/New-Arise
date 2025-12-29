@@ -5,7 +5,7 @@
 
 import { apiClient } from '@/lib/api/client';
 import { getErrorMessage } from '@/lib/errors';
-import type { EndpointTestResult, EndpointToTest } from '../types/health.types';
+import type { EndpointTestResult, EndpointToTest, TestProgress } from '../types/health.types';
 
 /**
  * Get all endpoints to test
@@ -253,41 +253,106 @@ export async function testEndpoint(
 }
 
 /**
- * Test all critical endpoints sequentially
- * Note: This will be replaced with parallel testing in Batch 3
+ * Calculate test progress from results
+ */
+export function calculateTestProgress(results: EndpointTestResult[]): TestProgress {
+  const total = results.length;
+  const completed = results.filter(r => r.status !== 'pending').length;
+  const success = results.filter(r => r.status === 'success').length;
+  const error = results.filter(r => r.status === 'error').length;
+  const pending = results.filter(r => r.status === 'pending').length;
+  const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+  return {
+    total,
+    completed,
+    success,
+    error,
+    pending,
+    percentage,
+  };
+}
+
+/**
+ * Test all critical endpoints in parallel batches
+ * Tests endpoints in batches of 10 for optimal performance
  */
 export async function testCriticalEndpoints(
   signal?: AbortSignal,
-  onProgress?: (results: EndpointTestResult[]) => void
+  onProgress?: (results: EndpointTestResult[]) => void,
+  onProgressUpdate?: (progress: TestProgress) => void,
+  batchSize: number = 10
 ): Promise<EndpointTestResult[]> {
   const endpointsToTest = getEndpointsToTest();
   const results: EndpointTestResult[] = [];
+  const totalEndpoints = endpointsToTest.length;
 
+  // Initialize all results as pending
   for (const endpoint of endpointsToTest) {
+    results.push({
+      endpoint: endpoint.endpoint,
+      method: endpoint.method,
+      status: 'pending',
+      category: endpoint.category,
+    });
+  }
+
+  // Notify initial state
+  if (onProgress) {
+    onProgress([...results]);
+  }
+  if (onProgressUpdate) {
+    onProgressUpdate(calculateTestProgress(results));
+  }
+
+  // Process endpoints in batches
+  for (let i = 0; i < endpointsToTest.length; i += batchSize) {
     // Check if request was aborted
     if (signal?.aborted) {
       break;
     }
 
-    const result = await testEndpoint(endpoint, signal, (singleResult) => {
-      // Update results array with latest result
-      const index = results.findIndex(
-        (r) => r.endpoint === singleResult.endpoint && r.method === singleResult.method
-      );
-      if (index >= 0) {
-        results[index] = singleResult;
-      } else {
-        results.push(singleResult);
-      }
-      // Notify progress
-      if (onProgress) {
-        onProgress([...results]);
+    const batch = endpointsToTest.slice(i, i + batchSize);
+    const batchResults = await Promise.allSettled(
+      batch.map((endpoint, batchIndex) => {
+        const globalIndex = i + batchIndex;
+        return testEndpoint(endpoint, signal, (singleResult) => {
+          // Update the specific result in the results array
+          if (globalIndex < results.length) {
+            results[globalIndex] = singleResult;
+            // Notify progress after each update
+            if (onProgress) {
+              onProgress([...results]);
+            }
+            if (onProgressUpdate) {
+              onProgressUpdate(calculateTestProgress(results));
+            }
+          }
+        });
+      })
+    );
+
+    // Process batch results
+    batchResults.forEach((settledResult, batchIndex) => {
+      const globalIndex = i + batchIndex;
+      if (settledResult.status === 'fulfilled' && globalIndex < results.length) {
+        results[globalIndex] = settledResult.value;
+      } else if (settledResult.status === 'rejected' && globalIndex < results.length) {
+        // Handle rejection - mark as error
+        results[globalIndex] = {
+          ...results[globalIndex],
+          status: 'error',
+          message: `Test failed: ${settledResult.reason instanceof Error ? settledResult.reason.message : String(settledResult.reason)}`,
+        };
       }
     });
 
-    results.push(result);
+    // Notify progress after batch completion
     if (onProgress) {
       onProgress([...results]);
+    }
+    if (onProgressUpdate) {
+      onProgressUpdate(calculateTestProgress(results));
     }
   }
 
