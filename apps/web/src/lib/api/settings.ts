@@ -129,10 +129,16 @@ export const settingsAPI = {
    */
   getGeneralSettings: async (): Promise<GeneralSettings> => {
     const response = await apiClient.get<GeneralSettings>('/v1/settings/general');
-    if (!response.data) {
-      throw new Error('Failed to fetch general settings: no data returned');
+    // FastAPI returns data directly, so response might be GeneralSettings or ApiResponse<GeneralSettings>
+    // Handle ApiResponse wrapper case
+    if (typeof response === 'object' && 'data' in response && response.data) {
+      return response.data as GeneralSettings;
     }
-    return response.data;
+    // Handle direct FastAPI response case (response is already GeneralSettings)
+    if (response && typeof response === 'object' && 'language' in response) {
+      return response as GeneralSettings;
+    }
+    throw new Error('Failed to fetch general settings: invalid response format');
   },
 
   /**
@@ -140,10 +146,16 @@ export const settingsAPI = {
    */
   updateGeneralSettings: async (settings: GeneralSettings): Promise<GeneralSettings> => {
     const response = await apiClient.put<GeneralSettings>('/v1/settings/general', settings);
-    if (!response.data) {
-      throw new Error('Failed to update general settings: no data returned');
+    // FastAPI returns data directly, so response might be GeneralSettings or ApiResponse<GeneralSettings>
+    // Handle ApiResponse wrapper case
+    if (typeof response === 'object' && 'data' in response && response.data) {
+      return response.data as GeneralSettings;
     }
-    return response.data;
+    // Handle direct FastAPI response case (response is already GeneralSettings)
+    if (response && typeof response === 'object' && 'language' in response) {
+      return response as GeneralSettings;
+    }
+    throw new Error('Failed to update general settings: invalid response format');
   },
 
   /**
