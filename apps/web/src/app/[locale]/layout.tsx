@@ -113,8 +113,31 @@ export default async function LocaleLayout({
                 --color-ring: #2563eb;
                 
                 /* Default color palette - will be overridden by theme */
+                /* Primary shades - prevent flash on gradients */
+                --color-primary-50: #eff6ff;
+                --color-primary-100: #dbeafe;
+                --color-primary-200: #bfdbfe;
+                --color-primary-300: #93c5fd;
+                --color-primary-400: #60a5fa;
                 --color-primary-500: #2563eb;
+                --color-primary-600: #1d4ed8;
+                --color-primary-700: #1e40af;
+                --color-primary-800: #1e3a8a;
+                --color-primary-900: #1e3a8a;
+                --color-primary-950: #172554;
+                /* Secondary shades */
+                --color-secondary-50: #f5f3ff;
+                --color-secondary-100: #ede9fe;
+                --color-secondary-200: #ddd6fe;
+                --color-secondary-300: #c4b5fd;
+                --color-secondary-400: #a78bfa;
                 --color-secondary-500: #6366f1;
+                --color-secondary-600: #4f46e5;
+                --color-secondary-700: #4338ca;
+                --color-secondary-800: #3730a3;
+                --color-secondary-900: #312e81;
+                --color-secondary-950: #1e1b4b;
+                /* Other colors */
                 --color-danger-500: #dc2626;
                 --color-warning-500: #b45309;
                 --color-info-500: #0891b2;

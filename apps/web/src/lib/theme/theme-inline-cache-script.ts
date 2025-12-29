@@ -12,23 +12,9 @@ export const themeCacheInlineScript = `
   // This ensures colors are applied before any CSS is rendered
   
   try {
-    // Apply dark/light mode based on system preference or user preference
+    // ONLY load theme variables - NO automatic dark/light mode application
+    // Dark mode is ONLY activated manually via ThemeToggle component
     const root = document.documentElement;
-    const userTheme = localStorage.getItem('theme');
-    let shouldBeDark = false;
-    
-    if (userTheme === 'dark') {
-      shouldBeDark = true;
-    } else if (userTheme === 'light') {
-      shouldBeDark = false;
-    } else {
-      // Default to system preference (or 'system' if no preference set)
-      shouldBeDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    
-    // Apply dark/light class immediately before applying colors
-    root.classList.remove('light', 'dark');
-    root.classList.add(shouldBeDark ? 'dark' : 'light');
     
     // Get cached theme from localStorage
     const cacheKey = 'modele_theme_cache';

@@ -8,7 +8,7 @@ import { getActiveTheme } from '@/lib/api/theme';
 import { logger } from '@/lib/logger';
 import type { ThemeConfigResponse, ThemeConfig } from '@modele/types';
 import { generateColorShades, generateRgb } from './color-utils';
-import { watchDarkModePreference, getThemeConfigForMode } from './dark-mode-utils';
+import { getThemeConfigForMode } from './dark-mode-utils';
 import { getThemeFromCache, saveThemeToCache, clearThemeCache } from './theme-cache';
 import { checkFonts } from '@/lib/api/theme-font';
 import { TokenStorage } from '@/lib/auth/tokenStorage';
@@ -628,19 +628,14 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
   }, []); // Only run once on mount - cache is only used on initial load
 
   useEffect(() => {
-    // Fetch theme from API asynchronously (non-blocking, use startTransition)
+    // Fetch theme from API immediately - no delay
     // Cache is already applied synchronously above
-    // Delay fetch slightly to prevent flash - let cache render first
-    const timeoutId = setTimeout(() => {
-      startTransition(() => {
-        fetchTheme();
-      });
-    }, 100); // Small delay to let initial render complete with cache
+    startTransition(() => {
+      fetchTheme();
+    });
     
-    return () => clearTimeout(timeoutId);
-    
-    // Watch for dark class changes on document root (set by ThemeContext)
-    // This ensures theme CSS variables update when user toggles dark mode
+    // Watch for dark class changes on document root (set by ThemeToggle manually)
+    // This ensures theme CSS variables update when user manually toggles dark mode
     // BUT: Don't override if manual theme is active (for preview mode)
     const observer = new MutationObserver(() => {
       // Check if manual theme is active (data-manual-theme attribute)
@@ -659,13 +654,8 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
       });
     }
     
-    // Watch for system dark mode preference changes
-    const cleanup = watchDarkModePreference(() => {
-      // Re-apply theme when system preference changes (if mode is 'system')
-      if (theme && (theme.config as any).mode === 'system') {
-        applyThemeConfig(theme.config);
-      }
-    });
+    // NO automatic dark mode - only manual toggle via ThemeToggle
+    // Removed watchDarkModePreference - dark mode is ONLY manual
     
     // Refresh theme every 5 minutes to catch updates
     const interval = setInterval(() => {
@@ -676,7 +666,6 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
     
     return () => {
       clearInterval(interval);
-      cleanup();
       observer.disconnect();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

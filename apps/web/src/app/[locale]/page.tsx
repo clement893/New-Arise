@@ -1,14 +1,12 @@
 /**
- * Home Page - Enhanced with template presentation
- * Uses reusable section components from @/components/sections
- * With next-intl, this page is automatically served for the default locale
+ * Home Page - Simple and clean
+ * Theme loads immediately, no animations, no delays
  */
 
 'use client';
 
 import { Card, Container, StatsCard } from '@/components/ui';
 import ButtonLink from '@/components/ui/ButtonLink';
-import { Hero, TechStack, CTA } from '@/components/sections';
 import { 
   CheckCircle, 
   Zap, 
@@ -87,11 +85,37 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-background to-secondary-50 dark:from-muted dark:via-muted dark:to-muted">
-      {/* Hero Section - Using Hero component */}
-      <Hero />
+    <div className="min-h-screen bg-background">
+      {/* Hero Section - Simple, no animations */}
+      <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-background to-secondary-50 dark:from-muted dark:via-muted dark:to-muted overflow-hidden">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 py-12 sm:py-20 text-center">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-foreground mb-4 sm:mb-6 leading-[1.1] px-2">
+            <span className="block mb-2">MODELE-NEXTJS</span>
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 dark:from-primary-400 dark:via-primary-300 dark:to-primary-200">
+              FULLSTACK
+            </span>
+          </h1>
+          
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground mb-8 sm:mb-12 max-w-3xl mx-auto leading-relaxed px-2 font-medium">
+            Un template de production prêt à l'emploi avec Next.js 16, React 19, 
+            FastAPI et PostgreSQL. Démarrez votre projet rapidement avec une architecture moderne.
+          </p>
 
-      {/* Stats Section - Custom stats with StatsCard component */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-12 sm:mb-16 px-2">
+            <ButtonLink href="/auth/register" size="lg" variant="primary">
+              Commencer maintenant
+            </ButtonLink>
+            <ButtonLink href="/components" size="lg" variant="secondary">
+              Voir les composants
+            </ButtonLink>
+            <ButtonLink href="/auth/login" size="lg" variant="outline">
+              Se connecter
+            </ButtonLink>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
       <section className="bg-background py-12" aria-labelledby="stats-heading">
         <Container>
           <h2 id="stats-heading" className="sr-only">Statistiques du template</h2>
@@ -128,7 +152,7 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* Features Section - Custom features using Card component */}
+      {/* Features Section */}
       <section className="bg-background py-20" aria-labelledby="features-heading">
         <Container>
           <div className="text-center mb-16">
@@ -158,10 +182,7 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* Tech Stack Section - Using TechStack component */}
-      <TechStack />
-
-      {/* Use Cases Section - Custom section using Card component */}
+      {/* Use Cases Section */}
       <div className="bg-background py-20">
         <Container>
           <div className="text-center mb-16">
@@ -195,7 +216,7 @@ export default function HomePage() {
         </Container>
       </div>
 
-      {/* Key Features List - Custom section using Card component */}
+      {/* Key Features List */}
       <div className="bg-gradient-to-br from-secondary-50 to-primary-50 dark:from-muted dark:to-muted py-20">
         <Container>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
@@ -253,10 +274,7 @@ export default function HomePage() {
         </Container>
       </div>
 
-      {/* CTA Section - Using CTA component */}
-      <CTA />
-
-      {/* Quick Links - Custom section using Card component */}
+      {/* Quick Links */}
       <div className="bg-background py-16">
         <Container>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">

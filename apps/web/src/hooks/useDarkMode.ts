@@ -1,31 +1,23 @@
 /**
  * Simple Dark Mode Hook
- * Dark mode follows system preference by default, or user preference if set
+ * Dark mode is ONLY activated manually via toggle - NO automatic system preference
  */
 
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 
-type ThemeMode = 'light' | 'dark' | 'system';
+type ThemeMode = 'light' | 'dark';
 
 /**
  * Get current theme mode from localStorage (user preference)
- * Defaults to 'system' to follow system preferences
+ * Defaults to 'light' - NO automatic system preference
  */
 function getThemeMode(): ThemeMode {
-  if (typeof window === 'undefined') return 'system';
-  return (localStorage.getItem('theme') as ThemeMode | null) || 'system';
-}
-
-/**
- * Resolve theme mode to actual dark/light
- */
-function resolveTheme(mode: ThemeMode): 'dark' | 'light' {
-  if (mode === 'system') {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  }
-  return mode;
+  if (typeof window === 'undefined') return 'light';
+  const stored = localStorage.getItem('theme');
+  // Only accept 'dark' or 'light', default to 'light'
+  return (stored === 'dark' || stored === 'light') ? stored : 'light';
 }
 
 /**
@@ -40,8 +32,8 @@ function applyThemeClass(isDark: boolean) {
 /**
  * Simple Dark Mode Hook
  * 
- * Dark mode follows system preference by default, or user preference if explicitly set.
- * The inline script in layout.tsx applies the correct mode before first paint.
+ * Dark mode is ONLY activated manually via toggle - NO automatic system preference.
+ * Defaults to 'light' mode.
  * 
  * @returns { isDark: boolean, toggle: () => void, setMode: (mode: ThemeMode) => void, mode: ThemeMode }
  * 
@@ -57,14 +49,29 @@ function applyThemeClass(isDark: boolean) {
  * ```
  */
 export function useDarkMode() {
-  // Read current state from DOM (already set by inline script)
+  // Read current state from DOM (defaults to light if not set)
   const [isDark, setIsDark] = useState(() => {
     if (typeof window === 'undefined') return false;
+    // Check localStorage first, then DOM
+    const stored = localStorage.getItem('theme');
+    if (stored === 'dark') return true;
+    if (stored === 'light') return false;
+    // Default to light if not set
     return document.documentElement.classList.contains('dark');
   });
   
-  // Get mode from localStorage (defaults to 'system')
+  // Get mode from localStorage (defaults to 'light')
   const [mode, setModeState] = useState<ThemeMode>(() => getThemeMode());
+
+  // Initialize on mount - apply stored preference or default to light
+  useEffect(() => {
+    const stored = getThemeMode();
+    const shouldBeDark = stored === 'dark';
+    if (document.documentElement.classList.contains('dark') !== shouldBeDark) {
+      applyThemeClass(shouldBeDark);
+      setIsDark(shouldBeDark);
+    }
+  }, []);
 
   // Sync with DOM changes (e.g., from external changes)
   useEffect(() => {
@@ -84,27 +91,7 @@ export function useDarkMode() {
     return () => observer.disconnect();
   }, [isDark]);
 
-  // Listen to system preference changes (when mode is 'system')
-  useEffect(() => {
-    if (mode !== 'system') return;
-
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = () => {
-      const resolved = mediaQuery.matches ? 'dark' : 'light';
-      applyThemeClass(resolved === 'dark');
-      setIsDark(resolved === 'dark');
-    };
-
-    // Apply initial system preference if not already set
-    const initialResolved = resolveTheme('system');
-    if (document.documentElement.classList.contains('dark') !== (initialResolved === 'dark')) {
-      applyThemeClass(initialResolved === 'dark');
-      setIsDark(initialResolved === 'dark');
-    }
-
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [mode]);
+  // NO automatic system preference - dark mode is ONLY manual
 
   const toggle = useCallback(() => {
     const newIsDark = !isDark;
@@ -117,16 +104,9 @@ export function useDarkMode() {
   const setMode = useCallback((newMode: ThemeMode) => {
     setModeState(newMode);
     localStorage.setItem('theme', newMode);
-    
-    if (newMode === 'system') {
-      const resolved = resolveTheme('system');
-      applyThemeClass(resolved === 'dark');
-      setIsDark(resolved === 'dark');
-    } else {
-      const isDarkMode = newMode === 'dark';
-      applyThemeClass(isDarkMode);
-      setIsDark(isDarkMode);
-    }
+    const isDarkMode = newMode === 'dark';
+    applyThemeClass(isDarkMode);
+    setIsDark(isDarkMode);
   }, []);
 
   return {
