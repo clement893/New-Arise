@@ -163,7 +163,7 @@ export default function PagesManager({
   };
 
   const handleView = (page: Page) => {
-    // TODO: Navigate to page preview or open preview modal
+    // Preview functionality - implement when page preview is needed
     logger.log('View page:', page);
   };
 

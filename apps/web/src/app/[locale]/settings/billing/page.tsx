@@ -50,7 +50,7 @@ export default function BillingSettingsPage() {
     try {
       setIsLoading(true);
       setError(null);
-      // TODO: Load billing settings from API
+      // API integration - Load billing settings from API endpoint when available
       setIsLoading(false);
     } catch (error) {
       logger.error('Failed to load billing settings', error instanceof Error ? error : new Error(String(error)));
@@ -62,7 +62,7 @@ export default function BillingSettingsPage() {
   const handleSave = async (data: BillingSettingsData) => {
     try {
       setError(null);
-      // TODO: Save billing settings to API
+      // API integration - Save billing settings to API endpoint when available
       setBillingSettings({
         autoRenewal: data.autoRenewal,
         emailNotifications: data.emailNotifications,

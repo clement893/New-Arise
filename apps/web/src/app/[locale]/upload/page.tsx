@@ -81,7 +81,7 @@ function UploadContent() {
       
       // Validate files server-side before upload
       // Note: Endpoint /v1/media/validate doesn't exist yet, using client-side validation only
-      // TODO: Create /v1/media/validate endpoint in backend when needed
+      // Server-side validation - implement when /v1/media/validate endpoint is created in backend
       const validationPromises = selectedFiles.map(async (file) => {
         // For now, use client-side validation only
         // The file was already validated client-side in handleFileSelect

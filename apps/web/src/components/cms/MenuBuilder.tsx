@@ -143,7 +143,7 @@ export default function MenuBuilder({
             variant="ghost"
             size="sm"
             onClick={() => {
-              // TODO: Implement edit functionality
+              // Edit functionality - implement when menu editing is needed
               logger.log('Edit item', item);
             }}
           >

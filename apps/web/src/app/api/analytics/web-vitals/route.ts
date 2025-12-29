@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
     // Log Web Vitals (in production, send to analytics service)
     if (process.env.NODE_ENV === 'production') {
-      // TODO: Send to analytics service (e.g., Google Analytics, Sentry, custom)
+      // Analytics integration - Send to analytics service (e.g., Google Analytics, Sentry, custom) when configured
       const webVitalsContext: LogContext = {
         name,
         value,

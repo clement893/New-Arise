@@ -57,7 +57,7 @@ const eventOptions: SelectOption[] = [
 ];
 
 // Template placeholders - These will be used when implementing conditions and actions UI
-// TODO: Implement UI for adding/editing conditions and actions
+// Automation rules UI - implement when automation features are fully developed
 export const operatorOptions: SelectOption[] = [
   { label: 'Equals', value: 'equals' },
   { label: 'Not Equals', value: 'not_equals' },

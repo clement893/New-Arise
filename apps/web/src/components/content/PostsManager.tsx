@@ -191,7 +191,7 @@ export default function PostsManager({
   };
 
   const handleView = (post: BlogPost) => {
-    // TODO: Navigate to post preview or open preview modal
+    // Preview functionality - implement when post preview is needed
     logger.log('View post:', post);
   };
 

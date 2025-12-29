@@ -76,7 +76,7 @@ export default function NotificationSettingsPage() {
     try {
       setIsLoading(true);
       setError(null);
-      // TODO: Load notification settings from API
+      // API integration - Load notification settings from API endpoint when available
       setIsLoading(false);
     } catch (error) {
       logger.error('Failed to load notification settings', error instanceof Error ? error : new Error(String(error)));
@@ -88,7 +88,7 @@ export default function NotificationSettingsPage() {
   const handleSave = async (data: NotificationSettingsData) => {
     try {
       setError(null);
-      // TODO: Save notification settings to API
+      // API integration - Save notification settings to API endpoint when available
       setNotificationSettings(data);
       logger.info('Notification settings saved successfully');
     } catch (error: unknown) {

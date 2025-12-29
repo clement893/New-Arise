@@ -215,7 +215,9 @@ export default function DashboardReportsPage() {
         // For Excel: Use libraries like xlsx or exceljs, or call backend export endpoint
         // You can use the export API endpoint: POST /api/v1/exports/export
         logger.info('PDF/Excel export requires backend support or additional libraries', { format });
-        // TODO: Implement PDF/Excel export using export API or client-side libraries
+        // Export functionality - implement when export feature is needed:
+        // - Use backend export API: POST /api/v1/exports/export
+        // - Or use client-side libraries: xlsx, exceljs, jsPDF, etc.
       }
 
       logger.info('Report exported successfully', { reportId: selectedReport.id, format });

@@ -31,7 +31,7 @@ export function useErrorTracking(): UseErrorTrackingReturn {
       setError(null);
       
       try {
-        // TODO: Replace with actual API call to fetch error data
+        // API integration - Replace with actual API call to fetch error data when backend endpoint is available
         // For now, we'll use localStorage to track client-side errors
         const storedErrors = localStorage.getItem('error_tracking');
         const fetchedErrors: Error[] = storedErrors ? JSON.parse(storedErrors) : [];

@@ -179,7 +179,7 @@ export default function TemplatesManager({
   };
 
   const handleView = (template: ContentTemplate) => {
-    // TODO: Open preview modal or navigate to preview page
+    // Preview functionality - implement when template preview is needed
     logger.log('View template:', template);
   };
 

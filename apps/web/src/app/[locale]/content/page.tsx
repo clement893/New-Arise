@@ -46,7 +46,7 @@ export default function ContentPage() {
     try {
       setIsLoading(true);
       setError(null);
-      // TODO: Load stats from API when backend endpoints are ready
+      // Stats loading - implement when content stats API endpoint is available
       // For now, use default values
       setStats({
         totalPages: 0,

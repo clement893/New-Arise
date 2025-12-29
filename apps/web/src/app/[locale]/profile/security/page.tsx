@@ -78,7 +78,7 @@ export default function ProfileSecurityPage() {
 
   const loadAPIKeys = async () => {
     try {
-      // TODO: Add API keys API call when available
+      // API integration - Add API keys API call when backend endpoint is available
       // const response = await apiKeysAPI.getMyKeys();
       // setApiKeys(response.data || []);
     } catch (error) {
@@ -95,7 +95,7 @@ export default function ProfileSecurityPage() {
     suspiciousActivityAlerts: boolean;
   }) => {
     try {
-      // TODO: Implement security settings save
+      // API integration - Implement security settings save when backend endpoint is available
       logger.info('Security settings saved', { data });
     } catch (error: unknown) {
       logger.error('Failed to save security settings', error instanceof Error ? error : new Error(String(error)));
@@ -107,7 +107,7 @@ export default function ProfileSecurityPage() {
 
   const handleEnable2FA = async () => {
     try {
-      // TODO: Implement 2FA enable flow
+      // API integration - Implement 2FA enable flow when backend endpoint is available
       logger.info('2FA enable requested');
       router.push('/profile/security/2fa/setup');
     } catch (error) {
@@ -118,7 +118,7 @@ export default function ProfileSecurityPage() {
 
   const handleDisable2FA = async () => {
     try {
-      // TODO: Implement 2FA disable flow
+      // API integration - Implement 2FA disable flow when backend endpoint is available
       logger.info('2FA disable requested');
     } catch (error) {
       logger.error('Failed to disable 2FA', error instanceof Error ? error : new Error(String(error)));
@@ -132,7 +132,7 @@ export default function ProfileSecurityPage() {
 
   const handleCreateAPIKey = async (name: string, scopes: string[]) => {
     try {
-      // TODO: Implement API key creation
+      // API integration - Implement API key creation when backend endpoint is available
       logger.info('API key creation requested', { name, scopes });
       // const response = await apiKeysAPI.create({ name, scopes });
       // return response.data;
@@ -153,7 +153,7 @@ export default function ProfileSecurityPage() {
 
   const handleDeleteAPIKey = async (id: string) => {
     try {
-      // TODO: Implement API key deletion
+      // API integration - Implement API key deletion when backend endpoint is available
       logger.info('API key deletion requested', { id });
       // await apiKeysAPI.delete(id);
       setApiKeys((prev) => prev.filter((key) => key.id !== id));

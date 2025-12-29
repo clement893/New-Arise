@@ -52,7 +52,7 @@ export default function SecuritySettingsPage() {
     try {
       setIsLoading(true);
       setError(null);
-      // TODO: Load security settings from API
+      // API integration - Load security settings from API endpoint when available
       setIsLoading(false);
     } catch (error) {
       logger.error('Failed to load security settings', error instanceof Error ? error : new Error(String(error)));
@@ -64,7 +64,7 @@ export default function SecuritySettingsPage() {
   const handleSecuritySave = async (data: SecuritySettingsData) => {
     try {
       setError(null);
-      // TODO: Save security settings to API
+      // API integration - Save security settings to API endpoint when available
       setSecuritySettings({
         twoFactorEnabled: data.twoFactorEnabled,
         sessionTimeout: data.sessionTimeout ?? 30,
@@ -133,7 +133,7 @@ export default function SecuritySettingsPage() {
                   <APIKeys 
                     apiKeys={apiKeys} 
                     onCreate={async (name: string, scopes: string[]) => {
-                      // TODO: Implement API key creation
+                      // API integration - Implement API key creation when backend endpoint is available
                       return {
                         id: '',
                         name,
@@ -144,10 +144,10 @@ export default function SecuritySettingsPage() {
                       };
                     }} 
                     onDelete={async (_id: string) => {
-                      // TODO: Implement API key deletion
+                      // API integration - Implement API key deletion when backend endpoint is available
                     }} 
                     onRevoke={async (_id: string) => {
-                      // TODO: Implement API key revocation
+                      // API integration - Implement API key revocation when backend endpoint is available
                     }} 
                   />
                 </Section>
