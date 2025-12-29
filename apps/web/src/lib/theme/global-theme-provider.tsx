@@ -704,7 +704,14 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
 export function useGlobalTheme() {
   const context = useContext(GlobalThemeContext);
   if (context === undefined) {
-    throw new Error('useGlobalTheme must be used within a GlobalThemeProvider');
+    // Return a safe default context when provider is not available
+    // This allows components to work during SSR or in pages outside the main layout
+    return {
+      theme: null,
+      isLoading: false,
+      error: null,
+      refreshTheme: async () => {},
+    };
   }
   return context;
 }

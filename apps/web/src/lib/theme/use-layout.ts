@@ -30,6 +30,9 @@ import { useGlobalTheme } from './global-theme-provider';
 export function useLayout() {
   const { theme } = useGlobalTheme();
   
+  // Handle case where theme might be null (provider not available)
+  // This allows Container and other components to work during SSR or outside main layout
+  
   /**
    * Get gap value from theme
    * 
