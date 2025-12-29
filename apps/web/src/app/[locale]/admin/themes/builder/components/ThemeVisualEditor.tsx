@@ -27,12 +27,17 @@ export function ThemeVisualEditor({ config, onUpdate }: ThemeVisualEditorProps) 
     const updated = { ...localConfig };
     let current: any = updated;
     for (let i = 0; i < path.length - 1; i++) {
-      if (!current[path[i]]) {
-        current[path[i]] = {};
+      const key = path[i];
+      if (key === undefined) continue;
+      if (!current[key]) {
+        current[key] = {};
       }
-      current = current[path[i]];
+      current = current[key];
     }
-    current[path[path.length - 1]] = value;
+    const lastKey = path[path.length - 1];
+    if (lastKey !== undefined) {
+      current[lastKey] = value;
+    }
     setLocalConfig(updated);
     onUpdate(updated);
   };

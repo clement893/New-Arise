@@ -28,8 +28,8 @@ const Switch = forwardRef<HTMLInputElement, SwitchProps>(
     ref
   ) => {
     const switchId = id || `switch-${Math.random().toString(36).substring(7)}`;
-    const { getComponentSize } = useComponentConfig();
-    const sizeConfig = getComponentSize('switch', 'md');
+    const { getSize } = useComponentConfig('switch');
+    const sizeConfig = getSize('md');
     
     const height = sizeConfig.minHeight || '1.5rem';
     const width = `calc(${height} * 1.833)`; // Maintain aspect ratio

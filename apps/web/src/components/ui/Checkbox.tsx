@@ -44,8 +44,8 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     },
     ref
   ) => {
-    const { getComponentSize } = useComponentConfig();
-    const sizeConfig = getComponentSize('checkbox', 'md');
+    const { getSize } = useComponentConfig('checkbox');
+    const sizeConfig = getSize('md');
     
     const size = sizeConfig.minHeight || '1rem';
     const borderRadius = sizeConfig.borderRadius || '0.25rem';

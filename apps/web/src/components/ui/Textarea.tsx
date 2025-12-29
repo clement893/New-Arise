@@ -34,8 +34,8 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     ref
   ) => {
     const textareaId = id || `textarea-${Math.random().toString(36).substring(7)}`;
-    const { getComponentSize } = useComponentConfig();
-    const sizeConfig = getComponentSize('textarea', 'md');
+    const { getSize } = useComponentConfig('textarea');
+    const sizeConfig = getSize('md');
     
     const paddingX = sizeConfig.paddingX || '0.75rem';
     const paddingY = sizeConfig.paddingY || '0.5rem';

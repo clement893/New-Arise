@@ -85,8 +85,6 @@ function getContainerWidthValue(size: 'sm' | 'md' | 'lg' | 'xl' = 'lg', fallback
  * @returns Object with spacing utility functions
  */
 export function useThemeSpacing() {
-  const { theme } = useGlobalTheme();
-  
   /**
    * Get spacing value
    */

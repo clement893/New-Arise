@@ -124,8 +124,8 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
     ref
   ) => {
     const selectId = id || `select-${Math.random().toString(36).substring(7)}`;
-    const { getComponentSize } = useComponentConfig();
-    const sizeConfig = getComponentSize('select', 'md');
+    const { getSize } = useComponentConfig('select');
+    const sizeConfig = getSize('md');
     
     const paddingX = sizeConfig.paddingX || '0.75rem';
     const paddingY = sizeConfig.paddingY || '0.5rem';

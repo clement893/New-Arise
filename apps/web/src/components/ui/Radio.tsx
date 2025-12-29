@@ -28,8 +28,8 @@ const Radio = forwardRef<HTMLInputElement, RadioProps>(
     ref
   ) => {
     const radioId = id || `radio-${Math.random().toString(36).substring(7)}`;
-    const { getComponentSize } = useComponentConfig();
-    const sizeConfig = getComponentSize('radio', 'md');
+    const { getSize } = useComponentConfig('radio');
+    const sizeConfig = getSize('md');
     
     const size = sizeConfig.minHeight || '1rem';
 

@@ -5,9 +5,8 @@
  * Visual theme editor with live preview and presets
  */
 
-import { useState } from 'react';
 import { PageHeader, PageContainer } from '@/components/layout';
-import { Card, Button, Alert } from '@/components/ui';
+import { Button } from '@/components/ui';
 import { ThemeBuilder } from './components/ThemeBuilder';
 import ProtectedSuperAdminRoute from '@/components/auth/ProtectedSuperAdminRoute';
 import { ArrowLeft } from 'lucide-react';

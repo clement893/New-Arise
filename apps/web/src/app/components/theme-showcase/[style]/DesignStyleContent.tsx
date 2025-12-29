@@ -12,7 +12,6 @@ import {
   Dropdown,
   Stack,
   Grid,
-  Container,
 } from '@/components/ui';
 import { PageHeader, PageContainer, Section, ExampleCard } from '@/components/layout';
 
@@ -88,7 +87,7 @@ export default function DesignStyleContent({ style }: { style: string }) {
         <div className="space-y-8">
           {/* Buttons Section */}
           <Section title="Buttons">
-            <Grid cols={1} md={2} lg={4} gap={4}>
+            <Grid columns={{ mobile: 1, tablet: 2, desktop: 4 }} gap="normal">
               <ExampleCard title="Primary" className={config.cardClass}>
                 <Button variant="primary" className={config.buttonClass}>
                   Primary Button
@@ -108,7 +107,7 @@ export default function DesignStyleContent({ style }: { style: string }) {
 
           {/* Cards Section */}
           <Section title="Cards">
-            <Grid cols={1} md={2} lg={3} gap={6}>
+            <Grid columns={{ mobile: 1, tablet: 2, desktop: 3 }} gap="loose">
               <Card className={config.cardClass}>
                 <h3 className="text-lg font-semibold mb-2">Card Title</h3>
                 <p className="text-muted-foreground mb-4">
@@ -155,7 +154,7 @@ export default function DesignStyleContent({ style }: { style: string }) {
 
           {/* Badges & Alerts Section */}
           <Section title="Badges & Alerts">
-            <Grid cols={1} md={2} gap={4}>
+            <Grid columns={{ mobile: 1, tablet: 2 }} gap="normal">
               <ExampleCard title="Badges" className={config.cardClass}>
                 <Stack gapValue="0.5rem">
                   <div className="flex flex-wrap gap-2">
@@ -182,7 +181,7 @@ export default function DesignStyleContent({ style }: { style: string }) {
 
           {/* Interactive Components Section */}
           <Section title="Interactive Components">
-            <Grid cols={1} md={2} gap={4}>
+            <Grid columns={{ mobile: 1, tablet: 2 }} gap="normal">
               <ExampleCard title="Dropdown Menu" className={config.cardClass}>
                 <Dropdown
                   trigger={<Button variant="primary" className={config.buttonClass}>Open Menu</Button>}

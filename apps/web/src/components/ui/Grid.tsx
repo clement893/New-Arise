@@ -96,7 +96,7 @@ export default function Grid({
         className
       )}
       style={{
-        ...gridColumns,
+        ...(gridColumns && typeof gridColumns === 'object' ? gridColumns : {}),
         gap: gapValueToUse,
       }}
     >
