@@ -85,10 +85,13 @@ function CallbackContent() {
       // The apiClient interceptor should pick it up from TokenStorage
       const storedTokenBeforeCall = TokenStorage.getToken();
       if (!storedTokenBeforeCall || storedTokenBeforeCall !== accessToken) {
-        logger.warn('Token mismatch before API call, re-storing...', {
-          storedTokenExists: !!storedTokenBeforeCall,
-          tokensMatch: storedTokenBeforeCall === accessToken
-        });
+        // Only log in development to avoid noise in production
+        if (process.env.NODE_ENV === 'development') {
+          logger.warn('Token mismatch before API call, re-storing...', {
+            storedTokenExists: !!storedTokenBeforeCall,
+            tokensMatch: storedTokenBeforeCall === accessToken
+          });
+        }
         await TokenStorage.setToken(accessToken, refreshToken);
         // Small delay to ensure token is available
         await new Promise(resolve => setTimeout(resolve, 100));

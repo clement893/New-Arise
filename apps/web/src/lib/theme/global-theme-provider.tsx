@@ -11,6 +11,7 @@ import { generateColorShades, generateRgb } from './color-utils';
 import { watchDarkModePreference, getThemeConfigForMode } from './dark-mode-utils';
 import { getThemeFromCache, saveThemeToCache } from './theme-cache';
 import { checkFonts } from '@/lib/api/theme-font';
+import { TokenStorage } from '@/lib/auth/tokenStorage';
 
 interface GlobalThemeContextType {
   theme: ThemeConfigResponse | null;
@@ -314,31 +315,40 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
         
         const fontNames = fontsToCheck.map(extractFontName).filter(Boolean);
         
-        if (fontNames.length > 0) {
-          checkFonts(fontNames)
-            .then((fontCheckResult: Record<string, boolean>) => {
-              const missingFonts = Object.entries(fontCheckResult)
-                .filter(([_, exists]) => !exists)
-                .map(([name]) => name);
-              
-              if (missingFonts.length > 0) {
-                logger.warn(
-                  `[Theme] Fonts not found in database: ${missingFonts.join(', ')}. ` +
-                  `Please upload these fonts to ensure they are available.`
-                );
-                // Theme warnings are non-critical, only log in development
-                if (process.env.NODE_ENV === 'development') {
-                  console.warn(
-                    `⚠️ Theme Font Warning: The following fonts are not in the database: ${missingFonts.join(', ')}. ` +
-                    `Please upload them via the theme fonts management page to ensure proper display.`
+        // Only check fonts if user is authenticated (font check API requires auth)
+        if (fontNames.length > 0 && typeof window !== 'undefined') {
+          // Check if user is authenticated before making API call
+          const token = TokenStorage.getToken();
+          
+          if (token) {
+            checkFonts(fontNames)
+              .then((fontCheckResult: Record<string, boolean>) => {
+                const missingFonts = Object.entries(fontCheckResult)
+                  .filter(([_, exists]) => !exists)
+                  .map(([name]) => name);
+                
+                if (missingFonts.length > 0) {
+                  logger.warn(
+                    `[Theme] Fonts not found in database: ${missingFonts.join(', ')}. ` +
+                    `Please upload these fonts to ensure they are available.`
                   );
+                  // Theme warnings are non-critical, only log in development
+                  if (process.env.NODE_ENV === 'development') {
+                    console.warn(
+                      `⚠️ Theme Font Warning: The following fonts are not in the database: ${missingFonts.join(', ')}. ` +
+                      `Please upload them via the theme fonts management page to ensure proper display.`
+                    );
+                  }
                 }
-              }
-            })
-            .catch((error: unknown) => {
-              // Don't block theme application if font check fails
-              logger.warn('[Theme] Failed to check fonts in database', error);
-            });
+              })
+              .catch((error: unknown) => {
+                // Don't block theme application if font check fails
+                // Only log authentication errors in development to avoid noise in production
+                if (process.env.NODE_ENV === 'development') {
+                  logger.warn('[Theme] Failed to check fonts in database', error);
+                }
+              });
+          }
         }
       }
     }

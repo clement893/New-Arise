@@ -272,6 +272,88 @@
       }
     }
   },
+  "profile": {
+    "title": "Profil",
+    "description": "Gérez les informations de votre profil et les paramètres du compte",
+    "breadcrumbs": {
+      "dashboard": "Tableau de bord",
+      "profile": "Profil"
+    },
+    "errors": {
+      "loadFailed": "Échec du chargement du profil. Veuillez réessayer.",
+      "updateFailed": "Échec de la mise à jour du profil. Veuillez réessayer."
+    },
+    "settings": {
+      "title": "Paramètres",
+      "description": "Gérez les paramètres et préférences de votre compte",
+      "breadcrumbs": {
+        "dashboard": "Tableau de bord",
+        "profile": "Profil",
+        "settings": "Paramètres"
+      },
+      "tabs": {
+        "account": "Compte",
+        "preferences": "Préférences"
+      },
+      "sections": {
+        "account": "Informations du compte",
+        "preferences": "Préférences utilisateur"
+      },
+      "errors": {
+        "loadFailed": "Échec du chargement des paramètres. Veuillez réessayer.",
+        "updateFailed": "Échec de la mise à jour des paramètres. Veuillez réessayer."
+      }
+    },
+    "security": {
+      "title": "Sécurité",
+      "description": "Gérez vos paramètres de sécurité, l'authentification à deux facteurs et les clés API",
+      "breadcrumbs": {
+        "dashboard": "Tableau de bord",
+        "profile": "Profil",
+        "security": "Sécurité"
+      },
+      "tabs": {
+        "security": "Sécurité",
+        "apiKeys": "Clés API"
+      },
+      "sections": {
+        "security": "Paramètres de sécurité",
+        "apiKeys": "Clés API"
+      },
+      "errors": {
+        "loadFailed": "Échec du chargement des paramètres de sécurité. Veuillez réessayer.",
+        "updateFailed": "Échec de la mise à jour des paramètres de sécurité. Veuillez réessayer."
+      }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Gérez vos préférences de notifications",
+      "breadcrumbs": {
+        "dashboard": "Tableau de bord",
+        "profile": "Profil",
+        "notifications": "Notifications"
+      },
+      "section": {
+        "title": "Préférences de notification"
+      },
+      "errors": {
+        "loadFailed": "Échec du chargement des paramètres de notifications. Veuillez réessayer.",
+        "updateFailed": "Échec de la mise à jour des paramètres de notifications. Veuillez réessayer."
+      }
+    },
+    "activity": {
+      "title": "Journal d'activité",
+      "description": "Consultez l'historique de l'activité de votre compte",
+      "breadcrumbs": {
+        "dashboard": "Tableau de bord",
+        "profile": "Profil",
+        "activity": "Activité"
+      },
+      "section": {
+        "title": "Activité récente"
+      }
+    }
+  },
   "admin": {
     "Users": {
       "RoleDefaultPermissions": {
