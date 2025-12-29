@@ -1,3 +1,5 @@
+'use client';
+
 import AdminLogsContent from './AdminLogsContent';
 import ProtectedSuperAdminRoute from '@/components/auth/ProtectedSuperAdminRoute';
 
