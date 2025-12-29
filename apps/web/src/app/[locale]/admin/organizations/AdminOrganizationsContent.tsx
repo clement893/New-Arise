@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { PageHeader, PageContainer } from '@/components/layout';
 import { getErrorMessage, getErrorDetail } from '@/lib/errors';
 import { Button, Card, Badge, Alert, Input, Loading, Modal, DataTable } from '@/components/ui';
