@@ -123,7 +123,7 @@ export function ThemeExportImport({ config, onImport, onExport }: ThemeExportImp
             </div>
 
             {importError && (
-              <Alert variant="danger" title="Import Error">
+              <Alert variant="error" title="Import Error">
                 {importError}
               </Alert>
             )}
