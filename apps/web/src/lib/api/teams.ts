@@ -113,7 +113,9 @@ export const teamsAPI = {
   removeTeamMember: async (teamId: number, memberId: number): Promise<ApiResponse<void>> => {
     return apiClient.delete<void>(`/v1/teams/${teamId}/members/${memberId}`);
   },
-  getMyTeams: async (): Promise<ApiResponse<TeamListResponse>> => {
-    return apiClient.get<TeamListResponse>('/v1/teams');
+  getMyTeams: async (skip = 0, limit = 100): Promise<ApiResponse<TeamListResponse>> => {
+    return apiClient.get<TeamListResponse>('/v1/teams', {
+      params: { skip, limit },
+    });
   },
 };
