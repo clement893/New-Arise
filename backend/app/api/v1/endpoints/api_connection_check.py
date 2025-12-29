@@ -142,19 +142,53 @@ async def run_node_script(script_path: str, args: List[str] = None) -> Dict[str,
         cmd = ["node", str(script_full_path)]
         if args:
             # Sanitize arguments to prevent command injection
-            # Only allow safe characters: alphanumeric, hyphens, underscores, dots, slashes, equals
+            # Defense in depth: strict validation since we use shell=False
+            # Note: shlex.quote is NOT used here because shell=False passes args directly
+            # Using shlex.quote would add literal quotes that become part of the argument
             safe_args = []
             for arg in args:
+                # Convert to string if not already
+                arg_str = str(arg)
+                
                 # Validate argument contains only safe characters
-                if not re.match(r'^[a-zA-Z0-9_\-./=]+$', arg):
-                    logger.warning(f"Rejected unsafe argument: {arg[:50]}...")
+                # Only allow alphanumeric, hyphens, underscores, dots, slashes, equals
+                if not re.match(r'^[a-zA-Z0-9_\-./=]+$', arg_str):
+                    logger.warning(
+                        f"Rejected unsafe argument (invalid characters): {arg_str[:50]}...",
+                        extra={"arg_length": len(arg_str), "arg_preview": arg_str[:50]}
+                    )
                     continue
+                
                 # Additional check: ensure no shell metacharacters
-                if any(char in arg for char in [';', '&', '|', '`', '$', '(', ')', '<', '>', '\n', '\r']):
-                    logger.warning(f"Rejected argument with shell metacharacters: {arg[:50]}...")
+                # This is redundant with regex but provides extra safety layer
+                dangerous_chars = [';', '&', '|', '`', '$', '(', ')', '<', '>', '\n', '\r', '\t', '\0', ' ', '\x00']
+                if any(char in arg_str for char in dangerous_chars):
+                    logger.warning(
+                        f"Rejected argument with shell metacharacters: {arg_str[:50]}...",
+                        extra={"arg_length": len(arg_str), "arg_preview": arg_str[:50]}
+                    )
                     continue
-                safe_args.append(arg)
-            cmd.extend(safe_args)
+                
+                # Additional validation: ensure argument is not empty after stripping
+                if not arg_str.strip():
+                    logger.warning("Rejected empty argument")
+                    continue
+                
+                # Additional length check to prevent extremely long arguments
+                if len(arg_str) > 1000:
+                    logger.warning(
+                        f"Rejected argument (too long): {arg_str[:50]}...",
+                        extra={"arg_length": len(arg_str)}
+                    )
+                    continue
+                
+                # Argument passed all checks - add to safe list
+                safe_args.append(arg_str)
+            
+            if safe_args:
+                cmd.extend(safe_args)
+            else:
+                logger.info("All arguments were filtered out, proceeding with command without arguments")
         
         # Run script with sanitized command
         result = subprocess.run(
