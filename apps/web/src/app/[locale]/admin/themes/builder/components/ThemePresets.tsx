@@ -7,7 +7,6 @@
 
 import { Card, Button, Grid } from '@/components/ui';
 import type { ThemePreset } from '@/lib/theme/presets';
-import { Check } from 'lucide-react';
 
 interface ThemePresetsProps {
   presets: ThemePreset[];
