@@ -96,21 +96,23 @@ export function ErrorDisplay({
   const userMessage = getUserFriendlyMessage(errorCode, errorMessage, errorDetails);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-background to-secondary-50 dark:from-muted dark:via-muted dark:to-muted px-4">
       <Container>
-        <Card className="max-w-md w-full mx-auto text-center">
-          <div className="p-8">
+        <Card className="max-w-lg w-full mx-auto text-center">
+          <div className="p-8 md:p-12">
             <div className="mb-6">
-              <div className="text-6xl font-bold text-red-600 dark:text-red-400 mb-4">
+              <div className="text-7xl md:text-8xl font-bold text-red-600 dark:text-red-400 mb-4">
                 {errorStatusCode ?? '!'}
               </div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
                 {errorTitle}
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 mb-2">{userMessage}</p>
+              <p className="text-base md:text-lg text-muted-foreground mb-2 leading-relaxed">
+                {userMessage}
+              </p>
               {isRetryable && autoRetry && countdown !== null && (
-                <p className="text-sm text-gray-500 dark:text-gray-500">
-                  Retrying automatically in {countdown} second{countdown !== 1 ? 's' : ''}...
+                <p className="text-sm text-muted-foreground mt-3">
+                  Nouvelle tentative automatique dans {countdown} seconde{countdown !== 1 ? 's' : ''}...
                 </p>
               )}
             </div>
@@ -122,11 +124,11 @@ export function ErrorDisplay({
             )}
 
             {showDetails && errorDetails && Object.keys(errorDetails).length > 0 && (
-              <div className="mb-6 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg text-left">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
-                  Details:
+              <div className="mb-6 p-4 bg-muted rounded-lg text-left">
+                <h3 className="text-sm font-semibold text-foreground mb-2">
+                  Détails techniques:
                 </h3>
-                <pre className="text-xs text-gray-600 dark:text-gray-400 overflow-auto">
+                <pre className="text-xs text-muted-foreground overflow-auto max-h-48">
                   {JSON.stringify(errorDetails, null, 2)}
                 </pre>
               </div>
@@ -134,10 +136,10 @@ export function ErrorDisplay({
 
             {children}
 
-            <div className="flex gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
               {onRetry && isRetryable && !autoRetry && (
-                <Button onClick={onRetry} variant="primary">
-                  Try Again
+                <Button onClick={onRetry} variant="primary" className="w-full sm:w-auto">
+                  Réessayer
                 </Button>
               )}
               {onRetry && isRetryable && autoRetry && countdown !== null && (
@@ -148,18 +150,19 @@ export function ErrorDisplay({
                   }} 
                   variant="primary"
                   disabled={countdown === 0}
+                  className="w-full sm:w-auto"
                 >
-                  Retry Now {countdown !== null && countdown > 0 && `(${countdown}s)`}
+                  Réessayer maintenant {countdown !== null && countdown > 0 && `(${countdown}s)`}
                 </Button>
               )}
               {onReset && (
-                <Button onClick={onReset} variant="secondary">
-                  Go Back
+                <Button onClick={onReset} variant="secondary" className="w-full sm:w-auto">
+                  Retour
                 </Button>
               )}
               {!onRetry && !onReset && (
-                <Button onClick={() => window.location.href = '/'} variant="primary">
-                  Go Home
+                <Button onClick={() => window.location.href = '/'} variant="primary" className="w-full sm:w-auto">
+                  Retour à l'accueil
                 </Button>
               )}
             </div>

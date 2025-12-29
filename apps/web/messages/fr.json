@@ -57,7 +57,21 @@
     "notFound": "Non trouvé",
     "unauthorized": "Non autorisé",
     "forbidden": "Interdit",
-    "serverError": "Erreur serveur"
+    "serverError": "Erreur serveur",
+    "errorTitle": "Erreur",
+    "unexpectedError": "Une erreur inattendue s'est produite",
+    "notFound": {
+      "title": "Page non trouvée",
+      "description": "La page que vous recherchez n'existe pas ou a été déplacée.",
+      "suggestion": "Vérifiez l'URL ou retournez à la page d'accueil.",
+      "backHome": "Retour à l'accueil",
+      "goBack": "Retour",
+      "browseComponents": "Explorer les composants",
+      "helpfulLinks": "Liens utiles:",
+      "documentation": "Documentation",
+      "sitemap": "Plan du site",
+      "dashboard": "Dashboard"
+    }
   },
   "settings": {
     "title": "Paramètres",
