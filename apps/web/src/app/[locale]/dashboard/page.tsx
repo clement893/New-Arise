@@ -9,6 +9,7 @@ import { useAuthStore } from '@/lib/store';
 import { Card, Badge, Container, StatsCard, StatusCard, ServiceTestCard, Button, LoadingSkeleton } from '@/components/ui';
 import { Link } from '@/i18n/routing';
 import dynamicImport from 'next/dynamic';
+import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 
 // Lazy load TemplateAIChat to avoid circular dependency issues during build
 const TemplateAIChat = dynamicImport(
@@ -244,5 +245,9 @@ function DashboardContent() {
 }
 
 export default function DashboardPage() {
-  return <DashboardContent />;
+  return (
+    <ErrorBoundary>
+      <DashboardContent />
+    </ErrorBoundary>
+  );
 }

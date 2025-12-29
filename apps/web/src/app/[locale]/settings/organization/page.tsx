@@ -20,6 +20,7 @@ import type { OrganizationSettingsData } from '@/components/settings';
 import { PageHeader, PageContainer } from '@/components/layout';
 import { Loading, Alert, Modal, Button } from '@/components/ui';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import { logger } from '@/lib/logger';
 import { getErrorMessage } from '@/lib/errors';
 import { teamsAPI, type Team, type TeamSettings, type TeamListResponse, type TeamCreate } from '@/lib/api/teams';
@@ -551,7 +552,9 @@ export default function OrganizationSettingsPage() {
         )}
 
         <div className="mt-8">
-          <OrganizationSettings organization={organization} onSave={handleSave} />
+          <ErrorBoundary>
+            <OrganizationSettings organization={organization} onSave={handleSave} />
+          </ErrorBoundary>
         </div>
       </PageContainer>
     </ProtectedRoute>

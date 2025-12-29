@@ -19,6 +19,7 @@ import { GeneralSettings } from '@/components/settings';
 import { PageHeader, PageContainer } from '@/components/layout';
 import { Loading, Alert } from '@/components/ui';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import { logger } from '@/lib/logger';
 import { getErrorMessage } from '@/lib/errors';
 import { settingsAPI } from '@/lib/api/settings';
@@ -155,7 +156,9 @@ export default function GeneralSettingsPage() {
         )}
 
         <div className="mt-8">
-          <GeneralSettings settings={settings} onSave={handleSave} />
+          <ErrorBoundary>
+            <GeneralSettings settings={settings} onSave={handleSave} />
+          </ErrorBoundary>
         </div>
       </PageContainer>
     </ProtectedRoute>

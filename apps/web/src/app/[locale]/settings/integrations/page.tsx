@@ -19,6 +19,7 @@ import type { Integration } from '@/components/settings';
 import { PageHeader, PageContainer } from '@/components/layout';
 import { Loading, Alert } from '@/components/ui';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import { logger } from '@/lib/logger';
 import { integrationsAPI } from '@/lib/api';
 
@@ -164,7 +165,9 @@ export default function IntegrationsSettingsPage() {
         )}
 
         <div className="mt-8">
-          <IntegrationsSettings integrations={integrations} onToggle={handleToggle} />
+          <ErrorBoundary>
+            <IntegrationsSettings integrations={integrations} onToggle={handleToggle} />
+          </ErrorBoundary>
         </div>
       </PageContainer>
     </ProtectedRoute>
