@@ -14,11 +14,12 @@
 'use client';
 
 import { useState, useMemo, memo } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
+import { useAuth } from '@/hooks/useAuth';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Sidebar from '@/components/ui/Sidebar';
-import DashboardFooter from '@/components/layout/DashboardFooter';
+import { ThemeToggleWithIcon } from '@/components/ui/ThemeToggle';
 import { 
   LayoutDashboard, 
   FolderKanban, 
@@ -77,7 +78,9 @@ const MemoizedSidebar = memo(Sidebar);
 
 function DashboardLayoutContent({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { user } = useAuthStore();
+  const { logout } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -114,6 +117,9 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
           className="h-full"
           user={user}
           showSearch={true}
+          onHomeClick={() => router.push('/')}
+          themeToggleComponent={<ThemeToggleWithIcon />}
+          onLogoutClick={logout}
         />
       </aside>
 
@@ -129,6 +135,9 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
             className="h-screen sticky top-0"
             user={user}
             showSearch={true}
+            onHomeClick={() => router.push('/')}
+            themeToggleComponent={<ThemeToggleWithIcon />}
+            onLogoutClick={logout}
           />
         </aside>
 
@@ -141,9 +150,6 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
           >
             {children}
           </main>
-
-          {/* Dashboard Footer */}
-          <DashboardFooter />
         </div>
       </div>
     </div>

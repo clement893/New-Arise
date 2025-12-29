@@ -264,12 +264,12 @@ export default function Sidebar({
         )}
       </nav>
       
-      {/* Footer: Home, Theme Toggle, Logout (bottom right) */}
+      {/* Footer: Home, Theme Toggle, Logout (bottom left) */}
       {(onHomeClick || themeToggleComponent || onLogoutClick) && (
         <div className="p-lg border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className={clsx(
             'flex items-center gap-2',
-            collapsed ? 'justify-center flex-col' : 'justify-end'
+            collapsed ? 'justify-center flex-col' : 'justify-start'
           )}>
             {onHomeClick && (
               <button
@@ -279,11 +279,13 @@ export default function Sidebar({
                 title="Retour à l'accueil"
               >
                 <Home className="w-5 h-5" />
+                {!collapsed && <span className="ml-2 text-sm">Accueil</span>}
               </button>
             )}
             {themeToggleComponent && (
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 flex items-center">
                 {themeToggleComponent}
+                {!collapsed && <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Thème</span>}
               </div>
             )}
             {onLogoutClick && (
@@ -294,6 +296,7 @@ export default function Sidebar({
                 title="Déconnexion"
               >
                 <LogOut className="w-5 h-5" />
+                {!collapsed && <span className="ml-2 text-sm">Déconnexion</span>}
               </button>
             )}
           </div>
