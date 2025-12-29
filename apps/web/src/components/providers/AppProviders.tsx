@@ -15,6 +15,7 @@ import { GlobalThemeProvider } from '@/lib/theme/global-theme-provider';
 import { useThemeManager } from '@/components/theme/hooks';
 import { GlobalErrorHandler } from './GlobalErrorHandler';
 import ToastContainer from '@/components/ui/ToastContainer';
+import { AuthInitializer } from '@/components/auth/AuthInitializer';
 import { useState, type ReactNode } from 'react';
 
 /**
@@ -40,6 +41,7 @@ export default function AppProviders({ children }: { children: ReactNode }) {
         <GlobalErrorHandler />
         <QueryClientProvider client={queryClient}>
           <NextAuthSessionProvider>
+            <AuthInitializer />
             {children}
             <ToastContainer />
             {process.env.NODE_ENV === 'development' && (
