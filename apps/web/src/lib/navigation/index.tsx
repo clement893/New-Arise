@@ -138,7 +138,7 @@ export function getNavigationConfig(isAdmin: boolean): NavigationConfig {
       items: [
         {
           name: 'Logs',
-          href: '/admin/logs',
+          href: '/test/admin-logs',
           icon: <FileText className="w-5 h-5" />,
         },
         {
