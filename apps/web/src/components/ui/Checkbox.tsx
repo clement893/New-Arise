@@ -1,6 +1,7 @@
 import { InputHTMLAttributes, forwardRef } from 'react';
 import { clsx } from 'clsx';
 import { useComponentConfig } from '@/lib/theme/use-component-config';
+import Text from './Text';
 
 /**
  * Checkbox Component
@@ -92,7 +93,13 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           )}
         </label>
         {error && (
-          <p className="mt-1 text-sm text-error-600 dark:text-error-400">{error}</p>
+          <Text
+            variant="small"
+            className="mt-2 text-error-600 dark:text-error-400"
+            role="alert"
+          >
+            {error}
+          </Text>
         )}
       </div>
     );

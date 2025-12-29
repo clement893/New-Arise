@@ -8,6 +8,7 @@
 import { forwardRef, type TextareaHTMLAttributes } from 'react';
 import { clsx } from 'clsx';
 import { useComponentConfig } from '@/lib/theme/use-component-config';
+import Text from './Text';
 
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
@@ -47,9 +48,12 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         {label && (
           <label
             htmlFor={textareaId}
-            className="block text-sm font-medium text-foreground mb-1"
+            className="block text-sm font-medium text-foreground mb-2"
           >
             {label}
+            {props.required && (
+              <span className="text-error-500 dark:text-error-400 ml-1" aria-label="required">*</span>
+            )}
           </label>
         )}
         <div className="relative">
@@ -92,12 +96,21 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           )}
         </div>
         {error && (
-          <p className="mt-1 text-sm text-error-600 dark:text-error-400" role="alert">
+          <Text
+            variant="small"
+            className="mt-2 text-error-600 dark:text-error-400"
+            role="alert"
+          >
             {error}
-          </p>
+          </Text>
         )}
         {helperText && !error && (
-          <p className="mt-1 text-sm text-muted-foreground">{helperText}</p>
+          <Text
+            variant="small"
+            className="mt-2 text-muted-foreground"
+          >
+            {helperText}
+          </Text>
         )}
       </div>
     );

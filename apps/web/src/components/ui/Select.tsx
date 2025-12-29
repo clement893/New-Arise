@@ -80,6 +80,7 @@
 import { forwardRef, type SelectHTMLAttributes } from 'react';
 import { clsx } from 'clsx';
 import { useComponentConfig } from '@/lib/theme/use-component-config';
+import Text from './Text';
 
 /**
  * Select option definition
@@ -137,9 +138,12 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
         {label && (
           <label
             htmlFor={selectId}
-            className="block text-sm font-medium text-foreground mb-1"
+            className="block text-sm font-medium text-foreground mb-2"
           >
             {label}
+            {props.required && (
+              <span className="text-error-500 dark:text-error-400 ml-1" aria-label="required">*</span>
+            )}
           </label>
         )}
         <select
@@ -148,8 +152,8 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
           className={clsx(
             'block w-full',
             'bg-[var(--color-input)]',
-            'text-[var(--color-foreground)]',
-            'border-[var(--color-border)]',
+            'text-foreground',
+            'border-border',
             'shadow-sm focus:border-primary-500 dark:focus:border-primary-400 focus:ring-primary-500 dark:focus:ring-primary-400',
             'disabled:opacity-50 disabled:cursor-not-allowed',
             error && 'border-error-500 dark:border-error-400 focus:border-error-500 dark:focus:border-error-400 focus:ring-error-500 dark:focus:ring-error-400',
@@ -177,12 +181,21 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
           ))}
         </select>
         {error && (
-          <p className="mt-1 text-sm text-error-600 dark:text-error-400" role="alert">
+          <Text
+            variant="small"
+            className="mt-2 text-error-600 dark:text-error-400"
+            role="alert"
+          >
             {error}
-          </p>
+          </Text>
         )}
         {helperText && !error && (
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{helperText}</p>
+          <Text
+            variant="small"
+            className="mt-2 text-muted-foreground"
+          >
+            {helperText}
+          </Text>
         )}
       </div>
     );

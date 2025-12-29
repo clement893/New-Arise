@@ -16,6 +16,7 @@
 
 import { type ReactNode, cloneElement, isValidElement } from 'react';
 import { clsx } from 'clsx';
+import Text from './Text';
 
 export interface FormFieldProps {
   /** Field name (for form submission) */
@@ -69,7 +70,7 @@ export function FormField({
       {label && (
         <label
           htmlFor={fieldId}
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          className="block text-sm font-medium text-foreground mb-2"
         >
           {label}
           {required && (
@@ -112,19 +113,24 @@ export function FormField({
       </div>
 
       {error && (
-        <p
+        <Text
           id={errorId}
-          className="mt-1 text-sm text-error-600 dark:text-error-400"
+          variant="small"
+          className="mt-2 text-error-600 dark:text-error-400"
           role="alert"
         >
           {error}
-        </p>
+        </Text>
       )}
 
       {helperText && !error && (
-        <p id={helperId} className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <Text
+          id={helperId}
+          variant="small"
+          className="mt-2 text-muted-foreground"
+        >
           {helperText}
-        </p>
+        </Text>
       )}
     </div>
   );
