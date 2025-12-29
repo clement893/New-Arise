@@ -82,24 +82,53 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} className={inter.variable} data-api-url={apiUrl} suppressHydrationWarning>
       <head>
-        {/* Minimal CSS structure - no default colors. Theme colors come from API via GlobalThemeProvider */}
+        {/* Minimal CSS structure with default colors to prevent flash */}
         <style
           dangerouslySetInnerHTML={{
             __html: `
-              /* Base structure - colors will be applied by GlobalThemeProvider from API theme */
+              /* Base structure - default colors prevent flash before theme loads */
               :root {
-                /* Font and layout variables only - no colors */
+                /* Font and layout variables */
                 --font-family: Inter, system-ui, -apple-system, sans-serif;
                 --font-family-heading: Inter, system-ui, -apple-system, sans-serif;
                 --font-family-subheading: Inter, system-ui, -apple-system, sans-serif;
                 --border-radius: 8px;
+                
+                /* Default color variables - prevent flash before theme loads */
+                /* These will be overridden by themeCacheInlineScript or GlobalThemeProvider */
+                --color-background: #ffffff;
+                --color-foreground: #0f172a;
+                --color-muted: #f1f5f9;
+                --color-muted-foreground: #64748b;
+                --color-border: #e2e8f0;
+                --color-input: #ffffff;
+                --color-ring: #2563eb;
+                
+                /* Default color palette - will be overridden by theme */
+                --color-primary-500: #2563eb;
+                --color-secondary-500: #6366f1;
+                --color-danger-500: #dc2626;
+                --color-warning-500: #b45309;
+                --color-info-500: #0891b2;
+                --color-success-500: #047857;
               }
               
-              /* Body uses CSS variables that will be set by theme system */
+              /* Dark mode defaults - applied when .dark class is present */
+              .dark {
+                --color-background: #0f172a;
+                --color-foreground: #f8fafc;
+                --color-muted: #1e293b;
+                --color-muted-foreground: #94a3b8;
+                --color-border: #334155;
+                --color-input: #1e293b;
+              }
+              
+              /* Body uses CSS variables */
               body {
                 background-color: var(--color-background);
                 color: var(--color-foreground);
                 font-family: var(--font-family, Inter, system-ui, sans-serif);
+                transition: background-color 0.2s ease, color 0.2s ease;
               }
             `,
           }}
