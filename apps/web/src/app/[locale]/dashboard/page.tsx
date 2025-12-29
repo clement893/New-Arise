@@ -230,21 +230,21 @@ function DashboardContent() {
             </div>
           </div>
           <Grid columns={{ mobile: 1, tablet: 3 }} gap="normal">
-            <div className="p-4 bg-success-50 dark:bg-success-950/50 border-2 border-success-200 dark:border-success-800 rounded-lg hover:border-success-400 dark:hover:border-success-600 transition-colors">
+            <div className="p-4 bg-success-50 dark:bg-success-900/80 border-2 border-success-200 dark:border-success-800 rounded-lg hover:border-success-400 dark:hover:border-success-600 transition-colors">
               <div className="flex items-center gap-3 mb-2">
                 <CheckCircle2 className="w-5 h-5 text-success-600 dark:text-success-400" />
                 <p className="font-semibold text-success-900 dark:text-success-100">Backend Connected</p>
               </div>
               <p className="text-sm text-success-800 dark:text-success-200 ml-8">API is running</p>
             </div>
-            <div className="p-4 bg-success-50 dark:bg-success-950/50 border-2 border-success-200 dark:border-success-800 rounded-lg hover:border-success-400 dark:hover:border-success-600 transition-colors">
+            <div className="p-4 bg-success-50 dark:bg-success-900/80 border-2 border-success-200 dark:border-success-800 rounded-lg hover:border-success-400 dark:hover:border-success-600 transition-colors">
               <div className="flex items-center gap-3 mb-2">
                 <Database className="w-5 h-5 text-success-600 dark:text-success-400" />
                 <p className="font-semibold text-success-900 dark:text-success-100">Database Connected</p>
               </div>
               <p className="text-sm text-success-800 dark:text-success-200 ml-8">PostgreSQL is running</p>
             </div>
-            <div className="p-4 bg-success-50 dark:bg-success-950/50 border-2 border-success-200 dark:border-success-800 rounded-lg hover:border-success-400 dark:hover:border-success-600 transition-colors">
+            <div className="p-4 bg-success-50 dark:bg-success-900/80 border-2 border-success-200 dark:border-success-800 rounded-lg hover:border-success-400 dark:hover:border-success-600 transition-colors">
               <div className="flex items-center gap-3 mb-2">
                 <Shield className="w-5 h-5 text-success-600 dark:text-success-400" />
                 <p className="font-semibold text-success-900 dark:text-success-100">Authentication</p>
