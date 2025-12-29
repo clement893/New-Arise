@@ -48,9 +48,6 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6" aria-label="Navigation principale">
-            <Link href="/" className="text-muted-foreground hover:text-primary transition">
-              Accueil
-            </Link>
             <Link href="/components" className="text-muted-foreground hover:text-primary transition">
               Composants
             </Link>
