@@ -21,6 +21,7 @@ import { Loading, Alert } from '@/components/ui';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { logger } from '@/lib/logger';
 import { getErrorMessage } from '@/lib/errors';
+import { settingsAPI } from '@/lib/api/settings';
 
 export default function GeneralSettingsPage() {
   const router = useRouter();
@@ -28,6 +29,7 @@ export default function GeneralSettingsPage() {
   const { isAuthenticated } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [settings, setSettings] = useState({
     language: 'en',
     timezone: 'UTC',
@@ -52,8 +54,19 @@ export default function GeneralSettingsPage() {
     try {
       setIsLoading(true);
       setError(null);
-      // TODO: Load settings from API
-      // For now, use default settings
+      const apiSettings = await settingsAPI.getGeneralSettings();
+      
+      // Map API response to component format
+      setSettings({
+        language: apiSettings.language || 'en',
+        timezone: apiSettings.timezone || 'UTC',
+        theme: (apiSettings.theme || 'system') as 'light' | 'dark' | 'system',
+        dateFormat: apiSettings.dateFormat || 'YYYY-MM-DD',
+        timeFormat: (apiSettings.timeFormat || '24h') as '12h' | '24h',
+        weekStartsOn: (apiSettings.weekStartsOn || 'monday') as 'monday' | 'sunday',
+        enableNotifications: apiSettings.enableNotifications ?? true,
+        enableEmailNotifications: apiSettings.enableEmailNotifications ?? true,
+      });
       setIsLoading(false);
     } catch (error) {
       logger.error('Failed to load general settings', error instanceof Error ? error : new Error(String(error)));
@@ -74,10 +87,24 @@ export default function GeneralSettingsPage() {
   }) => {
     try {
       setError(null);
-      // TODO: Save settings to API
+      setSuccessMessage(null);
+      
+      // Map component format to API format
+      const apiData = {
+        language: data.language,
+        timezone: data.timezone,
+        theme: data.theme,
+        dateFormat: data.dateFormat,
+        timeFormat: data.timeFormat,
+        weekStartsOn: data.weekStartsOn,
+        enableNotifications: data.enableNotifications,
+        enableEmailNotifications: data.enableEmailNotifications,
+      };
+      
+      await settingsAPI.updateGeneralSettings(apiData);
       setSettings(data);
+      setSuccessMessage(t('success.saved') || 'Settings saved successfully');
       logger.info('General settings saved successfully');
-      // Show success message (could use toast)
     } catch (error: unknown) {
       logger.error('Failed to save general settings', error instanceof Error ? error : new Error(String(error)));
       const errorMessage = getErrorMessage(error) || t('errors.saveFailed') || 'Failed to save settings. Please try again.';
@@ -115,6 +142,14 @@ export default function GeneralSettingsPage() {
           <div className="mt-6">
             <Alert variant="error" onClose={() => setError(null)}>
               {error}
+            </Alert>
+          </div>
+        )}
+
+        {successMessage && (
+          <div className="mt-6">
+            <Alert variant="success" onClose={() => setSuccessMessage(null)}>
+              {successMessage}
             </Alert>
           </div>
         )}

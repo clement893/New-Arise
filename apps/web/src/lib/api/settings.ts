@@ -54,6 +54,9 @@ export interface GeneralSettings {
   dateFormat: string;
   timeFormat: string;
   theme: 'light' | 'dark' | 'system';
+  weekStartsOn?: 'monday' | 'sunday';
+  enableNotifications?: boolean;
+  enableEmailNotifications?: boolean;
 }
 
 /**

@@ -166,6 +166,10 @@ function APIConnectionTestContent() {
 
       <OverviewSection
         status={status}
+        frontendCheck={frontendCheck}
+        backendCheck={backendCheck}
+        endpointTests={endpointTests}
+        componentTests={componentTests}
         isLoading={isLoadingStatus}
         onRefresh={handleCheckStatus}
       />

@@ -1,23 +1,55 @@
 /**
  * OverviewSection Component
- * Displays quick status overview of frontend and backend connections
+ * Displays quick status overview with health score and metrics
  */
 
 import { Button, Card, Alert, Badge } from '@/components/ui';
-import { RefreshCw } from 'lucide-react';
-import type { ConnectionStatus } from '../types/health.types';
+import { RefreshCw, TrendingUp, Zap, Shield, Activity } from 'lucide-react';
+import type { ConnectionStatus, HealthMetrics, CheckResult, EndpointTestResult, ComponentTestResult } from '../types/health.types';
+import { calculateHealthMetrics } from '../services/healthChecker';
 
 interface OverviewSectionProps {
   status: ConnectionStatus | null;
+  frontendCheck?: CheckResult | null;
+  backendCheck?: CheckResult | null;
+  endpointTests?: EndpointTestResult[];
+  componentTests?: ComponentTestResult[];
   isLoading: boolean;
   onRefresh: () => void;
 }
 
-export function OverviewSection({ status, isLoading, onRefresh }: OverviewSectionProps) {
+export function OverviewSection({
+  status,
+  frontendCheck,
+  backendCheck,
+  endpointTests = [],
+  componentTests = [],
+  isLoading,
+  onRefresh,
+}: OverviewSectionProps) {
+  // Calculate health metrics
+  const metrics: HealthMetrics = calculateHealthMetrics(
+    status,
+    frontendCheck || null,
+    backendCheck || null,
+    endpointTests,
+    componentTests
+  );
+
+  // Determine health status color and label
+  const getHealthStatus = (score: number) => {
+    if (score >= 90) return { color: 'success', label: 'Excellent', bgColor: 'bg-green-50 dark:bg-green-900/20', textColor: 'text-green-600 dark:text-green-400' };
+    if (score >= 75) return { color: 'info', label: 'Good', bgColor: 'bg-blue-50 dark:bg-blue-900/20', textColor: 'text-blue-600 dark:text-blue-400' };
+    if (score >= 50) return { color: 'warning', label: 'Fair', bgColor: 'bg-yellow-50 dark:bg-yellow-900/20', textColor: 'text-yellow-600 dark:text-yellow-400' };
+    return { color: 'error', label: 'Poor', bgColor: 'bg-red-50 dark:bg-red-900/20', textColor: 'text-red-600 dark:text-red-400' };
+  };
+
+  const healthStatus = getHealthStatus(metrics.healthScore);
+
   return (
     <Card className="mb-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">Quick Status</h2>
+        <h2 className="text-xl font-semibold">Template Health Overview</h2>
         <Button
           variant="outline"
           size="sm"
@@ -30,11 +62,152 @@ export function OverviewSection({ status, isLoading, onRefresh }: OverviewSectio
         </Button>
       </div>
 
-      {status && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {status.frontend && (
+      {/* Health Score Section */}
+      <div className={`${healthStatus.bgColor} p-6 rounded-lg border-2 mb-6`} style={{ borderColor: `var(--color-${healthStatus.color})` }}>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-lg font-semibold mb-1">Overall Health Score</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Based on connection, performance, and security metrics
+            </p>
+          </div>
+          <div className="text-right">
+            <div className={`text-4xl font-bold ${healthStatus.textColor}`}>
+              {metrics.healthScore}%
+            </div>
+            <Badge variant={healthStatus.color as 'success' | 'info' | 'warning' | 'error'} className="mt-1">
+              {healthStatus.label}
+            </Badge>
+          </div>
+        </div>
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-2">
+          <div
+            className={`h-3 rounded-full transition-all duration-500 ${
+              metrics.healthScore >= 90 ? 'bg-green-500' :
+              metrics.healthScore >= 75 ? 'bg-blue-500' :
+              metrics.healthScore >= 50 ? 'bg-yellow-500' :
+              'bg-red-500'
+            }`}
+            style={{ width: `${metrics.healthScore}%` }}
+            role="progressbar"
+            aria-valuenow={metrics.healthScore}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={`Health score: ${metrics.healthScore}%`}
+          />
+        </div>
+      </div>
+
+      {/* Metrics Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="p-4 border rounded-lg">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <h4 className="font-semibold">Connection Rate</h4>
+            </div>
+            <Badge variant={metrics.connectionRate >= 75 ? 'success' : metrics.connectionRate >= 50 ? 'warning' : 'error'}>
+              {metrics.connectionRate}%
+            </Badge>
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Frontend and backend connectivity
+          </p>
+          <div className="mt-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div
+              className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${metrics.connectionRate}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="p-4 border rounded-lg">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Zap className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+              <h4 className="font-semibold">Performance Rate</h4>
+            </div>
+            <Badge variant={metrics.performanceRate >= 75 ? 'success' : metrics.performanceRate >= 50 ? 'warning' : 'error'}>
+              {metrics.performanceRate}%
+            </Badge>
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            API response times and efficiency
+          </p>
+          <div className="mt-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div
+              className="bg-yellow-500 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${metrics.performanceRate}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="p-4 border rounded-lg">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-green-600 dark:text-green-400" />
+              <h4 className="font-semibold">Security Rate</h4>
+            </div>
+            <Badge variant={metrics.securityRate >= 75 ? 'success' : metrics.securityRate >= 50 ? 'warning' : 'error'}>
+              {metrics.securityRate}%
+            </Badge>
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Authentication and security endpoints
+          </p>
+          <div className="mt-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div
+              className="bg-green-500 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${metrics.securityRate}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Feature Status Summary */}
+      {metrics.totalFeatures > 0 && (
+        <div className="p-4 border rounded-lg bg-gray-50 dark:bg-gray-800/50">
+          <div className="flex items-center gap-2 mb-3">
+            <Activity className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+            <h4 className="font-semibold">Feature Status Summary</h4>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
             <div>
-              <h3 className="font-medium mb-2">Frontend Connections</h3>
+              <div className="text-gray-600 dark:text-gray-400">Total Features</div>
+              <div className="text-lg font-semibold">{metrics.totalFeatures}</div>
+            </div>
+            <div>
+              <div className="text-green-600 dark:text-green-400">✅ Active</div>
+              <div className="text-lg font-semibold">{metrics.activeFeatures}</div>
+            </div>
+            <div>
+              <div className="text-yellow-600 dark:text-yellow-400">⏳ Partial</div>
+              <div className="text-lg font-semibold">{metrics.partialFeatures}</div>
+            </div>
+            <div>
+              <div className="text-red-600 dark:text-red-400">❌ Inactive</div>
+              <div className="text-lg font-semibold">{metrics.inactiveFeatures}</div>
+            </div>
+            <div>
+              <div className="text-gray-600 dark:text-gray-400">Success Rate</div>
+              <div className="text-lg font-semibold">
+                {metrics.totalFeatures > 0
+                  ? Math.round((metrics.activeFeatures / metrics.totalFeatures) * 100)
+                  : 0}%
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quick Status Section */}
+      {status && (
+        <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold mb-4">Quick Status</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {status.frontend && (
+              <div>
+                <h4 className="font-medium mb-2">Frontend Connections</h4>
               {status.frontend.error ? (
                 <Alert variant="warning" className="mt-2">
                   <p className="text-sm">{status.frontend.error}</p>
@@ -80,9 +253,9 @@ export function OverviewSection({ status, isLoading, onRefresh }: OverviewSectio
             </div>
           )}
 
-          {status.backend && (
-            <div>
-              <h3 className="font-medium mb-2">Backend Endpoints</h3>
+            {status.backend && (
+              <div>
+                <h4 className="font-medium mb-2">Backend Endpoints</h4>
               {status.backend.error ? (
                 <Alert variant="error" className="mt-2">
                   <p className="text-sm">{status.backend.error}</p>
