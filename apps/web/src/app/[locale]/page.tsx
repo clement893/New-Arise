@@ -92,38 +92,47 @@ export default function HomePage() {
       <Hero />
 
       {/* Stats Section - Custom stats with StatsCard component */}
-      <div className="bg-background py-12">
+      <section className="bg-background py-12" aria-labelledby="stats-heading">
         <Container>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            <StatsCard
-              title="Composants"
-              value="270+"
-              icon={<Code className="w-6 h-6" />}
-            />
-            <StatsCard
-              title="Catégories"
-              value="32"
-              icon={<Layers className="w-6 h-6" />}
-            />
-            <StatsCard
-              title="Technologies"
-              value="15+"
-              icon={<Zap className="w-6 h-6" />}
-            />
-            <StatsCard
-              title="Sécurité"
-              value="100%"
-              icon={<Shield className="w-6 h-6" />}
-            />
+          <h2 id="stats-heading" className="sr-only">Statistiques du template</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6" role="list" aria-label="Statistiques">
+            <div role="listitem">
+              <StatsCard
+                title="Composants"
+                value="270+"
+                icon={<Code className="w-6 h-6" aria-hidden="true" />}
+              />
+            </div>
+            <div role="listitem">
+              <StatsCard
+                title="Catégories"
+                value="32"
+                icon={<Layers className="w-6 h-6" aria-hidden="true" />}
+              />
+            </div>
+            <div role="listitem">
+              <StatsCard
+                title="Technologies"
+                value="15+"
+                icon={<Zap className="w-6 h-6" aria-hidden="true" />}
+              />
+            </div>
+            <div role="listitem">
+              <StatsCard
+                title="Sécurité"
+                value="100%"
+                icon={<Shield className="w-6 h-6" aria-hidden="true" />}
+              />
+            </div>
           </div>
         </Container>
-      </div>
+      </section>
 
       {/* Features Section - Custom features using Card component */}
-      <div className="bg-background py-20">
+      <section className="bg-background py-20" aria-labelledby="features-heading">
         <Container>
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+            <h2 id="features-heading" className="text-4xl md:text-5xl font-bold text-foreground mb-4">
               Tout ce dont vous avez besoin
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -131,10 +140,10 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-16" role="list" aria-label="Fonctionnalités principales">
             {customFeatures.map((feature, index) => (
-              <Card key={index} hover className="p-6">
-                <div className={`${feature.color} mb-4`}>
+              <Card key={index} hover className="p-6" role="listitem">
+                <div className={`${feature.color} mb-4`} aria-hidden="true">
                   {feature.icon}
                 </div>
                 <h3 className="text-xl font-semibold text-foreground mb-2">
@@ -147,7 +156,7 @@ export default function HomePage() {
             ))}
           </div>
         </Container>
-      </div>
+      </section>
 
       {/* Tech Stack Section - Using TechStack component */}
       <TechStack />
