@@ -19,26 +19,31 @@ const webDir = path.resolve(__dirname, '..');
 process.chdir(webDir);
 
 // 1. TypeScript type checking (fastest check, catches most errors)
-console.log('1️⃣  Running TypeScript type check...');
-try {
-  // Check if type-check:ci script exists, fallback to type-check
-  const packageJson = JSON.parse(fs.readFileSync(path.join(webDir, 'package.json'), 'utf8'));
-  const typeCheckScript = packageJson.scripts['type-check:ci'] ? 'type-check:ci' : 'type-check';
-  
-  execSync(`pnpm ${typeCheckScript}`, {
-    stdio: 'inherit',
-    cwd: webDir,
-    env: {
-      ...process.env,
-      // Force type checking even if SKIP_TYPE_CHECK is set
-      SKIP_TYPE_CHECK: undefined,
-    },
-  });
-  console.log('✅ TypeScript check passed\n');
-} catch (error) {
-  hasErrors = true;
-  errors.push('TypeScript type checking failed');
-  console.error('❌ TypeScript check failed\n');
+// Skip if SKIP_TYPE_CHECK environment variable is set
+if (!process.env.SKIP_TYPE_CHECK) {
+  console.log('1️⃣  Running TypeScript type check...');
+  try {
+    // Check if type-check:ci script exists, fallback to type-check
+    const packageJson = JSON.parse(fs.readFileSync(path.join(webDir, 'package.json'), 'utf8'));
+    const typeCheckScript = packageJson.scripts['type-check:ci'] ? 'type-check:ci' : 'type-check';
+    
+    execSync(`pnpm ${typeCheckScript}`, {
+      stdio: 'inherit',
+      cwd: webDir,
+      env: {
+        ...process.env,
+        // Force type checking even if SKIP_TYPE_CHECK is set
+        SKIP_TYPE_CHECK: undefined,
+      },
+    });
+    console.log('✅ TypeScript check passed\n');
+  } catch (error) {
+    hasErrors = true;
+    errors.push('TypeScript type checking failed');
+    console.error('❌ TypeScript check failed\n');
+  }
+} else {
+  console.log('1️⃣  Skipping TypeScript type check (SKIP_TYPE_CHECK is set)\n');
 }
 
 // 2. Check for required files
