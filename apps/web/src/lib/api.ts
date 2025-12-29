@@ -17,6 +17,7 @@ import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'ax
 import { handleApiError, isClientError, isNetworkError } from './errors/api';
 import { TokenStorage } from './auth/tokenStorage';
 import { logger } from '@/lib/logger';
+import { mediaAPI } from './api/media';
 
 /**
  * API base URL with trailing slash removed to avoid double slashes
@@ -329,7 +330,6 @@ export const usersAPI = {
       
       // Fallback: try to use mediaAPI if upload endpoint doesn't return url
       if (!responseData?.url) {
-        const { mediaAPI } = await import('./media');
         const media = await mediaAPI.upload(file, { 
           folder: 'avatars',
           is_public: true 
