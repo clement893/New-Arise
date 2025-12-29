@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "validate:build": "node scripts/validate-build.js",
     "prebuild": "node scripts/ensure-css-file.js && (SKIP_TYPE_CHECK=true || pnpm type-check) && pnpm api:manifest",
     "api:manifest": "node scripts/generate-frontend-api-manifest.js",
     "build": "node scripts/build-with-fallback.js",

@@ -87,12 +87,16 @@ ENV PATH="/app/node_modules/.bin:$PATH"
 # This script reads them from the environment and creates .env.local for Next.js
 RUN cd apps/web && node scripts/prepare-build-env.js
 
+# Run pre-build validation to catch errors early (before expensive build process)
+# This runs type checking and other fast validations to fail fast if there are errors
+# This prevents wasting time on builds that will fail anyway
+RUN cd apps/web && node scripts/validate-build.js
+
 # Build Next.js application
 # Uses Webpack by default in production (more stable with next-auth catch-all routes)
 # Turbopack has issues with vendored Next.js modules in catch-all routes
 # Next.js will read variables from .env.local (created above) or ENV
 # To use Turbopack instead, set USE_TURBOPACK=true in Railway environment variables
-# Type checking is skipped in Docker builds (saves ~19s) - CI/CD already runs type checking
 # Disable Next.js telemetry for faster builds (no network calls during build)
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV SKIP_TYPE_CHECK=true
