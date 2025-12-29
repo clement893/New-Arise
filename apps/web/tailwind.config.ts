@@ -198,6 +198,8 @@ const config: Config = {
         'slide-up': 'slideUp 0.3s ease-out',
         'slide-down': 'slideDown 0.3s ease-out',
         'scale-in': 'scaleIn 0.2s ease-out',
+        // Optimized blob animation - slower and smoother for better performance
+        'blob': 'blob 20s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -215,6 +217,12 @@ const config: Config = {
         scaleIn: {
           '0%': { transform: 'scale(0.95)', opacity: '0' },
           '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        blob: {
+          '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
+          '25%': { transform: 'translate(20px, -50px) scale(1.1)' },
+          '50%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+          '75%': { transform: 'translate(50px, 50px) scale(1.05)' },
         },
       },
     },

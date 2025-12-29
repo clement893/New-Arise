@@ -78,3 +78,21 @@ body {
   border-top-left-radius: 0.25rem;
   border-bottom-left-radius: 0.25rem;
 }
+
+/* Performance optimizations for animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Optimize blob animations - only animate if motion is preferred */
+@media (prefers-reduced-motion: no-preference) {
+  .animate-blob {
+    will-change: transform;
+  }
+}
