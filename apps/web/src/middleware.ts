@@ -69,6 +69,11 @@ export async function middleware(request: NextRequest) {
     '/sitemap',
     '/sitemap.xml',
     '/api/auth',
+    // Test routes - should be public for testing purposes
+    '/email/test',
+    '/ai/test',
+    '/stripe/test',
+    '/sentry/test',
   ];
 
   // Check if the route is public (check both with and without locale)
