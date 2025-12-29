@@ -196,17 +196,10 @@ export default async function LocaleLayout({
             <link rel="preconnect" href={`//${apiHost}`} crossOrigin="anonymous" />
           </>
         )}
-        {/* Font optimization - preconnect early, then preload */}
+        {/* Font optimization - preconnect early */}
+        {/* Note: next/font/google handles font preloading automatically, no manual preload needed */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Preload critical font files for faster rendering */}
-        <link
-          rel="preload"
-          href="https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
         
         {/* Open Graph tags */}
         <meta property="og:type" content="website" />

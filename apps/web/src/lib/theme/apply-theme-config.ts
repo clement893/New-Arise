@@ -319,9 +319,20 @@ export function applyThemeConfigDirectly(config: ThemeConfig, options?: {
         return parts[0]?.trim() || cleaned;
       };
       
-      const fontNames = fontsToCheck.map(extractFontName).filter(Boolean);
+      // List of common Google Fonts that don't need to be checked in database
+      const GOOGLE_FONTS = [
+        'Inter', 'Roboto', 'Open Sans', 'Lato', 'Montserrat', 'Poppins',
+        'Source Sans Pro', 'Raleway', 'Oswald', 'Ubuntu', 'Playfair Display',
+        'Merriweather', 'PT Sans', 'Nunito', 'Crimson Text', 'Lora'
+      ];
+      
+      const fontNames = fontsToCheck
+        .map(extractFontName)
+        .filter(Boolean)
+        .filter(name => !GOOGLE_FONTS.includes(name)); // Skip Google Fonts
       
       // Only check fonts if user is authenticated (font check API requires auth)
+      // Skip check for Google Fonts as they're loaded via next/font/google
       if (fontNames.length > 0 && typeof window !== 'undefined') {
         // Check if user is authenticated before making API call
         const token = TokenStorage.getToken();
