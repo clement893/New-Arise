@@ -43,7 +43,11 @@ export default function FormSubmissionsPage() {
       }
       
       const response = await formsAPI.getSubmissions(formIdNum, { skip: 0, limit: 100 });
-      const data = extractApiData<FormSubmission[] | { items: FormSubmission[] } | { submissions: FormSubmission[] }>(response);
+      // apiClient.get returns ApiResponse<T>, extractApiData handles both ApiResponse<T> and T
+      // Type assertion needed because formsAPI.getSubmissions return type is not properly inferred
+      const data = extractApiData<FormSubmission[] | { items: FormSubmission[] } | { submissions: FormSubmission[] }>(
+        response as any
+      );
       
       // Handle both array and paginated response formats
       const submissionsList = Array.isArray(data) 
