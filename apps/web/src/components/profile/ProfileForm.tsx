@@ -22,7 +22,7 @@ import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Avatar from '@/components/ui/Avatar';
-import { useToast } from '@/components/ui/ToastContainer';
+import { useToast } from '@/components/ui';
 import { Upload, User, Mail } from 'lucide-react';
 import type { ChangeEvent } from 'react';
 import { usersAPI } from '@/lib/api';

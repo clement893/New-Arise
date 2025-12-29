@@ -9,7 +9,7 @@ import { logger } from '@/lib/logger';
 export default function UtilsContent() {
   const [searchValue, setSearchValue] = useState('');
   const [multiSelectValue, setMultiSelectValue] = useState<string[]>([]);
-  const { toasts, showToast } = useToast();
+  const { showToast } = useToast();
   
   // Command Palette setup
   const commands: Command[] = [
@@ -282,7 +282,7 @@ export default function UtilsContent() {
       </div>
 
       <CommandPalette commands={commands} isOpen={isCommandPaletteOpen} onClose={closeCommandPalette} />
-      <ToastContainer toasts={toasts} />
+      <ToastContainer />
       <PageNavigation prev={{ label: 'Données', href: '/components/data' }} home={{ label: 'Retour à l\'accueil', href: '/components' }} />
     </PageContainer>
   );

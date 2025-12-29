@@ -14,6 +14,7 @@ import { getQueryClient } from '@/lib/query/queryClient';
 import { GlobalThemeProvider } from '@/lib/theme/global-theme-provider';
 import { useThemeManager } from '@/components/theme/hooks';
 import { GlobalErrorHandler } from './GlobalErrorHandler';
+import ToastContainer from '@/components/ui/ToastContainer';
 import { useState, type ReactNode } from 'react';
 
 /**
@@ -40,6 +41,7 @@ export default function AppProviders({ children }: { children: ReactNode }) {
         <QueryClientProvider client={queryClient}>
           <NextAuthSessionProvider>
             {children}
+            <ToastContainer />
             {process.env.NODE_ENV === 'development' && (
               <ReactQueryDevtools initialIsOpen={false} />
             )}

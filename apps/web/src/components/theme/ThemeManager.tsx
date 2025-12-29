@@ -11,7 +11,7 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
-import { useToast } from '@/components/ui/ToastContainer';
+import { useToast } from '@/components/ui';
 import { useThemeManager } from './hooks';
 import { themePresets, type ThemePresetName } from './presets';
 import { FONT_OPTIONS, BORDER_RADIUS_OPTIONS } from './constants';

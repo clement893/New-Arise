@@ -10,7 +10,7 @@ export default function FeedbackContent() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [progress, setProgress] = useState(0);
-  const { toasts, showToast } = useToast();
+  const { showToast } = useToast();
 
   const stepperSteps: Step[] = [
     { id: '1', label: 'Étape 1', description: 'Informations de base' },
@@ -205,7 +205,7 @@ export default function FeedbackContent() {
         </Section>
       </div>
 
-      <ToastContainer toasts={toasts} />
+      <ToastContainer />
       <PageNavigation prev={{ label: 'Navigation', href: '/components/navigation' }} next={{ label: 'Données', href: '/components/data' }} />
     </PageContainer>
   );

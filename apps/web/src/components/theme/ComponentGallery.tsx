@@ -24,7 +24,7 @@ import Skeleton from '@/components/ui/Skeleton';
 import Spinner from '@/components/ui/Spinner';
 import Avatar from '@/components/ui/Avatar';
 import Tooltip from '@/components/ui/Tooltip';
-import ToastContainer, { useToast } from '@/components/ui/ToastContainer';
+import { ToastContainer, useToast } from '@/components/ui';
 import DataTable from '@/components/ui/DataTable';
 import Pagination from '@/components/ui/Pagination';
 import EmptyState from '@/components/ui/EmptyState';
@@ -42,7 +42,7 @@ export function ComponentGallery() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const { toasts, showToast } = useToast();
+  const { showToast } = useToast();
 
   const tableData = [
     { id: '1', name: 'John Doe', email: 'john@example.com', role: 'Admin' },
@@ -87,7 +87,7 @@ export function ComponentGallery() {
 
   return (
     <div className="space-y-8">
-      <ToastContainer toasts={toasts} />
+      <ToastContainer />
 
       {/* Buttons */}
       <Card title="Boutons">

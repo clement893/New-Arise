@@ -29,7 +29,7 @@
 
 import { useState } from 'react';
 import { emailAPI, type EmailResponse } from '@/lib/email/client';
-import { useToast } from '@/components/ui/ToastContainer';
+import { useToast } from '@/components/ui';
 import type { ApiResponse } from '@modele/types';
 
 export function useEmail() {
