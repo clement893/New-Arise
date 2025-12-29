@@ -19,8 +19,9 @@ const webDir = path.resolve(__dirname, '..');
 process.chdir(webDir);
 
 // 1. TypeScript type checking (fastest check, catches most errors)
-// Skip if SKIP_TYPE_CHECK environment variable is set
-if (!process.env.SKIP_TYPE_CHECK) {
+// Skip if SKIP_TYPE_CHECK environment variable is set to "1" or "true"
+const skipTypeCheck = process.env.SKIP_TYPE_CHECK === '1' || process.env.SKIP_TYPE_CHECK === 'true';
+if (!skipTypeCheck) {
   console.log('1️⃣  Running TypeScript type check...');
   try {
     // Check if type-check:ci script exists, fallback to type-check
