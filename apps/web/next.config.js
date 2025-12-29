@@ -50,7 +50,7 @@ const nextConfig = {
     } : false,
   },
   
-  // Experimental features
+  // Experimental features - performance optimizations
   experimental: {
     optimizePackageImports: [
       'lucide-react',
@@ -59,19 +59,29 @@ const nextConfig = {
       'zod',
       'clsx',
       'next-intl',
+      'recharts', // Optimize chart library imports
     ],
     // Enable faster refresh for better dev experience
     optimizeCss: true,
     // Disable build traces to speed up finalization phase (~10-30s faster)
     // Build traces are used for analyzing bundle size but slow down builds
     buildTraces: false,
+    // Enable partial prerendering for better performance
+    ppr: false, // Can be enabled when stable
   },
 
-  // Image optimization
+  // Image optimization - enhanced for better performance
   images: {
-    formats: ['image/avif', 'image/webp'],
+    formats: ['image/avif', 'image/webp'], // Modern formats for smaller file sizes
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 60, // Cache images for 60 seconds
+    dangerouslyAllowSVG: true, // Allow SVG images
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    // Enable lazy loading by default (Next.js Image component does this automatically)
+    // Add remote patterns if needed for external images
+    remotePatterns: [],
   },
 
   // SWC minification is enabled by default in Next.js 16+
@@ -107,63 +117,71 @@ const nextConfig = {
     const CreateMissingCssPlugin = require('./webpack-plugins/create-missing-css-plugin');
     config.plugins.push(new CreateMissingCssPlugin());
 
-    // Enhanced code splitting configuration
-    if (!isServer) {
-      config.optimization = {
-        ...config.optimization,
-        splitChunks: {
-          chunks: 'all',
-          minSize: 20000, // Minimum chunk size (20KB)
-          maxSize: 244000, // Maximum chunk size (244KB)
-          cacheGroups: {
-            default: false,
-            vendors: false,
-            // Framework chunks - React, Next.js core
-            framework: {
-              name: 'framework',
-              chunks: 'all',
-              test: /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/,
-              priority: 40,
-              enforce: true,
-            },
-            // Large libraries - separate into individual chunks
-            lib: {
-              test: /[\\/]node_modules[\\/]/,
-              name(module) {
-                const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)?.[1];
-                // Only create separate chunks for large libraries
-                const largeLibs = ['axios', '@tanstack/react-query', 'zod', 'zustand', 'next-intl'];
-                if (largeLibs.some(lib => packageName?.includes(lib))) {
-                  return `lib-${packageName?.replace('@', '').replace('/', '-')}`;
-                }
-                return null;
+      // Enhanced code splitting configuration - optimized for performance
+      if (!isServer) {
+        config.optimization = {
+          ...config.optimization,
+          splitChunks: {
+            chunks: 'all',
+            minSize: 20000, // Minimum chunk size (20KB) - prevents too many small chunks
+            maxSize: 244000, // Maximum chunk size (244KB) - optimal for HTTP/2
+            maxAsyncRequests: 30, // Limit concurrent async chunks
+            maxInitialRequests: 30, // Limit initial chunks
+            cacheGroups: {
+              default: false,
+              vendors: false,
+              // Framework chunks - React, Next.js core (highest priority)
+              framework: {
+                name: 'framework',
+                chunks: 'all',
+                test: /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/,
+                priority: 40,
+                enforce: true,
+                reuseExistingChunk: true,
               },
-              priority: 30,
-              minChunks: 1,
-              reuseExistingChunk: true,
-            },
-            // UI component libraries
-            ui: {
-              test: /[\\/]node_modules[\\/](@tanstack|lucide-react|clsx|isomorphic-dompurify)[\\/]/,
-              name: 'ui-libs',
-              priority: 20,
-              reuseExistingChunk: true,
-            },
-            // Common chunks - shared code
-            common: {
-              name: 'common',
-              minChunks: 2,
-              priority: 10,
-              reuseExistingChunk: true,
+              // Large libraries - separate into individual chunks for better caching
+              lib: {
+                test: /[\\/]node_modules[\\/]/,
+                name(module) {
+                  const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)?.[1];
+                  // Only create separate chunks for large libraries
+                  const largeLibs = ['axios', '@tanstack/react-query', 'zod', 'zustand', 'next-intl', 'recharts'];
+                  if (largeLibs.some(lib => packageName?.includes(lib))) {
+                    return `lib-${packageName?.replace('@', '').replace('/', '-')}`;
+                  }
+                  return null;
+                },
+                priority: 30,
+                minChunks: 1,
+                reuseExistingChunk: true,
+              },
+              // UI component libraries - group together for better caching
+              ui: {
+                test: /[\\/]node_modules[\\/](@tanstack|lucide-react|clsx|isomorphic-dompurify)[\\/]/,
+                name: 'ui-libs',
+                priority: 20,
+                reuseExistingChunk: true,
+              },
+              // Common chunks - shared code across multiple pages
+              common: {
+                name: 'common',
+                minChunks: 2,
+                priority: 10,
+                reuseExistingChunk: true,
+              },
             },
           },
-        },
-      };
+          // Module concatenation for better tree shaking
+          concatenateModules: !dev, // Enable in production only
+        };
 
-      // Tree shaking optimization
-      config.optimization.usedExports = true;
-      config.optimization.sideEffects = false;
-    }
+        // Tree shaking optimization - remove unused exports
+        config.optimization.usedExports = true;
+        config.optimization.sideEffects = false;
+        
+        // Minimize bundle size
+        config.optimization.minimize = !dev; // Only minimize in production
+      }
 
     // Bundle analyzer (if enabled)
     if (process.env.ANALYZE === 'true' && !isServer) {

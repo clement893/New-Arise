@@ -26,8 +26,11 @@ import { themeCacheInlineScript } from '@/lib/theme/theme-inline-cache-script';
 
 const inter = Inter({ 
   subsets: ['latin'],
-  display: 'swap',
+  display: 'swap', // Optimize font loading - show fallback until font loads
   variable: '--font-inter',
+  preload: true, // Preload critical font
+  fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'], // Better fallback
+  adjustFontFallback: true, // Adjust fallback font metrics
 });
 
 export const metadata: Metadata = {
@@ -109,15 +112,24 @@ export default async function LocaleLayout({
           }}
         />
         
-        {/* Resource hints for performance */}
+        {/* Resource hints for performance - optimized order */}
         {apiHost && (
           <>
             <link rel="dns-prefetch" href={`//${apiHost}`} />
             <link rel="preconnect" href={`//${apiHost}`} crossOrigin="anonymous" />
           </>
         )}
+        {/* Font optimization - preconnect early, then preload */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* Preload critical font files for faster rendering */}
+        <link
+          rel="preload"
+          href="https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
         
         {/* Open Graph tags */}
         <meta property="og:type" content="website" />
