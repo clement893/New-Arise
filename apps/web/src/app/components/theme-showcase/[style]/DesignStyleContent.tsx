@@ -157,7 +157,7 @@ export default function DesignStyleContent({ style }: { style: string }) {
           <Section title="Badges & Alerts">
             <Grid cols={1} md={2} gap={4}>
               <ExampleCard title="Badges" className={config.cardClass}>
-                <Stack gap={2}>
+                <Stack gapValue="0.5rem">
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="default">Default</Badge>
                     <Badge variant="success">Success</Badge>
@@ -168,7 +168,7 @@ export default function DesignStyleContent({ style }: { style: string }) {
                 </Stack>
               </ExampleCard>
               <ExampleCard title="Alerts" className={config.cardClass}>
-                <Stack gap={2}>
+                <Stack gapValue="0.5rem">
                   <Alert variant="success" title="Success">
                     Operation completed successfully!
                   </Alert>
@@ -223,7 +223,7 @@ export default function DesignStyleContent({ style }: { style: string }) {
           <Section title="Layout Components">
             <Card className={config.cardClass}>
               <h3 className="text-lg font-semibold mb-4">Stack Layout</h3>
-              <Stack gap={4}>
+              <Stack gapValue="1rem">
                 <div className="p-4 bg-muted rounded">Item 1</div>
                 <div className="p-4 bg-muted rounded">Item 2</div>
                 <div className="p-4 bg-muted rounded">Item 3</div>

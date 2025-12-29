@@ -10,19 +10,19 @@ import type { CheckResult } from '../types/health.types';
 interface ReportGeneratorCardProps {
   report: CheckResult | null;
   isGeneratingReport: boolean;
-  onGenerate: () => void;
-  onDownload: () => void;
-  onOpenInNewTab: () => void;
-  onOpenAsMarkdown: () => void;
+  onGenerateReport: () => void;
+  onDownloadReport: () => void;
+  onOpenReportInNewTab: () => void;
+  onOpenReportAsMarkdown: () => void;
 }
 
 export function ReportGeneratorCard({
   report,
   isGeneratingReport,
-  onGenerate,
-  onDownload,
-  onOpenInNewTab,
-  onOpenAsMarkdown,
+  onGenerateReport,
+  onDownloadReport,
+  onOpenReportInNewTab,
+  onOpenReportAsMarkdown,
 }: ReportGeneratorCardProps) {
   return (
     <Card className="mb-6">
@@ -36,7 +36,7 @@ export function ReportGeneratorCard({
         <div className="flex gap-2">
           <Button
             variant="primary"
-            onClick={onGenerate}
+            onClick={onGenerateReport}
             disabled={isGeneratingReport}
             aria-label="Generate complete report"
           >
@@ -50,7 +50,7 @@ export function ReportGeneratorCard({
             <>
               <Button
                 variant="outline"
-                onClick={onOpenInNewTab}
+                onClick={onOpenReportInNewTab}
                 title="Open report in new tab (HTML)"
                 aria-label="Open report in new tab as HTML"
               >
@@ -59,7 +59,7 @@ export function ReportGeneratorCard({
               </Button>
               <Button
                 variant="outline"
-                onClick={onOpenAsMarkdown}
+                onClick={onOpenReportAsMarkdown}
                 title="Open report as Markdown in new tab"
                 aria-label="Open report as Markdown in new tab"
               >
@@ -68,7 +68,7 @@ export function ReportGeneratorCard({
               </Button>
               <Button
                 variant="outline"
-                onClick={onDownload}
+                onClick={onDownloadReport}
                 title="Download report as file"
                 aria-label="Download report as file"
               >

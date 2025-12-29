@@ -9,7 +9,6 @@ import { PageHeader, PageContainer } from '@/components/layout';
 import type { ComponentTestResult, EndpointTestResult } from './types/health.types';
 import { useTemplateHealth } from './hooks/useTemplateHealth';
 import { useEndpointTests } from './hooks/useEndpointTests';
-import { useConnectionTests } from './hooks/useConnectionTests';
 import { useReportGeneration } from './hooks/useReportGeneration';
 import { OverviewSection } from './components/OverviewSection';
 import { FrontendCheckCard } from './components/FrontendCheckCard';
@@ -27,7 +26,6 @@ function APIConnectionTestContent() {
     isLoading,
     isLoadingStatus,
     error: healthError,
-    setError: setHealthError,
     handleCheckStatus,
     handleCheckFrontend,
     handleCheckBackend,
@@ -38,18 +36,14 @@ function APIConnectionTestContent() {
     isTestingEndpoints,
     testProgress,
     error: endpointError,
-    setError: setEndpointError,
     handleTestCriticalEndpoints,
     copyTestResult,
   } = useEndpointTests();
-
-  const { connectionTests, isTestingConnections } = useConnectionTests();
 
   const {
     report,
     isGeneratingReport,
     error: reportError,
-    setError: setReportError,
     handleGenerateCompleteReport,
     downloadReport,
     openReportInNewTab,
@@ -73,11 +67,6 @@ function APIConnectionTestContent() {
       setTimeout(() => setCopiedTestId(null), 2000);
     }
   }, [copyTestResult]);
-
-  // Wrapper for handleCopyTestResult to match component interface
-  const handleCopyTestResultWrapper = useCallback((test: EndpointTestResult) => {
-    handleCopyTestResult(test);
-  }, [handleCopyTestResult]);
 
   const testFrontendComponents = async () => {
     setIsTestingComponents(true);
@@ -149,6 +138,10 @@ function APIConnectionTestContent() {
   };
 
 
+  const handleGenerateReport = useCallback(() => {
+    handleGenerateCompleteReport(status, frontendCheck, backendCheck, endpointTests, componentTests);
+  }, [handleGenerateCompleteReport, status, frontendCheck, backendCheck, endpointTests, componentTests]);
+
   useEffect(() => {
     // Auto-check status on mount (only on client)
     if (typeof window !== 'undefined') {
@@ -177,658 +170,42 @@ function APIConnectionTestContent() {
         onRefresh={handleCheckStatus}
       />
 
-      {/* Frontend Check */}
-      <Card className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Frontend API Connections</h2>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleCheckFrontend(false)}
-              disabled={isLoading}
-            >
-              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-              Check Basic
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleCheckFrontend(true)}
-              disabled={isLoading}
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              Check Detailed
-            </Button>
-          </div>
-        </div>
+      <FrontendCheckCard
+        frontendCheck={frontendCheck}
+        isLoading={isLoading}
+        onCheckBasic={() => handleCheckFrontend(false)}
+        onCheckDetailed={() => handleCheckFrontend(true)}
+      />
 
-        {frontendCheck && (
-          <div className="space-y-4">
-            {!frontendCheck.success ? (
-              <Alert variant="error">
-                <div>
-                  <p className="font-medium">{frontendCheck.error || 'Check failed'}</p>
-                  {frontendCheck.message && <p className="text-sm mt-1">{frontendCheck.message}</p>}
-                  {frontendCheck.hint && <p className="text-sm mt-1 text-gray-600">{frontendCheck.hint}</p>}
-                </div>
-              </Alert>
-            ) : frontendCheck.summary && Object.keys(frontendCheck.summary).length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                {frontendCheck.summary.total !== undefined && (
-                  <div className="text-center">
-                    <div className="text-2xl font-bold">{frontendCheck.summary.total}</div>
-                    <div className="text-sm text-gray-500">Total Pages</div>
-                  </div>
-                )}
-                {frontendCheck.summary.connected !== undefined && (
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">
-                      {frontendCheck.summary.connected}
-                    </div>
-                    <div className="text-sm text-gray-500">✅ Connected</div>
-                  </div>
-                )}
-                {frontendCheck.summary.partial !== undefined && (
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-yellow-600">
-                      {frontendCheck.summary.partial}
-                    </div>
-                    <div className="text-sm text-gray-500">⚠️ Partial</div>
-                  </div>
-                )}
-                {frontendCheck.summary.needsIntegration !== undefined && (
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-red-600">
-                      {frontendCheck.summary.needsIntegration}
-                    </div>
-                    <div className="text-sm text-gray-500">❌ Needs Integration</div>
-                  </div>
-                )}
-                {frontendCheck.summary.static !== undefined && (
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-600">
-                      {frontendCheck.summary.static}
-                    </div>
-                    <div className="text-sm text-gray-500">🟡 Static</div>
-                  </div>
-                )}
-              </div>
-            ) : frontendCheck.success ? (
-              <Alert variant="info">
-                <p>Check completed successfully, but no summary data available.</p>
-              </Alert>
-            ) : null}
+      <BackendCheckCard
+        backendCheck={backendCheck}
+        isLoading={isLoading}
+        onCheck={handleCheckBackend}
+      />
 
-            {frontendCheck.output && (
-              <div className="mt-4">
-                <h3 className="font-medium mb-2">Detailed Output</h3>
-                <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg text-xs overflow-auto max-h-96">
-                  {frontendCheck.output}
-                </pre>
-              </div>
-            )}
-          </div>
-        )}
-      </Card>
+      <EndpointTestCard
+        endpointTests={endpointTests}
+        isTestingEndpoints={isTestingEndpoints}
+        testProgress={testProgress}
+        onTest={handleTestCriticalEndpoints}
+        onCopyTestResult={handleCopyTestResult}
+        copiedTestId={copiedTestId}
+      />
 
-      {/* Backend Check */}
-      <Card className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Backend Endpoints</h2>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleCheckBackend}
-            disabled={isLoading}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-            Check Backend
-          </Button>
-        </div>
+      <ComponentTestCard
+        componentTests={componentTests}
+        isTestingComponents={isTestingComponents}
+        onRunTests={testFrontendComponents}
+      />
 
-        {backendCheck && (
-          <div className="space-y-4">
-            {!backendCheck.success ? (
-              <Alert variant="error">
-                <div>
-                  <p className="font-medium">{backendCheck.error || 'Check failed'}</p>
-                  {backendCheck.message && <p className="text-sm mt-1">{backendCheck.message}</p>}
-                  {backendCheck.hint && (
-                    <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-200 dark:border-blue-800">
-                      <p className="text-sm font-medium text-blue-900 dark:text-blue-200">💡 Hint:</p>
-                      <p className="text-sm text-blue-800 dark:text-blue-300 mt-1">{backendCheck.hint}</p>
-                    </div>
-                  )}
-                </div>
-              </Alert>
-            ) : backendCheck.summary && Object.keys(backendCheck.summary).length > 0 ? (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {backendCheck.summary.totalEndpoints !== undefined && (
-                    <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                      <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                        {backendCheck.summary.totalEndpoints}
-                      </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">Total Endpoints</div>
-                    </div>
-                  )}
-                  <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                    <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-                      {backendCheck.summary.registered}
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">✅ Registered Modules</div>
-                    {backendCheck.summary.registered !== undefined && backendCheck.summary.unregistered !== undefined && (
-                      <div className="text-xs text-gray-500 mt-1">
-                        {Math.round((backendCheck.summary.registered / (backendCheck.summary.registered + backendCheck.summary.unregistered)) * 100)}% coverage
-                      </div>
-                    )}
-                  </div>
-                  <div className={`text-center p-4 rounded-lg border ${
-                    (backendCheck.summary.unregistered || 0) > 0
-                      ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-                      : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-                  }`}>
-                    <div className={`text-3xl font-bold ${
-                      (backendCheck.summary.unregistered || 0) > 0 
-                        ? 'text-red-600 dark:text-red-400' 
-                        : 'text-gray-600 dark:text-gray-400'
-                    }`}>
-                      {backendCheck.summary.unregistered || 0}
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">❌ Unregistered Modules</div>
-                    {backendCheck.summary.registered !== undefined && backendCheck.summary.unregistered !== undefined && (backendCheck.summary.unregistered || 0) > 0 && (
-                      <div className="text-xs text-red-600 dark:text-red-400 mt-1">
-                        {Math.round((backendCheck.summary.unregistered / (backendCheck.summary.registered + backendCheck.summary.unregistered)) * 100)}% missing
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                {(backendCheck.summary.unregistered || 0) > 0 && (
-                  <Alert variant="error" className="mt-4">
-                    <p className="font-medium">
-                      {backendCheck.summary.unregistered} module{(backendCheck.summary.unregistered || 0) > 1 ? 's' : ''} not registered
-                    </p>
-                    <p className="text-sm mt-1">
-                      Some backend modules are not registered in the API router. Check the detailed output below to see which modules need to be added to <code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">backend/app/api/v1/router.py</code>.
-                    </p>
-                  </Alert>
-                )}
-                
-                {(backendCheck.summary.unregistered || 0) === 0 && backendCheck.summary.registered !== undefined && backendCheck.summary.registered > 0 && (
-                  <Alert variant="success" className="mt-4">
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    <p className="font-medium">All modules are properly registered!</p>
-                    <p className="text-sm mt-1">
-                      All {backendCheck.summary.registered} backend module{backendCheck.summary.registered > 1 ? 's' : ''} {backendCheck.summary.registered > 1 ? 'are' : 'is'} registered in the API router.
-                    </p>
-                  </Alert>
-                )}
-              </>
-            ) : backendCheck.success ? (
-              <Alert variant="info">
-                <p>Check completed successfully, but no summary data available.</p>
-                {backendCheck.message && <p className="text-sm mt-1">{backendCheck.message}</p>}
-              </Alert>
-            ) : null}
-
-            {backendCheck.output && (
-              <div className="mt-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-medium">Detailed Output</h3>
-                  <Badge variant="info">{backendCheck.output.length} characters</Badge>
-                </div>
-                <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg text-xs overflow-auto max-h-96 border border-gray-200 dark:border-gray-700">
-                  {backendCheck.output}
-                </pre>
-              </div>
-            )}
-          </div>
-        )}
-      </Card>
-
-      {/* Critical Endpoints Test */}
-      <Card className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex-1">
-            <h2 className="text-xl font-semibold">Critical Endpoints Test</h2>
-            <p className="text-sm text-gray-500 mt-1">
-              Test all critical endpoints that were created/fixed in the API alignment batches
-            </p>
-            {testProgress && (
-              <div className="mt-3">
-                <div className="flex items-center gap-3 text-sm">
-                  <span className="text-gray-600 dark:text-gray-400">
-                    Progress: {testProgress.completed}/{testProgress.total} ({testProgress.percentage}%)
-                  </span>
-                  <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 max-w-md">
-                    <div
-                      className="bg-primary-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${testProgress.percentage}%` }}
-                    />
-                  </div>
-                  <span className="text-green-600 dark:text-green-400">✓ {testProgress.success}</span>
-                  <span className="text-red-600 dark:text-red-400">✗ {testProgress.error}</span>
-                  {testProgress.pending > 0 && (
-                    <span className="text-gray-400">⏳ {testProgress.pending}</span>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-          <Button
-            variant="primary"
-            onClick={handleTestCriticalEndpoints}
-            disabled={isTestingEndpoints}
-            className="ml-4"
-          >
-            {isTestingEndpoints ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Testing...
-              </>
-            ) : (
-              <>
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Test All Endpoints
-              </>
-            )}
-          </Button>
-        </div>
-
-        {endpointTests.length > 0 && (
-          <div className="space-y-4">
-            {/* Group by category */}
-            {Array.from(new Set(endpointTests.map(t => t.category).filter(Boolean))).map(category => {
-              const categoryTests = endpointTests.filter(t => t.category === category);
-              const successCount = categoryTests.filter(t => t.status === 'success').length;
-              const errorCount = categoryTests.filter(t => t.status === 'error').length;
-              const pendingCount = categoryTests.filter(t => t.status === 'pending').length;
-              
-              return (
-                <div key={category} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">{category}</h3>
-                    <div className="flex gap-4 text-sm">
-                      <span className="text-green-600">✓ {successCount}</span>
-                      <span className="text-red-600">✗ {errorCount}</span>
-                      {pendingCount > 0 && <span className="text-gray-400">⏳ {pendingCount}</span>}
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {categoryTests.map((test, index) => {
-                      const testId = `${test.endpoint}-${test.method}`;
-                      const isCopied = copiedTestId === testId;
-                      return (
-                        <div
-                          key={`${category}-${index}`}
-                          className={`p-3 rounded-lg border ${
-                            test.status === 'success'
-                              ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-                              : test.status === 'error'
-                              ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-                              : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-                          }`}
-                        >
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                {test.status === 'success' ? (
-                                  <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
-                                ) : test.status === 'error' ? (
-                                  <XCircle className="h-4 w-4 text-red-600 flex-shrink-0" />
-                                ) : (
-                                  <Loader2 className="h-4 w-4 text-gray-400 animate-spin flex-shrink-0" />
-                                )}
-                                <span className="font-mono text-xs font-medium truncate">
-                                  {test.method} {test.endpoint}
-                                </span>
-                              </div>
-                              {test.message && (
-                                <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
-                                  {test.message}
-                                </p>
-                              )}
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleCopyTestResult(test)}
-                              className="flex-shrink-0 h-6 w-6 p-0"
-                              title="Copy test result"
-                            >
-                              {isCopied ? (
-                                <Check className="h-3 w-3 text-green-600" />
-                              ) : (
-                                <Copy className="h-3 w-3" />
-                              )}
-                            </Button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
-            
-            {/* Tests without category - memoized */}
-            {useMemo(() => endpointTests.filter(t => !t.category), [endpointTests]).length > 0 && (
-              <div className="space-y-2">
-                <h3 className="text-lg font-semibold">Other</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                  {useMemo(() => endpointTests.filter(t => !t.category), [endpointTests]).map((test, index) => {
-                    const testId = `${test.endpoint}-${test.method}`;
-                    const isCopied = copiedTestId === testId;
-                    return (
-                      <div
-                        key={`other-${index}`}
-                        className={`p-3 rounded-lg border ${
-                          test.status === 'success'
-                            ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-                            : test.status === 'error'
-                            ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-                            : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              {test.status === 'success' ? (
-                                <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
-                              ) : test.status === 'error' ? (
-                                <XCircle className="h-4 w-4 text-red-600 flex-shrink-0" />
-                              ) : (
-                                <Loader2 className="h-4 w-4 text-gray-400 animate-spin flex-shrink-0" />
-                              )}
-                              <span className="font-mono text-xs font-medium truncate">
-                                {test.method} {test.endpoint}
-                              </span>
-                            </div>
-                            {test.message && (
-                              <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
-                                {test.message}
-                              </p>
-                            )}
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => copyTestResult(test)}
-                            className="flex-shrink-0 h-6 w-6 p-0"
-                            title="Copy test result"
-                          >
-                            {isCopied ? (
-                              <Check className="h-3 w-3 text-green-600" />
-                            ) : (
-                              <Copy className="h-3 w-3" />
-                            )}
-                          </Button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            
-            {useMemo(() => {
-              const successCount = endpointTests.filter(t => t.status === 'success').length;
-              const errorCount = endpointTests.filter(t => t.status === 'error').length;
-              const pendingCount = endpointTests.filter(t => t.status === 'pending').length;
-              const testsWithResponseTime = endpointTests.filter(t => t.responseTime);
-              const avgResponseTime = testsWithResponseTime.length > 0
-                ? Math.round(
-                    testsWithResponseTime.reduce((sum, t) => sum + (t.responseTime || 0), 0) /
-                    testsWithResponseTime.length
-                  )
-                : null;
-
-              return (
-                <div className="mt-4 flex gap-4 text-sm">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span>Success: {successCount}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <XCircle className="h-4 w-4 text-red-600" />
-                    <span>Errors: {errorCount}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 text-gray-400" />
-                    <span>Pending: {pendingCount}</span>
-                  </div>
-                  {avgResponseTime !== null && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Avg Response: {avgResponseTime}ms
-                      </span>
-                    </div>
-                  )}
-                </div>
-              );
-            }, [endpointTests])}
-          </div>
-        )}
-
-        {endpointTests.length === 0 && !isTestingEndpoints && (
-          <Alert variant="info">
-            <p>Click "Test All Endpoints" to test all critical endpoints that were created or fixed.</p>
-          </Alert>
-        )}
-      </Card>
-
-      {/* Frontend Components & Hooks Test */}
-      <Card className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-xl font-semibold">Frontend Components & Hooks Test</h2>
-            <p className="text-sm text-gray-500 mt-1">
-              Test critical React hooks, services, and API client functionality
-            </p>
-          </div>
-          <Button
-            variant="primary"
-            onClick={testFrontendComponents}
-            disabled={isTestingComponents}
-          >
-            {isTestingComponents ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Testing...
-              </>
-            ) : (
-              <>
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Run Tests
-              </>
-            )}
-          </Button>
-        </div>
-
-        <div className="space-y-4">
-          {componentTests.length > 0 ? (
-            <div className="space-y-2">
-              {componentTests.map((test, index) => (
-                <div
-                  key={index}
-                  className={`p-4 rounded-lg border ${
-                    test.status === 'success'
-                      ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-                      : test.status === 'error'
-                      ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-                      : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-                  }`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        {test.status === 'success' ? (
-                          <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
-                        ) : test.status === 'error' ? (
-                          <XCircle className="h-4 w-4 text-red-600 flex-shrink-0" />
-                        ) : (
-                          <Loader2 className="h-4 w-4 text-gray-400 animate-spin flex-shrink-0" />
-                        )}
-                        <span className="font-semibold">{test.name}</span>
-                      </div>
-                      {test.message && (
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          {test.message}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <>
-              <Alert variant="info">
-                <div>
-                  <p className="font-medium mb-2">Available Tests:</p>
-                  <ul className="list-disc list-inside space-y-1 text-sm">
-                    <li><strong>API Client - Token Refresh:</strong> Tests automatic token refresh mechanism</li>
-                    <li><strong>API Client - Error Handling:</strong> Tests error handling and parsing</li>
-                    <li><strong>API Client - GET Request:</strong> Tests GET request functionality</li>
-                    <li><strong>API Client - POST Request:</strong> Tests POST request functionality</li>
-                  </ul>
-                  <p className="text-sm mt-2 text-gray-600 dark:text-gray-400">
-                    💡 <strong>Note:</strong> Click "Run Tests" to execute these tests. For comprehensive testing, use the test suite: <code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">pnpm test</code>
-                  </p>
-                </div>
-              </Alert>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 border rounded-lg">
-                  <h3 className="font-semibold mb-2">API Client</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    Core API client with automatic token refresh and error handling
-                  </p>
-                  <Badge variant="info">Click "Run Tests" to test</Badge>
-                </div>
-
-                <div className="p-4 border rounded-lg">
-                  <h3 className="font-semibold mb-2">Error Handling</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    API error parsing and user-friendly messages
-                  </p>
-                  <Badge variant="info">Click "Run Tests" to test</Badge>
-                </div>
-              </div>
-            </>
-          )}
-
-          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-            <p className="text-sm font-medium text-blue-900 dark:text-blue-200 mb-2">
-              📋 Component Testing Recommendations:
-            </p>
-            <ul className="list-disc list-inside space-y-1 text-sm text-blue-800 dark:text-blue-300">
-              <li>Run unit tests: <code className="text-xs bg-blue-100 dark:bg-blue-900 px-1 py-0.5 rounded">pnpm test</code></li>
-              <li>Run integration tests: <code className="text-xs bg-blue-100 dark:bg-blue-900 px-1 py-0.5 rounded">pnpm test:integration</code></li>
-              <li>Test components manually in development environment</li>
-              <li>Use React DevTools to inspect hook states and API calls</li>
-              <li>Monitor Network tab for API request/response validation</li>
-            </ul>
-          </div>
-        </div>
-      </Card>
-
-      {/* Report Generation */}
-      <Card>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-xl font-semibold">Generate Report</h2>
-            <p className="text-sm text-gray-500 mt-1">
-              Generate a comprehensive markdown report of all API connections
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="primary"
-              onClick={handleGenerateReport}
-              disabled={isLoading || isGeneratingReport}
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              {isLoading ? 'Generating...' : 'Generate Complete Report'}
-            </Button>
-            {report?.reportContent && (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={openReportInNewTab}
-                  title="Open report in new tab (HTML)"
-                >
-                  <Eye className="h-4 w-4 mr-2" />
-                  View
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={openReportAsMarkdown}
-                  title="Open report as Markdown in new tab"
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Open MD
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={downloadReport}
-                  title="Download report as file"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Download
-                </Button>
-              </>
-            )}
-          </div>
-        </div>
-
-        {report && (
-          <div className="space-y-4">
-            {!report.success && report.error ? (
-              <Alert variant="error">
-                <div>
-                  <p className="font-medium">{report.error || 'Report generation failed'}</p>
-                  {report.message && <p className="text-sm mt-1">{report.message}</p>}
-                  {report.hint && <p className="text-sm mt-1 text-gray-600">{report.hint}</p>}
-                </div>
-              </Alert>
-            ) : (
-              <>
-                {report.reportPath && (
-                  <Alert variant="success">
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Report generated successfully: {report.reportPath}
-                  </Alert>
-                )}
-
-                {report.reportContent && (
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="font-medium mb-2">Report Preview</h3>
-                      <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg max-h-96 overflow-auto">
-                        <pre className="text-xs whitespace-pre-wrap font-mono">
-                          {report.reportContent.substring(0, 3000)}
-                        </pre>
-                        {report.reportContent.length > 3000 && (
-                          <p className="text-xs text-gray-500 mt-2">
-                            ... (truncated, use "View" or "Download" button for full report)
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex gap-2 text-sm text-gray-600">
-                      <span>📄 Report length: {report.reportContent.length.toLocaleString()} characters</span>
-                      {report.reportPath && <span>• Path: {report.reportPath}</span>}
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        )}
-      </Card>
+      <ReportGeneratorCard
+        report={report}
+        isGeneratingReport={isGeneratingReport}
+        onGenerateReport={handleGenerateReport}
+        onDownloadReport={downloadReport}
+        onOpenReportInNewTab={openReportInNewTab}
+        onOpenReportAsMarkdown={openReportAsMarkdown}
+      />
       </PageContainer>
   );
 }

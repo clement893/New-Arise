@@ -165,7 +165,7 @@ export function ThemeVisualEditor({ config, onUpdate }: ThemeVisualEditorProps) 
       <Card>
         <div className="p-6">
           <h3 className="text-lg font-semibold text-foreground mb-4">Typography</h3>
-          <Stack gap={4}>
+          <Stack gapValue="1rem">
             <div>
               <label htmlFor="font_family" className="block text-sm font-medium text-foreground mb-1">Font Family</label>
               <Input
@@ -198,7 +198,7 @@ export function ThemeVisualEditor({ config, onUpdate }: ThemeVisualEditorProps) 
         <Card>
           <div className="p-6">
             <h3 className="text-lg font-semibold text-foreground mb-4">Layout</h3>
-            <Stack gap={4}>
+            <Stack gapValue="1rem">
               {localConfig.layout.spacing && (
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1">Spacing Unit</label>

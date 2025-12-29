@@ -32,7 +32,7 @@ export function ThemeLivePreview({ config }: ThemeLivePreviewProps) {
             See how your theme looks applied to real components
           </p>
 
-          <Stack gap={6}>
+          <Stack gapValue="1.5rem">
             {/* Buttons */}
             <div>
               <h4 className="text-sm font-medium text-foreground mb-3">Buttons</h4>
@@ -60,14 +60,14 @@ export function ThemeLivePreview({ config }: ThemeLivePreviewProps) {
             {/* Alerts */}
             <div>
               <h4 className="text-sm font-medium text-foreground mb-3">Alerts</h4>
-              <Stack gap={2}>
+              <Stack gapValue="0.5rem">
                 <Alert variant="success" title="Success">
                   This is a success message
                 </Alert>
                 <Alert variant="warning" title="Warning">
                   This is a warning message
                 </Alert>
-                <Alert variant="danger" title="Error">
+                <Alert variant="error" title="Error">
                   This is an error message
                 </Alert>
               </Stack>
@@ -76,7 +76,7 @@ export function ThemeLivePreview({ config }: ThemeLivePreviewProps) {
             {/* Form Elements */}
             <div>
               <h4 className="text-sm font-medium text-foreground mb-3">Form Elements</h4>
-              <Stack gap={2}>
+              <Stack gapValue="0.5rem">
                 <Input label="Email" placeholder="you@example.com" type="email" />
                 <Input label="Password" placeholder="Enter password" type="password" />
               </Stack>

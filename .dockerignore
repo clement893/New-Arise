@@ -93,3 +93,62 @@ apps/admin
 .DS_Store
 Thumbs.db
 
+# Build artifacts and cache
+**/.next/cache
+**/.turbo
+**/dist
+**/build
+**/out
+**/*.tsbuildinfo
+**/.cache
+**/.parcel-cache
+
+# Test files and directories
+**/tests
+**/test
+**/__tests__
+**/__mocks__
+**/*.test.*
+**/*.spec.*
+**/coverage
+**/.nyc_output
+**/playwright-report
+**/test-results
+
+# Development files
+**/.env.local
+**/.env.development
+**/.env.test
+**/.vscode
+**/.idea
+**/*.code-workspace
+**/*.swp
+**/*.swo
+**/*~
+
+# Logs
+**/*.log
+**/logs
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/pnpm-debug.log*
+
+# Storybook
+**/.storybook
+**/storybook-static
+
+# Playwright
+**/playwright/.cache
+**/playwright-report
+**/test-results
+
+# Vitest
+**/.vitest
+**/coverage
+
+# Temporary files
+**/tmp
+**/temp
+**/*.tmp
+**/*.temp

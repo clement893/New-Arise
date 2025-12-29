@@ -191,3 +191,41 @@ export function combineThemeClasses(...classes: string[]): string {
   return classes.filter(Boolean).join(' ');
 }
 
+/**
+ * Common theme-aware component patterns
+ * Use these for consistent theming across components
+ */
+export const themePatterns = {
+  // Button patterns
+  button: {
+    primary: 'bg-primary-500 hover:bg-primary-600 text-white focus:ring-primary-500',
+    secondary: 'bg-secondary-500 hover:bg-secondary-600 text-white focus:ring-secondary-500',
+    danger: 'bg-danger-500 hover:bg-danger-600 text-white focus:ring-danger-500',
+    outline: 'border-2 border-primary-500 text-primary-600 hover:bg-primary-50 focus:ring-primary-500',
+    ghost: 'text-foreground hover:bg-muted focus:ring-primary-500',
+  },
+  // Link patterns
+  link: {
+    default: 'text-primary-600 hover:text-primary-700',
+    muted: 'text-muted-foreground hover:text-foreground',
+    accent: 'text-primary-500 hover:text-primary-600 underline',
+  },
+  // Card patterns
+  card: {
+    default: 'bg-background border-border rounded-lg shadow-sm',
+    elevated: 'bg-background border-border rounded-lg shadow-md',
+    interactive: 'bg-background border-border rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer',
+  },
+  // Input patterns
+  input: {
+    default: 'bg-background border-border text-foreground focus:ring-primary-500',
+    error: 'bg-background border-danger-500 text-foreground focus:ring-danger-500',
+  },
+  // Badge patterns
+  badge: {
+    primary: 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-100',
+    secondary: 'bg-secondary-100 text-secondary-800 dark:bg-secondary-900 dark:text-secondary-100',
+    danger: 'bg-danger-100 text-danger-800 dark:bg-danger-900 dark:text-danger-100',
+    success: 'bg-success-100 text-success-800 dark:bg-success-900 dark:text-success-100',
+  },
+} as const;
