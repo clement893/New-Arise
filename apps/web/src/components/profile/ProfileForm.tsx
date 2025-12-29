@@ -16,7 +16,7 @@
 
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, useRef, type FormEvent } from 'react';
 import { clsx } from 'clsx';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
@@ -60,6 +60,7 @@ export function ProfileForm({
   className,
 }: ProfileFormProps) {
   const { showToast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<ProfileFormData>({
     first_name: user.first_name || '',
     last_name: user.last_name || '',
@@ -185,24 +186,26 @@ export function ProfileForm({
             size="xl"
             className="border-4 border-primary-200 dark:border-primary-800"
           />
-          <label className="cursor-pointer">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleAvatarUpload}
-              className="hidden"
-            />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
-              disabled={isUploadingAvatar}
-            >
-              <Upload className="w-4 h-4" />
-              {isUploadingAvatar ? 'Uploading...' : 'Upload Avatar'}
-            </Button>
-          </label>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleAvatarUpload}
+            className="hidden"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+            disabled={isUploadingAvatar}
+            onClick={() => {
+              fileInputRef.current?.click();
+            }}
+          >
+            <Upload className="w-4 h-4" />
+            {isUploadingAvatar ? 'Uploading...' : 'Upload Avatar'}
+          </Button>
         </div>
 
         {/* Form Fields */}
