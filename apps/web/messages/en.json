@@ -274,7 +274,19 @@
       },
       "errors": {
         "loadFailed": "Failed to load organization settings. Please try again.",
-        "saveFailed": "Failed to save organization settings. Please try again."
+        "saveFailed": "Failed to save organization settings. Please try again.",
+        "createFailed": "Failed to create organization. Please try again."
+      },
+      "noOrganization": {
+        "title": "No Organization Found",
+        "description": "You need to create an organization to manage settings. Click the button below to get started.",
+        "createButton": "Create Organization"
+      },
+      "createModal": {
+        "title": "Create Organization",
+        "cancel": "Cancel",
+        "create": "Create",
+        "creating": "Creating..."
       }
     },
     "team": {

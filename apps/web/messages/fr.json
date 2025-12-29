@@ -115,7 +115,19 @@
       },
       "errors": {
         "loadFailed": "Échec du chargement des paramètres de l'organisation. Veuillez réessayer.",
-        "saveFailed": "Échec de l'enregistrement des paramètres de l'organisation. Veuillez réessayer."
+        "saveFailed": "Échec de l'enregistrement des paramètres de l'organisation. Veuillez réessayer.",
+        "createFailed": "Échec de la création de l'organisation. Veuillez réessayer."
+      },
+      "noOrganization": {
+        "title": "Aucune organisation trouvée",
+        "description": "Vous devez créer une organisation pour gérer les paramètres. Cliquez sur le bouton ci-dessous pour commencer.",
+        "createButton": "Créer une organisation"
+      },
+      "createModal": {
+        "title": "Créer une organisation",
+        "cancel": "Annuler",
+        "create": "Créer",
+        "creating": "Création en cours..."
       }
     },
     "team": {
