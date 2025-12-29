@@ -44,9 +44,9 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
     try {
       setError(null);
       
-      // Fetch fresh theme from backend (non-blocking)
-      // Add a small delay if forceApply to ensure backend has processed the change
+      // If forceApply, clear cache FIRST to ensure we don't use stale data
       if (forceApply) {
+        clearThemeCache();
         // Wait a bit for backend to commit the change (database transaction)
         await new Promise(resolve => setTimeout(resolve, 100));
       }
@@ -64,6 +64,7 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
       const configChanged = themeIdChanged || currentConfigStr !== newConfigStr;
       
       // Always apply if forced, or if theme/config changed, or if no theme is set yet
+      // When forceApply is true, ALWAYS apply immediately, ignoring cache
       if (forceApply || configChanged || !theme) {
         logger.info('[Theme] Theme changed or force apply, applying new configuration', {
           oldId: currentThemeId,
@@ -74,23 +75,30 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
           hasTheme: !!theme,
         });
         
+        // Update state first
         setTheme(activeTheme);
-        // Apply theme config from backend (TemplateTheme or active theme)
-        // BUT: Don't override if manual theme is active (for preview mode)
+        
+        // Apply theme config from backend IMMEDIATELY (synchronously)
+        // Don't override if manual theme is active (for preview mode)
         const isManualTheme = typeof document !== 'undefined' && document.documentElement.hasAttribute('data-manual-theme');
         if (!isManualTheme) {
-          // Apply immediately and synchronously
+          // Apply immediately and synchronously - this happens BEFORE React re-render
           applyThemeConfig(activeTheme.config);
-          logger.info('[Theme] Theme config applied to DOM', { themeId: activeTheme.id });
+          logger.info('[Theme] Theme config applied to DOM immediately', { themeId: activeTheme.id });
           
-          // Force a reflow to ensure styles are applied immediately
+          // Force multiple reflows to ensure styles are applied and visible immediately
           if (typeof document !== 'undefined') {
-            document.documentElement.offsetHeight; // Trigger reflow
+            // Trigger reflow multiple times to ensure browser applies styles
+            document.documentElement.offsetHeight; // First reflow
+            requestAnimationFrame(() => {
+              document.documentElement.offsetHeight; // Second reflow in next frame
+            });
           }
         } else {
           logger.info('[Theme] Skipped theme application (manual theme active)');
         }
-        // Cache the theme for next time
+        
+        // Cache the theme AFTER application for next time
         saveThemeToCache(activeTheme.config, activeTheme.id);
       } else {
         logger.debug('[Theme] Theme unchanged, skipping application', {
@@ -533,6 +541,7 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
   };
 
   // Apply cached theme immediately on mount (synchronous, before first render)
+  // BUT: Only if we're not forcing a refresh (which would clear cache anyway)
   useLayoutEffect(() => {
     if (cachedTheme && typeof window !== 'undefined') {
       // Don't apply if manual theme is active
@@ -542,7 +551,7 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
         logger.info('[Theme] Loaded theme from cache');
       }
     }
-  }, []); // Only run once on mount
+  }, []); // Only run once on mount - cache is only used on initial load
 
   useEffect(() => {
     // Fetch theme from API asynchronously (non-blocking, use startTransition)
@@ -596,9 +605,11 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
 
   const refreshTheme = async () => {
     // Force apply when refreshing (e.g., after theme activation)
-    // Clear cache first to ensure we get fresh data
+    // Clear cache FIRST to ensure we don't use stale cached data
     clearThemeCache();
-    // Force fetch and apply
+    
+    // Force fetch and apply - fetchTheme(true) will handle clearing cache again
+    // and applying immediately, ignoring any cached theme
     await fetchTheme(true);
   };
 

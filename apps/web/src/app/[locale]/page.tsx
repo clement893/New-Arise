@@ -98,25 +98,21 @@ export default function HomePage() {
             <StatsCard
               title="Composants"
               value="270+"
-              change={{ value: 0, type: 'increase', period: 'production-ready' }}
               icon={<Code className="w-6 h-6" />}
             />
             <StatsCard
               title="Catégories"
               value="32"
-              change={{ value: 0, type: 'increase', period: 'organisées' }}
               icon={<Layers className="w-6 h-6" />}
             />
             <StatsCard
               title="Technologies"
               value="15+"
-              change={{ value: 0, type: 'increase', period: 'intégrées' }}
               icon={<Zap className="w-6 h-6" />}
             />
             <StatsCard
               title="Sécurité"
               value="100%"
-              change={{ value: 0, type: 'increase', period: 'auditée' }}
               icon={<Shield className="w-6 h-6" />}
             />
           </div>
