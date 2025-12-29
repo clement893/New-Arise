@@ -293,6 +293,7 @@ export function OverviewSection({
               )}
             </div>
           )}
+          </div>
         </div>
       )}
     </Card>
