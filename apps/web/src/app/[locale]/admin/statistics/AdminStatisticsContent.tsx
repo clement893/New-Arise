@@ -5,6 +5,7 @@ import { PageHeader, PageContainer, Section } from '@/components/layout';
 import { apiClient } from '@/lib/api';
 import { rbacAPI } from '@/lib/api/rbac';
 import { getErrorMessage } from '@/lib/errors';
+import { extractApiData } from '@/lib/api/utils';
 import { Card, Badge, Alert, Loading } from '@/components/ui';
 
 interface Statistics {
@@ -191,8 +192,12 @@ export default function AdminStatisticsContent() {
       
       try {
         const usersResponse = await apiClient.get('/v1/users?page=1&page_size=1000');
-        const usersData = (usersResponse as any).data?.data || (usersResponse as any).data || [];
-        const users = Array.isArray(usersData) ? usersData : [];
+        const usersData = extractApiData<unknown[] | { data: unknown[] }>(usersResponse);
+        const users = Array.isArray(usersData) 
+          ? usersData 
+          : (usersData && typeof usersData === 'object' && 'data' in usersData && Array.isArray(usersData.data)
+            ? usersData.data
+            : []);
         
         const now = new Date();
         const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -220,8 +225,12 @@ export default function AdminStatisticsContent() {
       
       try {
         const logsResponse = await apiClient.get('/v1/audit-trail/audit-trail?limit=1000&offset=0');
-        const logsData = (logsResponse as any).data?.data || (logsResponse as any).data || [];
-        const logs = Array.isArray(logsData) ? logsData : [];
+        const logsData = extractApiData<unknown[] | { data: unknown[] }>(logsResponse);
+        const logs = Array.isArray(logsData) 
+          ? logsData 
+          : (logsData && typeof logsData === 'object' && 'data' in logsData && Array.isArray(logsData.data)
+            ? logsData.data
+            : []);
 
         // Group by type
         logs.forEach((log: any) => {
@@ -260,8 +269,12 @@ export default function AdminStatisticsContent() {
       
       try {
         const auditResponse = await apiClient.get('/v1/audit-trail/audit-trail?limit=1000&offset=0');
-        const auditData = (auditResponse as any).data?.data || (auditResponse as any).data || [];
-        const auditLogs = Array.isArray(auditData) ? auditData : [];
+        const auditData = extractApiData<unknown[] | { data: unknown[] }>(auditResponse);
+        const auditLogs = Array.isArray(auditData) 
+          ? auditData 
+          : (auditData && typeof auditData === 'object' && 'data' in auditData && Array.isArray(auditData.data)
+            ? auditData.data
+            : []);
 
         const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
         

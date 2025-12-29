@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { AxiosError } from 'axios';
 import { apiClient } from '@/lib/api/client';
+import { extractApiData } from '@/lib/api/utils';
 import { Button, Card, Alert, Badge, Container, Loading } from '@/components/ui';
 
 interface ApiErrorResponse {
@@ -71,7 +72,9 @@ function GoogleAuthTestContent() {
         return undefined;
       };
 
-      const authUrlValue = extractAuthUrl(response) || extractAuthUrl((response as any)?.data);
+      // Extract data from API response using utility
+      const responseData = extractApiData<{ auth_url?: string }>(response);
+      const authUrlValue = extractAuthUrl(responseData) || extractAuthUrl(response);
 
       if (authUrlValue) {
         setStatus({

@@ -17,6 +17,7 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { logger } from '@/lib/logger';
 import { formsAPI } from '@/lib/api';
 import { handleApiError } from '@/lib/errors';
+import { extractApiData } from '@/lib/api/utils';
 
 export default function FormSubmissionsPage() {
   const params = useParams();
@@ -42,12 +43,14 @@ export default function FormSubmissionsPage() {
       }
       
       const response = await formsAPI.getSubmissions(formIdNum, { skip: 0, limit: 100 });
-      const data = (response as any).data || response;
+      const data = extractApiData<FormSubmission[] | { items: FormSubmission[] } | { submissions: FormSubmission[] }>(response);
       
       // Handle both array and paginated response formats
       const submissionsList = Array.isArray(data) 
         ? data 
-        : (data?.items || data?.submissions || []);
+        : (data && typeof data === 'object' && ('items' in data || 'submissions' in data)
+          ? ('items' in data ? data.items : data.submissions)
+          : []);
       
       setSubmissions(submissionsList);
       setIsLoading(false);
