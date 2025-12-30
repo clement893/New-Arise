@@ -198,11 +198,12 @@ async def list_teams(
         )
         teams = list(result.scalars().all())
         
-        # Get total count for pagination
+        # Get total count for pagination (optimized - use func.count instead of loading all objects)
+        from sqlalchemy import func
         count_result = await db.execute(
-            select(Team).where(Team.is_active == True)
+            select(func.count()).select_from(Team).where(Team.is_active == True)
         )
-        total = len(count_result.scalars().all())
+        total = count_result.scalar_one() or 0
     else:
         # Regular users see only teams they belong to
         teams = await team_service.get_user_teams(current_user.id, skip=skip, limit=limit)
