@@ -91,12 +91,7 @@ export default function AdminAPIKeysContent() {
       key: 'name',
       label: 'Nom',
       render: (_value, key) => (
-        <div>
-          <div className="font-medium">{key.name}</div>
-          {key.description && (
-            <div className="text-xs text-muted-foreground">{key.description}</div>
-          )}
-        </div>
+        <div className="font-medium">{key.name}</div>
       ),
     },
     {
