@@ -59,7 +59,7 @@ export const minimalPreset: ThemePreset = {
         sans: 'system-ui, -apple-system, sans-serif',
         serif: 'Georgia, serif',
         mono: 'Menlo, monospace',
-      },
+      } as unknown as string,
       fontSize: {
         xs: '0.75rem',
         sm: '0.875rem',
@@ -197,7 +197,7 @@ export const corporatePreset: ThemePreset = {
     typography: {
       fontFamily: {
         sans: 'Roboto, sans-serif',
-      },
+      } as unknown as string,
       fontWeight: {
         normal: '400',
         medium: '500',
