@@ -1,48 +1,22 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    // Target and Module
-    "target": "ES2022",
+    // Next.js specific overrides
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
     "allowJs": true,
     "incremental": true,
     "tsBuildInfoFile": ".next/cache/tsconfig.tsbuildinfo",
-    
-    // Interop
-    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "isolatedModules": true,
     "useDefineForClassFields": true,
-    
-    // Type Checking - Strict Mode
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    
-    // Additional Checks
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": false,
     "exactOptionalPropertyTypes": false,
     
     // Emit
     "noEmit": true,
     "jsx": "react-jsx",
-    "skipLibCheck": true,
     
-    // Paths
+    // Paths - override base paths with app-specific ones
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
