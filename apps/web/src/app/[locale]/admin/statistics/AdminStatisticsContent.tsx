@@ -200,17 +200,17 @@ export default function AdminStatisticsContent() {
       try {
         const usersResponse = await apiClient.get('/v1/users?page=1&page_size=1000');
         const usersData = extractApiData<unknown[] | { data: unknown[] }>(usersResponse);
-        const users = Array.isArray(usersData) 
+        const users = (Array.isArray(usersData) 
           ? usersData 
           : (usersData && typeof usersData === 'object' && 'data' in usersData && Array.isArray(usersData.data)
             ? usersData.data
-            : []);
+            : [])) as User[];
         
         const now = new Date();
         const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-        users.forEach((user: User) => {
+        users.forEach((user) => {
           const createdAt = user.created_at ? new Date(user.created_at) : null;
           if (createdAt) {
             if (createdAt >= sevenDaysAgo) newUsersLast7Days++;
