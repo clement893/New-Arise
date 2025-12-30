@@ -17,7 +17,7 @@ import { useToast } from '@/components/ui';
 import ContactsGallery from '@/components/reseau/ContactsGallery';
 import ContactForm from '@/components/reseau/ContactForm';
 import ContactAvatar from '@/components/reseau/ContactAvatar';
-import FilterBadges from '@/components/reseau/FilterBadges';
+import ContactFilterBadges from '@/components/reseau/ContactFilterBadges';
 import ContactCounter from '@/components/reseau/ContactCounter';
 import ViewModeToggle from '@/components/reseau/ViewModeToggle';
 import ContactActionLink from '@/components/reseau/ContactActionLink';
@@ -512,7 +512,7 @@ function ContactsContent() {
           />
           
           {/* Active filters badges */}
-          <FilterBadges
+          <ContactFilterBadges
             filters={{
               city: filterCity,
               phone: filterPhone,
