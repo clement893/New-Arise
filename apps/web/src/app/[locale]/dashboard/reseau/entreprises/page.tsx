@@ -679,9 +679,6 @@ function CompaniesContent() {
         <CompaniesGallery
           companies={filteredCompanies}
           onCompanyClick={openDetailPage}
-          hasMore={hasMore && filterCountry.length === 0 && filterIsClient.length === 0}
-          loadingMore={loadingMore}
-          onLoadMore={loadMore}
         />
       )}
 
