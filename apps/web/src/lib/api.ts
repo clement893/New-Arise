@@ -852,4 +852,8 @@ export { apiClient };
 // Re-export theme-font functions for convenience
 export { checkFonts } from './api/theme-font';
 
+// Re-export API keys API
+export { apiKeysAPI } from './api/apiKeys';
+export type { APIKeyCreate, APIKeyResponse, APIKeyListResponse, APIKeyRotateResponse, AdminAPIKeyListResponse } from './api/apiKeys';
+
 
