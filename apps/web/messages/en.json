@@ -139,6 +139,19 @@
       "dashboard": "Dashboard",
       "profile": "Profile"
     },
+    "databaseInfo": {
+      "title": "Database Information",
+      "userId": "User ID",
+      "email": "Email",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "createdAt": "Created At",
+      "updatedAt": "Last Updated"
+    },
+    "success": {
+      "updateSuccess": "Profile updated successfully"
+    },
     "errors": {
       "loadFailed": "Failed to load profile. Please try again.",
       "updateFailed": "Failed to update profile. Please try again."

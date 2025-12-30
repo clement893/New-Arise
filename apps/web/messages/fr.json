@@ -310,6 +310,19 @@
       "dashboard": "Tableau de bord",
       "profile": "Profil"
     },
+    "databaseInfo": {
+      "title": "Informations de la base de données",
+      "userId": "ID Utilisateur",
+      "email": "Email",
+      "status": "Statut",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "createdAt": "Date de création",
+      "updatedAt": "Dernière mise à jour"
+    },
+    "success": {
+      "updateSuccess": "Profil mis à jour avec succès"
+    },
     "errors": {
       "loadFailed": "Échec du chargement du profil. Veuillez réessayer.",
       "updateFailed": "Échec de la mise à jour du profil. Veuillez réessayer."
