@@ -60,7 +60,7 @@ function ContactsContent() {
     isFetchingNextPage,
     isLoading,
     error: queryError,
-  } = useInfiniteReseauContacts(20);
+  } = useInfiniteReseauContacts();
   
   // Mutations
   const createContactMutation = useCreateReseauContact();

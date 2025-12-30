@@ -59,7 +59,7 @@ function CompaniesContent() {
     isFetchingNextPage,
     isLoading,
     error: queryError,
-  } = useInfiniteCompanies(20);
+  } = useInfiniteCompanies();
   
   // Mutations
   const createCompanyMutation = useCreateCompany();
