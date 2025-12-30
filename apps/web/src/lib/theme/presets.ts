@@ -279,9 +279,18 @@ export function importPresetFromJSON(json: string): ThemeConfig | null {
   try {
     return JSON.parse(json) as ThemeConfig;
   } catch (error: unknown) {
-    // Use console.error here since this is a utility function that may be called before logger is initialized
+    // Use logger if available, otherwise silent fail (utility function may be called before logger is initialized)
     if (typeof window !== 'undefined' && typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') {
-      console.error('Failed to parse preset JSON:', error);
+      try {
+        // Dynamic import to avoid circular dependencies
+        import('@/lib/logger').then(({ logger }) => {
+          logger.error('Failed to parse preset JSON', error);
+        }).catch(() => {
+          // Logger not available, fail silently
+        });
+      } catch {
+        // Logger not available, fail silently
+      }
     }
     return null;
   }
