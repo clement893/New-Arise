@@ -113,6 +113,7 @@ export default function AdminStatisticsContent() {
         if (Array.isArray(logsData)) {
           totalLogs = logsData.length;
           recentActivities = logsData.filter((log) => {
+            if (!log.timestamp || typeof log.timestamp !== 'string') return false;
             const logDate = new Date(log.timestamp);
             const weekAgo = new Date();
             weekAgo.setDate(weekAgo.getDate() - 7);
@@ -256,8 +257,8 @@ export default function AdminStatisticsContent() {
           }
         }
 
-        logs.forEach((log: AuditLog) => {
-          if (log.timestamp) {
+        logs.forEach((log) => {
+          if (log.timestamp && typeof log.timestamp === 'string') {
             const logDate = new Date(log.timestamp).toISOString().split('T')[0];
             if (logDate && dayCounts[logDate] !== undefined) {
               dayCounts[logDate] = (dayCounts[logDate] || 0) + 1;
@@ -289,7 +290,7 @@ export default function AdminStatisticsContent() {
           const level = String(log.severity || log.level || 'info');
           logsByLevel[level] = (logsByLevel[level] || 0) + 1;
           
-          if ((level === 'error' || level === 'critical') && log.timestamp) {
+          if ((level === 'error' || level === 'critical') && log.timestamp && typeof log.timestamp === 'string') {
             const logDate = new Date(log.timestamp);
             if (logDate >= sevenDaysAgo) {
               recentErrors++;
