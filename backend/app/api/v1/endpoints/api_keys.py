@@ -265,6 +265,7 @@ async def revoke_api_key(
 @router.get("/admin/list", response_model=List[AdminAPIKeyListResponse])
 @rate_limit_decorator("20/minute")
 async def admin_list_all_api_keys(
+    request: Request,
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
     _: None = Depends(require_admin_or_superadmin),
