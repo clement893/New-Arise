@@ -265,8 +265,8 @@ export default function AdminAPIKeysContent() {
             </div>
           ) : (
             <DataTable
-              data={filteredKeys}
-              columns={columns}
+              data={filteredKeys as unknown as Record<string, unknown>[]}
+              columns={columns as unknown as Column<Record<string, unknown>>[]}
               searchable={false}
               pagination
               pageSize={20}
