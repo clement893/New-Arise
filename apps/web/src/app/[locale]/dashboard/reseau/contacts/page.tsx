@@ -809,25 +809,14 @@ function ContactsContent() {
       </Modal>
 
       {/* Import Instructions Modal */}
-      <ImportContactsInstructions
+      <Modal
         isOpen={showImportInstructions}
         onClose={() => setShowImportInstructions(false)}
-        onDownloadTemplate={async () => {
-          try {
-            await reseauContactsAPI.downloadZipTemplate();
-            showToast({
-              message: 'Modèle ZIP téléchargé avec succès',
-              type: 'success',
-            });
-          } catch (err) {
-            const appError = handleApiError(err);
-            showToast({
-              message: appError.message || 'Erreur lors du téléchargement du modèle ZIP',
-              type: 'error',
-            });
-          }
-        }}
-      />
+        title="Instructions d'import"
+        size="lg"
+      >
+        <ImportContactsInstructions />
+      </Modal>
 
       {/* Import Logs Modal */}
       {showImportLogs && currentImportId && (
