@@ -61,7 +61,7 @@ export function usePreferences() {
     }
   }, []);
 
-  const setPreferencesBatch = useCallback(async (prefs: Record<string, unknown>) => {
+  const setPreferencesBatch = useCallback(async (prefs: Partial<UserPreferences>) => {
     try {
       await apiClient.put('/v1/users/preferences', prefs);
       setPreferences((prev) => ({ ...prev, ...prefs }));
