@@ -78,6 +78,20 @@ module.exports = {
     '@next/next/no-html-link-for-pages': 'error',
     '@next/next/no-img-element': 'warn',
 
+    // Monorepo isolation rules
+    // Prevent importing from other apps
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: [
+          {
+            group: ['../../apps/*', '../apps/*', 'apps/*'],
+            message: 'Apps cannot import from other apps. Use shared packages instead.',
+          },
+        ],
+      },
+    ],
+
     // Complexity analysis
     complexity: ['warn', { max: 10 }],
     'max-lines': ['warn', { max: 300, skipBlankLines: true, skipComments: true }],
