@@ -748,7 +748,6 @@ function ContactsContent() {
           <DataTable
             data={filteredContacts as unknown as Record<string, unknown>[]}
             columns={columns as unknown as Column<Record<string, unknown>>[]}
-            pagination={false}
             searchable={false}
             filterable={false}
             emptyMessage="Aucun contact trouvé"
