@@ -216,7 +216,7 @@ export default function AdminAPIKeysContent() {
         </div>
       )}
 
-      <Section className="mt-6">
+      <Section title="Clés API" className="mt-6">
         <Card>
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
