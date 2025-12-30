@@ -506,7 +506,7 @@ function ContactsContent() {
           {/* Search bar */}
           <SearchBar
             value={searchQuery}
-            onChange={setSearchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Rechercher par nom, email, téléphone, entreprise..."
             className="w-full pl-10 pr-10 py-2 text-sm border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           />
