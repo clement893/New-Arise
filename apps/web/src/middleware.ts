@@ -118,6 +118,22 @@ export async function middleware(request: NextRequest) {
   // Page routes - allow access and let client-side components handle authentication
   // The middleware cannot access sessionStorage, so we let the client handle auth checks
   // Client components will check the auth store and redirect if needed
+  
+  // Add security headers to response
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  // Security headers are primarily handled by next.config.js headers() function
+  // But we add additional headers here for API routes and dynamic responses
+  if (pathname.startsWith('/api/')) {
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('X-Frame-Options', 'DENY');
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    
+    if (isProduction) {
+      response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+    }
+  }
+  
   return response;
 }
 
