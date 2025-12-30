@@ -159,7 +159,7 @@ export default function AdminOrganizationsContent() {
       const { teamsAPI } = await import('@/lib/api/teams');
       
       // Prepare settings object
-      const settings: Record<string, string | undefined> = {};
+      const settings: Record<string, string | undefined | { line1: string; line2?: string; city: string; state: string; postalCode: string; country: string }> = {};
       if (data.email) settings.email = data.email;
       if (data.phone) settings.phone = data.phone;
       if (data.website) settings.website = data.website;
@@ -218,7 +218,7 @@ export default function AdminOrganizationsContent() {
       const { teamsAPI } = await import('@/lib/api/teams');
       
       // Prepare settings object
-      const settings: Record<string, string | undefined> = {};
+      const settings: Record<string, string | undefined | { line1: string; line2?: string; city: string; state: string; postalCode: string; country: string }> = {};
       if (data.email) settings.email = data.email;
       if (data.phone) settings.phone = data.phone;
       if (data.website) settings.website = data.website;

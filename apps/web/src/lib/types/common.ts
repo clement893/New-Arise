@@ -101,3 +101,106 @@ export function getErrorStatus(error: unknown): number | undefined {
   return undefined;
 }
 
+/**
+ * User interface for statistics and admin operations
+ */
+export interface User {
+  id: number;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  is_active?: boolean;
+  isActive?: boolean;
+  created_at?: string;
+  updated_at?: string;
+  [key: string]: unknown; // Allow additional properties
+}
+
+/**
+ * Audit log entry
+ */
+export interface AuditLog {
+  id: number;
+  user_id?: number;
+  action: string;
+  resource_type?: string;
+  resource_id?: number;
+  created_at: string;
+  details?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+/**
+ * Activity log entry
+ */
+export interface ActivityLog {
+  id: number;
+  user_id?: number;
+  activity_type: string;
+  created_at: string;
+  metadata?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+/**
+ * Team interface
+ */
+export interface Team {
+  id: number;
+  name: string;
+  slug?: string;
+  created_at?: string;
+  updated_at?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Post/Blog post interface
+ */
+export interface Post {
+  id: number;
+  title: string;
+  slug: string;
+  status: 'draft' | 'published' | 'archived' | 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  created_at?: string;
+  updated_at?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Page interface
+ */
+export interface Page {
+  id: number;
+  title: string;
+  slug: string;
+  status: 'draft' | 'published' | 'archived' | 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  created_at?: string;
+  updated_at?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Project interface
+ */
+export interface Project {
+  id: number;
+  name: string;
+  status?: string;
+  created_at?: string;
+  updated_at?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Organization interface
+ */
+export interface Organization {
+  id: number;
+  name: string;
+  slug?: string;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+  [key: string]: unknown;
+}
