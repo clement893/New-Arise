@@ -119,7 +119,7 @@ export function getThemeConfigForMode(config: ThemeConfig): ThemeConfig {
       
       // Also allow any other colors that are not base colors (for extensibility)
       Object.keys(configColors).forEach(colorKey => {
-        if (!BASE_COLORS.includes(colorKey as string) && !THEME_COLORS.includes(colorKey as string)) {
+        if (!(BASE_COLORS as readonly string[]).includes(colorKey) && !(THEME_COLORS as readonly string[]).includes(colorKey)) {
           mergedColors[colorKey] = configColors[colorKey];
         }
       });
