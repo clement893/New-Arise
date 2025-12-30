@@ -198,6 +198,23 @@ async def require_superadmin(
     return None
 
 
+async def require_admin_or_superadmin(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    """
+    Dependency to require admin OR superadmin role.
+    Superadmins are automatically considered admins.
+    Raises HTTPException if user is neither admin nor superadmin.
+    """
+    if not await is_admin_or_superadmin(current_user, db):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin or superadmin access required"
+        )
+    return None
+
+
 # ============================================================================
 # Tenancy Dependencies
 # ============================================================================
