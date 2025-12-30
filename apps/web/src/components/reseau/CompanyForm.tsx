@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import { Button, Input, Textarea, Card } from '@/components/ui';
+import { type Company, type CompanyCreate, type CompanyUpdate } from '@/lib/api/companies';
 
 export interface CompanyFormData {
   name: string;
@@ -13,27 +14,32 @@ export interface CompanyFormData {
   country?: string;
 }
 
-interface CompanyFormProps {
+export interface CompanyFormProps {
+  company?: Company;
   initialData?: Partial<CompanyFormData>;
-  onSubmit: (data: CompanyFormData) => Promise<void>;
+  onSubmit: (data: CompanyCreate | CompanyUpdate) => Promise<void>;
   onCancel?: () => void;
   submitLabel?: string;
+  loading?: boolean;
+  parentCompanies?: Array<{ id: number; name: string }>;
 }
 
 export default function CompanyForm({
+  company,
   initialData = {},
   onSubmit,
   onCancel,
   submitLabel = 'Enregistrer',
+  loading = false,
 }: CompanyFormProps) {
   const [formData, setFormData] = useState<CompanyFormData>({
-    name: initialData.name || '',
-    description: initialData.description || '',
-    website: initialData.website || '',
-    industry: initialData.industry || '',
-    size: initialData.size || '',
-    city: initialData.city || '',
-    country: initialData.country || '',
+    name: company?.name || initialData.name || '',
+    description: company?.description || initialData.description || '',
+    website: company?.website || initialData.website || '',
+    industry: company?.industry || initialData.industry || '',
+    size: company?.size || initialData.size || '',
+    city: company?.city || initialData.city || '',
+    country: company?.country || initialData.country || '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -98,7 +104,7 @@ export default function CompanyForm({
               Annuler
             </Button>
           )}
-          <Button type="submit" variant="primary" loading={isSubmitting}>
+          <Button type="submit" variant="primary" loading={isSubmitting || loading}>
             {submitLabel}
           </Button>
         </div>

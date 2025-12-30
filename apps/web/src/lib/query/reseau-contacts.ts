@@ -4,7 +4,7 @@
  */
 
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { reseauContactsAPI, type Contact, type ContactCreate, type ContactUpdate } from '@/lib/api/reseau-contacts';
+import { reseauContactsAPI, type ContactCreate, type ContactUpdate } from '@/lib/api/reseau-contacts';
 
 // Query Keys
 export const reseauContactsQueryKeys = {

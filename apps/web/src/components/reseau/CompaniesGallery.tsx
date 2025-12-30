@@ -1,15 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { Card } from '@/components/ui';
 import { Building2 } from 'lucide-react';
-
-interface Company {
-  id: number;
-  name: string;
-  description?: string | null;
-  logo_url?: string | null;
-}
+import { type Company } from '@/lib/api/companies';
 
 interface CompaniesGalleryProps {
   companies?: Company[];

@@ -54,9 +54,6 @@ function CompaniesContent() {
   // React Query hooks for companies
   const {
     data: companiesData,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
     isLoading,
     error: queryError,
   } = useInfiniteCompanies();
@@ -268,7 +265,7 @@ function CompaniesContent() {
       
       if (result.warnings && result.warnings.length > 0) {
         const warningsText = result.warnings
-          .map(w => `Ligne ${w.row}: ${w.message}`)
+          .map((w: { row: number; message: string }) => `Ligne ${w.row}: ${w.message}`)
           .join('\n');
         showToast({
           message: `Avertissements d'import:\n${warningsText}`,

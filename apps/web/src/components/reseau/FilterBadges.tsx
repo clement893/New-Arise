@@ -1,8 +1,4 @@
-/**
- * FilterBadges for Network Module
- * Wrapper around commercial FilterBadges component
- * 
- * This wrapper provides isolation for the network module while
- * reusing the commercial component implementation.
- */
-export { default } from '@/components/reseau/FilterBadges';
+'use client';
+
+// Re-export CompanyFilterBadges as FilterBadges for backward compatibility
+export { default } from './CompanyFilterBadges';

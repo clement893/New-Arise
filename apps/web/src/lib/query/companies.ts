@@ -4,7 +4,7 @@
  */
 
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { companiesAPI, type Company, type CompanyCreate, type CompanyUpdate } from '@/lib/api/companies';
+import { companiesAPI, type CompanyCreate, type CompanyUpdate } from '@/lib/api/companies';
 
 // Query Keys
 export const companiesQueryKeys = {

@@ -1,8 +1,6 @@
-/**
- * ContactRowActions for Network Module
- * Wrapper around commercial ContactRowActions component
- * 
- * This wrapper provides isolation for the network module while
- * reusing the commercial component implementation.
- */
-export { default } from '@/components/reseau/ContactRowActions';
+'use client';
+
+// Placeholder component - to be implemented when Contact module is needed
+export default function ContactRowActions() {
+  return null;
+}
