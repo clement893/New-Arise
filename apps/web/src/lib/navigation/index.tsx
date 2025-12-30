@@ -21,7 +21,9 @@ import {
   FileCheck, 
   Palette, 
   Cog,
-  Network
+  Network,
+  Building2,
+  MessageSquare
 } from 'lucide-react';
 
 export interface NavigationItem {
@@ -104,11 +106,29 @@ export function getNavigationConfig(isAdmin: boolean): NavigationConfig {
         collapsible: true,
         defaultOpen: false,
       },
-      // Réseau (non-grouped)
+      // Réseau (collapsible group)
       {
         name: 'Réseau',
-        href: '/dashboard/reseau',
         icon: <Network className="w-5 h-5" />,
+        items: [
+          {
+            name: 'Entreprises',
+            href: '/dashboard/reseau/entreprises',
+            icon: <Building2 className="w-5 h-5" />,
+          },
+          {
+            name: 'Contacts',
+            href: '/dashboard/reseau/contacts',
+            icon: <User className="w-5 h-5" />,
+          },
+          {
+            name: 'Témoignages',
+            href: '/dashboard/reseau/temoignages',
+            icon: <MessageSquare className="w-5 h-5" />,
+          },
+        ],
+        collapsible: true,
+        defaultOpen: false,
       },
       // Paramètres (collapsible group)
       {
