@@ -149,12 +149,13 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Check if user is admin or superadmin
-  // Superadmins should always see admin menu, regardless of user_type
-  const isAdmin = user?.is_admin ?? false;
+  // Use user_type directly - superadmins have user_type='ADMIN' after migration
   const userType = user?.user_type;
   
-  // If user is admin/superadmin, force user_type to ADMIN for navigation
-  const effectiveUserType = isAdmin ? 'ADMIN' : userType;
+  // If user_type is ADMIN, show admin menu
+  // Also check is_admin as fallback (though migration should have set user_type)
+  const isAdmin = user?.is_admin ?? false;
+  const effectiveUserType = (userType === 'ADMIN' || isAdmin) ? 'ADMIN' : userType;
 
   // Memoize sidebar items - only recreate if admin status or user type changes
   // This prevents the sidebar from re-rendering on every navigation
