@@ -17,9 +17,15 @@ depends_on = None
 
 
 def upgrade():
-    # Create companies table
-    op.create_table(
-        'companies',
+    # Check if tables already exist
+    conn = op.get_bind()
+    inspector = sa.inspect(conn)
+    tables = inspector.get_table_names()
+    
+    # Create companies table (only if it doesn't exist)
+    if 'companies' not in tables:
+        op.create_table(
+            'companies',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('name', sa.String(length=255), nullable=False),
         sa.Column('parent_company_id', sa.Integer(), nullable=True),
@@ -39,18 +45,21 @@ def upgrade():
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
         sa.ForeignKeyConstraint(['parent_company_id'], ['companies.id'], ondelete='SET NULL'),
         sa.PrimaryKeyConstraint('id')
-    )
+        )
+        
+        # Create indexes for companies
+        op.create_index('idx_companies_name', 'companies', ['name'])
+        op.create_index('idx_companies_created_at', 'companies', ['created_at'])
+        op.create_index('idx_companies_is_client', 'companies', ['is_client'])
+        op.create_index('idx_companies_parent_company_id', 'companies', ['parent_company_id'])
+        op.create_index('idx_companies_country', 'companies', ['country'])
+    else:
+        print("⚠️  companies table already exists, skipping creation")
     
-    # Create indexes for companies
-    op.create_index('idx_companies_name', 'companies', ['name'])
-    op.create_index('idx_companies_created_at', 'companies', ['created_at'])
-    op.create_index('idx_companies_is_client', 'companies', ['is_client'])
-    op.create_index('idx_companies_parent_company_id', 'companies', ['parent_company_id'])
-    op.create_index('idx_companies_country', 'companies', ['country'])
-    
-    # Create contacts table
-    op.create_table(
-        'contacts',
+    # Create contacts table (only if it doesn't exist)
+    if 'contacts' not in tables:
+        op.create_table(
+            'contacts',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('first_name', sa.String(length=100), nullable=False),
         sa.Column('last_name', sa.String(length=100), nullable=False),
@@ -72,17 +81,19 @@ def upgrade():
         sa.ForeignKeyConstraint(['company_id'], ['companies.id'], ondelete='SET NULL'),
         sa.ForeignKeyConstraint(['employee_id'], ['users.id'], ondelete='SET NULL'),
         sa.PrimaryKeyConstraint('id')
-    )
-    
-    # Create indexes for contacts
-    op.create_index('idx_contacts_company_id', 'contacts', ['company_id'])
-    op.create_index('idx_contacts_employee_id', 'contacts', ['employee_id'])
-    op.create_index('idx_contacts_circle', 'contacts', ['circle'])
-    op.create_index('idx_contacts_email', 'contacts', ['email'])
-    op.create_index('idx_contacts_created_at', 'contacts', ['created_at'])
-    op.create_index('idx_contacts_updated_at', 'contacts', ['updated_at'])
-    op.create_index(op.f('ix_contacts_first_name'), 'contacts', ['first_name'])
-    op.create_index(op.f('ix_contacts_last_name'), 'contacts', ['last_name'])
+        )
+        
+        # Create indexes for contacts
+        op.create_index('idx_contacts_company_id', 'contacts', ['company_id'])
+        op.create_index('idx_contacts_employee_id', 'contacts', ['employee_id'])
+        op.create_index('idx_contacts_circle', 'contacts', ['circle'])
+        op.create_index('idx_contacts_email', 'contacts', ['email'])
+        op.create_index('idx_contacts_created_at', 'contacts', ['created_at'])
+        op.create_index('idx_contacts_updated_at', 'contacts', ['updated_at'])
+        op.create_index(op.f('ix_contacts_first_name'), 'contacts', ['first_name'])
+        op.create_index(op.f('ix_contacts_last_name'), 'contacts', ['last_name'])
+    else:
+        print("⚠️  contacts table already exists, skipping creation")
 
 
 def downgrade():

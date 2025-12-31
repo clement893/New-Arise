@@ -147,48 +147,57 @@ async def start_assessment(
     """
     Start a new assessment or resume an existing one
     """
-    # Check if there's an existing in-progress assessment
-    result = await db.execute(
-        select(Assessment)
-        .where(
-            Assessment.user_id == current_user.id,
-            Assessment.assessment_type == request.assessment_type,
-            Assessment.status.in_([AssessmentStatus.NOT_STARTED, AssessmentStatus.IN_PROGRESS])
+    try:
+        # Check if there's an existing in-progress assessment
+        result = await db.execute(
+            select(Assessment)
+            .where(
+                Assessment.user_id == current_user.id,
+                Assessment.assessment_type == request.assessment_type,
+                Assessment.status.in_([AssessmentStatus.NOT_STARTED, AssessmentStatus.IN_PROGRESS])
+            )
+            .order_by(Assessment.created_at.desc())
         )
-        .order_by(Assessment.created_at.desc())
-    )
-    existing_assessment = result.scalar_one_or_none()
-    
-    if existing_assessment:
-        # Resume existing assessment
-        if existing_assessment.status == AssessmentStatus.NOT_STARTED:
-            existing_assessment.status = AssessmentStatus.IN_PROGRESS
-            existing_assessment.started_at = datetime.utcnow()
-            await db.commit()
-            await db.refresh(existing_assessment)
+        existing_assessment = result.scalar_one_or_none()
+        
+        if existing_assessment:
+            # Resume existing assessment
+            if existing_assessment.status == AssessmentStatus.NOT_STARTED:
+                existing_assessment.status = AssessmentStatus.IN_PROGRESS
+                existing_assessment.started_at = datetime.utcnow()
+                await db.commit()
+                await db.refresh(existing_assessment)
+            
+            return {
+                "assessment_id": existing_assessment.id,
+                "status": existing_assessment.status.value,
+                "message": "Resuming existing assessment"
+            }
+        
+        # Create new assessment
+        new_assessment = Assessment(
+            user_id=current_user.id,
+            assessment_type=request.assessment_type,
+            status=AssessmentStatus.IN_PROGRESS,
+            started_at=datetime.utcnow()
+        )
+        db.add(new_assessment)
+        await db.commit()
+        await db.refresh(new_assessment)
         
         return {
-            "assessment_id": existing_assessment.id,
-            "status": existing_assessment.status.value,
-            "message": "Resuming existing assessment"
+            "assessment_id": new_assessment.id,
+            "status": new_assessment.status.value,
+            "message": "Assessment started successfully"
         }
-    
-    # Create new assessment
-    new_assessment = Assessment(
-        user_id=current_user.id,
-        assessment_type=request.assessment_type,
-        status=AssessmentStatus.IN_PROGRESS,
-        started_at=datetime.utcnow()
-    )
-    db.add(new_assessment)
-    await db.commit()
-    await db.refresh(new_assessment)
-    
-    return {
-        "assessment_id": new_assessment.id,
-        "status": new_assessment.status.value,
-        "message": "Assessment started successfully"
-    }
+    except Exception as e:
+        from app.core.logging import logger
+        logger.error(f"Error starting assessment: {e}", exc_info=True)
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to start assessment: {str(e)}"
+        )
 
 
 @router.post("/{assessment_id}/answer")
