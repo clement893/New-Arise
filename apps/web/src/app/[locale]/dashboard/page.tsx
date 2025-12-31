@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
 import { Card, Button, LoadingSkeleton, Grid, Stack } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
@@ -14,19 +15,71 @@ import {
   Users, 
   Heart,
   Info,
-  ArrowRight
+  ArrowRight,
+  CheckCircle,
+  Loader2
 } from 'lucide-react';
+import { getMyAssessments, Assessment as ApiAssessment, AssessmentType } from '@/lib/api/assessments';
+
+// Mapping of assessment types to display info
+const ASSESSMENT_CONFIG: Record<string, { title: string; description: string; icon: typeof Brain; externalLink?: string }> = {
+  MBTI: {
+    title: 'MBTI Personality',
+    description: 'Understanding your natural preferences',
+    icon: Brain,
+    externalLink: 'https://www.psychometrics.com/assessments/mbti/',
+  },
+  TKI: {
+    title: 'TKI Conflict Style',
+    description: 'Explore Your Conflict Management Approach',
+    icon: Target,
+  },
+  THREE_SIXTY_SELF: {
+    title: '360° Feedback',
+    description: 'Multi-Faceted Leadership Perspectives',
+    icon: Users,
+  },
+  WELLNESS: {
+    title: 'Wellness',
+    description: 'Your overall well-being',
+    icon: Heart,
+  },
+};
 
 function DashboardContent() {
   const { user } = useAuthStore();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
+  const [assessments, setAssessments] = useState<ApiAssessment[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
+    loadAssessments();
   }, []);
+
+  const loadAssessments = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const apiAssessments = await getMyAssessments();
+      
+      // Create a map of existing assessments by type (keep most recent)
+      const assessmentsMap = new Map<AssessmentType, ApiAssessment>();
+      apiAssessments.forEach(assessment => {
+        const existing = assessmentsMap.get(assessment.assessment_type);
+        if (!existing || new Date(assessment.created_at) > new Date(existing.created_at)) {
+          assessmentsMap.set(assessment.assessment_type, assessment);
+        }
+      });
+      
+      setAssessments(Array.from(assessmentsMap.values()));
+    } catch (err) {
+      console.error('Failed to load assessments:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load assessments');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -44,83 +97,151 @@ function DashboardContent() {
     );
   }
 
-  // Mock data - Replace with real data from API
+  // Calculate progress data from real assessments
+  const assessmentTypes: AssessmentType[] = ['MBTI', 'TKI', 'THREE_SIXTY_SELF', 'WELLNESS'];
+  const progressItems = assessmentTypes.map(type => {
+    const assessment = assessments.find(a => a.assessment_type === type);
+    let percentage = 0;
+    let color = 'gray';
+    
+    if (assessment) {
+      if (assessment.status === 'COMPLETED') {
+        percentage = 100;
+        color = 'teal';
+      } else if (assessment.status === 'IN_PROGRESS' || assessment.status === 'NOT_STARTED') {
+        // Calculate percentage based on answers
+        const answerCount = assessment.answer_count || 0;
+        const totalQuestions = assessment.total_questions || 30;
+        percentage = totalQuestions > 0 ? Math.round((answerCount / totalQuestions) * 100) : 0;
+        color = percentage > 0 ? 'orange' : 'gray';
+      }
+    }
+    
+    return {
+      label: ASSESSMENT_CONFIG[type]?.title || type,
+      percentage,
+      color,
+    };
+  });
+
+  const overallProgress = Math.round(
+    progressItems.reduce((sum, item) => sum + item.percentage, 0) / progressItems.length
+  );
+
   const progressData = {
-    overall: 95,
-    items: [
-      { label: 'MBTI', percentage: 100, color: 'teal' },
-      { label: 'TKI', percentage: 100, color: 'teal' },
-      { label: '360° Feedback', percentage: 60, color: 'orange' },
-      { label: 'Wellness', percentage: 0, color: 'gray' },
-    ],
+    overall: overallProgress,
+    items: progressItems,
   };
 
-  const evaluations = [
-    {
-      title: 'MBTI Personality',
-      description: 'Understanding your natural preferences',
-      status: 'completed',
-      icon: Brain,
-    },
-    {
-      title: 'TKI Conflict Style',
-      description: 'Explore Your Conflict Management Approach',
-      status: 'completed',
-      icon: Target,
-    },
-    {
-      title: '360° Feedback',
-      description: 'Multi-Faceted Leadership Perspectives',
-      status: 'in-progress',
-      icon: Users,
-    },
-    {
-      title: 'Wellness',
-      description: 'Add the assessment',
-      status: 'locked',
-      icon: Heart,
-    },
-  ];
+  // Build evaluations list from real assessments
+  const evaluations = assessmentTypes.map(type => {
+    const config = ASSESSMENT_CONFIG[type];
+    const assessment = assessments.find(a => a.assessment_type === type);
+    
+    let status: 'completed' | 'in-progress' | 'locked' | 'available' = 'available';
+    if (assessment) {
+      if (assessment.status === 'COMPLETED') {
+        status = 'completed';
+      } else if (assessment.status === 'IN_PROGRESS' || assessment.status === 'NOT_STARTED') {
+        status = 'in-progress';
+      }
+    }
+    
+    return {
+      title: config.title,
+      description: config.description,
+      status,
+      icon: config.icon,
+      assessmentType: type,
+      assessmentId: assessment?.id,
+      answerCount: assessment?.answer_count,
+      totalQuestions: assessment?.total_questions,
+      externalLink: config.externalLink,
+    };
+  });
 
-  const getStatusBadge = (status: string) => {
+  const getAssessmentRoute = (type: AssessmentType): string => {
+    switch (type) {
+      case 'TKI':
+        return 'tki';
+      case 'WELLNESS':
+        return 'wellness';
+      case 'THREE_SIXTY_SELF':
+        return '360-feedback';
+      case 'MBTI':
+        return 'mbti';
+      default:
+        return String(type).toLowerCase();
+    }
+  };
+
+  const getStatusBadge = (status: string, answerCount?: number, totalQuestions?: number) => {
     switch (status) {
       case 'completed':
         return (
-          <span className="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
-            Completed
+          <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
+            <CheckCircle size={12} />
+            Terminé
           </span>
         );
       case 'in-progress':
         return (
-          <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
-            In progress
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
+              En cours
+            </span>
+            {answerCount !== undefined && totalQuestions !== undefined && (
+              <span className="inline-block px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full font-medium">
+                {answerCount}/{totalQuestions}
+              </span>
+            )}
+          </div>
         );
       default:
         return null;
     }
   };
 
-  const getActionButton = (status: string, _title: string) => {
-    if (status === 'locked') {
+  const getActionButton = (evaluation: typeof evaluations[0]) => {
+    if (evaluation.status === 'locked') {
       return (
         <Button variant="secondary" disabled className="w-full">
-          Locked
+          Verrouillé
         </Button>
       );
     }
 
-    if (status === 'completed') {
+    if (evaluation.status === 'completed') {
       return (
-        <Button variant="outline" className="w-full">
-          View Results
+        <Button 
+          variant="outline" 
+          className="w-full"
+          onClick={() => {
+            if (evaluation.assessmentType === 'TKI' && evaluation.assessmentId) {
+              router.push(`/dashboard/assessments/tki/results?id=${evaluation.assessmentId}`);
+            } else if (evaluation.assessmentType === 'WELLNESS' && evaluation.assessmentId) {
+              router.push(`/dashboard/assessments/results?id=${evaluation.assessmentId}`);
+            } else if (evaluation.assessmentType === 'THREE_SIXTY_SELF' && evaluation.assessmentId) {
+              router.push(`/dashboard/assessments/360-feedback/results?id=${evaluation.assessmentId}`);
+            } else if (evaluation.assessmentType === 'MBTI' && evaluation.externalLink) {
+              window.open(evaluation.externalLink, '_blank');
+            }
+          }}
+        >
+          Voir les résultats
         </Button>
       );
     }
 
     return (
-      <Button variant="primary" className="w-full">
-        Continue
+      <Button 
+        variant="primary" 
+        className="w-full"
+        onClick={() => {
+          router.push(`/dashboard/assessments/${getAssessmentRoute(evaluation.assessmentType)}`);
+        }}
+      >
+        {evaluation.status === 'in-progress' ? 'Continuer' : 'Commencer'}
       </Button>
     );
   };
@@ -167,8 +288,12 @@ function DashboardContent() {
                     </p>
                   </div>
                 </div>
-                <Button variant="primary" className="whitespace-nowrap">
-                  Add evaluators
+                <Button 
+                  variant="primary" 
+                  className="whitespace-nowrap"
+                  onClick={() => router.push('/dashboard/assessments')}
+                >
+                  Ajouter des évaluateurs
                 </Button>
               </div>
             </Card>
@@ -211,14 +336,16 @@ function DashboardContent() {
                 <Button 
                   variant="primary" 
                   className="bg-arise-gold text-arise-deep-teal hover:bg-arise-gold/90"
+                  onClick={() => router.push('/dashboard/assessments')}
                 >
-                  Continue Learning
+                  Continuer les assessments
                 </Button>
                 <Button 
                   variant="outline" 
                   className="border-2 border-white text-white hover:bg-white/10"
+                  onClick={() => router.push('/dashboard/results')}
                 >
-                  View Reports
+                  Voir les rapports
                 </Button>
               </div>
             </Card>
@@ -242,9 +369,9 @@ function DashboardContent() {
                           <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
                             <Icon className="text-arise-deep-teal" size={24} />
                           </div>
-                          {evaluation.status === 'in-progress' && (
+                          {evaluation.externalLink && evaluation.status !== 'completed' && (
                             <span className="inline-block px-3 py-1 border border-arise-deep-teal text-arise-deep-teal text-xs rounded-full font-medium">
-                              External link
+                              Lien externe
                             </span>
                           )}
                         </div>
@@ -260,11 +387,11 @@ function DashboardContent() {
                         </div>
 
                         {/* Status Badge */}
-                        {getStatusBadge(evaluation.status)}
+                        {getStatusBadge(evaluation.status, evaluation.answerCount, evaluation.totalQuestions)}
 
                         {/* Action Button */}
                         <div className="mt-auto">
-                          {getActionButton(evaluation.status, evaluation.title)}
+                          {getActionButton(evaluation)}
                         </div>
                       </Stack>
                     </Card>
