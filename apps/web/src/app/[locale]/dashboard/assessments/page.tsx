@@ -131,7 +131,7 @@ function AssessmentsContent() {
         router.push(`/dashboard/assessments/${getAssessmentRoute(assessmentType)}`);
       } else {
         // Start new assessment
-        const response = await startAssessment(assessmentType);
+        await startAssessment(assessmentType);
         router.push(`/dashboard/assessments/${getAssessmentRoute(assessmentType)}`);
       }
     } catch (err) {
