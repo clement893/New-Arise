@@ -170,6 +170,17 @@ function WellnessAssessmentContent() {
                   </Button>
                   <Button 
                     variant="primary"
+                    onClick={() => {
+                      const { assessmentId } = useWellnessStore.getState();
+                      if (assessmentId) {
+                        router.push(`/dashboard/assessments/results?id=${assessmentId}`);
+                      }
+                    }}
+                  >
+                    View Results
+                  </Button>
+                  <Button 
+                    variant="outline"
                     onClick={handleFinish}
                   >
                     View All Assessments
