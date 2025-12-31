@@ -37,9 +37,8 @@ function AssessmentsContent() {
       id: 'tki',
       title: 'TKI Conflict Style',
       description: 'Explore your conflict management approach',
-      status: 'completed',
+      status: 'available',
       icon: Target,
-      externalLink: 'https://www.psychometrics.com/assessments/tki/',
     },
     {
       id: '360-feedback',

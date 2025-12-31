@@ -1,0 +1,280 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { getAssessmentResults } from '@/lib/api/assessments';
+import { tkiModes } from '@/data/tkiQuestions';
+import Button from '@/components/ui/Button';
+import Card from '@/components/ui/Card';
+import { Sidebar } from '@/components/dashboard/Sidebar';
+import { motion } from 'framer-motion';
+import { TrendingUp, TrendingDown, Minus, ArrowLeft } from 'lucide-react';
+
+interface TKIResults {
+  mode_counts: Record<string, number>;
+  dominant_mode: string;
+  secondary_mode: string;
+}
+
+export default function TKIResultsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const assessmentId = searchParams.get('id');
+
+  const [results, setResults] = useState<TKIResults | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (assessmentId) {
+      loadResults();
+    }
+  }, [assessmentId]);
+
+  const loadResults = async () => {
+    try {
+      setIsLoading(true);
+      const data = await getAssessmentResults(Number(assessmentId));
+      setResults(data.scores as TKIResults);
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Failed to load results');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getModeInfo = (modeId: string) => {
+    return tkiModes.find(m => m.id === modeId);
+  };
+
+  const getModePercentage = (count: number) => {
+    return Math.round((count / 30) * 100);
+  };
+
+  const getModeLevel = (count: number): { label: string; color: string; icon: any } => {
+    const percentage = getModePercentage(count);
+    if (percentage >= 40) {
+      return { label: 'High', color: 'text-green-600', icon: TrendingUp };
+    } else if (percentage >= 20) {
+      return { label: 'Moderate', color: 'text-yellow-600', icon: Minus };
+    } else {
+      return { label: 'Low', color: 'text-gray-500', icon: TrendingDown };
+    }
+  };
+
+  const getModeInsight = (modeId: string, count: number) => {
+    const percentage = getModePercentage(count);
+    const insights: Record<string, Record<string, string>> = {
+      competing: {
+        high: 'You tend to pursue your own concerns assertively, which can be effective in emergencies or when quick decisions are needed.',
+        moderate: 'You use competing when necessary, balancing it with other approaches.',
+        low: 'You rarely use a competing approach, preferring more collaborative or accommodating styles.',
+      },
+      collaborating: {
+        high: 'You excel at finding win-win solutions that fully satisfy both parties. This is ideal for complex issues requiring diverse perspectives.',
+        moderate: 'You use collaboration when appropriate, though you may also rely on other conflict modes.',
+        low: 'You may benefit from developing your collaborative skills to find more integrative solutions.',
+      },
+      compromising: {
+        high: 'You frequently seek middle-ground solutions, which can be efficient when time is limited or when goals are moderately important.',
+        moderate: 'You use compromise as one of several conflict management tools in your repertoire.',
+        low: 'You tend to favor other approaches over compromise, which may mean you seek more complete solutions.',
+      },
+      avoiding: {
+        high: 'You often postpone or withdraw from conflicts. While useful for trivial issues, overuse may leave important matters unresolved.',
+        moderate: 'You strategically avoid conflicts when appropriate, such as when emotions are high or more information is needed.',
+        low: 'You rarely avoid conflicts, preferring to address issues directly.',
+      },
+      accommodating: {
+        high: 'You frequently yield to others\' concerns. This builds goodwill but may lead to your needs being overlooked if overused.',
+        moderate: 'You accommodate others when it makes sense, balancing their needs with your own.',
+        low: 'You rarely accommodate others, which may indicate a strong focus on your own goals.',
+      },
+    };
+
+    const level = percentage >= 40 ? 'high' : percentage >= 20 ? 'moderate' : 'low';
+    return insights[modeId]?.[level] || '';
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex">
+        <Sidebar />
+        <div className="flex-1 ml-64 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-arise-teal mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading your results...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !results) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex">
+        <Sidebar />
+        <div className="flex-1 ml-64 flex items-center justify-center">
+          <Card className="max-w-md">
+            <div className="text-center">
+              <p className="text-red-600 mb-4">{error || 'No results found'}</p>
+              <Button onClick={() => router.push('/dashboard/assessments')}>
+                Back to Assessments
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  const dominantModeInfo = getModeInfo(results.dominant_mode);
+  const secondaryModeInfo = getModeInfo(results.secondary_mode);
+
+  // Sort modes by count for display
+  const sortedModes = Object.entries(results.mode_counts)
+    .sort(([, a], [, b]) => b - a)
+    .map(([modeId, count]) => ({ modeId, count }));
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex">
+      <Sidebar />
+
+      <div className="flex-1 ml-64">
+        {/* Background */}
+        <div 
+          className="fixed inset-0 ml-64 bg-cover bg-center opacity-10 pointer-events-none"
+          style={{
+            backgroundImage: 'url(/images/dashboard-bg.jpg)',
+          }}
+        />
+
+        {/* Content */}
+        <div className="relative z-10 p-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <Button
+              onClick={() => router.push('/dashboard/assessments')}
+              variant="outline"
+              className="mb-6"
+            >
+              <ArrowLeft size={16} className="mr-2" />
+              Back to Assessments
+            </Button>
+
+            <div className="mb-8">
+              <h1 className="text-4xl font-bold text-arise-teal mb-2">
+                TKI Conflict Style Results
+              </h1>
+              <p className="text-gray-600">
+                Your conflict management profile
+              </p>
+            </div>
+
+            {/* Dominant & Secondary Modes */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <Card className="bg-gradient-to-br from-arise-teal to-arise-teal-dark text-white">
+                <div className="text-center">
+                  <div className="text-4xl mb-3">{dominantModeInfo?.icon}</div>
+                  <h3 className="text-sm font-medium opacity-90 mb-2">Dominant Mode</h3>
+                  <h2 className="text-3xl font-bold mb-2">{dominantModeInfo?.title}</h2>
+                  <p className="text-sm opacity-90">
+                    {results.mode_counts[results.dominant_mode]} out of 30 responses
+                  </p>
+                </div>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-arise-gold to-arise-gold-dark text-white">
+                <div className="text-center">
+                  <div className="text-4xl mb-3">{secondaryModeInfo?.icon}</div>
+                  <h3 className="text-sm font-medium opacity-90 mb-2">Secondary Mode</h3>
+                  <h2 className="text-3xl font-bold mb-2">{secondaryModeInfo?.title}</h2>
+                  <p className="text-sm opacity-90">
+                    {results.mode_counts[results.secondary_mode]} out of 30 responses
+                  </p>
+                </div>
+              </Card>
+            </div>
+
+            {/* All Modes Breakdown */}
+            <Card className="mb-8">
+              <h2 className="text-2xl font-bold text-arise-teal mb-6">
+                Your Conflict Management Profile
+              </h2>
+
+              <div className="space-y-6">
+                {sortedModes.map(({ modeId, count }) => {
+                  const modeInfo = getModeInfo(modeId);
+                  const level = getModeLevel(count);
+                  const LevelIcon = level.icon;
+                  const percentage = getModePercentage(count);
+
+                  return (
+                    <div key={modeId} className="border-b border-gray-200 last:border-0 pb-6 last:pb-0">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="text-2xl">{modeInfo?.icon}</div>
+                          <div>
+                            <h3 className="font-bold text-gray-900">{modeInfo?.title}</h3>
+                            <p className="text-sm text-gray-600">{modeInfo?.description}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <LevelIcon size={20} className={level.color} />
+                          <span className={`font-semibold ${level.color}`}>{level.label}</span>
+                        </div>
+                      </div>
+
+                      {/* Progress Bar */}
+                      <div className="mb-3">
+                        <div className="flex justify-between text-sm text-gray-600 mb-1">
+                          <span>{count} responses</span>
+                          <span>{percentage}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-3">
+                          <motion.div
+                            className="bg-arise-teal h-3 rounded-full"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${percentage}%` }}
+                            transition={{ duration: 0.8, delay: 0.2 }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Insight */}
+                      <div className="bg-arise-beige p-4 rounded-lg">
+                        <p className="text-sm text-gray-700">
+                          {getModeInsight(modeId, count)}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+
+            {/* Recommendations */}
+            <Card className="bg-arise-gold/10 border-2 border-arise-gold/30">
+              <h2 className="text-2xl font-bold text-arise-teal mb-4">
+                Recommendations
+              </h2>
+              <div className="space-y-3">
+                <p className="text-gray-700">
+                  <strong>Leverage your strengths:</strong> Your dominant {dominantModeInfo?.title.toLowerCase()} style can be very effective in appropriate situations. Continue to use it when it serves you well.
+                </p>
+                <p className="text-gray-700">
+                  <strong>Develop flexibility:</strong> Consider situations where your less-used modes might be more effective. Expanding your conflict management repertoire will make you a more adaptable leader.
+                </p>
+                <p className="text-gray-700">
+                  <strong>Context matters:</strong> No single conflict mode is best in all situations. The most effective leaders can flex between different approaches based on the context, relationship, and importance of the issue.
+                </p>
+              </div>
+            </Card>
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  );
+}
