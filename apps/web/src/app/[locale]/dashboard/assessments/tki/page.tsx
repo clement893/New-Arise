@@ -45,6 +45,7 @@ export default function TKIAssessmentPage() {
   };
 
   const handleSelectAnswer = async (answer: 'A' | 'B') => {
+    if (!currentQuestionData) return;
     setSelectedAnswer(answer);
     await answerQuestion(currentQuestionData.id, answer);
   };
@@ -157,6 +158,23 @@ export default function TKIAssessmentPage() {
             )}
           </Card>
         </MotionDiv>
+      </div>
+    );
+  }
+
+  // Early return if no question data
+  if (!currentQuestionData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-arise-teal via-arise-teal-dark to-arise-teal flex items-center justify-center p-4">
+        <Card className="bg-white p-8 text-center">
+          <p className="text-gray-600 mb-4">Question not found</p>
+          <Button
+            onClick={() => router.push('/dashboard/assessments')}
+            className="bg-arise-gold hover:bg-arise-gold-dark text-white"
+          >
+            Back to Assessments
+          </Button>
+        </Card>
       </div>
     );
   }
