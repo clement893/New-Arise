@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 export function BuildingLeadersSection() {
   return (
     <section className="py-20 bg-arise-light-beige border-t-4 border-b-4 border-dotted border-black">
@@ -19,40 +21,52 @@ export function BuildingLeadersSection() {
           {/* Image Grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div className="relative h-64 rounded-lg overflow-hidden shadow-md">
-              <div className="absolute inset-0 bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-white text-lg font-semibold">Leadership Image 1</span>
-              </div>
+              <Image
+                src="/images/leader-1.jpg"
+                alt="Professional business team collaboration"
+                fill
+                className="object-cover"
+              />
             </div>
             <div className="relative h-64 rounded-lg overflow-hidden shadow-md">
-              <div className="absolute inset-0 bg-gradient-to-br from-arise-gold/20 to-arise-deep-teal/20" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-white text-lg font-semibold">Leadership Image 2</span>
-              </div>
+              <Image
+                src="/images/leader-2.jpg"
+                alt="Diverse leadership team"
+                fill
+                className="object-cover"
+              />
             </div>
             <div className="relative h-64 rounded-lg overflow-hidden shadow-md">
-              <div className="absolute inset-0 bg-gradient-to-br from-arise-deep-teal/30 to-arise-gold/30" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-white text-lg font-semibold">Leadership Image 3</span>
-              </div>
+              <Image
+                src="/images/leader-3.jpg"
+                alt="Business professionals teamwork"
+                fill
+                className="object-cover"
+              />
             </div>
             <div className="relative h-64 rounded-lg overflow-hidden shadow-md col-span-2 md:col-span-1">
-              <div className="absolute inset-0 bg-gradient-to-br from-arise-gold/30 to-arise-deep-teal/30" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-white text-lg font-semibold">Leadership Image 4</span>
-              </div>
+              <Image
+                src="/images/leader-4.jpg"
+                alt="Executive coaching session"
+                fill
+                className="object-cover"
+              />
             </div>
             <div className="relative h-64 rounded-lg overflow-hidden shadow-md">
-              <div className="absolute inset-0 bg-gradient-to-br from-arise-deep-teal/25 to-arise-gold/25" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-white text-lg font-semibold">Leadership Image 5</span>
-              </div>
+              <Image
+                src="/images/leader-5.jpg"
+                alt="Corporate leadership conference"
+                fill
+                className="object-cover"
+              />
             </div>
             <div className="relative h-64 rounded-lg overflow-hidden shadow-md">
-              <div className="absolute inset-0 bg-gradient-to-br from-arise-gold/25 to-arise-deep-teal/25" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-white text-lg font-semibold">Leadership Image 6</span>
-              </div>
+              <Image
+                src="/images/leader-6.jpg"
+                alt="Professional business meeting"
+                fill
+                className="object-cover"
+              />
             </div>
           </div>
         </div>
