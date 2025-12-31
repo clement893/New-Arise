@@ -198,7 +198,7 @@ export function downloadContactTemplate(): void {
 export async function generateContactZipTemplate(): Promise<Blob> {
   // Import JSZip dynamically to avoid SSR issues
   const JSZipModule = await import('jszip') as { default?: typeof import('jszip'); [key: string]: unknown };
-  const JSZip = JSZipModule.default || JSZipModule as typeof import('jszip');
+  const JSZip = JSZipModule.default || (JSZipModule as unknown as typeof import('jszip'));
   const zip = new JSZip();
 
   // Generate Excel template
