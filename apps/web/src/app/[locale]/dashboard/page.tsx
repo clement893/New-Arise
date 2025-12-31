@@ -148,7 +148,19 @@ function DashboardContent() {
   };
 
   // Build evaluations list from real assessments
-  const evaluations = assessmentTypes
+  type EvaluationItem = {
+    title: string;
+    description: string;
+    status: 'completed' | 'in-progress' | 'locked' | 'available';
+    icon: typeof Brain;
+    assessmentType: AssessmentType;
+    assessmentId?: number;
+    answerCount?: number;
+    totalQuestions?: number;
+    externalLink?: string;
+  };
+
+  const evaluations: EvaluationItem[] = assessmentTypes
     .map(type => {
       const config = ASSESSMENT_CONFIG[type];
       if (!config) {
@@ -177,7 +189,7 @@ function DashboardContent() {
         externalLink: config.externalLink,
       };
     })
-    .filter((evaluation): evaluation is NonNullable<typeof evaluation> => evaluation !== null);
+    .filter((evaluation): evaluation is EvaluationItem => evaluation !== null);
 
   const getAssessmentRoute = (type: AssessmentType): string => {
     switch (type) {
