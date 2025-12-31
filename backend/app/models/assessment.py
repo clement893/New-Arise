@@ -14,26 +14,26 @@ from app.core.database import Base
 
 class AssessmentType(str, PyEnum):
     """Assessment type enum"""
-    MBTI = "mbti"
-    TKI = "tki"
-    WELLNESS = "wellness"
-    THREE_SIXTY_SELF = "360_self"
-    THREE_SIXTY_EVALUATOR = "360_evaluator"
+    MBTI = "MBTI"
+    TKI = "TKI"
+    WELLNESS = "WELLNESS"
+    THREE_SIXTY_SELF = "THREE_SIXTY_SELF"
+    THREE_SIXTY_EVALUATOR = "THREE_SIXTY_EVALUATOR"
 
 
 class AssessmentStatus(str, PyEnum):
     """Assessment status enum"""
-    NOT_STARTED = "not_started"
-    IN_PROGRESS = "in_progress"
-    COMPLETED = "completed"
+    NOT_STARTED = "NOT_STARTED"
+    IN_PROGRESS = "IN_PROGRESS"
+    COMPLETED = "COMPLETED"
 
 
 class EvaluatorRole(str, PyEnum):
     """360 Evaluator role enum"""
-    PEER = "peer"
-    MANAGER = "manager"
-    DIRECT_REPORT = "direct_report"
-    STAKEHOLDER = "stakeholder"
+    PEER = "PEER"
+    MANAGER = "MANAGER"
+    DIRECT_REPORT = "DIRECT_REPORT"
+    STAKEHOLDER = "STAKEHOLDER"
 
 
 class Assessment(Base):
