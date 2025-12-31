@@ -416,58 +416,95 @@ async def get_assessment_results(
     """
     Get results for a completed assessment
     """
-    # First verify the assessment exists and belongs to the user
-    assessment_result = await db.execute(
-        select(Assessment)
-        .where(
-            Assessment.id == assessment_id,
-            Assessment.user_id == current_user.id
-        )
-    )
-    assessment = assessment_result.scalar_one_or_none()
+    from app.core.logging import logger
     
-    if not assessment:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Assessment not found"
+    try:
+        # First verify the assessment exists and belongs to the user
+        assessment_result = await db.execute(
+            select(Assessment)
+            .where(
+                Assessment.id == assessment_id,
+                Assessment.user_id == current_user.id
+            )
         )
-    
-    # Get assessment result
-    result = await db.execute(
-        select(AssessmentResult)
-        .where(
-            AssessmentResult.assessment_id == assessment_id
+        assessment = assessment_result.scalar_one_or_none()
+        
+        if not assessment:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Assessment not found"
+            )
+        
+        # Get assessment result
+        result = await db.execute(
+            select(AssessmentResult)
+            .where(
+                AssessmentResult.assessment_id == assessment_id
+            )
         )
-    )
-    assessment_result = result.scalar_one_or_none()
-    
-    if not assessment_result:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Assessment results not found. The assessment may not be completed yet."
+        assessment_result = result.scalar_one_or_none()
+        
+        if not assessment_result:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Assessment results not found. The assessment may not be completed yet."
+            )
+        
+        # Handle schema mismatch: database might have result_data instead of scores
+        scores_data = None
+        try:
+            # Try to access scores (new schema)
+            scores_data = assessment_result.scores
+        except (AttributeError, KeyError) as e:
+            # If scores doesn't exist, try to query result_data directly (old schema)
+            logger.warning(f"scores column not found, trying result_data for assessment {assessment_id}: {e}")
+            try:
+                from sqlalchemy import text
+                result_data_query = await db.execute(
+                    text("SELECT result_data FROM assessment_results WHERE assessment_id = :assessment_id"),
+                    {"assessment_id": assessment_id}
+                )
+                result_data_row = result_data_query.first()
+                if result_data_row and result_data_row[0]:
+                    scores_data = result_data_row[0]
+                    logger.info(f"Successfully retrieved result_data for assessment {assessment_id} (old schema)")
+            except Exception as db_error:
+                logger.error(f"Error querying result_data from database: {db_error}", exc_info=True)
+        
+        if scores_data is None:
+            logger.error(f"Could not retrieve scores/result_data for assessment {assessment_id}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Assessment results are incomplete. Please contact support."
+            )
+        
+        # Get assessment type from the assessment object
+        assessment_type = assessment.assessment_type
+        assessment_type_str = assessment_type.value if hasattr(assessment_type, 'value') else str(assessment_type)
+        
+        # Handle generated_at - might be created_at in old schema
+        generated_at = getattr(assessment_result, 'generated_at', None)
+        if generated_at is None:
+            generated_at = getattr(assessment_result, 'created_at', None)
+        
+        return AssessmentResultResponse(
+            id=assessment_result.id,
+            assessment_id=assessment_result.assessment_id,
+            assessment_type=assessment_type_str,
+            scores=scores_data,
+            insights=getattr(assessment_result, 'insights', None),
+            recommendations=getattr(assessment_result, 'recommendations', None),
+            comparison_data=getattr(assessment_result, 'comparison_data', None),
+            generated_at=generated_at or datetime.now(timezone.utc)
         )
-    
-    # Ensure scores is not None
-    if assessment_result.scores is None:
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting assessment results for assessment {assessment_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Assessment results are incomplete. Please contact support."
+            detail=f"Failed to load assessment results: {str(e)}"
         )
-    
-    # Get assessment type from the assessment object
-    assessment_type = assessment.assessment_type
-    assessment_type_str = assessment_type.value if hasattr(assessment_type, 'value') else str(assessment_type)
-    
-    return AssessmentResultResponse(
-        id=assessment_result.id,
-        assessment_id=assessment_result.assessment_id,
-        assessment_type=assessment_type_str,
-        scores=assessment_result.scores,
-        insights=assessment_result.insights,
-        recommendations=assessment_result.recommendations,
-        comparison_data=assessment_result.comparison_data,
-        generated_at=assessment_result.generated_at
-    )
 
 
 @router.post("/{assessment_id}/360/invite-evaluators")
