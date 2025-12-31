@@ -55,6 +55,7 @@ export default function Feedback360Page() {
   };
 
   const handleSelectValue = async (value: number) => {
+    if (!question) return;
     setSelectedValue(value);
     await setAnswer(question.id, value);
   };
@@ -210,6 +211,24 @@ export default function Feedback360Page() {
   }
 
   // Questions screen
+  if (!question) {
+    return (
+      <div className="min-h-screen bg-arise-teal p-8">
+        <div className="mx-auto max-w-4xl">
+          <div className="rounded-lg bg-white p-8 shadow-lg text-center">
+            <p className="text-gray-600">Question not found</p>
+            <Button
+              onClick={() => router.push('/dashboard/assessments')}
+              className="mt-4"
+            >
+              Back to Assessments
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-arise-teal p-8">
       <div className="mx-auto max-w-4xl">
