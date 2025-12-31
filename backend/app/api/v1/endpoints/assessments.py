@@ -350,13 +350,27 @@ async def get_assessment_results(
     """
     Get results for a completed assessment
     """
+    # First verify the assessment exists and belongs to the user
+    assessment_result = await db.execute(
+        select(Assessment)
+        .where(
+            Assessment.id == assessment_id,
+            Assessment.user_id == current_user.id
+        )
+    )
+    assessment = assessment_result.scalar_one_or_none()
+    
+    if not assessment:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Assessment not found"
+        )
+    
     # Get assessment result
     result = await db.execute(
         select(AssessmentResult)
-        .join(Assessment, AssessmentResult.assessment_id == Assessment.id)
         .where(
-            AssessmentResult.assessment_id == assessment_id,
-            Assessment.user_id == current_user.id
+            AssessmentResult.assessment_id == assessment_id
         )
     )
     assessment_result = result.scalar_one_or_none()
@@ -364,18 +378,19 @@ async def get_assessment_results(
     if not assessment_result:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Assessment results not found"
+            detail="Assessment results not found. The assessment may not be completed yet."
         )
     
-    # Get assessment type
-    result = await db.execute(
-        select(Assessment.assessment_type)
-        .where(Assessment.id == assessment_id)
-    )
-    assessment_type = result.scalar_one()
+    # Ensure scores is not None
+    if assessment_result.scores is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Assessment results are incomplete. Please contact support."
+        )
     
-    # Convert assessment_type to string if it's an enum
-    assessment_type_str = assessment_type if isinstance(assessment_type, str) else assessment_type.value
+    # Get assessment type from the assessment object
+    assessment_type = assessment.assessment_type
+    assessment_type_str = assessment_type.value if hasattr(assessment_type, 'value') else str(assessment_type)
     
     return AssessmentResultResponse(
         id=assessment_result.id,
