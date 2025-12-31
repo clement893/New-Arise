@@ -1,11 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRegistrationStore } from '@/stores/registrationStore';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import { register as registerUser } from '@/lib/api/auth';
 
 const createAccountSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -23,6 +25,8 @@ type CreateAccountFormData = z.infer<typeof createAccountSchema>;
 
 export function Step3_CreateAccount() {
   const { setUserInfo, setStep } = useRegistrationStore();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const {
     register,
@@ -32,15 +36,35 @@ export function Step3_CreateAccount() {
     resolver: zodResolver(createAccountSchema),
   });
 
-  const onSubmit = (data: CreateAccountFormData) => {
-    setUserInfo({
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email,
-      phone: data.phone,
-      password: data.password,
-    });
-    setStep(4);
+  const onSubmit = async (data: CreateAccountFormData) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Call the backend API to register the user
+      const user = await registerUser({
+        email: data.email,
+        password: data.password,
+        full_name: `${data.firstName} ${data.lastName}`,
+      });
+
+      // Store user info in the registration store
+      setUserInfo({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phone: data.phone,
+        password: data.password,
+        userId: user.id,
+      });
+
+      // User is now registered, skip to welcome screen
+      setStep(7);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -49,107 +73,115 @@ export function Step3_CreateAccount() {
         <h2 className="text-3xl font-bold text-arise-deep-teal mb-2 text-center">
           Create your account
         </h2>
-        <p className="text-gray-600 mb-8 text-center">
-          Enter your details to get started
+        <p className="text-gray-600 text-center mb-8">
+          Enter your information to get started
         </p>
 
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-600 text-sm">{error}</p>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
                 First Name *
               </label>
               <Input
+                id="firstName"
+                type="text"
                 {...register('firstName')}
-                placeholder="John"
-                className={errors.firstName ? 'border-red-500' : ''}
+                error={errors.firstName?.message}
+                disabled={isLoading}
               />
-              {errors.firstName && (
-                <p className="text-red-500 text-sm mt-1">{errors.firstName.message}</p>
-              )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
                 Last Name *
               </label>
               <Input
+                id="lastName"
+                type="text"
                 {...register('lastName')}
-                placeholder="Doe"
-                className={errors.lastName ? 'border-red-500' : ''}
+                error={errors.lastName?.message}
+                disabled={isLoading}
               />
-              {errors.lastName && (
-                <p className="text-red-500 text-sm mt-1">{errors.lastName.message}</p>
-              )}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
               Email Address *
             </label>
             <Input
-              {...register('email')}
+              id="email"
               type="email"
-              placeholder="john.doe@example.com"
-              className={errors.email ? 'border-red-500' : ''}
+              {...register('email')}
+              error={errors.email?.message}
+              disabled={isLoading}
             />
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
               Phone Number *
             </label>
             <Input
-              {...register('phone')}
+              id="phone"
               type="tel"
-              placeholder="+1 (555) 123-4567"
-              className={errors.phone ? 'border-red-500' : ''}
+              {...register('phone')}
+              error={errors.phone?.message}
+              disabled={isLoading}
             />
-            {errors.phone && (
-              <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
-            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
               Password *
             </label>
             <Input
-              {...register('password')}
+              id="password"
               type="password"
-              placeholder="••••••••"
-              className={errors.password ? 'border-red-500' : ''}
+              {...register('password')}
+              error={errors.password?.message}
+              disabled={isLoading}
             />
-            {errors.password && (
-              <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
-            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
               Confirm Password *
             </label>
             <Input
-              {...register('confirmPassword')}
+              id="confirmPassword"
               type="password"
-              placeholder="••••••••"
-              className={errors.confirmPassword ? 'border-red-500' : ''}
+              {...register('confirmPassword')}
+              error={errors.confirmPassword?.message}
+              disabled={isLoading}
             />
-            {errors.confirmPassword && (
-              <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>
-            )}
           </div>
 
-          <Button
-            type="submit"
-            className="w-full bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold"
-          >
-            Continue
-          </Button>
+          <div className="flex justify-between items-center pt-4">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setStep(2)}
+              disabled={isLoading}
+            >
+              Back
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              loading={isLoading}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Creating Account...' : 'Continue'}
+            </Button>
+          </div>
         </form>
       </div>
     </div>
