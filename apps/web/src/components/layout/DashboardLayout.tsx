@@ -24,7 +24,6 @@ import {
   LayoutDashboard, 
   User,
   FileText,
-  Award,
   TrendingUp,
   ClipboardList,
   Users,
