@@ -150,15 +150,17 @@ class AssessmentResult(Base):
     __tablename__ = "assessment_results"
     __table_args__ = (
         Index("idx_assessment_results_assessment_id", "assessment_id"),
-        Index("idx_assessment_results_user_id", "user_id"),
     )
 
     id = Column(Integer, primary_key=True, index=True)
     assessment_id = Column(Integer, ForeignKey("assessments.id", ondelete="CASCADE"), nullable=False, unique=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    # Note: user_id removed - can be accessed via assessment.user_id
+    # The database table was created without user_id (from SQL migration)
     
     # Detailed scores and analysis
-    scores = Column(JSON, nullable=False)  # Detailed score breakdown
+    # Note: Database may have 'result_data' (old schema) or 'scores' (new schema)
+    # We handle both in the API endpoint
+    scores = Column(JSON, nullable=True)  # Detailed score breakdown (nullable to support old schema)
     insights = Column(JSON, nullable=True)  # AI-generated insights
     recommendations = Column(JSON, nullable=True)  # Personalized recommendations
     
@@ -174,7 +176,7 @@ class AssessmentResult(Base):
     
     # Relationships
     assessment = relationship("Assessment", back_populates="result")
-    user = relationship("User", backref="assessment_results")
+    # Note: user relationship removed - access via assessment.user
 
     def __repr__(self) -> str:
         return f"<AssessmentResult(id={self.id}, assessment_id={self.assessment_id})>"
