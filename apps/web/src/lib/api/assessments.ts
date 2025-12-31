@@ -75,7 +75,12 @@ export const startAssessment = async (assessmentType: AssessmentType): Promise<S
     { assessment_type: assessmentType },
     { headers: getAuthHeaders() }
   );
-  return response.data;
+  // Handle both response formats (with id or assessment_id)
+  const data = response.data;
+  if (data.assessment_id && !data.id) {
+    data.id = data.assessment_id;
+  }
+  return data as Assessment;
 };
 
 /**

@@ -92,6 +92,7 @@ class AssessmentResultResponse(BaseModel):
 # ============================================================================
 
 @router.get("/list", response_model=List[AssessmentListItem])
+@router.get("/my-assessments", response_model=List[AssessmentListItem])
 async def list_assessments(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
@@ -169,6 +170,7 @@ async def start_assessment(
                 await db.refresh(existing_assessment)
             
             return {
+                "id": existing_assessment.id,
                 "assessment_id": existing_assessment.id,
                 "status": existing_assessment.status.value,
                 "message": "Resuming existing assessment"
@@ -186,6 +188,7 @@ async def start_assessment(
         await db.refresh(new_assessment)
         
         return {
+            "id": new_assessment.id,
             "assessment_id": new_assessment.id,
             "status": new_assessment.status.value,
             "message": "Assessment started successfully"
