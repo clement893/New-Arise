@@ -134,8 +134,9 @@ function AssessmentResultsContent() {
           {/* Pillar Scores */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {wellnessPillars.map((pillar, index) => {
-              const pillarScore = pillar_scores?.[pillar.id] || 0;
-              const pillarPercentage = (pillarScore / 25) * 100; // Each pillar max is 25
+              const pillarData = pillar_scores?.[pillar.id];
+              const pillarScore = typeof pillarData === 'object' ? pillarData?.score || 0 : pillarData || 0;
+              const pillarPercentage = typeof pillarData === 'object' ? pillarData?.percentage || 0 : (pillarScore / 25) * 100; // Each pillar max is 25
               
               return (
                 <MotionDiv 
@@ -149,7 +150,7 @@ function AssessmentResultsContent() {
                       <div className="text-4xl mr-4">{pillar.icon}</div>
                       <div className="flex-1">
                         <h3 className="text-lg font-bold text-gray-900 mb-1">
-                          {pillar.title}
+                          {pillar.name}
                         </h3>
                         <p className="text-sm text-gray-600">
                           {pillar.description}
@@ -201,14 +202,22 @@ function AssessmentResultsContent() {
                 <div className="p-4 bg-green-50 rounded-lg">
                   <h3 className="font-bold text-green-900 mb-2">Strengths</h3>
                   <p className="text-green-800">
-                    Your strongest pillar is {wellnessPillars.find(p => pillar_scores?.[p.id] === Math.max(...Object.values(pillar_scores || {})))?.title || 'N/A'}.
+                    Your strongest pillar is {wellnessPillars.find(p => {
+                      const data = pillar_scores?.[p.id];
+                      const score = typeof data === 'object' ? data?.score : data;
+                      return score === Math.max(...Object.values(pillar_scores || {}).map((d: any) => typeof d === 'object' ? d?.score : d));
+                    })?.name || 'N/A'}.
                     Keep up the excellent work in this area!
                   </p>
                 </div>
                 <div className="p-4 bg-yellow-50 rounded-lg">
                   <h3 className="font-bold text-yellow-900 mb-2">Areas for Growth</h3>
                   <p className="text-yellow-800">
-                    Consider focusing on {wellnessPillars.find(p => pillar_scores?.[p.id] === Math.min(...Object.values(pillar_scores || {})))?.title || 'N/A'} 
+                    Consider focusing on {wellnessPillars.find(p => {
+                      const data = pillar_scores?.[p.id];
+                      const score = typeof data === 'object' ? data?.score : data;
+                      return score === Math.min(...Object.values(pillar_scores || {}).map((d: any) => typeof d === 'object' ? d?.score : d));
+                    })?.name || 'N/A'} 
                     to achieve a more balanced wellness profile.
                   </p>
                 </div>
