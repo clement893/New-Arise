@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { assessmentsApi, Assessment, AssessmentResult } from '@/lib/api/assessments';
+import { assessmentsApi, AssessmentResult } from '@/lib/api/assessments';
 import axios from 'axios';
 
 export type WellnessStep = 'intro' | 'questions' | 'congratulations';
