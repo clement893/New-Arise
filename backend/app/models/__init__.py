@@ -40,6 +40,15 @@ from app.models.post import Post
 from app.models.file import File
 from app.models.contact import Contact
 from app.models.company import Company
+from app.models.assessment import (
+    Assessment,
+    AssessmentAnswer,
+    Assessment360Evaluator,
+    AssessmentResult,
+    AssessmentType,
+    AssessmentStatus,
+    EvaluatorRole,
+)
 from app.core.security_audit import SecurityAuditLog
 
 __all__ = [
@@ -117,6 +126,13 @@ __all__ = [
     "File",
     "Contact",
     "Company",
+    "Assessment",
+    "AssessmentAnswer",
+    "Assessment360Evaluator",
+    "AssessmentResult",
+    "AssessmentType",
+    "AssessmentStatus",
+    "EvaluatorRole",
     "SecurityAuditLog",
 ]
 
