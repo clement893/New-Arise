@@ -177,31 +177,37 @@ export const wellnessQuestions: WellnessQuestion[] = [
 
 export const wellnessPillars = [
   {
+    id: "avoidance_of_risky_substances",
     name: "Avoidance of Risky Substances",
     description: "Making healthy choices about alcohol, tobacco, medications, and other substances",
     icon: "🚭"
   },
   {
+    id: "movement",
     name: "Movement",
     description: "Regular physical activity, strength training, and flexibility exercises",
     icon: "🏃"
   },
   {
+    id: "nutrition",
     name: "Nutrition",
     description: "Balanced diet with fruits, vegetables, and proper hydration",
     icon: "🥗"
   },
   {
+    id: "sleep",
     name: "Sleep",
     description: "Quality rest with consistent sleep schedule and restorative sleep",
     icon: "😴"
   },
   {
+    id: "social_connection",
     name: "Social Connection",
     description: "Strong relationships and positive social interactions",
     icon: "👥"
   },
   {
+    id: "stress_management",
     name: "Stress Management",
     description: "Healthy coping strategies and work-life balance",
     icon: "🧘"
@@ -215,3 +221,6 @@ export const wellnessScale = [
   { value: 4, label: "Agree" },
   { value: 5, label: "Strongly Agree" }
 ];
+
+// Alias for compatibility
+export const scaleOptions = wellnessScale;
