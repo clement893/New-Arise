@@ -43,7 +43,7 @@ export const useFeedback360Store = create<Feedback360State>()(
         try {
           const response = await startAssessment('360_self');
           set({
-            assessmentId: response.assessment_id,
+            assessmentId: response.id,
             currentQuestion: 0,
             answers: {},
             isLoading: false,
@@ -79,10 +79,7 @@ export const useFeedback360Store = create<Feedback360State>()(
 
         // Save to backend
         try {
-          await saveAnswer(assessmentId, {
-            question_id: questionId,
-            answer_value: value.toString(),
-          });
+          await saveAnswer(assessmentId, questionId, value.toString());
         } catch (error: unknown) {
           console.error('Failed to save answer:', error);
           // Don't throw - allow user to continue even if save fails
