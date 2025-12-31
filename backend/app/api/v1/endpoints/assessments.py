@@ -386,14 +386,20 @@ async def submit_assessment(
     assessment.processed_score = scores
     
     # Create assessment result
-    assessment_result = AssessmentResult(
-        assessment_id=assessment.id,
-        user_id=current_user.id,
-        scores=scores,
-        insights=None,  # Will be generated later
-        recommendations=None  # Will be generated later
+    # Note: Database has result_data column, not scores. We'll store scores in result_data.
+    from sqlalchemy import text
+    await db.execute(
+        text("""
+            INSERT INTO assessment_results (assessment_id, result_data, created_at, updated_at)
+            VALUES (:assessment_id, :result_data, NOW(), NOW())
+            ON CONFLICT (assessment_id) DO UPDATE
+            SET result_data = :result_data, updated_at = NOW()
+        """),
+        {
+            "assessment_id": assessment.id,
+            "result_data": scores  # Store scores in result_data column
+        }
     )
-    db.add(assessment_result)
     
     await db.commit()
     await db.refresh(assessment)
@@ -435,44 +441,29 @@ async def get_assessment_results(
                 detail="Assessment not found"
             )
         
-        # Get assessment result
-        result = await db.execute(
-            select(AssessmentResult)
-            .where(
-                AssessmentResult.assessment_id == assessment_id
-            )
+        # Get assessment result using raw SQL since database has result_data, not scores
+        from sqlalchemy import text
+        result_query = await db.execute(
+            text("""
+                SELECT id, assessment_id, result_data, created_at, updated_at
+                FROM assessment_results
+                WHERE assessment_id = :assessment_id
+            """),
+            {"assessment_id": assessment_id}
         )
-        assessment_result = result.scalar_one_or_none()
+        result_row = result_query.first()
         
-        if not assessment_result:
+        if not result_row:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Assessment results not found. The assessment may not be completed yet."
             )
         
-        # Handle schema mismatch: database might have result_data instead of scores
-        scores_data = None
-        try:
-            # Try to access scores (new schema)
-            scores_data = assessment_result.scores
-        except (AttributeError, KeyError) as e:
-            # If scores doesn't exist, try to query result_data directly (old schema)
-            logger.warning(f"scores column not found, trying result_data for assessment {assessment_id}: {e}")
-            try:
-                from sqlalchemy import text
-                result_data_query = await db.execute(
-                    text("SELECT result_data FROM assessment_results WHERE assessment_id = :assessment_id"),
-                    {"assessment_id": assessment_id}
-                )
-                result_data_row = result_data_query.first()
-                if result_data_row and result_data_row[0]:
-                    scores_data = result_data_row[0]
-                    logger.info(f"Successfully retrieved result_data for assessment {assessment_id} (old schema)")
-            except Exception as db_error:
-                logger.error(f"Error querying result_data from database: {db_error}", exc_info=True)
+        # Extract data from raw SQL result
+        result_id, result_assessment_id, result_data, created_at, updated_at = result_row
         
-        if scores_data is None:
-            logger.error(f"Could not retrieve scores/result_data for assessment {assessment_id}")
+        if result_data is None:
+            logger.error(f"Could not retrieve result_data for assessment {assessment_id}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Assessment results are incomplete. Please contact support."
@@ -482,20 +473,18 @@ async def get_assessment_results(
         assessment_type = assessment.assessment_type
         assessment_type_str = assessment_type.value if hasattr(assessment_type, 'value') else str(assessment_type)
         
-        # Handle generated_at - might be created_at in old schema
-        generated_at = getattr(assessment_result, 'generated_at', None)
-        if generated_at is None:
-            generated_at = getattr(assessment_result, 'created_at', None)
+        # Use created_at as generated_at (database doesn't have generated_at)
+        generated_at = created_at or datetime.now(timezone.utc)
         
         return AssessmentResultResponse(
-            id=assessment_result.id,
-            assessment_id=assessment_result.assessment_id,
+            id=result_id,
+            assessment_id=result_assessment_id,
             assessment_type=assessment_type_str,
-            scores=scores_data,
-            insights=getattr(assessment_result, 'insights', None),
-            recommendations=getattr(assessment_result, 'recommendations', None),
-            comparison_data=getattr(assessment_result, 'comparison_data', None),
-            generated_at=generated_at or datetime.now(timezone.utc)
+            scores=result_data,  # result_data contains the scores
+            insights=None,  # Database doesn't have insights column
+            recommendations=None,  # Database doesn't have recommendations column
+            comparison_data=None,  # Database doesn't have comparison_data column
+            generated_at=generated_at
         )
     except HTTPException:
         raise
