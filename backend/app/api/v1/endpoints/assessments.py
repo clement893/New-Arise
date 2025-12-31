@@ -7,7 +7,8 @@ from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Body
 from pydantic import BaseModel, Field, EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, UniqueConstraint
+from sqlalchemy.exc import IntegrityError
 from datetime import datetime, timezone
 
 from app.core.database import get_db
@@ -269,6 +270,39 @@ async def save_answer(
     except HTTPException:
         # Re-raise HTTP exceptions as-is
         raise
+    except IntegrityError as e:
+        from app.core.logging import logger
+        logger.error(f"Database integrity error saving answer for assessment {assessment_id}: {e}", exc_info=True)
+        await db.rollback()
+        # Check if it's a unique constraint violation
+        error_str = str(e).lower()
+        if 'unique' in error_str or 'duplicate' in error_str:
+            # Answer already exists, try to update it
+            try:
+                result = await db.execute(
+                    select(AssessmentAnswer)
+                    .where(
+                        AssessmentAnswer.assessment_id == assessment_id,
+                        AssessmentAnswer.question_id == request.question_id
+                    )
+                )
+                existing_answer = result.scalar_one_or_none()
+                if existing_answer:
+                    existing_answer.answer_value = request.answer_value
+                    existing_answer.answered_at = datetime.now(timezone.utc)
+                    await db.commit()
+                    return {
+                        "message": "Answer saved successfully",
+                        "question_id": request.question_id
+                    }
+            except Exception as retry_error:
+                logger.error(f"Error retrying save answer: {retry_error}", exc_info=True)
+                await db.rollback()
+        
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to save answer due to database constraint violation"
+        )
     except Exception as e:
         from app.core.logging import logger
         logger.error(f"Error saving answer for assessment {assessment_id}: {e}", exc_info=True)

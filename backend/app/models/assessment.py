@@ -6,7 +6,7 @@ SQLAlchemy model for ARISE assessments
 from datetime import datetime
 from enum import Enum as PyEnum
 
-from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, JSON, String, Text, func, Index
+from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, JSON, String, Text, func, Index, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -82,6 +82,7 @@ class AssessmentAnswer(Base):
     __table_args__ = (
         Index("idx_assessment_answers_assessment_id", "assessment_id"),
         Index("idx_assessment_answers_question_id", "question_id"),
+        UniqueConstraint("assessment_id", "question_id", name="uq_assessment_answers_assessment_question"),
     )
 
     id = Column(Integer, primary_key=True, index=True)
