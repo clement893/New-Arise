@@ -170,7 +170,7 @@ function AssessmentsContent() {
 
           <MotionDiv variant="slideUp" delay={100}>
             <Stack gap="normal">
-              {assessments.map((assessment, index) => {
+              {assessments.map((assessment) => {
                 const Icon = assessment.icon;
                 return (
                   <Card key={assessment.id} className="hover:shadow-lg transition-shadow">
