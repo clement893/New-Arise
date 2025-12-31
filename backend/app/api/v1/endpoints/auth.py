@@ -241,7 +241,9 @@ async def register(
         "email": new_user.email,
         "first_name": new_user.first_name,
         "last_name": new_user.last_name,
+        "avatar": new_user.avatar,
         "is_active": new_user.is_active,
+        "user_type": new_user.user_type.value if new_user.user_type else "INDIVIDUAL",
         "created_at": new_user.created_at.isoformat() if new_user.created_at else "",
         "updated_at": new_user.updated_at.isoformat() if new_user.updated_at else "",
     }
@@ -442,7 +444,9 @@ async def login(
             email=user.email,
             first_name=user.first_name,
             last_name=user.last_name,
+            avatar=user.avatar,
             is_active=user.is_active,
+            user_type=user.user_type.value if user.user_type else "INDIVIDUAL",
             theme_preference=user.theme_preference or 'system',  # Required field for API compatibility
             created_at=user.created_at.isoformat() if user.created_at else "",
             updated_at=user.updated_at.isoformat() if user.updated_at else "",
@@ -686,7 +690,9 @@ async def get_current_user_info(
             email=current_user.email,
             first_name=current_user.first_name,
             last_name=current_user.last_name,
+            avatar=current_user.avatar,
             is_active=current_user.is_active,
+            user_type=current_user.user_type.value if current_user.user_type else "INDIVIDUAL",
             # theme_preference is deprecated but kept for API compatibility
             theme_preference=current_user.theme_preference or 'system',
             created_at=current_user.created_at.isoformat() if current_user.created_at else "",
