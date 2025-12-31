@@ -333,11 +333,14 @@ function DashboardContent() {
 
           {/* Progress Section */}
           <MotionDiv variant="slideUp" delay={200}>
-            <Card className="mb-8 bg-arise-deep-teal/90 text-white border-0">
+            <Card 
+              className="mb-8 text-white border-0"
+              style={{ backgroundColor: 'rgba(10, 58, 64, 0.9)' } as React.CSSProperties}
+            >
               <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold mb-2">Your Progress</h2>
-                  <div className="text-6xl font-bold mb-2">{progressData.overall} %</div>
+                  <h2 className="text-2xl font-bold mb-2 text-white">Your Progress</h2>
+                  <div className="text-6xl font-bold mb-2 text-white">{progressData.overall} %</div>
                   <p className="text-white/80 mb-1">
                     You are making good progress in your holistic leadership journey.
                   </p>
@@ -435,7 +438,10 @@ function DashboardContent() {
 
           {/* Coaching Section */}
           <MotionDiv variant="slideUp" delay={400}>
-            <Card className="bg-arise-deep-teal/90 text-white border-0 relative overflow-hidden">
+            <Card 
+              className="text-white border-0 relative overflow-hidden"
+              style={{ backgroundColor: 'rgba(10, 58, 64, 0.9)' } as React.CSSProperties}
+            >
               {/* Background Pattern */}
               <div 
                 className="absolute inset-0 opacity-5"
