@@ -28,7 +28,11 @@ import {
   Settings,
   Network,
   Building2,
-  MessageSquare
+  MessageSquare,
+  FileText,
+  Award,
+  TrendingUp,
+  ClipboardList
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -40,52 +44,36 @@ interface DashboardLayoutProps {
 // This ensures the sidebar doesn't re-render unnecessarily during navigation
 const createSidebarItems = (isAdmin: boolean) => [
   {
+    label: 'User',
+    href: '/profile',
+    icon: <User className="w-5 h-5" />,
+  },
+  {
+    label: 'Reputation plan',
+    href: '/dashboard/reputation-plan',
+    icon: <Award className="w-5 h-5" />,
+  },
+  {
     label: 'Dashboard',
     href: '/dashboard',
     icon: <LayoutDashboard className="w-5 h-5" />,
   },
   {
-    label: 'Profile',
-    href: '/profile',
-    icon: <User className="w-5 h-5" />,
+    label: 'Assessments',
+    href: '/dashboard/assessments',
+    icon: <ClipboardList className="w-5 h-5" />,
   },
   {
-    label: 'Settings',
-    href: '/settings',
-    icon: <Settings className="w-5 h-5" />,
+    label: 'Results & Reports',
+    href: '/dashboard/reports',
+    icon: <FileText className="w-5 h-5" />,
   },
   {
-    label: 'Projets',
-    href: '/dashboard/projects',
-    icon: <FolderKanban className="w-5 h-5" />,
+    label: 'Development plan',
+    href: '/dashboard/development-plan',
+    icon: <TrendingUp className="w-5 h-5" />,
   },
-  {
-    label: 'Réseau',
-    icon: <Network className="w-5 h-5" />,
-    children: [
-      {
-        label: 'Entreprises',
-        href: '/dashboard/reseau/entreprises',
-        icon: <Building2 className="w-5 h-5" />,
-      },
-      {
-        label: 'Contacts',
-        href: '/dashboard/reseau/contacts',
-        icon: <User className="w-5 h-5" />,
-      },
-      {
-        label: 'Témoignages',
-        href: '/dashboard/reseau/temoignages',
-        icon: <MessageSquare className="w-5 h-5" />,
-      },
-    ],
-  },
-  {
-    label: 'Super Admin',
-    href: '/dashboard/become-superadmin',
-    icon: <Shield className="w-5 h-5" />,
-  },
-  // Admin link - only visible to admins and superadmins
+  // Additional items (optional, can be hidden or shown based on needs)
   ...(isAdmin
     ? [
         {
