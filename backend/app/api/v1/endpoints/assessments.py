@@ -353,7 +353,7 @@ async def get_assessment_results(
     # Get assessment result
     result = await db.execute(
         select(AssessmentResult)
-        .join(Assessment)
+        .join(Assessment, AssessmentResult.assessment_id == Assessment.id)
         .where(
             AssessmentResult.assessment_id == assessment_id,
             Assessment.user_id == current_user.id
