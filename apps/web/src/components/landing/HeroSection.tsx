@@ -6,16 +6,16 @@ import Link from 'next/link';
 export function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center justify-center bg-arise-deep-teal overflow-hidden">
-      {/* Background pattern */}
+      {/* Vertical lines texture */}
       <div 
-        className="absolute inset-0 opacity-10"
+        className="absolute inset-0 opacity-20"
         style={{
           backgroundImage: `repeating-linear-gradient(
             90deg,
             transparent,
-            transparent 50px,
-            rgba(255, 255, 255, 0.1) 50px,
-            rgba(255, 255, 255, 0.1) 51px
+            transparent 3px,
+            rgba(255, 255, 255, 0.08) 3px,
+            rgba(255, 255, 255, 0.08) 4px
           )`
         }}
       />

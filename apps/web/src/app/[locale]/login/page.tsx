@@ -73,17 +73,17 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-arise-deep-teal relative overflow-hidden flex items-center justify-center">
-      {/* Background pattern */}
+    <div className="min-h-screen bg-arise-deep-teal relative overflow-hidden flex items-center justify-center p-4">
+      {/* Vertical lines texture */}
       <div 
-        className="absolute inset-0 opacity-10"
+        className="absolute inset-0 opacity-20"
         style={{
           backgroundImage: `repeating-linear-gradient(
             90deg,
             transparent,
-            transparent 50px,
-            rgba(255, 255, 255, 0.1) 50px,
-            rgba(255, 255, 255, 0.1) 51px
+            transparent 3px,
+            rgba(255, 255, 255, 0.08) 3px,
+            rgba(255, 255, 255, 0.08) 4px
           )`
         }}
       />
@@ -96,9 +96,10 @@ export default function LoginPage() {
         Back to home
       </Link>
 
-      {/* Login Card */}
-      <div className="relative z-10 w-full max-w-md mx-4">
-        <div className="bg-white rounded-lg shadow-2xl p-8">
+      {/* Login Card with blue dotted border */}
+      <div className="relative z-10 w-full max-w-md">
+        <div className="border-4 border-blue-400 border-dashed rounded-lg p-2 bg-transparent">
+          <div className="bg-white rounded-lg shadow-2xl p-8">
           {/* Logo */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-arise-deep-teal mb-2">
@@ -253,6 +254,7 @@ export default function LoginPage() {
               </Link>
             </p>
           </div>
+        </div>
         </div>
       </div>
     </div>
