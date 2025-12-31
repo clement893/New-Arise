@@ -8,7 +8,7 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { Sidebar } from '@/components/dashboard/Sidebar';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { TrendingUp, TrendingDown, Minus, ArrowLeft } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, ArrowLeft, LucideIcon } from 'lucide-react';
 
 interface TKIResults {
   mode_counts: Record<string, number>;
@@ -36,8 +36,11 @@ export default function TKIResultsPage() {
       setIsLoading(true);
       const data = await getAssessmentResults(Number(assessmentId));
       setResults(data.scores as TKIResults);
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to load results');
+    } catch (err: unknown) {
+      const errorMessage = err && typeof err === 'object' && 'response' in err
+        ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
+        : undefined;
+      setError(errorMessage || 'Failed to load results');
     } finally {
       setIsLoading(false);
     }
@@ -51,7 +54,7 @@ export default function TKIResultsPage() {
     return Math.round((count / 30) * 100);
   };
 
-  const getModeLevel = (count: number): { label: string; color: string; icon: any } => {
+  const getModeLevel = (count: number): { label: string; color: string; icon: LucideIcon } => {
     const percentage = getModePercentage(count);
     if (percentage >= 40) {
       return { label: 'High', color: 'text-green-600', icon: TrendingUp };

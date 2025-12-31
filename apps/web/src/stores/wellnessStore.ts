@@ -6,6 +6,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { assessmentsApi, Assessment, AssessmentResult } from '@/lib/api/assessments';
+import axios from 'axios';
 
 export type WellnessStep = 'intro' | 'questions' | 'congratulations';
 
@@ -68,9 +69,12 @@ export const useWellnessStore = create<WellnessState>()(
             isLoading: false,
             isCompleted: false,
           });
-        } catch (error: any) {
+        } catch (error: unknown) {
+          const errorMessage = axios.isAxiosError(error) && error.response?.data?.message
+            ? error.response.data.message
+            : 'Failed to start assessment';
           set({
-            error: error.response?.data?.message || 'Failed to start assessment',
+            error: errorMessage,
             isLoading: false,
           });
         }
@@ -113,10 +117,13 @@ export const useWellnessStore = create<WellnessState>()(
         if (assessmentId) {
           try {
             await assessmentsApi.saveAnswer(assessmentId, questionId, value.toString());
-          } catch (error: any) {
+          } catch (error: unknown) {
             console.error('Failed to save answer:', error);
+            const errorMessage = axios.isAxiosError(error) && error.response?.data?.message
+              ? error.response.data.message
+              : 'Failed to save answer';
             set({
-              error: error.response?.data?.message || 'Failed to save answer',
+              error: errorMessage,
             });
           }
         }
@@ -142,9 +149,12 @@ export const useWellnessStore = create<WellnessState>()(
             isCompleted: true,
             isLoading: false,
           });
-        } catch (error: any) {
+        } catch (error: unknown) {
+          const errorMessage = axios.isAxiosError(error) && error.response?.data?.message
+            ? error.response.data.message
+            : 'Failed to submit assessment';
           set({
-            error: error.response?.data?.message || 'Failed to submit assessment',
+            error: errorMessage,
             isLoading: false,
           });
         }

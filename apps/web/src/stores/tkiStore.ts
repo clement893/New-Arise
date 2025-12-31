@@ -6,6 +6,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { startAssessment, saveAnswer, submitAssessment } from '@/lib/api/assessments';
+import axios from 'axios';
 
 interface TKIState {
   assessmentId: number | null;
@@ -49,9 +50,12 @@ export const useTKIStore = create<TKIState>()(
             answers: {},
             isCompleted: false,
           });
-        } catch (error: any) {
+        } catch (error: unknown) {
+          const errorMessage = axios.isAxiosError(error) && error.response?.data?.detail
+            ? error.response.data.detail
+            : 'Failed to start assessment';
           set({ 
-            error: error.response?.data?.detail || 'Failed to start assessment',
+            error: errorMessage,
             isLoading: false 
           });
         }
@@ -68,9 +72,12 @@ export const useTKIStore = create<TKIState>()(
             answers: { ...state.answers, [questionId]: answer },
             isLoading: false,
           }));
-        } catch (error: any) {
+        } catch (error: unknown) {
+          const errorMessage = axios.isAxiosError(error) && error.response?.data?.detail
+            ? error.response.data.detail
+            : 'Failed to save answer';
           set({ 
-            error: error.response?.data?.detail || 'Failed to save answer',
+            error: errorMessage,
             isLoading: false 
           });
         }
@@ -99,9 +106,12 @@ export const useTKIStore = create<TKIState>()(
             isCompleted: true,
             isLoading: false,
           });
-        } catch (error: any) {
+        } catch (error: unknown) {
+          const errorMessage = axios.isAxiosError(error) && error.response?.data?.detail
+            ? error.response.data.detail
+            : 'Failed to submit assessment';
           set({ 
-            error: error.response?.data?.detail || 'Failed to submit assessment',
+            error: errorMessage,
             isLoading: false 
           });
         }

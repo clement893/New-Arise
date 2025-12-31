@@ -2,11 +2,22 @@ import axios from 'axios';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+interface ValidationError {
+  loc?: (string | number)[];
+  msg?: string;
+  type?: string;
+}
+
+interface ErrorResponseData {
+  detail?: string | ValidationError[] | { message?: string; msg?: string };
+  message?: string;
+}
+
 /**
  * Extract error message from API error response
  * Handles various error response formats (string, array, object)
  */
-function extractErrorMessage(errorData: any, defaultMessage: string): string {
+function extractErrorMessage(errorData: ErrorResponseData, defaultMessage: string): string {
   if (typeof errorData.detail === 'string') {
     return errorData.detail;
   }
@@ -14,7 +25,7 @@ function extractErrorMessage(errorData: any, defaultMessage: string): string {
   if (Array.isArray(errorData.detail)) {
     // Handle validation errors array (e.g., FastAPI validation errors)
     return errorData.detail
-      .map((err: any) => {
+      .map((err: string | ValidationError) => {
         if (typeof err === 'string') return err;
         if (err?.msg) return err.msg;
         if (err?.loc && err?.msg) {
@@ -25,9 +36,10 @@ function extractErrorMessage(errorData: any, defaultMessage: string): string {
       .join(', ');
   }
   
-  if (errorData.detail && typeof errorData.detail === 'object') {
+  if (errorData.detail && typeof errorData.detail === 'object' && !Array.isArray(errorData.detail)) {
     // Handle object error details
-    return errorData.detail.message || errorData.detail.msg || JSON.stringify(errorData.detail);
+    const detailObj = errorData.detail as { message?: string; msg?: string };
+    return detailObj.message || detailObj.msg || JSON.stringify(errorData.detail);
   }
   
   if (errorData.message && typeof errorData.message === 'string') {

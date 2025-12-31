@@ -163,9 +163,9 @@ export const reseauContactsAPI = {
       
       if (response.status >= 400) {
         const text = await (response.data as Blob).text();
-        let errorData: any;
+        let errorData: { detail?: string; message?: string } = { detail: 'Export failed' };
         try {
-          errorData = JSON.parse(text);
+          errorData = JSON.parse(text) as { detail?: string; message?: string };
         } catch (parseError) {
           errorData = { detail: text || 'Export failed' };
         }
@@ -188,19 +188,24 @@ export const reseauContactsAPI = {
       }
       
       return response.data as Blob;
-    } catch (error: any) {
-      if (error.response?.data instanceof Blob) {
-        try {
-          const text = await error.response.data.text();
-          let errorData: any;
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { data?: Blob | { detail?: string; message?: string } } };
+        if (axiosError.response?.data instanceof Blob) {
           try {
-            errorData = JSON.parse(text);
+            const text = await axiosError.response.data.text();
+            let errorData: { detail?: string; message?: string } = { detail: 'Export failed' };
+            try {
+              errorData = JSON.parse(text) as { detail?: string; message?: string };
+            } catch (parseError) {
+              errorData = { detail: text || 'Export failed' };
+            }
+            axiosError.response.data = errorData;
           } catch (parseError) {
-            errorData = { detail: text || 'Export failed' };
+            if (axiosError.response) {
+              axiosError.response.data = { detail: 'Erreur lors de l\'export' };
+            }
           }
-          error.response.data = errorData;
-        } catch (parseError) {
-          error.response.data = { detail: 'Erreur lors de l\'export' };
         }
       }
       throw error;

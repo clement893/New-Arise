@@ -35,8 +35,11 @@ function AssessmentResultsContent() {
       setIsLoading(true);
       const data = await assessmentsApi.getResults(id);
       setResults(data);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load results');
+    } catch (err: unknown) {
+      const errorMessage = err && typeof err === 'object' && 'response' in err
+        ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+        : undefined;
+      setError(errorMessage || 'Failed to load results');
     } finally {
       setIsLoading(false);
     }
