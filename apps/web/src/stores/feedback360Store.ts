@@ -3,11 +3,6 @@ import { persist } from 'zustand/middleware';
 import { startAssessment, saveAnswer, submitAssessment } from '@/lib/api/assessments';
 import axios from 'axios';
 
-interface Feedback360Answer {
-  questionId: string;
-  value: number; // 1-5
-}
-
 interface Feedback360State {
   assessmentId: number | null;
   currentQuestion: number;
