@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useRegistrationStore } from '@/stores/registrationStore';
-import { Button } from '@/components/ui/Button';
+import Button from '@/components/ui/Button';
 import { CheckCircle } from 'lucide-react';
 
 export function Step7_Welcome() {

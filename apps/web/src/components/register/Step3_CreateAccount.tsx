@@ -4,8 +4,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRegistrationStore } from '@/stores/registrationStore';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
 
 const createAccountSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),

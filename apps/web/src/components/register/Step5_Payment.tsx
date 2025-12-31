@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRegistrationStore } from '@/stores/registrationStore';
-import { Button } from '@/components/ui/Button';
+import Button from '@/components/ui/Button';
 import { CreditCard, Lock } from 'lucide-react';
 
 export function Step5_Payment() {

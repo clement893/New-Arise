@@ -1,7 +1,7 @@
 'use client';
 
 import { useRegistrationStore } from '@/stores/registrationStore';
-import { Button } from '@/components/ui/Button';
+import Button from '@/components/ui/Button';
 import { Edit2 } from 'lucide-react';
 
 export function Step4_ReviewConfirm() {

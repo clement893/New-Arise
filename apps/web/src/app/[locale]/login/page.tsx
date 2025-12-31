@@ -3,8 +3,8 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
