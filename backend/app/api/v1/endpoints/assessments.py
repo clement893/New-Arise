@@ -214,7 +214,16 @@ async def save_answer(
     """
     Save an answer to a question
     """
+    from app.core.logging import logger
+    
     try:
+        # Validate request
+        if not request.question_id or not request.answer_value:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="question_id and answer_value are required"
+            )
+        
         # Get assessment
         result = await db.execute(
             select(Assessment)
@@ -249,15 +258,19 @@ async def save_answer(
         
         if existing_answer:
             # Update existing answer
-            existing_answer.answer_value = request.answer_value
+            existing_answer.answer_value = str(request.answer_value)  # Ensure it's a string
             # Update answered_at to track when answer was last modified
-            existing_answer.answered_at = datetime.now(timezone.utc)
+            try:
+                existing_answer.answered_at = datetime.now(timezone.utc)
+            except AttributeError:
+                # If answered_at doesn't exist (schema mismatch), skip it
+                logger.warning(f"answered_at column not found, skipping timestamp update")
         else:
             # Create new answer
             new_answer = AssessmentAnswer(
                 assessment_id=assessment_id,
-                question_id=request.question_id,
-                answer_value=request.answer_value
+                question_id=str(request.question_id),
+                answer_value=str(request.answer_value)
             )
             db.add(new_answer)
         
@@ -304,12 +317,23 @@ async def save_answer(
             detail="Failed to save answer due to database constraint violation"
         )
     except Exception as e:
-        from app.core.logging import logger
-        logger.error(f"Error saving answer for assessment {assessment_id}: {e}", exc_info=True)
+        logger.error(
+            f"Error saving answer for assessment {assessment_id}, question {request.question_id}: {type(e).__name__}: {e}",
+            exc_info=True
+        )
         await db.rollback()
+        # Provide more detailed error message for debugging
+        error_detail = str(e)
+        if "column" in error_detail.lower() and "does not exist" in error_detail.lower():
+            error_detail = f"Database schema mismatch: {error_detail}. Please run database migrations."
+        elif "not null" in error_detail.lower():
+            error_detail = f"Missing required field: {error_detail}"
+        elif "foreign key" in error_detail.lower():
+            error_detail = f"Invalid reference: {error_detail}"
+        
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to save answer: {str(e)}"
+            detail=f"Failed to save answer: {error_detail}"
         )
 
 
