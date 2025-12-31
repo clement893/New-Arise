@@ -256,6 +256,22 @@ export function applyThemeConfigDirectly(config: ThemeConfig, options?: {
     appliedColors.push(`ring: ${ringColor}`);
   }
   
+  // Apply ARISE brand colors from theme config
+  // These use exact design colors by default, but can be customized via theme system
+  const ariseDeepTeal = (originalBaseColorsConfig as any).ariseDeepTeal || (colorsConfig as any).ariseDeepTeal || '#0A3A40';
+  const ariseGold = (originalBaseColorsConfig as any).ariseGold || (colorsConfig as any).ariseGold || '#D4AF37';
+  const ariseLightBeige = (originalBaseColorsConfig as any).ariseLightBeige || (colorsConfig as any).ariseLightBeige || '#F5F5DC';
+  const ariseBeige = (originalBaseColorsConfig as any).ariseBeige || (colorsConfig as any).ariseBeige || '#E9E4D4';
+  const ariseTextDark = (originalBaseColorsConfig as any).ariseTextDark || (colorsConfig as any).ariseTextDark || '#1a202c';
+  const ariseTextLight = (originalBaseColorsConfig as any).ariseTextLight || (colorsConfig as any).ariseTextLight || '#ffffff';
+  
+  root.style.setProperty('--color-arise-deep-teal', ariseDeepTeal);
+  root.style.setProperty('--color-arise-gold', ariseGold);
+  root.style.setProperty('--color-arise-light-beige', ariseLightBeige);
+  root.style.setProperty('--color-arise-beige', ariseBeige);
+  root.style.setProperty('--color-arise-text-dark', ariseTextDark);
+  root.style.setProperty('--color-arise-text-light', ariseTextLight);
+  
   logger.info('[applyThemeConfigDirectly] Couleurs de base appliquées', {
     count: appliedColors.length,
     colors: appliedColors,

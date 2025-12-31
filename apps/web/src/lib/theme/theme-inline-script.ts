@@ -248,6 +248,22 @@ export const themeInlineScript = `
       root.style.setProperty('--color-ring', colorsConfig.ring);
     }
     
+    // Apply ARISE brand colors from theme config
+    // These use exact design colors by default, but can be customized via theme system
+    const ariseDeepTeal = colorsConfig.ariseDeepTeal || '#0A3A40';
+    const ariseGold = colorsConfig.ariseGold || '#D4AF37';
+    const ariseLightBeige = colorsConfig.ariseLightBeige || '#F5F5DC';
+    const ariseBeige = colorsConfig.ariseBeige || '#E9E4D4';
+    const ariseTextDark = colorsConfig.ariseTextDark || '#1a202c';
+    const ariseTextLight = colorsConfig.ariseTextLight || '#ffffff';
+    
+    root.style.setProperty('--color-arise-deep-teal', ariseDeepTeal);
+    root.style.setProperty('--color-arise-gold', ariseGold);
+    root.style.setProperty('--color-arise-light-beige', ariseLightBeige);
+    root.style.setProperty('--color-arise-beige', ariseBeige);
+    root.style.setProperty('--color-arise-text-dark', ariseTextDark);
+    root.style.setProperty('--color-arise-text-light', ariseTextLight);
+    
     // Apply fonts - Only set CSS variables, don't modify body directly to avoid hydration issues
     if (config.font_family) {
       const fontFamily = config.font_family.trim();

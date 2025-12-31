@@ -259,6 +259,22 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
       root.style.setProperty('--color-ring', colorsConfig.ring);
     }
     
+    // Apply ARISE brand colors from theme config
+    // These use exact design colors by default, but can be customized via theme system
+    const ariseDeepTeal = (colorsConfig as any).ariseDeepTeal || '#0A3A40';
+    const ariseGold = (colorsConfig as any).ariseGold || '#D4AF37';
+    const ariseLightBeige = (colorsConfig as any).ariseLightBeige || '#F5F5DC';
+    const ariseBeige = (colorsConfig as any).ariseBeige || '#E9E4D4';
+    const ariseTextDark = (colorsConfig as any).ariseTextDark || '#1a202c';
+    const ariseTextLight = (colorsConfig as any).ariseTextLight || '#ffffff';
+    
+    root.style.setProperty('--color-arise-deep-teal', ariseDeepTeal);
+    root.style.setProperty('--color-arise-gold', ariseGold);
+    root.style.setProperty('--color-arise-light-beige', ariseLightBeige);
+    root.style.setProperty('--color-arise-beige', ariseBeige);
+    root.style.setProperty('--color-arise-text-dark', ariseTextDark);
+    root.style.setProperty('--color-arise-text-light', ariseTextLight);
+    
     // Load font URL if configured (for Google Fonts or custom fonts)
     if (configToApply.font_url && typeof configToApply.font_url === 'string' && typeof document !== 'undefined') {
       // Check if font is already loaded

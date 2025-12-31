@@ -74,7 +74,14 @@ export const DEFAULT_THEME_CONFIG = {
     destructive: "#dc2626",  // Refined red
     destructiveForeground: "#ffffff",
     successForeground: "#ffffff",
-    warningForeground: "#ffffff"  // White for better contrast on amber
+    warningForeground: "#ffffff",  // White for better contrast on amber
+    // ARISE Brand Colors - Design system colors
+    ariseDeepTeal: "#0A3A40",  // ARISE deep teal (exact design color)
+    ariseGold: "#D4AF37",  // ARISE gold (exact design color)
+    ariseLightBeige: "#F5F5DC",  // ARISE light beige
+    ariseBeige: "#E9E4D4",  // ARISE beige
+    ariseTextDark: "#1a202c",  // ARISE text dark
+    ariseTextLight: "#ffffff"  // ARISE text light
   },
   
   // Spacing configuration

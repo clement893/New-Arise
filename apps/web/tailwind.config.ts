@@ -127,14 +127,14 @@ const config: Config = {
           900: '#111827',
           950: '#030712',
         },
-        // ARISE Brand Colors
+        // ARISE Brand Colors - Now using CSS variables from theme system with fallback
         arise: {
-          'deep-teal': '#0A3A40',
-          'gold': '#D4AF37',
-          'light-beige': '#F5F5DC',
-          'beige': '#E9E4D4',
-          'text-dark': '#1a202c',
-          'text-light': '#ffffff',
+          'deep-teal': 'var(--color-arise-deep-teal, #0A3A40)',
+          'gold': 'var(--color-arise-gold, #D4AF37)',
+          'light-beige': 'var(--color-arise-light-beige, #F5F5DC)',
+          'beige': 'var(--color-arise-beige, #E9E4D4)',
+          'text-dark': 'var(--color-arise-text-dark, #1a202c)',
+          'text-light': 'var(--color-arise-text-light, #ffffff)',
         },
         // Theme-aware base colors - These use CSS variables that change with theme
         background: 'var(--color-background)',
