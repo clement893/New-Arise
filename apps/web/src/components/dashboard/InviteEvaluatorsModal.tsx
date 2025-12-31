@@ -49,7 +49,10 @@ export default function InviteEvaluatorsModal({
 
   const updateEvaluator = (index: number, field: keyof Evaluator, value: string) => {
     const updated = [...evaluators];
-    updated[index] = { ...updated[index], [field]: value };
+    const currentEvaluator = updated[index];
+    if (currentEvaluator) {
+      updated[index] = { ...currentEvaluator, [field]: value } as Evaluator;
+    }
     setEvaluators(updated);
   };
 
