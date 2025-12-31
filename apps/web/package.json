@@ -57,6 +57,8 @@
     "next-intl": "^4.6.1",
     "react": "19.0.0",
     "react-dom": "19.0.0",
+    "react-hook-form": "^7.51.0",
+    "@hookform/resolvers": "^3.3.4",
     "recharts": "^2.12.7",
     "tailwindcss": "^3.4.1",
     "web-vitals": "^3.5.0",
