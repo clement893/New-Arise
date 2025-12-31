@@ -8,6 +8,49 @@ import { persist } from 'zustand/middleware';
 import { startAssessment, saveAnswer, submitAssessment } from '@/lib/api/assessments';
 import axios from 'axios';
 
+// Helper function to extract error message from various error formats
+function extractErrorMessage(error: unknown, defaultMessage: string): string {
+  if (axios.isAxiosError(error) && error.response?.data) {
+    const data = error.response.data;
+    
+    // Handle string detail
+    if (typeof data.detail === 'string') {
+      return data.detail;
+    }
+    
+    // Handle array of validation errors
+    if (Array.isArray(data.detail)) {
+      return data.detail.map((err: any) => {
+        if (typeof err === 'string') return err;
+        if (err?.msg) return err.msg;
+        if (err?.loc && err?.msg) {
+          return `${err.loc.join('.')}: ${err.msg}`;
+        }
+        return JSON.stringify(err);
+      }).join(', ');
+    }
+    
+    // Handle object detail
+    if (data.detail && typeof data.detail === 'object') {
+      if (data.detail.message) return data.detail.message;
+      if (data.detail.msg) return data.detail.msg;
+      // If it's a validation error object, extract the message
+      if (data.detail.msg) return data.detail.msg;
+    }
+    
+    // Handle message field
+    if (typeof data.message === 'string') {
+      return data.message;
+    }
+  }
+  
+  if (error instanceof Error) {
+    return error.message;
+  }
+  
+  return defaultMessage;
+}
+
 interface TKIState {
   assessmentId: number | null;
   currentQuestion: number;
@@ -51,9 +94,7 @@ export const useTKIStore = create<TKIState>()(
             isCompleted: false,
           });
         } catch (error: unknown) {
-          const errorMessage = axios.isAxiosError(error) && error.response?.data?.detail
-            ? error.response.data.detail
-            : 'Failed to start assessment';
+          const errorMessage = extractErrorMessage(error, 'Failed to start assessment');
           set({ 
             error: errorMessage,
             isLoading: false 
@@ -73,9 +114,7 @@ export const useTKIStore = create<TKIState>()(
             isLoading: false,
           }));
         } catch (error: unknown) {
-          const errorMessage = axios.isAxiosError(error) && error.response?.data?.detail
-            ? error.response.data.detail
-            : 'Failed to save answer';
+          const errorMessage = extractErrorMessage(error, 'Failed to save answer');
           set({ 
             error: errorMessage,
             isLoading: false 
@@ -107,9 +146,7 @@ export const useTKIStore = create<TKIState>()(
             isLoading: false,
           });
         } catch (error: unknown) {
-          const errorMessage = axios.isAxiosError(error) && error.response?.data?.detail
-            ? error.response.data.detail
-            : 'Failed to submit assessment';
+          const errorMessage = extractErrorMessage(error, 'Failed to submit assessment');
           set({ 
             error: errorMessage,
             isLoading: false 
