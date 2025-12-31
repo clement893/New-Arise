@@ -1,7 +1,5 @@
 'use client';
 
-import Image from 'next/image';
-
 export function BuildingLeadersSection() {
   return (
     <section className="py-20 bg-arise-light-beige border-t-4 border-b-4 border-dotted border-black">
