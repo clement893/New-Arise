@@ -148,31 +148,36 @@ function DashboardContent() {
   };
 
   // Build evaluations list from real assessments
-  const evaluations = assessmentTypes.map(type => {
-    const config = ASSESSMENT_CONFIG[type];
-    const assessment = assessments.find(a => a.assessment_type === type);
-    
-    let status: 'completed' | 'in-progress' | 'locked' | 'available' = 'available';
-    if (assessment) {
-      if (assessment.status === 'COMPLETED') {
-        status = 'completed';
-      } else if (assessment.status === 'IN_PROGRESS' || assessment.status === 'NOT_STARTED') {
-        status = 'in-progress';
+  const evaluations = assessmentTypes
+    .map(type => {
+      const config = ASSESSMENT_CONFIG[type];
+      if (!config) {
+        return null;
       }
-    }
-    
-    return {
-      title: config.title,
-      description: config.description,
-      status,
-      icon: config.icon,
-      assessmentType: type,
-      assessmentId: assessment?.id,
-      answerCount: assessment?.answer_count,
-      totalQuestions: assessment?.total_questions,
-      externalLink: config.externalLink,
-    };
-  });
+      const assessment = assessments.find(a => a.assessment_type === type);
+      
+      let status: 'completed' | 'in-progress' | 'locked' | 'available' = 'available';
+      if (assessment) {
+        if (assessment.status === 'COMPLETED') {
+          status = 'completed';
+        } else if (assessment.status === 'IN_PROGRESS' || assessment.status === 'NOT_STARTED') {
+          status = 'in-progress';
+        }
+      }
+      
+      return {
+        title: config.title,
+        description: config.description,
+        status,
+        icon: config.icon,
+        assessmentType: type,
+        assessmentId: assessment?.id,
+        answerCount: assessment?.answer_count,
+        totalQuestions: assessment?.total_questions,
+        externalLink: config.externalLink,
+      };
+    })
+    .filter((evaluation): evaluation is NonNullable<typeof evaluation> => evaluation !== null);
 
   const getAssessmentRoute = (type: AssessmentType): string => {
     switch (type) {
