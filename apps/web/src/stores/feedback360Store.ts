@@ -38,7 +38,7 @@ export const useFeedback360Store = create<Feedback360State>()(
         try {
           const response = await startAssessment('THREE_SIXTY_SELF');
           set({
-            assessmentId: response.id,
+            assessmentId: response.assessment_id,
             currentQuestion: 0,
             answers: {},
             isLoading: false,

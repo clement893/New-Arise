@@ -62,7 +62,7 @@ export const useWellnessStore = create<WellnessState>()(
         try {
           const assessment = await assessmentsApi.start('WELLNESS');
           set({
-            assessmentId: assessment.id,
+            assessmentId: assessment.assessment_id,
             currentStep: 'questions',
             currentQuestionIndex: 0,
             answers: {},

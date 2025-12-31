@@ -21,6 +21,12 @@ const getAuthHeaders = () => {
 export type AssessmentType = 'WELLNESS' | 'TKI' | 'THREE_SIXTY_SELF' | 'MBTI';
 export type AssessmentStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
 
+export interface StartAssessmentResponse {
+  assessment_id: number;
+  status: AssessmentStatus;
+  message: string;
+}
+
 export interface Assessment {
   id: number;
   user_id: number;
@@ -63,7 +69,7 @@ export interface AssessmentResult {
 /**
  * Start a new assessment
  */
-export const startAssessment = async (assessmentType: AssessmentType): Promise<Assessment> => {
+export const startAssessment = async (assessmentType: AssessmentType): Promise<StartAssessmentResponse> => {
   const response = await axios.post(
     `${API_BASE_URL}/api/v1/assessments/start`,
     { assessment_type: assessmentType },
