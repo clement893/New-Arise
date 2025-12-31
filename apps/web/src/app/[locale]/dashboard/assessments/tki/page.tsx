@@ -33,7 +33,7 @@ export default function TKIAssessmentPage() {
 
   useEffect(() => {
     if (currentQuestionData && answers[currentQuestionData.id]) {
-      setSelectedAnswer(answers[currentQuestionData.id]);
+      setSelectedAnswer(answers[currentQuestionData.id] || null);
     } else {
       setSelectedAnswer(null);
     }
