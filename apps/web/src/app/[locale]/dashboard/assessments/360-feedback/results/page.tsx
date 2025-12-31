@@ -64,9 +64,9 @@ export default function Feedback360ResultsPage() {
       const response: AssessmentResult = await getAssessmentResults(id);
       
       // Transform AssessmentResult to Results format
-      const result_data = response.result_data;
-      const capabilityScores: CapabilityScore[] = result_data.capability_scores
-        ? Object.entries(result_data.capability_scores).map(([capability, score]) => {
+      const scores = response.scores;
+      const capabilityScores: CapabilityScore[] = scores.capability_scores
+        ? Object.entries(scores.capability_scores).map(([capability, score]) => {
             const scoreValue = isPillarScore(score) ? score.score : score;
             return {
               capability,
@@ -81,9 +81,9 @@ export default function Feedback360ResultsPage() {
       // Check if there are evaluator responses (this would come from backend)
       // For now, we'll assume false if not provided
       const transformedResults: Results = {
-        total_score: result_data.total_score,
-        max_score: result_data.max_score,
-        percentage: result_data.percentage,
+        total_score: scores.total_score,
+        max_score: scores.max_score,
+        percentage: scores.percentage,
         capability_scores: capabilityScores,
         has_evaluator_responses: false, // Backend should provide this
         evaluator_count: 0, // Backend should provide this

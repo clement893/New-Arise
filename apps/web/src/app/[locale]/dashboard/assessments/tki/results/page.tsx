@@ -37,8 +37,8 @@ export default function TKIResultsPage() {
       const data = await getAssessmentResults(Number(assessmentId));
       
       // Transform AssessmentResult to TKIResults format
-      const { result_data } = data;
-      const modeScores = result_data.mode_scores || {};
+      const { scores } = data;
+      const modeScores = scores.mode_scores || {};
       
       // Find dominant and secondary modes
       const sortedModes = Object.entries(modeScores)
