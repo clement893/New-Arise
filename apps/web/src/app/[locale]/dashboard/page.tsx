@@ -294,10 +294,10 @@ function DashboardContent() {
           {/* Welcome Header */}
           <MotionDiv variant="fade" duration="normal">
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-white mb-2">
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">
                 Welcome {user?.name?.split(' ')[0] || 'User'}
               </h1>
-              <p className="text-white/80 text-lg">
+              <p className="text-gray-600 text-lg">
                 Continue your journey to authentic leadership
               </p>
             </div>
@@ -350,8 +350,8 @@ function DashboardContent() {
                 {progressData.items.map((item, index) => (
                   <div key={index}>
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium">{item.label}</span>
-                      <span className="text-sm font-semibold">{item.percentage} %</span>
+                      <span className="text-sm font-medium text-white">{item.label}</span>
+                      <span className="text-sm font-semibold text-white">{item.percentage} %</span>
                     </div>
                     <div className="w-full bg-white/20 rounded-full h-2">
                       <div
@@ -386,7 +386,7 @@ function DashboardContent() {
           {/* Evaluations Section */}
           <MotionDiv variant="slideUp" delay={300}>
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-white mb-6">Your evaluations</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Your evaluations</h2>
               <Grid columns={{ mobile: 1, tablet: 2, desktop: 4 }} gap="normal">
                 {evaluations.map((evaluation, index) => {
                   const Icon = evaluation.icon;
