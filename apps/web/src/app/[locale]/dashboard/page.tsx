@@ -281,13 +281,7 @@ function DashboardContent() {
               <div 
                 className="absolute inset-0 opacity-5"
                 style={{
-                  backgroundImage: `repeating-linear-gradient(
-                    90deg,
-                    transparent,
-                    transparent 50px,
-                    rgba(255, 255, 255, 0.1) 50px,
-                    rgba(255, 255, 255, 0.1) 51px
-                  )`
+                  backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 50px, rgba(255, 255, 255, 0.1) 50px, rgba(255, 255, 255, 0.1) 51px)'
                 }}
               />
 
