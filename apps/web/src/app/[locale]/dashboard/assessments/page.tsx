@@ -24,8 +24,8 @@ interface AssessmentDisplay {
   assessmentType: AssessmentType;
 }
 
-// Mapping of assessment types to display info
-const ASSESSMENT_CONFIG: Record<AssessmentType, { title: string; description: string; icon: LucideIcon; externalLink?: string; requiresEvaluators?: boolean }> = {
+// Mapping of assessment types to display info (using lowercase keys for internal mapping)
+const ASSESSMENT_CONFIG: Record<string, { title: string; description: string; icon: LucideIcon; externalLink?: string; requiresEvaluators?: boolean }> = {
   mbti: {
     title: 'MBTI Personality',
     description: 'Understanding your natural preferences',
