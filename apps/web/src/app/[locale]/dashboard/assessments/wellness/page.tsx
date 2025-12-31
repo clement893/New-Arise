@@ -11,6 +11,7 @@ import { Sidebar } from '@/components/dashboard/Sidebar';
 import { useWellnessStore } from '@/stores/wellnessStore';
 import { wellnessQuestions, wellnessPillars, scaleOptions } from '@/data/wellnessQuestionsReal';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
+import { getMyAssessments, submitAssessment as submitAssessmentApi } from '@/lib/api/assessments';
 
 function WellnessAssessmentContent() {
   const router = useRouter();
@@ -25,15 +26,51 @@ function WellnessAssessmentContent() {
     getProgress,
     startAssessment,
     isLoading,
+    assessmentId,
+    submitAssessment,
   } = useWellnessStore();
 
   const [showIntro, setShowIntro] = useState(true);
   const [showCompletion, setShowCompletion] = useState(false);
+  const [isCheckingExisting, setIsCheckingExisting] = useState(true);
 
   const currentQuestion = wellnessQuestions[currentQuestionIndex];
   const progress = getProgress();
   const isLastQuestion = currentQuestionIndex === wellnessQuestions.length - 1;
   const currentAnswer = currentQuestion ? answers[currentQuestion.id] : undefined;
+
+  // Check for existing assessment with all answers on mount
+  useEffect(() => {
+    const checkExistingAssessment = async () => {
+      try {
+        setIsCheckingExisting(true);
+        const assessments = await getMyAssessments();
+        const wellnessAssessment = assessments.find(
+          a => a.assessment_type === 'WELLNESS' && 
+          a.status === 'IN_PROGRESS' && 
+          a.answer_count === 30
+        );
+        
+        if (wellnessAssessment && wellnessAssessment.id) {
+          // If assessment has all answers but is not submitted, submit it automatically
+          try {
+            await submitAssessmentApi(wellnessAssessment.id);
+            // Redirect to results
+            router.push(`/dashboard/assessments/results?id=${wellnessAssessment.id}`);
+            return;
+          } catch (err) {
+            console.error('Failed to submit existing assessment:', err);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to check existing assessments:', err);
+      } finally {
+        setIsCheckingExisting(false);
+      }
+    };
+
+    checkExistingAssessment();
+  }, [router]);
 
   useEffect(() => {
     if (isCompleted) {
@@ -67,6 +104,24 @@ function WellnessAssessmentContent() {
   const handleFinish = () => {
     router.push('/dashboard/assessments');
   };
+
+  // Show loading while checking for existing assessment
+  if (isCheckingExisting) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex">
+        <Sidebar />
+        <div className="flex-1 ml-64">
+          <div className="relative z-10 p-8 flex items-center justify-center min-h-screen">
+            <MotionDiv variant="fade" duration="normal">
+              <Card className="max-w-md text-center">
+                <p className="text-gray-600">Checking for existing assessment...</p>
+              </Card>
+            </MotionDiv>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Introduction Screen
   if (showIntro) {
