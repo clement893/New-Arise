@@ -10,6 +10,7 @@ export interface RegistrationState {
     email: string;
     phone: string;
     password: string;
+    userId?: string | number;
   };
   profileInfo: {
     companyName?: string;
@@ -34,6 +35,7 @@ const initialState = {
     email: '',
     phone: '',
     password: '',
+    userId: undefined,
   },
   profileInfo: {},
 };
