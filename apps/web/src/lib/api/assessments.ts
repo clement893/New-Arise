@@ -18,8 +18,8 @@ const getAuthHeaders = () => {
   return {};
 };
 
-export type AssessmentType = 'wellness' | 'tki' | '360_self' | 'mbti';
-export type AssessmentStatus = 'not_started' | 'in_progress' | 'completed';
+export type AssessmentType = 'WELLNESS' | 'TKI' | 'THREE_SIXTY_SELF' | 'MBTI';
+export type AssessmentStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
 
 export interface Assessment {
   id: number;

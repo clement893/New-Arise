@@ -51,7 +51,7 @@ export default function Feedback360ResultsPage() {
       if (!id) {
         const assessments = await getMyAssessments();
         const feedback360Assessment = assessments.find(
-          (a) => a.assessment_type === '360_self'
+          (a) => a.assessment_type === 'THREE_SIXTY_SELF'
         );
         if (!feedback360Assessment) {
           setError('No 360 feedback assessment found');

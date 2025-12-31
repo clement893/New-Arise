@@ -42,7 +42,7 @@ export const useTKIStore = create<TKIState>()(
       startAssessment: async () => {
         set({ isLoading: true, error: null });
         try {
-          const assessment = await startAssessment('tki');
+          const assessment = await startAssessment('TKI');
           set({ 
             assessmentId: assessment.id,
             isLoading: false,
