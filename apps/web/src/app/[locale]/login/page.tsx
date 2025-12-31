@@ -30,7 +30,7 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (_data: LoginFormData) => {
     setIsLoading(true);
     
     // Simulate login

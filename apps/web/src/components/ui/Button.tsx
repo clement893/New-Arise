@@ -230,4 +230,6 @@ function Button({
   );
 }
 
-export default memo(Button);
+const ButtonComponent = memo(Button);
+export default ButtonComponent;
+export { ButtonComponent as Button };

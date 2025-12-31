@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Button } from '@/components/ui/Button';
+import Button from '@/components/ui/Button';
 
 export function Header() {
   return (

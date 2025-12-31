@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/ui/Button';
+import Button from '@/components/ui/Button';
 import Link from 'next/link';
 import { User, Users, Building2 } from 'lucide-react';
 
