@@ -153,7 +153,8 @@ function AssessmentsContent() {
       case 'MBTI':
         return 'mbti';
       default:
-        return type.toLowerCase();
+        // TypeScript exhaustiveness check - this should never happen
+        return String(type).toLowerCase();
     }
   };
 
