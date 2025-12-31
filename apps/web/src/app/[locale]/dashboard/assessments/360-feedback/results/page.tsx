@@ -3,11 +3,16 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { getAssessmentResults, getMyAssessments } from '@/lib/api/assessments';
+import { getAssessmentResults, getMyAssessments, PillarScore } from '@/lib/api/assessments';
 import { useFeedback360Store } from '@/stores/feedback360Store';
 import { feedback360Capabilities } from '@/data/feedback360Questions';
 import Button from '@/components/ui/Button';
 import { ArrowLeft, TrendingUp, TrendingDown, Minus, Users } from 'lucide-react';
+
+// Type guard to check if a value is a PillarScore object
+function isPillarScore(value: number | PillarScore): value is PillarScore {
+  return typeof value === 'object' && value !== null && 'score' in value;
+}
 
 interface CapabilityScore {
   capability: string;
@@ -62,7 +67,7 @@ export default function Feedback360ResultsPage() {
       const { result_data } = response;
       const capabilityScores: CapabilityScore[] = result_data.capability_scores
         ? Object.entries(result_data.capability_scores).map(([capability, score]) => {
-            const scoreValue = typeof score === 'number' ? score : score.score;
+            const scoreValue = isPillarScore(score) ? score.score : score;
             return {
               capability,
               self_score: scoreValue,
