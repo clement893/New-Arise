@@ -160,7 +160,7 @@ function DashboardContent() {
     externalLink?: string;
   };
 
-  const evaluations: EvaluationItem[] = assessmentTypes
+  const evaluations = assessmentTypes
     .map(type => {
       const config = ASSESSMENT_CONFIG[type];
       if (!config) {
