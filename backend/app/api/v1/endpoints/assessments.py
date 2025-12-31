@@ -374,10 +374,13 @@ async def get_assessment_results(
     )
     assessment_type = result.scalar_one()
     
+    # Convert assessment_type to string if it's an enum
+    assessment_type_str = assessment_type if isinstance(assessment_type, str) else assessment_type.value
+    
     return AssessmentResultResponse(
         id=assessment_result.id,
         assessment_id=assessment_result.assessment_id,
-        assessment_type=assessment_type.value,
+        assessment_type=assessment_type_str,
         scores=assessment_result.scores,
         insights=assessment_result.insights,
         recommendations=assessment_result.recommendations,

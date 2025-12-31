@@ -76,8 +76,8 @@ function AssessmentResultsContent() {
     );
   }
 
-  const { result_data } = results;
-  const { total_score, max_score, percentage, pillar_scores } = result_data;
+  const { scores } = results;
+  const { total_score, max_score, percentage, pillar_scores } = scores;
 
   return (
     <div className="min-h-screen bg-gray-50 flex">

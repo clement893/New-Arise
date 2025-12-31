@@ -55,7 +55,8 @@ export interface PillarScore {
 export interface AssessmentResult {
   id: number;
   assessment_id: number;
-  result_data: {
+  assessment_type: string;
+  scores: {
     total_score: number;
     max_score: number;
     percentage: number;
@@ -63,7 +64,10 @@ export interface AssessmentResult {
     mode_scores?: Record<string, number>;
     capability_scores?: Record<string, number>;
   };
-  created_at: string;
+  insights?: Record<string, any>;
+  recommendations?: Record<string, any>;
+  comparison_data?: Record<string, any>;
+  generated_at: string;
 }
 
 /**
