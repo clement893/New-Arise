@@ -82,8 +82,11 @@ export default function InviteEvaluatorsModal({
     try {
       await onInvite(validEvaluators);
       onClose();
-    } catch (err: any) {
-      setError(err.message || 'Failed to invite evaluators');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error
+        ? err.message
+        : 'Failed to invite evaluators';
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

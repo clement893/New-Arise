@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { startAssessment, saveAnswer, submitAssessment } from '@/lib/api/assessments';
+import axios from 'axios';
 
 interface Feedback360Answer {
   questionId: string;
@@ -47,9 +48,14 @@ export const useFeedback360Store = create<Feedback360State>()(
             answers: {},
             isLoading: false,
           });
-        } catch (error: any) {
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error
+            ? error.message
+            : axios.isAxiosError(error) && error.response?.data?.detail
+            ? error.response.data.detail
+            : 'Failed to start assessment';
           set({
-            error: error.message || 'Failed to start assessment',
+            error: errorMessage,
             isLoading: false,
           });
           throw error;
@@ -77,7 +83,7 @@ export const useFeedback360Store = create<Feedback360State>()(
             question_id: questionId,
             answer_value: value.toString(),
           });
-        } catch (error: any) {
+        } catch (error: unknown) {
           console.error('Failed to save answer:', error);
           // Don't throw - allow user to continue even if save fails
         }
@@ -110,9 +116,14 @@ export const useFeedback360Store = create<Feedback360State>()(
           await submitAssessment(assessmentId);
           set({ isLoading: false });
           // Don't reset - keep data for results page
-        } catch (error: any) {
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error
+            ? error.message
+            : axios.isAxiosError(error) && error.response?.data?.detail
+            ? error.response.data.detail
+            : 'Failed to submit assessment';
           set({
-            error: error.message || 'Failed to submit assessment',
+            error: errorMessage,
             isLoading: false,
           });
           throw error;
