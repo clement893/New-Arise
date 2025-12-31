@@ -196,7 +196,7 @@ export default function TKIResultsPage() {
                   <h3 className="text-sm font-medium opacity-90 mb-2">Dominant Mode</h3>
                   <h2 className="text-3xl font-bold mb-2">{dominantModeInfo?.title}</h2>
                   <p className="text-sm opacity-90">
-                    {results.mode_counts[results.dominant_mode]} out of 30 responses
+                    {results.dominant_mode ? (results.mode_counts[results.dominant_mode] || 0) : 0} out of 30 responses
                   </p>
                 </div>
               </Card>
@@ -207,7 +207,7 @@ export default function TKIResultsPage() {
                   <h3 className="text-sm font-medium opacity-90 mb-2">Secondary Mode</h3>
                   <h2 className="text-3xl font-bold mb-2">{secondaryModeInfo?.title}</h2>
                   <p className="text-sm opacity-90">
-                    {results.mode_counts[results.secondary_mode]} out of 30 responses
+                    {results.secondary_mode ? (results.mode_counts[results.secondary_mode] || 0) : 0} out of 30 responses
                   </p>
                 </div>
               </Card>
