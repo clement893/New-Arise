@@ -1,43 +1,28 @@
 'use client';
 
-// Force dynamic rendering to avoid static generation
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/lib/store';
-import { Card, Badge, Button, LoadingSkeleton, Grid, Stack } from '@/components/ui';
-import { PageHeader } from '@/components/layout';
-import { Link } from '@/i18n/routing';
-import dynamicImport from 'next/dynamic';
+import { Card, Button, LoadingSkeleton, Grid, Stack } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
+import { Sidebar } from '@/components/dashboard/Sidebar';
 import { 
-  User, 
-  Mail, 
-  CheckCircle2, 
-  XCircle, 
-  Settings, 
-  Activity,
-  Database,
-  Shield,
-  Sparkles,
-  Zap,
-  TrendingUp
+  Brain, 
+  Target, 
+  Users, 
+  Heart,
+  Info,
+  ArrowRight
 } from 'lucide-react';
-
-// Lazy load TemplateAIChat to avoid circular dependency issues during build
-const TemplateAIChat = dynamicImport(
-  () => import('@/components/ai/TemplateAIChat').then(mod => ({ default: mod.TemplateAIChat })),
-  { ssr: false }
-);
 
 function DashboardContent() {
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate initial data loading
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 500);
@@ -46,231 +31,307 @@ function DashboardContent() {
 
   if (isLoading) {
     return (
-      <div className="space-y-2xl">
-        <div>
-          <LoadingSkeleton variant="custom" className="h-10 w-64 mb-2" />
-          <LoadingSkeleton variant="custom" className="h-6 w-96" />
+      <div className="flex">
+        <Sidebar />
+        <div className="flex-1 ml-64 p-8">
+          <LoadingSkeleton variant="custom" className="h-10 w-64 mb-8" />
+          <LoadingSkeleton variant="card" className="h-48 mb-8" />
+          <LoadingSkeleton variant="card" className="h-64 mb-8" />
+          <Grid columns={{ mobile: 1, tablet: 2, desktop: 4 }} gap="normal">
+            <LoadingSkeleton variant="card" className="h-64" />
+            <LoadingSkeleton variant="card" className="h-64" />
+            <LoadingSkeleton variant="card" className="h-64" />
+            <LoadingSkeleton variant="card" className="h-64" />
+          </Grid>
         </div>
-        <Grid columns={{ mobile: 1, tablet: 2, desktop: 4 }} gap="normal">
-          <LoadingSkeleton variant="card" className="h-32" />
-          <LoadingSkeleton variant="card" className="h-32" />
-          <LoadingSkeleton variant="card" className="h-32" />
-          <LoadingSkeleton variant="card" className="h-32" />
-        </Grid>
-        <LoadingSkeleton variant="card" count={2} />
       </div>
     );
   }
 
+  // Mock data - Replace with real data from API
+  const progressData = {
+    overall: 95,
+    items: [
+      { label: 'MBTI', percentage: 100, color: 'teal' },
+      { label: 'TKI', percentage: 100, color: 'teal' },
+      { label: '360° Feedback', percentage: 60, color: 'orange' },
+      { label: 'Wellness', percentage: 0, color: 'gray' },
+    ],
+  };
+
+  const evaluations = [
+    {
+      title: 'MBTI Personality',
+      description: 'Understanding your natural preferences',
+      status: 'completed',
+      icon: Brain,
+    },
+    {
+      title: 'TKI Conflict Style',
+      description: 'Explore Your Conflict Management Approach',
+      status: 'completed',
+      icon: Target,
+    },
+    {
+      title: '360° Feedback',
+      description: 'Multi-Faceted Leadership Perspectives',
+      status: 'in-progress',
+      icon: Users,
+    },
+    {
+      title: 'Wellness',
+      description: 'Add the assessment',
+      status: 'locked',
+      icon: Heart,
+    },
+  ];
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return (
+          <span className="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
+            Completed
+          </span>
+        );
+      case 'in-progress':
+        return (
+          <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
+            In progress
+          </span>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const getActionButton = (status: string, title: string) => {
+    if (status === 'locked') {
+      return (
+        <Button variant="secondary" disabled className="w-full">
+          Locked
+        </Button>
+      );
+    }
+
+    if (status === 'completed') {
+      return (
+        <Button variant="outline" className="w-full">
+          View Results
+        </Button>
+      );
+    }
+
+    return (
+      <Button variant="primary" className="w-full">
+        Continue
+      </Button>
+    );
+  };
+
+  const getProgressColor = (color: string) => {
+    switch (color) {
+      case 'teal':
+        return 'bg-arise-deep-teal';
+      case 'orange':
+        return 'bg-arise-gold';
+      default:
+        return 'bg-gray-400';
+    }
+  };
+
   return (
-    <MotionDiv variant="slideUp" duration="normal" className="space-y-2xl">
-      {/* Welcome Header */}
-      <MotionDiv variant="fade" delay={100}>
-        <PageHeader
-          title={`Welcome back, ${user?.name || 'User'}!`}
-          description="Here's what's happening with your account today"
-          breadcrumbs={[
-            { label: 'Home', href: '/' },
-            { label: 'Dashboard' },
-          ]}
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Sidebar */}
+      <Sidebar />
+
+      {/* Main Content */}
+      <div className="flex-1 ml-64">
+        {/* Background Image */}
+        <div 
+          className="fixed inset-0 ml-64 bg-cover bg-center opacity-10 pointer-events-none"
+          style={{
+            backgroundImage: 'url(/images/dashboard-bg.jpg)',
+          }}
         />
-      </MotionDiv>
 
-      {/* Quick Stats Grid */}
-      <MotionDiv variant="slideUp" delay={200}>
-        <Grid columns={{ mobile: 1, tablet: 2, desktop: 4 }} gap="normal">
-          <Card className="border-l-4 border-l-primary-500 hover:shadow-lg transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">Resources</p>
-                <p className="text-3xl font-bold text-foreground">0</p>
-              </div>
-              <div className="p-3 bg-primary-100 dark:bg-primary-900/30 rounded-lg">
-                <Sparkles className="w-6 h-6 text-primary-600 dark:text-primary-400" />
-              </div>
+        {/* Content Container */}
+        <div className="relative z-10 p-8">
+          {/* Welcome Header */}
+          <MotionDiv variant="fade" duration="normal">
+            <div className="mb-8">
+              <h1 className="text-4xl font-bold text-arise-deep-teal mb-2">
+                Welcome {user?.name?.split(' ')[0] || 'User'}
+              </h1>
+              <p className="text-gray-600">
+                Continue your journey to authentic leadership
+              </p>
             </div>
-          </Card>
-          <Card className="border-l-4 border-l-secondary-500 hover:shadow-lg transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">Files</p>
-                <p className="text-3xl font-bold text-foreground">0</p>
-              </div>
-              <div className="p-3 bg-secondary-100 dark:bg-secondary-900/30 rounded-lg">
-                <Zap className="w-6 h-6 text-secondary-600 dark:text-secondary-400" />
-              </div>
-            </div>
-          </Card>
-          <Card className="border-l-4 border-l-info-500 hover:shadow-lg transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">Activities</p>
-                <p className="text-3xl font-bold text-foreground">0</p>
-              </div>
-              <div className="p-3 bg-info-100 dark:bg-info-900/30 rounded-lg">
-                <Activity className="w-6 h-6 text-info-600 dark:text-info-400" />
-              </div>
-            </div>
-          </Card>
-          <Card className="border-l-4 border-l-success-500 hover:shadow-lg transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">Growth</p>
-                <p className="text-3xl font-bold text-foreground">+12%</p>
-              </div>
-              <div className="p-3 bg-success-100 dark:bg-success-900/30 rounded-lg">
-                <TrendingUp className="w-6 h-6 text-success-600 dark:text-success-400" />
-              </div>
-            </div>
-          </Card>
-        </Grid>
-      </MotionDiv>
+          </MotionDiv>
 
-      <MotionDiv variant="slideUp" delay={300}>
-        <Grid columns={{ mobile: 1, tablet: 2 }} gap="loose">
-          {/* User Profile Card */}
-          <Card className="hover:shadow-xl transition-all duration-300">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-3 bg-primary-100 dark:bg-primary-900/30 rounded-lg">
-                <User className="w-6 h-6 text-primary-600 dark:text-primary-400" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-foreground">Your Profile</h3>
-                <p className="text-sm text-muted-foreground">Account information</p>
-              </div>
-            </div>
-            <Stack gap="normal">
-              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                <User className="w-5 h-5 text-muted-foreground" />
-                <div className="flex-1">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Name</p>
-                  <p className="text-base font-semibold text-foreground mt-0.5">
-                    {user?.name || 'N/A'}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                <Mail className="w-5 h-5 text-muted-foreground" />
-                <div className="flex-1">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Email</p>
-                  <p className="text-base font-semibold text-foreground mt-0.5">
-                    {user?.email || 'N/A'}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  {user?.is_active ? (
-                    <CheckCircle2 className="w-5 h-5 text-success-600 dark:text-success-400" />
-                  ) : (
-                    <XCircle className="w-5 h-5 text-muted-foreground" />
-                  )}
+          {/* Feedback Banner */}
+          <MotionDiv variant="slideUp" delay={100}>
+            <Card className="mb-8">
+              <div className="flex items-center justify-between">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-arise-deep-teal/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Info className="text-arise-deep-teal" size={20} />
+                  </div>
                   <div>
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Status</p>
-                    <Badge variant={user?.is_active ? 'success' : 'default'} className="mt-0.5">
-                      {user?.is_active ? 'Active' : 'Inactive'}
-                    </Badge>
+                    <h3 className="text-lg font-bold text-gray-900 mb-1">
+                      Add Your 360° Feedback Evaluators
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Get comprehensive feedback by inviting colleagues to evaluate your leadership.
+                    </p>
                   </div>
                 </div>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  {user?.is_verified ? (
-                    <CheckCircle2 className="w-5 h-5 text-success-600 dark:text-success-400" />
-                  ) : (
-                    <XCircle className="w-5 h-5 text-muted-foreground" />
-                  )}
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Verified</p>
-                    <Badge variant={user?.is_verified ? 'success' : 'default'} className="mt-0.5">
-                      {user?.is_verified ? 'Verified' : 'Not Verified'}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-            </Stack>
-          </Card>
-
-          {/* Quick Actions Card */}
-          <Card className="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-950/60 dark:to-primary-900/60 border-primary-200 dark:border-primary-800 hover:shadow-xl transition-all duration-300">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-3 bg-primary-600 dark:bg-primary-500 rounded-lg">
-                <Zap className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-foreground">Quick Actions</h3>
-                <p className="text-sm text-muted-foreground">Access frequently used features</p>
-              </div>
-            </div>
-            <Stack gap="normal">
-              <Link href="/admin">
-                <Button variant="primary" className="w-full justify-start gap-3 h-auto py-3 hover:scale-[1.02] transition-transform">
-                  <Settings className="w-5 h-5" />
-                  <div className="text-left">
-                    <div className="font-semibold">Espace Admin</div>
-                    <div className="text-xs opacity-90">Manage system settings</div>
-                  </div>
+                <Button variant="primary" className="whitespace-nowrap">
+                  Add evaluators
                 </Button>
-              </Link>
-            </Stack>
-          </Card>
-        </Grid>
-      </MotionDiv>
+              </div>
+            </Card>
+          </MotionDiv>
 
-      {/* API Status */}
-      <MotionDiv variant="slideUp" delay={400}>
-        <Card className="hover:shadow-xl transition-all duration-300">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="p-3 bg-success-100 dark:bg-success-900/30 rounded-lg">
-              <Shield className="w-6 h-6 text-success-600 dark:text-success-400" />
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold text-foreground">System Status</h3>
-              <p className="text-sm text-muted-foreground">All systems operational</p>
-            </div>
-          </div>
-          <Grid columns={{ mobile: 1, tablet: 3 }} gap="normal">
-            <div className="p-4 bg-success-50 dark:bg-success-900/80 border-2 border-success-200 dark:border-success-800 rounded-lg hover:border-success-400 dark:hover:border-success-600 transition-colors">
-              <div className="flex items-center gap-3 mb-2">
-                <CheckCircle2 className="w-5 h-5 text-success-600 dark:text-success-400" />
-                <p className="font-semibold text-success-900 dark:text-success-100">Backend Connected</p>
+          {/* Progress Section */}
+          <MotionDiv variant="slideUp" delay={200}>
+            <Card className="mb-8 bg-arise-deep-teal/90 text-white border-0">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold mb-2">Your Progress</h2>
+                  <div className="text-6xl font-bold mb-2">{progressData.overall} %</div>
+                  <p className="text-white/80 mb-1">
+                    You are making good progress in your holistic leadership journey.
+                  </p>
+                  <p className="text-white font-semibold">Keep it up!</p>
+                </div>
               </div>
-              <p className="text-sm text-success-800 dark:text-success-200 ml-8">API is running</p>
-            </div>
-            <div className="p-4 bg-success-50 dark:bg-success-900/80 border-2 border-success-200 dark:border-success-800 rounded-lg hover:border-success-400 dark:hover:border-success-600 transition-colors">
-              <div className="flex items-center gap-3 mb-2">
-                <Database className="w-5 h-5 text-success-600 dark:text-success-400" />
-                <p className="font-semibold text-success-900 dark:text-success-100">Database Connected</p>
-              </div>
-              <p className="text-sm text-success-800 dark:text-success-200 ml-8">PostgreSQL is running</p>
-            </div>
-            <div className="p-4 bg-success-50 dark:bg-success-900/80 border-2 border-success-200 dark:border-success-800 rounded-lg hover:border-success-400 dark:hover:border-success-600 transition-colors">
-              <div className="flex items-center gap-3 mb-2">
-                <Shield className="w-5 h-5 text-success-600 dark:text-success-400" />
-                <p className="font-semibold text-success-900 dark:text-success-100">Authentication</p>
-              </div>
-              <p className="text-sm text-success-800 dark:text-success-200 ml-8">JWT is working</p>
-            </div>
-          </Grid>
-        </Card>
-      </MotionDiv>
 
-      {/* AI Chat Assistant */}
-      <MotionDiv variant="slideUp" delay={600}>
-        <Card className="hover:shadow-xl transition-all duration-300">
-        <div className="flex items-center gap-4 mb-6">
-          <div className="p-3 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg">
-            <Sparkles className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h3 className="text-xl font-semibold text-foreground">AI Assistant</h3>
-            <p className="text-sm text-muted-foreground">Get help with your questions</p>
-          </div>
+              {/* Progress Bars */}
+              <div className="space-y-4 mb-6">
+                {progressData.items.map((item, index) => (
+                  <div key={index}>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium">{item.label}</span>
+                      <span className="text-sm font-semibold">{item.percentage} %</span>
+                    </div>
+                    <div className="w-full bg-white/20 rounded-full h-2">
+                      <div
+                        className={`${getProgressColor(item.color)} h-2 rounded-full transition-all duration-500`}
+                        style={{ width: `${item.percentage}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-4">
+                <Button 
+                  variant="primary" 
+                  className="bg-arise-gold text-arise-deep-teal hover:bg-arise-gold/90"
+                >
+                  Continue Learning
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="border-2 border-white text-white hover:bg-white/10"
+                >
+                  View Reports
+                </Button>
+              </div>
+            </Card>
+          </MotionDiv>
+
+          {/* Evaluations Section */}
+          <MotionDiv variant="slideUp" delay={300}>
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Your evaluations</h2>
+              <Grid columns={{ mobile: 1, tablet: 2, desktop: 4 }} gap="normal">
+                {evaluations.map((evaluation, index) => {
+                  const Icon = evaluation.icon;
+                  return (
+                    <Card 
+                      key={index} 
+                      className={`${evaluation.status === 'locked' ? 'opacity-60' : ''}`}
+                    >
+                      <Stack gap="normal">
+                        {/* Icon and Status */}
+                        <div className="flex items-start justify-between">
+                          <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                            <Icon className="text-arise-deep-teal" size={24} />
+                          </div>
+                          {evaluation.status === 'in-progress' && (
+                            <span className="inline-block px-3 py-1 border border-arise-deep-teal text-arise-deep-teal text-xs rounded-full font-medium">
+                              External link
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Title and Description */}
+                        <div>
+                          <h3 className="text-lg font-bold text-gray-900 mb-2">
+                            {evaluation.title}
+                          </h3>
+                          <p className="text-sm text-gray-600 mb-4">
+                            {evaluation.description}
+                          </p>
+                        </div>
+
+                        {/* Status Badge */}
+                        {getStatusBadge(evaluation.status)}
+
+                        {/* Action Button */}
+                        <div className="mt-auto">
+                          {getActionButton(evaluation.status, evaluation.title)}
+                        </div>
+                      </Stack>
+                    </Card>
+                  );
+                })}
+              </Grid>
+            </div>
+          </MotionDiv>
+
+          {/* Coaching Section */}
+          <MotionDiv variant="slideUp" delay={400}>
+            <Card className="bg-arise-deep-teal/90 text-white border-0 relative overflow-hidden">
+              {/* Background Pattern */}
+              <div 
+                className="absolute inset-0 opacity-5"
+                style={{
+                  backgroundImage: `repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 50px,
+                    rgba(255, 255, 255, 0.1) 50px,
+                    rgba(255, 255, 255, 0.1) 51px
+                  )`
+                }}
+              />
+
+              <div className="relative z-10">
+                <h2 className="text-3xl font-bold mb-4">
+                  Ready to accelerate your growth?
+                </h2>
+                <p className="text-white/90 mb-6 max-w-2xl">
+                  Connect with expert ARISE coaches who specialize in leadership development. 
+                  Schedule your FREE coaching session to debrief your results and build a 
+                  personalized development plan.
+                </p>
+                <Button 
+                  variant="primary" 
+                  className="bg-arise-gold text-arise-deep-teal hover:bg-arise-gold/90 flex items-center gap-2"
+                >
+                  Explore coaching options
+                  <ArrowRight size={20} />
+                </Button>
+              </div>
+            </Card>
+          </MotionDiv>
         </div>
-        <TemplateAIChat />
-      </Card>
-      </MotionDiv>
-    </MotionDiv>
+      </div>
+    </div>
   );
 }
 
