@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query, Body
 from pydantic import BaseModel, Field, EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
-from datetime import datetime
+from datetime import datetime, timezone
 
 from app.core.database import get_db
 from app.dependencies import get_current_user
@@ -213,57 +213,70 @@ async def save_answer(
     """
     Save an answer to a question
     """
-    # Get assessment
-    result = await db.execute(
-        select(Assessment)
-        .where(
-            Assessment.id == assessment_id,
-            Assessment.user_id == current_user.id
+    try:
+        # Get assessment
+        result = await db.execute(
+            select(Assessment)
+            .where(
+                Assessment.id == assessment_id,
+                Assessment.user_id == current_user.id
+            )
         )
-    )
-    assessment = result.scalar_one_or_none()
-    
-    if not assessment:
+        assessment = result.scalar_one_or_none()
+        
+        if not assessment:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Assessment not found"
+            )
+        
+        if assessment.status == AssessmentStatus.COMPLETED:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Assessment is already completed"
+            )
+        
+        # Check if answer already exists
+        result = await db.execute(
+            select(AssessmentAnswer)
+            .where(
+                AssessmentAnswer.assessment_id == assessment_id,
+                AssessmentAnswer.question_id == request.question_id
+            )
+        )
+        existing_answer = result.scalar_one_or_none()
+        
+        if existing_answer:
+            # Update existing answer
+            existing_answer.answer_value = request.answer_value
+            # Update answered_at to track when answer was last modified
+            existing_answer.answered_at = datetime.now(timezone.utc)
+        else:
+            # Create new answer
+            new_answer = AssessmentAnswer(
+                assessment_id=assessment_id,
+                question_id=request.question_id,
+                answer_value=request.answer_value
+            )
+            db.add(new_answer)
+        
+        await db.commit()
+        
+        return {
+            "message": "Answer saved successfully",
+            "question_id": request.question_id
+        }
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
+    except Exception as e:
+        from app.core.logging import logger
+        logger.error(f"Error saving answer for assessment {assessment_id}: {e}", exc_info=True)
+        await db.rollback()
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Assessment not found"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to save answer: {str(e)}"
         )
-    
-    if assessment.status == AssessmentStatus.COMPLETED:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Assessment is already completed"
-        )
-    
-    # Check if answer already exists
-    result = await db.execute(
-        select(AssessmentAnswer)
-        .where(
-            AssessmentAnswer.assessment_id == assessment_id,
-            AssessmentAnswer.question_id == request.question_id
-        )
-    )
-    existing_answer = result.scalar_one_or_none()
-    
-    if existing_answer:
-        # Update existing answer
-        existing_answer.answer_value = request.answer_value
-        existing_answer.answered_at = datetime.utcnow()
-    else:
-        # Create new answer
-        new_answer = AssessmentAnswer(
-            assessment_id=assessment_id,
-            question_id=request.question_id,
-            answer_value=request.answer_value
-        )
-        db.add(new_answer)
-    
-    await db.commit()
-    
-    return {
-        "message": "Answer saved successfully",
-        "question_id": request.question_id
-    }
 
 
 @router.post("/{assessment_id}/submit", response_model=AssessmentSubmitResponse)
