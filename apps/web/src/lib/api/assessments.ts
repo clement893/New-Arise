@@ -40,6 +40,12 @@ export interface AssessmentAnswer {
   created_at: string;
 }
 
+export interface PillarScore {
+  score: number;
+  max: number;
+  percentage: number;
+}
+
 export interface AssessmentResult {
   id: number;
   assessment_id: number;
@@ -47,7 +53,7 @@ export interface AssessmentResult {
     total_score: number;
     max_score: number;
     percentage: number;
-    pillar_scores?: Record<string, number>;
+    pillar_scores?: Record<string, number | PillarScore>;
     mode_scores?: Record<string, number>;
     capability_scores?: Record<string, number>;
   };

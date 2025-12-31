@@ -8,7 +8,7 @@ import { Card, Button } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { Sidebar } from '@/components/dashboard/Sidebar';
-import { assessmentsApi, AssessmentResult } from '@/lib/api/assessments';
+import { assessmentsApi, AssessmentResult, PillarScore } from '@/lib/api/assessments';
 import { wellnessPillars } from '@/data/wellnessQuestionsReal';
 import { ArrowLeft, Download, Share2, TrendingUp } from 'lucide-react';
 
@@ -135,8 +135,11 @@ function AssessmentResultsContent() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {wellnessPillars.map((pillar, index) => {
               const pillarData = pillar_scores?.[pillar.id];
-              const pillarScore = typeof pillarData === 'object' ? pillarData?.score || 0 : pillarData || 0;
-              const pillarPercentage = typeof pillarData === 'object' ? pillarData?.percentage || 0 : (pillarScore / 25) * 100; // Each pillar max is 25
+              const isPillarScoreObject = (data: number | PillarScore | undefined): data is PillarScore => {
+                return typeof data === 'object' && data !== null && 'score' in data;
+              };
+              const pillarScore = isPillarScoreObject(pillarData) ? pillarData.score : (typeof pillarData === 'number' ? pillarData : 0);
+              const pillarPercentage = isPillarScoreObject(pillarData) ? pillarData.percentage : (pillarScore / 25) * 100; // Each pillar max is 25
               
               return (
                 <MotionDiv 
@@ -204,8 +207,12 @@ function AssessmentResultsContent() {
                   <p className="text-green-800">
                     Your strongest pillar is {wellnessPillars.find(p => {
                       const data = pillar_scores?.[p.id];
-                      const score = typeof data === 'object' ? data?.score : data;
-                      return score === Math.max(...Object.values(pillar_scores || {}).map((d: any) => typeof d === 'object' ? d?.score : d));
+                      const isPillarScoreObject = (d: number | PillarScore | undefined): d is PillarScore => {
+                        return typeof d === 'object' && d !== null && 'score' in d;
+                      };
+                      const score = isPillarScoreObject(data) ? data.score : (typeof data === 'number' ? data : 0);
+                      const allScores = Object.values(pillar_scores || {}).map(d => isPillarScoreObject(d) ? d.score : (typeof d === 'number' ? d : 0));
+                      return score === Math.max(...allScores);
                     })?.name || 'N/A'}.
                     Keep up the excellent work in this area!
                   </p>
@@ -215,8 +222,12 @@ function AssessmentResultsContent() {
                   <p className="text-yellow-800">
                     Consider focusing on {wellnessPillars.find(p => {
                       const data = pillar_scores?.[p.id];
-                      const score = typeof data === 'object' ? data?.score : data;
-                      return score === Math.min(...Object.values(pillar_scores || {}).map((d: any) => typeof d === 'object' ? d?.score : d));
+                      const isPillarScoreObject = (d: number | PillarScore | undefined): d is PillarScore => {
+                        return typeof d === 'object' && d !== null && 'score' in d;
+                      };
+                      const score = isPillarScoreObject(data) ? data.score : (typeof data === 'number' ? data : 0);
+                      const allScores = Object.values(pillar_scores || {}).map(d => isPillarScoreObject(d) ? d.score : (typeof d === 'number' ? d : 0));
+                      return score === Math.min(...allScores);
                     })?.name || 'N/A'} 
                     to achieve a more balanced wellness profile.
                   </p>
