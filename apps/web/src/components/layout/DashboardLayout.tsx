@@ -49,8 +49,14 @@ const createSidebarItems = (userType?: UserType, isAdmin?: boolean): SidebarItem
   // Default to INDIVIDUAL if user_type is not provided
   const type = userType || 'INDIVIDUAL';
   
+  // Debug logging
+  if (typeof window !== 'undefined') {
+    console.log('[createSidebarItems] Creating sidebar items:', { userType: type, isAdmin });
+  }
+  
   // Admin users see admin-specific navigation
-  if (type === 'ADMIN' || (isAdmin && type !== 'COACH' && type !== 'BUSINESS')) {
+  // Check if type is ADMIN or if user is admin (fallback for superadmins)
+  if (type === 'ADMIN' || isAdmin === true) {
     return [
       {
         label: 'Manage Users',
@@ -156,6 +162,16 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
   // Also check is_admin as fallback (though migration should have set user_type)
   const isAdmin = user?.is_admin ?? false;
   const effectiveUserType = (userType === 'ADMIN' || isAdmin) ? 'ADMIN' : userType;
+  
+  // Debug logging (remove in production if needed)
+  if (typeof window !== 'undefined') {
+    console.log('[DashboardLayout] User data:', {
+      userType,
+      isAdmin,
+      effectiveUserType,
+      user: user ? { id: user.id, email: user.email, user_type: user.user_type, is_admin: user.is_admin } : null
+    });
+  }
 
   // Memoize sidebar items - only recreate if admin status or user type changes
   // This prevents the sidebar from re-rendering on every navigation
