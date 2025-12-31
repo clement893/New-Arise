@@ -7,9 +7,8 @@ import { useRouter } from 'next/navigation';
 import { Card, Button, Stack } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { Sidebar } from '@/components/dashboard/Sidebar';
 import { Brain, Target, Users, Heart, Upload, CheckCircle, Lock, type LucideIcon, Loader2 } from 'lucide-react';
-import { getMyAssessments, Assessment as ApiAssessment, AssessmentType } from '@/lib/api/assessments';
+import { getMyAssessments, Assessment as ApiAssessment, AssessmentType, submitAssessment } from '@/lib/api/assessments';
 import { startAssessment } from '@/lib/api/assessments';
 
 interface AssessmentDisplay {
@@ -228,6 +227,57 @@ function AssessmentsContent() {
           </Button>
         );
       case 'in-progress':
+        // If all questions are answered, show "Voir les résultats" button
+        if (assessment.answerCount !== undefined && 
+            assessment.totalQuestions !== undefined && 
+            assessment.answerCount === assessment.totalQuestions &&
+            assessment.assessmentId) {
+          return (
+            <Button 
+              variant="outline"
+              disabled={isStarting}
+              onClick={async () => {
+                if (assessment.assessmentId) {
+                  try {
+                    setStartingAssessment(assessment.assessmentType);
+                    // Submit the assessment first if not already submitted
+                    await submitAssessment(assessment.assessmentId);
+                    // Then redirect to results
+                    if (assessment.assessmentType === 'TKI') {
+                      router.push(`/dashboard/assessments/tki/results?id=${assessment.assessmentId}`);
+                    } else if (assessment.assessmentType === 'WELLNESS') {
+                      router.push(`/dashboard/assessments/results?id=${assessment.assessmentId}`);
+                    } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
+                      router.push(`/dashboard/assessments/360-feedback/results?id=${assessment.assessmentId}`);
+                    }
+                  } catch (err) {
+                    console.error('Failed to submit assessment:', err);
+                    // If submission fails, try to go to results anyway (might already be submitted)
+                    if (assessment.assessmentType === 'TKI') {
+                      router.push(`/dashboard/assessments/tki/results?id=${assessment.assessmentId}`);
+                    } else if (assessment.assessmentType === 'WELLNESS') {
+                      router.push(`/dashboard/assessments/results?id=${assessment.assessmentId}`);
+                    } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
+                      router.push(`/dashboard/assessments/360-feedback/results?id=${assessment.assessmentId}`);
+                    }
+                  } finally {
+                    setStartingAssessment(null);
+                  }
+                }
+              }}
+            >
+              {isStarting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Chargement...
+                </>
+              ) : (
+                'Voir les résultats'
+              )}
+            </Button>
+          );
+        }
+        // Otherwise, show "Continuer" button
         return (
           <Button 
             variant="primary"
@@ -278,13 +328,10 @@ function AssessmentsContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">
-        <Sidebar />
-        <div className="flex-1 ml-64 flex items-center justify-center">
-          <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-arise-deep-teal" />
-            <p className="text-gray-600">Chargement des assessments...</p>
-          </div>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-arise-deep-teal" />
+          <p className="text-gray-600">Chargement des assessments...</p>
         </div>
       </div>
     );
@@ -292,118 +339,100 @@ function AssessmentsContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">
-        <Sidebar />
-        <div className="flex-1 ml-64 flex items-center justify-center">
-          <Card className="max-w-md w-full mx-4">
-            <div className="text-center">
-              <p className="text-red-600 mb-4">{error}</p>
-              <Button variant="primary" onClick={loadAssessments}>
-                Réessayer
-              </Button>
-            </div>
-          </Card>
-        </div>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Card className="max-w-md w-full mx-4">
+          <div className="text-center">
+            <p className="text-red-600 mb-4">{error}</p>
+            <Button variant="primary" onClick={loadAssessments}>
+              Réessayer
+            </Button>
+          </div>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
-
-      <div className="flex-1 ml-64">
-        {/* Background */}
-        <div 
-          className="fixed inset-0 ml-64 bg-cover bg-center opacity-10 pointer-events-none"
-          style={{
-            backgroundImage: 'url(/images/dashboard-bg.jpg)',
-          }}
-        />
-
-        {/* Content */}
-        <div className="relative z-10 p-8">
-          <MotionDiv variant="fade" duration="normal">
-            <div className="mb-8">
-              <h1 className="text-4xl font-bold text-arise-deep-teal mb-2">
-                Vos assessments
-              </h1>
-              <p className="text-gray-600">
-                Suivez et gérez vos assessments de leadership
-              </p>
-            </div>
-          </MotionDiv>
-
-          <MotionDiv variant="slideUp" delay={100}>
-            <Stack gap="normal">
-              {assessments.map((assessment) => {
-                const Icon = assessment.icon;
-                return (
-                  <Card key={assessment.id} className="hover:shadow-lg transition-shadow">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 flex-1">
-                        <div className="w-16 h-16 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <Icon className="text-arise-deep-teal" size={32} />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-xl font-bold text-gray-900 mb-1">
-                            {assessment.title}
-                          </h3>
-                          <p className="text-sm text-gray-600">
-                            {assessment.description}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        {getStatusBadge(assessment.status)}
-                        {assessment.status === 'in-progress' && assessment.answerCount !== undefined && assessment.totalQuestions !== undefined && (
-                          <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
-                            {assessment.answerCount}/{assessment.totalQuestions}
-                          </span>
-                        )}
-                        {assessment.externalLink && assessment.status !== 'completed' && (
-                          <span className="px-3 py-1 border border-arise-deep-teal text-arise-deep-teal rounded-full text-xs font-medium">
-                            Lien externe
-                          </span>
-                        )}
-                        {getActionButton(assessment)}
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })}
-
-              {/* 360 Feedback Evaluators Section */}
-              {assessments.find(a => a.assessmentType === 'THREE_SIXTY_SELF') && (
-                <Card className="bg-arise-gold/10 border-2 border-arise-gold/30">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-arise-gold/20 rounded-full flex items-center justify-center">
-                        <Users className="text-arise-gold" size={24} />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-bold text-gray-900 mb-1">
-                          Ajoutez vos évaluateurs avant de commencer cet assessment
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          Invitez des collègues à fournir un feedback 360° sur votre leadership
-                        </p>
-                      </div>
-                    </div>
-                    <Button 
-                      variant="primary"
-                      className="bg-arise-gold text-white hover:bg-arise-gold/90"
-                      onClick={() => setShowEvaluatorModal(true)}
-                    >
-                      Ajouter
-                    </Button>
-                  </div>
-                </Card>
-              )}
-            </Stack>
-          </MotionDiv>
+    <>
+      <MotionDiv variant="fade" duration="normal">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-arise-deep-teal mb-2">
+            Vos assessments
+          </h1>
+          <p className="text-gray-600">
+            Suivez et gérez vos assessments de leadership
+          </p>
         </div>
-      </div>
+      </MotionDiv>
+
+      <MotionDiv variant="slideUp" delay={100}>
+        <Stack gap="normal">
+          {assessments.map((assessment) => {
+            const Icon = assessment.icon;
+            return (
+              <Card key={assessment.id} className="hover:shadow-lg transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4 flex-1">
+                    <div className="w-16 h-16 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Icon className="text-arise-deep-teal" size={32} />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-gray-900 mb-1">
+                        {assessment.title}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {assessment.description}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    {getStatusBadge(assessment.status)}
+                    {assessment.status === 'in-progress' && assessment.answerCount !== undefined && assessment.totalQuestions !== undefined && (
+                      <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                        {assessment.answerCount}/{assessment.totalQuestions}
+                      </span>
+                    )}
+                    {assessment.externalLink && assessment.status !== 'completed' && (
+                      <span className="px-3 py-1 border border-arise-deep-teal text-arise-deep-teal rounded-full text-xs font-medium">
+                        Lien externe
+                      </span>
+                    )}
+                    {getActionButton(assessment)}
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
+
+          {/* 360 Feedback Evaluators Section */}
+          {assessments.find(a => a.assessmentType === 'THREE_SIXTY_SELF') && (
+            <Card className="bg-arise-gold/10 border-2 border-arise-gold/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-arise-gold/20 rounded-full flex items-center justify-center">
+                    <Users className="text-arise-gold" size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-1">
+                      Ajoutez vos évaluateurs avant de commencer cet assessment
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Invitez des collègues à fournir un feedback 360° sur votre leadership
+                    </p>
+                  </div>
+                </div>
+                <Button 
+                  variant="primary"
+                  className="bg-arise-gold text-white hover:bg-arise-gold/90"
+                  onClick={() => setShowEvaluatorModal(true)}
+                >
+                  Ajouter
+                </Button>
+              </div>
+            </Card>
+          )}
+        </Stack>
+      </MotionDiv>
 
       {/* Evaluator Modal - Placeholder */}
       {showEvaluatorModal && (
@@ -434,7 +463,7 @@ function AssessmentsContent() {
           </Card>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
