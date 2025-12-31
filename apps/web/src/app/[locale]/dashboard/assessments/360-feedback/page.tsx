@@ -37,7 +37,7 @@ export default function Feedback360Page() {
   useEffect(() => {
     // Load existing answer for current question
     if (question && answers[question.id]) {
-      setSelectedValue(answers[question.id]);
+      setSelectedValue(answers[question.id] || null);
     } else {
       setSelectedValue(null);
     }
