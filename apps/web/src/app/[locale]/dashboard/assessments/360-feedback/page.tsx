@@ -248,7 +248,7 @@ export default function Feedback360Page() {
 
         <MotionDiv
           key={currentQuestion}
-          variant="slideRight"
+          variant="slideUp"
           duration="normal"
           className="rounded-lg bg-white p-8 shadow-lg"
         >

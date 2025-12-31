@@ -196,7 +196,7 @@ export default function Feedback360ResultsPage() {
               return (
                 <MotionDiv
                   key={capScore.capability}
-                  variant="slideLeft"
+                  variant="slideUp"
                   duration="normal"
                   delay={0.3 + index * 0.1}
                   className="rounded-lg border border-gray-200 p-6"
