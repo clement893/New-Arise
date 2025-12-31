@@ -64,7 +64,12 @@ class Assessment(Base):
     # Relationships
     user = relationship("User", backref="assessments")
     answers = relationship("AssessmentAnswer", back_populates="assessment", cascade="all, delete-orphan")
-    evaluators = relationship("Assessment360Evaluator", back_populates="assessment", cascade="all, delete-orphan")
+    evaluators = relationship(
+        "Assessment360Evaluator", 
+        back_populates="assessment", 
+        cascade="all, delete-orphan",
+        foreign_keys="[Assessment360Evaluator.assessment_id]"
+    )
     result = relationship("AssessmentResult", back_populates="assessment", uselist=False, cascade="all, delete-orphan")
 
     def __repr__(self) -> str:

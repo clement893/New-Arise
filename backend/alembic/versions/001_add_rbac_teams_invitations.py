@@ -248,18 +248,29 @@ def upgrade() -> None:
 
     # Assign all permissions to admin role (only if not already assigned)
     if 'role_permissions' in tables and 'roles' in tables:
-        result = conn.execute(sa.text("SELECT COUNT(*) FROM role_permissions WHERE role_id = 1"))
-        count = result.scalar()
-        if count == 0:
-            op.execute("""
+        # Check if admin role exists and get its ID
+        result = conn.execute(sa.text("SELECT id FROM roles WHERE slug = 'admin' LIMIT 1"))
+        admin_role = result.fetchone()
+        if admin_role:
+            admin_role_id = admin_role[0]
+            # Check if permissions are already assigned
+            result = conn.execute(sa.text(f"SELECT COUNT(*) FROM role_permissions WHERE role_id = {admin_role_id}"))
+            count = result.scalar()
+            if count == 0:
+                op.execute(f"""
+                    INSERT INTO role_permissions (role_id, permission_id)
+                    SELECT {admin_role_id}, id FROM permissions
+                """)
+    elif 'role_permissions' in tables and 'roles' in tables:
+        # Fallback: try to find admin role by slug
+        result = conn.execute(sa.text("SELECT id FROM roles WHERE slug = 'admin' LIMIT 1"))
+        admin_role = result.fetchone()
+        if admin_role:
+            admin_role_id = admin_role[0]
+            op.execute(f"""
                 INSERT INTO role_permissions (role_id, permission_id)
-                SELECT 1, id FROM permissions
+                SELECT {admin_role_id}, id FROM permissions
             """)
-    elif 'role_permissions' in tables:
-        op.execute("""
-            INSERT INTO role_permissions (role_id, permission_id)
-            SELECT 1, id FROM permissions
-        """)
 
 
 def downgrade() -> None:
