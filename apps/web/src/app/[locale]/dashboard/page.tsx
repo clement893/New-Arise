@@ -8,7 +8,6 @@ import { useAuthStore } from '@/lib/store';
 import { Card, Button, LoadingSkeleton, Grid, Stack } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { Sidebar } from '@/components/dashboard/Sidebar';
 import { 
   Brain, 
   Target, 
@@ -31,19 +30,16 @@ function DashboardContent() {
 
   if (isLoading) {
     return (
-      <div className="flex">
-        <Sidebar />
-        <div className="flex-1 ml-64 p-8">
-          <LoadingSkeleton variant="custom" className="h-10 w-64 mb-8" />
-          <LoadingSkeleton variant="card" className="h-48 mb-8" />
-          <LoadingSkeleton variant="card" className="h-64 mb-8" />
-          <Grid columns={{ mobile: 1, tablet: 2, desktop: 4 }} gap="normal">
-            <LoadingSkeleton variant="card" className="h-64" />
-            <LoadingSkeleton variant="card" className="h-64" />
-            <LoadingSkeleton variant="card" className="h-64" />
-            <LoadingSkeleton variant="card" className="h-64" />
-          </Grid>
-        </div>
+      <div className="space-y-8">
+        <LoadingSkeleton variant="custom" className="h-10 w-64 mb-8" />
+        <LoadingSkeleton variant="card" className="h-48 mb-8" />
+        <LoadingSkeleton variant="card" className="h-64 mb-8" />
+        <Grid columns={{ mobile: 1, tablet: 2, desktop: 4 }} gap="normal">
+          <LoadingSkeleton variant="card" className="h-64" />
+          <LoadingSkeleton variant="card" className="h-64" />
+          <LoadingSkeleton variant="card" className="h-64" />
+          <LoadingSkeleton variant="card" className="h-64" />
+        </Grid>
       </div>
     );
   }
@@ -141,22 +137,17 @@ function DashboardContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <Sidebar />
+    <div className="min-h-screen bg-gray-50 relative">
+      {/* Background Image */}
+      <div 
+        className="fixed inset-0 bg-cover bg-center opacity-10 pointer-events-none"
+        style={{
+          backgroundImage: 'url(/images/dashboard-bg.jpg)',
+        }}
+      />
 
-      {/* Main Content */}
-      <div className="flex-1 ml-64">
-        {/* Background Image */}
-        <div 
-          className="fixed inset-0 ml-64 bg-cover bg-center opacity-10 pointer-events-none"
-          style={{
-            backgroundImage: 'url(/images/dashboard-bg.jpg)',
-          }}
-        />
-
-        {/* Content Container */}
-        <div className="relative z-10 p-8">
+      {/* Content Container */}
+      <div className="relative z-10">
           {/* Welcome Header */}
           <MotionDiv variant="fade" duration="normal">
             <div className="mb-8">
@@ -329,7 +320,6 @@ function DashboardContent() {
               </div>
             </Card>
           </MotionDiv>
-        </div>
       </div>
     </div>
   );
