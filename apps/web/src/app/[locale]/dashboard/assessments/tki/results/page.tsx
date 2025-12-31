@@ -7,7 +7,7 @@ import { tkiModes } from '@/data/tkiQuestions';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { Sidebar } from '@/components/dashboard/Sidebar';
-import { motion } from 'framer-motion';
+import MotionDiv from '@/components/motion/MotionDiv';
 import { TrendingUp, TrendingDown, Minus, ArrowLeft } from 'lucide-react';
 
 interface TKIResults {
@@ -151,10 +151,7 @@ export default function TKIResultsPage() {
 
         {/* Content */}
         <div className="relative z-10 p-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
+          <MotionDiv variant="slideUp" duration="normal">
             <Button
               onClick={() => router.push('/dashboard/assessments')}
               variant="outline"
@@ -234,11 +231,9 @@ export default function TKIResultsPage() {
                           <span>{percentage}%</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-3">
-                          <motion.div
-                            className="bg-arise-teal h-3 rounded-full"
-                            initial={{ width: 0 }}
-                            animate={{ width: `${percentage}%` }}
-                            transition={{ duration: 0.8, delay: 0.2 }}
+                          <div
+                            className="bg-arise-teal h-3 rounded-full transition-all"
+                            style={{ width: `${percentage}%`, transitionDuration: '800ms' }}
                           />
                         </div>
                       </div>
@@ -272,7 +267,7 @@ export default function TKIResultsPage() {
                 </p>
               </div>
             </Card>
-          </motion.div>
+          </MotionDiv>
         </div>
       </div>
     </div>

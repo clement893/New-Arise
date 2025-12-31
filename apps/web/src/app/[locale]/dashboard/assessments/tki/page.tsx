@@ -6,7 +6,7 @@ import { useTKIStore } from '@/stores/tkiStore';
 import { tkiQuestions, tkiModes } from '@/data/tkiQuestions';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
-import { motion } from 'framer-motion';
+import MotionDiv from '@/components/motion/MotionDiv';
 
 export default function TKIAssessmentPage() {
   const router = useRouter();
@@ -65,11 +65,7 @@ export default function TKIAssessmentPage() {
   if (isCompleted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-arise-teal via-arise-teal-dark to-arise-teal flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="max-w-2xl w-full"
-        >
+        <MotionDiv variant="fade" duration="normal" className="max-w-2xl w-full">
           <Card className="bg-white p-8 text-center">
             <div className="mb-6">
               <div className="w-20 h-20 bg-arise-gold rounded-full flex items-center justify-center mx-auto mb-4">
@@ -104,7 +100,7 @@ export default function TKIAssessmentPage() {
               </Button>
             </div>
           </Card>
-        </motion.div>
+        </MotionDiv>
       </div>
     );
   }
@@ -112,11 +108,7 @@ export default function TKIAssessmentPage() {
   if (showIntro) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-arise-teal via-arise-teal-dark to-arise-teal flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-4xl w-full"
-        >
+        <MotionDiv variant="slideUp" duration="normal" className="max-w-4xl w-full">
           <Card className="bg-white p-8">
             <h1 className="text-3xl font-bold text-arise-teal mb-4 text-center">
               TKI Conflict Style Assessment
@@ -164,7 +156,7 @@ export default function TKIAssessmentPage() {
               </div>
             )}
           </Card>
-        </motion.div>
+        </MotionDiv>
       </div>
     );
   }
@@ -179,22 +171,18 @@ export default function TKIAssessmentPage() {
             <span>{Math.round(progress)}% Complete</span>
           </div>
           <div className="w-full bg-white/20 rounded-full h-2">
-            <motion.div
-              className="bg-arise-gold h-2 rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.3 }}
+            <div
+              className="bg-arise-gold h-2 rounded-full transition-all duration-300"
+              style={{ width: `${progress}%` }}
             />
           </div>
         </div>
 
         {/* Question Card */}
-        <motion.div
+        <MotionDiv
           key={currentQuestion}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.3 }}
+          variant="slideUp"
+          duration="fast"
         >
           <Card className="bg-white p-8">
             <div className="mb-8">
@@ -274,7 +262,7 @@ export default function TKIAssessmentPage() {
               </Button>
             </div>
           </Card>
-        </motion.div>
+        </MotionDiv>
       </div>
     </div>
   );
