@@ -26,8 +26,6 @@ function WellnessAssessmentContent() {
     getProgress,
     startAssessment,
     isLoading,
-    assessmentId,
-    submitAssessment,
   } = useWellnessStore();
 
   const [showIntro, setShowIntro] = useState(true);
