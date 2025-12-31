@@ -9,7 +9,7 @@ import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { Sidebar } from '@/components/dashboard/Sidebar';
 import { Brain, Target, Users, Heart, Upload, CheckCircle, Lock, type LucideIcon, Loader2 } from 'lucide-react';
-import { getMyAssessments, Assessment as ApiAssessment, AssessmentType, AssessmentStatus } from '@/lib/api/assessments';
+import { getMyAssessments, Assessment as ApiAssessment, AssessmentType } from '@/lib/api/assessments';
 import { startAssessment } from '@/lib/api/assessments';
 
 interface AssessmentDisplay {
@@ -87,13 +87,15 @@ function AssessmentsContent() {
       
       // Build display assessments list
       const displayAssessments: AssessmentDisplay[] = Object.entries(ASSESSMENT_CONFIG).map(([type, config]) => {
-        const apiAssessment = existingAssessmentsMap.get(type as AssessmentType);
+        // Map lowercase type to uppercase for API
+        const apiType = type.toUpperCase() as AssessmentType;
+        const apiAssessment = existingAssessmentsMap.get(apiType);
         
         let status: 'completed' | 'in-progress' | 'locked' | 'available' = 'available';
         if (apiAssessment) {
-          if (apiAssessment.status === 'completed') {
+          if (apiAssessment.status === 'COMPLETED') {
             status = 'completed';
-          } else if (apiAssessment.status === 'in_progress' || apiAssessment.status === 'not_started') {
+          } else if (apiAssessment.status === 'IN_PROGRESS' || apiAssessment.status === 'NOT_STARTED') {
             status = 'in-progress';
           }
         }
@@ -107,7 +109,7 @@ function AssessmentsContent() {
           externalLink: config.externalLink,
           requiresEvaluators: config.requiresEvaluators,
           assessmentId: apiAssessment?.id,
-          assessmentType: type as AssessmentType,
+          assessmentType: apiType,
         };
       });
       
@@ -142,16 +144,16 @@ function AssessmentsContent() {
 
   const getAssessmentRoute = (type: AssessmentType): string => {
     switch (type) {
-      case 'tki':
+      case 'TKI':
         return 'tki';
-      case 'wellness':
+      case 'WELLNESS':
         return 'wellness';
-      case '360_self':
+      case 'THREE_SIXTY_SELF':
         return '360-feedback';
-      case 'mbti':
+      case 'MBTI':
         return 'mbti';
       default:
-        return type;
+        return type.toLowerCase();
     }
   };
 
@@ -191,7 +193,7 @@ function AssessmentsContent() {
     
     switch (assessment.status) {
       case 'completed':
-        if (assessment.externalLink && assessment.assessmentType === 'mbti') {
+        if (assessment.externalLink && assessment.assessmentType === 'MBTI') {
           return (
             <Button
               variant="outline"
@@ -208,11 +210,11 @@ function AssessmentsContent() {
           <Button 
             variant="outline" 
             onClick={() => {
-              if (assessment.assessmentType === 'tki') {
+              if (assessment.assessmentType === 'TKI') {
                 router.push(`/dashboard/assessments/tki/results?id=${assessment.assessmentId}`);
-              } else if (assessment.assessmentType === 'wellness') {
+              } else if (assessment.assessmentType === 'WELLNESS') {
                 router.push(`/dashboard/assessments/results?id=${assessment.assessmentId}`);
-              } else if (assessment.assessmentType === '360_self') {
+              } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
                 router.push(`/dashboard/assessments/360-feedback/results?id=${assessment.assessmentId}`);
               }
             }}
@@ -362,7 +364,7 @@ function AssessmentsContent() {
               })}
 
               {/* 360 Feedback Evaluators Section */}
-              {assessments.find(a => a.assessmentType === '360_self') && (
+              {assessments.find(a => a.assessmentType === 'THREE_SIXTY_SELF') && (
                 <Card className="bg-arise-gold/10 border-2 border-arise-gold/30">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
