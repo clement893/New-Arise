@@ -127,6 +127,15 @@ const config: Config = {
           900: '#111827',
           950: '#030712',
         },
+        // ARISE Brand Colors
+        arise: {
+          'deep-teal': '#0A3A40',
+          'gold': '#D4AF37',
+          'light-beige': '#F5F5DC',
+          'beige': '#E9E4D4',
+          'text-dark': '#1a202c',
+          'text-light': '#ffffff',
+        },
         // Theme-aware base colors - These use CSS variables that change with theme
         background: 'var(--color-background)',
         foreground: 'var(--color-foreground)',
