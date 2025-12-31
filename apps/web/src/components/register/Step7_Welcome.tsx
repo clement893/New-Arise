@@ -1,17 +1,25 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 import { useRegistrationStore } from '@/stores/registrationStore';
+import { useAuthStore } from '@/lib/store';
 import Button from '@/components/ui/Button';
 import { CheckCircle } from 'lucide-react';
 
 export function Step7_Welcome() {
   const router = useRouter();
   const { userInfo, reset } = useRegistrationStore();
+  const { isAuthenticated } = useAuthStore();
 
   const handleGoToDashboard = () => {
-    reset();
-    router.push('/dashboard');
+    // Verify user is authenticated before redirecting
+    if (isAuthenticated()) {
+      reset();
+      router.push('/dashboard');
+    } else {
+      // If not authenticated, redirect to login
+      router.push('/login');
+    }
   };
 
   return (

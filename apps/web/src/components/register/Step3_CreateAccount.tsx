@@ -5,9 +5,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRegistrationStore } from '@/stores/registrationStore';
+import { useAuthStore } from '@/lib/store';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { register as registerUser } from '@/lib/api/auth';
+import { register as registerUser, login } from '@/lib/api/auth';
 
 const createAccountSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -25,6 +26,7 @@ type CreateAccountFormData = z.infer<typeof createAccountSchema>;
 
 export function Step3_CreateAccount() {
   const { setUserInfo, setStep } = useRegistrationStore();
+  const { login: loginToStore } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -41,24 +43,43 @@ export function Step3_CreateAccount() {
     setError(null);
 
     try {
-      // Call the backend API to register the user
-      const user = await registerUser({
+      // Step 1: Call the backend API to register the user
+      const registeredUser = await registerUser({
         email: data.email,
         password: data.password,
         full_name: `${data.firstName} ${data.lastName}`,
       });
 
-      // Store user info in the registration store
+      // Step 2: Automatically login the user to get the access token
+      const authResponse = await login({
+        email: data.email,
+        password: data.password,
+      });
+
+      // Step 3: Store user info in the registration store
       setUserInfo({
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
         phone: data.phone,
         password: data.password,
-        userId: user.id,
+        userId: registeredUser.id,
       });
 
-      // User is now registered, skip to welcome screen
+      // Step 4: Connect user to authentication store
+      await loginToStore(
+        {
+          id: authResponse.user.id.toString(),
+          email: authResponse.user.email,
+          name: authResponse.user.full_name,
+          is_active: authResponse.user.is_active,
+          is_verified: true,
+          is_admin: authResponse.user.is_superuser,
+        },
+        authResponse.access_token
+      );
+
+      // Step 5: Move to welcome screen (user is now authenticated)
       setStep(7);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
