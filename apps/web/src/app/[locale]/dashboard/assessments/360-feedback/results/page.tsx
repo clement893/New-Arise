@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { getAssessmentResults } from '@/lib/api/assessments';
+import { getAssessmentResults, getMyAssessments } from '@/lib/api/assessments';
+import { useFeedback360Store } from '@/stores/feedback360Store';
 import { feedback360Capabilities } from '@/data/feedback360Questions';
 import Button from '@/components/ui/Button';
 import { ArrowLeft, TrendingUp, TrendingDown, Minus, Users } from 'lucide-react';
@@ -27,6 +28,7 @@ interface Results {
 
 export default function Feedback360ResultsPage() {
   const router = useRouter();
+  const { assessmentId } = useFeedback360Store();
   const [results, setResults] = useState<Results | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,8 +40,23 @@ export default function Feedback360ResultsPage() {
   const loadResults = async () => {
     try {
       setIsLoading(true);
-      // Get the most recent 360 assessment
-      const response = await getAssessmentResults('360_feedback');
+      
+      // Get assessment ID from store or find it from my assessments
+      let id = assessmentId;
+      if (!id) {
+        const assessments = await getMyAssessments();
+        const feedback360Assessment = assessments.find(
+          (a) => a.assessment_type === '360_self'
+        );
+        if (!feedback360Assessment) {
+          setError('No 360 feedback assessment found');
+          setIsLoading(false);
+          return;
+        }
+        id = feedback360Assessment.id;
+      }
+      
+      const response = await getAssessmentResults(id);
       setResults(response);
     } catch (err: unknown) {
       const errorMessage = err && typeof err === 'object' && 'message' in err
