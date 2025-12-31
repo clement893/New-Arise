@@ -35,7 +35,22 @@ export default function TKIResultsPage() {
     try {
       setIsLoading(true);
       const data = await getAssessmentResults(Number(assessmentId));
-      setResults(data.scores as TKIResults);
+      
+      // Transform AssessmentResult to TKIResults format
+      const { result_data } = data;
+      const modeScores = result_data.mode_scores || {};
+      
+      // Find dominant and secondary modes
+      const sortedModes = Object.entries(modeScores)
+        .sort(([, a], [, b]) => (b as number) - (a as number));
+      
+      const transformedResults: TKIResults = {
+        mode_counts: modeScores as Record<string, number>,
+        dominant_mode: sortedModes[0]?.[0] || '',
+        secondary_mode: sortedModes[1]?.[0] || '',
+      };
+      
+      setResults(transformedResults);
     } catch (err: unknown) {
       const errorMessage = err && typeof err === 'object' && 'response' in err
         ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
