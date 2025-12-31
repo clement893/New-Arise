@@ -4,7 +4,7 @@ ARISE Leadership Assessment Tool
 """
 
 from typing import List, Optional, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Body
 from pydantic import BaseModel, Field, EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
@@ -469,7 +469,7 @@ async def get_360_evaluator_assessment(
 
 @router.post("/mbti/upload-score")
 async def upload_mbti_score(
-    mbti_profile: str = Field(..., description="MBTI profile (e.g., 'ISTJ')"),
+    mbti_profile: str = Body(..., description="MBTI profile (e.g., 'ISTJ')"),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
