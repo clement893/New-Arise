@@ -22,7 +22,6 @@ import Sidebar from '@/components/ui/Sidebar';
 import { ThemeToggleWithIcon } from '@/components/ui/ThemeToggle';
 import { 
   LayoutDashboard, 
-  Shield,
   User,
   FileText,
   Award,
