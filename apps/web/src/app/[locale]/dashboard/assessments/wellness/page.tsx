@@ -72,9 +72,17 @@ function WellnessAssessmentContent() {
 
   useEffect(() => {
     if (isCompleted) {
-      setShowCompletion(true);
+      // Get assessmentId from store and redirect to results
+      const { assessmentId } = useWellnessStore.getState();
+      if (assessmentId) {
+        // Redirect to results page automatically
+        router.push(`/dashboard/assessments/results?id=${assessmentId}`);
+      } else {
+        // Fallback: show completion screen if no assessmentId
+        setShowCompletion(true);
+      }
     }
-  }, [isCompleted]);
+  }, [isCompleted, router]);
 
   const handleAnswerSelect = (value: number) => {
     if (currentQuestion) {
