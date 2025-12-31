@@ -28,8 +28,7 @@ import {
   ClipboardList,
   Users,
   Calendar,
-  Briefcase,
-  Settings
+  Briefcase
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import type { UserType } from '@/lib/store';
