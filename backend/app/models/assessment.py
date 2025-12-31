@@ -89,10 +89,18 @@ class AssessmentAnswer(Base):
     assessment_id = Column(Integer, ForeignKey("assessments.id", ondelete="CASCADE"), nullable=False)
     question_id = Column(String(100), nullable=False)  # e.g., "wellness_q1", "tki_q1"
     answer_value = Column(String(500), nullable=False)  # Can be integer (1-5) or string ("A"/"B")
-    answered_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    # Note: Database uses created_at/updated_at (from SQL migration), not answered_at
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
     
     # Relationships
     assessment = relationship("Assessment", back_populates="answers")
+    
+    # Property for backward compatibility
+    @property
+    def answered_at(self):
+        """Return created_at for backward compatibility"""
+        return self.created_at
 
     def __repr__(self) -> str:
         return f"<AssessmentAnswer(id={self.id}, assessment_id={self.assessment_id}, question_id={self.question_id})>"

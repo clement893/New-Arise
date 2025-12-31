@@ -259,12 +259,7 @@ async def save_answer(
         if existing_answer:
             # Update existing answer
             existing_answer.answer_value = str(request.answer_value)  # Ensure it's a string
-            # Update answered_at to track when answer was last modified
-            try:
-                existing_answer.answered_at = datetime.now(timezone.utc)
-            except AttributeError:
-                # If answered_at doesn't exist (schema mismatch), skip it
-                logger.warning(f"answered_at column not found, skipping timestamp update")
+            # updated_at will be automatically updated by SQLAlchemy's onupdate
         else:
             # Create new answer
             new_answer = AssessmentAnswer(
@@ -301,8 +296,8 @@ async def save_answer(
                 )
                 existing_answer = result.scalar_one_or_none()
                 if existing_answer:
-                    existing_answer.answer_value = request.answer_value
-                    existing_answer.answered_at = datetime.now(timezone.utc)
+                    existing_answer.answer_value = str(request.answer_value)
+                    # updated_at will be automatically updated
                     await db.commit()
                     return {
                         "message": "Answer saved successfully",
