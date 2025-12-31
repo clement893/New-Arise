@@ -177,7 +177,7 @@ function DashboardContent() {
         }
       }
       
-      return {
+      const evaluation: EvaluationItem = {
         title: config.title,
         description: config.description,
         status,
@@ -188,6 +188,7 @@ function DashboardContent() {
         totalQuestions: assessment?.total_questions,
         externalLink: config.externalLink,
       };
+      return evaluation;
     })
     .filter((evaluation): evaluation is EvaluationItem => evaluation !== null);
 
