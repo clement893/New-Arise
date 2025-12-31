@@ -100,7 +100,7 @@ function WellnessAssessmentContent() {
                     >
                       <div className="text-4xl mb-3">{category.icon}</div>
                       <h3 className="text-lg font-bold text-gray-900 mb-2">
-                        {category.title}
+                        {category.name}
                       </h3>
                       <p className="text-sm text-gray-600">
                         {category.description}
@@ -230,7 +230,7 @@ function WellnessAssessmentContent() {
               <Card className="mb-6">
                 <div className="mb-8">
                   <div className="inline-block px-3 py-1 bg-arise-deep-teal/10 text-arise-deep-teal rounded-full text-sm font-medium mb-4">
-                    {wellnessCategories.find(c => c.id === currentQuestion?.category)?.title}
+                    {wellnessPillars.find(p => p.name === currentQuestion?.pillar)?.name}
                   </div>
                   <h2 className="text-2xl font-bold text-gray-900">
                     {currentQuestion?.text}
