@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import MotionDiv from '@/components/motion/MotionDiv';
 import { useFeedback360Store } from '@/stores/feedback360Store';
 import {
   feedback360Questions,
@@ -87,9 +87,9 @@ export default function Feedback360Page() {
     return (
       <div className="min-h-screen bg-arise-teal p-8">
         <div className="mx-auto max-w-4xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+          <MotionDiv
+            variant="slideUp"
+            duration="normal"
             className="rounded-lg bg-white p-8 shadow-lg"
           >
             <h1 className="mb-4 text-3xl font-bold text-gray-900">
@@ -154,7 +154,7 @@ export default function Feedback360Page() {
             {error && (
               <p className="mt-4 text-center text-sm text-red-600">{error}</p>
             )}
-          </motion.div>
+          </MotionDiv>
         </div>
       </div>
     );
@@ -164,9 +164,9 @@ export default function Feedback360Page() {
     return (
       <div className="min-h-screen bg-arise-teal p-8">
         <div className="mx-auto max-w-2xl">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
+          <MotionDiv
+            variant="fade"
+            duration="normal"
             className="rounded-lg bg-white p-8 text-center shadow-lg"
           >
             <CheckCircle className="mx-auto mb-4 h-16 w-16 text-green-500" />
@@ -203,7 +203,7 @@ export default function Feedback360Page() {
             {error && (
               <p className="mt-4 text-center text-sm text-red-600">{error}</p>
             )}
-          </motion.div>
+          </MotionDiv>
         </div>
       </div>
     );
@@ -220,21 +220,17 @@ export default function Feedback360Page() {
             <span>{progress}% Complete</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-white/30">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.3 }}
-              className="h-full bg-arise-gold"
+            <div
+              className="h-full bg-arise-gold transition-all duration-300"
+              style={{ width: `${progress}%` }}
             />
           </div>
         </div>
 
-        <motion.div
+        <MotionDiv
           key={currentQuestion}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.3 }}
+          variant="slideRight"
+          duration="normal"
           className="rounded-lg bg-white p-8 shadow-lg"
         >
           {/* Capability Badge */}
@@ -294,7 +290,7 @@ export default function Feedback360Page() {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
-        </motion.div>
+        </MotionDiv>
       </div>
     </div>
   );

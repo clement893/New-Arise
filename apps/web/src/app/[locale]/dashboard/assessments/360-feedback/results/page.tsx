@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import MotionDiv from '@/components/motion/MotionDiv';
 import { getAssessmentResults } from '@/lib/api/assessments';
 import { feedback360Capabilities } from '@/data/feedback360Questions';
 import Button from '@/components/ui/Button';
@@ -41,8 +41,11 @@ export default function Feedback360ResultsPage() {
       // Get the most recent 360 assessment
       const response = await getAssessmentResults('360_feedback');
       setResults(response);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load results');
+    } catch (err: unknown) {
+      const errorMessage = err && typeof err === 'object' && 'message' in err
+        ? (err as { message?: string }).message
+        : undefined;
+      setError(errorMessage || 'Failed to load results');
     } finally {
       setIsLoading(false);
     }
@@ -124,9 +127,9 @@ export default function Feedback360ResultsPage() {
             Back to Assessments
           </Button>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+          <MotionDiv
+            variant="slideUp"
+            duration="normal"
             className="rounded-lg bg-white p-8 shadow-lg"
           >
             <h1 className="mb-4 text-3xl font-bold text-gray-900">
@@ -147,14 +150,14 @@ export default function Feedback360ResultsPage() {
                 </p>
               </div>
             )}
-          </motion.div>
+          </MotionDiv>
         </div>
 
         {/* Overall Score */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+        <MotionDiv
+          variant="slideUp"
+          duration="normal"
+          delay={0.1}
           className="mb-8 rounded-lg bg-white p-8 shadow-lg"
         >
           <h2 className="mb-6 text-2xl font-semibold text-gray-900">
@@ -171,13 +174,13 @@ export default function Feedback360ResultsPage() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </MotionDiv>
 
         {/* Capability Breakdown */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+        <MotionDiv
+          variant="slideUp"
+          duration="normal"
+          delay={0.2}
           className="mb-8 rounded-lg bg-white p-8 shadow-lg"
         >
           <h2 className="mb-6 text-2xl font-semibold text-gray-900">
@@ -191,11 +194,11 @@ export default function Feedback360ResultsPage() {
               );
 
               return (
-                <motion.div
+                <MotionDiv
                   key={capScore.capability}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 + index * 0.1 }}
+                  variant="slideLeft"
+                  duration="normal"
+                  delay={0.3 + index * 0.1}
                   className="rounded-lg border border-gray-200 p-6"
                 >
                   {/* Capability Header */}
@@ -263,17 +266,17 @@ export default function Feedback360ResultsPage() {
                   <div className="rounded-lg bg-gray-50 p-4">
                     <p className="text-sm text-gray-700">{getInsight(capScore)}</p>
                   </div>
-                </motion.div>
+                </MotionDiv>
               );
             })}
           </div>
-        </motion.div>
+        </MotionDiv>
 
         {/* Recommendations */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+        <MotionDiv
+          variant="slideUp"
+          duration="normal"
+          delay={0.4}
           className="rounded-lg bg-white p-8 shadow-lg"
         >
           <h2 className="mb-6 text-2xl font-semibold text-gray-900">
@@ -316,7 +319,7 @@ export default function Feedback360ResultsPage() {
               </p>
             </div>
           </div>
-        </motion.div>
+        </MotionDiv>
       </div>
     </div>
   );
