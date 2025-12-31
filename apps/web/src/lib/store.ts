@@ -12,6 +12,11 @@ import { persist } from 'zustand/middleware';
 import { TokenStorage } from './auth/tokenStorage';
 
 /**
+ * User type enum
+ */
+export type UserType = 'INDIVIDUAL' | 'COACH' | 'BUSINESS' | 'ADMIN';
+
+/**
  * User interface representing authenticated user data
  * 
  * This is the format used in the Zustand store.
@@ -30,6 +35,8 @@ export interface User {
   is_verified: boolean;
   /** Whether the user has admin privileges */
   is_admin?: boolean;
+  /** User type (Individual, Coach, Business, Admin) */
+  user_type?: UserType;
   /** Account creation timestamp (ISO 8601) */
   created_at?: string;
   /** Last update timestamp (ISO 8601) */

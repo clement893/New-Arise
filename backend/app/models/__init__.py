@@ -3,7 +3,7 @@ Models package
 All SQLAlchemy models are imported here
 """
 
-from app.models.user import User
+from app.models.user import User, UserType
 from app.models.role import Role, Permission, RolePermission, UserRole, UserPermission
 from app.models.team import Team, TeamMember
 from app.models.invitation import Invitation
@@ -53,6 +53,7 @@ from app.core.security_audit import SecurityAuditLog
 
 __all__ = [
     "User",
+    "UserType",
     "Role",
     "Permission",
     "RolePermission",

@@ -7,6 +7,7 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field, ConfigDict, field_validator
+from app.models.user import UserType
 import re
 
 
@@ -16,6 +17,7 @@ class UserBase(BaseModel):
     first_name: Optional[str] = Field(None, max_length=100, description="First name", strip_whitespace=True)
     last_name: Optional[str] = Field(None, max_length=100, description="Last name", strip_whitespace=True)
     is_active: bool = Field(default=True, description="User active status")
+    user_type: UserType = Field(default=UserType.INDIVIDUAL, description="User type")
     
     @field_validator('email')
     @classmethod
@@ -142,6 +144,7 @@ class UserUpdate(BaseModel):
     last_name: Optional[str] = Field(None, max_length=100, strip_whitespace=True)
     avatar: Optional[str] = Field(None, max_length=500, description="Avatar URL")
     is_active: Optional[bool] = None
+    user_type: Optional[UserType] = Field(None, description="User type")
     
     @field_validator('email')
     @classmethod

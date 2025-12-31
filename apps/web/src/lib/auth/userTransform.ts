@@ -18,6 +18,7 @@ export interface ApiUserResponse {
   first_name?: string | null;
   last_name?: string | null;
   is_active: boolean;
+  user_type?: string;
   theme_preference?: string;
   created_at: string;
   updated_at: string;
@@ -70,6 +71,7 @@ export function transformApiUserToStoreUser(apiUser: ApiUserResponse): User {
     is_active: apiUser.is_active ?? true,
     is_verified: false, // Default value, update if available from API
     is_admin: false, // Default value, update if available from API
+    user_type: (apiUser.user_type as 'INDIVIDUAL' | 'COACH' | 'BUSINESS' | 'ADMIN') || 'INDIVIDUAL',
     created_at: apiUser.created_at,
     updated_at: apiUser.updated_at,
   };

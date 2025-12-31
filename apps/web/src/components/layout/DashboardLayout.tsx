@@ -27,58 +27,118 @@ import {
   FileText,
   Award,
   TrendingUp,
-  ClipboardList
+  ClipboardList,
+  Users,
+  Calendar,
+  Briefcase,
+  Settings
 } from 'lucide-react';
 import { clsx } from 'clsx';
+import type { UserType } from '@/lib/store';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
+interface SidebarItem {
+  label: string;
+  href: string;
+  icon: React.ReactNode;
+}
+
 // Memoize sidebar items to prevent recreation on every render
 // This ensures the sidebar doesn't re-render unnecessarily during navigation
-const createSidebarItems = (isAdmin: boolean) => [
-  {
-    label: 'User',
-    href: '/profile',
-    icon: <User className="w-5 h-5" />,
-  },
-  {
-    label: 'Reputation plan',
-    href: '/dashboard/reputation-plan',
-    icon: <Award className="w-5 h-5" />,
-  },
-  {
-    label: 'Dashboard',
-    href: '/dashboard',
-    icon: <LayoutDashboard className="w-5 h-5" />,
-  },
-  {
-    label: 'Assessments',
-    href: '/dashboard/assessments',
-    icon: <ClipboardList className="w-5 h-5" />,
-  },
-  {
-    label: 'Results & Reports',
-    href: '/dashboard/reports',
-    icon: <FileText className="w-5 h-5" />,
-  },
-  {
-    label: 'Development plan',
-    href: '/dashboard/development-plan',
-    icon: <TrendingUp className="w-5 h-5" />,
-  },
-  // Additional items (optional, can be hidden or shown based on needs)
-  ...(isAdmin
-    ? [
-        {
-          label: 'Administration',
-          href: '/admin',
-          icon: <Shield className="w-5 h-5" />,
-        },
-      ]
-    : []),
-];
+const createSidebarItems = (userType?: UserType, isAdmin?: boolean): SidebarItem[] => {
+  // Default to INDIVIDUAL if user_type is not provided
+  const type = userType || 'INDIVIDUAL';
+  
+  // Admin users see admin-specific navigation
+  if (type === 'ADMIN' || (isAdmin && type !== 'COACH' && type !== 'BUSINESS')) {
+    return [
+      {
+        label: 'Manage Users',
+        href: '/dashboard/admin/users',
+        icon: <Users className="w-5 h-5" />,
+      },
+      {
+        label: 'Manage Tests',
+        href: '/dashboard/admin/tests',
+        icon: <ClipboardList className="w-5 h-5" />,
+      },
+      {
+        label: 'Profile',
+        href: '/profile',
+        icon: <User className="w-5 h-5" />,
+      },
+    ];
+  }
+  
+  // Coach users
+  if (type === 'COACH') {
+    return [
+      {
+        label: 'Coachee',
+        href: '/dashboard/coach/coachee',
+        icon: <Users className="w-5 h-5" />,
+      },
+      {
+        label: 'Agenda',
+        href: '/dashboard/coach/agenda',
+        icon: <Calendar className="w-5 h-5" />,
+      },
+      {
+        label: 'Profile',
+        href: '/profile',
+        icon: <User className="w-5 h-5" />,
+      },
+    ];
+  }
+  
+  // Business users
+  if (type === 'BUSINESS') {
+    return [
+      {
+        label: 'Employees',
+        href: '/dashboard/business/employees',
+        icon: <Briefcase className="w-5 h-5" />,
+      },
+      {
+        label: 'Profile',
+        href: '/profile',
+        icon: <User className="w-5 h-5" />,
+      },
+    ];
+  }
+  
+  // Individual users (default)
+  return [
+    {
+      label: 'Dashboard',
+      href: '/dashboard',
+      icon: <LayoutDashboard className="w-5 h-5" />,
+    },
+    {
+      label: 'Assessments',
+      href: '/dashboard/assessments',
+      icon: <ClipboardList className="w-5 h-5" />,
+    },
+    {
+      label: 'Results & Reports',
+      href: '/dashboard/reports',
+      icon: <FileText className="w-5 h-5" />,
+    },
+    {
+      label: 'Development plan',
+      href: '/dashboard/development-plan',
+      icon: <TrendingUp className="w-5 h-5" />,
+    },
+    {
+      label: 'Profile',
+      href: '/profile',
+      icon: <User className="w-5 h-5" />,
+    },
+  ];
+};
 
 // Memoize the sidebar component to prevent re-renders during navigation
 const MemoizedSidebar = memo(Sidebar);
@@ -93,12 +153,13 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
 
   // Check if user is admin or superadmin
   const isAdmin = user?.is_admin ?? false;
+  const userType = user?.user_type;
 
-  // Memoize sidebar items - only recreate if admin status changes
+  // Memoize sidebar items - only recreate if admin status or user type changes
   // This prevents the sidebar from re-rendering on every navigation
   const sidebarItems = useMemo(
-    () => createSidebarItems(isAdmin),
-    [isAdmin]
+    () => createSidebarItems(userType, isAdmin),
+    [userType, isAdmin]
   );
 
   // Memoize callbacks to prevent re-renders

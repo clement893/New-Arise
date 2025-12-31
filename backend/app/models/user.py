@@ -4,11 +4,20 @@ SQLAlchemy model for users
 """
 
 from datetime import datetime
+from enum import Enum as PyEnum
 
-from sqlalchemy import Boolean, Column, DateTime, Integer, String, func, Index
+from sqlalchemy import Boolean, Column, DateTime, Integer, String, Enum, func, Index
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
+
+
+class UserType(str, PyEnum):
+    """User type enum"""
+    INDIVIDUAL = "INDIVIDUAL"
+    COACH = "COACH"
+    BUSINESS = "BUSINESS"
+    ADMIN = "ADMIN"
 
 
 class User(Base):
@@ -28,6 +37,7 @@ class User(Base):
     last_name = Column(String(100), nullable=True, index=True)  # For search
     avatar = Column(String(500), nullable=True)  # Avatar URL
     is_active = Column(Boolean, default=True, nullable=False, index=True)
+    user_type = Column(Enum(UserType), nullable=False, default=UserType.INDIVIDUAL, index=True)
     # DEPRECATED: theme_preference column exists in DB but is deprecated
     # Theme management is now handled globally via the theme system
     # Made nullable=True to handle cases where migration hasn't been run yet

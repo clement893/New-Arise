@@ -150,6 +150,7 @@ class UserResponse(BaseModel):
     last_name: Optional[str] = None
     avatar: Optional[str] = None
     is_active: bool
+    user_type: str = Field(default="INDIVIDUAL", description="User type")
     # DEPRECATED: theme_preference is kept for API compatibility only
     # Theme management is now handled globally via the theme system
     theme_preference: str = Field(
