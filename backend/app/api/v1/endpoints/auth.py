@@ -436,28 +436,42 @@ async def login(
 
     # Convert user to UserResponse format
     # Use direct constructor for consistency with get_current_user_info endpoint
-    user_response = UserResponse(
-        id=user.id,
-        email=user.email,
-        first_name=user.first_name,
-        last_name=user.last_name,
-        is_active=user.is_active,
-        theme_preference=user.theme_preference or 'system',  # Required field for API compatibility
-        created_at=user.created_at.isoformat() if user.created_at else "",
-        updated_at=user.updated_at.isoformat() if user.updated_at else "",
-    )
+    try:
+        user_response = UserResponse(
+            id=user.id,
+            email=user.email,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            is_active=user.is_active,
+            theme_preference=user.theme_preference or 'system',  # Required field for API compatibility
+            created_at=user.created_at.isoformat() if user.created_at else "",
+            updated_at=user.updated_at.isoformat() if user.updated_at else "",
+        )
+    except Exception as e:
+        logger.error(f"Error creating UserResponse for user {user.id}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error processing user data: {str(e)}"
+        )
     
     # Return JSONResponse explicitly to work with rate limiting middleware
-    token_data = TokenWithUser(
-        access_token=access_token,
-        token_type="bearer",
-        refresh_token=refresh_token,
-        user=user_response
-    )
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content=token_data.model_dump()
-    )
+    try:
+        token_data = TokenWithUser(
+            access_token=access_token,
+            token_type="bearer",
+            refresh_token=refresh_token,
+            user=user_response
+        )
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=token_data.model_dump()
+        )
+    except Exception as e:
+        logger.error(f"Error creating TokenWithUser response for user {user.id}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error creating response: {str(e)}"
+        )
 
 
 @router.post("/refresh", response_model=Token)
