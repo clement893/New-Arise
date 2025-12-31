@@ -39,8 +39,9 @@ interface DashboardLayoutProps {
 
 interface SidebarItem {
   label: string;
-  href: string;
-  icon: React.ReactNode;
+  href?: string;
+  icon?: React.ReactNode;
+  children?: SidebarItem[];
 }
 
 // Memoize sidebar items to prevent recreation on every render
@@ -54,24 +55,98 @@ const createSidebarItems = (userType?: UserType, isAdmin?: boolean): SidebarItem
     console.log('[createSidebarItems] Creating sidebar items:', { userType: type, isAdmin });
   }
   
-  // Admin users see admin-specific navigation
+  // Super admins see all sections grouped
   // Check if type is ADMIN or if user is admin (fallback for superadmins)
   if (type === 'ADMIN' || isAdmin === true) {
     return [
       {
-        label: 'Manage Users',
-        href: '/dashboard/admin/users',
+        label: 'Admin',
         icon: <Users className="w-5 h-5" />,
+        children: [
+          {
+            label: 'Manage Users',
+            href: '/dashboard/admin/users',
+            icon: <Users className="w-5 h-5" />,
+          },
+          {
+            label: 'Manage Tests',
+            href: '/dashboard/admin/tests',
+            icon: <ClipboardList className="w-5 h-5" />,
+          },
+          {
+            label: 'Profile',
+            href: '/profile',
+            icon: <User className="w-5 h-5" />,
+          },
+        ],
       },
       {
-        label: 'Manage Tests',
-        href: '/dashboard/admin/tests',
-        icon: <ClipboardList className="w-5 h-5" />,
+        label: 'Coach',
+        icon: <Calendar className="w-5 h-5" />,
+        children: [
+          {
+            label: 'Coachee',
+            href: '/dashboard/coach/coachee',
+            icon: <Users className="w-5 h-5" />,
+          },
+          {
+            label: 'Agenda',
+            href: '/dashboard/coach/agenda',
+            icon: <Calendar className="w-5 h-5" />,
+          },
+          {
+            label: 'Profile',
+            href: '/profile',
+            icon: <User className="w-5 h-5" />,
+          },
+        ],
       },
       {
-        label: 'Profile',
-        href: '/profile',
-        icon: <User className="w-5 h-5" />,
+        label: 'Business',
+        icon: <Briefcase className="w-5 h-5" />,
+        children: [
+          {
+            label: 'Employees',
+            href: '/dashboard/business/employees',
+            icon: <Briefcase className="w-5 h-5" />,
+          },
+          {
+            label: 'Profile',
+            href: '/profile',
+            icon: <User className="w-5 h-5" />,
+          },
+        ],
+      },
+      {
+        label: 'Individual',
+        icon: <LayoutDashboard className="w-5 h-5" />,
+        children: [
+          {
+            label: 'Dashboard',
+            href: '/dashboard',
+            icon: <LayoutDashboard className="w-5 h-5" />,
+          },
+          {
+            label: 'Assessments',
+            href: '/dashboard/assessments',
+            icon: <ClipboardList className="w-5 h-5" />,
+          },
+          {
+            label: 'Results & Reports',
+            href: '/dashboard/reports',
+            icon: <FileText className="w-5 h-5" />,
+          },
+          {
+            label: 'Development plan',
+            href: '/dashboard/development-plan',
+            icon: <TrendingUp className="w-5 h-5" />,
+          },
+          {
+            label: 'Profile',
+            href: '/profile',
+            icon: <User className="w-5 h-5" />,
+          },
+        ],
       },
     ];
   }
