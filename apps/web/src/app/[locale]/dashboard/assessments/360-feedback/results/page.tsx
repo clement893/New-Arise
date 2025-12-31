@@ -57,7 +57,34 @@ export default function Feedback360ResultsPage() {
       }
       
       const response = await getAssessmentResults(id);
-      setResults(response);
+      
+      // Transform AssessmentResult to Results format
+      const { result_data } = response;
+      const capabilityScores: CapabilityScore[] = result_data.capability_scores
+        ? Object.entries(result_data.capability_scores).map(([capability, score]) => {
+            const scoreValue = typeof score === 'number' ? score : score.score;
+            return {
+              capability,
+              self_score: scoreValue,
+              others_avg_score: 0, // Will be set if evaluator responses exist
+              gap: 0,
+              level: scoreValue >= 4 ? 'high' : scoreValue >= 2.5 ? 'moderate' : 'low',
+            };
+          })
+        : [];
+      
+      // Check if there are evaluator responses (this would come from backend)
+      // For now, we'll assume false if not provided
+      const transformedResults: Results = {
+        total_score: result_data.total_score,
+        max_score: result_data.max_score,
+        percentage: result_data.percentage,
+        capability_scores: capabilityScores,
+        has_evaluator_responses: false, // Backend should provide this
+        evaluator_count: 0, // Backend should provide this
+      };
+      
+      setResults(transformedResults);
     } catch (err: unknown) {
       const errorMessage = err && typeof err === 'object' && 'message' in err
         ? (err as { message?: string }).message
