@@ -96,6 +96,21 @@ function DashboardContent() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="space-y-8">
+        <Card className="p-6">
+          <div className="text-center">
+            <p className="text-red-600 mb-4">{error}</p>
+            <Button variant="primary" onClick={loadAssessments}>
+              Réessayer
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   // Calculate progress data from real assessments
   const assessmentTypes: AssessmentType[] = ['MBTI', 'TKI', 'THREE_SIXTY_SELF', 'WELLNESS'];
   const progressItems = assessmentTypes.map(type => {
