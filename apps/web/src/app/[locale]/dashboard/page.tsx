@@ -16,8 +16,7 @@ import {
   Heart,
   Info,
   ArrowRight,
-  CheckCircle,
-  Loader2
+  CheckCircle
 } from 'lucide-react';
 import { getMyAssessments, Assessment as ApiAssessment, AssessmentType } from '@/lib/api/assessments';
 
