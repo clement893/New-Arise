@@ -93,7 +93,7 @@ function WellnessAssessmentContent() {
   const handleNext = () => {
     if (isLastQuestion) {
       completeAssessment();
-      setShowCompletion(true);
+      // Completion will trigger automatic redirect via useEffect
     } else {
       nextQuestion();
     }
