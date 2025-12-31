@@ -22,6 +22,8 @@ interface AssessmentDisplay {
   requiresEvaluators?: boolean;
   assessmentId?: number; // ID from database
   assessmentType: AssessmentType;
+  answerCount?: number;
+  totalQuestions?: number;
 }
 
 // Mapping of assessment types to display info (using lowercase keys for internal mapping)
@@ -110,6 +112,8 @@ function AssessmentsContent() {
           requiresEvaluators: config.requiresEvaluators,
           assessmentId: apiAssessment?.id,
           assessmentType: apiType,
+          answerCount: apiAssessment?.answer_count,
+          totalQuestions: apiAssessment?.total_questions,
         };
       });
       
@@ -352,6 +356,11 @@ function AssessmentsContent() {
                       </div>
                       <div className="flex items-center gap-4">
                         {getStatusBadge(assessment.status)}
+                        {assessment.status === 'in-progress' && assessment.answerCount !== undefined && assessment.totalQuestions !== undefined && (
+                          <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                            {assessment.answerCount}/{assessment.totalQuestions}
+                          </span>
+                        )}
                         {assessment.externalLink && assessment.status !== 'completed' && (
                           <span className="px-3 py-1 border border-arise-deep-teal text-arise-deep-teal rounded-full text-xs font-medium">
                             Lien externe

@@ -36,6 +36,8 @@ export interface Assessment {
   completed_at?: string;
   created_at: string;
   updated_at: string;
+  answer_count?: number;
+  total_questions?: number;
 }
 
 export interface AssessmentAnswer {

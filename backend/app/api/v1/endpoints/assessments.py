@@ -40,6 +40,8 @@ class AssessmentListItem(BaseModel):
     started_at: Optional[datetime]
     completed_at: Optional[datetime]
     score_summary: Optional[Dict[str, Any]] = None
+    answer_count: Optional[int] = 0  # Number of answers provided
+    total_questions: Optional[int] = 30  # Total number of questions (30 for most assessments)
     
     class Config:
         from_attributes = True
@@ -129,13 +131,27 @@ async def list_assessments(
                     "total_score": assessment.processed_score.get("total_score"),
                 }
         
+        # Count answers for this assessment
+        answer_count_result = await db.execute(
+            select(func.count(AssessmentAnswer.id))
+            .where(AssessmentAnswer.assessment_id == assessment.id)
+        )
+        answer_count = answer_count_result.scalar() or 0
+        
+        # Determine total questions based on assessment type
+        total_questions = 30  # Default for TKI, WELLNESS, THREE_SIXTY_SELF
+        if assessment.assessment_type == AssessmentType.MBTI:
+            total_questions = 0  # MBTI is external upload
+        
         response.append(AssessmentListItem(
             id=assessment.id,
             assessment_type=assessment.assessment_type.value,
             status=assessment.status.value,
             started_at=assessment.started_at,
             completed_at=assessment.completed_at,
-            score_summary=score_summary
+            score_summary=score_summary,
+            answer_count=answer_count,
+            total_questions=total_questions
         ))
     
     return response
