@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { getAssessmentResults, getMyAssessments, PillarScore } from '@/lib/api/assessments';
+import { getAssessmentResults, getMyAssessments, PillarScore, AssessmentResult } from '@/lib/api/assessments';
 import { useFeedback360Store } from '@/stores/feedback360Store';
 import { feedback360Capabilities } from '@/data/feedback360Questions';
 import Button from '@/components/ui/Button';
@@ -61,10 +61,10 @@ export default function Feedback360ResultsPage() {
         id = feedback360Assessment.id;
       }
       
-      const response = await getAssessmentResults(id);
+      const response: AssessmentResult = await getAssessmentResults(id);
       
       // Transform AssessmentResult to Results format
-      const { result_data } = response;
+      const result_data = response.result_data;
       const capabilityScores: CapabilityScore[] = result_data.capability_scores
         ? Object.entries(result_data.capability_scores).map(([capability, score]) => {
             const scoreValue = isPillarScore(score) ? score.score : score;

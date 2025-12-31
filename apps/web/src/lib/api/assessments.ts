@@ -62,7 +62,7 @@ export interface AssessmentResult {
     percentage: number;
     pillar_scores?: Record<string, number | PillarScore>;
     mode_scores?: Record<string, number>;
-    capability_scores?: Record<string, number>;
+    capability_scores?: Record<string, number | PillarScore>;
   };
   insights?: Record<string, any>;
   recommendations?: Record<string, any>;
