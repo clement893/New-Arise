@@ -96,10 +96,9 @@ export default function LoginPage() {
         Back to home
       </Link>
 
-      {/* Login Card with blue dotted border */}
+      {/* Login Card */}
       <div className="relative z-10 w-full max-w-md">
-        <div className="border-4 border-blue-400 border-dashed rounded-lg p-2 bg-transparent">
-          <div className="bg-white rounded-lg shadow-2xl p-8">
+        <div className="bg-white rounded-lg shadow-2xl p-8">
           {/* Logo */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-arise-deep-teal mb-2">
@@ -254,7 +253,6 @@ export default function LoginPage() {
               </Link>
             </p>
           </div>
-        </div>
         </div>
       </div>
     </div>

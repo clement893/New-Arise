@@ -191,20 +191,17 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
         </aside>
 
         {/* Main Content - Only this part changes during navigation */}
-        <div className="flex-1 flex flex-col min-w-0 w-full relative z-10 p-4 md:p-6 xl:p-8">
-          {/* Blue dotted border container */}
-          <div className="border-4 border-blue-400 border-dashed rounded-lg bg-white/95 backdrop-blur-sm flex-1">
-            {/* Page Content - This is the only part that updates on navigation */}
-            <main 
-              key={pathname} 
-              className="flex-1 overflow-y-auto px-3 sm:px-4 md:px-6 xl:px-8 2xl:px-10 py-4 sm:py-6 2xl:py-8"
+        <div className="flex-1 flex flex-col min-w-0 w-full relative z-10">
+          {/* Page Content - This is the only part that updates on navigation */}
+          <main 
+            key={pathname} 
+            className="flex-1 overflow-y-auto px-3 sm:px-4 md:px-6 xl:px-8 2xl:px-10 py-4 sm:py-6 2xl:py-8"
             style={{
               animation: 'fadeInSlideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           >
             {children}
           </main>
-          </div>
         </div>
       </div>
     </div>
