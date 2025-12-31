@@ -4,6 +4,7 @@ ARISE Leadership Assessment Tool
 """
 
 from typing import List, Optional, Dict, Any
+import json
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Body
 from pydantic import BaseModel, Field, EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -388,20 +389,32 @@ async def submit_assessment(
     # Create assessment result
     # Note: Database has result_data column, not scores. We'll store scores in result_data.
     from sqlalchemy import text
-    await db.execute(
-        text("""
-            INSERT INTO assessment_results (assessment_id, result_data, created_at, updated_at)
-            VALUES (:assessment_id, :result_data, NOW(), NOW())
-            ON CONFLICT (assessment_id) DO UPDATE
-            SET result_data = :result_data, updated_at = NOW()
-        """),
-        {
-            "assessment_id": assessment.id,
-            "result_data": scores  # Store scores in result_data column
-        }
-    )
     
-    await db.commit()
+    try:
+        # Serialize scores to JSON string for PostgreSQL JSONB column
+        result_data_json = json.dumps(scores)
+        await db.execute(
+            text("""
+                INSERT INTO assessment_results (assessment_id, result_data, created_at, updated_at)
+                VALUES (:assessment_id, CAST(:result_data AS jsonb), NOW(), NOW())
+                ON CONFLICT (assessment_id) DO UPDATE
+                SET result_data = CAST(:result_data AS jsonb), updated_at = NOW()
+            """),
+            {
+                "assessment_id": assessment.id,
+                "result_data": result_data_json
+            }
+        )
+        
+        await db.commit()
+    except Exception as e:
+        from app.core.logging import logger
+        logger.error(f"Error creating assessment result for assessment {assessment_id}: {e}", exc_info=True)
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to save assessment results: {str(e)}"
+        )
     await db.refresh(assessment)
     
     return AssessmentSubmitResponse(
