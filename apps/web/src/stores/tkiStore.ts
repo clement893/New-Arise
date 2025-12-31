@@ -9,6 +9,7 @@ import { startAssessment, saveAnswer, submitAssessment } from '@/lib/api/assessm
 import axios from 'axios';
 
 // Helper function to extract error message from various error formats
+// Always returns a string to prevent React error #31 (objects as children)
 function extractErrorMessage(error: unknown, defaultMessage: string): string {
   if (axios.isAxiosError(error) && error.response?.data) {
     const data = error.response.data;
@@ -18,37 +19,78 @@ function extractErrorMessage(error: unknown, defaultMessage: string): string {
       return data.detail;
     }
     
-    // Handle array of validation errors
+    // Handle array of validation errors (FastAPI format: [{type, loc, msg, input, ctx}])
     if (Array.isArray(data.detail)) {
       return data.detail.map((err: any) => {
         if (typeof err === 'string') return err;
-        if (err?.msg) return err.msg;
-        if (err?.loc && err?.msg) {
-          return `${err.loc.join('.')}: ${err.msg}`;
+        if (err && typeof err === 'object') {
+          if (typeof err.msg === 'string') {
+            // Format: "field.path: message" if loc exists, otherwise just message
+            if (Array.isArray(err.loc) && err.loc.length > 0) {
+              return `${err.loc.join('.')}: ${err.msg}`;
+            }
+            return err.msg;
+          }
+          // Fallback: stringify the error object
+          return JSON.stringify(err);
         }
-        return JSON.stringify(err);
+        return String(err);
       }).join(', ');
     }
     
-    // Handle object detail
-    if (data.detail && typeof data.detail === 'object') {
-      if (data.detail.message) return data.detail.message;
-      if (data.detail.msg) return data.detail.msg;
-      // If it's a validation error object, extract the message
-      if (data.detail.msg) return data.detail.msg;
+    // Handle object detail (could be a single validation error object)
+    if (data.detail && typeof data.detail === 'object' && !Array.isArray(data.detail)) {
+      // FastAPI validation error object format: {type, loc, msg, input, ctx}
+      if (typeof data.detail.msg === 'string') {
+        if (Array.isArray(data.detail.loc) && data.detail.loc.length > 0) {
+          return `${data.detail.loc.join('.')}: ${data.detail.msg}`;
+        }
+        return data.detail.msg;
+      }
+      if (typeof data.detail.message === 'string') {
+        return data.detail.message;
+      }
+      // If it's an object but we can't extract a message, stringify it
+      return JSON.stringify(data.detail);
     }
     
-    // Handle message field
+    // Handle message field at root level
     if (typeof data.message === 'string') {
       return data.message;
     }
+    
+    // Handle error field at root level
+    if (data.error && typeof data.error === 'object') {
+      if (typeof data.error.message === 'string') {
+        return data.error.message;
+      }
+    }
   }
   
+  // Handle Error instances
   if (error instanceof Error) {
-    return error.message;
+    return error.message || defaultMessage;
   }
   
-  return defaultMessage;
+  // Handle objects that might be validation errors
+  if (error && typeof error === 'object') {
+    const errObj = error as Record<string, unknown>;
+    if (typeof errObj.msg === 'string') {
+      return errObj.msg;
+    }
+    if (typeof errObj.message === 'string') {
+      return errObj.message;
+    }
+    // Last resort: stringify the object
+    try {
+      return JSON.stringify(error);
+    } catch {
+      return defaultMessage;
+    }
+  }
+  
+  // Ensure we always return a string
+  return String(error || defaultMessage);
 }
 
 interface TKIState {

@@ -153,7 +153,7 @@ export default function TKIAssessmentPage() {
 
             {error && (
               <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm text-center">
-                {error}
+                {typeof error === 'string' ? error : String(error)}
               </div>
             )}
           </Card>
@@ -257,7 +257,7 @@ export default function TKIAssessmentPage() {
 
             {error && (
               <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
-                {error}
+                {typeof error === 'string' ? error : String(error)}
               </div>
             )}
 
