@@ -8,14 +8,14 @@ import { Card, Button, Stack } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { Sidebar } from '@/components/dashboard/Sidebar';
-import { Brain, Target, Users, Heart, Upload, CheckCircle, Lock } from 'lucide-react';
+import { Brain, Target, Users, Heart, Upload, CheckCircle, Lock, type LucideIcon } from 'lucide-react';
 
 interface Assessment {
   id: string;
   title: string;
   description: string;
   status: 'completed' | 'in-progress' | 'locked' | 'available';
-  icon: any;
+  icon: LucideIcon;
   externalLink?: string;
   requiresEvaluators?: boolean;
 }
