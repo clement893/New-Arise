@@ -9,7 +9,7 @@ import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { Sidebar } from '@/components/dashboard/Sidebar';
 import { useWellnessStore } from '@/stores/wellnessStore';
-import { wellnessQuestions, wellnessCategories, scaleOptions } from '@/data/wellnessQuestions';
+import { wellnessQuestions, wellnessPillars, scaleOptions } from '@/data/wellnessQuestionsReal';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 
 function WellnessAssessmentContent() {
@@ -23,6 +23,8 @@ function WellnessAssessmentContent() {
     previousQuestion,
     completeAssessment,
     getProgress,
+    startAssessment,
+    isLoading,
   } = useWellnessStore();
 
   const [showIntro, setShowIntro] = useState(true);
@@ -86,12 +88,12 @@ function WellnessAssessmentContent() {
                     Wellness Assessment
                   </h1>
                   <p className="text-gray-600 text-lg">
-                    This assessment will help you understand your overall well-being across three key dimensions
+                    This assessment will help you understand your overall well-being across six key pillars
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                  {wellnessCategories.map((category) => (
+                  {wellnessPillars.map((category) => (
                     <div 
                       key={category.id}
                       className="bg-arise-deep-teal/5 rounded-lg p-6 text-center hover:bg-arise-deep-teal/10 transition-colors"
@@ -111,10 +113,14 @@ function WellnessAssessmentContent() {
                   <Button 
                     variant="primary" 
                     size="lg"
-                    onClick={() => setShowIntro(false)}
+                    onClick={async () => {
+                      await startAssessment();
+                      setShowIntro(false);
+                    }}
+                    disabled={isLoading}
                     className="px-8"
                   >
-                    Start Assessment
+                    {isLoading ? 'Starting...' : 'Start Assessment'}
                   </Button>
                 </div>
               </Card>
