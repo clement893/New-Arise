@@ -2,6 +2,41 @@ import axios from 'axios';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+/**
+ * Extract error message from API error response
+ * Handles various error response formats (string, array, object)
+ */
+function extractErrorMessage(errorData: any, defaultMessage: string): string {
+  if (typeof errorData.detail === 'string') {
+    return errorData.detail;
+  }
+  
+  if (Array.isArray(errorData.detail)) {
+    // Handle validation errors array (e.g., FastAPI validation errors)
+    return errorData.detail
+      .map((err: any) => {
+        if (typeof err === 'string') return err;
+        if (err?.msg) return err.msg;
+        if (err?.loc && err?.msg) {
+          return `${err.loc.join('.')}: ${err.msg}`;
+        }
+        return JSON.stringify(err);
+      })
+      .join(', ');
+  }
+  
+  if (errorData.detail && typeof errorData.detail === 'object') {
+    // Handle object error details
+    return errorData.detail.message || errorData.detail.msg || JSON.stringify(errorData.detail);
+  }
+  
+  if (errorData.message && typeof errorData.message === 'string') {
+    return errorData.message;
+  }
+  
+  return defaultMessage;
+}
+
 export interface RegisterData {
   email: string;
   password: string;
@@ -52,7 +87,8 @@ export async function register(data: RegisterData): Promise<UserResponse> {
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.detail || 'Registration failed');
+      const errorMessage = extractErrorMessage(error.response.data, 'Registration failed');
+      throw new Error(errorMessage);
     }
     throw new Error('Network error. Please try again.');
   }
@@ -75,7 +111,8 @@ export async function login(data: LoginData): Promise<AuthResponse> {
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.detail || 'Login failed');
+      const errorMessage = extractErrorMessage(error.response.data, 'Login failed');
+      throw new Error(errorMessage);
     }
     throw new Error('Network error. Please try again.');
   }

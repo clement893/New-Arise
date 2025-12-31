@@ -82,7 +82,23 @@ export function Step3_CreateAccount() {
       // Step 5: Move to welcome screen (user is now authenticated)
       setStep(7);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
+      let errorMessage = 'Registration failed. Please try again.';
+      
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      } else if (typeof err === 'string') {
+        errorMessage = err;
+      } else if (err && typeof err === 'object') {
+        // Handle object errors
+        const errorObj = err as Record<string, unknown>;
+        if (errorObj.message && typeof errorObj.message === 'string') {
+          errorMessage = errorObj.message;
+        } else if (errorObj.detail && typeof errorObj.detail === 'string') {
+          errorMessage = errorObj.detail;
+        }
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
