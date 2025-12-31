@@ -7,6 +7,17 @@ import axios from 'axios';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+// Configure axios to include auth token
+const getAuthHeaders = () => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('token');
+    if (token) {
+      return { Authorization: `Bearer ${token}` };
+    }
+  }
+  return {};
+};
+
 export type AssessmentType = 'wellness' | 'tki' | '360_self' | 'mbti';
 export type AssessmentStatus = 'not_started' | 'in_progress' | 'completed';
 
@@ -47,9 +58,11 @@ export interface AssessmentResult {
  * Start a new assessment
  */
 export const startAssessment = async (assessmentType: AssessmentType): Promise<Assessment> => {
-  const response = await axios.post(`${API_BASE_URL}/api/v1/assessments/start`, {
-    assessment_type: assessmentType,
-  });
+  const response = await axios.post(
+    `${API_BASE_URL}/api/v1/assessments/start`,
+    { assessment_type: assessmentType },
+    { headers: getAuthHeaders() }
+  );
   return response.data;
 };
 
@@ -66,7 +79,8 @@ export const saveAnswer = async (
     {
       question_id: questionId,
       answer_value: answerValue,
-    }
+    },
+    { headers: getAuthHeaders() }
   );
   return response.data;
 };
@@ -76,7 +90,9 @@ export const saveAnswer = async (
  */
 export const submitAssessment = async (assessmentId: number): Promise<Assessment> => {
   const response = await axios.post(
-    `${API_BASE_URL}/api/v1/assessments/${assessmentId}/submit`
+    `${API_BASE_URL}/api/v1/assessments/${assessmentId}/submit`,
+    {},
+    { headers: getAuthHeaders() }
   );
   return response.data;
 };
@@ -86,7 +102,8 @@ export const submitAssessment = async (assessmentId: number): Promise<Assessment
  */
 export const getAssessmentResults = async (assessmentId: number): Promise<AssessmentResult> => {
   const response = await axios.get(
-    `${API_BASE_URL}/api/v1/assessments/${assessmentId}/results`
+    `${API_BASE_URL}/api/v1/assessments/${assessmentId}/results`,
+    { headers: getAuthHeaders() }
   );
   return response.data;
 };
@@ -95,7 +112,10 @@ export const getAssessmentResults = async (assessmentId: number): Promise<Assess
  * Get all assessments for the current user
  */
 export const getMyAssessments = async (): Promise<Assessment[]> => {
-  const response = await axios.get(`${API_BASE_URL}/api/v1/assessments/my-assessments`);
+  const response = await axios.get(
+    `${API_BASE_URL}/api/v1/assessments/my-assessments`,
+    { headers: getAuthHeaders() }
+  );
   return response.data;
 };
 
@@ -103,7 +123,10 @@ export const getMyAssessments = async (): Promise<Assessment[]> => {
  * Get a specific assessment by ID
  */
 export const getAssessment = async (assessmentId: number): Promise<Assessment> => {
-  const response = await axios.get(`${API_BASE_URL}/api/v1/assessments/${assessmentId}`);
+  const response = await axios.get(
+    `${API_BASE_URL}/api/v1/assessments/${assessmentId}`,
+    { headers: getAuthHeaders() }
+  );
   return response.data;
 };
 
