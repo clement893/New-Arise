@@ -105,7 +105,7 @@ function DashboardContent() {
     }
   };
 
-  const getActionButton = (status: string, title: string) => {
+  const getActionButton = (status: string, _title: string) => {
     if (status === 'locked') {
       return (
         <Button variant="secondary" disabled className="w-full">
