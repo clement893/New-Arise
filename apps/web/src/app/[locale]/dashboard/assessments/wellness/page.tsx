@@ -233,7 +233,7 @@ function WellnessAssessmentContent() {
                     {wellnessPillars.find(p => p.name === currentQuestion?.pillar)?.name}
                   </div>
                   <h2 className="text-2xl font-bold text-gray-900">
-                    {currentQuestion?.text}
+                    {currentQuestion?.question}
                   </h2>
                 </div>
 
