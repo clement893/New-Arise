@@ -573,14 +573,45 @@ async def start_360_feedback(
             raise ValueError("evaluators must be a list")
         
         # Create the self-assessment
-        self_assessment = Assessment(
-            user_id=current_user.id,
-            assessment_type=AssessmentType.THREE_SIXTY_SELF,
-            status=AssessmentStatus.IN_PROGRESS,
-            started_at=datetime.now(timezone.utc)
-        )
-        db.add(self_assessment)
-        await db.flush()  # Get the ID
+        try:
+            self_assessment = Assessment(
+                user_id=current_user.id,
+                assessment_type=AssessmentType.THREE_SIXTY_SELF,
+                status=AssessmentStatus.IN_PROGRESS,
+                started_at=datetime.now(timezone.utc)
+            )
+            db.add(self_assessment)
+            logger.debug(f"Added self-assessment to session for user {current_user.id}")
+            
+            try:
+                await db.flush()  # Get the ID
+                logger.debug(f"Flushed self-assessment, got ID: {self_assessment.id}")
+            except Exception as flush_error:
+                error_type = type(flush_error).__name__
+                error_message = str(flush_error)
+                logger.error(
+                    f"❌ FLUSH ERROR creating self-assessment: {error_type}: {error_message}",
+                    exc_info=True
+                )
+                await db.rollback()
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=f"Failed to create assessment: {error_type}: {error_message}"
+                )
+        except HTTPException:
+            raise
+        except Exception as assessment_error:
+            error_type = type(assessment_error).__name__
+            error_message = str(assessment_error)
+            logger.error(
+                f"❌ ERROR creating self-assessment: {error_type}: {error_message}",
+                exc_info=True
+            )
+            await db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to create assessment: {error_type}: {error_message}"
+            )
         
         # Create evaluator invitations and send emails
         email_service = EmailService()
@@ -596,18 +627,31 @@ async def start_360_feedback(
             # Generate unique token (with retry logic to avoid collisions)
             max_retries = 5
             invitation_token = None
-            for attempt in range(max_retries):
-                candidate_token = secrets.token_urlsafe(32)
-                # Check if token already exists in database
-                existing_token_result = await db.execute(
-                    select(Assessment360Evaluator).where(
-                        Assessment360Evaluator.invitation_token == candidate_token
-                    )
+            try:
+                for attempt in range(max_retries):
+                    candidate_token = secrets.token_urlsafe(32)
+                    # Check if token already exists in database
+                    try:
+                        existing_token_result = await db.execute(
+                            select(Assessment360Evaluator).where(
+                                Assessment360Evaluator.invitation_token == candidate_token
+                            )
+                        )
+                        if existing_token_result.scalar_one_or_none() is None:
+                            invitation_token = candidate_token
+                            break
+                        logger.warning(f"Token collision detected (attempt {attempt + 1}/{max_retries}), generating new token")
+                    except Exception as token_check_error:
+                        logger.error(f"Error checking token uniqueness: {token_check_error}", exc_info=True)
+                        # If check fails, use the token anyway (very unlikely collision)
+                        invitation_token = candidate_token
+                        break
+            except Exception as token_gen_error:
+                logger.error(f"Error generating invitation token: {token_gen_error}", exc_info=True)
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=f"Failed to generate invitation token: {str(token_gen_error)}"
                 )
-                if existing_token_result.scalar_one_or_none() is None:
-                    invitation_token = candidate_token
-                    break
-                logger.warning(f"Token collision detected (attempt {attempt + 1}/{max_retries}), generating new token")
             
             if not invitation_token:
                 raise HTTPException(
@@ -626,15 +670,34 @@ async def start_360_feedback(
                 )
             
             # Create evaluator record
-            evaluator = Assessment360Evaluator(
-                assessment_id=self_assessment.id,
-                evaluator_name=evaluator_data.name,
-                evaluator_email=evaluator_data.email,
-                evaluator_role=evaluator_role,
-                invitation_token=invitation_token,
-                status=AssessmentStatus.NOT_STARTED
-            )
-            db.add(evaluator)
+            try:
+                evaluator = Assessment360Evaluator(
+                    assessment_id=self_assessment.id,
+                    evaluator_name=evaluator_data.name,
+                    evaluator_email=evaluator_data.email,
+                    evaluator_role=evaluator_role,
+                    invitation_token=invitation_token,
+                    status=AssessmentStatus.NOT_STARTED
+                )
+                db.add(evaluator)
+                logger.debug(f"Added evaluator {evaluator_data.email} to session for assessment {self_assessment.id}")
+            except Exception as add_error:
+                error_type = type(add_error).__name__
+                error_message = str(add_error)
+                logger.error(
+                    f"Error creating evaluator record for {evaluator_data.email}: {error_type}: {error_message}",
+                    exc_info=True,
+                    extra={
+                        "user_id": current_user.id,
+                        "assessment_id": self_assessment.id,
+                        "evaluator_email": evaluator_data.email,
+                        "error_type": error_type
+                    }
+                )
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=f"Failed to create evaluator record: {error_type}: {error_message}"
+                )
             
             # Send invitation email
             evaluation_url = f"{frontend_url.rstrip('/')}/360-evaluator/{invitation_token}"
@@ -672,20 +735,35 @@ async def start_360_feedback(
         # Commit all changes to database
         try:
             await db.commit()
-            logger.debug(f"Successfully committed 360 feedback assessment {self_assessment.id} to database")
+            logger.info(f"✅ Successfully committed 360 feedback assessment {self_assessment.id} to database with {len(invited_evaluators)} evaluators")
+        except IntegrityError as integrity_error:
+            await db.rollback()
+            error_message = str(integrity_error)
+            logger.error(
+                f"❌ INTEGRITY ERROR committing 360 feedback assessment: {error_message}",
+                exc_info=True
+            )
+            # Extract more details from IntegrityError
+            if "invitation_token" in error_message.lower() or "unique" in error_message.lower():
+                detail_msg = "An evaluator with this invitation token already exists. Please try again."
+            elif "foreign key" in error_message.lower():
+                detail_msg = "Invalid assessment reference. Please try again."
+            else:
+                detail_msg = f"Database integrity constraint violation: {error_message}"
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=detail_msg
+            )
         except Exception as commit_error:
             await db.rollback()
             error_type = type(commit_error).__name__
             error_message = str(commit_error)
             logger.error(
-                f"Database error committing 360 feedback assessment: {error_type}: {error_message}",
-                exc_info=True,
-                extra={
-                    "user_id": current_user.id,
-                    "assessment_id": self_assessment.id if hasattr(self_assessment, 'id') else None,
-                    "evaluators_count": len(invited_evaluators),
-                    "error_type": error_type
-                }
+                f"❌ DATABASE ERROR committing 360 feedback assessment: {error_type}: {error_message}",
+                exc_info=True
+            )
+            logger.error(
+                f"   User ID: {current_user.id}, Assessment ID: {self_assessment.id if hasattr(self_assessment, 'id') else 'N/A'}, Evaluators: {len(invited_evaluators)}"
             )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
