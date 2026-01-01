@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui';
 import Button from '@/components/ui/Button';
-import { User, Calendar, Phone, Briefcase, Building, Target, Users, Check } from 'lucide-react';
+import { User, Calendar, Briefcase, Building, Target, Users, Check } from 'lucide-react';
 import Image from 'next/image';
 
 export default function ProfilePage() {
