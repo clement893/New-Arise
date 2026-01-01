@@ -568,12 +568,16 @@ async def start_360_feedback(
     from app.core.logging import logger
     
     try:
+        # Validate evaluators data
+        if not isinstance(request.evaluators, list):
+            raise ValueError("evaluators must be a list")
+        
         # Create the self-assessment
         self_assessment = Assessment(
             user_id=current_user.id,
             assessment_type=AssessmentType.THREE_SIXTY_SELF,
             status=AssessmentStatus.IN_PROGRESS,
-            started_at=datetime.utcnow()
+            started_at=datetime.now(timezone.utc)
         )
         db.add(self_assessment)
         await db.flush()  # Get the ID
@@ -584,15 +588,30 @@ async def start_360_feedback(
         invited_evaluators = []
         
         for evaluator_data in request.evaluators:
+            # Validate evaluator data
+            if not evaluator_data.name or not evaluator_data.email:
+                logger.warning(f"Skipping invalid evaluator: name={evaluator_data.name}, email={evaluator_data.email}")
+                continue
+            
             # Generate unique token
             invitation_token = secrets.token_urlsafe(32)
+            
+            # Validate role
+            try:
+                evaluator_role = EvaluatorRole(evaluator_data.role.upper())
+            except ValueError as e:
+                logger.error(f"Invalid evaluator role: {evaluator_data.role}. Error: {e}")
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid evaluator role: {evaluator_data.role}. Must be one of: PEER, MANAGER, DIRECT_REPORT, STAKEHOLDER"
+                )
             
             # Create evaluator record
             evaluator = Assessment360Evaluator(
                 assessment_id=self_assessment.id,
                 evaluator_name=evaluator_data.name,
                 evaluator_email=evaluator_data.email,
-                evaluator_role=EvaluatorRole(evaluator_data.role.upper()),
+                evaluator_role=evaluator_role,
                 invitation_token=invitation_token,
                 status=AssessmentStatus.NOT_STARTED
             )
@@ -605,20 +624,25 @@ async def start_360_feedback(
                 if email_service.is_configured():
                     sender_name = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
                     role_label = evaluator_data.role.replace('_', ' ').title()
-                    email_service.send_360_evaluator_invitation(
-                        to_email=evaluator_data.email,
-                        evaluator_name=evaluator_data.name,
-                        sender_name=sender_name,
-                        evaluation_url=evaluation_url,
-                        role=role_label
-                    )
-                    evaluator.invitation_sent_at = datetime.utcnow()
-                    logger.info(f"Sent 360 evaluator invitation email to {evaluator_data.email}")
+                    try:
+                        email_service.send_360_evaluator_invitation(
+                            to_email=evaluator_data.email,
+                            evaluator_name=evaluator_data.name,
+                            sender_name=sender_name,
+                            evaluation_url=evaluation_url,
+                            role=role_label
+                        )
+                        evaluator.invitation_sent_at = datetime.now(timezone.utc)
+                        logger.info(f"Sent 360 evaluator invitation email to {evaluator_data.email}")
+                    except Exception as email_error:
+                        logger.error(f"Failed to send invitation email to {evaluator_data.email}: {email_error}", exc_info=True)
+                        # Continue even if email fails - evaluator record is created
+                        # Don't set invitation_sent_at if email failed
                 else:
                     logger.warning(f"Email service not configured, skipping email to {evaluator_data.email}")
             except Exception as e:
-                logger.error(f"Failed to send invitation email to {evaluator_data.email}: {e}", exc_info=True)
-                # Continue even if email fails - evaluator record is created
+                logger.error(f"Unexpected error processing evaluator {evaluator_data.email}: {e}", exc_info=True)
+                # Continue even if there's an error - evaluator record is created
             
             invited_evaluators.append({
                 "name": evaluator_data.name,
@@ -634,12 +658,26 @@ async def start_360_feedback(
             "message": f"360° feedback started and {len(invited_evaluators)} evaluators invited",
             "evaluators": invited_evaluators
         }
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        await db.rollback()
+        raise
     except Exception as e:
         await db.rollback()
-        logger.error(f"Error in start_360_feedback: {e}", exc_info=True)
+        error_type = type(e).__name__
+        error_message = str(e)
+        logger.error(
+            f"Error in start_360_feedback: {error_type}: {error_message}",
+            exc_info=True,
+            extra={
+                "user_id": current_user.id,
+                "evaluators_count": len(request.evaluators) if request.evaluators else 0,
+                "error_type": error_type
+            }
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to start 360° feedback: {str(e)}"
+            detail=f"Failed to start 360° feedback: {error_type}: {error_message}"
         )
 
 
