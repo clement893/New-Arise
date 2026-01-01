@@ -630,10 +630,10 @@ async def start_360_feedback(
             try:
                 for attempt in range(max_retries):
                     candidate_token = secrets.token_urlsafe(32)
-                    # Check if token already exists in database
+                    # Check if token already exists in database (only check ID to avoid column issues)
                     try:
                         existing_token_result = await db.execute(
-                            select(Assessment360Evaluator).where(
+                            select(Assessment360Evaluator.id).where(
                                 Assessment360Evaluator.invitation_token == candidate_token
                             )
                         )
@@ -644,6 +644,7 @@ async def start_360_feedback(
                     except Exception as token_check_error:
                         logger.error(f"Error checking token uniqueness: {token_check_error}", exc_info=True)
                         # If check fails, use the token anyway (very unlikely collision)
+                        # The probability of collision with token_urlsafe(32) is extremely low
                         invitation_token = candidate_token
                         break
             except Exception as token_gen_error:
