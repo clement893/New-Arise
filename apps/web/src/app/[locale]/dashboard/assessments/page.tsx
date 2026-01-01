@@ -130,23 +130,26 @@ function AssessmentsContent() {
     try {
       setStartingAssessment(assessmentType);
       
-      if (assessmentId) {
-        // Resume existing assessment
-        // For 360 feedback, include assessmentId in URL
-        if (assessmentType === 'THREE_SIXTY_SELF') {
+      // Always redirect 360 feedback to start page - never use /start endpoint
+      if (assessmentType === 'THREE_SIXTY_SELF') {
+        if (assessmentId) {
+          // Resume existing assessment with ID in URL
           router.push(`/dashboard/assessments/360-feedback?assessmentId=${assessmentId}`);
         } else {
-          router.push(`/dashboard/assessments/${getAssessmentRoute(assessmentType)}`);
-        }
-      } else {
-        // For 360 feedback, redirect to start page to invite evaluators first
-        if (assessmentType === 'THREE_SIXTY_SELF') {
+          // New assessment - redirect to start page to invite evaluators
           router.push('/dashboard/assessments/360-feedback/start');
-        } else {
-          // Start new assessment for other types
-          await startAssessment(assessmentType);
-          router.push(`/dashboard/assessments/${getAssessmentRoute(assessmentType)}`);
         }
+        return; // Early return to prevent calling startAssessment
+      }
+      
+      // For other assessment types
+      if (assessmentId) {
+        // Resume existing assessment
+        router.push(`/dashboard/assessments/${getAssessmentRoute(assessmentType)}`);
+      } else {
+        // Start new assessment for other types
+        await startAssessment(assessmentType);
+        router.push(`/dashboard/assessments/${getAssessmentRoute(assessmentType)}`);
       }
     } catch (err) {
       console.error('Failed to start assessment:', err);
