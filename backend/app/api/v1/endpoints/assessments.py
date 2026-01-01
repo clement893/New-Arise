@@ -792,43 +792,185 @@ async def get_360_evaluator_assessment(
     """
     Get 360 evaluator assessment by invitation token (public endpoint)
     """
-    result = await db.execute(
-        select(Assessment360Evaluator)
-        .where(Assessment360Evaluator.invitation_token == token)
-        .options(selectinload(Assessment360Evaluator.assessment))
-    )
-    evaluator = result.scalar_one_or_none()
-    
-    if not evaluator:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Invalid invitation token"
+    try:
+        result = await db.execute(
+            select(Assessment360Evaluator)
+            .where(Assessment360Evaluator.invitation_token == token)
+            .options(selectinload(Assessment360Evaluator.assessment).selectinload(Assessment.user))
         )
+        evaluator = result.scalar_one_or_none()
+        
+        if not evaluator:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Invalid invitation token"
+            )
+        
+        # Mark invitation as opened
+        if not evaluator.invitation_opened_at:
+            evaluator.invitation_opened_at = datetime.now(timezone.utc)
+            await db.commit()
+        
+        # Get user being evaluated - use loaded relationship or fetch directly
+        user = evaluator.assessment.user if evaluator.assessment else None
+        if not user and evaluator.assessment:
+            user_result = await db.execute(
+                select(User)
+                .where(User.id == evaluator.assessment.user_id)
+            )
+            user = user_result.scalar_one_or_none()
+        
+        return {
+            "evaluator_id": evaluator.id,
+            "evaluator_name": evaluator.evaluator_name,
+            "evaluator_email": evaluator.evaluator_email,
+            "evaluator_role": evaluator.evaluator_role.value,
+            "status": evaluator.status.value,
+            "assessment_id": evaluator.evaluator_assessment_id,
+            "user_being_evaluated": {
+                "name": f"{user.first_name or ''} {user.last_name or ''}".strip() if user else None,
+                "email": user.email if user else None,
+            } if user else None
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        from app.core.logging import logger
+        logger.error(f"Error getting evaluator assessment: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to load evaluator assessment: {str(e)}"
+        )
+
+
+@router.post("/360-evaluator/{token}/submit")
+async def submit_360_evaluator_assessment(
+    token: str,
+    answers: List[Dict[str, Any]] = Body(..., description="List of answers with question_id and answer_value"),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Submit 360 evaluator assessment by invitation token (public endpoint)
+    """
+    from app.core.logging import logger
+    from app.services.assessment_scoring import calculate_scores
     
-    # Mark invitation as opened
-    if not evaluator.invitation_opened_at:
-        evaluator.invitation_opened_at = datetime.utcnow()
+    try:
+        # Get evaluator by token
+        result = await db.execute(
+            select(Assessment360Evaluator)
+            .where(Assessment360Evaluator.invitation_token == token)
+            .options(selectinload(Assessment360Evaluator.assessment))
+        )
+        evaluator = result.scalar_one_or_none()
+        
+        if not evaluator:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Invalid invitation token"
+            )
+        
+        # Check if already completed
+        if evaluator.status == AssessmentStatus.COMPLETED:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="This evaluation has already been completed"
+            )
+        
+        # Get or create evaluator's assessment
+        evaluator_assessment = None
+        if evaluator.evaluator_assessment_id:
+            result = await db.execute(
+                select(Assessment)
+                .where(Assessment.id == evaluator.evaluator_assessment_id)
+            )
+            evaluator_assessment = result.scalar_one_or_none()
+        
+        if not evaluator_assessment:
+            # Create new assessment for the evaluator
+            evaluator_assessment = Assessment(
+                user_id=evaluator.assessment.user_id,  # Same user being evaluated
+                assessment_type=AssessmentType.THREE_SIXTY_SELF,  # Use same type as main assessment
+                status=AssessmentStatus.IN_PROGRESS,
+                started_at=datetime.now(timezone.utc) if not evaluator.started_at else evaluator.started_at
+            )
+            db.add(evaluator_assessment)
+            await db.flush()  # Get the ID
+            
+            evaluator.evaluator_assessment_id = evaluator_assessment.id
+            if not evaluator.started_at:
+                evaluator.started_at = datetime.now(timezone.utc)
+        
+        # Save all answers
+        for answer_data in answers:
+            question_id = answer_data.get("question_id")
+            answer_value = str(answer_data.get("answer_value"))
+            
+            if not question_id or not answer_value:
+                continue
+            
+            # Check if answer already exists
+            result = await db.execute(
+                select(AssessmentAnswer)
+                .where(
+                    AssessmentAnswer.assessment_id == evaluator_assessment.id,
+                    AssessmentAnswer.question_id == question_id
+                )
+            )
+            existing_answer = result.scalar_one_or_none()
+            
+            if existing_answer:
+                existing_answer.answer_value = answer_value
+            else:
+                new_answer = AssessmentAnswer(
+                    assessment_id=evaluator_assessment.id,
+                    question_id=question_id,
+                    answer_value=answer_value
+                )
+                db.add(new_answer)
+        
+        await db.flush()
+        
+        # Get all answers for scoring
+        result = await db.execute(
+            select(AssessmentAnswer)
+            .where(AssessmentAnswer.assessment_id == evaluator_assessment.id)
+        )
+        all_answers = result.scalars().all()
+        
+        # Calculate scores
+        scores = calculate_scores(
+            assessment_type=evaluator_assessment.assessment_type,
+            answers=all_answers
+        )
+        
+        # Update assessment
+        evaluator_assessment.status = AssessmentStatus.COMPLETED
+        evaluator_assessment.completed_at = datetime.now(timezone.utc)
+        evaluator_assessment.raw_score = {answer.question_id: answer.answer_value for answer in all_answers}
+        evaluator_assessment.processed_score = scores
+        
+        # Update evaluator status
+        evaluator.status = AssessmentStatus.COMPLETED
+        evaluator.completed_at = datetime.now(timezone.utc)
+        
         await db.commit()
-    
-    # Get user being evaluated
-    user_result = await db.execute(
-        select(User)
-        .where(User.id == evaluator.assessment.user_id)
-    )
-    user = user_result.scalar_one_or_none()
-    
-    return {
-        "evaluator_id": evaluator.id,
-        "evaluator_name": evaluator.evaluator_name,
-        "evaluator_email": evaluator.evaluator_email,
-        "evaluator_role": evaluator.evaluator_role.value,
-        "status": evaluator.status.value,
-        "assessment_id": evaluator.evaluator_assessment_id,
-        "user_being_evaluated": {
-            "name": f"{user.first_name or ''} {user.last_name or ''}".strip() if user else None,
-            "email": user.email if user else None,
-        } if user else None
-    }
+        
+        return {
+            "message": "Evaluation submitted successfully",
+            "assessment_id": evaluator_assessment.id,
+            "status": "completed"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error submitting evaluator assessment: {e}", exc_info=True)
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to submit evaluation: {str(e)}"
+        )
 
 
 @router.post("/mbti/upload-score")
