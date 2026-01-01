@@ -32,7 +32,7 @@ export default function Evaluator360Page() {
 
   const question = feedback360Questions[currentQuestion];
   const progress = Math.round(
-    ((Object.keys(answers).length + (selectedValue !== null && !answers[question?.id] ? 1 : 0)) /
+    ((Object.keys(answers).length + (selectedValue !== null && question && !answers[question.id] ? 1 : 0)) /
       30) *
       100
   );
