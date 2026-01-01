@@ -7,7 +7,7 @@ import { Card, Container } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { start360Feedback, get360Evaluators, type Evaluator360Data, type EvaluatorStatus } from '@/lib/api/assessments';
-import { Users, UserPlus, CheckCircle, Plus, Trash2, Copy, Link2, Check } from 'lucide-react';
+import { Users, UserPlus, CheckCircle, Plus, Trash2, Copy, Check } from 'lucide-react';
 import { Alert } from '@/components/ui';
 
 type EvaluatorRole = 'PEER' | 'MANAGER' | 'DIRECT_REPORT' | 'STAKEHOLDER';
