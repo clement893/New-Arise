@@ -13,12 +13,13 @@
 
 'use client';
 
-import { useState, useMemo, memo, useCallback } from 'react';
+import { useState, useMemo, memo, useCallback, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
 import { useAuth } from '@/hooks/useAuth';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Sidebar from '@/components/ui/Sidebar';
+import { checkMySuperAdminStatus } from '@/lib/api/admin';
 import { ThemeToggleWithIcon } from '@/components/ui/ThemeToggle';
 import { 
   LayoutDashboard, 
@@ -225,10 +226,31 @@ const MemoizedSidebar = memo(Sidebar);
 function DashboardLayoutContent({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user } = useAuthStore();
+  const { user, token } = useAuthStore();
   const { logout } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState<boolean | null>(null);
+
+  // Check superadmin status on mount
+  useEffect(() => {
+    const checkSuperAdmin = async () => {
+      if (!user || !token) {
+        setIsSuperAdmin(false);
+        return;
+      }
+      
+      try {
+        const status = await checkMySuperAdminStatus(token);
+        setIsSuperAdmin(status.is_superadmin === true);
+      } catch (error) {
+        console.error('Error checking superadmin status:', error);
+        setIsSuperAdmin(false);
+      }
+    };
+    
+    checkSuperAdmin();
+  }, [user, token]);
 
   // Check if user is admin or superadmin
   // Use user_type directly - superadmins have user_type='ADMIN' after migration
@@ -236,14 +258,18 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
   
   // If user_type is ADMIN, show admin menu
   // Also check is_admin as fallback (though migration should have set user_type)
+  // Also check superadmin status from API
   const isAdmin = user?.is_admin ?? false;
-  const effectiveUserType = (userType === 'ADMIN' || isAdmin) ? 'ADMIN' : userType;
+  const effectiveIsAdmin = isAdmin || isSuperAdmin === true;
+  const effectiveUserType = (userType === 'ADMIN' || effectiveIsAdmin) ? 'ADMIN' : userType;
   
   // Debug logging (remove in production if needed)
   if (typeof window !== 'undefined') {
     console.log('[DashboardLayout] User data:', {
       userType,
       isAdmin,
+      isSuperAdmin,
+      effectiveIsAdmin,
       effectiveUserType,
       user: user ? { id: user.id, email: user.email, user_type: user.user_type, is_admin: user.is_admin } : null
     });
@@ -252,8 +278,8 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
   // Memoize sidebar items - only recreate if admin status or user type changes
   // This prevents the sidebar from re-rendering on every navigation
   const sidebarItems = useMemo(
-    () => createSidebarItems(effectiveUserType, isAdmin),
-    [effectiveUserType, isAdmin]
+    () => createSidebarItems(effectiveUserType, effectiveIsAdmin),
+    [effectiveUserType, effectiveIsAdmin]
   );
 
   // Memoize callbacks to prevent re-renders

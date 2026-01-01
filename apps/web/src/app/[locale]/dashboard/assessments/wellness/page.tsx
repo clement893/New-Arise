@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { Card, Button } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { Sidebar } from '@/components/dashboard/Sidebar';
 import { useWellnessStore } from '@/stores/wellnessStore';
 import { wellnessQuestions, wellnessPillars, scaleOptions } from '@/data/wellnessQuestionsReal';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
@@ -114,17 +113,12 @@ function WellnessAssessmentContent() {
   // Show loading while checking for existing assessment
   if (isCheckingExisting) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">
-        <Sidebar />
-        <div className="flex-1 ml-64">
-          <div className="relative z-10 p-8 flex items-center justify-center min-h-screen">
-            <MotionDiv variant="fade" duration="normal">
-              <Card className="max-w-md text-center">
-                <p className="text-gray-600">Checking for existing assessment...</p>
-              </Card>
-            </MotionDiv>
-          </div>
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <MotionDiv variant="fade" duration="normal">
+          <Card className="max-w-md text-center">
+            <p className="text-gray-600">Checking for existing assessment...</p>
+          </Card>
+        </MotionDiv>
       </div>
     );
   }
@@ -132,16 +126,14 @@ function WellnessAssessmentContent() {
   // Introduction Screen
   if (showIntro) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">
-        <Sidebar />
-        <div className="flex-1 ml-64">
-          <div 
-            className="fixed inset-0 ml-64 bg-cover bg-center opacity-10 pointer-events-none"
-            style={{
-              backgroundImage: 'url(/images/dashboard-bg.jpg)',
-            }}
-          />
-          <div className="relative z-10 p-8 flex items-center justify-center min-h-screen">
+      <div className="relative">
+        <div 
+          className="fixed inset-0 bg-cover bg-center opacity-10 pointer-events-none"
+          style={{
+            backgroundImage: 'url(/images/dashboard-bg.jpg)',
+          }}
+        />
+        <div className="relative z-10 p-8 flex items-center justify-center min-h-screen">
             <MotionDiv variant="fade" duration="normal">
               <Card className="max-w-3xl">
                 <div className="text-center mb-8">
@@ -195,16 +187,14 @@ function WellnessAssessmentContent() {
   // Completion Screen
   if (showCompletion) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">
-        <Sidebar />
-        <div className="flex-1 ml-64">
-          <div 
-            className="fixed inset-0 ml-64 bg-cover bg-center opacity-10 pointer-events-none"
-            style={{
-              backgroundImage: 'url(/images/dashboard-bg.jpg)',
-            }}
-          />
-          <div className="relative z-10 p-8 flex items-center justify-center min-h-screen">
+      <div className="relative">
+        <div 
+          className="fixed inset-0 bg-cover bg-center opacity-10 pointer-events-none"
+          style={{
+            backgroundImage: 'url(/images/dashboard-bg.jpg)',
+          }}
+        />
+        <div className="relative z-10 p-8 flex items-center justify-center min-h-screen">
             <MotionDiv variant="fade" duration="normal">
               <Card className="max-w-2xl text-center">
                 <div className="mb-6">
@@ -251,22 +241,19 @@ function WellnessAssessmentContent() {
             </MotionDiv>
           </div>
         </div>
-      </div>
     );
   }
 
   // Question Screen
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
-      <div className="flex-1 ml-64">
-        <div 
-          className="fixed inset-0 ml-64 bg-cover bg-center opacity-10 pointer-events-none"
-          style={{
-            backgroundImage: 'url(/images/dashboard-bg.jpg)',
-          }}
-        />
-        <div className="relative z-10 p-8">
+    <div className="relative">
+      <div 
+        className="fixed inset-0 bg-cover bg-center opacity-10 pointer-events-none"
+        style={{
+          backgroundImage: 'url(/images/dashboard-bg.jpg)',
+        }}
+      />
+      <div className="relative z-10 p-8">
           {/* Progress Bar */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-2">
@@ -342,7 +329,6 @@ function WellnessAssessmentContent() {
             </MotionDiv>
           </div>
         </div>
-      </div>
     </div>
   );
 }
