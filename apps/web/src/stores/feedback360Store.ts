@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { startAssessment, saveAnswer, submitAssessment } from '@/lib/api/assessments';
+import { saveAnswer, submitAssessment } from '@/lib/api/assessments';
 import axios from 'axios';
 
 interface Feedback360State {
