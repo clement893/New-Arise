@@ -19,7 +19,9 @@ import { ArrowLeft, ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
 
 export default function Evaluator360Page() {
   const params = useParams();
-  const token = params?.token as string;
+  // Extract token from params, handling both string and array cases
+  const tokenParam = params?.token;
+  const token = Array.isArray(tokenParam) ? tokenParam[0] : (tokenParam as string);
 
   const [evaluatorInfo, setEvaluatorInfo] = useState<EvaluatorAssessmentInfo | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -31,16 +33,22 @@ export default function Evaluator360Page() {
   const [success, setSuccess] = useState(false);
 
   const question = feedback360Questions[currentQuestion];
-  const progress = Math.round(
-    ((Object.keys(answers).length + (selectedValue !== null && question && !answers[question.id] ? 1 : 0)) /
-      30) *
-      100
-  );
+  const progress = question
+    ? Math.round(
+        ((Object.keys(answers).length + (selectedValue !== null && !answers[question.id] ? 1 : 0)) /
+          30) *
+          100
+      )
+    : 0;
 
   useEffect(() => {
-    if (token) {
-      loadEvaluatorInfo();
+    if (!token) {
+      setError('Token d\'invitation manquant. Veuillez vérifier le lien dans votre email.');
+      setIsLoading(false);
+      return;
     }
+    
+    loadEvaluatorInfo();
   }, [token]);
 
   useEffect(() => {
@@ -57,10 +65,19 @@ export default function Evaluator360Page() {
   }, [currentQuestion, question, answers]);
 
   const loadEvaluatorInfo = async () => {
+    if (!token) {
+      setError('Token d\'invitation manquant.');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
-      const info = await getEvaluatorAssessment(token);
+      
+      // Decode token in case it's URL encoded
+      const decodedToken = decodeURIComponent(token);
+      const info = await getEvaluatorAssessment(decodedToken);
       setEvaluatorInfo(info);
 
       // If already completed, show success
@@ -69,10 +86,10 @@ export default function Evaluator360Page() {
       }
     } catch (err: any) {
       console.error('Failed to load evaluator info:', err);
+      const errorMessage = err.response?.data?.detail || err.message;
       setError(
-        err.response?.data?.detail ||
-          err.message ||
-          'Lien invalide ou expiré. Veuillez vérifier votre email.'
+        errorMessage ||
+          'Lien invalide ou expiré. Veuillez vérifier le lien dans votre email ou contacter la personne qui vous a invité.'
       );
     } finally {
       setIsLoading(false);
@@ -98,6 +115,11 @@ export default function Evaluator360Page() {
   };
 
   const handleSubmit = async () => {
+    if (!token) {
+      setError('Token d\'invitation manquant.');
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       setError(null);
@@ -108,13 +130,15 @@ export default function Evaluator360Page() {
         answer_value,
       }));
 
-      await submitEvaluatorAssessment(token, answersArray);
+      // Decode token in case it's URL encoded
+      const decodedToken = decodeURIComponent(token);
+      await submitEvaluatorAssessment(decodedToken, answersArray);
       setSuccess(true);
     } catch (err: any) {
       console.error('Failed to submit assessment:', err);
+      const errorMessage = err.response?.data?.detail || err.message;
       setError(
-        err.response?.data?.detail ||
-          err.message ||
+        errorMessage ||
           'Une erreur est survenue lors de la soumission. Veuillez réessayer.'
       );
     } finally {
