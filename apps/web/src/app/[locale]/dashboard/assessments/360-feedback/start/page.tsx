@@ -40,6 +40,8 @@ export default function Start360FeedbackPage() {
   const updateEvaluator = (index: number, field: keyof EvaluatorForm, value: string) => {
     const newEvaluators = [...evaluators];
     const currentEvaluator = newEvaluators[index];
+    if (!currentEvaluator) return;
+    
     newEvaluators[index] = { 
       name: currentEvaluator.name,
       email: currentEvaluator.email,
