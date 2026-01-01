@@ -16,8 +16,7 @@ import {
   MapPin,
   Phone,
   CheckCircle,
-  XCircle,
-  AlertCircle
+  XCircle
 } from 'lucide-react';
 import Input from '@/components/ui/Input';
 
