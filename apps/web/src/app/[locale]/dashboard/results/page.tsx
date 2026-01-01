@@ -64,7 +64,7 @@ function ResultsReportsContent() {
           } else if (assessment.assessment_type === 'WELLNESS' && summary.percentage) {
             score = `${Math.round(summary.percentage)}%`;
             result = 'Wellness Score';
-          } else if ((assessment.assessment_type === 'THREE_SIXTY_SELF' || assessment.assessment_type === '360_SELF') && summary.total_score) {
+          } else if (assessment.assessment_type === 'THREE_SIXTY_SELF' && summary.total_score) {
             score = `${Math.round(summary.total_score)}%`;
             result = '360° Feedback';
           } else if (summary.percentage) {
@@ -100,7 +100,6 @@ function ResultsReportsContent() {
       TKI: 'TKI Conflict Style',
       WELLNESS: 'Wellness Assessment',
       THREE_SIXTY_SELF: '360° Feedback',
-      '360_SELF': '360° Feedback', // Legacy support
     };
     return names[type] || type;
   };
@@ -109,7 +108,7 @@ function ResultsReportsContent() {
     // Route to the appropriate results page based on assessment type
     if (assessment.type === 'TKI') {
       router.push(`/dashboard/assessments/tki/results?id=${assessment.id}`);
-    } else if (assessment.type === 'THREE_SIXTY_SELF' || assessment.type === '360_SELF') {
+    } else if (assessment.type === 'THREE_SIXTY_SELF') {
       router.push(`/dashboard/assessments/360-feedback/results?id=${assessment.id}`);
     } else if (assessment.type === 'WELLNESS') {
       router.push(`/dashboard/assessments/results?id=${assessment.id}`);
