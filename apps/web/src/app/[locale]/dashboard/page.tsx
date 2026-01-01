@@ -19,6 +19,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { getMyAssessments, Assessment as ApiAssessment, AssessmentType } from '@/lib/api/assessments';
+import InviteAdditionalEvaluatorsModal from '@/components/360/InviteAdditionalEvaluatorsModal';
 
 // Mapping of assessment types to display info
 const ASSESSMENT_CONFIG: Record<string, { title: string; description: string; icon: typeof Brain; externalLink?: string }> = {
@@ -51,6 +52,7 @@ function DashboardContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [assessments, setAssessments] = useState<ApiAssessment[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [showEvaluatorModal, setShowEvaluatorModal] = useState(false);
 
   useEffect(() => {
     loadAssessments();
@@ -323,7 +325,20 @@ function DashboardContent() {
                 <Button 
                   variant="primary" 
                   className="whitespace-nowrap"
-                  onClick={() => router.push('/dashboard/assessments')}
+                  onClick={() => {
+                    // Check if a 360° feedback assessment already exists
+                    const feedback360Assessment = assessments.find(
+                      a => a.assessment_type === 'THREE_SIXTY_SELF'
+                    );
+                    
+                    if (feedback360Assessment?.id) {
+                      // Open modal directly if assessment exists
+                      setShowEvaluatorModal(true);
+                    } else {
+                      // Redirect to start page if no assessment exists yet
+                      router.push('/dashboard/assessments/360-feedback/start');
+                    }
+                  }}
                 >
                   Ajouter des évaluateurs
                 </Button>
@@ -469,6 +484,27 @@ function DashboardContent() {
               </div>
             </Card>
           </MotionDiv>
+
+          {/* Evaluator Modal */}
+          {showEvaluatorModal && (() => {
+            const feedback360Assessment = assessments.find(
+              a => a.assessment_type === 'THREE_SIXTY_SELF'
+            );
+            if (!feedback360Assessment?.id) {
+              return null;
+            }
+            return (
+              <InviteAdditionalEvaluatorsModal
+                isOpen={showEvaluatorModal}
+                onClose={() => setShowEvaluatorModal(false)}
+                assessmentId={feedback360Assessment.id}
+                onSuccess={() => {
+                  setShowEvaluatorModal(false);
+                  loadAssessments(); // Reload to refresh evaluator status
+                }}
+              />
+            );
+          })()}
     </div>
   );
 }
