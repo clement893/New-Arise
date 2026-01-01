@@ -1,360 +1,366 @@
-/**
- * Profile Page
- * 
- * Complete user profile page displaying all profile information from database
- * with edit capabilities for modifiable fields.
- * Accessible via dashboard navigation and sitemap.
- */
-
 'use client';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { useTranslations, useLocale } from 'next-intl';
-import { useAuthStore } from '@/lib/store';
-import { usersAPI } from '@/lib/api';
-import { ProfileCard, ProfileForm } from '@/components/profile';
-import { PageHeader, PageContainer } from '@/components/layout';
-import { Loading, Alert, Card } from '@/components/ui';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { sanitizeInput } from '@/utils/edgeCaseHandlers';
-import { logger } from '@/lib/logger';
-import { getErrorMessage } from '@/lib/errors';
-import { Calendar, Mail, CheckCircle, XCircle, Clock, Hash } from 'lucide-react';
-
-interface UserData {
-  id: number;
-  email: string;
-  first_name?: string;
-  last_name?: string;
-  name?: string;
-  avatar?: string;
-  is_active?: boolean;
-  created_at?: string;
-  updated_at?: string;
-}
+import { useState } from 'react';
+import { Card } from '@/components/ui';
+import Button from '@/components/ui/Button';
+import { User, Calendar, Phone, Briefcase, Building, Target, Users, Check } from 'lucide-react';
+import Image from 'next/image';
 
 export default function ProfilePage() {
-  const router = useRouter();
-  const locale = useLocale();
-  const t = useTranslations('profile');
-  const { user: authUser, isAuthenticated } = useAuthStore();
-  const [user, setUser] = useState<UserData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const profileFormRef = useRef<HTMLDivElement>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const focusTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [formData, setFormData] = useState({
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john.doe@example.com',
+    password: '',
+    dateOfBirth: '1990-01-15',
+    gender: 'male',
+    phone: '+1 (555) 123-4567',
+    jobTitle: 'Senior Manager',
+    organizationName: 'Tech Solutions Inc.',
+    mainGoal: 'improve_leadership',
+    learnedFromCoach: 'yes',
+    coachName: 'Jane Smith',
+  });
 
-  const loadUser = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const response = await usersAPI.getMe();
-      if (response.data) {
-        const userData = response.data;
-        setUser({
-          id: userData.id,
-          email: userData.email,
-          first_name: userData.first_name || undefined,
-          last_name: userData.last_name || undefined,
-          name: [userData.first_name, userData.last_name]
-            .filter(Boolean)
-            .join(' ') || userData.email.split('@')[0],
-          avatar: userData.avatar || undefined,
-          is_active: userData.is_active !== undefined ? userData.is_active : true,
-          created_at: userData.created_at || undefined,
-          updated_at: userData.updated_at || undefined,
-        });
-      }
-    } catch (error) {
-      logger.error('Failed to load user profile', error instanceof Error ? error : new Error(String(error)));
-      setError(t('errors.loadFailed') || 'Failed to load profile. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [t]);
+  const [currentPlan, setCurrentPlan] = useState('revolution');
 
-  useEffect(() => {
-    if (!isAuthenticated()) {
-      router.push('/auth/login');
-      return;
-    }
-
-    loadUser();
-  }, [isAuthenticated, router, loadUser]);
-
-  // Cleanup timeouts on unmount
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      if (focusTimeoutRef.current) {
-        clearTimeout(focusTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  const handleSubmit = async (data: {
-    first_name?: string;
-    last_name?: string;
-    email?: string;
-    avatar?: string;
-  }) => {
-    try {
-      setIsSaving(true);
-      setError(null);
-      setSuccess(null);
-      
-      // Sanitize input data
-      const updateData: { first_name?: string; last_name?: string; email?: string; avatar?: string } = {};
-      
-      if (data.first_name !== undefined) {
-        updateData.first_name = sanitizeInput(data.first_name, { maxLength: 100, trim: true });
-      }
-      if (data.last_name !== undefined) {
-        updateData.last_name = sanitizeInput(data.last_name, { maxLength: 100, trim: true });
-      }
-      if (data.email !== undefined) {
-        updateData.email = sanitizeInput(data.email, { maxLength: 255, trim: true }).toLowerCase();
-      }
-      if (data.avatar !== undefined && user && data.avatar !== user.avatar) {
-        // Only update avatar if it's a URL (not a data URL from preview)
-        if (data.avatar.startsWith('http://') || data.avatar.startsWith('https://')) {
-          updateData.avatar = data.avatar;
-        }
-      }
-      
-      logger.debug('Updating user profile', { fields: Object.keys(updateData) });
-      
-      const response = await usersAPI.updateMe(updateData);
-
-      if (response.data) {
-        const updatedUser = {
-          ...response.data,
-          name: [response.data.first_name, response.data.last_name]
-            .filter(Boolean)
-            .join(' ') || response.data.email?.split('@')[0] || '',
-        };
-        
-        const updatedUserData: UserData = {
-          ...updatedUser,
-          id: response.data.id,
-          email: response.data.email,
-          first_name: response.data.first_name || undefined,
-          last_name: response.data.last_name || undefined,
-          avatar: response.data.avatar || undefined,
-          is_active: response.data.is_active !== undefined ? response.data.is_active : true,
-          created_at: response.data.created_at || user?.created_at,
-          updated_at: response.data.updated_at || new Date().toISOString(),
-        };
-        
-        setUser(updatedUserData);
-        
-        // Update auth store only if authUser exists
-        if (authUser) {
-          useAuthStore.getState().setUser({
-            ...authUser,
-            ...response.data,
-            name: updatedUser.name,
-          });
-        }
-        
-        setSuccess(t('success.updateSuccess') || 'Profile updated successfully');
-        logger.info('Profile updated successfully', { email: response.data.email });
-        
-        // Data is already updated in state, no need to reload from database
-        // The response.data already contains the latest information
-      }
-    } catch (error: unknown) {
-      logger.error('Failed to update profile', error instanceof Error ? error : new Error(String(error)));
-      const errorMessage = getErrorMessage(error) || t('errors.updateFailed') || 'Failed to update profile. Please try again.';
-      setError(errorMessage);
-      // Don't throw - error is already handled via setError state
-    } finally {
-      setIsSaving(false);
-    }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const formatDate = useCallback((dateString?: string) => {
-    if (!dateString) return 'N/A';
-    try {
-      const dateLocale = locale === 'fr' ? 'fr-FR' : locale === 'en' ? 'en-US' : 'en-US';
-      return new Date(dateString).toLocaleDateString(dateLocale, {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    } catch {
-      return dateString;
-    }
-  }, [locale]);
-
-  if (isLoading) {
-    return (
-      <ProtectedRoute>
-        <PageContainer>
-          <div className="flex items-center justify-center min-h-[400px]">
-            <Loading />
-          </div>
-        </PageContainer>
-      </ProtectedRoute>
-    );
-  }
-
-  if (!user) {
-    return (
-      <ProtectedRoute>
-        <PageContainer>
-          <PageHeader title={t('title') || 'Profile'} description={t('description') || 'User profile page'} />
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">{t('errors.loadFailed') || 'Failed to load profile'}</p>
-          </div>
-        </PageContainer>
-      </ProtectedRoute>
-    );
-  }
+  const handleSave = () => {
+    console.log('Saving profile:', formData);
+    // TODO: Implement save functionality
+  };
 
   return (
-    <ProtectedRoute>
-      <PageContainer>
-        <PageHeader
-          title={t('title') || 'Profile'}
-          description={t('description') || 'Manage your profile information and account settings'}
-          breadcrumbs={[
-            { label: t('breadcrumbs.dashboard') || 'Dashboard', href: '/dashboard' },
-            { label: t('breadcrumbs.profile') || 'Profile' },
-          ]}
-        />
+    <div className="min-h-screen bg-arise-deep-teal">
+      {/* Vertical lines texture */}
+      <div 
+        className="fixed inset-0 opacity-10 pointer-events-none"
+        style={{
+          backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 3px, white 3px, white 4px)',
+        }}
+      />
 
-        {error && (
-          <div className="mt-6">
-            <Alert variant="error" onClose={() => setError(null)}>
-              {error}
-            </Alert>
-          </div>
-        )}
-
-        {success && (
-          <div className="mt-6">
-            <Alert variant="success" onClose={() => setSuccess(null)}>
-              {success}
-            </Alert>
-          </div>
-        )}
-
-        <div className="mt-8 space-y-6">
-          {/* Profile Card */}
-          <ProfileCard
-            user={user}
-            onEdit={() => {
-              logger.debug('Edit profile button clicked, scrolling to form');
-              if (profileFormRef.current) {
-                const element = profileFormRef.current;
-                const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
-                const offsetPosition = elementPosition - 120; // 120px offset from top for header
-                
-                window.scrollTo({
-                  top: offsetPosition,
-                  behavior: 'smooth'
-                });
-                
-                // Focus on first input field after scroll
-                // Clear any existing timeout before setting a new one
-                if (focusTimeoutRef.current) {
-                  clearTimeout(focusTimeoutRef.current);
-                }
-                
-                focusTimeoutRef.current = setTimeout(() => {
-                  const firstInput = element.querySelector('input[type="text"], input[type="email"]') as HTMLInputElement;
-                  if (firstInput) {
-                    firstInput.focus();
-                    logger.debug('Focused on first input field');
-                  }
-                  focusTimeoutRef.current = null;
-                }, 600);
-              } else {
-                logger.warn('profileFormRef.current is null');
-              }
-            }}
-          />
-
-          {/* Database Information Card */}
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Hash className="w-5 h-5" />
-              {t('databaseInfo.title') || 'Database Information'}
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-start gap-3">
-                <Hash className="w-4 h-4 mt-1 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">{t('databaseInfo.userId') || 'User ID'}</p>
-                  <p className="font-medium">{user.id}</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <Mail className="w-4 h-4 mt-1 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">{t('databaseInfo.email') || 'Email'}</p>
-                  <p className="font-medium">{user.email}</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                {user.is_active ? (
-                  <CheckCircle className="w-4 h-4 mt-1 text-green-500" />
-                ) : (
-                  <XCircle className="w-4 h-4 mt-1 text-red-500" />
-                )}
-                <div>
-                  <p className="text-sm text-muted-foreground">{t('databaseInfo.status') || 'Status'}</p>
-                  <p className="font-medium">
-                    {user.is_active ? (
-                      <span className="text-green-600 dark:text-green-400">{t('databaseInfo.active') || 'Active'}</span>
-                    ) : (
-                      <span className="text-red-600 dark:text-red-400">{t('databaseInfo.inactive') || 'Inactive'}</span>
-                    )}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <Calendar className="w-4 h-4 mt-1 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">{t('databaseInfo.createdAt') || 'Created At'}</p>
-                  <p className="font-medium">{formatDate(user.created_at)}</p>
-                </div>
-              </div>
-
-              {user.updated_at && (
-                <div className="flex items-start gap-3 md:col-span-2">
-                  <Clock className="w-4 h-4 mt-1 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">{t('databaseInfo.updatedAt') || 'Last Updated'}</p>
-                    <p className="font-medium">{formatDate(user.updated_at)}</p>
-                  </div>
-                </div>
-              )}
+      <div className="relative max-w-6xl mx-auto p-6 space-y-8">
+        {/* Profile Section */}
+        <Card className="p-8">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="w-20 h-20 rounded-full bg-arise-teal flex items-center justify-center">
+              <User className="w-10 h-10 text-white" />
             </div>
-          </Card>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Your Profile</h1>
+              <p className="text-gray-600">Update your information to keep your profile current</p>
+            </div>
+          </div>
 
-          {/* Profile Form */}
-          <div id="profile-form" ref={profileFormRef}>
-            <ProfileForm
-              user={user}
-              onSubmit={handleSubmit}
-              isLoading={isSaving}
+          {/* Personal Information */}
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <User className="w-5 h-5" />
+              Personal Information
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  First name
+                </label>
+                <input
+                  type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-arise-teal focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Last name
+                </label>
+                <input
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-arise-teal focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email address
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-arise-teal focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-arise-teal focus:border-transparent"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Additional Information */}
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <Calendar className="w-5 h-5" />
+              Additional Information
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Date of birth
+                </label>
+                <input
+                  type="date"
+                  name="dateOfBirth"
+                  value={formData.dateOfBirth}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-arise-teal focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Gender
+                </label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-arise-teal focus:border-transparent"
+                >
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                  <option value="prefer_not_to_say">Prefer not to say</option>
+                </select>
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Phone number
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-arise-teal focus:border-transparent"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Professional Information */}
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <Briefcase className="w-5 h-5" />
+              Professional Information
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Job title
+                </label>
+                <input
+                  type="text"
+                  name="jobTitle"
+                  value={formData.jobTitle}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-arise-teal focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Organization name
+                </label>
+                <input
+                  type="text"
+                  name="organizationName"
+                  value={formData.organizationName}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-arise-teal focus:border-transparent"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Main Goal */}
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
+              <Target className="w-5 h-5" />
+              What's your main goal with a leadership development plan?
+            </h2>
+            <textarea
+              name="mainGoal"
+              value={formData.mainGoal}
+              onChange={handleInputChange}
+              rows={3}
+              placeholder="Describe your main goal..."
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-arise-teal focus:border-transparent"
             />
           </div>
-        </div>
-      </PageContainer>
-    </ProtectedRoute>
+
+          {/* Coach Question */}
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <Users className="w-5 h-5" />
+              Did you learn about us through a leadership coach?
+            </h2>
+            <div className="flex gap-4 mb-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="learnedFromCoach"
+                  value="yes"
+                  checked={formData.learnedFromCoach === 'yes'}
+                  onChange={handleInputChange}
+                  className="w-4 h-4 text-arise-teal focus:ring-arise-teal"
+                />
+                <span className="text-gray-700">Yes</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="learnedFromCoach"
+                  value="no"
+                  checked={formData.learnedFromCoach === 'no'}
+                  onChange={handleInputChange}
+                  className="w-4 h-4 text-arise-teal focus:ring-arise-teal"
+                />
+                <span className="text-gray-700">No</span>
+              </label>
+            </div>
+            {formData.learnedFromCoach === 'yes' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Coach name
+                </label>
+                <input
+                  type="text"
+                  name="coachName"
+                  value={formData.coachName}
+                  onChange={handleInputChange}
+                  placeholder="Enter coach name"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-arise-teal focus:border-transparent"
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-end">
+            <Button
+              onClick={handleSave}
+              className="bg-arise-gold hover:bg-arise-gold/90 text-white px-8 py-3 rounded-lg font-semibold"
+            >
+              Save
+            </Button>
+          </div>
+        </Card>
+
+        {/* Subscription Section */}
+        <Card className="p-8">
+          <h1 className="text-2xl font-bold text-gray-900 mb-6">Subscription</h1>
+          
+          {/* Current Plan */}
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Current plan</h2>
+            <div className="border border-arise-gold bg-arise-gold/5 rounded-lg p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    {currentPlan === 'revolution' ? 'REVOLUTION' : 'COACH'}
+                  </h3>
+                  <p className="text-gray-600">
+                    {currentPlan === 'revolution' 
+                      ? 'Unlock every assessment, resource and tool to build your leadership profile'
+                      : 'Next-level support, resources and tools to build your leadership profile'}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-3xl font-bold text-gray-900">$299</p>
+                  <p className="text-gray-600">/ month</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-arise-gold font-semibold">
+                <Check className="w-5 h-5" />
+                <span>Current plan</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Upgrade/Downgrade */}
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              {currentPlan === 'revolution' ? 'Downgrade your plan' : 'Upgrade your plan'}
+            </h2>
+            <div className="border border-gray-300 rounded-lg p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    {currentPlan === 'revolution' ? 'COACH' : 'REVOLUTION'}
+                  </h3>
+                  <p className="text-gray-600">
+                    {currentPlan === 'revolution'
+                      ? 'Next-level support, resources and tools to build your leadership profile'
+                      : 'Unlock every assessment, resource and tool to build your leadership profile'}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-3xl font-bold text-gray-900">
+                    {currentPlan === 'revolution' ? '$199' : '$299'}
+                  </p>
+                  <p className="text-gray-600">/ month</p>
+                </div>
+              </div>
+              <Button
+                onClick={() => setCurrentPlan(currentPlan === 'revolution' ? 'coach' : 'revolution')}
+                className="bg-arise-gold hover:bg-arise-gold/90 text-white px-6 py-2 rounded-lg font-semibold"
+              >
+                {currentPlan === 'revolution' ? 'Downgrade' : 'Upgrade'}
+              </Button>
+            </div>
+          </div>
+
+          {/* Coaching CTA */}
+          <div className="bg-gray-900 rounded-lg p-8 flex items-center justify-between">
+            <div className="flex-1">
+              <h3 className="text-2xl font-bold text-white mb-3">
+                Ready to accelerate your growth?
+              </h3>
+              <p className="text-gray-300 mb-6 max-w-xl">
+                Connect with expert ARISE coaches who specialize in leadership development. 
+                Schedule your FREE coaching session to debrief your results and build a personalized development plan.
+              </p>
+              <Button
+                className="bg-arise-gold hover:bg-arise-gold/90 text-white px-6 py-3 rounded-lg font-semibold"
+              >
+                Explore coaching options →
+              </Button>
+            </div>
+            <div className="ml-8">
+              <div className="w-48 h-48 rounded-lg bg-gray-700 flex items-center justify-center">
+                <Users className="w-24 h-24 text-gray-500" />
+              </div>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </div>
   );
 }
