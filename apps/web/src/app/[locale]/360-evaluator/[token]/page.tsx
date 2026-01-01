@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { Card, Container } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import { Alert } from '@/components/ui';
@@ -19,7 +19,6 @@ import { ArrowLeft, ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
 
 export default function Evaluator360Page() {
   const params = useParams();
-  const router = useRouter();
   const token = params?.token as string;
 
   const [evaluatorInfo, setEvaluatorInfo] = useState<EvaluatorAssessmentInfo | null>(null);
