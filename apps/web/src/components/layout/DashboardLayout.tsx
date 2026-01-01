@@ -265,6 +265,10 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
     setMobileMenuOpen(false);
   }, []);
 
+  const handleMobileMenuToggle = useCallback(() => {
+    setMobileMenuOpen(prev => !prev);
+  }, []);
+
   const handleHomeClick = useCallback(() => {
     router.push('/');
     setMobileMenuOpen(false);
@@ -354,7 +358,7 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
                 MODELE
               </h1>
               <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                onClick={handleMobileMenuToggle}
                 className="inline-flex items-center justify-center p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors min-h-[44px] min-w-[44px]"
                 aria-label={mobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
                 aria-expanded={mobileMenuOpen}
