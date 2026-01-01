@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Card } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import { User, Calendar, Briefcase, Target, Users, Check } from 'lucide-react';
-import Image from 'next/image';
 
 export default function ProfilePage() {
   const [formData, setFormData] = useState({
