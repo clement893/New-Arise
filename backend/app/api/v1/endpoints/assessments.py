@@ -184,7 +184,15 @@ async def start_assessment(
 ):
     """
     Start a new assessment or resume an existing one
+    Note: For 360° feedback (THREE_SIXTY_SELF), use /360/start endpoint instead
     """
+    # 360° feedback assessments must use the /360/start endpoint to invite evaluators
+    if request.assessment_type == AssessmentType.THREE_SIXTY_SELF:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="For 360° feedback assessments, please use the /assessments/360/start endpoint to invite evaluators first"
+        )
+    
     try:
         # Check if there's an existing in-progress assessment
         result = await db.execute(
