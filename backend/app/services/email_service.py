@@ -200,3 +200,25 @@ class EmailService:
             text_content=template["text"],
         )
 
+    def send_360_evaluator_invitation(
+        self,
+        to_email: str,
+        evaluator_name: str,
+        sender_name: str,
+        evaluation_url: str,
+        role: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Send 360° feedback evaluator invitation email."""
+        template = EmailTemplates.evaluator_360_invitation(
+            evaluator_name=evaluator_name,
+            sender_name=sender_name,
+            evaluation_url=evaluation_url,
+            role=role
+        )
+        return self.send_email(
+            to_email=to_email,
+            subject=template["subject"],
+            html_content=template["html"],
+            text_content=template["text"],
+        )
+
