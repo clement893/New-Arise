@@ -8,7 +8,6 @@ import { Card, Container, Button, Grid } from '@/components/ui';
 import { 
   Calendar as CalendarIcon,
   Clock,
-  User,
   Plus,
   ChevronLeft,
   ChevronRight,
