@@ -89,7 +89,7 @@ export default function AgendaPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<'month' | 'week' | 'day'>('month');
   const [selectedCoachee, setSelectedCoachee] = useState<number | 'all'>('all');
-  const [sessions, setSessions] = useState<Session[]>(mockSessions);
+  const [sessions] = useState<Session[]>(mockSessions);
   const [showAddModal, setShowAddModal] = useState(false);
 
   // Get sessions for current date range
