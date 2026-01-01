@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import DashboardLayout from '@/components/layout/DashboardLayout';
 import { PageHeader } from '@/components/layout';
 import { Card, Container } from '@/components/ui';
 import Button from '@/components/ui/Button';
@@ -170,31 +169,29 @@ export default function Start360FeedbackPage() {
 
   if (success) {
     return (
-      <DashboardLayout>
-        <Container className="py-8">
-          <div className="mx-auto max-w-2xl">
-            <Card className="p-8 text-center">
-              <CheckCircle className="mx-auto mb-4 h-16 w-16 text-green-500" />
-              <h1 className="mb-4 text-3xl font-bold text-gray-900">
-                Invitations envoyées !
-              </h1>
-              <p className="mb-8 text-gray-600">
-                {submittedEvaluatorsCount > 0
-                  ? `Les invitations ont été envoyées ${submittedEvaluatorsCount > 1 ? `aux ${submittedEvaluatorsCount} évaluateurs` : 'à l\'évaluateur'}. Vous pouvez maintenant commencer votre auto-évaluation.`
-                  : 'Votre évaluation 360° a été créée. Vous pouvez maintenant commencer votre auto-évaluation et ajouter des évaluateurs plus tard si vous le souhaitez.'}
-              </p>
-              <p className="text-sm text-gray-500">
-                Redirection en cours...
-              </p>
-            </Card>
-          </div>
-        </Container>
-      </DashboardLayout>
+      <Container className="py-8">
+        <div className="mx-auto max-w-2xl">
+          <Card className="p-8 text-center">
+            <CheckCircle className="mx-auto mb-4 h-16 w-16 text-green-500" />
+            <h1 className="mb-4 text-3xl font-bold text-gray-900">
+              Invitations envoyées !
+            </h1>
+            <p className="mb-8 text-gray-600">
+              {submittedEvaluatorsCount > 0
+                ? `Les invitations ont été envoyées ${submittedEvaluatorsCount > 1 ? `aux ${submittedEvaluatorsCount} évaluateurs` : 'à l\'évaluateur'}. Vous pouvez maintenant commencer votre auto-évaluation.`
+                : 'Votre évaluation 360° a été créée. Vous pouvez maintenant commencer votre auto-évaluation et ajouter des évaluateurs plus tard si vous le souhaitez.'}
+            </p>
+            <p className="text-sm text-gray-500">
+              Redirection en cours...
+            </p>
+          </Card>
+        </div>
+      </Container>
     );
   }
 
   return (
-    <DashboardLayout>
+    <>
       <PageHeader
         title="Démarrer une évaluation 360° Feedback"
         description="Invitez des personnes à évaluer votre leadership (optionnel). Elles recevront un email avec un lien vers le formulaire. Vous pouvez ajouter des évaluateurs plus tard."
@@ -380,6 +377,6 @@ export default function Start360FeedbackPage() {
           </Card>
         </div>
       </Container>
-    </DashboardLayout>
+    </>
   );
 }
