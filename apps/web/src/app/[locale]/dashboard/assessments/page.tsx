@@ -292,7 +292,12 @@ function AssessmentsContent() {
               if (assessment.requiresEvaluators) {
                 setShowEvaluatorModal(true);
               } else {
-                router.push(`/dashboard/assessments/${getAssessmentRoute(assessment.assessmentType)}`);
+                // For 360 feedback, include assessmentId in URL
+                if (assessment.assessmentType === 'THREE_SIXTY_SELF' && assessment.assessmentId) {
+                  router.push(`/dashboard/assessments/360-feedback?assessmentId=${assessment.assessmentId}`);
+                } else {
+                  router.push(`/dashboard/assessments/${getAssessmentRoute(assessment.assessmentType)}`);
+                }
               }
             }}
           >
