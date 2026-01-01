@@ -34,27 +34,12 @@ export const useFeedback360Store = create<Feedback360State>()(
       ...initialState,
 
       startAssessment: async () => {
-        set({ isLoading: true, error: null });
-        try {
-          const response = await startAssessment('THREE_SIXTY_SELF');
-          set({
-            assessmentId: response.assessment_id,
-            currentQuestion: 0,
-            answers: {},
-            isLoading: false,
-          });
-        } catch (error: unknown) {
-          const errorMessage = error instanceof Error
-            ? error.message
-            : axios.isAxiosError(error) && error.response?.data?.detail
-            ? error.response.data.detail
-            : 'Failed to start assessment';
-          set({
-            error: errorMessage,
-            isLoading: false,
-          });
-          throw error;
-        }
+        // 360° feedback assessments should be created via /360/start endpoint, not /start
+        // This method should not be called directly - redirect to start page instead
+        throw new Error(
+          '360° feedback assessments must be started via /dashboard/assessments/360-feedback/start page. ' +
+          'Please use the start page to invite evaluators first.'
+        );
       },
 
       setAnswer: async (questionId: string, value: number) => {
