@@ -71,7 +71,7 @@ export default function CoacheePage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<'all' | 'active' | 'inactive' | 'pending'>('all');
-  const [coachees, setCoachees] = useState<Coachee[]>(mockCoachees);
+  const [coachees] = useState<Coachee[]>(mockCoachees);
   const [isLoading, setIsLoading] = useState(false);
 
   // Filter coachees based on search and status
