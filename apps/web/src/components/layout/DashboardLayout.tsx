@@ -305,7 +305,7 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
       {/* Mobile/Tablet Sidebar Overlay */}
       {mobileMenuOpen && (
         <div
-          className="xl:hidden fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
           onClick={handleMobileMenuClose}
         />
       )}
@@ -313,7 +313,7 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
       {/* Mobile/Tablet Sidebar - Fixed position, persists during navigation */}
       <aside
         className={clsx(
-          'xl:hidden fixed top-0 left-0 h-full z-50 transform transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] w-64 sm:w-72',
+          'lg:hidden fixed top-0 left-0 h-full z-50 transform transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] w-64 sm:w-72',
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
@@ -352,7 +352,7 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
         {/* Main Content - Only this part changes during navigation */}
         <div className="flex-1 flex flex-col min-w-0 w-full relative z-10">
           {/* Mobile Header with Hamburger Menu */}
-          <header className="xl:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30 flex-shrink-0">
+          <header className="lg:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30 flex-shrink-0">
             <div className="px-4 py-3 flex items-center justify-between">
               <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 MODELE
