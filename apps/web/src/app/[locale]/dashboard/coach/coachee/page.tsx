@@ -20,7 +20,6 @@ import {
   Trash2
 } from 'lucide-react';
 import Input from '@/components/ui/Input';
-import { Alert } from '@/components/ui';
 
 interface Coachee {
   id: number;
