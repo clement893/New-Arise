@@ -18,7 +18,6 @@ import {
   CheckCircle,
   XCircle
 } from 'lucide-react';
-import Input from '@/components/ui/Input';
 
 interface Session {
   id: number;
