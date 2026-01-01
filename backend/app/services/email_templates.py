@@ -468,6 +468,72 @@ L'équipe {app_name}
         }
 
     @staticmethod
+    def evaluator_360_invitation(
+        evaluator_name: str,
+        sender_name: str,
+        evaluation_url: str,
+        role: Optional[str] = None
+    ) -> Dict[str, str]:
+        """360 Feedback evaluator invitation email template"""
+        app_name = os.getenv("SENDGRID_FROM_NAME", "MODELE")
+        role_text = f" en tant que {role}" if role else ""
+        
+        html_content = f"""
+            <div style="line-height: 1.6; color: #374151;">
+                <p style="margin: 0 0 20px 0; font-size: 16px;">
+                    Bonjour {evaluator_name},
+                </p>
+                
+                <p style="margin: 0 0 20px 0; font-size: 16px;">
+                    {sender_name} vous a invité{role_text} à participer à son évaluation 360° Feedback.
+                </p>
+                
+                <p style="margin: 0 0 20px 0; font-size: 16px;">
+                    Votre feedback est important pour aider {sender_name} à mieux comprendre ses forces et ses axes d'amélioration.
+                </p>
+                
+                <div style="margin: 30px 0; text-align: center;">
+                    <a href="{evaluation_url}" 
+                       style="display: inline-block; padding: 14px 28px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
+                        Compléter l'évaluation
+                    </a>
+                </div>
+                
+                <p style="margin: 20px 0 0 0; font-size: 14px; color: #6b7280;">
+                    Ce lien est unique et personnel. Veuillez ne pas le partager.
+                </p>
+                
+                <p style="margin: 20px 0 0 0; font-size: 14px; color: #6b7280;">
+                    Si vous avez des questions, n'hésitez pas à contacter {sender_name} directement.
+                </p>
+            </div>
+        """
+        
+        text_content = f"""
+Bonjour {evaluator_name},
+
+{sender_name} vous a invité{role_text} à participer à son évaluation 360° Feedback.
+
+Votre feedback est important pour aider {sender_name} à mieux comprendre ses forces et ses axes d'amélioration.
+
+Complétez l'évaluation en cliquant sur ce lien :
+{evaluation_url}
+
+Ce lien est unique et personnel. Veuillez ne pas le partager.
+
+Si vous avez des questions, n'hésitez pas à contacter {sender_name} directement.
+
+Cordialement,
+L'équipe {app_name}
+        """
+        
+        return {
+            "subject": f"Invitation à une évaluation 360° Feedback - {sender_name}",
+            "html": EmailTemplates.get_base_template(html_content),
+            "text": text_content.strip(),
+        }
+
+    @staticmethod
     def trial_ending(name: str, days_remaining: int, upgrade_url: Optional[str] = None) -> Dict[str, str]:
         """Trial ending soon email template"""
         frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")

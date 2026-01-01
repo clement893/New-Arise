@@ -1,13 +1,21 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { getAssessmentResults, getMyAssessments, PillarScore, AssessmentResult } from '@/lib/api/assessments';
+import { 
+  getAssessmentResults, 
+  getMyAssessments, 
+  PillarScore, 
+  AssessmentResult,
+  get360Evaluators,
+  type EvaluatorStatus,
+} from '@/lib/api/assessments';
 import { useFeedback360Store } from '@/stores/feedback360Store';
 import { feedback360Capabilities } from '@/data/feedback360Questions';
 import Button from '@/components/ui/Button';
-import { ArrowLeft, TrendingUp, TrendingDown, Minus, Users } from 'lucide-react';
+import { Card } from '@/components/ui';
+import { ArrowLeft, TrendingUp, TrendingDown, Minus, Users, CheckCircle, Clock, Mail, XCircle } from 'lucide-react';
 
 // Type guard to check if a value is a PillarScore object
 function isPillarScore(value: number | PillarScore): value is PillarScore {
@@ -33,8 +41,10 @@ interface Results {
 
 export default function Feedback360ResultsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { assessmentId } = useFeedback360Store();
   const [results, setResults] = useState<Results | null>(null);
+  const [evaluators, setEvaluators] = useState<EvaluatorStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,8 +56,11 @@ export default function Feedback360ResultsPage() {
     try {
       setIsLoading(true);
       
-      // Get assessment ID from store or find it from my assessments
-      let id = assessmentId;
+      // Get assessment ID from URL params, store, or find it from my assessments
+      let id = searchParams?.get('id') ? parseInt(searchParams.get('id')!) : null;
+      if (!id) {
+        id = assessmentId || undefined;
+      }
       if (!id) {
         const assessments = await getMyAssessments();
         const feedback360Assessment = assessments.find(
@@ -61,7 +74,17 @@ export default function Feedback360ResultsPage() {
         id = feedback360Assessment.id;
       }
       
-      const response: AssessmentResult = await getAssessmentResults(id);
+      // Load results and evaluators in parallel
+      const [response, evaluatorsResponse] = await Promise.all([
+        getAssessmentResults(id),
+        get360Evaluators(id).catch(() => ({ evaluators: [] })), // Don't fail if evaluators endpoint fails
+      ]);
+      
+      setEvaluators(evaluatorsResponse.evaluators || []);
+      
+      const completedCount = evaluatorsResponse.evaluators?.filter(
+        (e) => e.status === 'COMPLETED'
+      ).length || 0;
       
       // Transform AssessmentResult to Results format
       const scores = response.scores;
@@ -78,15 +101,16 @@ export default function Feedback360ResultsPage() {
           })
         : [];
       
-      // Check if there are evaluator responses (this would come from backend)
-      // For now, we'll assume false if not provided
+      // Check if there are evaluator responses
+      const hasEvaluatorResponses = completedCount > 0;
+      
       const transformedResults: Results = {
         total_score: scores.total_score,
         max_score: scores.max_score,
         percentage: scores.percentage,
         capability_scores: capabilityScores,
-        has_evaluator_responses: false, // Backend should provide this
-        evaluator_count: 0, // Backend should provide this
+        has_evaluator_responses: hasEvaluatorResponses,
+        evaluator_count: completedCount,
       };
       
       setResults(transformedResults);
@@ -189,14 +213,80 @@ export default function Feedback360ResultsPage() {
               <div className="flex items-center gap-2 text-gray-600">
                 <Users className="h-5 w-5" />
                 <span>
-                  Based on your self-assessment and feedback from {results.evaluator_count} colleague{results.evaluator_count !== 1 ? 's' : ''}
+                  Basé sur votre auto-évaluation et le feedback de {results.evaluator_count} collègue{results.evaluator_count !== 1 ? 's' : ''}
                 </span>
               </div>
             ) : (
               <div className="rounded-lg bg-blue-50 p-4">
                 <p className="text-sm text-blue-800">
-                  <strong>Note:</strong> These results are based on your self-assessment only. Invite colleagues to provide feedback for a complete 360° view.
+                  <strong>Note:</strong> Ces résultats sont basés uniquement sur votre auto-évaluation. Invitez des collègues pour obtenir une vue 360° complète.
                 </p>
+              </div>
+            )}
+            
+            {/* Evaluators Status Section */}
+            {evaluators.length > 0 && (
+              <div className="mt-6 rounded-lg border border-gray-200 p-4">
+                <h3 className="mb-4 text-lg font-semibold text-gray-900">
+                  Statut des évaluateurs
+                </h3>
+                <div className="grid gap-3 md:grid-cols-3">
+                  {evaluators.map((evaluator) => (
+                    <div
+                      key={evaluator.id}
+                      className="flex items-center justify-between rounded-lg border border-gray-200 p-3"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 truncate">
+                          {evaluator.name}
+                        </p>
+                        <p className="text-sm text-gray-500 truncate">
+                          {evaluator.email}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          {evaluator.role}
+                        </p>
+                      </div>
+                      <div className="ml-3 flex-shrink-0">
+                        {evaluator.status === 'COMPLETED' ? (
+                          <div className="flex items-center gap-1 text-green-600" title="Complété">
+                            <CheckCircle className="h-5 w-5" />
+                          </div>
+                        ) : evaluator.status === 'IN_PROGRESS' ? (
+                          <div className="flex items-center gap-1 text-blue-600" title="En cours">
+                            <Clock className="h-5 w-5" />
+                          </div>
+                        ) : evaluator.invitation_opened_at ? (
+                          <div className="flex items-center gap-1 text-yellow-600" title="Invitation ouverte">
+                            <Mail className="h-5 w-5" />
+                          </div>
+                        ) : evaluator.invitation_sent_at ? (
+                          <div className="flex items-center gap-1 text-gray-400" title="Invitation envoyée">
+                            <Mail className="h-5 w-5" />
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1 text-gray-400" title="Pas encore invité">
+                            <XCircle className="h-5 w-5" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 flex items-center gap-4 text-xs text-gray-500">
+                  <div className="flex items-center gap-1">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span>Complété ({evaluators.filter((e) => e.status === 'COMPLETED').length})</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-4 w-4 text-blue-600" />
+                    <span>En cours ({evaluators.filter((e) => e.status === 'IN_PROGRESS').length})</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Mail className="h-4 w-4 text-gray-400" />
+                    <span>Invitation envoyée ({evaluators.filter((e) => e.status === 'NOT_STARTED' && e.invitation_sent_at).length})</span>
+                  </div>
+                </div>
               </div>
             )}
           </MotionDiv>
@@ -333,19 +423,19 @@ export default function Feedback360ResultsPage() {
           </h2>
 
           <div className="space-y-4">
-            {!results.has_evaluator_responses && (
+            {!results.has_evaluator_responses && evaluators.length === 0 && (
               <div className="rounded-lg bg-blue-50 p-6">
                 <h3 className="mb-2 font-semibold text-blue-900">
-                  Complete Your 360° View
+                  Complétez votre vue 360°
                 </h3>
                 <p className="mb-4 text-sm text-blue-800">
-                  Invite colleagues, managers, and direct reports to provide their perspective on your leadership. This will give you a comprehensive view of how others perceive your capabilities.
+                  Invitez des collègues, managers et collaborateurs à partager leur perspective sur votre leadership. Cela vous donnera une vue complète de la façon dont les autres perçoivent vos capacités.
                 </p>
                 <Button
-                  onClick={() => router.push('/dashboard/assessments')}
+                  onClick={() => router.push('/dashboard/assessments/360-feedback/start')}
                   className="bg-arise-gold hover:bg-arise-gold/90"
                 >
-                  Invite Evaluators
+                  Inviter des évaluateurs
                 </Button>
               </div>
             )}

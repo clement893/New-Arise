@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query, Body
 from pydantic import BaseModel, Field, EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, UniqueConstraint
+from sqlalchemy.orm import selectinload
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime, timezone
 
@@ -67,13 +68,31 @@ class AssessmentSubmitResponse(BaseModel):
     message: str
 
 
+class Evaluator360Data(BaseModel):
+    """Evaluator data for 360 feedback"""
+    name: str = Field(..., description="Evaluator name")
+    email: EmailStr = Field(..., description="Evaluator email")
+    role: str = Field(..., description="Evaluator role (PEER, MANAGER, DIRECT_REPORT, STAKEHOLDER)")
+
+
 class Evaluator360InviteRequest(BaseModel):
     """Request to invite 360 evaluators"""
-    evaluators: List[Dict[str, str]] = Field(
+    evaluators: List[Evaluator360Data] = Field(
         ...,
-        description="List of evaluators with name, email, and role"
+        min_items=1,
+        max_items=10,
+        description="List of evaluators (3 recommended)"
     )
-    # Example: [{"name": "John Doe", "email": "john@example.com", "role": "peer"}]
+
+
+class Start360FeedbackRequest(BaseModel):
+    """Request to start a 360 feedback with evaluators"""
+    evaluators: List[Evaluator360Data] = Field(
+        ...,
+        min_items=3,
+        max_items=3,
+        description="Exactly 3 evaluators with name, email, and role"
+    )
 
 
 class AssessmentResultResponse(BaseModel):
@@ -525,6 +544,89 @@ async def get_assessment_results(
         )
 
 
+@router.post("/360/start")
+async def start_360_feedback(
+    request: Start360FeedbackRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Start a new 360° feedback assessment and invite evaluators
+    Creates the self-assessment and sends invitation emails to 3 evaluators
+    """
+    import secrets
+    import os
+    from app.services.email_service import EmailService
+    from app.core.logging import logger
+    
+    # Create the self-assessment
+    self_assessment = Assessment(
+        user_id=current_user.id,
+        assessment_type=AssessmentType.THREE_SIXTY_SELF,
+        status=AssessmentStatus.IN_PROGRESS,
+        started_at=datetime.utcnow()
+    )
+    db.add(self_assessment)
+    await db.flush()  # Get the ID
+    
+    # Create evaluator invitations and send emails
+    email_service = EmailService()
+    frontend_url = os.getenv("FRONTEND_URL", os.getenv("NEXT_PUBLIC_APP_URL", "http://localhost:3000"))
+    invited_evaluators = []
+    
+    for evaluator_data in request.evaluators:
+        # Generate unique token
+        invitation_token = secrets.token_urlsafe(32)
+        
+        # Create evaluator record
+        evaluator = Assessment360Evaluator(
+            assessment_id=self_assessment.id,
+            evaluator_name=evaluator_data.name,
+            evaluator_email=evaluator_data.email,
+            evaluator_role=EvaluatorRole(evaluator_data.role.upper()),
+            invitation_token=invitation_token,
+            status=AssessmentStatus.NOT_STARTED
+        )
+        db.add(evaluator)
+        
+        # Send invitation email
+        evaluation_url = f"{frontend_url.rstrip('/')}/360-evaluator/{invitation_token}"
+        
+        try:
+            if email_service.is_configured():
+                sender_name = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
+                role_label = evaluator_data.role.replace('_', ' ').title()
+                email_service.send_360_evaluator_invitation(
+                    to_email=evaluator_data.email,
+                    evaluator_name=evaluator_data.name,
+                    sender_name=sender_name,
+                    evaluation_url=evaluation_url,
+                    role=role_label
+                )
+                evaluator.invitation_sent_at = datetime.utcnow()
+                logger.info(f"Sent 360 evaluator invitation email to {evaluator_data.email}")
+            else:
+                logger.warning(f"Email service not configured, skipping email to {evaluator_data.email}")
+        except Exception as e:
+            logger.error(f"Failed to send invitation email to {evaluator_data.email}: {e}", exc_info=True)
+            # Continue even if email fails - evaluator record is created
+        
+        invited_evaluators.append({
+            "name": evaluator_data.name,
+            "email": evaluator_data.email,
+            "role": evaluator_data.role
+        })
+    
+    await db.commit()
+    await db.refresh(self_assessment)
+    
+    return {
+        "assessment_id": self_assessment.id,
+        "message": f"360° feedback started and {len(invited_evaluators)} evaluators invited",
+        "evaluators": invited_evaluators
+    }
+
+
 @router.post("/{assessment_id}/360/invite-evaluators")
 async def invite_360_evaluators(
     assessment_id: int,
@@ -533,8 +635,13 @@ async def invite_360_evaluators(
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Invite evaluators for a 360 assessment
+    Invite additional evaluators for an existing 360 assessment
     """
+    import secrets
+    import os
+    from app.services.email_service import EmailService
+    from app.core.logging import logger
+    
     # Verify assessment exists and is a 360 self assessment
     result = await db.execute(
         select(Assessment)
@@ -552,8 +659,9 @@ async def invite_360_evaluators(
             detail="360 Assessment not found"
         )
     
-    # Create evaluator invitations
-    import secrets
+    # Create evaluator invitations and send emails
+    email_service = EmailService()
+    frontend_url = os.getenv("FRONTEND_URL", os.getenv("NEXT_PUBLIC_APP_URL", "http://localhost:3000"))
     invited_evaluators = []
     
     for evaluator_data in request.evaluators:
@@ -562,26 +670,101 @@ async def invite_360_evaluators(
         
         evaluator = Assessment360Evaluator(
             assessment_id=assessment_id,
-            evaluator_name=evaluator_data["name"],
-            evaluator_email=evaluator_data["email"],
-            evaluator_role=EvaluatorRole(evaluator_data["role"]),
+            evaluator_name=evaluator_data.name,
+            evaluator_email=evaluator_data.email,
+            evaluator_role=EvaluatorRole(evaluator_data.role.upper()),
             invitation_token=invitation_token,
             status=AssessmentStatus.NOT_STARTED
         )
         db.add(evaluator)
+        
+        # Send invitation email
+        evaluation_url = f"{frontend_url.rstrip('/')}/360-evaluator/{invitation_token}"
+        
+        try:
+            if email_service.is_configured():
+                sender_name = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
+                role_label = evaluator_data.role.replace('_', ' ').title()
+                email_service.send_360_evaluator_invitation(
+                    to_email=evaluator_data.email,
+                    evaluator_name=evaluator_data.name,
+                    sender_name=sender_name,
+                    evaluation_url=evaluation_url,
+                    role=role_label
+                )
+                evaluator.invitation_sent_at = datetime.utcnow()
+                logger.info(f"Sent 360 evaluator invitation email to {evaluator_data.email}")
+            else:
+                logger.warning(f"Email service not configured, skipping email to {evaluator_data.email}")
+        except Exception as e:
+            logger.error(f"Failed to send invitation email to {evaluator_data.email}: {e}", exc_info=True)
+        
         invited_evaluators.append({
-            "name": evaluator_data["name"],
-            "email": evaluator_data["email"],
-            "role": evaluator_data["role"]
+            "name": evaluator_data.name,
+            "email": evaluator_data.email,
+            "role": evaluator_data.role
         })
     
     await db.commit()
     
-    # TODO: Send invitation emails
-    
     return {
         "message": f"Invited {len(invited_evaluators)} evaluators successfully",
         "evaluators": invited_evaluators
+    }
+
+
+@router.get("/{assessment_id}/360/evaluators")
+async def get_360_evaluators_status(
+    assessment_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get the status of all evaluators for a specific 360 self-assessment
+    """
+    # Verify assessment exists and belongs to the current user
+    assessment_result = await db.execute(
+        select(Assessment)
+        .where(
+            Assessment.id == assessment_id,
+            Assessment.user_id == current_user.id,
+            Assessment.assessment_type == AssessmentType.THREE_SIXTY_SELF
+        )
+    )
+    assessment = assessment_result.scalar_one_or_none()
+
+    if not assessment:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="360 Self-Assessment not found or does not belong to current user"
+        )
+
+    # Get all evaluators for this assessment
+    evaluators_result = await db.execute(
+        select(Assessment360Evaluator)
+        .where(Assessment360Evaluator.assessment_id == assessment_id)
+        .order_by(Assessment360Evaluator.created_at)
+    )
+    evaluators = evaluators_result.scalars().all()
+
+    # Format response
+    evaluators_list = []
+    for evaluator in evaluators:
+        evaluators_list.append({
+            "id": evaluator.id,
+            "name": evaluator.evaluator_name,
+            "email": evaluator.evaluator_email,
+            "role": evaluator.evaluator_role.value,
+            "status": evaluator.status.value,
+            "invitation_sent_at": evaluator.invitation_sent_at.isoformat() if evaluator.invitation_sent_at else None,
+            "invitation_opened_at": evaluator.invitation_opened_at.isoformat() if evaluator.invitation_opened_at else None,
+            "started_at": evaluator.started_at.isoformat() if evaluator.started_at else None,
+            "completed_at": evaluator.completed_at.isoformat() if evaluator.completed_at else None,
+        })
+    
+    return {
+        "assessment_id": assessment_id,
+        "evaluators": evaluators_list
     }
 
 
@@ -596,6 +779,7 @@ async def get_360_evaluator_assessment(
     result = await db.execute(
         select(Assessment360Evaluator)
         .where(Assessment360Evaluator.invitation_token == token)
+        .options(selectinload(Assessment360Evaluator.assessment))
     )
     evaluator = result.scalar_one_or_none()
     
@@ -610,11 +794,24 @@ async def get_360_evaluator_assessment(
         evaluator.invitation_opened_at = datetime.utcnow()
         await db.commit()
     
+    # Get user being evaluated
+    user_result = await db.execute(
+        select(User)
+        .where(User.id == evaluator.assessment.user_id)
+    )
+    user = user_result.scalar_one_or_none()
+    
     return {
+        "evaluator_id": evaluator.id,
         "evaluator_name": evaluator.evaluator_name,
+        "evaluator_email": evaluator.evaluator_email,
         "evaluator_role": evaluator.evaluator_role.value,
         "status": evaluator.status.value,
-        "assessment_id": evaluator.evaluator_assessment_id
+        "assessment_id": evaluator.evaluator_assessment_id,
+        "user_being_evaluated": {
+            "name": f"{user.first_name or ''} {user.last_name or ''}".strip() if user else None,
+            "email": user.email if user else None,
+        } if user else None
     }
 
 

@@ -148,6 +148,98 @@ export const getAssessment = async (assessmentId: number): Promise<Assessment> =
   return response.data;
 };
 
+/**
+ * 360° Feedback specific types and functions
+ */
+export interface Evaluator360Data {
+  name: string;
+  email: string;
+  role: 'PEER' | 'MANAGER' | 'DIRECT_REPORT' | 'STAKEHOLDER';
+}
+
+export interface Start360FeedbackResponse {
+  assessment_id: number;
+  message: string;
+  evaluators: Evaluator360Data[];
+}
+
+export interface EvaluatorStatus {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  status: string;
+  invitation_sent_at: string | null;
+  invitation_opened_at: string | null;
+  started_at: string | null;
+  completed_at: string | null;
+}
+
+export interface EvaluatorsResponse {
+  assessment_id: number;
+  evaluators: EvaluatorStatus[];
+}
+
+export interface EvaluatorAssessmentInfo {
+  evaluator_id: number;
+  evaluator_name: string;
+  evaluator_email: string;
+  evaluator_role: string;
+  status: string;
+  assessment_id: number | null;
+  user_being_evaluated: {
+    name: string | null;
+    email: string | null;
+  } | null;
+}
+
+/**
+ * Start a 360° feedback assessment with evaluators
+ */
+export const start360Feedback = async (evaluators: Evaluator360Data[]): Promise<Start360FeedbackResponse> => {
+  const response = await axios.post(
+    `${API_BASE_URL}/api/v1/assessments/360/start`,
+    { evaluators },
+    { headers: getAuthHeaders() }
+  );
+  return response.data;
+};
+
+/**
+ * Get evaluators status for a 360 assessment
+ */
+export const get360Evaluators = async (assessmentId: number): Promise<EvaluatorsResponse> => {
+  const response = await axios.get(
+    `${API_BASE_URL}/api/v1/assessments/${assessmentId}/360/evaluators`,
+    { headers: getAuthHeaders() }
+  );
+  return response.data;
+};
+
+/**
+ * Get evaluator assessment by token (public endpoint)
+ */
+export const getEvaluatorAssessment = async (token: string): Promise<EvaluatorAssessmentInfo> => {
+  const response = await axios.get(
+    `${API_BASE_URL}/api/v1/assessments/360-evaluator/${token}`
+  );
+  return response.data;
+};
+
+/**
+ * Submit evaluator assessment (public endpoint - requires token in URL)
+ */
+export const submitEvaluatorAssessment = async (
+  token: string,
+  answers: Array<{ question_id: string; answer_value: string }>
+): Promise<{ message: string; assessment_id: number; status: string }> => {
+  const response = await axios.post(
+    `${API_BASE_URL}/api/v1/assessments/360-evaluator/${token}/submit`,
+    answers
+  );
+  return response.data;
+};
+
 export const assessmentsApi = {
   start: startAssessment,
   saveAnswer,

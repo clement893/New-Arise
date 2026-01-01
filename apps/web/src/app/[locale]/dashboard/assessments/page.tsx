@@ -133,9 +133,14 @@ function AssessmentsContent() {
         // Resume existing assessment
         router.push(`/dashboard/assessments/${getAssessmentRoute(assessmentType)}`);
       } else {
-        // Start new assessment
-        await startAssessment(assessmentType);
-        router.push(`/dashboard/assessments/${getAssessmentRoute(assessmentType)}`);
+        // For 360 feedback, redirect to start page to invite evaluators first
+        if (assessmentType === 'THREE_SIXTY_SELF') {
+          router.push('/dashboard/assessments/360-feedback/start');
+        } else {
+          // Start new assessment for other types
+          await startAssessment(assessmentType);
+          router.push(`/dashboard/assessments/${getAssessmentRoute(assessmentType)}`);
+        }
       }
     } catch (err) {
       console.error('Failed to start assessment:', err);
