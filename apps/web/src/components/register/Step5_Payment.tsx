@@ -20,7 +20,7 @@ interface Plan {
 }
 
 export function Step5_Payment() {
-  const { planId, userInfo, setStep } = useRegistrationStore();
+  const { planId, setStep } = useRegistrationStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
