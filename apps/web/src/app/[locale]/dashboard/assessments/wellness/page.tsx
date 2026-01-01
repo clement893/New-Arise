@@ -180,7 +180,6 @@ function WellnessAssessmentContent() {
             </MotionDiv>
           </div>
         </div>
-      </div>
     );
   }
 

@@ -280,7 +280,6 @@ function AssessmentResultsContent() {
           </MotionDiv>
         </div>
       </div>
-    </div>
   );
 }
 
