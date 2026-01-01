@@ -52,6 +52,12 @@ export default function Start360FeedbackPage() {
   };
 
   const validateForm = (): boolean => {
+    // Check that we have exactly 3 evaluators
+    if (evaluators.length !== 3) {
+      setError('Vous devez fournir exactement 3 évaluateurs');
+      return false;
+    }
+
     for (let i = 0; i < evaluators.length; i++) {
       const evaluator = evaluators[i];
       if (!evaluator) {

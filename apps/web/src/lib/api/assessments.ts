@@ -240,6 +240,21 @@ export const submitEvaluatorAssessment = async (
   return response.data;
 };
 
+/**
+ * Invite additional evaluators to an existing 360 assessment
+ */
+export const invite360Evaluators = async (
+  assessmentId: number,
+  evaluators: Evaluator360Data[]
+): Promise<{ message: string; evaluators: Evaluator360Data[] }> => {
+  const response = await axios.post(
+    `${API_BASE_URL}/api/v1/assessments/${assessmentId}/360/invite-evaluators`,
+    { evaluators },
+    { headers: getAuthHeaders() }
+  );
+  return response.data;
+};
+
 export const assessmentsApi = {
   start: startAssessment,
   saveAnswer,

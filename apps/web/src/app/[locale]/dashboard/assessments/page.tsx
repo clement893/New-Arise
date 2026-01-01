@@ -10,6 +10,7 @@ import MotionDiv from '@/components/motion/MotionDiv';
 import { Brain, Target, Users, Heart, Upload, CheckCircle, Lock, type LucideIcon, Loader2 } from 'lucide-react';
 import { getMyAssessments, Assessment as ApiAssessment, AssessmentType, submitAssessment } from '@/lib/api/assessments';
 import { startAssessment } from '@/lib/api/assessments';
+import InviteAdditionalEvaluatorsModal from '@/components/360/InviteAdditionalEvaluatorsModal';
 
 interface AssessmentDisplay {
   id: string;
@@ -439,35 +440,24 @@ function AssessmentsContent() {
         </Stack>
       </MotionDiv>
 
-      {/* Evaluator Modal - Placeholder */}
-      {showEvaluatorModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <Card className="max-w-md w-full mx-4">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Ajouter des évaluateurs
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Cette fonctionnalité vous permettra d'inviter des collègues à évaluer votre leadership.
-            </p>
-            <div className="flex gap-4">
-              <Button 
-                variant="outline" 
-                className="flex-1"
-                onClick={() => setShowEvaluatorModal(false)}
-              >
-                Annuler
-              </Button>
-              <Button 
-                variant="primary" 
-                className="flex-1"
-                onClick={() => setShowEvaluatorModal(false)}
-              >
-                Bientôt disponible
-              </Button>
-            </div>
-          </Card>
-        </div>
-      )}
+      {/* Evaluator Modal */}
+      {showEvaluatorModal && (() => {
+        const feedback360Assessment = assessments.find(a => a.assessmentType === 'THREE_SIXTY_SELF');
+        if (!feedback360Assessment?.assessmentId) {
+          return null;
+        }
+        return (
+          <InviteAdditionalEvaluatorsModal
+            isOpen={showEvaluatorModal}
+            onClose={() => setShowEvaluatorModal(false)}
+            assessmentId={feedback360Assessment.assessmentId}
+            onSuccess={() => {
+              setShowEvaluatorModal(false);
+              loadAssessments(); // Reload to refresh evaluator status
+            }}
+          />
+        );
+      })()}
     </>
   );
 }
