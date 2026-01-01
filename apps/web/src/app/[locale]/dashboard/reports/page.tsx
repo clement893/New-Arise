@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
+import { useRouter } from 'next/navigation';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import { Card } from '@/components/ui';
 import Button from '@/components/ui/Button';
@@ -10,6 +11,7 @@ import { FileText, Download, TrendingUp, Target, Users, Brain } from 'lucide-rea
 import Image from 'next/image';
 
 function ResultsReportsContent() {
+  const router = useRouter();
   // Mock data for assessment results
   const assessments = [
     {
@@ -312,7 +314,11 @@ function ResultsReportsContent() {
               Connect with expert ARISE coaches who specialize in leadership development. 
               Schedule your FREE coaching session to debrief your results and build a personalized development plan.
             </p>
-            <Button variant="secondary" className="bg-arise-gold hover:bg-arise-gold/90 text-white">
+            <Button 
+              variant="secondary" 
+              className="bg-arise-gold hover:bg-arise-gold/90 text-white"
+              onClick={() => router.push('/dashboard/coaching-options')}
+            >
               Explore coaching options →
             </Button>
           </div>

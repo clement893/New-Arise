@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
+import { useRouter } from 'next/navigation';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import { Card } from '@/components/ui';
 import Button from '@/components/ui/Button';
@@ -10,6 +11,7 @@ import { Target, BookOpen, Video, FileText, Users, TrendingUp, CheckCircle2, Cir
 import Image from 'next/image';
 
 function DevelopmentPlanContent() {
+  const router = useRouter();
   // Mock data for development goals
   const goals = [
     {
@@ -239,7 +241,11 @@ function DevelopmentPlanContent() {
               Connect with expert ARISE coaches who specialize in leadership development. 
               Schedule your FREE coaching session to debrief your results and build a personalized development plan.
             </p>
-            <Button variant="secondary" className="bg-arise-gold hover:bg-arise-gold/90 text-white">
+            <Button 
+              variant="secondary" 
+              className="bg-arise-gold hover:bg-arise-gold/90 text-white"
+              onClick={() => router.push('/dashboard/coaching-options')}
+            >
               Explore coaching options →
             </Button>
           </div>

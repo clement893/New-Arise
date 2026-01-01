@@ -477,6 +477,7 @@ function DashboardContent() {
                 <Button 
                   variant="primary" 
                   className="bg-arise-gold text-arise-deep-teal hover:bg-arise-gold/90 flex items-center gap-2"
+                  onClick={() => router.push('/dashboard/coaching-options')}
                 >
                   Explore coaching options
                   <ArrowRight size={20} />
