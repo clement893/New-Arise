@@ -159,7 +159,6 @@ const coaches: Coach[] = [
 export default function CoachingOptionsPage() {
   const router = useRouter();
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
-  const [selectedCoach, setSelectedCoach] = useState<string | null>(null);
 
   const handleSelectPackage = (packageId: string) => {
     setSelectedPackage(packageId);
