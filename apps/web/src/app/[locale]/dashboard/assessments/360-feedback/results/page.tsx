@@ -13,7 +13,6 @@ import {
 import { useFeedback360Store } from '@/stores/feedback360Store';
 import { feedback360Capabilities } from '@/data/feedback360Questions';
 import Button from '@/components/ui/Button';
-import { Card } from '@/components/ui';
 import { ArrowLeft, TrendingUp, TrendingDown, Minus, Users, CheckCircle, Clock, Mail, XCircle } from 'lucide-react';
 
 // Type guard to check if a value is a PillarScore object
