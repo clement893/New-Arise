@@ -196,7 +196,16 @@ function ResultsReportsContent() {
           <div className="w-12 h-12 bg-arise-gold/10 rounded-lg flex items-center justify-center mx-auto mb-3">
             <TrendingUp className="text-arise-gold" size={24} />
           </div>
-          <p className="text-3xl font-bold text-arise-gold mb-1">88%</p>
+          <p className="text-3xl font-bold text-arise-gold mb-1">
+            {assessments.length > 0
+              ? Math.round(
+                  assessments.reduce((sum, a) => {
+                    const scoreNum = parseFloat(a.score.replace('%', ''));
+                    return sum + (isNaN(scoreNum) ? 0 : scoreNum);
+                  }, 0) / assessments.length
+                )
+              : 0}%
+          </p>
           <p className="text-gray-600 text-sm">Average Score</p>
         </Card>
 
@@ -240,37 +249,54 @@ function ResultsReportsContent() {
         </div>
 
         <div className="space-y-4">
-          {assessments.map((assessment) => (
-            <Card key={assessment.id} className="p-4 border border-gray-200 hover:border-arise-deep-teal/30 transition-colors">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4 flex-1">
-                  <div className="w-16 h-16 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
-                    <Brain className="text-arise-deep-teal" size={24} />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                      {assessment.name}
-                    </h3>
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                      <span>Completed: {assessment.completedDate}</span>
-                      <span>•</span>
-                      <span>Score: {assessment.score}</span>
-                      <span>•</span>
-                      <span className="font-semibold text-arise-deep-teal">{assessment.result}</span>
+          {assessments.length === 0 ? (
+            <Card className="p-8 text-center">
+              <p className="text-gray-600">Aucun assessment complété pour le moment.</p>
+              <Button
+                variant="primary"
+                className="mt-4"
+                onClick={() => router.push('/dashboard/assessments')}
+              >
+                Commencer un assessment
+              </Button>
+            </Card>
+          ) : (
+            assessments.map((assessment) => (
+              <Card key={assessment.id} className="p-4 border border-gray-200 hover:border-arise-deep-teal/30 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4 flex-1">
+                    <div className="w-16 h-16 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
+                      <Brain className="text-arise-deep-teal" size={24} />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                        {assessment.name}
+                      </h3>
+                      <div className="flex items-center gap-4 text-sm text-gray-600">
+                        <span>Completed: {assessment.completedDate}</span>
+                        <span>•</span>
+                        <span>Score: {assessment.score}</span>
+                        <span>•</span>
+                        <span className="font-semibold text-arise-deep-teal">{assessment.result}</span>
+                      </div>
                     </div>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="secondary" 
+                      size="sm"
+                      onClick={() => handleViewDetails(assessment)}
+                    >
+                      View Details
+                    </Button>
+                    <Button variant="ghost" size="sm">
+                      <Download size={16} />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="secondary" size="sm">
-                    View Details
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <Download size={16} />
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            ))
+          )}
         </div>
       </Card>
 
