@@ -334,7 +334,7 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
       {/* Desktop Layout - Sidebar stays fixed, only content changes */}
       <div className="flex h-screen pt-0 xl:pt-0">
         {/* Desktop Sidebar - Fixed position, persists during navigation */}
-        <aside className="hidden xl:block">
+        <aside className="hidden lg:block">
           <MemoizedSidebar
             items={sidebarItems}
             currentPath={pathname}

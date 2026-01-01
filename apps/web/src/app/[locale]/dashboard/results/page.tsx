@@ -3,54 +3,120 @@
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
-import { Card } from '@/components/ui';
+import { Card, Loading } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import { FileText, Download, TrendingUp, Target, Users, Brain } from 'lucide-react';
 import Image from 'next/image';
+import { getMyAssessments, Assessment as ApiAssessment, AssessmentType } from '@/lib/api/assessments';
+
+interface AssessmentDisplay {
+  id: number;
+  name: string;
+  type: AssessmentType;
+  status: 'completed' | 'in-progress';
+  completedDate: string;
+  score: string;
+  result: string;
+}
 
 function ResultsReportsContent() {
   const router = useRouter();
-  // Mock data for assessment results
-  const assessments = [
-    {
-      id: 1,
-      name: 'MBTI Personality',
-      type: 'MBTI',
-      status: 'completed',
-      completedDate: '2024-01-15',
-      score: '100%',
-      result: 'INTJ',
-    },
-    {
-      id: 2,
-      name: 'TKI Conflict Style',
-      type: 'TKI',
-      status: 'completed',
-      completedDate: '2024-01-20',
-      score: '100%',
-      result: 'Collaborating',
-    },
-    {
-      id: 3,
-      name: '360° Feedback',
-      type: '360',
-      status: 'completed',
-      completedDate: '2024-01-25',
-      score: '85%',
-      result: 'Strong Leadership',
-    },
-    {
-      id: 4,
-      name: 'Wellness Assessment',
-      type: 'WELLNESS',
-      status: 'completed',
-      completedDate: '2024-01-30',
-      score: '78%',
-      result: 'Good Balance',
-    },
-  ];
+  const [assessments, setAssessments] = useState<AssessmentDisplay[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadAssessments();
+  }, []);
+
+  const loadAssessments = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const apiAssessments = await getMyAssessments();
+      
+      // Filter only completed assessments
+      const completedAssessments = apiAssessments.filter(
+        (a: ApiAssessment) => a.status === 'COMPLETED'
+      );
+
+      // Transform to display format
+      const transformedAssessments: AssessmentDisplay[] = completedAssessments.map((assessment: ApiAssessment) => {
+        const completedDate = assessment.completed_at 
+          ? new Date(assessment.completed_at).toLocaleDateString('fr-FR')
+          : 'N/A';
+        
+        // Extract score/result from processed_score based on type
+        let score = 'N/A';
+        let result = 'Completed';
+        
+        if (assessment.processed_score) {
+          if (assessment.assessment_type === 'MBTI' && assessment.processed_score.profile) {
+            result = assessment.processed_score.profile;
+            score = '100%';
+          } else if (assessment.assessment_type === 'TKI' && assessment.processed_score.dominant_mode) {
+            result = assessment.processed_score.dominant_mode;
+            score = '100%';
+          } else if (assessment.assessment_type === 'WELLNESS' && assessment.processed_score.percentage) {
+            score = `${Math.round(assessment.processed_score.percentage)}%`;
+            result = 'Wellness Score';
+          } else if (assessment.assessment_type === '360_SELF' && assessment.processed_score.total_score) {
+            score = `${Math.round(assessment.processed_score.total_score)}%`;
+            result = '360° Feedback';
+          }
+        }
+
+        return {
+          id: assessment.id,
+          name: getAssessmentName(assessment.assessment_type),
+          type: assessment.assessment_type,
+          status: 'completed',
+          completedDate,
+          score,
+          result,
+        };
+      });
+
+      setAssessments(transformedAssessments);
+    } catch (err: any) {
+      console.error('Failed to load assessments:', err);
+      setError('Failed to load assessment results');
+      // Fallback to empty array
+      setAssessments([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getAssessmentName = (type: AssessmentType): string => {
+    const names: Record<AssessmentType, string> = {
+      MBTI: 'MBTI Personality',
+      TKI: 'TKI Conflict Style',
+      WELLNESS: 'Wellness Assessment',
+      '360_SELF': '360° Feedback',
+    };
+    return names[type] || type;
+  };
+
+  const handleViewDetails = (assessment: AssessmentDisplay) => {
+    // Route to the appropriate results page based on assessment type
+    if (assessment.type === 'TKI') {
+      router.push(`/dashboard/assessments/tki/results?id=${assessment.id}`);
+    } else if (assessment.type === '360_SELF') {
+      router.push(`/dashboard/assessments/360-feedback/results?id=${assessment.id}`);
+    } else if (assessment.type === 'WELLNESS') {
+      router.push(`/dashboard/assessments/results?id=${assessment.id}`);
+    } else if (assessment.type === 'MBTI') {
+      // MBTI might not have a results page yet, redirect to assessments
+      router.push('/dashboard/assessments');
+    } else {
+      // Default to general results page
+      router.push(`/dashboard/assessments/results?id=${assessment.id}`);
+    }
+  };
 
   // Mock data for key insights
   const insights = [
@@ -80,6 +146,24 @@ function ResultsReportsContent() {
     },
   ];
 
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            Results & Reports
+          </h1>
+          <p className="text-gray-600">
+            View your assessment results and comprehensive leadership profile
+          </p>
+        </div>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loading />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -92,13 +176,19 @@ function ResultsReportsContent() {
         </p>
       </div>
 
+      {error && (
+        <Card className="p-4 bg-red-50 border-red-200">
+          <p className="text-red-800">{error}</p>
+        </Card>
+      )}
+
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="p-6 text-center bg-white">
           <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center mx-auto mb-3">
             <FileText className="text-arise-deep-teal" size={24} />
           </div>
-          <p className="text-3xl font-bold text-arise-deep-teal mb-1">4</p>
+          <p className="text-3xl font-bold text-arise-deep-teal mb-1">{assessments.length}</p>
           <p className="text-gray-600 text-sm">Assessments Completed</p>
         </Card>
 
