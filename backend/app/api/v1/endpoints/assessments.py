@@ -593,8 +593,27 @@ async def start_360_feedback(
                 logger.warning(f"Skipping invalid evaluator: name={evaluator_data.name}, email={evaluator_data.email}")
                 continue
             
-            # Generate unique token
-            invitation_token = secrets.token_urlsafe(32)
+            # Generate unique token (with retry logic to avoid collisions)
+            max_retries = 5
+            invitation_token = None
+            for attempt in range(max_retries):
+                candidate_token = secrets.token_urlsafe(32)
+                # Check if token already exists in database
+                existing_token_result = await db.execute(
+                    select(Assessment360Evaluator).where(
+                        Assessment360Evaluator.invitation_token == candidate_token
+                    )
+                )
+                if existing_token_result.scalar_one_or_none() is None:
+                    invitation_token = candidate_token
+                    break
+                logger.warning(f"Token collision detected (attempt {attempt + 1}/{max_retries}), generating new token")
+            
+            if not invitation_token:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Failed to generate unique invitation token after multiple attempts"
+                )
             
             # Validate role
             try:
@@ -650,8 +669,35 @@ async def start_360_feedback(
                 "role": evaluator_data.role
             })
         
-        await db.commit()
-        await db.refresh(self_assessment)
+        # Commit all changes to database
+        try:
+            await db.commit()
+            logger.debug(f"Successfully committed 360 feedback assessment {self_assessment.id} to database")
+        except Exception as commit_error:
+            await db.rollback()
+            error_type = type(commit_error).__name__
+            error_message = str(commit_error)
+            logger.error(
+                f"Database error committing 360 feedback assessment: {error_type}: {error_message}",
+                exc_info=True,
+                extra={
+                    "user_id": current_user.id,
+                    "assessment_id": self_assessment.id if hasattr(self_assessment, 'id') else None,
+                    "evaluators_count": len(invited_evaluators),
+                    "error_type": error_type
+                }
+            )
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to save 360 feedback assessment to database: {error_type}: {error_message}"
+            )
+        
+        # Refresh to get the latest state from database
+        try:
+            await db.refresh(self_assessment)
+        except Exception as refresh_error:
+            logger.warning(f"Failed to refresh assessment after commit: {refresh_error}", exc_info=True)
+            # Don't fail the request if refresh fails - the commit was successful
         
         return {
             "assessment_id": self_assessment.id,
