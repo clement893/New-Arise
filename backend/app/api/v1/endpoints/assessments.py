@@ -792,11 +792,13 @@ async def get_360_evaluator_assessment(
     """
     Get 360 evaluator assessment by invitation token (public endpoint)
     """
+    from app.core.logging import logger
+    
     try:
         result = await db.execute(
             select(Assessment360Evaluator)
             .where(Assessment360Evaluator.invitation_token == token)
-            .options(selectinload(Assessment360Evaluator.assessment).selectinload(Assessment.user))
+            .options(selectinload(Assessment360Evaluator.assessment))
         )
         evaluator = result.scalar_one_or_none()
         
@@ -811,14 +813,16 @@ async def get_360_evaluator_assessment(
             evaluator.invitation_opened_at = datetime.now(timezone.utc)
             await db.commit()
         
-        # Get user being evaluated - use loaded relationship or fetch directly
-        user = evaluator.assessment.user if evaluator.assessment else None
-        if not user and evaluator.assessment:
+        # Get user being evaluated - fetch user directly using assessment.user_id
+        user = None
+        if evaluator.assessment and evaluator.assessment.user_id:
             user_result = await db.execute(
                 select(User)
                 .where(User.id == evaluator.assessment.user_id)
             )
             user = user_result.scalar_one_or_none()
+        else:
+            logger.warning(f"Assessment not found or missing user_id for evaluator {evaluator.id}")
         
         return {
             "evaluator_id": evaluator.id,
@@ -835,11 +839,10 @@ async def get_360_evaluator_assessment(
     except HTTPException:
         raise
     except Exception as e:
-        from app.core.logging import logger
-        logger.error(f"Error getting evaluator assessment: {e}", exc_info=True)
+        logger.error(f"Error in get_360_evaluator_assessment for token {token}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to load evaluator assessment: {str(e)}"
+            detail=f"Failed to retrieve evaluator assessment: {str(e)}"
         )
 
 
