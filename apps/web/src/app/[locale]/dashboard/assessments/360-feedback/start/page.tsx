@@ -8,7 +8,7 @@ import { Card, Container } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { start360Feedback, type Evaluator360Data } from '@/lib/api/assessments';
-import { Users, UserPlus, CheckCircle } from 'lucide-react';
+import { Users, UserPlus, CheckCircle, Plus, Trash2 } from 'lucide-react';
 import { Alert } from '@/components/ui';
 
 type EvaluatorRole = 'PEER' | 'MANAGER' | 'DIRECT_REPORT' | 'STAKEHOLDER';
@@ -30,12 +30,21 @@ export default function Start360FeedbackPage() {
   const router = useRouter();
   const [evaluators, setEvaluators] = useState<EvaluatorForm[]>([
     { name: '', email: '', role: 'PEER' },
-    { name: '', email: '', role: 'PEER' },
-    { name: '', email: '', role: 'PEER' },
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [submittedEvaluatorsCount, setSubmittedEvaluatorsCount] = useState(0);
+
+  const addEvaluator = () => {
+    setEvaluators([...evaluators, { name: '', email: '', role: 'PEER' }]);
+  };
+
+  const removeEvaluator = (index: number) => {
+    if (evaluators.length > 1) {
+      setEvaluators(evaluators.filter((_, i) => i !== index));
+    }
+  };
 
   const updateEvaluator = (index: number, field: keyof EvaluatorForm, value: string) => {
     const newEvaluators = [...evaluators];
@@ -52,10 +61,9 @@ export default function Start360FeedbackPage() {
   };
 
   const validateForm = (): boolean => {
-    // Check that we have exactly 3 evaluators
-    if (evaluators.length !== 3) {
-      setError('Vous devez fournir exactement 3 évaluateurs');
-      return false;
+    // Allow 0 or more evaluators, but if provided, they must be valid
+    if (evaluators.length === 0) {
+      return true; // Skip is allowed
     }
 
     for (let i = 0; i < evaluators.length; i++) {
@@ -101,14 +109,47 @@ export default function Start360FeedbackPage() {
     try {
       setIsSubmitting(true);
 
-      const evaluatorsData: Evaluator360Data[] = evaluators.map((e) => ({
-        name: e.name.trim(),
-        email: e.email.trim(),
-        role: e.role,
-      }));
+      // Filter out empty evaluators and map to API format
+      const evaluatorsData: Evaluator360Data[] = evaluators
+        .filter(e => e.name.trim() && e.email.trim())
+        .map((e) => ({
+          name: e.name.trim(),
+          email: e.email.trim(),
+          role: e.role,
+        }));
 
       const response = await start360Feedback(evaluatorsData);
 
+      setSubmittedEvaluatorsCount(evaluatorsData.length);
+      setSuccess(true);
+      
+      // Redirect to the 360 feedback assessment page after a short delay
+      setTimeout(() => {
+        router.push(`/dashboard/assessments/360-feedback?assessmentId=${response.assessment_id}`);
+      }, 2000);
+    } catch (err: any) {
+      console.error('Failed to start 360 feedback:', err);
+      setError(
+        err.response?.data?.detail || 
+        err.message || 
+        'Une erreur est survenue lors du démarrage de l\'évaluation 360°'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSkip = async () => {
+    setError(null);
+    setSuccess(false);
+
+    try {
+      setIsSubmitting(true);
+
+      // Create assessment without evaluators
+      const response = await start360Feedback([]);
+
+      setSubmittedEvaluatorsCount(0);
       setSuccess(true);
       
       // Redirect to the 360 feedback assessment page after a short delay
@@ -138,7 +179,9 @@ export default function Start360FeedbackPage() {
                 Invitations envoyées !
               </h1>
               <p className="mb-8 text-gray-600">
-                Les invitations ont été envoyées aux 3 évaluateurs. Vous pouvez maintenant commencer votre auto-évaluation.
+                {submittedEvaluatorsCount > 0
+                  ? `Les invitations ont été envoyées ${submittedEvaluatorsCount > 1 ? `aux ${submittedEvaluatorsCount} évaluateurs` : 'à l\'évaluateur'}. Vous pouvez maintenant commencer votre auto-évaluation.`
+                  : 'Votre évaluation 360° a été créée. Vous pouvez maintenant commencer votre auto-évaluation et ajouter des évaluateurs plus tard si vous le souhaitez.'}
               </p>
               <p className="text-sm text-gray-500">
                 Redirection en cours...
@@ -154,7 +197,7 @@ export default function Start360FeedbackPage() {
     <DashboardLayout>
       <PageHeader
         title="Démarrer une évaluation 360° Feedback"
-        description="Invitez 3 personnes à évaluer votre leadership. Elles recevront un email avec un lien vers le formulaire."
+        description="Invitez des personnes à évaluer votre leadership (optionnel). Elles recevront un email avec un lien vers le formulaire. Vous pouvez ajouter des évaluateurs plus tard."
       />
 
       <Container className="py-8">
@@ -169,8 +212,9 @@ export default function Start360FeedbackPage() {
                       Instructions
                     </h3>
                     <p className="mt-1 text-sm text-blue-800">
-                      Invitez 3 personnes qui vous connaissent bien dans votre contexte professionnel. 
+                      Invitez des personnes qui vous connaissent bien dans votre contexte professionnel (optionnel). 
                       Choisissez des personnes ayant des relations différentes avec vous (collègue, manager, collaborateur, client, etc.).
+                      Vous pouvez ajouter des évaluateurs maintenant ou plus tard depuis votre dashboard.
                     </p>
                   </div>
                 </div>
@@ -188,13 +232,25 @@ export default function Start360FeedbackPage() {
                     key={index}
                     className="rounded-lg border border-gray-200 p-6"
                   >
-                    <div className="mb-4 flex items-center gap-2">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-arise-teal text-sm font-semibold text-white">
-                        {index + 1}
+                    <div className="mb-4 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-arise-teal text-sm font-semibold text-white">
+                          {index + 1}
+                        </div>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Évaluateur {index + 1}
+                        </h3>
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        Évaluateur {index + 1}
-                      </h3>
+                      {evaluators.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeEvaluator(index)}
+                          className="rounded p-1 text-red-600 hover:bg-red-50"
+                          title="Supprimer cet évaluateur"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-2">
@@ -268,15 +324,41 @@ export default function Start360FeedbackPage() {
                 ))}
               </div>
 
-              <div className="flex justify-end gap-4 border-t border-gray-200 pt-6">
+              <div className="flex justify-center border-t border-gray-200 pt-4">
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => router.push('/dashboard/assessments')}
-                  disabled={isSubmitting}
+                  onClick={addEvaluator}
+                  className="flex items-center gap-2"
                 >
-                  Annuler
+                  <Plus className="h-4 w-4" />
+                  Ajouter un évaluateur
                 </Button>
+              </div>
+
+              <div className="flex justify-between gap-4 border-t border-gray-200 pt-6">
+                <div className="flex gap-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => router.push('/dashboard/assessments')}
+                    disabled={isSubmitting}
+                  >
+                    Annuler
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleSkip}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>Traitement en cours...</>
+                    ) : (
+                      <>Passer cette étape</>
+                    )}
+                  </Button>
+                </div>
                 <Button
                   type="submit"
                   disabled={isSubmitting}
@@ -287,7 +369,9 @@ export default function Start360FeedbackPage() {
                   ) : (
                     <>
                       <UserPlus className="mr-2 h-4 w-4" />
-                      Envoyer les invitations et commencer
+                      {evaluators.length > 0 && evaluators.some(e => e.name.trim() && e.email.trim())
+                        ? 'Envoyer les invitations et commencer'
+                        : 'Commencer sans évaluateurs'}
                     </>
                   )}
                 </Button>

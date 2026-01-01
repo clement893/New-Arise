@@ -88,10 +88,10 @@ class Evaluator360InviteRequest(BaseModel):
 class Start360FeedbackRequest(BaseModel):
     """Request to start a 360 feedback with evaluators"""
     evaluators: List[Evaluator360Data] = Field(
-        ...,
-        min_items=3,
-        max_items=3,
-        description="Exactly 3 evaluators with name, email, and role"
+        default_factory=list,
+        min_items=0,
+        max_items=10,
+        description="List of evaluators (0 or more, can add more later)"
     )
 
 
@@ -559,8 +559,8 @@ async def start_360_feedback(
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Start a new 360° feedback assessment and invite evaluators
-    Creates the self-assessment and sends invitation emails to 3 evaluators
+    Start a new 360° feedback assessment and optionally invite evaluators
+    Creates the self-assessment and optionally sends invitation emails to evaluators (0 or more)
     """
     import secrets
     import os
