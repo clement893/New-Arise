@@ -132,7 +132,12 @@ function AssessmentsContent() {
       
       if (assessmentId) {
         // Resume existing assessment
-        router.push(`/dashboard/assessments/${getAssessmentRoute(assessmentType)}`);
+        // For 360 feedback, include assessmentId in URL
+        if (assessmentType === 'THREE_SIXTY_SELF') {
+          router.push(`/dashboard/assessments/360-feedback?assessmentId=${assessmentId}`);
+        } else {
+          router.push(`/dashboard/assessments/${getAssessmentRoute(assessmentType)}`);
+        }
       } else {
         // For 360 feedback, redirect to start page to invite evaluators first
         if (assessmentType === 'THREE_SIXTY_SELF') {
