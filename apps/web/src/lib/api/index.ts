@@ -11,7 +11,6 @@ export { apiClient, getApiUrl, api } from '../api';
 // Re-export all API modules from the main api.ts file
 export {
   authAPI,
-  usersAPI,
   resourcesAPI,
   projectsAPI,
   aiAPI,
