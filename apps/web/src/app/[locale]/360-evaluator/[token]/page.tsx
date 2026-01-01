@@ -15,7 +15,7 @@ import {
   feedback360Capabilities,
   feedback360Scale,
 } from '@/data/feedback360Questions';
-import { ArrowLeft, ArrowRight, CheckCircle, Loader2, User } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
 
 export default function Evaluator360Page() {
   const params = useParams();
