@@ -22,6 +22,7 @@ export default function AdminUsersPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const pageSize = 20;
 
   useEffect(() => {
@@ -49,11 +50,32 @@ export default function AdminUsersPage() {
 
     try {
       setDeleting(true);
+      setError(null);
+      setSuccessMessage(null);
+      
       await usersAPI.delete(selectedUser.id);
+      
+      // Remove user immediately from the list
+      setUsers(users.filter((u) => u.id !== selectedUser.id));
+      
+      // Update total count
+      setTotal((prev) => Math.max(0, prev - 1));
+      
+      // Show success message
+      setSuccessMessage(`L'utilisateur ${selectedUser.email} a été supprimé avec succès.`);
+      
+      // Close modal
       setDeleteModalOpen(false);
+      const deletedUserEmail = selectedUser.email;
       setSelectedUser(null);
-      // Refresh the list
+      
+      // Refresh the list to ensure consistency
       await fetchUsers();
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 5000);
     } catch (err) {
       setError(getErrorMessage(err, 'Erreur lors de la suppression de l\'utilisateur'));
       setDeleteModalOpen(false);
@@ -99,6 +121,12 @@ export default function AdminUsersPage() {
       {error && (
         <Alert variant="error" className="mb-6" onClose={() => setError(null)}>
           {error}
+        </Alert>
+      )}
+
+      {successMessage && (
+        <Alert variant="success" className="mb-6" onClose={() => setSuccessMessage(null)}>
+          {successMessage}
         </Alert>
       )}
 
@@ -324,11 +352,15 @@ export default function AdminUsersPage() {
           </>
         }
       >
-        <p className="text-gray-600 dark:text-gray-400">
-          Êtes-vous sûr de vouloir supprimer l'utilisateur{' '}
-          <strong className="text-gray-900 dark:text-gray-100">{selectedUser?.email}</strong> ?
-          Cette action est irréversible.
-        </p>
+        <div className="space-y-4">
+          <p className="text-gray-600 dark:text-gray-400">
+            Êtes-vous sûr de vouloir supprimer l'utilisateur{' '}
+            <strong className="text-gray-900 dark:text-gray-100">{selectedUser?.email}</strong> ?
+          </p>
+          <p className="text-sm text-red-600 dark:text-red-400 font-medium">
+            ⚠️ Cette action est irréversible. L'utilisateur sera immédiatement retiré de la liste.
+          </p>
+        </div>
       </Modal>
     </Container>
   );
