@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { useFeedback360Store } from '@/stores/feedback360Store';
 import {
@@ -14,13 +14,13 @@ import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 
 export default function Feedback360Page() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const {
     assessmentId,
     currentQuestion,
     answers,
     isLoading,
     error,
-    startAssessment,
     setAnswer,
     nextQuestion,
     previousQuestion,
@@ -34,6 +34,21 @@ export default function Feedback360Page() {
   const question = feedback360Questions[currentQuestion];
   const progress = getProgress();
 
+  // Get assessmentId from URL params (set when coming from /360-feedback/start)
+  const urlAssessmentId = searchParams?.get('assessmentId') 
+    ? parseInt(searchParams.get('assessmentId')!) 
+    : null;
+
+  // Use URL assessmentId if available, otherwise use store assessmentId
+  const effectiveAssessmentId = urlAssessmentId || assessmentId;
+
+  useEffect(() => {
+    // If we have an assessmentId from URL but not in store, update the store
+    if (urlAssessmentId && urlAssessmentId !== assessmentId) {
+      useFeedback360Store.setState({ assessmentId: urlAssessmentId });
+    }
+  }, [urlAssessmentId, assessmentId]);
+
   useEffect(() => {
     // Load existing answer for current question
     if (question && answers[question.id]) {
@@ -43,15 +58,15 @@ export default function Feedback360Page() {
     }
   }, [currentQuestion, question, answers]);
 
-  const handleStart = async () => {
-    try {
-      if (!assessmentId) {
-        await startAssessment();
-      }
-      setScreen('questions');
-    } catch (err) {
-      console.error('Failed to start assessment:', err);
+  const handleStart = () => {
+    // Assessment should already be created via /360/start endpoint
+    // Just proceed to questions screen - no need to call startAssessment()
+    if (!effectiveAssessmentId) {
+      console.error('No assessment ID found. Please start the 360° feedback from the start page.');
+      router.push('/dashboard/assessments/360-feedback/start');
+      return;
     }
+    setScreen('questions');
   };
 
   const handleSelectValue = async (value: number) => {
