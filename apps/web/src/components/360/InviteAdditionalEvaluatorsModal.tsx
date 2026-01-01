@@ -82,48 +82,81 @@ export default function InviteAdditionalEvaluatorsModal({
   };
 
   const validateForm = (): boolean => {
+    console.log('🔍 Validating form with evaluators:', evaluators);
+    
+    if (!evaluators || evaluators.length === 0) {
+      const errorMsg = 'Au moins un évaluateur est requis';
+      console.error('❌ Validation failed:', errorMsg);
+      setError(errorMsg);
+      return false;
+    }
+
     for (let i = 0; i < evaluators.length; i++) {
       const evaluator = evaluators[i];
       if (!evaluator) {
-        setError(`L'évaluateur ${i + 1} est invalide`);
+        const errorMsg = `L'évaluateur ${i + 1} est invalide`;
+        console.error('❌ Validation failed:', errorMsg);
+        setError(errorMsg);
         return false;
       }
-      if (!evaluator.name.trim()) {
-        setError(`Le nom de l'évaluateur ${i + 1} est requis`);
+      if (!evaluator.name || !evaluator.name.trim()) {
+        const errorMsg = `Le nom de l'évaluateur ${i + 1} est requis`;
+        console.error('❌ Validation failed:', errorMsg);
+        setError(errorMsg);
         return false;
       }
-      if (!evaluator.email.trim()) {
-        setError(`L'email de l'évaluateur ${i + 1} est requis`);
+      if (!evaluator.email || !evaluator.email.trim()) {
+        const errorMsg = `L'email de l'évaluateur ${i + 1} est requis`;
+        console.error('❌ Validation failed:', errorMsg);
+        setError(errorMsg);
         return false;
       }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(evaluator.email)) {
-        setError(`L'email de l'évaluateur ${i + 1} n'est pas valide`);
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(evaluator.email.trim())) {
+        const errorMsg = `L'email de l'évaluateur ${i + 1} n'est pas valide`;
+        console.error('❌ Validation failed:', errorMsg, evaluator.email);
+        setError(errorMsg);
         return false;
       }
     }
 
     // Check for duplicate emails
-    const emails = evaluators.filter((e): e is EvaluatorForm => e !== undefined).map((e) => e.email.toLowerCase());
+    const emails = evaluators.filter((e): e is EvaluatorForm => e !== undefined).map((e) => e.email.toLowerCase().trim());
     const uniqueEmails = new Set(emails);
     if (uniqueEmails.size !== emails.length) {
-      setError('Les emails des évaluateurs doivent être uniques');
+      const errorMsg = 'Les emails des évaluateurs doivent être uniques';
+      console.error('❌ Validation failed:', errorMsg, { emails, uniqueEmails: Array.from(uniqueEmails) });
+      setError(errorMsg);
       return false;
     }
 
+    console.log('✅ All validations passed');
     return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('🔵 handleSubmit called', { assessmentId, evaluators });
     setError(null);
     setSuccess(false);
 
+    // Validate form
+    console.log('🔵 Validating form...');
     if (!validateForm()) {
+      console.log('❌ Form validation failed');
+      return;
+    }
+    console.log('✅ Form validation passed');
+
+    // Validate assessmentId
+    if (!assessmentId || assessmentId <= 0) {
+      console.error('❌ Invalid assessmentId:', assessmentId);
+      setError('ID d\'assessment invalide. Veuillez rafraîchir la page.');
       return;
     }
 
     try {
       setIsSubmitting(true);
+      console.log('🟡 Setting isSubmitting to true');
 
       const evaluatorsData: Evaluator360Data[] = evaluators.map((e) => ({
         name: e.name.trim(),
@@ -131,7 +164,9 @@ export default function InviteAdditionalEvaluatorsModal({
         role: e.role,
       }));
 
-      await invite360Evaluators(assessmentId, evaluatorsData);
+      console.log('🟡 Calling invite360Evaluators API', { assessmentId, evaluatorsData });
+      const result = await invite360Evaluators(assessmentId, evaluatorsData);
+      console.log('✅ API call successful', result);
 
       setSuccess(true);
       
@@ -143,14 +178,23 @@ export default function InviteAdditionalEvaluatorsModal({
         }
       }, 2000);
     } catch (err: any) {
-      console.error('Failed to invite evaluators:', err);
-      setError(
+      console.error('❌ Failed to invite evaluators:', err);
+      console.error('❌ Error details:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+      });
+      const errorMessage = 
         err.response?.data?.detail || 
+        err.response?.data?.message ||
         err.message || 
-        'Une erreur est survenue lors de l\'invitation des évaluateurs'
-      );
+        'Une erreur est survenue lors de l\'invitation des évaluateurs';
+      console.error('❌ Setting error message:', errorMessage);
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
+      console.log('🟢 Setting isSubmitting to false');
     }
   };
 
