@@ -90,7 +90,15 @@ function AssessmentsContent() {
       // Build display assessments list
       const displayAssessments: AssessmentDisplay[] = Object.entries(ASSESSMENT_CONFIG).map(([type, config]) => {
         // Map lowercase type to uppercase for API
-        const apiType = type.toUpperCase() as AssessmentType;
+        // Special handling for 360_self -> THREE_SIXTY_SELF
+        let apiType: AssessmentType;
+        if (type === '360_self') {
+          apiType = 'THREE_SIXTY_SELF';
+        } else if (type === '360_evaluator') {
+          apiType = 'THREE_SIXTY_EVALUATOR';
+        } else {
+          apiType = type.toUpperCase() as AssessmentType;
+        }
         const apiAssessment = existingAssessmentsMap.get(apiType);
         
         let status: 'completed' | 'in-progress' | 'locked' | 'available' = 'available';
