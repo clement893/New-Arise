@@ -170,6 +170,7 @@ export interface EvaluatorStatus {
   email: string;
   role: string;
   status: string;
+  invitation_token: string;
   invitation_sent_at: string | null;
   invitation_opened_at: string | null;
   started_at: string | null;

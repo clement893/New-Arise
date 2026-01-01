@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { PageHeader } from '@/components/layout';
 import { Card, Container } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { start360Feedback, type Evaluator360Data } from '@/lib/api/assessments';
-import { Users, UserPlus, CheckCircle, Plus, Trash2 } from 'lucide-react';
+import { start360Feedback, get360Evaluators, type Evaluator360Data, type EvaluatorStatus } from '@/lib/api/assessments';
+import { Users, UserPlus, CheckCircle, Plus, Trash2, Copy, Link2, Check } from 'lucide-react';
 import { Alert } from '@/components/ui';
 
 type EvaluatorRole = 'PEER' | 'MANAGER' | 'DIRECT_REPORT' | 'STAKEHOLDER';
@@ -27,13 +27,54 @@ const ROLE_LABELS: Record<EvaluatorRole, string> = {
 
 export default function Start360FeedbackPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const assessmentId = searchParams.get('assessmentId');
+  
   const [evaluators, setEvaluators] = useState<EvaluatorForm[]>([
     { name: '', email: '', role: 'PEER' },
   ]);
+  const [existingEvaluators, setExistingEvaluators] = useState<EvaluatorStatus[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingEvaluators, setIsLoadingEvaluators] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [submittedEvaluatorsCount, setSubmittedEvaluatorsCount] = useState(0);
+  const [copiedToken, setCopiedToken] = useState<string | null>(null);
+
+  // Load existing evaluators if assessmentId is provided
+  useEffect(() => {
+    if (assessmentId) {
+      loadExistingEvaluators();
+    }
+  }, [assessmentId]);
+
+  const loadExistingEvaluators = async () => {
+    try {
+      setIsLoadingEvaluators(true);
+      const response = await get360Evaluators(parseInt(assessmentId!));
+      setExistingEvaluators(response.evaluators);
+    } catch (err: any) {
+      console.error('Failed to load evaluators:', err);
+      // Don't show error if assessment doesn't exist yet
+    } finally {
+      setIsLoadingEvaluators(false);
+    }
+  };
+
+  const getEvaluatorLink = (token: string) => {
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    return `${baseUrl}/360-evaluator/${token}`;
+  };
+
+  const copyToClipboard = async (text: string, token: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedToken(token);
+      setTimeout(() => setCopiedToken(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
 
   const addEvaluator = () => {
     setEvaluators([...evaluators, { name: '', email: '', role: 'PEER' }]);
@@ -122,9 +163,14 @@ export default function Start360FeedbackPage() {
       setSubmittedEvaluatorsCount(evaluatorsData.length);
       setSuccess(true);
       
+      // Reload evaluators if we're on an existing assessment
+      if (assessmentId) {
+        await loadExistingEvaluators();
+      }
+      
       // Redirect to the 360 feedback assessment page after a short delay
       setTimeout(() => {
-        router.push(`/dashboard/assessments/360-feedback?assessmentId=${response.assessment_id}`);
+        router.push(`/dashboard/assessments/360-feedback/start?assessmentId=${response.assessment_id}`);
       }, 2000);
     } catch (err: any) {
       console.error('Failed to start 360 feedback:', err);
@@ -151,9 +197,14 @@ export default function Start360FeedbackPage() {
       setSubmittedEvaluatorsCount(0);
       setSuccess(true);
       
+      // Reload evaluators if we're on an existing assessment
+      if (assessmentId) {
+        await loadExistingEvaluators();
+      }
+      
       // Redirect to the 360 feedback assessment page after a short delay
       setTimeout(() => {
-        router.push(`/dashboard/assessments/360-feedback?assessmentId=${response.assessment_id}`);
+        router.push(`/dashboard/assessments/360-feedback/start?assessmentId=${response.assessment_id}`);
       }, 2000);
     } catch (err: any) {
       console.error('Failed to start 360 feedback:', err);
@@ -199,6 +250,89 @@ export default function Start360FeedbackPage() {
 
       <Container className="py-8">
         <div className="mx-auto max-w-4xl">
+          {/* Existing Evaluators Section */}
+          {existingEvaluators.length > 0 && (
+            <Card className="mb-6 p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                  Évaluateurs ajoutés ({existingEvaluators.length})
+                </h2>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={loadExistingEvaluators}
+                  disabled={isLoadingEvaluators}
+                >
+                  {isLoadingEvaluators ? 'Chargement...' : 'Actualiser'}
+                </Button>
+              </div>
+              <div className="space-y-3">
+                {existingEvaluators.map((evaluator) => {
+                  const link = getEvaluatorLink(evaluator.invitation_token);
+                  const isCopied = copiedToken === evaluator.invitation_token;
+                  const statusColors = {
+                    'NOT_STARTED': 'bg-gray-100 text-gray-700',
+                    'IN_PROGRESS': 'bg-blue-100 text-blue-700',
+                    'COMPLETED': 'bg-green-100 text-green-700',
+                  };
+                  const statusLabels = {
+                    'NOT_STARTED': 'Invitation envoyée',
+                    'IN_PROGRESS': 'En cours',
+                    'COMPLETED': 'Terminé',
+                  };
+                  
+                  return (
+                    <div
+                      key={evaluator.id}
+                      className="flex items-center justify-between rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <p className="font-medium text-gray-900 dark:text-gray-100">
+                              {evaluator.name}
+                            </p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                              {evaluator.email} • {ROLE_LABELS[evaluator.role as EvaluatorRole]}
+                            </p>
+                          </div>
+                          <span className={`rounded-full px-2 py-1 text-xs font-medium ${statusColors[evaluator.status as keyof typeof statusColors] || 'bg-gray-100 text-gray-700'}`}>
+                            {statusLabels[evaluator.status as keyof typeof statusLabels] || evaluator.status}
+                          </span>
+                        </div>
+                        <div className="mt-2 flex items-center gap-2">
+                          <div className="flex-1 rounded border border-gray-300 bg-gray-50 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800">
+                            <code className="text-xs text-gray-700 dark:text-gray-300">{link}</code>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => copyToClipboard(link, evaluator.invitation_token)}
+                            className="flex items-center gap-2"
+                          >
+                            {isCopied ? (
+                              <>
+                                <Check className="h-4 w-4 text-green-600" />
+                                Copié
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="h-4 w-4" />
+                                Copier
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+          )}
+
           <Card className="p-8">
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="mb-6 rounded-lg bg-blue-50 p-4">

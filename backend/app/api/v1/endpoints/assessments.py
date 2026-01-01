@@ -772,6 +772,7 @@ async def get_360_evaluators_status(
             "email": evaluator.evaluator_email,
             "role": evaluator.evaluator_role.value,
             "status": evaluator.status.value,
+            "invitation_token": evaluator.invitation_token,  # Include token for sharing links
             "invitation_sent_at": evaluator.invitation_sent_at.isoformat() if evaluator.invitation_sent_at else None,
             "invitation_opened_at": evaluator.invitation_opened_at.isoformat() if evaluator.invitation_opened_at else None,
             "started_at": evaluator.started_at.isoformat() if evaluator.started_at else None,
