@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { Card, Container, Grid } from '@/components/ui';
+import { Card, Grid } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { 
@@ -176,7 +176,7 @@ export default function CoachingOptionsPage() {
 
   return (
     <DashboardLayout>
-      <Container className="py-8">
+      <div>
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
             Options de Coaching
@@ -448,7 +448,7 @@ export default function CoachingOptionsPage() {
             </div>
           </Card>
         </MotionDiv>
-      </Container>
+      </div>
     </DashboardLayout>
   );
 }
