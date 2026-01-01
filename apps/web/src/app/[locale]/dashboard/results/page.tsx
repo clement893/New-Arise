@@ -420,10 +420,10 @@ function ResultsReportsContent() {
       </Card>
 
       {/* Ready to accelerate your growth? */}
-      <Card className="bg-arise-deep-teal text-white p-8">
+      <div className="bg-arise-deep-teal text-white p-8 rounded-lg border border-arise-deep-teal shadow-sm">
         <div className="flex flex-col md:flex-row items-center gap-6">
           <div className="flex-1">
-            <h2 className="text-2xl font-bold mb-3">
+            <h2 className="text-2xl font-bold mb-3 text-white">
               Ready to accelerate your growth?
             </h2>
             <p className="text-white/90 mb-4">
@@ -447,7 +447,7 @@ function ResultsReportsContent() {
             />
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }
