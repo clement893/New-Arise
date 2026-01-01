@@ -567,72 +567,80 @@ async def start_360_feedback(
     from app.services.email_service import EmailService
     from app.core.logging import logger
     
-    # Create the self-assessment
-    self_assessment = Assessment(
-        user_id=current_user.id,
-        assessment_type=AssessmentType.THREE_SIXTY_SELF,
-        status=AssessmentStatus.IN_PROGRESS,
-        started_at=datetime.utcnow()
-    )
-    db.add(self_assessment)
-    await db.flush()  # Get the ID
-    
-    # Create evaluator invitations and send emails
-    email_service = EmailService()
-    frontend_url = os.getenv("FRONTEND_URL", os.getenv("NEXT_PUBLIC_APP_URL", "http://localhost:3000"))
-    invited_evaluators = []
-    
-    for evaluator_data in request.evaluators:
-        # Generate unique token
-        invitation_token = secrets.token_urlsafe(32)
-        
-        # Create evaluator record
-        evaluator = Assessment360Evaluator(
-            assessment_id=self_assessment.id,
-            evaluator_name=evaluator_data.name,
-            evaluator_email=evaluator_data.email,
-            evaluator_role=EvaluatorRole(evaluator_data.role.upper()),
-            invitation_token=invitation_token,
-            status=AssessmentStatus.NOT_STARTED
+    try:
+        # Create the self-assessment
+        self_assessment = Assessment(
+            user_id=current_user.id,
+            assessment_type=AssessmentType.THREE_SIXTY_SELF,
+            status=AssessmentStatus.IN_PROGRESS,
+            started_at=datetime.utcnow()
         )
-        db.add(evaluator)
+        db.add(self_assessment)
+        await db.flush()  # Get the ID
         
-        # Send invitation email
-        evaluation_url = f"{frontend_url.rstrip('/')}/360-evaluator/{invitation_token}"
+        # Create evaluator invitations and send emails
+        email_service = EmailService()
+        frontend_url = os.getenv("FRONTEND_URL", os.getenv("NEXT_PUBLIC_APP_URL", "http://localhost:3000"))
+        invited_evaluators = []
         
-        try:
-            if email_service.is_configured():
-                sender_name = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
-                role_label = evaluator_data.role.replace('_', ' ').title()
-                email_service.send_360_evaluator_invitation(
-                    to_email=evaluator_data.email,
-                    evaluator_name=evaluator_data.name,
-                    sender_name=sender_name,
-                    evaluation_url=evaluation_url,
-                    role=role_label
-                )
-                evaluator.invitation_sent_at = datetime.utcnow()
-                logger.info(f"Sent 360 evaluator invitation email to {evaluator_data.email}")
-            else:
-                logger.warning(f"Email service not configured, skipping email to {evaluator_data.email}")
-        except Exception as e:
-            logger.error(f"Failed to send invitation email to {evaluator_data.email}: {e}", exc_info=True)
-            # Continue even if email fails - evaluator record is created
+        for evaluator_data in request.evaluators:
+            # Generate unique token
+            invitation_token = secrets.token_urlsafe(32)
+            
+            # Create evaluator record
+            evaluator = Assessment360Evaluator(
+                assessment_id=self_assessment.id,
+                evaluator_name=evaluator_data.name,
+                evaluator_email=evaluator_data.email,
+                evaluator_role=EvaluatorRole(evaluator_data.role.upper()),
+                invitation_token=invitation_token,
+                status=AssessmentStatus.NOT_STARTED
+            )
+            db.add(evaluator)
+            
+            # Send invitation email
+            evaluation_url = f"{frontend_url.rstrip('/')}/360-evaluator/{invitation_token}"
+            
+            try:
+                if email_service.is_configured():
+                    sender_name = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
+                    role_label = evaluator_data.role.replace('_', ' ').title()
+                    email_service.send_360_evaluator_invitation(
+                        to_email=evaluator_data.email,
+                        evaluator_name=evaluator_data.name,
+                        sender_name=sender_name,
+                        evaluation_url=evaluation_url,
+                        role=role_label
+                    )
+                    evaluator.invitation_sent_at = datetime.utcnow()
+                    logger.info(f"Sent 360 evaluator invitation email to {evaluator_data.email}")
+                else:
+                    logger.warning(f"Email service not configured, skipping email to {evaluator_data.email}")
+            except Exception as e:
+                logger.error(f"Failed to send invitation email to {evaluator_data.email}: {e}", exc_info=True)
+                # Continue even if email fails - evaluator record is created
+            
+            invited_evaluators.append({
+                "name": evaluator_data.name,
+                "email": evaluator_data.email,
+                "role": evaluator_data.role
+            })
         
-        invited_evaluators.append({
-            "name": evaluator_data.name,
-            "email": evaluator_data.email,
-            "role": evaluator_data.role
-        })
-    
-    await db.commit()
-    await db.refresh(self_assessment)
-    
-    return {
-        "assessment_id": self_assessment.id,
-        "message": f"360° feedback started and {len(invited_evaluators)} evaluators invited",
-        "evaluators": invited_evaluators
-    }
+        await db.commit()
+        await db.refresh(self_assessment)
+        
+        return {
+            "assessment_id": self_assessment.id,
+            "message": f"360° feedback started and {len(invited_evaluators)} evaluators invited",
+            "evaluators": invited_evaluators
+        }
+    except Exception as e:
+        await db.rollback()
+        logger.error(f"Error in start_360_feedback: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to start 360° feedback: {str(e)}"
+        )
 
 
 @router.post("/{assessment_id}/360/invite-evaluators")

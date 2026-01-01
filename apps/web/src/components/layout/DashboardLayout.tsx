@@ -28,7 +28,8 @@ import {
   ClipboardList,
   Users,
   Calendar,
-  Briefcase
+  Briefcase,
+  Menu
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import type { UserType } from '@/lib/store';
@@ -346,6 +347,23 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
 
         {/* Main Content - Only this part changes during navigation */}
         <div className="flex-1 flex flex-col min-w-0 w-full relative z-10">
+          {/* Mobile Header with Hamburger Menu */}
+          <header className="xl:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30 flex-shrink-0">
+            <div className="px-4 py-3 flex items-center justify-between">
+              <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                MODELE
+              </h1>
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="inline-flex items-center justify-center p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors min-h-[44px] min-w-[44px]"
+                aria-label={mobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+                aria-expanded={mobileMenuOpen}
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+            </div>
+          </header>
+
           {/* Page Content - This is the only part that updates on navigation */}
           <main 
             key={pathname} 
