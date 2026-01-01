@@ -5,7 +5,6 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Button, Container, Alert, Modal } from '@/components/ui';
-import { PageHeader } from '@/components/ui/PageHeader';
 import Input from '@/components/ui/Input';
 import Badge from '@/components/ui/Badge';
 import { usersAPI, type User } from '@/lib/api/users';
@@ -90,10 +89,14 @@ export default function AdminUsersPage() {
 
   return (
     <Container className="py-8">
-      <PageHeader
-        title="Gestion des Utilisateurs"
-        description="Gérez tous les utilisateurs de la plateforme"
-      />
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+          Gestion des Utilisateurs
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400">
+          Gérez tous les utilisateurs de la plateforme
+        </p>
+      </div>
 
       {error && (
         <Alert variant="error" className="mb-6" onClose={() => setError(null)}>
