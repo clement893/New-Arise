@@ -3,54 +3,123 @@
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
-import { Card } from '@/components/ui';
+import { Card, Loading } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import { FileText, Download, TrendingUp, Target, Users, Brain } from 'lucide-react';
 import Image from 'next/image';
+import { getMyAssessments, Assessment as ApiAssessment, AssessmentType } from '@/lib/api/assessments';
+
+interface AssessmentDisplay {
+  id: number;
+  name: string;
+  type: AssessmentType;
+  status: 'completed' | 'in-progress';
+  completedDate: string;
+  score: string;
+  result: string;
+}
 
 function ResultsReportsContent() {
   const router = useRouter();
-  // Mock data for assessment results
-  const assessments = [
-    {
-      id: 1,
-      name: 'MBTI Personality',
-      type: 'MBTI',
-      status: 'completed',
-      completedDate: '2024-01-15',
-      score: '100%',
-      result: 'INTJ',
-    },
-    {
-      id: 2,
-      name: 'TKI Conflict Style',
-      type: 'TKI',
-      status: 'completed',
-      completedDate: '2024-01-20',
-      score: '100%',
-      result: 'Collaborating',
-    },
-    {
-      id: 3,
-      name: '360° Feedback',
-      type: '360',
-      status: 'completed',
-      completedDate: '2024-01-25',
-      score: '85%',
-      result: 'Strong Leadership',
-    },
-    {
-      id: 4,
-      name: 'Wellness Assessment',
-      type: 'WELLNESS',
-      status: 'completed',
-      completedDate: '2024-01-30',
-      score: '78%',
-      result: 'Good Balance',
-    },
-  ];
+  const [assessments, setAssessments] = useState<AssessmentDisplay[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadAssessments();
+  }, []);
+
+  const loadAssessments = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const apiAssessments = await getMyAssessments();
+      
+      // Filter only completed assessments
+      const completedAssessments = apiAssessments.filter(
+        (a: ApiAssessment) => a.status === 'COMPLETED'
+      );
+
+      // Transform to display format
+      const transformedAssessments: AssessmentDisplay[] = completedAssessments.map((assessment: ApiAssessment) => {
+        const completedDate = assessment.completed_at 
+          ? new Date(assessment.completed_at).toLocaleDateString('fr-FR')
+          : 'N/A';
+        
+        // Extract score/result from score_summary based on type
+        let score = 'N/A';
+        let result = 'Completed';
+        
+        if (assessment.score_summary) {
+          const summary = assessment.score_summary;
+          if (assessment.assessment_type === 'MBTI' && summary.profile) {
+            result = summary.profile;
+            score = '100%';
+          } else if (assessment.assessment_type === 'TKI' && summary.dominant_mode) {
+            result = summary.dominant_mode;
+            score = '100%';
+          } else if (assessment.assessment_type === 'WELLNESS' && summary.percentage) {
+            score = `${Math.round(summary.percentage)}%`;
+            result = 'Wellness Score';
+          } else if (assessment.assessment_type === 'THREE_SIXTY_SELF' && summary.total_score) {
+            score = `${Math.round(summary.total_score)}%`;
+            result = '360° Feedback';
+          } else if (summary.percentage) {
+            score = `${Math.round(summary.percentage)}%`;
+          }
+        }
+
+        return {
+          id: assessment.id,
+          name: getAssessmentName(assessment.assessment_type),
+          type: assessment.assessment_type,
+          status: 'completed',
+          completedDate,
+          score,
+          result,
+        };
+      });
+
+      setAssessments(transformedAssessments);
+    } catch (err: any) {
+      console.error('Failed to load assessments:', err);
+      setError('Failed to load assessment results');
+      // Fallback to empty array
+      setAssessments([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getAssessmentName = (type: AssessmentType): string => {
+    const names: Record<AssessmentType, string> = {
+      MBTI: 'MBTI Personality',
+      TKI: 'TKI Conflict Style',
+      WELLNESS: 'Wellness Assessment',
+      THREE_SIXTY_SELF: '360° Feedback',
+    };
+    return names[type] || type;
+  };
+
+  const handleViewDetails = (assessment: AssessmentDisplay) => {
+    // Route to the appropriate results page based on assessment type
+    if (assessment.type === 'TKI') {
+      router.push(`/dashboard/assessments/tki/results?id=${assessment.id}`);
+    } else if (assessment.type === 'THREE_SIXTY_SELF') {
+      router.push(`/dashboard/assessments/360-feedback/results?id=${assessment.id}`);
+    } else if (assessment.type === 'WELLNESS') {
+      router.push(`/dashboard/assessments/results?id=${assessment.id}`);
+    } else if (assessment.type === 'MBTI') {
+      // MBTI might not have a results page yet, redirect to assessments
+      router.push('/dashboard/assessments');
+    } else {
+      // Default to general results page
+      router.push(`/dashboard/assessments/results?id=${assessment.id}`);
+    }
+  };
 
   // Mock data for key insights
   const insights = [
@@ -98,7 +167,7 @@ function ResultsReportsContent() {
           <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center mx-auto mb-3">
             <FileText className="text-arise-deep-teal" size={24} />
           </div>
-          <p className="text-3xl font-bold text-arise-deep-teal mb-1">4</p>
+          <p className="text-3xl font-bold text-arise-deep-teal mb-1">{assessments.length}</p>
           <p className="text-gray-600 dark:text-gray-300 text-sm">Assessments Completed</p>
         </Card>
 
@@ -106,7 +175,16 @@ function ResultsReportsContent() {
           <div className="w-12 h-12 bg-arise-gold/10 rounded-lg flex items-center justify-center mx-auto mb-3">
             <TrendingUp className="text-arise-gold" size={24} />
           </div>
-          <p className="text-3xl font-bold text-arise-gold mb-1">88%</p>
+          <p className="text-3xl font-bold text-arise-gold mb-1">
+            {assessments.length > 0
+              ? Math.round(
+                  assessments.reduce((sum, a) => {
+                    const score = parseFloat(a.score.replace('%', ''));
+                    return sum + (isNaN(score) ? 0 : score);
+                  }, 0) / assessments.length
+                )
+              : 0}%
+          </p>
           <p className="text-gray-600 dark:text-gray-300 text-sm">Average Score</p>
         </Card>
 
@@ -149,39 +227,57 @@ function ResultsReportsContent() {
           </Button>
         </div>
 
-        <div className="space-y-4">
-          {assessments.map((assessment) => (
-            <Card key={assessment.id} className="p-4 border border-gray-200 dark:border-gray-700 hover:border-arise-deep-teal/30 transition-colors">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4 flex-1">
-                  <div className="w-16 h-16 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
-                    <Brain className="text-arise-deep-teal" size={24} />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                      {assessment.name}
-                    </h3>
-                    <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
-                      <span>Completed: {assessment.completedDate}</span>
-                      <span>•</span>
-                      <span>Score: {assessment.score}</span>
-                      <span>•</span>
-                      <span className="font-semibold text-arise-deep-teal">{assessment.result}</span>
+        {isLoading ? (
+          <div className="flex justify-center items-center py-12">
+            <Loading />
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-red-600 dark:text-red-400">{error}</p>
+          </div>
+        ) : assessments.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600 dark:text-gray-300">No completed assessments yet.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {assessments.map((assessment) => (
+              <Card key={assessment.id} className="p-4 border border-gray-200 dark:border-gray-700 hover:border-arise-deep-teal/30 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4 flex-1">
+                    <div className="w-16 h-16 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
+                      <Brain className="text-arise-deep-teal" size={24} />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                        {assessment.name}
+                      </h3>
+                      <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
+                        <span>Completed: {assessment.completedDate}</span>
+                        <span>•</span>
+                        <span>Score: {assessment.score}</span>
+                        <span>•</span>
+                        <span className="font-semibold text-arise-deep-teal">{assessment.result}</span>
+                      </div>
                     </div>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="secondary" 
+                      size="sm"
+                      onClick={() => handleViewDetails(assessment)}
+                    >
+                      View Details
+                    </Button>
+                    <Button variant="ghost" size="sm">
+                      <Download size={16} />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="secondary" size="sm">
-                    View Details
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <Download size={16} />
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+              </Card>
+            ))}
+          </div>
+        )}
       </Card>
 
       {/* Key Insights */}
