@@ -17,11 +17,9 @@ import {
   Plus,
   Edit,
   Trash2,
-  Settings,
   FileText,
   Calculator,
-  Save,
-  X
+  Save
 } from 'lucide-react';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { wellnessQuestions } from '@/data/wellnessQuestionsReal';
