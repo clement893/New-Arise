@@ -7,7 +7,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, Button } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { Sidebar } from '@/components/dashboard/Sidebar';
 import { assessmentsApi, AssessmentResult, PillarScore } from '@/lib/api/assessments';
 import { wellnessPillars } from '@/data/wellnessQuestionsReal';
 import { ArrowLeft, Download, Share2, TrendingUp } from 'lucide-react';
@@ -47,13 +46,10 @@ function AssessmentResultsContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">
-        <Sidebar />
-        <div className="flex-1 ml-64 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-arise-deep-teal mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading your results...</p>
-          </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-arise-deep-teal mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your results...</p>
         </div>
       </div>
     );
@@ -61,17 +57,14 @@ function AssessmentResultsContent() {
 
   if (error || !results) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">
-        <Sidebar />
-        <div className="flex-1 ml-64 flex items-center justify-center">
-          <Card className="max-w-md text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Error</h2>
-            <p className="text-gray-600 mb-6">{error || 'Results not found'}</p>
-            <Button onClick={() => router.push('/dashboard/assessments')}>
-              Back to Assessments
-            </Button>
-          </Card>
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="max-w-md text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Error</h2>
+          <p className="text-gray-600 mb-6">{error || 'Results not found'}</p>
+          <Button onClick={() => router.push('/dashboard/assessments')}>
+            Back to Assessments
+          </Button>
+        </Card>
       </div>
     );
   }
@@ -80,16 +73,14 @@ function AssessmentResultsContent() {
   const { total_score, max_score, percentage, pillar_scores } = scores;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
-      <div className="flex-1 ml-64">
-        <div 
-          className="fixed inset-0 ml-64 bg-cover bg-center opacity-10 pointer-events-none"
-          style={{
-            backgroundImage: 'url(/images/dashboard-bg.jpg)',
-          }}
-        />
-        <div className="relative z-10 p-8">
+    <div className="relative">
+      <div 
+        className="fixed inset-0 bg-cover bg-center opacity-10 pointer-events-none"
+        style={{
+          backgroundImage: 'url(/images/dashboard-bg.jpg)',
+        }}
+      />
+      <div className="relative z-10 p-8">
           {/* Header */}
           <div className="mb-8">
             <Button
