@@ -88,14 +88,14 @@ function AssessmentsContent() {
       });
       
       // Build display assessments list
-      const displayAssessments: AssessmentDisplay[] = Object.entries(ASSESSMENT_CONFIG).map(([type, config]) => {
+      const displayAssessments: AssessmentDisplay[] = Object.entries(ASSESSMENT_CONFIG)
+        .filter(([type]) => type !== '360_evaluator') // Skip 360_evaluator as it's not a valid AssessmentType
+        .map(([type, config]) => {
         // Map lowercase type to uppercase for API
         // Special handling for 360_self -> THREE_SIXTY_SELF
         let apiType: AssessmentType;
         if (type === '360_self') {
           apiType = 'THREE_SIXTY_SELF';
-        } else if (type === '360_evaluator') {
-          apiType = 'THREE_SIXTY_EVALUATOR';
         } else {
           apiType = type.toUpperCase() as AssessmentType;
         }
