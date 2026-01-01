@@ -5,7 +5,6 @@ export const dynamic = 'force-dynamic';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { PageHeader } from '@/components/layout';
 import { Card, Container, Grid } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import MotionDiv from '@/components/motion/MotionDiv';
@@ -177,12 +176,15 @@ export default function CoachingOptionsPage() {
 
   return (
     <DashboardLayout>
-      <PageHeader
-        title="Options de Coaching"
-        description="Découvrez nos forfaits et rencontrez nos coachs certifiés pour accélérer votre développement en leadership"
-      />
-
       <Container className="py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            Options de Coaching
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Découvrez nos forfaits et rencontrez nos coachs certifiés pour accélérer votre développement en leadership
+          </p>
+        </div>
         {/* Hero Section */}
         <MotionDiv variant="fade" duration="normal">
           <Card className="mb-12 overflow-hidden border-0 text-white" 
