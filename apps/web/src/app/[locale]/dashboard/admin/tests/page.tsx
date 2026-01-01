@@ -3,15 +3,12 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { Card, Button, Container, Alert } from '@/components/ui';
 import Input from '@/components/ui/Input';
 import Badge from '@/components/ui/Badge';
 import { getErrorMessage } from '@/lib/errors';
-import { Search, Eye, Filter, Loader2, ClipboardList, Users, CheckCircle, Clock } from 'lucide-react';
+import { Search, Eye, Loader2, ClipboardList, CheckCircle, Clock } from 'lucide-react';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { apiClient } from '@/lib/api/client';
-import { extractApiData } from '@/lib/api/utils';
 
 interface Assessment {
   id: number;
@@ -47,7 +44,6 @@ const STATUS_LABELS: Record<string, { label: string; variant: 'success' | 'defau
 };
 
 export default function AdminTestsPage() {
-  const router = useRouter();
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
