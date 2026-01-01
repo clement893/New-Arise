@@ -296,10 +296,10 @@ function DashboardContent() {
           {/* Welcome Header */}
           <MotionDiv variant="fade" duration="normal">
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                 Welcome {user?.name?.split(' ')[0] || 'User'}
               </h1>
-              <p className="text-gray-600 text-lg">
+              <p className="text-gray-600 dark:text-gray-300 text-lg">
                 Continue your journey to authentic leadership
               </p>
             </div>
@@ -314,10 +314,10 @@ function DashboardContent() {
                     <Info className="text-arise-deep-teal" size={20} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-1">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
                       Add Your 360° Feedback Evaluators
                     </h3>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
                       Get comprehensive feedback by inviting colleagues to evaluate your leadership.
                     </p>
                   </div>
@@ -404,7 +404,7 @@ function DashboardContent() {
           {/* Evaluations Section */}
           <MotionDiv variant="slideUp" delay={300}>
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Your evaluations</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Your evaluations</h2>
               <Grid columns={{ mobile: 1, tablet: 2, desktop: 4 }} gap="normal">
                 {evaluations.map((evaluation, index) => {
                   const Icon = evaluation.icon;
@@ -416,7 +416,7 @@ function DashboardContent() {
                       <Stack gap="normal">
                         {/* Icon and Status */}
                         <div className="flex items-start justify-between">
-                          <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                          <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
                             <Icon className="text-arise-deep-teal" size={24} />
                           </div>
                           {evaluation.externalLink && evaluation.status !== 'completed' && (
@@ -428,10 +428,10 @@ function DashboardContent() {
 
                         {/* Title and Description */}
                         <div>
-                          <h3 className="text-lg font-bold text-gray-900 mb-2">
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
                             {evaluation.title}
                           </h3>
-                          <p className="text-sm text-gray-600 mb-4">
+                          <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                             {evaluation.description}
                           </p>
                         </div>
