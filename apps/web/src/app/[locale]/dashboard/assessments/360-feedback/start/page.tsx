@@ -54,6 +54,10 @@ export default function Start360FeedbackPage() {
   const validateForm = (): boolean => {
     for (let i = 0; i < evaluators.length; i++) {
       const evaluator = evaluators[i];
+      if (!evaluator) {
+        setError(`L'évaluateur ${i + 1} est invalide`);
+        return false;
+      }
       if (!evaluator.name.trim()) {
         setError(`Le nom de l'évaluateur ${i + 1} est requis`);
         return false;
@@ -69,7 +73,7 @@ export default function Start360FeedbackPage() {
     }
 
     // Check for duplicate emails
-    const emails = evaluators.map((e) => e.email.toLowerCase());
+    const emails = evaluators.filter((e): e is EvaluatorForm => e !== undefined).map((e) => e.email.toLowerCase());
     const uniqueEmails = new Set(emails);
     if (uniqueEmails.size !== emails.length) {
       setError('Les emails des évaluateurs doivent être uniques');
