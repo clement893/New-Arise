@@ -7,7 +7,6 @@ import {
   getAssessmentResults, 
   getMyAssessments, 
   PillarScore, 
-  AssessmentResult,
   get360Evaluators,
   type EvaluatorStatus,
 } from '@/lib/api/assessments';
