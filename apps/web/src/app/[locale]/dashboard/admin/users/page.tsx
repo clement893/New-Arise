@@ -66,7 +66,6 @@ export default function AdminUsersPage() {
       
       // Close modal
       setDeleteModalOpen(false);
-      const deletedUserEmail = selectedUser.email;
       setSelectedUser(null);
       
       // Refresh the list to ensure consistency
