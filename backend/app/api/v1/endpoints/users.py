@@ -350,8 +350,40 @@ async def delete_user(
     
     # Perform soft delete (set is_active=False) instead of hard delete
     # This preserves data integrity and allows for recovery if needed
+    # Note: Hard delete would cascade and delete all related data (assessments, preferences, etc.)
+    # which is usually not desired. Soft delete allows data recovery and maintains referential integrity.
+    original_is_active = user_to_delete.is_active
     user_to_delete.is_active = False
-    await db.commit()
+    
+    try:
+        await db.commit()
+        logger.debug(f"User {user_id} soft delete committed to database")
+    except Exception as commit_error:
+        await db.rollback()
+        logger.error(f"Failed to commit user deletion to database: {commit_error}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete user: database commit failed: {str(commit_error)}"
+        )
+    
+    # Verify that the deletion was actually committed to the database
+    # Refresh from database to get the latest state
+    await db.refresh(user_to_delete)
+    if user_to_delete.is_active is not False:
+        logger.error(
+            f"Database verification failed for user {user_id}: "
+            f"Expected is_active=False, but got is_active={user_to_delete.is_active}. "
+            f"Original value was {original_is_active}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete user: database commit verification failed. The user may still be active."
+        )
+    
+    logger.info(
+        f"User {user_id} ({user_to_delete.email}) successfully soft-deleted in database "
+        f"(is_active changed from {original_is_active} to False) by {current_user.email}"
+    )
     
     # Invalidate cache to ensure deleted users don't appear in lists
     try:
@@ -360,8 +392,6 @@ async def delete_user(
         await invalidate_cache_pattern_async(f"user:{user_id}:*")
     except Exception as cache_error:
         logger.warning(f"Failed to invalidate cache after user deletion: {cache_error}")
-    
-    logger.info(f"User {user_id} ({user_to_delete.email}) deleted by {current_user.email}")
     
     from starlette.responses import Response
     return Response(status_code=status.HTTP_204_NO_CONTENT)

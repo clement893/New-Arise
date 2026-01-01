@@ -61,6 +61,7 @@ const STATUS_LABELS: Record<string, { label: string; variant: 'success' | 'defau
   NOT_STARTED: { label: 'Non commencé', variant: 'default' },
 };
 
+// Admin Tests Page - Manage tests, questions, and scoring rules
 export default function AdminTestsPage() {
   const [activeTab, setActiveTab] = useState<TabType>('assessments');
   const [assessments, setAssessments] = useState<Assessment[]>([]);
