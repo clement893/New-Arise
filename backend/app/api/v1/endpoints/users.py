@@ -346,7 +346,8 @@ async def delete_user(
     
     logger.info(f"User {user_id} ({user_to_delete.email}) deleted by {current_user.email}")
     
-    return None
+    from starlette.responses import Response
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.put("/me", response_model=UserResponse)
