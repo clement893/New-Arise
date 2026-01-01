@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, Button, Container, Alert } from '@/components/ui';
+import { Card, Button, Container, Alert, Modal } from '@/components/ui';
 import { PageHeader } from '@/components/ui/PageHeader';
 import Input from '@/components/ui/Input';
 import Badge from '@/components/ui/Badge';
@@ -286,46 +286,49 @@ export default function AdminUsersPage() {
       </Card>
 
       {/* Delete Confirmation Modal */}
-      {deleteModalOpen && selectedUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <Card className="max-w-md w-full">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              Confirmer la suppression
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Êtes-vous sûr de vouloir supprimer l'utilisateur{' '}
-              <strong className="text-gray-900 dark:text-gray-100">{selectedUser.email}</strong> ?
-              Cette action est irréversible.
-            </p>
-            <div className="flex gap-2 justify-end">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setDeleteModalOpen(false);
-                  setSelectedUser(null);
-                }}
-                disabled={deleting}
-              >
-                Annuler
-              </Button>
-              <Button
-                variant="danger"
-                onClick={handleDelete}
-                disabled={deleting}
-              >
-                {deleting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    Suppression...
-                  </>
-                ) : (
-                  'Supprimer'
-                )}
-              </Button>
-            </div>
-          </Card>
-        </div>
-      )}
+      <Modal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setSelectedUser(null);
+        }}
+        title="Confirmer la suppression"
+        size="sm"
+        footer={
+          <>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeleteModalOpen(false);
+                setSelectedUser(null);
+              }}
+              disabled={deleting}
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="danger"
+              onClick={handleDelete}
+              disabled={deleting}
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Suppression...
+                </>
+              ) : (
+                'Supprimer'
+              )}
+            </Button>
+          </>
+        }
+      >
+        <p className="text-gray-600 dark:text-gray-400">
+          Êtes-vous sûr de vouloir supprimer l'utilisateur{' '}
+          <strong className="text-gray-900 dark:text-gray-100">{selectedUser?.email}</strong> ?
+          Cette action est irréversible.
+        </p>
+      </Modal>
     </Container>
   );
 }
