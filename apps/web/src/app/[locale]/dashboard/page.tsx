@@ -296,10 +296,10 @@ function DashboardContent() {
           {/* Welcome Header */}
           <MotionDiv variant="fade" duration="normal">
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+              <h1 className="text-4xl font-bold text-white mb-2">
                 Welcome {user?.name?.split(' ')[0] || 'User'}
               </h1>
-              <p className="text-gray-600 dark:text-gray-300 text-lg">
+              <p className="text-white/80 text-lg">
                 Continue your journey to authentic leadership
               </p>
             </div>
