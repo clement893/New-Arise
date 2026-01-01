@@ -55,9 +55,9 @@ export default function Feedback360ResultsPage() {
       setIsLoading(true);
       
       // Get assessment ID from URL params, store, or find it from my assessments
-      let id = searchParams?.get('id') ? parseInt(searchParams.get('id')!) : null;
+      let id: number | null = searchParams?.get('id') ? parseInt(searchParams.get('id')!) : null;
       if (!id) {
-        id = assessmentId || undefined;
+        id = assessmentId || null;
       }
       if (!id) {
         const assessments = await getMyAssessments();
