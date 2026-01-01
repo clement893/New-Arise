@@ -38,6 +38,7 @@ export interface Assessment {
   updated_at: string;
   answer_count?: number;
   total_questions?: number;
+  score_summary?: Record<string, any>; // Summary of scores from processed_score
 }
 
 export interface AssessmentAnswer {

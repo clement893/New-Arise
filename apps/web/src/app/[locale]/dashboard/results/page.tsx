@@ -49,23 +49,26 @@ function ResultsReportsContent() {
           ? new Date(assessment.completed_at).toLocaleDateString('fr-FR')
           : 'N/A';
         
-        // Extract score/result from processed_score based on type
+        // Extract score/result from score_summary based on type
         let score = 'N/A';
         let result = 'Completed';
         
-        if (assessment.processed_score) {
-          if (assessment.assessment_type === 'MBTI' && assessment.processed_score.profile) {
-            result = assessment.processed_score.profile;
+        if (assessment.score_summary) {
+          const summary = assessment.score_summary;
+          if (assessment.assessment_type === 'MBTI' && summary.profile) {
+            result = summary.profile;
             score = '100%';
-          } else if (assessment.assessment_type === 'TKI' && assessment.processed_score.dominant_mode) {
-            result = assessment.processed_score.dominant_mode;
+          } else if (assessment.assessment_type === 'TKI' && summary.dominant_mode) {
+            result = summary.dominant_mode;
             score = '100%';
-          } else if (assessment.assessment_type === 'WELLNESS' && assessment.processed_score.percentage) {
-            score = `${Math.round(assessment.processed_score.percentage)}%`;
+          } else if (assessment.assessment_type === 'WELLNESS' && summary.percentage) {
+            score = `${Math.round(summary.percentage)}%`;
             result = 'Wellness Score';
-          } else if (assessment.assessment_type === '360_SELF' && assessment.processed_score.total_score) {
-            score = `${Math.round(assessment.processed_score.total_score)}%`;
+          } else if ((assessment.assessment_type === 'THREE_SIXTY_SELF' || assessment.assessment_type === '360_SELF') && summary.total_score) {
+            score = `${Math.round(summary.total_score)}%`;
             result = '360° Feedback';
+          } else if (summary.percentage) {
+            score = `${Math.round(summary.percentage)}%`;
           }
         }
 
@@ -96,7 +99,8 @@ function ResultsReportsContent() {
       MBTI: 'MBTI Personality',
       TKI: 'TKI Conflict Style',
       WELLNESS: 'Wellness Assessment',
-      '360_SELF': '360° Feedback',
+      THREE_SIXTY_SELF: '360° Feedback',
+      '360_SELF': '360° Feedback', // Legacy support
     };
     return names[type] || type;
   };
@@ -105,7 +109,7 @@ function ResultsReportsContent() {
     // Route to the appropriate results page based on assessment type
     if (assessment.type === 'TKI') {
       router.push(`/dashboard/assessments/tki/results?id=${assessment.id}`);
-    } else if (assessment.type === '360_SELF') {
+    } else if (assessment.type === 'THREE_SIXTY_SELF' || assessment.type === '360_SELF') {
       router.push(`/dashboard/assessments/360-feedback/results?id=${assessment.id}`);
     } else if (assessment.type === 'WELLNESS') {
       router.push(`/dashboard/assessments/results?id=${assessment.id}`);
