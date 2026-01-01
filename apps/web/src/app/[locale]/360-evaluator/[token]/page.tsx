@@ -45,7 +45,12 @@ export default function Evaluator360Page() {
 
   useEffect(() => {
     if (question && answers[question.id]) {
-      setSelectedValue(parseInt(answers[question.id]));
+      const answerValue = answers[question.id];
+      if (answerValue) {
+        setSelectedValue(parseInt(answerValue));
+      } else {
+        setSelectedValue(null);
+      }
     } else {
       setSelectedValue(null);
     }
