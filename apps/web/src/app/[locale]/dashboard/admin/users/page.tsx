@@ -34,8 +34,11 @@ export default function AdminUsersPage() {
       setLoading(true);
       setError(null);
       
-      const response = await usersAPI.list(currentPage, pageSize, searchTerm || undefined);
-      setUsers(response.items);
+      const response = await usersAPI.list(currentPage, pageSize, searchTerm || undefined, true);
+      // Filter out inactive users on client side as well (double check)
+      const activeUsers = response.items.filter(user => user.is_active !== false);
+      setUsers(activeUsers);
+      // Use backend total but adjust if we filtered out inactive users
       setTotal(response.total);
       setTotalPages(Math.ceil(response.total / pageSize));
     } catch (err) {

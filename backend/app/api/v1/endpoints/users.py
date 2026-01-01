@@ -33,15 +33,16 @@ async def list_users(
     request: Request,
     pagination: Annotated[PaginationParams, Depends(get_pagination_params)],
     db: Annotated[AsyncSession, Depends(get_db)],
-    is_active: Optional[bool] = Query(None, description="Filter by active status"),
+    is_active: Optional[bool] = Query(True, description="Filter by active status (default: True to exclude deleted users)"),
     search: Optional[str] = Query(None, description="Search by name or email"),
+    include_inactive: bool = Query(False, description="Include inactive (deleted) users in results"),
 ) -> PaginatedResponse[UserResponse]:
     """
     List users with pagination and filtering
     
     Features:
     - Pagination support
-    - Filtering by active status
+    - Filtering by active status (default: only active users)
     - Search functionality
     - Query optimization with eager loading
     - Result caching
@@ -51,7 +52,15 @@ async def list_users(
     
     # Apply filters
     filters = []
-    if is_active is not None:
+    # By default, only show active users unless include_inactive is True
+    if not include_inactive:
+        if is_active is not None:
+            filters.append(User.is_active == is_active)
+        else:
+            # Default to active users only
+            filters.append(User.is_active == True)
+    elif is_active is not None:
+        # If include_inactive is True but is_active is specified, respect it
         filters.append(User.is_active == is_active)
     
     if search:
@@ -343,6 +352,14 @@ async def delete_user(
     # This preserves data integrity and allows for recovery if needed
     user_to_delete.is_active = False
     await db.commit()
+    
+    # Invalidate cache to ensure deleted users don't appear in lists
+    try:
+        from app.core.cache import invalidate_cache_pattern_async
+        await invalidate_cache_pattern_async("users:*")
+        await invalidate_cache_pattern_async(f"user:{user_id}:*")
+    except Exception as cache_error:
+        logger.warning(f"Failed to invalidate cache after user deletion: {cache_error}")
     
     logger.info(f"User {user_id} ({user_to_delete.email}) deleted by {current_user.email}")
     
