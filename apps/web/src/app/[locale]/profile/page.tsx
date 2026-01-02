@@ -359,8 +359,7 @@ export default function ProfilePage() {
 
           {/* Ready to accelerate your growth? Card */}
           <Card 
-            className="p-8 text-white border-0 relative overflow-hidden"
-            className="bg-arise-dark-gray"
+            className="p-8 text-white border-0 relative overflow-hidden bg-arise-dark-gray"
           >
             <div className="flex items-center justify-between gap-8">
               <div className="flex-1">
