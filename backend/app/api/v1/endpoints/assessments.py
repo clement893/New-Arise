@@ -643,39 +643,35 @@ async def start_360_feedback(
                 )
 
             # Create evaluator record
-            # Use raw SQL to avoid SQLAlchemy schema cache issues after migration
+            # Use SQLAlchemy ORM model to ensure schema is detected correctly
             try:
-                from sqlalchemy import text
+                from app.models.assessment import Assessment360Evaluator
+                from app.models.assessment import AssessmentStatus
 
-                # Insert using raw SQL to bypass SQLAlchemy schema cache
-                # invitation_sent_at will be updated after email is sent successfully
-                # Convert enum value to uppercase to match PostgreSQL enum values
-                evaluator_role_upper = evaluator_role.value.upper()
-                logger.info(f"🔵 Attempting to insert evaluator {evaluator_data.email} with role {evaluator_role_upper} for assessment {self_assessment.id}")
+                # Convert enum value to match Python enum (lowercase)
+                # The Python enum uses lowercase, but PostgreSQL uses uppercase
+                # SQLAlchemy will handle the conversion
+                logger.info(f"🔵 Attempting to insert evaluator {evaluator_data.email} with role {evaluator_role.value} for assessment {self_assessment.id}")
                 evaluator_id = None
                 try:
-                    # Log the exact SQL parameters we're about to use
-                    logger.info(f"SQL params: assessment_id={self_assessment.id}, name={evaluator_data.name}, email={evaluator_data.email}, role={evaluator_role_upper}, token={invitation_token[:20]}...")
-                    insert_result = await db.execute(
-                        text("""
-                            INSERT INTO assessment_360_evaluators
-                            (assessment_id, evaluator_name, evaluator_email, evaluator_role, invitation_token,
-                             invitation_sent_at, invitation_opened_at, started_at, completed_at, status, evaluator_assessment_id)
-                            VALUES
-                            (:assessment_id, :evaluator_name, :evaluator_email, CAST(:evaluator_role AS evaluatorrole), :invitation_token,
-                             NULL, NULL, NULL, NULL, 'NOT_STARTED'::assessmentstatus, NULL)
-                            RETURNING id, created_at, updated_at
-                        """),
-                        {
-                            "assessment_id": self_assessment.id,
-                            "evaluator_name": evaluator_data.name,
-                            "evaluator_email": evaluator_data.email,
-                            "evaluator_role": evaluator_role_upper,  # Already converted to uppercase in Python
-                            "invitation_token": invitation_token
-                        }
+                    # Create evaluator using SQLAlchemy ORM model
+                    # This should detect the column correctly after migration
+                    evaluator = Assessment360Evaluator(
+                        assessment_id=self_assessment.id,
+                        evaluator_name=evaluator_data.name,
+                        evaluator_email=evaluator_data.email,
+                        evaluator_role=evaluator_role,  # Use the enum directly, SQLAlchemy will handle conversion
+                        invitation_token=invitation_token,
+                        invitation_sent_at=None,
+                        invitation_opened_at=None,
+                        started_at=None,
+                        completed_at=None,
+                        status=AssessmentStatus.NOT_STARTED,
+                        evaluator_assessment_id=None
                     )
-                    evaluator_row = insert_result.first()
-                    evaluator_id = evaluator_row[0] if evaluator_row else None
+                    db.add(evaluator)
+                    await db.flush()  # Flush to get the ID without committing
+                    evaluator_id = evaluator.id
                     logger.info(f"✅ Successfully inserted evaluator {evaluator_data.email} (ID: {evaluator_id}) to database for assessment {self_assessment.id}")
                 except Exception as insert_error:
                     # Catch ALL exceptions first, then check type
