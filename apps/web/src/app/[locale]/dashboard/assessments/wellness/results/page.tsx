@@ -106,7 +106,16 @@ export default function WellnessResultsPage() {
     );
   }
 
-  const pillarScores = results.scores.pillar_scores || {};
+  const pillarScoresRaw = results.scores.pillar_scores || {};
+  // Convert pillar_scores to Record<string, number> for WellnessBarChart
+  // pillar_scores can be either number or PillarScore object
+  const pillarScores: Record<string, number> = Object.entries(pillarScoresRaw).reduce(
+    (acc, [key, value]) => {
+      acc[key] = typeof value === 'number' ? value : (value as { score?: number }).score || 0;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
   const totalScore = results.scores.total_score || 0;
   const maxScore = results.scores.max_score || 150;
   const percentage = results.scores.percentage || 0;
@@ -115,7 +124,7 @@ export default function WellnessResultsPage() {
 
   // Find strongest and weakest pillars
   const sortedPillars = Object.entries(pillarScores).sort(
-    ([, a], [, b]) => (b as number) - (a as number)
+    ([, a], [, b]) => b - a
   );
   const strongestPillar = sortedPillars[0]?.[0] || '';
   const weakestPillar = sortedPillars[sortedPillars.length - 1]?.[0] || '';
