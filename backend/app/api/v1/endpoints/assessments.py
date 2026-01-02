@@ -554,7 +554,22 @@ async def submit_assessment(
             }
         )
 
+        # Ensure assessment status is saved before committing
+        # This ensures the status update is persisted
+        await db.flush()
         await db.commit()
+        
+        # Log status update for debugging
+        logger.info(
+            f"Assessment {assessment_id} marked as COMPLETED",
+            context={
+                "assessment_id": assessment_id,
+                "user_id": current_user.id,
+                "assessment_type": assessment.assessment_type.value,
+                "status": assessment.status.value,
+                "answer_count": len(answers)
+            }
+        )
     except Exception as e:
         from app.core.logging import logger
         logger.error(f"Error creating assessment result for assessment {assessment_id}: {e}", exc_info=True)
