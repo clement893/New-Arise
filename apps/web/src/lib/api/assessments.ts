@@ -87,6 +87,15 @@ export interface AssessmentResult {
 export const startAssessment = async (assessmentType: AssessmentType): Promise<StartAssessmentResponse> => {
   // Convert to backend format (lowercase)
   const backendType = convertAssessmentTypeForBackend(assessmentType);
+  
+  // Debug logging in development
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[startAssessment] Converting assessment type:', {
+      frontend: assessmentType,
+      backend: backendType
+    });
+  }
+  
   const response = await apiClient.post(
     `/v1/assessments/start`,
     { assessment_type: backendType }
