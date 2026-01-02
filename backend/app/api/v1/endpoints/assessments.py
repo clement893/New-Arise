@@ -643,17 +643,33 @@ async def start_360_feedback(
                 )
             
             # Create evaluator record
+            # Use raw SQL to avoid SQLAlchemy schema cache issues after migration
             try:
-                evaluator = Assessment360Evaluator(
-                    assessment_id=self_assessment.id,
-                    evaluator_name=evaluator_data.name,
-                    evaluator_email=evaluator_data.email,
-                    evaluator_role=evaluator_role,
-                    invitation_token=invitation_token,
-                    status=AssessmentStatus.NOT_STARTED
+                from sqlalchemy import text
+                
+                # Insert using raw SQL to bypass SQLAlchemy schema cache
+                # invitation_sent_at will be updated after email is sent successfully
+                insert_result = await db.execute(
+                    text("""
+                        INSERT INTO assessment_360_evaluators 
+                        (assessment_id, evaluator_name, evaluator_email, evaluator_role, invitation_token, 
+                         invitation_sent_at, invitation_opened_at, started_at, completed_at, status, evaluator_assessment_id)
+                        VALUES 
+                        (:assessment_id, :evaluator_name, :evaluator_email, :evaluator_role::evaluatorrole, :invitation_token,
+                         NULL, NULL, NULL, NULL, 'NOT_STARTED'::assessmentstatus, NULL)
+                        RETURNING id, created_at, updated_at
+                    """),
+                    {
+                        "assessment_id": self_assessment.id,
+                        "evaluator_name": evaluator_data.name,
+                        "evaluator_email": evaluator_data.email,
+                        "evaluator_role": evaluator_role.value,  # Use .value to get the string value
+                        "invitation_token": invitation_token
+                    }
                 )
-                db.add(evaluator)
-                logger.debug(f"Added evaluator {evaluator_data.email} to session for assessment {self_assessment.id}")
+                evaluator_row = insert_result.first()
+                evaluator_id = evaluator_row[0] if evaluator_row else None
+                logger.debug(f"Added evaluator {evaluator_data.email} (ID: {evaluator_id}) to database for assessment {self_assessment.id}")
             except Exception as add_error:
                 error_type = type(add_error).__name__
                 error_message = str(add_error)
@@ -687,12 +703,24 @@ async def start_360_feedback(
                             evaluation_url=evaluation_url,
                             role=role_label
                         )
-                        evaluator.invitation_sent_at = datetime.now(timezone.utc)
+                        # Update invitation_sent_at if email was sent successfully
+                        from sqlalchemy import text
+                        await db.execute(
+                            text("""
+                                UPDATE assessment_360_evaluators 
+                                SET invitation_sent_at = :invitation_sent_at
+                                WHERE id = :evaluator_id
+                            """),
+                            {
+                                "evaluator_id": evaluator_id,
+                                "invitation_sent_at": datetime.now(timezone.utc)
+                            }
+                        )
                         logger.info(f"Sent 360 evaluator invitation email to {evaluator_data.email}")
                     except Exception as email_error:
                         logger.error(f"Failed to send invitation email to {evaluator_data.email}: {email_error}", exc_info=True)
                         # Continue even if email fails - evaluator record is created
-                        # Don't set invitation_sent_at if email failed
+                        # invitation_sent_at remains NULL
                 else:
                     logger.warning(f"Email service not configured, skipping email to {evaluator_data.email}")
             except Exception as e:
