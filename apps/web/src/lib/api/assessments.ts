@@ -76,76 +76,76 @@ export interface AssessmentResult {
 
 /**
  * Start a new assessment
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
  */
 export const startAssessment = async (assessmentType: AssessmentType): Promise<StartAssessmentResponse> => {
-  const response = await axios.post(
-    `${API_BASE_URL}/api/v1/assessments/start`,
-    { assessment_type: assessmentType },
-    { headers: getAuthHeaders() }
+  const response = await apiClient.post(
+    `/v1/assessments/start`,
+    { assessment_type: assessmentType }
   );
   return response.data as StartAssessmentResponse;
 };
 
 /**
  * Save an answer to an assessment question
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
  */
 export const saveAnswer = async (
   assessmentId: number,
   questionId: string,
   answerValue: string
 ): Promise<AssessmentAnswer> => {
-  const response = await axios.post(
-    `${API_BASE_URL}/api/v1/assessments/${assessmentId}/answer`,
+  const response = await apiClient.post(
+    `/v1/assessments/${assessmentId}/answer`,
     {
       question_id: questionId,
       answer_value: answerValue,
-    },
-    { headers: getAuthHeaders() }
+    }
   );
   return response.data;
 };
 
 /**
  * Submit an assessment for scoring
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
  */
 export const submitAssessment = async (assessmentId: number): Promise<Assessment> => {
-  const response = await axios.post(
-    `${API_BASE_URL}/api/v1/assessments/${assessmentId}/submit`,
-    {},
-    { headers: getAuthHeaders() }
+  const response = await apiClient.post(
+    `/v1/assessments/${assessmentId}/submit`,
+    {}
   );
   return response.data;
 };
 
 /**
  * Get assessment results
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
  */
 export const getAssessmentResults = async (assessmentId: number): Promise<AssessmentResult> => {
-  const response = await axios.get(
-    `${API_BASE_URL}/api/v1/assessments/${assessmentId}/results`,
-    { headers: getAuthHeaders() }
+  const response = await apiClient.get(
+    `/v1/assessments/${assessmentId}/results`
   );
   return response.data;
 };
 
 /**
  * Get all assessments for the current user
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
  */
 export const getMyAssessments = async (): Promise<Assessment[]> => {
-  const response = await axios.get(
-    `${API_BASE_URL}/api/v1/assessments/my-assessments`,
-    { headers: getAuthHeaders() }
+  const response = await apiClient.get(
+    `/v1/assessments/my-assessments`
   );
   return response.data;
 };
 
 /**
  * Get a specific assessment by ID
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
  */
 export const getAssessment = async (assessmentId: number): Promise<Assessment> => {
-  const response = await axios.get(
-    `${API_BASE_URL}/api/v1/assessments/${assessmentId}`,
-    { headers: getAuthHeaders() }
+  const response = await apiClient.get(
+    `/v1/assessments/${assessmentId}`
   );
   return response.data;
 };
@@ -210,11 +210,11 @@ export const start360Feedback = async (evaluators: Evaluator360Data[]): Promise<
 
 /**
  * Get evaluators status for a 360 assessment
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
  */
 export const get360Evaluators = async (assessmentId: number): Promise<EvaluatorsResponse> => {
-  const response = await axios.get(
-    `${API_BASE_URL}/api/v1/assessments/${assessmentId}/360/evaluators`,
-    { headers: getAuthHeaders() }
+  const response = await apiClient.get(
+    `/v1/assessments/${assessmentId}/360/evaluators`
   );
   return response.data;
 };
@@ -245,15 +245,15 @@ export const submitEvaluatorAssessment = async (
 
 /**
  * Invite additional evaluators to an existing 360 assessment
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
  */
 export const invite360Evaluators = async (
   assessmentId: number,
   evaluators: Evaluator360Data[]
 ): Promise<{ message: string; evaluators: Evaluator360Data[] }> => {
-  const response = await axios.post(
-    `${API_BASE_URL}/api/v1/assessments/${assessmentId}/360/invite-evaluators`,
-    { evaluators },
-    { headers: getAuthHeaders() }
+  const response = await apiClient.post(
+    `/v1/assessments/${assessmentId}/360/invite-evaluators`,
+    { evaluators }
   );
   return response.data;
 };
