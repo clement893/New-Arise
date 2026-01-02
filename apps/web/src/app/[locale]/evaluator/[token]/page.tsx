@@ -260,7 +260,7 @@ export default function EvaluatorAssessmentPage() {
                   {currentQuestion.capability.replace('_', ' ').toUpperCase()}
                 </span>
                 <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-                  {currentQuestion.question}
+                  {currentQuestion.text}
                 </h2>
                 <p className="text-gray-600 text-sm">
                   Rate on a scale from 1 (Strongly Disagree) to 5 (Strongly Agree)
