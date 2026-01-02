@@ -662,7 +662,7 @@ async def start_360_feedback(
                             (assessment_id, evaluator_name, evaluator_email, evaluator_role, invitation_token,
                              invitation_sent_at, invitation_opened_at, started_at, completed_at, status, evaluator_assessment_id)
                             VALUES
-                            (:assessment_id, :evaluator_name, :evaluator_email, :evaluator_role::evaluatorrole, :invitation_token,
+                            (:assessment_id, :evaluator_name, :evaluator_email, CAST(:evaluator_role AS evaluatorrole), :invitation_token,
                              NULL, NULL, NULL, NULL, 'NOT_STARTED'::assessmentstatus, NULL)
                             RETURNING id, created_at, updated_at
                         """),
@@ -691,8 +691,7 @@ async def start_360_feedback(
                     prefix = "❌ SQLALCHEMY ERROR" if is_sqlalchemy_error else "❌ UNEXPECTED ERROR"
                     logger.error(
                         f"{prefix} during INSERT for evaluator {evaluator_data.email}: {error_type}: {error_message}",
-                        exc_info=True,
-                        extra={
+                        context={
                             "user_id": current_user.id,
                             "assessment_id": self_assessment.id,
                             "evaluator_email": evaluator_data.email,
@@ -700,7 +699,8 @@ async def start_360_feedback(
                             "error_message": error_message,
                             "is_sqlalchemy_error": is_sqlalchemy_error,
                             "traceback": error_traceback
-                        }
+                        },
+                        exc_info=insert_error
                     )
                     logger.error(f"   Full INSERT error traceback:\n{error_traceback}")
                     logger.error(f"❌ FAILED to insert evaluator {evaluator_data.email}: {error_type}: {error_message}")
@@ -725,8 +725,7 @@ async def start_360_feedback(
                     error_traceback = traceback.format_exc()
                     logger.error(
                         f"❌ ERROR committing evaluator {evaluator_data.email}: {error_type}: {error_message}",
-                        exc_info=True,
-                        extra={
+                        context={
                             "user_id": current_user.id,
                             "assessment_id": self_assessment.id,
                             "evaluator_email": evaluator_data.email,
@@ -734,7 +733,8 @@ async def start_360_feedback(
                             "error_type": error_type,
                             "error_message": error_message,
                             "traceback": error_traceback
-                        }
+                        },
+                        exc_info=commit_error
                     )
                     logger.error(f"   Full COMMIT error traceback:\n{error_traceback}")
                     await db.rollback()
@@ -752,8 +752,7 @@ async def start_360_feedback(
                     print(f"   Full traceback:\n{error_traceback}")
                     logger.error(
                         f"❌ UNEXPECTED ERROR committing evaluator {evaluator_data.email}: {error_type}: {error_message}",
-                        exc_info=True,
-                        extra={
+                        context={
                             "user_id": current_user.id,
                             "assessment_id": self_assessment.id,
                             "evaluator_email": evaluator_data.email,
@@ -761,7 +760,8 @@ async def start_360_feedback(
                             "error_type": error_type,
                             "error_message": error_message,
                             "traceback": error_traceback
-                        }
+                        },
+                        exc_info=commit_error
                     )
                     logger.error(f"   Full UNEXPECTED COMMIT error traceback:\n{error_traceback}")
                     await db.rollback()
@@ -781,15 +781,15 @@ async def start_360_feedback(
                 print(f"   Full traceback:\n{error_traceback}")
                 logger.error(
                     f"❌ UNEXPECTED ERROR creating evaluator record for {evaluator_data.email}: {error_type}: {error_message}",
-                    exc_info=True,
-                    extra={
+                    context={
                         "user_id": current_user.id,
                         "assessment_id": self_assessment.id,
                         "evaluator_email": evaluator_data.email,
                         "error_type": error_type,
                         "error_message": error_message,
                         "traceback": error_traceback
-                    }
+                    },
+                    exc_info=add_error
                 )
                 logger.error(f"   Full UNEXPECTED error traceback:\n{error_traceback}")
                 await db.rollback()
@@ -877,15 +877,15 @@ async def start_360_feedback(
             error_traceback = traceback.format_exc()
             logger.error(
                 f"❌ DATABASE ERROR committing 360 feedback assessment: {error_type}: {error_message}",
-                exc_info=True,
-                extra={
+                context={
                     "user_id": current_user.id,
                     "assessment_id": self_assessment.id if hasattr(self_assessment, 'id') else None,
                     "evaluators_count": len(invited_evaluators),
                     "error_type": error_type,
                     "error_message": error_message,
                     "traceback": error_traceback
-                }
+                },
+                exc_info=commit_error
             )
             logger.error(
                 f"   Full traceback:\n{error_traceback}"
@@ -922,12 +922,12 @@ async def start_360_feedback(
         print(f"   Full traceback:\n{error_traceback}")
         logger.error(
             f"Error in start_360_feedback: {error_type}: {error_message}",
-            exc_info=True,
-            extra={
+            context={
                 "user_id": current_user.id,
                 "evaluators_count": len(request.evaluators) if request.evaluators else 0,
                 "error_type": error_type
-            }
+            },
+            exc_info=e
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
