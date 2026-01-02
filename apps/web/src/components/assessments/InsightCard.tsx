@@ -15,7 +15,6 @@ interface InsightCardProps {
   score?: number;
   maxScore?: number;
   description: string;
-  color?: string;
   className?: string;
 }
 
@@ -25,7 +24,6 @@ const InsightCard: React.FC<InsightCardProps> = ({
   score,
   maxScore,
   description,
-  color,
   className = '',
 }) => {
   // Level configurations
