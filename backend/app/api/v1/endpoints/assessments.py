@@ -8,7 +8,7 @@ import json
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Body
 from pydantic import BaseModel, Field, EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, UniqueConstraint
+from sqlalchemy import select, func, UniqueConstraint, text
 from sqlalchemy.orm import selectinload
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from datetime import datetime, timezone
@@ -1210,34 +1210,72 @@ async def submit_360_evaluator_assessment(
             if not question_id or not answer_value:
                 continue
 
-            # Check if answer already exists
-            result = await db.execute(
-                select(AssessmentAnswer)
-                .where(
-                    AssessmentAnswer.assessment_id == evaluator_assessment.id,
-                    AssessmentAnswer.question_id == question_id
-                )
+            # Check if answer already exists using raw SQL to avoid answered_at column issue
+            check_result = await db.execute(
+                text("""
+                    SELECT id, assessment_id, question_id, answer_value
+                    FROM assessment_answers
+                    WHERE assessment_id = :assessment_id AND question_id = :question_id
+                """),
+                {
+                    "assessment_id": evaluator_assessment.id,
+                    "question_id": question_id
+                }
             )
-            existing_answer = result.scalar_one_or_none()
+            existing_row = check_result.fetchone()
 
-            if existing_answer:
-                existing_answer.answer_value = answer_value
-            else:
-                new_answer = AssessmentAnswer(
-                    assessment_id=evaluator_assessment.id,
-                    question_id=question_id,
-                    answer_value=answer_value
+            if existing_row:
+                # Update existing answer using raw SQL
+                await db.execute(
+                    text("""
+                        UPDATE assessment_answers
+                        SET answer_value = :answer_value
+                        WHERE id = :id
+                    """),
+                    {
+                        "id": existing_row[0],
+                        "answer_value": answer_value
+                    }
                 )
-                db.add(new_answer)
+            else:
+                # Create new answer using raw SQL (without answered_at to avoid asyncpg cache issue)
+                await db.execute(
+                    text("""
+                        INSERT INTO assessment_answers (assessment_id, question_id, answer_value)
+                        VALUES (:assessment_id, :question_id, :answer_value)
+                    """),
+                    {
+                        "assessment_id": evaluator_assessment.id,
+                        "question_id": question_id,
+                        "answer_value": answer_value
+                    }
+                )
 
         await db.flush()
 
-        # Get all answers for scoring
-        result = await db.execute(
-            select(AssessmentAnswer)
-            .where(AssessmentAnswer.assessment_id == evaluator_assessment.id)
+        # Get all answers for scoring using raw SQL to avoid answered_at column issue
+        answers_result = await db.execute(
+            text("""
+                SELECT id, assessment_id, question_id, answer_value
+                FROM assessment_answers
+                WHERE assessment_id = :assessment_id
+            """),
+            {
+                "assessment_id": evaluator_assessment.id
+            }
         )
-        all_answers = result.scalars().all()
+        answers_rows = answers_result.fetchall()
+        
+        # Convert to AssessmentAnswer objects for calculate_scores
+        # Create a simple class that mimics AssessmentAnswer structure
+        class SimpleAnswer:
+            def __init__(self, id, assessment_id, question_id, answer_value):
+                self.id = id
+                self.assessment_id = assessment_id
+                self.question_id = question_id
+                self.answer_value = answer_value
+        
+        all_answers = [SimpleAnswer(row[0], row[1], row[2], row[3]) for row in answers_rows]
 
         # Calculate scores
         scores = calculate_scores(
