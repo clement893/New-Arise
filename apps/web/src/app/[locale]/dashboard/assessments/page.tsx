@@ -153,12 +153,23 @@ function AssessmentsContent() {
           }
           
           // Check status (backend returns: "completed", "in_progress", "not_started")
-          // Handle multiple possible formats
-          const statusLower = rawStatus.toLowerCase();
-          if (statusLower === 'completed' || rawStatus === 'COMPLETED') {
+          // Normalize to lowercase for comparison
+          const statusLower = rawStatus.toLowerCase().trim();
+          
+          // Always log for Wellness to debug
+          if (apiType === 'WELLNESS') {
+            console.log(`[Assessments] Status comparison for Wellness:`, {
+              rawStatus,
+              statusLower,
+              matchesCompleted: statusLower === 'completed',
+              answerCount: apiAssessment.answer_count,
+              totalQuestions: apiAssessment.total_questions
+            });
+          }
+          
+          if (statusLower === 'completed') {
             status = 'completed';
-          } else if (statusLower === 'in_progress' || statusLower === 'not_started' || 
-                     rawStatus === 'IN_PROGRESS' || rawStatus === 'NOT_STARTED') {
+          } else if (statusLower === 'in_progress' || statusLower === 'not_started') {
             status = 'in-progress';
           } else {
             // If status is unknown but assessment exists, check if it has all answers
@@ -169,6 +180,9 @@ function AssessmentsContent() {
               // All questions answered, treat as completed
               status = 'completed';
               console.warn(`[Assessments] Assessment ${apiAssessment.id} has all answers (${apiAssessment.answer_count}/${apiAssessment.total_questions}) but status is "${rawStatus}", treating as completed`);
+            } else {
+              // Log unknown status for debugging
+              console.warn(`[Assessments] Unknown status "${rawStatus}" for assessment ${apiAssessment.id}, type ${apiType}`);
             }
           }
         }
