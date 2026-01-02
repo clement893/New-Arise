@@ -63,11 +63,23 @@ def upgrade():
     if 'evaluator_role' not in columns:
         print("📝 Adding evaluator_role column...")
         # Use uppercase values to match Python model
+        # First add as nullable, then update existing rows, then make NOT NULL
         op.add_column(
             'assessment_360_evaluators',
-            sa.Column('evaluator_role', sa.Enum('PEER', 'MANAGER', 'DIRECT_REPORT', 'STAKEHOLDER', name='evaluatorrole'), nullable=False, server_default='PEER')
+            sa.Column('evaluator_role', sa.Enum('PEER', 'MANAGER', 'DIRECT_REPORT', 'STAKEHOLDER', name='evaluatorrole'), nullable=True)
         )
-        print("✅ Added evaluator_role column")
+        # Update existing rows with default value
+        conn.execute(sa.text("UPDATE assessment_360_evaluators SET evaluator_role = 'PEER'::evaluatorrole WHERE evaluator_role IS NULL"))
+        # Make it NOT NULL with default
+        op.alter_column('assessment_360_evaluators', 'evaluator_role', nullable=False, server_default=sa.text("'PEER'::evaluatorrole"))
+        # Verify column was added
+        inspector = sa.inspect(conn)
+        updated_columns = {col['name']: col for col in inspector.get_columns('assessment_360_evaluators')}
+        if 'evaluator_role' in updated_columns:
+            print("✅ Added evaluator_role column and verified it exists")
+        else:
+            print("❌ ERROR: evaluator_role column was not added successfully!")
+            raise Exception("Failed to add evaluator_role column")
     else:
         print("✅ evaluator_role column already exists")
     
