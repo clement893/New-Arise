@@ -4,6 +4,7 @@
  */
 
 import axios from 'axios';
+import { apiClient } from '@/lib/api';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -197,12 +198,12 @@ export interface EvaluatorAssessmentInfo {
 
 /**
  * Start a 360° feedback assessment with evaluators
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
  */
 export const start360Feedback = async (evaluators: Evaluator360Data[]): Promise<Start360FeedbackResponse> => {
-  const response = await axios.post(
-    `${API_BASE_URL}/api/v1/assessments/360/start`,
-    { evaluators },
-    { headers: getAuthHeaders() }
+  const response = await apiClient.post(
+    `/v1/assessments/360/start`,
+    { evaluators }
   );
   return response.data;
 };
