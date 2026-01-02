@@ -655,7 +655,7 @@ async def start_360_feedback(
                 evaluator_id = None
                 try:
                     # Log the exact SQL parameters we're about to use
-                    logger.debug(f"SQL params: assessment_id={self_assessment.id}, name={evaluator_data.name}, email={evaluator_data.email}, role={evaluator_role_upper}, token={invitation_token[:20]}...")
+                    logger.info(f"SQL params: assessment_id={self_assessment.id}, name={evaluator_data.name}, email={evaluator_data.email}, role={evaluator_role_upper}, token={invitation_token[:20]}...")
                     insert_result = await db.execute(
                         text("""
                             INSERT INTO assessment_360_evaluators
@@ -703,28 +703,10 @@ async def start_360_feedback(
                         }
                     )
                     logger.error(f"   Full INSERT error traceback:\n{error_traceback}")
-                    await db.rollback()
-                    raise HTTPException(
-                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                        detail=f"Failed to insert evaluator record: {error_type}: {error_message}"
-                    )
-                    error_type = type(insert_error).__name__
-                    error_message = str(insert_error)
-                    import traceback
-                    error_traceback = traceback.format_exc()
-                    logger.error(
-                        f"❌ UNEXPECTED ERROR during INSERT for evaluator {evaluator_data.email}: {error_type}: {error_message}",
-                        exc_info=True,
-                        extra={
-                            "user_id": current_user.id,
-                            "assessment_id": self_assessment.id,
-                            "evaluator_email": evaluator_data.email,
-                            "error_type": error_type,
-                            "error_message": error_message,
-                            "traceback": error_traceback
-                        }
-                    )
-                    logger.error(f"   Full UNEXPECTED INSERT error traceback:\n{error_traceback}")
+                    logger.error(f"❌ FAILED to insert evaluator {evaluator_data.email}: {error_type}: {error_message}")
+                    # Print error details to stdout for Railway logs
+                    print(f"❌ INSERT ERROR: {error_type}: {error_message}")
+                    print(f"   Traceback: {error_traceback}")
                     await db.rollback()
                     raise HTTPException(
                         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
