@@ -146,7 +146,9 @@ export default function BookCoachingSessionPage() {
       setError(null);
 
       // Combine date and time
-      const [hours, minutes] = selectedTime.split(':').map(Number);
+      const timeParts = selectedTime.split(':');
+      const hours = Number(timeParts[0]) || 0;
+      const minutes = Number(timeParts[1]) || 0;
       const scheduledAt = new Date(selectedDate);
       scheduledAt.setHours(hours, minutes, 0, 0);
 
