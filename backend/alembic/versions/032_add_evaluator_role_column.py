@@ -60,8 +60,8 @@ def upgrade():
         print("✅ Created evaluatorrole enum type")
     
     # Add evaluator_role column - force check and add if missing
-    # Double-check by querying the database directly
-    check_result = conn.execute(sa.text("""
+    # Double-check by querying the database directly using op.execute for proper transaction handling
+    check_result = op.execute(sa.text("""
         SELECT column_name 
         FROM information_schema.columns 
         WHERE table_name = 'assessment_360_evaluators' 
@@ -80,25 +80,24 @@ def upgrade():
             except Exception as e:
                 print(f"⚠️  Could not drop column (may not exist): {e}")
         
-        # Use uppercase values to match Python model
-        # First add as nullable, then update existing rows, then make NOT NULL
-        op.add_column(
-            'assessment_360_evaluators',
-            sa.Column('evaluator_role', sa.Enum('PEER', 'MANAGER', 'DIRECT_REPORT', 'STAKEHOLDER', name='evaluatorrole'), nullable=True)
-        )
-        # Update existing rows with default value
-        conn.execute(sa.text("UPDATE assessment_360_evaluators SET evaluator_role = 'PEER'::evaluatorrole WHERE evaluator_role IS NULL"))
-        # Make it NOT NULL with default
-        op.alter_column('assessment_360_evaluators', 'evaluator_role', nullable=False, server_default=sa.text("'PEER'::evaluatorrole"))
+        # Use raw SQL to ensure the column is added correctly
+        # This bypasses any potential SQLAlchemy schema cache issues
+        op.execute(sa.text("""
+            ALTER TABLE assessment_360_evaluators 
+            ADD COLUMN IF NOT EXISTS evaluator_role evaluatorrole NOT NULL DEFAULT 'PEER'::evaluatorrole
+        """))
+        print("✅ Added evaluator_role column using raw SQL")
+        
         # Verify column was added by querying database directly
-        verify_result = conn.execute(sa.text("""
-            SELECT column_name, data_type 
+        verify_result = op.execute(sa.text("""
+            SELECT column_name, data_type, udt_name
             FROM information_schema.columns 
             WHERE table_name = 'assessment_360_evaluators' 
             AND column_name = 'evaluator_role'
         """))
-        if verify_result.fetchone():
-            print("✅ Added evaluator_role column and verified it exists in database")
+        verify_row = verify_result.fetchone()
+        if verify_row:
+            print(f"✅ Verified evaluator_role column exists: {verify_row}")
         else:
             print("❌ ERROR: evaluator_role column was not added successfully!")
             raise Exception("Failed to add evaluator_role column")
