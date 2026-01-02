@@ -98,7 +98,7 @@ class AssessmentAnswer(Base):
     assessment_id = Column(Integer, ForeignKey("assessments.id", ondelete="CASCADE"), nullable=False, index=True)
     question_id = Column(String(100), nullable=False, index=True)
     answer_value = Column(String(500), nullable=False)  # Peut contenir du JSON stringifié
-    answered_at = Column(DateTime(timezone=True), nullable=False, server_default='now()')
+    answered_at = Column(DateTime(timezone=True), nullable=True, server_default='now()')  # Made nullable to handle asyncpg schema cache issues
 
     # Relations
     assessment = relationship("Assessment", back_populates="answers")

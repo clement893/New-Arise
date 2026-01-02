@@ -56,7 +56,7 @@ export default function EvaluatorAssessmentPage() {
         setSelectedScore(null);
       }
     }
-  }, [currentQuestionIndex, answers]);
+  }, [currentQuestionIndex, answers.length]); // Use answers.length instead of answers to ensure re-render
 
   const loadAssessmentInfo = async () => {
     try {
@@ -87,7 +87,7 @@ export default function EvaluatorAssessmentPage() {
         }),
       });
 
-      // Update local state
+      // Update local state - create new array to ensure React detects the change
       const existingAnswerIndex = answers.findIndex(a => a.question_id === currentQuestion.id);
       let newAnswers: Answer[];
       
@@ -99,6 +99,8 @@ export default function EvaluatorAssessmentPage() {
       }
 
       setAnswers(newAnswers);
+      // Also update selectedScore immediately to ensure highlight works
+      setSelectedScore(score);
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to save answer');
     } finally {
@@ -314,8 +316,8 @@ export default function EvaluatorAssessmentPage() {
                         </p>
                       </div>
                       {selectedScore === score && (
-                        <div className="flex-shrink-0">
-                          <Check className="w-6 h-6 text-teal-600 animate-in fade-in zoom-in duration-200" />
+                        <div className="flex-shrink-0 animate-fade-in">
+                          <Check className="w-6 h-6 text-teal-600" />
                         </div>
                       )}
                     </div>
