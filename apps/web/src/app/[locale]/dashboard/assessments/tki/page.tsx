@@ -220,25 +220,33 @@ export default function TKIAssessmentPage() {
               <button
                 onClick={() => handleSelectAnswer('A')}
                 disabled={isLoading}
-                className={`w-full p-6 rounded-lg border-2 transition-all text-left ${
+                className={`w-full p-6 rounded-lg border-2 transition-all duration-200 text-left ${
                   selectedAnswer === 'A'
-                    ? 'border-arise-gold bg-arise-gold/10'
-                    : 'border-gray-200 hover:border-arise-teal hover:bg-arise-teal/5'
-                }`}
+                    ? 'border-arise-gold bg-arise-gold/10 shadow-md ring-2 ring-arise-gold/30 ring-offset-2 scale-[1.02]'
+                    : 'border-gray-200 hover:border-arise-teal hover:bg-arise-teal/5 bg-white'
+                } ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
               >
                 <div className="flex items-start">
                   <div
-                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center mr-4 flex-shrink-0 ${
-                      selectedAnswer === 'A' ? 'border-arise-gold bg-arise-gold' : 'border-gray-300'
+                    className={`w-10 h-10 rounded-full border-2 flex items-center justify-center mr-4 flex-shrink-0 transition-all ${
+                      selectedAnswer === 'A' ? 'border-arise-gold bg-arise-gold shadow-lg scale-110' : 'border-gray-300'
                     }`}
                   >
-                    <span
-                      className={`font-bold ${selectedAnswer === 'A' ? 'text-white' : 'text-gray-400'}`}
-                    >
-                      A
-                    </span>
+                    {selectedAnswer === 'A' ? (
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <span className="font-bold text-gray-400">A</span>
+                    )}
                   </div>
-                  <p className="text-gray-800 leading-relaxed">{currentQuestionData.optionA}</p>
+                  <p className={`leading-relaxed transition-colors ${
+                    selectedAnswer === 'A'
+                      ? 'text-arise-gold font-semibold'
+                      : 'text-gray-800'
+                  }`}>
+                    {currentQuestionData.optionA}
+                  </p>
                 </div>
               </button>
 
@@ -246,25 +254,33 @@ export default function TKIAssessmentPage() {
               <button
                 onClick={() => handleSelectAnswer('B')}
                 disabled={isLoading}
-                className={`w-full p-6 rounded-lg border-2 transition-all text-left ${
+                className={`w-full p-6 rounded-lg border-2 transition-all duration-200 text-left ${
                   selectedAnswer === 'B'
-                    ? 'border-arise-gold bg-arise-gold/10'
-                    : 'border-gray-200 hover:border-arise-teal hover:bg-arise-teal/5'
-                }`}
+                    ? 'border-arise-gold bg-arise-gold/10 shadow-md ring-2 ring-arise-gold/30 ring-offset-2 scale-[1.02]'
+                    : 'border-gray-200 hover:border-arise-teal hover:bg-arise-teal/5 bg-white'
+                } ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
               >
                 <div className="flex items-start">
                   <div
-                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center mr-4 flex-shrink-0 ${
-                      selectedAnswer === 'B' ? 'border-arise-gold bg-arise-gold' : 'border-gray-300'
+                    className={`w-10 h-10 rounded-full border-2 flex items-center justify-center mr-4 flex-shrink-0 transition-all ${
+                      selectedAnswer === 'B' ? 'border-arise-gold bg-arise-gold shadow-lg scale-110' : 'border-gray-300'
                     }`}
                   >
-                    <span
-                      className={`font-bold ${selectedAnswer === 'B' ? 'text-white' : 'text-gray-400'}`}
-                    >
-                      B
-                    </span>
+                    {selectedAnswer === 'B' ? (
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <span className="font-bold text-gray-400">B</span>
+                    )}
                   </div>
-                  <p className="text-gray-800 leading-relaxed">{currentQuestionData.optionB}</p>
+                  <p className={`leading-relaxed transition-colors ${
+                    selectedAnswer === 'B'
+                      ? 'text-arise-gold font-semibold'
+                      : 'text-gray-800'
+                  }`}>
+                    {currentQuestionData.optionB}
+                  </p>
                 </div>
               </button>
             </div>

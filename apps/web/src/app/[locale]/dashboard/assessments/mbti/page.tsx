@@ -207,24 +207,30 @@ export default function MBTIAssessmentPage() {
                   {/* Option A */}
                   <button
                     onClick={() => handleSelectOption('A')}
-                    className={`w-full p-6 rounded-lg border-2 transition-all text-left ${
+                    className={`w-full p-6 rounded-lg border-2 transition-all duration-200 text-left ${
                       selectedOption === 'A'
-                        ? 'border-purple-600 bg-purple-50'
-                        : 'border-gray-200 hover:border-purple-300 bg-white'
+                        ? 'border-purple-600 bg-purple-50 shadow-md ring-2 ring-purple-200 ring-offset-2 scale-[1.02]'
+                        : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50/50 bg-white'
                     }`}
                   >
                     <div className="flex items-start gap-4">
                       <div
-                        className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                        className={`flex-shrink-0 w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all ${
                           selectedOption === 'A'
-                            ? 'border-purple-600 bg-purple-600'
+                            ? 'border-purple-600 bg-purple-600 shadow-lg scale-110'
                             : 'border-gray-300'
                         }`}
                       >
-                        {selectedOption === 'A' && <Check className="w-4 h-4 text-white" />}
+                        {selectedOption === 'A' && <Check className="w-6 h-6 text-white" />}
                       </div>
                       <div className="flex-1">
-                        <p className="text-gray-900 font-medium">{currentQuestion.optionA.text}</p>
+                        <p className={`font-medium transition-colors ${
+                          selectedOption === 'A'
+                            ? 'text-purple-900 font-semibold'
+                            : 'text-gray-900'
+                        }`}>
+                          {currentQuestion.optionA.text}
+                        </p>
                       </div>
                     </div>
                   </button>
@@ -232,24 +238,30 @@ export default function MBTIAssessmentPage() {
                   {/* Option B */}
                   <button
                     onClick={() => handleSelectOption('B')}
-                    className={`w-full p-6 rounded-lg border-2 transition-all text-left ${
+                    className={`w-full p-6 rounded-lg border-2 transition-all duration-200 text-left ${
                       selectedOption === 'B'
-                        ? 'border-purple-600 bg-purple-50'
-                        : 'border-gray-200 hover:border-purple-300 bg-white'
+                        ? 'border-purple-600 bg-purple-50 shadow-md ring-2 ring-purple-200 ring-offset-2 scale-[1.02]'
+                        : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50/50 bg-white'
                     }`}
                   >
                     <div className="flex items-start gap-4">
                       <div
-                        className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                        className={`flex-shrink-0 w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all ${
                           selectedOption === 'B'
-                            ? 'border-purple-600 bg-purple-600'
+                            ? 'border-purple-600 bg-purple-600 shadow-lg scale-110'
                             : 'border-gray-300'
                         }`}
                       >
-                        {selectedOption === 'B' && <Check className="w-4 h-4 text-white" />}
+                        {selectedOption === 'B' && <Check className="w-6 h-6 text-white" />}
                       </div>
                       <div className="flex-1">
-                        <p className="text-gray-900 font-medium">{currentQuestion.optionB.text}</p>
+                        <p className={`font-medium transition-colors ${
+                          selectedOption === 'B'
+                            ? 'text-purple-900 font-semibold'
+                            : 'text-gray-900'
+                        }`}>
+                          {currentQuestion.optionB.text}
+                        </p>
                       </div>
                     </div>
                   </button>

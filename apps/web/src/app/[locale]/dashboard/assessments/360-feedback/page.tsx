@@ -284,15 +284,40 @@ export default function Feedback360Page() {
               <button
                 key={option.value}
                 onClick={() => handleSelectValue(option.value)}
-                className={`w-full rounded-lg border-2 p-4 text-left transition-all ${
+                className={`w-full rounded-lg border-2 p-4 text-left transition-all duration-200 ${
                   selectedValue === option.value
-                    ? 'border-arise-teal bg-arise-teal/10'
-                    : 'border-gray-200 hover:border-arise-teal/50'
+                    ? 'border-arise-teal bg-arise-teal/10 shadow-md ring-2 ring-arise-teal/30 ring-offset-2 scale-[1.02]'
+                    : 'border-gray-200 hover:border-arise-teal/50 hover:bg-arise-teal/5 bg-white'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-gray-900">{option.label}</span>
-                  <span className="text-2xl font-bold text-arise-teal">{option.value}</span>
+                  <div className="flex items-center gap-3">
+                    <div className={`flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
+                      selectedValue === option.value
+                        ? 'border-arise-teal bg-arise-teal shadow-lg scale-110'
+                        : 'border-gray-300'
+                    }`}>
+                      {selectedValue === option.value && (
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                    <span className={`font-medium transition-colors ${
+                      selectedValue === option.value
+                        ? 'text-arise-teal font-semibold'
+                        : 'text-gray-900'
+                    }`}>
+                      {option.label}
+                    </span>
+                  </div>
+                  <span className={`text-2xl font-bold transition-colors ${
+                    selectedValue === option.value
+                      ? 'text-arise-teal'
+                      : 'text-gray-600'
+                  }`}>
+                    {option.value}
+                  </span>
                 </div>
               </button>
             ))}
