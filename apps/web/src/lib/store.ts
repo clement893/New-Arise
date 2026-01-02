@@ -37,6 +37,8 @@ export interface User {
   is_admin?: boolean;
   /** User type (Individual, Coach, Business, Admin) */
   user_type?: UserType;
+  /** User avatar URL */
+  avatar_url?: string;
   /** Account creation timestamp (ISO 8601) */
   created_at?: string;
   /** Last update timestamp (ISO 8601) */
