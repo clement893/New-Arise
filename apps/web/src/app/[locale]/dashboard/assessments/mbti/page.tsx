@@ -58,6 +58,10 @@ export default function MBTIAssessmentPage() {
 
   const handleSelectOption = async (option: 'A' | 'B') => {
     const currentQuestion = mbtiQuestions[currentQuestionIndex];
+    if (!currentQuestion) {
+      console.error('Current question not found');
+      return;
+    }
     const preference =
       option === 'A' ? currentQuestion.optionA.preference : currentQuestion.optionB.preference;
 
@@ -108,6 +112,18 @@ export default function MBTIAssessmentPage() {
   }
 
   const currentQuestion = mbtiQuestions[currentQuestionIndex];
+  if (!currentQuestion) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex">
+        <Sidebar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-gray-600">Question not found</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
   const progress = ((currentQuestionIndex + 1) / mbtiQuestions.length) * 100;
   const isLastQuestion = currentQuestionIndex === mbtiQuestions.length - 1;
   const canSubmit = answers.length === mbtiQuestions.length;

@@ -95,6 +95,53 @@ export const saveAnswer = async (
 };
 
 /**
+ * Save a response to an assessment question (flexible format)
+ * Accepts either:
+ * - (assessmentId, { question_id, answer_value })
+ * - (assessmentId, questionId, answerValue)
+ * - (assessmentId, questionId, { answer_value, ...extraData })
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
+ */
+export const saveResponse = async (
+  assessmentId: number,
+  questionIdOrData: string | { question_id: string; answer_value: string },
+  answerValueOrData?: string | Record<string, any>
+): Promise<AssessmentAnswer> => {
+  let requestBody: { question_id: string; answer_value: string };
+
+  // Handle different call signatures
+  if (typeof questionIdOrData === 'object') {
+    // Format: saveResponse(assessmentId, { question_id, answer_value })
+    requestBody = questionIdOrData;
+  } else if (typeof answerValueOrData === 'string') {
+    // Format: saveResponse(assessmentId, questionId, answerValue)
+    requestBody = {
+      question_id: questionIdOrData,
+      answer_value: answerValueOrData,
+    };
+  } else if (answerValueOrData && typeof answerValueOrData === 'object') {
+    // Format: saveResponse(assessmentId, questionId, { answer_value, ...extraData })
+    // Extract answer_value from the object, ignore other fields
+    const answerValue = answerValueOrData.answer_value || 
+                       answerValueOrData.selected_mode || 
+                       answerValueOrData.score || 
+                       String(Object.values(answerValueOrData)[0] || '');
+    requestBody = {
+      question_id: questionIdOrData,
+      answer_value: String(answerValue),
+    };
+  } else {
+    throw new Error('Invalid arguments to saveResponse');
+  }
+
+  const response = await apiClient.post(
+    `/v1/assessments/${assessmentId}/answer`,
+    requestBody
+  );
+  return response.data;
+};
+
+/**
  * Submit an assessment for scoring
  * Uses apiClient to benefit from automatic token refresh on 401 errors
  */
@@ -250,6 +297,7 @@ export const invite360Evaluators = async (
 export const assessmentsApi = {
   start: startAssessment,
   saveAnswer,
+  saveResponse,
   submit: submitAssessment,
   getResults: getAssessmentResults,
   getMyAssessments,

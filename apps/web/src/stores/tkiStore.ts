@@ -152,8 +152,11 @@ export const useTKIStore = create<TKIState>()(
 
         set({ isLoading: true, error: null });
         try {
-          // Save with new format: selected_mode
-          await saveResponse(assessmentId, questionId, { selected_mode: answer });
+          // Save answer - backend expects answer_value as string
+          await saveResponse(assessmentId, {
+            question_id: questionId,
+            answer_value: answer,
+          });
           set((state) => ({
             answers: { ...state.answers, [questionId]: answer },
             isLoading: false,

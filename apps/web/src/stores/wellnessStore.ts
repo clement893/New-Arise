@@ -117,10 +117,11 @@ export const useWellnessStore = create<WellnessState>()(
         // Save to backend if assessment is started
         if (assessmentId) {
           try {
-            // Save with new format: pillar and score
-            // Extract pillar from questionId (format: "pillar_questionNumber")
-            const pillar = questionId.split('_')[0];
-            await assessmentsApi.saveResponse(assessmentId, questionId, { pillar, score: value });
+            // Save answer - backend expects answer_value as string
+            await assessmentsApi.saveResponse(assessmentId, {
+              question_id: questionId,
+              answer_value: String(value),
+            });
           } catch (error: unknown) {
             console.error('Failed to save answer:', error);
             const errorMessage =
