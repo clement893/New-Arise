@@ -723,14 +723,14 @@ export default function AdminAssessmentManagementPage() {
                             </Badge>
                           </div>
                           <p className="text-gray-900 dark:text-gray-100 text-base leading-relaxed">
-                            {question.text}
+                            {question.question}
                           </p>
                         </div>
                         <div className="flex gap-2 flex-shrink-0">
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleEditQuestion({ ...question, text: question.text } as Question)}
+                            onClick={() => handleEditQuestion({ ...question, text: question.question } as Question)}
                             title="Modifier"
                             className="hover:bg-teal-50 dark:hover:bg-teal-900/20"
                           >
