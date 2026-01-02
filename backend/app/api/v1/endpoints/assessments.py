@@ -649,33 +649,58 @@ async def start_360_feedback(
                 
                 # Insert using raw SQL to bypass SQLAlchemy schema cache
                 # invitation_sent_at will be updated after email is sent successfully
-                logger.debug(f"Attempting to insert evaluator {evaluator_data.email} with role {evaluator_role.value}")
-                insert_result = await db.execute(
-                    text("""
-                        INSERT INTO assessment_360_evaluators 
-                        (assessment_id, evaluator_name, evaluator_email, evaluator_role, invitation_token, 
-                         invitation_sent_at, invitation_opened_at, started_at, completed_at, status, evaluator_assessment_id)
-                        VALUES 
-                        (:assessment_id, :evaluator_name, :evaluator_email, :evaluator_role::evaluatorrole, :invitation_token,
-                         NULL, NULL, NULL, NULL, 'NOT_STARTED'::assessmentstatus, NULL)
-                        RETURNING id, created_at, updated_at
-                    """),
-                    {
-                        "assessment_id": self_assessment.id,
-                        "evaluator_name": evaluator_data.name,
-                        "evaluator_email": evaluator_data.email,
-                        "evaluator_role": evaluator_role.value,  # Use .value to get the string value
-                        "invitation_token": invitation_token
-                    }
-                )
-                evaluator_row = insert_result.first()
-                evaluator_id = evaluator_row[0] if evaluator_row else None
-                logger.debug(f"Successfully inserted evaluator {evaluator_data.email} (ID: {evaluator_id}) to database for assessment {self_assessment.id}")
+                logger.info(f"🔵 Attempting to insert evaluator {evaluator_data.email} with role {evaluator_role.value} for assessment {self_assessment.id}")
+                try:
+                    insert_result = await db.execute(
+                        text("""
+                            INSERT INTO assessment_360_evaluators 
+                            (assessment_id, evaluator_name, evaluator_email, evaluator_role, invitation_token, 
+                             invitation_sent_at, invitation_opened_at, started_at, completed_at, status, evaluator_assessment_id)
+                            VALUES 
+                            (:assessment_id, :evaluator_name, :evaluator_email, :evaluator_role::evaluatorrole, :invitation_token,
+                             NULL, NULL, NULL, NULL, 'NOT_STARTED'::assessmentstatus, NULL)
+                            RETURNING id, created_at, updated_at
+                        """),
+                        {
+                            "assessment_id": self_assessment.id,
+                            "evaluator_name": evaluator_data.name,
+                            "evaluator_email": evaluator_data.email,
+                            "evaluator_role": evaluator_role.value,  # Use .value to get the string value
+                            "invitation_token": invitation_token
+                        }
+                    )
+                    evaluator_row = insert_result.first()
+                    evaluator_id = evaluator_row[0] if evaluator_row else None
+                    logger.info(f"✅ Successfully inserted evaluator {evaluator_data.email} (ID: {evaluator_id}) to database for assessment {self_assessment.id}")
+                except Exception as insert_error:
+                    error_type = type(insert_error).__name__
+                    error_message = str(insert_error)
+                    import traceback
+                    error_traceback = traceback.format_exc()
+                    logger.error(
+                        f"❌ ERROR during INSERT for evaluator {evaluator_data.email}: {error_type}: {error_message}",
+                        exc_info=True,
+                        extra={
+                            "user_id": current_user.id,
+                            "assessment_id": self_assessment.id,
+                            "evaluator_email": evaluator_data.email,
+                            "error_type": error_type,
+                            "error_message": error_message,
+                            "traceback": error_traceback
+                        }
+                    )
+                    logger.error(f"   Full INSERT error traceback:\n{error_traceback}")
+                    await db.rollback()
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail=f"Failed to insert evaluator record: {error_type}: {error_message}"
+                    )
                 
                 # Commit immediately after each insert to avoid transaction issues
                 try:
+                    logger.info(f"🔵 Attempting to commit evaluator {evaluator_data.email} (ID: {evaluator_id})")
                     await db.commit()
-                    logger.debug(f"Committed evaluator {evaluator_data.email} (ID: {evaluator_id}) to database")
+                    logger.info(f"✅ Committed evaluator {evaluator_data.email} (ID: {evaluator_id}) to database")
                 except Exception as commit_error:
                     error_type = type(commit_error).__name__
                     error_message = str(commit_error)
@@ -694,6 +719,7 @@ async def start_360_feedback(
                             "traceback": error_traceback
                         }
                     )
+                    logger.error(f"   Full COMMIT error traceback:\n{error_traceback}")
                     await db.rollback()
                     raise HTTPException(
                         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -707,7 +733,7 @@ async def start_360_feedback(
                 import traceback
                 error_traceback = traceback.format_exc()
                 logger.error(
-                    f"❌ ERROR creating evaluator record for {evaluator_data.email}: {error_type}: {error_message}",
+                    f"❌ UNEXPECTED ERROR creating evaluator record for {evaluator_data.email}: {error_type}: {error_message}",
                     exc_info=True,
                     extra={
                         "user_id": current_user.id,
@@ -718,6 +744,7 @@ async def start_360_feedback(
                         "traceback": error_traceback
                     }
                 )
+                logger.error(f"   Full UNEXPECTED error traceback:\n{error_traceback}")
                 await db.rollback()
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
