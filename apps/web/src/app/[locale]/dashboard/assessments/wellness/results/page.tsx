@@ -223,13 +223,13 @@ export default function WellnessResultsPage() {
                     delay={400 + index * 100}
                   >
                     <InsightCard
-                      title={`${pillarEmojis[pillar]} ${pillarNames[pillar]}`}
+                      title={`${pillarEmojis[pillar] || '📊'} ${pillarNames[pillar] || pillar}`}
                       level={level}
                       score={score as number}
                       maxScore={25}
                       description={
                         insight?.description ||
-                        `Your ${pillarNames[pillar].toLowerCase()} score indicates ${level} performance in this area.`
+                        `Your ${(pillarNames[pillar] || pillar).toLowerCase()} score indicates ${level} performance in this area.`
                       }
                     />
                   </MotionDiv>
