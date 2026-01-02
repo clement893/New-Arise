@@ -761,16 +761,26 @@ async def start_360_feedback(
             await db.rollback()
             error_type = type(commit_error).__name__
             error_message = str(commit_error)
+            import traceback
+            error_traceback = traceback.format_exc()
             logger.error(
                 f"❌ DATABASE ERROR committing 360 feedback assessment: {error_type}: {error_message}",
-                exc_info=True
+                exc_info=True,
+                extra={
+                    "user_id": current_user.id,
+                    "assessment_id": self_assessment.id if hasattr(self_assessment, 'id') else None,
+                    "evaluators_count": len(invited_evaluators),
+                    "error_type": error_type,
+                    "error_message": error_message,
+                    "traceback": error_traceback
+                }
             )
             logger.error(
-                f"   User ID: {current_user.id}, Assessment ID: {self_assessment.id if hasattr(self_assessment, 'id') else 'N/A'}, Evaluators: {len(invited_evaluators)}"
+                f"   Full traceback:\n{error_traceback}"
             )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to save 360 feedback assessment to database: {error_type}: {error_message}"
+                detail=f"A database error occurred: {error_type}. Please check the server logs for details."
             )
         
         # Refresh to get the latest state from database
