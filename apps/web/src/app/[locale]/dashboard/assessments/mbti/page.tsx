@@ -178,7 +178,7 @@ export default function MBTIAssessmentPage() {
                 </div>
               </div>
             </Card>
-          </MotionDiv>
+          </motion.div>
 
           {/* Question Card */}
           <motion.div
@@ -255,7 +255,7 @@ export default function MBTIAssessmentPage() {
                 </div>
               </div>
             </Card>
-          </MotionDiv>
+          </motion.div>
 
           {/* Error Message */}
           {error && (
