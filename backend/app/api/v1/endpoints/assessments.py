@@ -747,6 +747,9 @@ async def start_360_feedback(
                     error_message = str(commit_error)
                     import traceback
                     error_traceback = traceback.format_exc()
+                    # Print error details to stdout for Railway logs
+                    print(f"❌ UNEXPECTED ERROR committing evaluator {evaluator_data.email}: {error_type}: {error_message}")
+                    print(f"   Full traceback:\n{error_traceback}")
                     logger.error(
                         f"❌ UNEXPECTED ERROR committing evaluator {evaluator_data.email}: {error_type}: {error_message}",
                         exc_info=True,
@@ -773,6 +776,9 @@ async def start_360_feedback(
                 error_message = str(add_error)
                 import traceback
                 error_traceback = traceback.format_exc()
+                # Print error details to stdout for Railway logs
+                print(f"❌ UNEXPECTED ERROR creating evaluator record for {evaluator_data.email}: {error_type}: {error_message}")
+                print(f"   Full traceback:\n{error_traceback}")
                 logger.error(
                     f"❌ UNEXPECTED ERROR creating evaluator record for {evaluator_data.email}: {error_type}: {error_message}",
                     exc_info=True,
@@ -909,6 +915,11 @@ async def start_360_feedback(
         await db.rollback()
         error_type = type(e).__name__
         error_message = str(e)
+        import traceback
+        error_traceback = traceback.format_exc()
+        # Print error details to stdout for Railway logs
+        print(f"❌ ERROR in start_360_feedback: {error_type}: {error_message}")
+        print(f"   Full traceback:\n{error_traceback}")
         logger.error(
             f"Error in start_360_feedback: {error_type}: {error_message}",
             exc_info=True,
