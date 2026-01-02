@@ -94,6 +94,15 @@ function LoginContent() {
         await new Promise(resolve => setTimeout(resolve, 100));
       }
       
+      // Set a flag to indicate we just logged in (for ProtectedRoute to detect)
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('just_logged_in', 'true');
+        // Clear flag after 2 seconds (enough time for ProtectedRoute to detect it)
+        setTimeout(() => {
+          sessionStorage.removeItem('just_logged_in');
+        }, 2000);
+      }
+      
       // Longer delay to ensure store is hydrated and token is available for ProtectedRoute
       await new Promise(resolve => setTimeout(resolve, 200));
       
