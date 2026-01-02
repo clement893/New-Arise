@@ -286,22 +286,26 @@ export default function EvaluatorAssessmentPage() {
                     key={score}
                     onClick={() => handleSelectScore(score)}
                     disabled={isSaving}
-                    className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
+                    className={`w-full p-4 rounded-lg border-2 transition-all duration-200 text-left ${
                       selectedScore === score
-                        ? 'border-teal-600 bg-teal-50'
-                        : 'border-gray-200 hover:border-teal-300 bg-white'
-                    } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        ? 'border-teal-600 bg-teal-50 shadow-md ring-2 ring-teal-200 ring-offset-2'
+                        : 'border-gray-200 hover:border-teal-300 hover:bg-teal-50/50 bg-white'
+                    } ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                   >
                     <div className="flex items-center gap-4">
-                      <div className={`flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center font-bold ${
+                      <div className={`flex-shrink-0 w-10 h-10 rounded-full border-2 flex items-center justify-center font-bold text-lg transition-all ${
                         selectedScore === score
-                          ? 'border-teal-600 bg-teal-600 text-white'
-                          : 'border-gray-300 text-gray-600'
+                          ? 'border-teal-600 bg-teal-600 text-white shadow-lg scale-110'
+                          : 'border-gray-300 text-gray-600 bg-white'
                       }`}>
                         {score}
                       </div>
                       <div className="flex-1">
-                        <p className="text-gray-900 font-medium">
+                        <p className={`font-medium transition-colors ${
+                          selectedScore === score
+                            ? 'text-teal-900 font-semibold'
+                            : 'text-gray-900'
+                        }`}>
                           {score === 1 && 'Strongly Disagree'}
                           {score === 2 && 'Disagree'}
                           {score === 3 && 'Neutral'}
@@ -310,7 +314,9 @@ export default function EvaluatorAssessmentPage() {
                         </p>
                       </div>
                       {selectedScore === score && (
-                        <Check className="w-5 h-5 text-teal-600" />
+                        <div className="flex-shrink-0">
+                          <Check className="w-6 h-6 text-teal-600 animate-in fade-in zoom-in duration-200" />
+                        </div>
                       )}
                     </div>
                   </button>
