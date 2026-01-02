@@ -72,6 +72,8 @@ export default function EvaluatorAssessmentPage() {
 
   const handleSelectScore = async (score: number) => {
     const currentQuestion = feedback360Questions[currentQuestionIndex];
+    if (!currentQuestion) return;
+    
     setSelectedScore(score);
 
     try {
