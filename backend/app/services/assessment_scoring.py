@@ -16,6 +16,9 @@ def calculate_wellness_score(answers: List[AssessmentAnswer]) -> Dict[str, Any]:
     Max score per pillar: 25
     Max total score: 150
     """
+    if not answers:
+        raise ValueError("No answers provided for wellness assessment")
+    
     # Define pillar question mappings
     pillar_questions = {
         "avoidance_of_risky_substances": ["wellness_q1", "wellness_q2", "wellness_q3", "wellness_q4", "wellness_q5"],
@@ -26,8 +29,37 @@ def calculate_wellness_score(answers: List[AssessmentAnswer]) -> Dict[str, Any]:
         "stress_management": ["wellness_q26", "wellness_q27", "wellness_q28", "wellness_q29", "wellness_q30"],
     }
     
-    # Create answer lookup
-    answer_lookup = {answer.question_id: int(answer.answer_value) for answer in answers}
+    # Create answer lookup with error handling
+    answer_lookup = {}
+    invalid_answers = []
+    for answer in answers:
+        try:
+            # Try to convert answer_value to int
+            value = answer.answer_value
+            if value is None or value == '':
+                invalid_answers.append(answer.question_id)
+                continue  # Skip empty answers
+            int_value = int(value)
+            # Validate range (1-5 for wellness)
+            if int_value < 1 or int_value > 5:
+                invalid_answers.append(answer.question_id)
+                continue
+            answer_lookup[answer.question_id] = int_value
+        except (ValueError, TypeError) as e:
+            # Track invalid answers
+            invalid_answers.append(answer.question_id)
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Invalid answer value for question {answer.question_id}: {value} (error: {e})")
+            continue
+    
+    if not answer_lookup:
+        raise ValueError("No valid answers found. Please ensure all answers are numeric values between 1 and 5.")
+    
+    if invalid_answers:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(f"Found {len(invalid_answers)} invalid answers: {invalid_answers}")
     
     # Calculate pillar scores
     pillar_scores = {}
@@ -139,6 +171,9 @@ def calculate_360_score(answers: List[AssessmentAnswer]) -> Dict[str, Any]:
     Max score per capability: 25
     Max total score: 150
     """
+    if not answers:
+        raise ValueError("No answers provided for 360 feedback assessment")
+    
     # Define capability question mappings
     capability_questions = {
         "communication": ["360_q1", "360_q2", "360_q3", "360_q4", "360_q5"],
@@ -149,8 +184,37 @@ def calculate_360_score(answers: List[AssessmentAnswer]) -> Dict[str, Any]:
         "stress_management": ["360_q26", "360_q27", "360_q28", "360_q29", "360_q30"],
     }
     
-    # Create answer lookup
-    answer_lookup = {answer.question_id: int(answer.answer_value) for answer in answers}
+    # Create answer lookup with error handling
+    answer_lookup = {}
+    invalid_answers = []
+    for answer in answers:
+        try:
+            # Try to convert answer_value to int
+            value = answer.answer_value
+            if value is None or value == '':
+                invalid_answers.append(answer.question_id)
+                continue  # Skip empty answers
+            int_value = int(value)
+            # Validate range (1-5 for 360)
+            if int_value < 1 or int_value > 5:
+                invalid_answers.append(answer.question_id)
+                continue
+            answer_lookup[answer.question_id] = int_value
+        except (ValueError, TypeError) as e:
+            # Track invalid answers
+            invalid_answers.append(answer.question_id)
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Invalid answer value for question {answer.question_id}: {value} (error: {e})")
+            continue
+    
+    if not answer_lookup:
+        raise ValueError("No valid answers found. Please ensure all answers are numeric values between 1 and 5.")
+    
+    if invalid_answers:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(f"Found {len(invalid_answers)} invalid answers: {invalid_answers}")
     
     # Calculate capability scores
     capability_scores = {}

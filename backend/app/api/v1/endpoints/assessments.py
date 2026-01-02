@@ -434,9 +434,19 @@ async def submit_assessment(
         )
 
     if assessment.status == AssessmentStatus.COMPLETED:
+        from app.core.logging import logger
+        logger.info(
+            f"Attempt to submit already completed assessment {assessment_id}",
+            context={
+                "assessment_id": assessment_id,
+                "user_id": current_user.id,
+                "assessment_type": assessment.assessment_type,
+                "completed_at": assessment.completed_at.isoformat() if assessment.completed_at else None
+            }
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Assessment is already completed"
+            detail="This assessment has already been completed. You can view your results in the results page."
         )
 
     # Get all answers using raw SQL to avoid answered_at column issue
@@ -452,6 +462,13 @@ async def submit_assessment(
     )
     answers_rows = answers_result.fetchall()
     
+    # Check if there are any answers
+    if not answers_rows:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot submit assessment: No answers provided. Please complete at least one question before submitting."
+        )
+    
     # Convert to AssessmentAnswer objects for calculate_scores
     # Create a simple class that mimics AssessmentAnswer structure
     class SimpleAnswer:
@@ -465,15 +482,47 @@ async def submit_assessment(
 
     # Calculate scores based on assessment type
     from app.services.assessment_scoring import calculate_scores
+    from app.core.logging import logger
 
-    scores = calculate_scores(
-        assessment_type=assessment.assessment_type,
-        answers=answers
-    )
+    try:
+        scores = calculate_scores(
+            assessment_type=assessment.assessment_type,
+            answers=answers
+        )
+    except ValueError as e:
+        logger.error(
+            f"Error calculating scores for assessment {assessment_id}: {str(e)}",
+            exc_info=True,
+            context={
+                "assessment_id": assessment_id,
+                "assessment_type": assessment.assessment_type,
+                "answer_count": len(answers),
+                "error": str(e)
+            }
+        )
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to calculate scores: {str(e)}. Please ensure all required questions are answered."
+        )
+    except Exception as e:
+        logger.error(
+            f"Unexpected error calculating scores for assessment {assessment_id}: {str(e)}",
+            exc_info=True,
+            context={
+                "assessment_id": assessment_id,
+                "assessment_type": assessment.assessment_type,
+                "answer_count": len(answers),
+                "error": str(e)
+            }
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred while calculating scores: {str(e)}"
+        )
 
     # Update assessment
     assessment.status = AssessmentStatus.COMPLETED
-    assessment.completed_at = datetime.utcnow()
+    assessment.completed_at = datetime.now(timezone.utc)
     assessment.raw_score = {answer.question_id: answer.answer_value for answer in answers}
     assessment.processed_score = scores
 
