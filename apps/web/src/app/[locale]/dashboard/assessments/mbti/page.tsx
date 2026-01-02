@@ -70,7 +70,11 @@ export default function MBTIAssessmentPage() {
     try {
       await answerQuestion(currentQuestion.id, preference);
     } catch (err) {
-      console.error('Failed to save answer:', err);
+      // Error is already handled by the store and displayed to user
+      // Only log in development for debugging
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to save answer:', err);
+      }
     }
   };
 
