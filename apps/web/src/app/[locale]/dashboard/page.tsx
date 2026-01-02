@@ -16,7 +16,8 @@ import {
   Heart,
   Info,
   ArrowRight,
-  CheckCircle
+  CheckCircle,
+  Lock
 } from 'lucide-react';
 import { getMyAssessments, Assessment as ApiAssessment, AssessmentType } from '@/lib/api/assessments';
 import InviteAdditionalEvaluatorsModal from '@/components/360/InviteAdditionalEvaluatorsModal';
@@ -209,20 +210,20 @@ function DashboardContent() {
     }
   };
 
-  const getStatusBadge = (status: string, answerCount?: number, totalQuestions?: number) => {
+      const getStatusBadge = (status: string, answerCount?: number, totalQuestions?: number) => {
     switch (status) {
       case 'completed':
         return (
           <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
             <CheckCircle size={12} />
-            Terminé
+            Completed
           </span>
         );
       case 'in-progress':
         return (
           <div className="flex items-center gap-2">
             <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
-              En cours
+              In progress
             </span>
             {answerCount !== undefined && totalQuestions !== undefined && (
               <span className="inline-block px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full font-medium">
@@ -240,7 +241,7 @@ function DashboardContent() {
     if (evaluation.status === 'locked') {
       return (
         <Button variant="secondary" disabled className="w-full">
-          Verrouillé
+          Locked
         </Button>
       );
     }
@@ -262,7 +263,7 @@ function DashboardContent() {
             }
           }}
         >
-          Voir les résultats
+          View Results
         </Button>
       );
     }
@@ -270,12 +271,12 @@ function DashboardContent() {
     return (
       <Button 
         variant="primary" 
-        className="w-full"
+        className="w-full bg-[#F4B860] text-[#1B5E6B] hover:bg-[#F4B860]/90 font-semibold"
         onClick={() => {
           router.push(`/dashboard/assessments/${getAssessmentRoute(evaluation.assessmentType)}`);
         }}
       >
-        {evaluation.status === 'in-progress' ? 'Continuer' : 'Commencer'}
+        {evaluation.status === 'in-progress' ? 'Continue' : 'Add the assessment'}
       </Button>
     );
   };
@@ -297,9 +298,9 @@ function DashboardContent() {
           <MotionDiv variant="fade" duration="normal">
             <div className="mb-8">
               <h1 className="text-4xl font-bold text-white mb-2">
-                Welcome {user?.name?.split(' ')[0] || 'User'}
+                Welcome {user?.name?.split(' ')[0] || 'John'}
               </h1>
-              <p className="text-white/80 text-lg">
+              <p className="text-white/90 text-lg">
                 Continue your journey to authentic leadership
               </p>
             </div>
@@ -315,7 +316,7 @@ function DashboardContent() {
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
-                      Add Your 360° Feedback Evaluators
+                      Add Your 360° Feedback: Evaluators
                     </h3>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
                       Get comprehensive feedback by inviting colleagues to evaluate your leadership.
@@ -324,7 +325,7 @@ function DashboardContent() {
                 </div>
                 <Button 
                   variant="primary" 
-                  className="whitespace-nowrap"
+                  className="whitespace-nowrap bg-[#F4B860] text-[#1B5E6B] hover:bg-[#F4B860]/90 font-semibold"
                   onClick={() => {
                     // Check if a 360° feedback assessment already exists
                     const feedback360Assessment = assessments.find(
@@ -340,7 +341,7 @@ function DashboardContent() {
                     }
                   }}
                 >
-                  Ajouter des évaluateurs
+                  Add evaluators
                 </Button>
               </div>
             </Card>
@@ -350,21 +351,19 @@ function DashboardContent() {
           <MotionDiv variant="slideUp" delay={200}>
             <Card 
               className="mb-8 text-white border-0"
-              style={{ backgroundColor: 'rgba(10, 58, 64, 0.9)' } as React.CSSProperties}
+              style={{ backgroundColor: '#1B5E6B' } as React.CSSProperties}
             >
-              <div className="flex justify-between items-start mb-6">
-                <div>
+              <div className="flex justify-between items-start mb-6 gap-8">
+                <div className="flex-1">
                   <h2 className="text-2xl font-bold mb-2 text-white">Your Progress</h2>
                   <div className="text-6xl font-bold mb-2 text-white">{progressData.overall} %</div>
-                  <p className="text-white/80 mb-1">
-                    You are making good progress in your holistic leadership journey.
+                  <p className="text-white/90 mb-1">
+                    You are making good progress in your holistic leadership journey. Keep it up!
                   </p>
-                  <p className="text-white font-semibold">Keep it up!</p>
                 </div>
-              </div>
-
-              {/* Progress Bars */}
-              <div className="space-y-4 mb-6">
+                
+                {/* Progress Bars - Right side */}
+                <div className="flex-1 space-y-4 min-w-[200px]">
                 {progressData.items.map((item, index) => (
                   <div key={index}>
                     <div className="flex justify-between items-center mb-2">
@@ -379,23 +378,24 @@ function DashboardContent() {
                     </div>
                   </div>
                 ))}
+                </div>
               </div>
 
               {/* Action Buttons */}
               <div className="flex gap-4">
                 <Button 
                   variant="primary" 
-                  className="bg-arise-gold text-arise-deep-teal hover:bg-arise-gold/90"
+                  className="bg-[#F4B860] text-[#1B5E6B] hover:bg-[#F4B860]/90 font-semibold"
                   onClick={() => router.push('/dashboard/assessments')}
                 >
-                  Continuer les assessments
+                  Continue Learning
                 </Button>
                 <Button 
                   variant="outline" 
                   className="border-2 border-white text-white hover:bg-white/10"
                   onClick={() => router.push('/dashboard/results')}
                 >
-                  Voir les rapports
+                  View Reports
                 </Button>
               </div>
             </Card>
@@ -419,10 +419,26 @@ function DashboardContent() {
                           <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
                             <Icon className="text-arise-deep-teal" size={24} />
                           </div>
-                          {evaluation.externalLink && evaluation.status !== 'completed' && (
+                          {/* Badges based on assessment type */}
+                          {evaluation.assessmentType === 'MBTI' && evaluation.externalLink && (
                             <span className="inline-block px-3 py-1 border border-arise-deep-teal text-arise-deep-teal text-xs rounded-full font-medium">
-                              Lien externe
+                              External link
                             </span>
+                          )}
+                          {evaluation.assessmentType === 'TKI' && (
+                            <span className="inline-block px-3 py-1 border border-arise-deep-teal text-arise-deep-teal text-xs rounded-full font-medium">
+                              Label
+                            </span>
+                          )}
+                          {evaluation.assessmentType === 'THREE_SIXTY_SELF' && (
+                            <span className="inline-block px-3 py-1 border border-arise-deep-teal text-arise-deep-teal text-xs rounded-full font-medium">
+                              ARISE Platform
+                            </span>
+                          )}
+                          {evaluation.assessmentType === 'WELLNESS' && (
+                            <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center">
+                              <Users className="w-3 h-3 text-gray-600" />
+                            </div>
                           )}
                         </div>
 
@@ -437,7 +453,14 @@ function DashboardContent() {
                         </div>
 
                         {/* Status Badge */}
-                        {getStatusBadge(evaluation.status, evaluation.answerCount, evaluation.totalQuestions)}
+                        {evaluation.status === 'locked' ? (
+                          <div className="flex items-center gap-2">
+                            <Lock className="w-4 h-4 text-gray-400" />
+                            <span className="text-xs text-gray-500">Locked</span>
+                          </div>
+                        ) : (
+                          getStatusBadge(evaluation.status, evaluation.answerCount, evaluation.totalQuestions)
+                        )}
 
                         {/* Action Button */}
                         <div className="mt-auto">
@@ -455,7 +478,7 @@ function DashboardContent() {
           <MotionDiv variant="slideUp" delay={400}>
             <Card 
               className="text-white border-0 relative overflow-hidden"
-              style={{ backgroundColor: 'rgba(10, 58, 64, 0.9)' } as React.CSSProperties}
+              style={{ backgroundColor: '#1B5E6B' } as React.CSSProperties}
             >
               {/* Background Pattern */}
               <div 
@@ -465,23 +488,29 @@ function DashboardContent() {
                 }}
               />
 
-              <div className="relative z-10">
-                <h2 className="text-3xl font-bold mb-4">
-                  Ready to accelerate your growth?
-                </h2>
-                <p className="text-white/90 mb-6 max-w-2xl">
-                  Connect with expert ARISE coaches who specialize in leadership development. 
-                  Schedule your FREE coaching session to debrief your results and build a 
-                  personalized development plan.
-                </p>
-                <Button 
-                  variant="primary" 
-                  className="bg-arise-gold text-arise-deep-teal hover:bg-arise-gold/90 flex items-center gap-2"
-                  onClick={() => router.push('/dashboard/coaching-options')}
-                >
-                  Explore coaching options
-                  <ArrowRight size={20} />
-                </Button>
+              <div className="relative z-10 flex items-center justify-between gap-8">
+                <div className="flex-1">
+                  <h2 className="text-3xl font-bold mb-4">
+                    Ready to accelerate your growth?
+                  </h2>
+                  <p className="text-white/90 mb-6 max-w-2xl">
+                    Connect with expert ARISE coaches who specialize in leadership development. 
+                    Schedule your FREE coaching session to debrief your results and build a 
+                    personalized development plan.
+                  </p>
+                  <Button 
+                    variant="primary" 
+                    className="bg-[#F4B860] text-[#1B5E6B] hover:bg-[#F4B860]/90 flex items-center gap-2 font-semibold"
+                    onClick={() => router.push('/dashboard/coaching-options')}
+                  >
+                    Explore coaching options
+                    <ArrowRight size={20} />
+                  </Button>
+                </div>
+                {/* Image placeholder */}
+                <div className="hidden lg:block flex-shrink-0 w-64 h-64 bg-white/10 rounded-lg flex items-center justify-center">
+                  <span className="text-white/50 text-sm">Image placeholder</span>
+                </div>
               </div>
             </Card>
           </MotionDiv>
