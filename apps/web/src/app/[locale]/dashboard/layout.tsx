@@ -16,10 +16,11 @@ export default function ConditionalDashboardLayout({
 }) {
   const pathname = usePathname();
   
-  // Use custom layout only for the main dashboard page
+  // Use custom layout for dashboard and assessments pages
   const isMainDashboard = pathname === '/dashboard' || pathname === '/fr/dashboard' || pathname === '/en/dashboard';
+  const isAssessments = pathname?.includes('/assessments') && !pathname?.includes('/assessments/');
   
-  if (isMainDashboard) {
+  if (isMainDashboard || isAssessments) {
     return (
       <ProtectedRoute>
         <DashboardCustomLayout>{children}</DashboardCustomLayout>
