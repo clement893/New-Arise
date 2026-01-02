@@ -121,7 +121,19 @@ export default function EvaluatorAssessmentPage() {
   const handleSubmit = async () => {
     try {
       setIsSaving(true);
-      await axios.post(`${API_BASE_URL}/evaluators/by-token/${token}/submit`);
+      
+      // Convert answers to the format expected by the backend
+      const answersPayload = answers.map(answer => ({
+        question_id: answer.question_id,
+        answer_value: answer.score.toString()
+      }));
+      
+      // Submit all answers at once
+      await axios.post(
+        `${API_BASE_URL}/api/v1/assessments/360-evaluator/${token}/submit`,
+        answersPayload
+      );
+      
       setIsSubmitted(true);
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to submit assessment');
