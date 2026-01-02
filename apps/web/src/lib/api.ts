@@ -209,7 +209,8 @@ apiClient.interceptors.response.use(
             } else {
               // Server error during refresh - don't clear tokens or redirect
               // The user might still be authenticated, just the server is having issues
-              logger.warn('Token refresh failed (server error)', refreshError, {
+              logger.warn('Token refresh failed (server error)', {
+                error: refreshError,
                 status: refreshErrorStatus,
                 message: 'Server error during token refresh, not clearing tokens'
               });
