@@ -127,11 +127,7 @@ export default function WellnessResultsPage() {
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-6xl mx-auto p-8">
           {/* Header */}
-          <MotionDiv
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
-          >
+          <MotionDiv variant="slideUp" duration="normal" className="mb-8">
             <Button
               variant="ghost"
               onClick={() => router.push('/dashboard/assessments')}
@@ -158,12 +154,7 @@ export default function WellnessResultsPage() {
           </MotionDiv>
 
           {/* Overall Score */}
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="mb-8"
-          >
+          <MotionDiv variant="slideUp" duration="normal" delay={100} className="mb-8">
             <Card className="bg-gradient-to-r from-teal-50 to-cyan-50 border-teal-200">
               <div className="p-6">
                 <div className="flex items-center justify-between">
@@ -198,12 +189,7 @@ export default function WellnessResultsPage() {
           </MotionDiv>
 
           {/* Bar Chart */}
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mb-8"
-          >
+          <MotionDiv variant="slideUp" duration="normal" delay={200} className="mb-8">
             <Card>
               <div className="p-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Wellness Profile</h2>
@@ -213,12 +199,7 @@ export default function WellnessResultsPage() {
           </MotionDiv>
 
           {/* Insights */}
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="mb-8"
-          >
+          <MotionDiv variant="slideUp" duration="normal" delay={300} className="mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Detailed Insights by Pillar</h2>
             <div className="grid gap-4">
               {Object.entries(pillarScores).map(([pillar, score], index) => {
@@ -228,9 +209,9 @@ export default function WellnessResultsPage() {
                 return (
                   <MotionDiv
                     key={pillar}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 + index * 0.1 }}
+                    variant="slideUp"
+                    duration="fast"
+                    delay={400 + index * 100}
                   >
                     <InsightCard
                       title={`${pillarEmojis[pillar]} ${pillarNames[pillar]}`}
@@ -250,12 +231,7 @@ export default function WellnessResultsPage() {
 
           {/* Recommendations */}
           {recommendations.length > 0 && (
-            <MotionDiv
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9 }}
-              className="mb-8"
-            >
+            <MotionDiv variant="slideUp" duration="normal" delay={900} className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
                 Personalized Recommendations
               </h2>
@@ -263,9 +239,9 @@ export default function WellnessResultsPage() {
                 {recommendations.map((rec: any, index: number) => (
                   <MotionDiv
                     key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 1.0 + index * 0.1 }}
+                    variant="slideUp"
+                    duration="fast"
+                    delay={1000 + index * 100}
                   >
                     <RecommendationCard
                       title={rec.title}
@@ -281,12 +257,7 @@ export default function WellnessResultsPage() {
           )}
 
           {/* Next Steps */}
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.4 }}
-            className="text-center"
-          >
+          <MotionDiv variant="slideUp" duration="normal" delay={1400} className="text-center">
             <Card className="bg-gray-50">
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
