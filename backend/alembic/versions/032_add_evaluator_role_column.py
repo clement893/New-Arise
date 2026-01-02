@@ -93,8 +93,46 @@ def upgrade():
         'started_at': sa.Column('started_at', sa.DateTime(timezone=True), nullable=True),
         'completed_at': sa.Column('completed_at', sa.DateTime(timezone=True), nullable=True),
         'evaluator_assessment_id': sa.Column('evaluator_assessment_id', sa.Integer(), nullable=True),
-        'status': sa.Column('status', sa.Enum('not_started', 'in_progress', 'completed', name='assessmentstatus'), nullable=False, server_default='not_started'),
     }
+    
+    # Check assessmentstatus enum values
+    assessmentstatus_enum_result = conn.execute(sa.text("""
+        SELECT t.typname, e.enumlabel 
+        FROM pg_type t 
+        JOIN pg_enum e ON t.oid = e.enumtypid 
+        WHERE t.typname = 'assessmentstatus'
+        ORDER BY e.enumsortorder;
+    """))
+    assessmentstatus_enum_values = [row[1] for row in assessmentstatus_enum_result.fetchall()]
+    
+    if assessmentstatus_enum_values:
+        print(f"📋 Existing assessmentstatus enum values: {assessmentstatus_enum_values}")
+    else:
+        print("⚠️  assessmentstatus enum does not exist, creating it...")
+        conn.execute(sa.text("""
+            DO $$ BEGIN
+                CREATE TYPE assessmentstatus AS ENUM ('not_started', 'in_progress', 'completed');
+            EXCEPTION
+                WHEN duplicate_object THEN null;
+            END $$;
+        """))
+        assessmentstatus_enum_values = ['not_started', 'in_progress', 'completed']
+        print("✅ Created assessmentstatus enum type")
+    
+    # Add status column separately with proper handling
+    if 'status' not in columns:
+        print("📝 Adding status column...")
+        # Use the first enum value as default (should be 'not_started')
+        default_value = assessmentstatus_enum_values[0] if assessmentstatus_enum_values else 'not_started'
+        # First add the column as nullable
+        op.add_column('assessment_360_evaluators', sa.Column('status', sa.Enum('not_started', 'in_progress', 'completed', name='assessmentstatus'), nullable=True))
+        # Then set default value for existing rows using the actual enum value
+        conn.execute(sa.text(f"UPDATE assessment_360_evaluators SET status = '{default_value}'::assessmentstatus WHERE status IS NULL"))
+        # Finally make it NOT NULL with default
+        op.alter_column('assessment_360_evaluators', 'status', nullable=False, server_default=f"'{default_value}'::assessmentstatus")
+        print(f"✅ Added status column with default '{default_value}'")
+    else:
+        print("✅ status column already exists")
     
     for col_name, col_def in missing_columns.items():
         if col_name not in columns:
