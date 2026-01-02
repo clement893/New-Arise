@@ -765,9 +765,9 @@ export default function AdminAssessmentManagementPage() {
                               Questions associées:
                             </p>
                             <div className="flex flex-wrap gap-2">
-                              {pillar.questions.map((qId: string) => (
+                              {pillar.questions?.map((qId: string) => (
                                 <Badge key={qId} variant="default">{qId}</Badge>
-                              ))}
+                              )) || <span className="text-sm text-gray-500 dark:text-gray-400">Aucune question associée</span>}
                             </div>
                           </div>
                         </Card>
