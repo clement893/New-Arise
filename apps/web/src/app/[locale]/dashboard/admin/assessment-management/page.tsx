@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { wellnessQuestions } from '@/data/wellnessQuestionsReal';
-import { tkiQuestions, type TKIQuestion } from '@/data/tkiQuestions';
+import { tkiQuestions } from '@/data/tkiQuestions';
 import { feedback360Questions, feedback360Capabilities, type Feedback360Question } from '@/data/feedback360Questions';
 
 type TabType = 'assessments' | 'questions' | 'rules';
