@@ -112,39 +112,74 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
       // This handles the case where Zustand persist hasn't hydrated yet but token exists
       let fetchedUser = currentUser;
       if (hasToken && !hasUser && typeof window !== 'undefined') {
-        try {
-          const { usersAPI } = await import('@/lib/api');
-          const { transformApiUserToStoreUser } = await import('@/lib/auth/userTransform');
-          const response = await usersAPI.getMe();
-          if (response.data) {
-            const userForStore = transformApiUserToStoreUser(response.data);
-            setUser(userForStore);
-            // Update refs to reflect the new user
-            lastUserRef.current = userForStore;
-            fetchedUser = userForStore;
-          }
-        } catch (err: unknown) {
-          // If fetching user fails, log but don't block - might be network issue
-          const statusCode = getErrorStatus(err);
-          if (process.env.NODE_ENV === 'development') {
-            logger.debug('Failed to fetch user in ProtectedRoute', {
-              error: err instanceof Error ? err.message : String(err),
-              statusCode
-            });
-          }
-          // Only fail if it's an auth error (401/403), not server errors (500)
-          if (statusCode === 401 || statusCode === 403) {
-            // Token is invalid, clear it and redirect
-            if (typeof window !== 'undefined') {
-              TokenStorage.removeTokens();
+        // Wait a bit for store to hydrate after login (prevent race condition)
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Re-check user after delay (store might have hydrated)
+        const { user: userAfterDelay } = useAuthStore.getState();
+        if (userAfterDelay) {
+          fetchedUser = userAfterDelay;
+          lastUserRef.current = userAfterDelay;
+        } else {
+          try {
+            const { usersAPI } = await import('@/lib/api');
+            const { transformApiUserToStoreUser } = await import('@/lib/auth/userTransform');
+            const response = await usersAPI.getMe();
+            if (response.data) {
+              const userForStore = transformApiUserToStoreUser(response.data);
+              setUser(userForStore);
+              // Update refs to reflect the new user
+              lastUserRef.current = userForStore;
+              fetchedUser = userForStore;
             }
-            checkingRef.current = false;
-            setIsChecking(false);
-            setIsAuthorized(false);
-            router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}`);
-            return;
+          } catch (err: unknown) {
+            // If fetching user fails, log but don't block - might be network issue
+            const statusCode = getErrorStatus(err);
+            if (process.env.NODE_ENV === 'development') {
+              logger.debug('Failed to fetch user in ProtectedRoute', {
+                error: err instanceof Error ? err.message : String(err),
+                statusCode
+              });
+            }
+            // Only fail if it's an auth error (401/403), not server errors (500)
+            // But check if we just logged in (token exists but user not yet in store)
+            // In that case, wait a bit more before redirecting
+            if (statusCode === 401 || statusCode === 403) {
+              // Check if this might be a timing issue after login
+              const tokenStillExists = TokenStorage.getToken();
+              if (tokenStillExists) {
+                // Token still exists, might be a timing issue - wait a bit more
+                await new Promise(resolve => setTimeout(resolve, 200));
+                const { user: userAfterWait } = useAuthStore.getState();
+                if (userAfterWait) {
+                  // User appeared, continue
+                  fetchedUser = userAfterWait;
+                  lastUserRef.current = userAfterWait;
+                } else {
+                  // Still no user, token is likely invalid
+                  if (typeof window !== 'undefined') {
+                    TokenStorage.removeTokens();
+                  }
+                  checkingRef.current = false;
+                  setIsChecking(false);
+                  setIsAuthorized(false);
+                  router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}`);
+                  return;
+                }
+              } else {
+                // Token is invalid, clear it and redirect
+                if (typeof window !== 'undefined') {
+                  TokenStorage.removeTokens();
+                }
+                checkingRef.current = false;
+                setIsChecking(false);
+                setIsAuthorized(false);
+                router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}`);
+                return;
+              }
+            }
+            // For other errors (500, network, etc.), continue with token check
           }
-          // For other errors (500, network, etc.), continue with token check
         }
       }
       

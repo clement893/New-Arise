@@ -77,8 +77,24 @@ function LoginContent() {
       // CRITICAL: Wait for token storage to complete before redirecting
       await login(userForStore, access_token, refresh_token);
       
-      // Small delay to ensure token is available in sessionStorage for ProtectedRoute
-      await new Promise(resolve => setTimeout(resolve, 50));
+      // Verify token is stored correctly
+      const storedToken = TokenStorage.getToken();
+      const storedRefreshToken = TokenStorage.getRefreshToken();
+      
+      if (!storedToken || storedToken !== access_token) {
+        // Token not stored correctly, retry
+        await TokenStorage.setToken(access_token, refresh_token);
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      
+      // Ensure refresh token is also stored
+      if (refresh_token && !storedRefreshToken) {
+        await TokenStorage.setToken(access_token, refresh_token);
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      
+      // Longer delay to ensure store is hydrated and token is available for ProtectedRoute
+      await new Promise(resolve => setTimeout(resolve, 200));
       
       router.push('/dashboard'); // Will automatically use current locale
     } catch (err) {
