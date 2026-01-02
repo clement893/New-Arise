@@ -1,24 +1,23 @@
 'use client';
 
 /**
- * TKI Assessment Results Page (Improved)
- * Displays TKI results with radar chart, insights, and recommendations
+ * Wellness Assessment Results Page
+ * Displays wellness results with bar chart, insights, and recommendations
  */
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getAssessmentResults, AssessmentResult } from '@/lib/api/assessments';
-import { tkiModes } from '@/data/tkiQuestions';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { Sidebar } from '@/components/dashboard/Sidebar';
 import MotionDiv from '@/components/motion/MotionDiv';
-import TKIRadarChart from '@/components/assessments/charts/TKIRadarChart';
+import WellnessBarChart from '@/components/assessments/charts/WellnessBarChart';
 import InsightCard from '@/components/assessments/InsightCard';
 import RecommendationCard from '@/components/assessments/RecommendationCard';
-import { ArrowLeft, Download } from 'lucide-react';
+import { ArrowLeft, Download, Heart } from 'lucide-react';
 
-export default function TKIResultsPage() {
+export default function WellnessResultsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const assessmentId = searchParams.get('id');
@@ -48,15 +47,30 @@ export default function TKIResultsPage() {
     }
   };
 
-  const getModeInfo = (modeId: string) => {
-    return tkiModes.find(m => m.id === modeId);
+  const getPillarLevel = (score: number): 'low' | 'moderate' | 'high' | 'very_high' => {
+    const percentage = (score / 25) * 100;
+    if (percentage >= 80) return 'very_high';
+    if (percentage >= 60) return 'high';
+    if (percentage >= 40) return 'moderate';
+    return 'low';
   };
 
-  const getModeLevel = (count: number): 'low' | 'moderate' | 'high' => {
-    const percentage = Math.round((count / 12) * 100);
-    if (percentage >= 66) return 'high';
-    if (percentage >= 33) return 'moderate';
-    return 'low';
+  const pillarNames: Record<string, string> = {
+    sleep: 'Sleep',
+    nutrition: 'Nutrition',
+    hydration: 'Hydration',
+    movement: 'Movement',
+    stress_management: 'Stress Management',
+    social_connection: 'Social Connection',
+  };
+
+  const pillarEmojis: Record<string, string> = {
+    sleep: '😴',
+    nutrition: '🥗',
+    hydration: '💧',
+    movement: '🏃',
+    stress_management: '🧘',
+    social_connection: '🤝',
   };
 
   if (isLoading) {
@@ -91,15 +105,18 @@ export default function TKIResultsPage() {
     );
   }
 
-  const modeScores = results.scores.mode_scores || {};
+  const pillarScores = results.scores.pillar_scores || {};
+  const totalScore = results.scores.total_score || 0;
+  const maxScore = results.scores.max_score || 150;
+  const percentage = results.scores.percentage || 0;
   const insights = results.insights || {};
   const recommendations = results.recommendations || [];
 
-  // Find dominant mode
-  const sortedModes = Object.entries(modeScores)
+  // Find strongest and weakest pillars
+  const sortedPillars = Object.entries(pillarScores)
     .sort(([, a], [, b]) => (b as number) - (a as number));
-  const dominantMode = sortedModes[0]?.[0] || '';
-  const dominantModeInfo = getModeInfo(dominantMode);
+  const strongestPillar = sortedPillars[0]?.[0] || '';
+  const weakestPillar = sortedPillars[sortedPillars.length - 1]?.[0] || '';
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -125,10 +142,10 @@ export default function TKIResultsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  Your TKI Conflict Style Results
+                  Your Wellness Assessment Results
                 </h1>
                 <p className="text-gray-600">
-                  Understanding how you approach conflict situations
+                  A comprehensive view of your well-being across 6 key pillars
                 </p>
               </div>
               <Button variant="outline">
@@ -138,7 +155,7 @@ export default function TKIResultsPage() {
             </div>
           </MotionDiv>
 
-          {/* Dominant Mode Summary */}
+          {/* Overall Score */}
           <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -147,17 +164,34 @@ export default function TKIResultsPage() {
           >
             <Card className="bg-gradient-to-r from-teal-50 to-cyan-50 border-teal-200">
               <div className="p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                  Your Dominant Conflict Mode
-                </h2>
-                <div className="flex items-center gap-4">
-                  <div className="text-5xl">{dominantModeInfo?.emoji}</div>
+                <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-2xl font-bold text-teal-700">
-                      {dominantModeInfo?.name}
-                    </h3>
-                    <p className="text-gray-700 mt-1">
-                      {dominantModeInfo?.description}
+                    <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                      Overall Wellness Score
+                    </h2>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-5xl font-bold text-teal-700">
+                        {totalScore}
+                      </span>
+                      <span className="text-2xl text-gray-600">/ {maxScore}</span>
+                      <span className="text-xl text-teal-600 ml-4">
+                        ({percentage.toFixed(1)}%)
+                      </span>
+                    </div>
+                  </div>
+                  <Heart className="w-16 h-16 text-teal-600" />
+                </div>
+                <div className="mt-4 flex gap-4">
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-600 mb-1">Strongest Pillar</p>
+                    <p className="font-semibold text-gray-900">
+                      {pillarEmojis[strongestPillar]} {pillarNames[strongestPillar]}
+                    </p>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-600 mb-1">Area for Growth</p>
+                    <p className="font-semibold text-gray-900">
+                      {pillarEmojis[weakestPillar]} {pillarNames[weakestPillar]}
                     </p>
                   </div>
                 </div>
@@ -165,7 +199,7 @@ export default function TKIResultsPage() {
             </Card>
           </MotionDiv>
 
-          {/* Radar Chart */}
+          {/* Bar Chart */}
           <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -175,9 +209,9 @@ export default function TKIResultsPage() {
             <Card>
               <div className="p-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Your Conflict Mode Profile
+                  Your Wellness Profile
                 </h2>
-                <TKIRadarChart scores={modeScores} />
+                <WellnessBarChart scores={pillarScores} />
               </div>
             </Card>
           </MotionDiv>
@@ -190,27 +224,26 @@ export default function TKIResultsPage() {
             className="mb-8"
           >
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Detailed Insights
+              Detailed Insights by Pillar
             </h2>
             <div className="grid gap-4">
-              {Object.entries(modeScores).map(([mode, score], index) => {
-                const modeInfo = getModeInfo(mode);
-                const level = getModeLevel(score as number);
-                const insight = insights[mode];
+              {Object.entries(pillarScores).map(([pillar, score], index) => {
+                const level = getPillarLevel(score as number);
+                const insight = insights[pillar];
 
                 return (
                   <MotionDiv
-                    key={mode}
+                    key={pillar}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.4 + index * 0.1 }}
                   >
                     <InsightCard
-                      title={modeInfo?.name || mode}
+                      title={`${pillarEmojis[pillar]} ${pillarNames[pillar]}`}
                       level={level}
                       score={score as number}
-                      maxScore={12}
-                      description={insight?.description || modeInfo?.description || ''}
+                      maxScore={25}
+                      description={insight?.description || `Your ${pillarNames[pillar].toLowerCase()} score indicates ${level} performance in this area.`}
                     />
                   </MotionDiv>
                 );
@@ -223,7 +256,7 @@ export default function TKIResultsPage() {
             <MotionDiv
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
+              transition={{ delay: 0.9 }}
               className="mb-8"
             >
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
@@ -235,7 +268,7 @@ export default function TKIResultsPage() {
                     key={index}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.9 + index * 0.1 }}
+                    transition={{ delay: 1.0 + index * 0.1 }}
                   >
                     <RecommendationCard
                       title={rec.title}
@@ -254,20 +287,20 @@ export default function TKIResultsPage() {
           <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.2 }}
+            transition={{ delay: 1.4 }}
             className="text-center"
           >
             <Card className="bg-gray-50">
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Ready to explore more?
+                  Continue Your Leadership Journey
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  Continue your leadership development journey with our other assessments
+                  Explore other assessments to gain deeper insights into your leadership style
                 </p>
                 <div className="flex gap-4 justify-center">
-                  <Button onClick={() => router.push('/dashboard/assessments/wellness')}>
-                    Take Wellness Assessment
+                  <Button onClick={() => router.push('/dashboard/assessments/tki')}>
+                    Take TKI Assessment
                   </Button>
                   <Button
                     variant="outline"
