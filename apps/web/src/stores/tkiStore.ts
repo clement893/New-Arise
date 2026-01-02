@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { startAssessment, saveAnswer, submitAssessment, saveResponse } from '@/lib/api/assessments';
+import { startAssessment, submitAssessment, saveResponse } from '@/lib/api/assessments';
 import axios from 'axios';
 
 // Helper function to extract error message from various error formats
