@@ -153,11 +153,12 @@ function AssessmentsContent() {
           }
           
           // Check status (backend returns: "completed", "in_progress", "not_started")
-          if (normalizedStatus === 'completed' || rawStatus === 'COMPLETED' || rawStatus === 'completed') {
+          // Handle multiple possible formats
+          const statusLower = rawStatus.toLowerCase();
+          if (statusLower === 'completed' || rawStatus === 'COMPLETED') {
             status = 'completed';
-          } else if (normalizedStatus === 'in_progress' || normalizedStatus === 'not_started' || 
-                     rawStatus === 'IN_PROGRESS' || rawStatus === 'NOT_STARTED' ||
-                     rawStatus === 'in_progress' || rawStatus === 'not_started') {
+          } else if (statusLower === 'in_progress' || statusLower === 'not_started' || 
+                     rawStatus === 'IN_PROGRESS' || rawStatus === 'NOT_STARTED') {
             status = 'in-progress';
           } else {
             // If status is unknown but assessment exists, check if it has all answers
