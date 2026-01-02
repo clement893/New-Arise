@@ -130,7 +130,10 @@ const config: Config = {
         // ARISE Brand Colors - Now using CSS variables from theme system with fallback
         arise: {
           'deep-teal': 'var(--color-arise-deep-teal, #0A3A40)',
+          'deep-teal-alt': 'var(--color-arise-deep-teal-alt, #1B5E6B)', // Alternative deep teal used in dashboard
           'gold': 'var(--color-arise-gold, #D4AF37)',
+          'gold-alt': 'var(--color-arise-gold-alt, #F4B860)', // Alternative gold used in buttons
+          'dark-gray': 'var(--color-arise-dark-gray, #2e2e2e)', // Dark gray for backgrounds
           'light-beige': 'var(--color-arise-light-beige, #F5F5DC)',
           'beige': 'var(--color-arise-beige, #E9E4D4)',
           'text-dark': 'var(--color-arise-text-dark, #1a202c)',

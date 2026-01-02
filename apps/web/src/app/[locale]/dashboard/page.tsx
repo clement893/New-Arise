@@ -271,7 +271,7 @@ function DashboardContent() {
     return (
       <Button 
         variant="primary" 
-        className="w-full bg-[#F4B860] text-[#1B5E6B] hover:bg-[#F4B860]/90 font-semibold"
+        className="w-full bg-arise-gold-alt text-arise-deep-teal-alt hover:bg-arise-gold-alt/90 font-semibold"
         onClick={() => {
           router.push(`/dashboard/assessments/${getAssessmentRoute(evaluation.assessmentType)}`);
         }}
@@ -325,7 +325,7 @@ function DashboardContent() {
                 </div>
                 <Button 
                   variant="primary" 
-                  className="whitespace-nowrap bg-[#F4B860] text-[#1B5E6B] hover:bg-[#F4B860]/90 font-semibold"
+                  className="whitespace-nowrap bg-arise-gold-alt text-arise-deep-teal-alt hover:bg-arise-gold-alt/90 font-semibold"
                   onClick={() => {
                     // Check if a 360° feedback assessment already exists
                     const feedback360Assessment = assessments.find(
@@ -350,8 +350,7 @@ function DashboardContent() {
           {/* Progress Section */}
           <MotionDiv variant="slideUp" delay={200}>
             <Card 
-              className="mb-8 text-white border-0"
-              style={{ backgroundColor: '#2e2e2e' } as React.CSSProperties}
+              className="mb-8 text-white border-0 bg-arise-dark-gray"
             >
               <div className="flex justify-between items-start mb-6 gap-8">
                 <div className="flex-1">
@@ -385,7 +384,7 @@ function DashboardContent() {
               <div className="flex gap-4">
                 <Button 
                   variant="primary" 
-                  className="bg-[#F4B860] text-[#1B5E6B] hover:bg-[#F4B860]/90 font-semibold"
+                  className="bg-arise-gold-alt text-arise-deep-teal-alt hover:bg-arise-gold-alt/90 font-semibold"
                   onClick={() => router.push('/dashboard/assessments')}
                 >
                   Continue Learning
@@ -477,8 +476,7 @@ function DashboardContent() {
           {/* Coaching Section */}
           <MotionDiv variant="slideUp" delay={400}>
             <Card 
-              className="text-white border-0 relative overflow-hidden"
-              style={{ backgroundColor: '#2e2e2e' } as React.CSSProperties}
+              className="text-white border-0 relative overflow-hidden bg-arise-dark-gray"
             >
               {/* Background Pattern */}
               <div 
@@ -500,7 +498,7 @@ function DashboardContent() {
                   </p>
                   <Button 
                     variant="primary" 
-                    className="bg-[#F4B860] text-[#1B5E6B] hover:bg-[#F4B860]/90 flex items-center gap-2 font-semibold"
+                    className="bg-arise-gold-alt text-arise-deep-teal-alt hover:bg-arise-gold-alt/90 flex items-center gap-2 font-semibold"
                     onClick={() => router.push('/dashboard/coaching-options')}
                   >
                     Explore coaching options

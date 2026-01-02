@@ -262,14 +262,20 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
     // Apply ARISE brand colors from theme config
     // These use exact design colors by default, but can be customized via theme system
     const ariseDeepTeal = (colorsConfig as any).ariseDeepTeal || '#0A3A40';
+    const ariseDeepTealAlt = (colorsConfig as any).ariseDeepTealAlt || '#1B5E6B';
     const ariseGold = (colorsConfig as any).ariseGold || '#D4AF37';
+    const ariseGoldAlt = (colorsConfig as any).ariseGoldAlt || '#F4B860';
+    const ariseDarkGray = (colorsConfig as any).ariseDarkGray || '#2e2e2e';
     const ariseLightBeige = (colorsConfig as any).ariseLightBeige || '#F5F5DC';
     const ariseBeige = (colorsConfig as any).ariseBeige || '#E9E4D4';
     const ariseTextDark = (colorsConfig as any).ariseTextDark || '#1a202c';
     const ariseTextLight = (colorsConfig as any).ariseTextLight || '#ffffff';
     
     root.style.setProperty('--color-arise-deep-teal', ariseDeepTeal);
+    root.style.setProperty('--color-arise-deep-teal-alt', ariseDeepTealAlt);
     root.style.setProperty('--color-arise-gold', ariseGold);
+    root.style.setProperty('--color-arise-gold-alt', ariseGoldAlt);
+    root.style.setProperty('--color-arise-dark-gray', ariseDarkGray);
     root.style.setProperty('--color-arise-light-beige', ariseLightBeige);
     root.style.setProperty('--color-arise-beige', ariseBeige);
     root.style.setProperty('--color-arise-text-dark', ariseTextDark);

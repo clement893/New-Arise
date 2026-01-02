@@ -77,7 +77,10 @@ export const DEFAULT_THEME_CONFIG = {
     warningForeground: "#ffffff",  // White for better contrast on amber
     // ARISE Brand Colors - Design system colors
     ariseDeepTeal: "#0A3A40",  // ARISE deep teal (exact design color)
+    ariseDeepTealAlt: "#1B5E6B",  // ARISE deep teal alternative (used in dashboard)
     ariseGold: "#D4AF37",  // ARISE gold (exact design color)
+    ariseGoldAlt: "#F4B860",  // ARISE gold alternative (used in buttons)
+    ariseDarkGray: "#2e2e2e",  // ARISE dark gray (used for backgrounds)
     ariseLightBeige: "#F5F5DC",  // ARISE light beige
     ariseBeige: "#E9E4D4",  // ARISE beige
     ariseTextDark: "#1a202c",  // ARISE text dark

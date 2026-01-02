@@ -49,6 +49,18 @@ export const colors = {
     base: 'var(--color-warning, #f59e0b)',
     foreground: 'var(--color-warning-foreground, #000000)',
   },
+  // ARISE Brand Colors
+  arise: {
+    deepTeal: 'var(--color-arise-deep-teal, #0A3A40)',
+    deepTealAlt: 'var(--color-arise-deep-teal-alt, #1B5E6B)',
+    gold: 'var(--color-arise-gold, #D4AF37)',
+    goldAlt: 'var(--color-arise-gold-alt, #F4B860)',
+    darkGray: 'var(--color-arise-dark-gray, #2e2e2e)',
+    lightBeige: 'var(--color-arise-light-beige, #F5F5DC)',
+    beige: 'var(--color-arise-beige, #E9E4D4)',
+    textDark: 'var(--color-arise-text-dark, #1a202c)',
+    textLight: 'var(--color-arise-text-light, #ffffff)',
+  },
 } as const;
 
 /**

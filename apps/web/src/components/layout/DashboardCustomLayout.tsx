@@ -52,8 +52,8 @@ export default function DashboardCustomLayout({ children }: DashboardCustomLayou
 
   return (
     <div className="flex h-screen">
-      {/* Sidebar - 280px, teal foncé (#1B5E6B) */}
-      <aside className="w-[280px] bg-[#1B5E6B] flex flex-col text-white">
+      {/* Sidebar - 280px, teal foncé */}
+      <aside className="w-[280px] bg-arise-deep-teal-alt flex flex-col text-white">
         {/* Logo and User Profile Section */}
         <div className="p-6 border-b border-white/20">
           {/* Logo placeholder - stylized flame/6 */}

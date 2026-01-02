@@ -57,7 +57,7 @@ export default function ProfilePage() {
             className={clsx(
               'px-6 py-3 rounded-t-lg font-semibold transition-colors',
               activeTab === 'profile'
-                ? 'bg-white text-[#1B5E6B]'
+                ? 'bg-white text-arise-deep-teal-alt'
                 : 'bg-[#2B8A9E] text-white/80 hover:text-white'
             )}
           >
@@ -68,7 +68,7 @@ export default function ProfilePage() {
             className={clsx(
               'px-6 py-3 rounded-t-lg font-semibold transition-colors',
               activeTab === 'subscription'
-                ? 'bg-white text-[#1B5E6B]'
+                ? 'bg-white text-arise-deep-teal-alt'
                 : 'bg-[#2B8A9E] text-white/80 hover:text-white'
             )}
           >
@@ -94,7 +94,7 @@ export default function ProfilePage() {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-gray-900">{user?.name || 'John Doe'}</h3>
-                <span className="inline-block px-3 py-1 bg-[#1B5E6B]/10 text-[#1B5E6B] rounded-full text-xs font-medium mt-1">
+                <span className="inline-block px-3 py-1 bg-arise-deep-teal-alt/10 text-arise-deep-teal-alt rounded-full text-xs font-medium mt-1">
                   Revelation plan
                 </span>
               </div>
@@ -175,7 +175,7 @@ export default function ProfilePage() {
                       value="male"
                       checked={formData.gender === 'male'}
                       onChange={handleInputChange}
-                      className="w-4 h-4 text-[#1B5E6B] focus:ring-[#1B5E6B]"
+                      className="w-4 h-4 text-arise-deep-teal-alt focus:ring-arise-deep-teal-alt"
                     />
                     <span className="text-gray-700">Male</span>
                   </label>
@@ -186,7 +186,7 @@ export default function ProfilePage() {
                       value="female"
                       checked={formData.gender === 'female'}
                       onChange={handleInputChange}
-                      className="w-4 h-4 text-[#1B5E6B] focus:ring-[#1B5E6B]"
+                      className="w-4 h-4 text-arise-deep-teal-alt focus:ring-arise-deep-teal-alt"
                     />
                     <span className="text-gray-700">Female</span>
                   </label>
@@ -217,7 +217,7 @@ export default function ProfilePage() {
                   name="highestDegree"
                   value={formData.highestDegree}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1B5E6B] focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-arise-deep-teal-alt focus:border-transparent"
                 >
                   <option value="">Choice</option>
                   <option value="high_school">High School</option>
@@ -236,7 +236,7 @@ export default function ProfilePage() {
                   name="mainGoal"
                   value={formData.mainGoal}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1B5E6B] focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-arise-deep-teal-alt focus:border-transparent"
                 >
                   <option value="">Choice</option>
                   <option value="improve_leadership">Improve Leadership Skills</option>
@@ -254,7 +254,7 @@ export default function ProfilePage() {
                     name="workedWithCoach"
                     checked={formData.workedWithCoach}
                     onChange={handleInputChange}
-                    className="w-4 h-4 text-[#1B5E6B] focus:ring-[#1B5E6B] rounded"
+                    className="w-4 h-4 text-arise-deep-teal-alt focus:ring-arise-deep-teal-alt rounded"
                   />
                   <span className="text-gray-700">Have you ever worked with a leadership coach?</span>
                 </label>
@@ -297,7 +297,7 @@ export default function ProfilePage() {
           <div className="flex justify-end">
             <Button
               onClick={handleSave}
-              className="bg-[#F4B860] text-[#1B5E6B] hover:bg-[#F4B860]/90 font-semibold px-8 py-3"
+              className="bg-arise-gold-alt text-arise-deep-teal-alt hover:bg-arise-gold-alt/90 font-semibold px-8 py-3"
             >
               Save
             </Button>
@@ -317,16 +317,16 @@ export default function ProfilePage() {
                   REVELATION: Complete profile assessment - Expires on 11/19/2024
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  <span className="px-3 py-1 bg-[#F4B860]/30 text-[#1B5E6B] rounded-full text-xs font-medium">
+                  <span className="px-3 py-1 bg-arise-gold-alt/30 text-arise-deep-teal-alt rounded-full text-xs font-medium">
                     Professional
                   </span>
-                  <span className="px-3 py-1 bg-[#F4B860]/30 text-[#1B5E6B] rounded-full text-xs font-medium">
+                  <span className="px-3 py-1 bg-arise-gold-alt/30 text-arise-deep-teal-alt rounded-full text-xs font-medium">
                     360 feedback
                   </span>
-                  <span className="px-3 py-1 bg-[#F4B860]/30 text-[#1B5E6B] rounded-full text-xs font-medium">
+                  <span className="px-3 py-1 bg-arise-gold-alt/30 text-arise-deep-teal-alt rounded-full text-xs font-medium">
                     Wellness Pulse
                   </span>
-                  <span className="px-3 py-1 bg-[#F4B860]/30 text-[#1B5E6B] rounded-full text-xs font-medium">
+                  <span className="px-3 py-1 bg-arise-gold-alt/30 text-arise-deep-teal-alt rounded-full text-xs font-medium">
                     Executive summary
                   </span>
                 </div>
@@ -360,7 +360,7 @@ export default function ProfilePage() {
           {/* Ready to accelerate your growth? Card */}
           <Card 
             className="p-8 text-white border-0 relative overflow-hidden"
-            style={{ backgroundColor: '#2e2e2e' } as React.CSSProperties}
+            className="bg-arise-dark-gray"
           >
             <div className="flex items-center justify-between gap-8">
               <div className="flex-1">
@@ -371,7 +371,7 @@ export default function ProfilePage() {
                   personalized development plan.
                 </p>
                 <Button 
-                  className="bg-[#F4B860] text-[#1B5E6B] hover:bg-[#F4B860]/90 flex items-center gap-2 font-semibold"
+                  className="bg-arise-gold-alt text-arise-deep-teal-alt hover:bg-arise-gold-alt/90 flex items-center gap-2 font-semibold"
                   onClick={() => router.push('/dashboard/coaching-options')}
                 >
                   Explore coaching options
