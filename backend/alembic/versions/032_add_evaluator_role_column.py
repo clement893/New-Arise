@@ -138,18 +138,79 @@ def upgrade():
     else:
         print("✅ evaluator_role column already exists")
     
-    # Add invitation_token column if missing
-    if 'invitation_token' not in columns:
+    # Add invitation_token column - force check and recreate if needed
+    check_token_result = conn.execute(sa.text("""
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'assessment_360_evaluators' 
+        AND column_name = 'invitation_token'
+    """))
+    token_column_exists_in_db = check_token_result.fetchone() is not None
+    
+    if 'invitation_token' not in columns or not token_column_exists_in_db:
         print("📝 Adding invitation_token column...")
-        op.add_column(
-            'assessment_360_evaluators',
-            sa.Column('invitation_token', sa.String(length=100), nullable=False, server_default='')
-        )
+        # ALWAYS drop and recreate to ensure clean state
+        if token_column_exists_in_db:
+            print("⚠️  invitation_token column exists in DB but may not be visible to asyncpg, dropping and recreating...")
+            try:
+                # Drop constraints and index first
+                conn.execute(sa.text("""
+                    DROP INDEX IF EXISTS idx_360_evaluators_token;
+                    ALTER TABLE assessment_360_evaluators 
+                    DROP CONSTRAINT IF EXISTS uq_assessment_360_evaluators_invitation_token;
+                    ALTER TABLE assessment_360_evaluators 
+                    DROP COLUMN IF EXISTS invitation_token CASCADE;
+                """))
+                print("✅ Dropped existing invitation_token column and constraints")
+            except Exception as e:
+                print(f"⚠️  Could not drop column (may not exist): {e}")
+        
+        # Add column using raw SQL
+        conn.execute(sa.text("""
+            ALTER TABLE assessment_360_evaluators 
+            ADD COLUMN invitation_token VARCHAR(100) NOT NULL DEFAULT ''
+        """))
+        print("✅ Added invitation_token column")
+        
         # Add unique constraint
-        op.create_unique_constraint('uq_assessment_360_evaluators_invitation_token', 'assessment_360_evaluators', ['invitation_token'])
+        conn.execute(sa.text("""
+            ALTER TABLE assessment_360_evaluators 
+            ADD CONSTRAINT uq_assessment_360_evaluators_invitation_token 
+            UNIQUE (invitation_token)
+        """))
+        print("✅ Added unique constraint for invitation_token")
+        
         # Add index
-        op.create_index('idx_360_evaluators_token', 'assessment_360_evaluators', ['invitation_token'])
-        print("✅ Added invitation_token column with unique constraint and index")
+        conn.execute(sa.text("""
+            CREATE INDEX idx_360_evaluators_token 
+            ON assessment_360_evaluators (invitation_token)
+        """))
+        print("✅ Added index for invitation_token")
+        
+        # Force commit
+        conn.commit()
+        print("✅ Committed invitation_token column addition")
+        
+        # Verify column was added
+        verify_token_result = conn.execute(sa.text("""
+            SELECT column_name, data_type, character_maximum_length, is_nullable, column_default
+            FROM information_schema.columns 
+            WHERE table_name = 'assessment_360_evaluators' 
+            AND column_name = 'invitation_token'
+        """))
+        verify_token_row = verify_token_result.fetchone()
+        if verify_token_row:
+            print(f"✅ Verified invitation_token column exists: {verify_token_row}")
+        else:
+            print("❌ ERROR: invitation_token column was not added successfully!")
+            raise Exception("Failed to add invitation_token column")
+        
+        # Force PostgreSQL to notify all connections about schema change
+        try:
+            conn.execute(sa.text("NOTIFY schema_change, 'invitation_token_added'"))
+            print("✅ Sent NOTIFY to force schema cache reload for invitation_token")
+        except Exception as e:
+            print(f"⚠️  Could not send NOTIFY (non-critical): {e}")
     else:
         print("✅ invitation_token column already exists")
     
