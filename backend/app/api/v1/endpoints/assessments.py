@@ -661,7 +661,7 @@ async def start_360_feedback(
                              invitation_sent_at, invitation_opened_at, started_at, completed_at, status, evaluator_assessment_id)
                             VALUES
                             (:assessment_id, :evaluator_name, :evaluator_email, UPPER(:evaluator_role)::evaluatorrole, :invitation_token,
-                             NULL, NULL, NULL, NULL, 'not_started'::assessmentstatus, NULL)
+                             NULL, NULL, NULL, NULL, 'NOT_STARTED'::assessmentstatus, NULL)
                             RETURNING id, created_at, updated_at
                         """),
                         {
