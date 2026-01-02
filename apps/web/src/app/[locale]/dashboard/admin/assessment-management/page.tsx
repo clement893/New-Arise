@@ -492,7 +492,7 @@ export default function AdminAssessmentManagementPage() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => handleEditQuestion(question)}
+                        onClick={() => handleEditQuestion({ ...question, text: question.question } as Question)}
                         title="Modifier"
                       >
                         <Edit className="w-4 h-4" />
@@ -573,7 +573,7 @@ export default function AdminAssessmentManagementPage() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => handleEditQuestion(question)}
+                          onClick={() => handleEditQuestion({ ...question, text: question.text } as Question)}
                           title="Modifier"
                         >
                           <Edit className="w-4 h-4" />
