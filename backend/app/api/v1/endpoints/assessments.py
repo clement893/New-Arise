@@ -624,41 +624,13 @@ async def start_360_feedback(
                 logger.warning(f"Skipping invalid evaluator: name={evaluator_data.name}, email={evaluator_data.email}")
                 continue
             
-            # Generate unique token (with retry logic to avoid collisions)
-            max_retries = 5
-            invitation_token = None
-            try:
-                for attempt in range(max_retries):
-                    candidate_token = secrets.token_urlsafe(32)
-                    # Check if token already exists in database (only check ID to avoid column issues)
-                    try:
-                        existing_token_result = await db.execute(
-                            select(Assessment360Evaluator.id).where(
-                                Assessment360Evaluator.invitation_token == candidate_token
-                            )
-                        )
-                        if existing_token_result.scalar_one_or_none() is None:
-                            invitation_token = candidate_token
-                            break
-                        logger.warning(f"Token collision detected (attempt {attempt + 1}/{max_retries}), generating new token")
-                    except Exception as token_check_error:
-                        logger.error(f"Error checking token uniqueness: {token_check_error}", exc_info=True)
-                        # If check fails, use the token anyway (very unlikely collision)
-                        # The probability of collision with token_urlsafe(32) is extremely low
-                        invitation_token = candidate_token
-                        break
-            except Exception as token_gen_error:
-                logger.error(f"Error generating invitation token: {token_gen_error}", exc_info=True)
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail=f"Failed to generate invitation token: {str(token_gen_error)}"
-                )
-            
-            if not invitation_token:
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail="Failed to generate unique invitation token after multiple attempts"
-                )
+            # Generate unique token
+            # Note: We don't check for uniqueness before insert because:
+            # 1. The probability of collision with token_urlsafe(32) is extremely low (1 in 2^256)
+            # 2. The database has a unique constraint that will catch any collision
+            # 3. Checking before insert can fail if the schema cache is stale
+            # If a collision occurs, we'll handle it in the commit error handling
+            invitation_token = secrets.token_urlsafe(32)
             
             # Validate role
             try:
@@ -745,10 +717,12 @@ async def start_360_feedback(
                 exc_info=True
             )
             # Extract more details from IntegrityError
-            if "invitation_token" in error_message.lower() or "unique" in error_message.lower():
-                detail_msg = "An evaluator with this invitation token already exists. Please try again."
+            if "invitation_token" in error_message.lower() or "unique" in error_message.lower() or "duplicate" in error_message.lower():
+                detail_msg = "A token collision occurred (extremely rare). Please try again - a new token will be generated."
             elif "foreign key" in error_message.lower():
                 detail_msg = "Invalid assessment reference. Please try again."
+            elif "not null" in error_message.lower() or "null value" in error_message.lower():
+                detail_msg = "Missing required field. Please ensure all evaluator information is provided."
             else:
                 detail_msg = f"Database integrity constraint violation: {error_message}"
             raise HTTPException(
