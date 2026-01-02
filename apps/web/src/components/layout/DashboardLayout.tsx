@@ -72,7 +72,7 @@ const createSidebarItems = (userType?: UserType, isAdmin?: boolean): SidebarItem
           },
           {
             label: 'Manage Tests',
-            href: '/dashboard/admin/tests',
+            href: '/dashboard/admin/assessment-management',
             icon: <ClipboardList className="w-5 h-5" />,
           },
           {
