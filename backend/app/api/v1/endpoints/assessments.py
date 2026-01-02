@@ -538,8 +538,6 @@ async def submit_assessment(
 
     # Create assessment result
     # Note: Database has result_data column, not scores. We'll store scores in result_data.
-    from sqlalchemy import text
-
     try:
         # Serialize scores to JSON string for PostgreSQL JSONB column
         result_data_json = json.dumps(scores)
