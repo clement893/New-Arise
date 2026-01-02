@@ -272,11 +272,19 @@ export default function Start360FeedbackPage() {
                   const link = getEvaluatorLink(evaluator.invitation_token);
                   const isCopied = copiedToken === evaluator.invitation_token;
                   const statusColors = {
+                    'not_started': 'bg-gray-100 text-gray-700',
+                    'in_progress': 'bg-blue-100 text-blue-700',
+                    'completed': 'bg-green-100 text-green-700',
+                    // Support for uppercase format (backward compatibility)
                     'NOT_STARTED': 'bg-gray-100 text-gray-700',
                     'IN_PROGRESS': 'bg-blue-100 text-blue-700',
                     'COMPLETED': 'bg-green-100 text-green-700',
                   };
                   const statusLabels = {
+                    'not_started': 'Invitation envoyée',
+                    'in_progress': 'En cours',
+                    'completed': 'Terminé',
+                    // Support for uppercase format (backward compatibility)
                     'NOT_STARTED': 'Invitation envoyée',
                     'IN_PROGRESS': 'En cours',
                     'COMPLETED': 'Terminé',

@@ -81,7 +81,7 @@ export default function Feedback360ResultsPage() {
       setEvaluators(evaluatorsResponse.evaluators || []);
 
       const completedCount = evaluatorsResponse.evaluators?.filter(
-        (e) => e.status === 'COMPLETED'
+        (e) => e.status === 'completed' || e.status === 'COMPLETED'
       ).length || 0;
 
       // Transform AssessmentResult to Results format
@@ -246,11 +246,11 @@ export default function Feedback360ResultsPage() {
                         </p>
                       </div>
                       <div className="ml-3 flex-shrink-0">
-                        {evaluator.status === 'COMPLETED' ? (
+                        {evaluator.status === 'completed' || evaluator.status === 'COMPLETED' ? (
                           <div className="flex items-center gap-1 text-green-600" title="Complété">
                             <CheckCircle className="h-5 w-5" />
                           </div>
-                        ) : evaluator.status === 'IN_PROGRESS' ? (
+                        ) : evaluator.status === 'in_progress' || evaluator.status === 'IN_PROGRESS' ? (
                           <div className="flex items-center gap-1 text-blue-600" title="En cours">
                             <Clock className="h-5 w-5" />
                           </div>
@@ -274,15 +274,15 @@ export default function Feedback360ResultsPage() {
                 <div className="mt-4 flex items-center gap-4 text-xs text-gray-500">
                   <div className="flex items-center gap-1">
                     <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span>Complété ({evaluators.filter((e) => e.status === 'COMPLETED').length})</span>
+                    <span>Complété ({evaluators.filter((e) => e.status === 'completed' || e.status === 'COMPLETED').length})</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Clock className="h-4 w-4 text-blue-600" />
-                    <span>En cours ({evaluators.filter((e) => e.status === 'IN_PROGRESS').length})</span>
+                    <span>En cours ({evaluators.filter((e) => e.status === 'in_progress' || e.status === 'IN_PROGRESS').length})</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Mail className="h-4 w-4 text-gray-400" />
-                    <span>Invitation envoyée ({evaluators.filter((e) => e.status === 'NOT_STARTED' && e.invitation_sent_at).length})</span>
+                    <span>Invitation envoyée ({evaluators.filter((e) => (e.status === 'not_started' || e.status === 'NOT_STARTED') && e.invitation_sent_at).length})</span>
                   </div>
                 </div>
               </div>
