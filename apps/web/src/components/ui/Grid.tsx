@@ -55,48 +55,60 @@ export default function Grid({
   // Get gap value from theme or use custom value
   const gapValueToUse = gapValue || getGap(gap);
   
-  // Build grid template columns
-  const getGridColumns = () => {
+  // Build responsive grid classes and styles
+  const getGridConfig = () => {
     if (typeof columns === 'number') {
-      return `repeat(${columns}, minmax(0, 1fr))`;
+      // For fixed columns, use Tailwind classes directly
+      const gridClassMap: Record<number, string> = {
+        1: 'grid-cols-1',
+        2: 'grid-cols-2',
+        3: 'grid-cols-3',
+        4: 'grid-cols-4',
+        5: 'grid-cols-5',
+        6: 'grid-cols-6',
+      };
+      return {
+        className: gridClassMap[columns] || '',
+        style: {} as React.CSSProperties,
+      };
     }
     
-    // Responsive columns
+    // For responsive columns, use Tailwind's responsive utilities
     const mobile = columns.mobile || 1;
     const tablet = columns.tablet || mobile;
     const desktop = columns.desktop || tablet;
     
-    // Use CSS Grid with responsive breakpoints
+    // Map to Tailwind classes
+    const gridClassMap: Record<number, string> = {
+      1: 'grid-cols-1',
+      2: 'grid-cols-2',
+      3: 'grid-cols-3',
+      4: 'grid-cols-4',
+      5: 'grid-cols-5',
+      6: 'grid-cols-6',
+    };
+    
+    const mobileClass = gridClassMap[mobile] || '';
+    const tabletClass = tablet !== mobile ? `sm:${gridClassMap[tablet] || ''}` : '';
+    const desktopClass = desktop !== tablet ? `lg:${gridClassMap[desktop] || ''}` : '';
+    
     return {
-      '--grid-cols-mobile': mobile,
-      '--grid-cols-tablet': tablet,
-      '--grid-cols-desktop': desktop,
-    } as React.CSSProperties;
+      className: clsx(mobileClass, tabletClass, desktopClass),
+      style: {} as React.CSSProperties,
+    };
   };
   
-  const gridColumns = typeof columns === 'number'
-    ? { gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }
-    : getGridColumns();
-  
-  // Build responsive classes if using responsive columns
-  const responsiveClasses = typeof columns === 'object'
-    ? clsx(
-        `grid-cols-[var(--grid-cols-mobile)]`,
-        'sm:grid-cols-[var(--grid-cols-tablet)]',
-        'lg:grid-cols-[var(--grid-cols-desktop)]'
-      )
-    : undefined;
+  const gridConfig = getGridConfig();
   
   return (
     <div
       className={clsx(
         'grid',
-        typeof columns === 'number' && `grid-cols-${columns}`,
-        responsiveClasses,
+        gridConfig.className,
         className
       )}
       style={{
-        ...(gridColumns && typeof gridColumns === 'object' ? gridColumns : {}),
+        ...gridConfig.style,
         gap: gapValueToUse,
       }}
     >

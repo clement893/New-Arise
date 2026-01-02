@@ -6,7 +6,7 @@ export const dynamicParams = true;
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
-import { Card, Button, LoadingSkeleton, Grid, Stack } from '@/components/ui';
+import { Card, Button, LoadingSkeleton, Stack } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { 
@@ -89,12 +89,12 @@ function DashboardContent() {
         <LoadingSkeleton variant="custom" className="h-10 w-64 mb-8" />
         <LoadingSkeleton variant="card" className="h-48 mb-8" />
         <LoadingSkeleton variant="card" className="h-64 mb-8" />
-        <Grid columns={{ mobile: 1, tablet: 2, desktop: 4 }} gap="normal">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <LoadingSkeleton variant="card" className="h-64" />
           <LoadingSkeleton variant="card" className="h-64" />
           <LoadingSkeleton variant="card" className="h-64" />
           <LoadingSkeleton variant="card" className="h-64" />
-        </Grid>
+        </div>
       </div>
     );
   }
@@ -404,7 +404,7 @@ function DashboardContent() {
           <MotionDiv variant="slideUp" delay={300}>
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Your evaluations</h2>
-              <Grid columns={{ mobile: 1, tablet: 2, desktop: 4 }} gap="normal">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {evaluations.map((evaluation, index) => {
                   const Icon = evaluation.icon;
                   return (
@@ -469,7 +469,7 @@ function DashboardContent() {
                     </Card>
                   );
                 })}
-              </Grid>
+              </div>
             </div>
           </MotionDiv>
 
