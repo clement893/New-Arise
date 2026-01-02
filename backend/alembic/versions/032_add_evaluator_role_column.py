@@ -71,12 +71,17 @@ def upgrade():
     
     if 'evaluator_role' not in columns or not column_exists_in_db:
         print("📝 Adding evaluator_role column...")
-        # Drop column if it exists but is broken
+        # ALWAYS drop and recreate to ensure clean state
+        # This fixes issues where the column exists but asyncpg can't see it
         if column_exists_in_db:
-            print("⚠️  Column exists in inspector but may be broken, attempting to drop and recreate...")
+            print("⚠️  Column exists in DB but may not be visible to asyncpg, dropping and recreating...")
             try:
-                op.drop_column('assessment_360_evaluators', 'evaluator_role')
-                print("✅ Dropped existing broken column")
+                # Drop column using raw SQL to ensure it's removed
+                conn.execute(sa.text("""
+                    ALTER TABLE assessment_360_evaluators 
+                    DROP COLUMN IF EXISTS evaluator_role CASCADE
+                """))
+                print("✅ Dropped existing evaluator_role column")
             except Exception as e:
                 print(f"⚠️  Could not drop column (may not exist): {e}")
         
@@ -85,25 +90,33 @@ def upgrade():
         # First add as nullable, then update existing rows, then make NOT NULL
         conn.execute(sa.text("""
             ALTER TABLE assessment_360_evaluators 
-            ADD COLUMN IF NOT EXISTS evaluator_role evaluatorrole
+            ADD COLUMN evaluator_role evaluatorrole
         """))
+        print("✅ Added evaluator_role column as nullable")
+        
         # Update existing rows with default value
         conn.execute(sa.text("""
             UPDATE assessment_360_evaluators 
             SET evaluator_role = 'PEER'::evaluatorrole 
             WHERE evaluator_role IS NULL
         """))
+        print("✅ Updated existing rows with default 'PEER' for evaluator_role")
+        
         # Make it NOT NULL with default
         conn.execute(sa.text("""
             ALTER TABLE assessment_360_evaluators 
             ALTER COLUMN evaluator_role SET NOT NULL,
             ALTER COLUMN evaluator_role SET DEFAULT 'PEER'::evaluatorrole
         """))
-        print("✅ Added evaluator_role column using raw SQL")
+        print("✅ Set evaluator_role column to NOT NULL with default 'PEER'")
+        
+        # Force commit to ensure the change is visible
+        conn.commit()
+        print("✅ Committed evaluator_role column addition")
         
         # Verify column was added by querying database directly
         verify_result = conn.execute(sa.text("""
-            SELECT column_name, data_type, udt_name
+            SELECT column_name, data_type, udt_name, is_nullable, column_default
             FROM information_schema.columns 
             WHERE table_name = 'assessment_360_evaluators' 
             AND column_name = 'evaluator_role'
@@ -114,6 +127,14 @@ def upgrade():
         else:
             print("❌ ERROR: evaluator_role column was not added successfully!")
             raise Exception("Failed to add evaluator_role column")
+        
+        # Force PostgreSQL to notify all connections about schema change
+        # This helps asyncpg reload its schema cache
+        try:
+            conn.execute(sa.text("NOTIFY schema_change, 'evaluator_role_added'"))
+            print("✅ Sent NOTIFY to force schema cache reload")
+        except Exception as e:
+            print(f"⚠️  Could not send NOTIFY (non-critical): {e}")
     else:
         print("✅ evaluator_role column already exists")
     
