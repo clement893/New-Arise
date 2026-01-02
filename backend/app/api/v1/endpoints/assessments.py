@@ -650,7 +650,10 @@ async def start_360_feedback(
                 # Insert using raw SQL to bypass SQLAlchemy schema cache
                 # invitation_sent_at will be updated after email is sent successfully
                 logger.info(f"🔵 Attempting to insert evaluator {evaluator_data.email} with role {evaluator_role.value} for assessment {self_assessment.id}")
+                evaluator_id = None
                 try:
+                    # Log the exact SQL parameters we're about to use
+                    logger.debug(f"SQL params: assessment_id={self_assessment.id}, name={evaluator_data.name}, email={evaluator_data.email}, role={evaluator_role.value}, token={invitation_token[:20]}...")
                     insert_result = await db.execute(
                         text("""
                             INSERT INTO assessment_360_evaluators 
@@ -672,13 +675,20 @@ async def start_360_feedback(
                     evaluator_row = insert_result.first()
                     evaluator_id = evaluator_row[0] if evaluator_row else None
                     logger.info(f"✅ Successfully inserted evaluator {evaluator_data.email} (ID: {evaluator_id}) to database for assessment {self_assessment.id}")
-                except (SQLAlchemyError, IntegrityError) as insert_error:
+                except Exception as insert_error:
+                    # Catch ALL exceptions first, then check type
                     error_type = type(insert_error).__name__
                     error_message = str(insert_error)
                     import traceback
                     error_traceback = traceback.format_exc()
+                    
+                    # Check if it's a SQLAlchemy error
+                    is_sqlalchemy_error = isinstance(insert_error, (SQLAlchemyError, IntegrityError))
+                    
+                    # Log with appropriate prefix based on error type
+                    prefix = "❌ SQLALCHEMY ERROR" if is_sqlalchemy_error else "❌ UNEXPECTED ERROR"
                     logger.error(
-                        f"❌ ERROR during INSERT for evaluator {evaluator_data.email}: {error_type}: {error_message}",
+                        f"{prefix} during INSERT for evaluator {evaluator_data.email}: {error_type}: {error_message}",
                         exc_info=True,
                         extra={
                             "user_id": current_user.id,
@@ -686,6 +696,7 @@ async def start_360_feedback(
                             "evaluator_email": evaluator_data.email,
                             "error_type": error_type,
                             "error_message": error_message,
+                            "is_sqlalchemy_error": is_sqlalchemy_error,
                             "traceback": error_traceback
                         }
                     )
@@ -695,7 +706,6 @@ async def start_360_feedback(
                         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                         detail=f"Failed to insert evaluator record: {error_type}: {error_message}"
                     )
-                except Exception as insert_error:
                     error_type = type(insert_error).__name__
                     error_message = str(insert_error)
                     import traceback
