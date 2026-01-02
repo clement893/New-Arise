@@ -136,11 +136,36 @@ function AssessmentsContent() {
         let status: 'completed' | 'in-progress' | 'locked' | 'available' = 'available';
         if (apiAssessment) {
           // Normalize status to uppercase for comparison (handle case variations)
-          const normalizedStatus = String(apiAssessment.status).toUpperCase();
+          const rawStatus = String(apiAssessment.status);
+          const normalizedStatus = rawStatus.toUpperCase();
+          
+          // Debug logging for Wellness assessments
+          if (apiType === 'WELLNESS' && process.env.NODE_ENV === 'development') {
+            console.log(`[Assessments] Wellness assessment status check:`, {
+              rawStatus,
+              normalizedStatus,
+              assessmentId: apiAssessment.id,
+              answerCount: apiAssessment.answer_count,
+              totalQuestions: apiAssessment.total_questions
+            });
+          }
+          
           if (normalizedStatus === 'COMPLETED') {
             status = 'completed';
           } else if (normalizedStatus === 'IN_PROGRESS' || normalizedStatus === 'NOT_STARTED') {
             status = 'in-progress';
+          } else {
+            // If status is unknown but assessment exists, check if it has all answers
+            // This handles edge cases where status might not be updated correctly
+            if (apiAssessment.answer_count !== undefined && 
+                apiAssessment.total_questions !== undefined &&
+                apiAssessment.answer_count >= apiAssessment.total_questions) {
+              // All questions answered, treat as completed
+              status = 'completed';
+              if (process.env.NODE_ENV === 'development') {
+                console.warn(`[Assessments] Assessment ${apiAssessment.id} has all answers but status is "${rawStatus}", treating as completed`);
+              }
+            }
           }
         }
         
