@@ -4,7 +4,6 @@
  */
 
 import { apiClient } from './client';
-import type { ApiResponse } from '@modele/types';
 
 export interface CoachingPackage {
   id: number;
