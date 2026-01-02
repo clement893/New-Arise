@@ -12,7 +12,7 @@ import { mbtiQuestions } from '@/data/mbtiQuestions';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { Sidebar } from '@/components/dashboard/Sidebar';
-import { motion } from 'framer-motion';
+import MotionDiv from '@/components/motion/MotionDiv';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 
 export default function MBTIAssessmentPage() {
@@ -135,11 +135,7 @@ export default function MBTIAssessmentPage() {
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto p-8">
           {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
-          >
+          <MotionDiv variant="slideUp" duration="normal" className="mb-8">
             <Button
               variant="ghost"
               onClick={() => router.push('/dashboard/assessments')}
@@ -151,15 +147,10 @@ export default function MBTIAssessmentPage() {
 
             <h1 className="text-3xl font-bold text-gray-900 mb-2">MBTI Personality Assessment</h1>
             <p className="text-gray-600">Discover your personality type across 4 dimensions</p>
-          </motion.div>
+          </MotionDiv>
 
           {/* Progress Bar */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="mb-8"
-          >
+          <MotionDiv variant="slideUp" duration="normal" delay={100} className="mb-8">
             <Card>
               <div className="p-6">
                 <div className="flex items-center justify-between mb-2">
@@ -178,14 +169,13 @@ export default function MBTIAssessmentPage() {
                 </div>
               </div>
             </Card>
-          </motion.div>
+          </MotionDiv>
 
           {/* Question Card */}
-          <motion.div
+          <MotionDiv
             key={currentQuestionIndex}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
+            variant="slideUp"
+            duration="fast"
             className="mb-8"
           >
             <Card>
@@ -255,30 +245,21 @@ export default function MBTIAssessmentPage() {
                 </div>
               </div>
             </Card>
-          </motion.div>
+          </MotionDiv>
 
           {/* Error Message */}
           {error && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-8"
-            >
+            <MotionDiv variant="slideUp" duration="normal" className="mb-8">
               <Card className="bg-red-50 border-red-200">
                 <div className="p-4">
                   <p className="text-red-800">{error}</p>
                 </div>
               </Card>
-            </motion.div>
+            </MotionDiv>
           )}
 
           {/* Navigation */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="flex items-center justify-between"
-          >
+          <MotionDiv variant="slideUp" duration="normal" delay={200} className="flex items-center justify-between">
             <Button
               variant="outline"
               onClick={handlePrevious}
@@ -303,7 +284,7 @@ export default function MBTIAssessmentPage() {
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             )}
-          </motion.div>
+          </MotionDiv>
         </div>
       </div>
     </div>
