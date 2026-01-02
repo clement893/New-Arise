@@ -257,3 +257,43 @@ export const tkiQuestions: TKIQuestion[] = [
     modeB: 'accommodating',
   },
 ];
+
+export interface TKIModeInfo {
+  id: TKIMode;
+  title: string;
+  description: string;
+  icon: string;
+}
+
+export const tkiModes: TKIModeInfo[] = [
+  {
+    id: 'competing',
+    title: 'Competing',
+    description: 'Assertive and uncooperative. You pursue your own concerns at the other person\'s expense.',
+    icon: '⚔️',
+  },
+  {
+    id: 'collaborating',
+    title: 'Collaborating',
+    description: 'Assertive and cooperative. You work with the other person to find a solution that fully satisfies both parties.',
+    icon: '🤝',
+  },
+  {
+    id: 'compromising',
+    title: 'Compromising',
+    description: 'Moderately assertive and moderately cooperative. You find a middle ground that partially satisfies both parties.',
+    icon: '⚖️',
+  },
+  {
+    id: 'avoiding',
+    title: 'Avoiding',
+    description: 'Unassertive and uncooperative. You do not pursue your concerns or those of the other person.',
+    icon: '🚶',
+  },
+  {
+    id: 'accommodating',
+    title: 'Accommodating',
+    description: 'Unassertive and cooperative. You neglect your own concerns to satisfy the concerns of the other person.',
+    icon: '🙏',
+  },
+];

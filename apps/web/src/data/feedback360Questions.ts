@@ -228,3 +228,16 @@ export const feedback360Questions: Feedback360Question[] = [
     question: 'I balance workload and prioritize effectively to prevent unnecessary stress.',
   },
 ];
+
+export interface Feedback360ScaleOption {
+  value: number;
+  label: string;
+}
+
+export const feedback360Scale: Feedback360ScaleOption[] = [
+  { value: 1, label: 'Strongly Disagree' },
+  { value: 2, label: 'Disagree' },
+  { value: 3, label: 'Neutral' },
+  { value: 4, label: 'Agree' },
+  { value: 5, label: 'Strongly Agree' },
+];
