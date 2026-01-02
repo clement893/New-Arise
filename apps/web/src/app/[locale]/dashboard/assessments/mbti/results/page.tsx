@@ -120,11 +120,7 @@ export default function MBTIResultsPage() {
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-6xl mx-auto p-8">
           {/* Header */}
-          <MotionDiv
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
-          >
+          <MotionDiv variant="slideUp" duration="normal" className="mb-8">
             <Button
               variant="ghost"
               onClick={() => router.push('/dashboard/assessments')}
@@ -149,12 +145,7 @@ export default function MBTIResultsPage() {
           </MotionDiv>
 
           {/* Personality Type Card */}
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="mb-8"
-          >
+          <MotionDiv variant="slideUp" duration="normal" delay={100} className="mb-8">
             <Card className="bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200">
               <div className="p-8">
                 <div className="flex items-center gap-6">
@@ -184,12 +175,7 @@ export default function MBTIResultsPage() {
           </MotionDiv>
 
           {/* Dimension Breakdown */}
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mb-8"
-          >
+          <MotionDiv variant="slideUp" duration="normal" delay={200} className="mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Your Personality Dimensions</h2>
             <div className="grid gap-4">
               {Object.entries(dimensionPreferences).map(
@@ -202,9 +188,9 @@ export default function MBTIResultsPage() {
                   return (
                     <MotionDiv
                       key={dimension}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3 + index * 0.1 }}
+                      variant="slideUp"
+                      duration="fast"
+                      delay={300 + index * 100}
                     >
                       <Card>
                         <div className="p-6">
@@ -250,12 +236,7 @@ export default function MBTIResultsPage() {
 
           {/* Strengths & Challenges */}
           {(insights.strengths || insights.challenges) && (
-            <MotionDiv
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="mb-8"
-            >
+            <MotionDiv variant="slideUp" duration="normal" delay={600} className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Strengths & Growth Areas</h2>
               <div className="grid md:grid-cols-2 gap-4">
                 {/* Strengths */}
@@ -297,12 +278,7 @@ export default function MBTIResultsPage() {
 
           {/* Recommendations */}
           {recommendations.length > 0 && (
-            <MotionDiv
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-              className="mb-8"
-            >
+            <MotionDiv variant="slideUp" duration="normal" delay={800} className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
                 Personalized Development Recommendations
               </h2>
@@ -310,9 +286,9 @@ export default function MBTIResultsPage() {
                 {recommendations.map((rec: any, index: number) => (
                   <MotionDiv
                     key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.9 + index * 0.1 }}
+                    variant="slideUp"
+                    duration="fast"
+                    delay={900 + index * 100}
                   >
                     <RecommendationCard
                       title={rec.title}
@@ -328,12 +304,7 @@ export default function MBTIResultsPage() {
           )}
 
           {/* Next Steps */}
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.2 }}
-            className="text-center"
-          >
+          <MotionDiv variant="slideUp" duration="normal" delay={1200} className="text-center">
             <Card className="bg-gray-50">
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">

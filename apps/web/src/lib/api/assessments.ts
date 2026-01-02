@@ -56,6 +56,9 @@ export interface AssessmentResult {
     pillar_scores?: Record<string, number | PillarScore>;
     mode_scores?: Record<string, number>;
     capability_scores?: Record<string, number | PillarScore>;
+    // MBTI-specific fields
+    mbti_type?: string;
+    dimension_preferences?: Record<string, any>;
   };
   insights?: Record<string, any>;
   recommendations?: Record<string, any>;
