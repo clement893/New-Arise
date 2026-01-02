@@ -168,9 +168,9 @@ export default function Start360FeedbackPage() {
         await loadExistingEvaluators();
       }
       
-      // Redirect to the 360 feedback assessment page after a short delay
+      // Redirect to the 360 feedback assessment page (auto-evaluation) after a short delay
       setTimeout(() => {
-        router.push(`/dashboard/assessments/360-feedback/start?assessmentId=${response.assessment_id}`);
+        router.push(`/dashboard/assessments/360-feedback?assessmentId=${response.assessment_id}`);
       }, 2000);
     } catch (err: any) {
       console.error('Failed to start 360 feedback:', err);
@@ -202,9 +202,9 @@ export default function Start360FeedbackPage() {
         await loadExistingEvaluators();
       }
       
-      // Redirect to the 360 feedback assessment page after a short delay
+      // Redirect to the 360 feedback assessment page (auto-evaluation) after a short delay
       setTimeout(() => {
-        router.push(`/dashboard/assessments/360-feedback/start?assessmentId=${response.assessment_id}`);
+        router.push(`/dashboard/assessments/360-feedback?assessmentId=${response.assessment_id}`);
       }, 2000);
     } catch (err: any) {
       console.error('Failed to start 360 feedback:', err);
