@@ -825,7 +825,11 @@ export default function AdminAssessmentManagementPage() {
               </label>
               <Input
                 value={editingRule?.name || ''}
-                onChange={(e) => setEditingRule({ ...editingRule, name: e.target.value })}
+                onChange={(e) => {
+                  if (editingRule) {
+                    setEditingRule({ ...editingRule, name: e.target.value });
+                  }
+                }}
                 disabled
               />
             </div>
@@ -836,7 +840,11 @@ export default function AdminAssessmentManagementPage() {
               <Input
                 type="number"
                 value={editingRule?.maxScore || ''}
-                onChange={(e) => setEditingRule({ ...editingRule, maxScore: parseInt(e.target.value) })}
+                onChange={(e) => {
+                  if (editingRule) {
+                    setEditingRule({ ...editingRule, maxScore: parseInt(e.target.value) });
+                  }
+                }}
               />
             </div>
             <div className="flex justify-end gap-2 pt-4">
