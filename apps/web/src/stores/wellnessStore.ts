@@ -60,7 +60,7 @@ export const useWellnessStore = create<WellnessState>()(
       startAssessment: async () => {
         set({ isLoading: true, error: null });
         try {
-          const assessment = await assessmentsApi.start('wellness');
+          const assessment = await assessmentsApi.start('WELLNESS');
           set({
             assessmentId: assessment.assessment_id,
             currentStep: 'questions',
@@ -123,7 +123,11 @@ export const useWellnessStore = create<WellnessState>()(
               answer_value: String(value),
             });
           } catch (error: unknown) {
-            console.error('Failed to save answer:', error);
+            // Error is handled and displayed to user via error state
+            // Only log in development for debugging
+            if (process.env.NODE_ENV === 'development') {
+              console.error('Failed to save answer:', error);
+            }
             const errorMessage =
               axios.isAxiosError(error) && error.response?.data?.message
                 ? error.response.data.message
