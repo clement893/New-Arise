@@ -151,6 +151,31 @@ export const useWellnessStore = create<WellnessState>()(
         set({ isLoading: true, error: null });
 
         try {
+          // First, check if assessment is already completed
+          const assessments = await assessmentsApi.getMyAssessments();
+          const currentAssessment = assessments.find(a => a.id === assessmentId);
+          
+          if (currentAssessment?.status === 'COMPLETED') {
+            // Assessment is already completed, get results and mark as completed
+            try {
+              const results = await assessmentsApi.getResults(assessmentId);
+              set({
+                results,
+                currentStep: 'congratulations',
+                isCompleted: true,
+                isLoading: false,
+              });
+              return;
+            } catch (err) {
+              // If we can't get results, still mark as completed
+              set({
+                isCompleted: true,
+                isLoading: false,
+              });
+              return;
+            }
+          }
+
           await assessmentsApi.submit(assessmentId);
           const results = await assessmentsApi.getResults(assessmentId);
           set({
@@ -160,8 +185,35 @@ export const useWellnessStore = create<WellnessState>()(
             isLoading: false,
           });
         } catch (error: unknown) {
+          // If assessment is already completed (400 error), treat as success
+          if (axios.isAxiosError(error) && error.response?.status === 400) {
+            const errorDetail = error.response?.data?.detail || '';
+            if (errorDetail.includes('already been completed') || errorDetail.includes('already completed')) {
+              // Assessment is already completed, get results
+              try {
+                const results = await assessmentsApi.getResults(assessmentId);
+                set({
+                  results,
+                  currentStep: 'congratulations',
+                  isCompleted: true,
+                  isLoading: false,
+                });
+                return;
+              } catch (err) {
+                // If we can't get results, still mark as completed
+                set({
+                  isCompleted: true,
+                  isLoading: false,
+                });
+                return;
+              }
+            }
+          }
+          
           const errorMessage =
-            axios.isAxiosError(error) && error.response?.data?.message
+            axios.isAxiosError(error) && error.response?.data?.detail
+              ? error.response.data.detail
+              : axios.isAxiosError(error) && error.response?.data?.message
               ? error.response.data.message
               : 'Failed to submit assessment';
           set({

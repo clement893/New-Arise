@@ -36,27 +36,38 @@ function WellnessAssessmentContent() {
   const isLastQuestion = currentQuestionIndex === wellnessQuestions.length - 1;
   const currentAnswer = currentQuestion ? answers[currentQuestion.id] : undefined;
 
-  // Check for existing assessment with all answers on mount
+  // Check for existing assessment on mount
   useEffect(() => {
     const checkExistingAssessment = async () => {
       try {
         setIsCheckingExisting(true);
         const assessments = await getMyAssessments();
         const wellnessAssessment = assessments.find(
-          a => a.assessment_type === 'WELLNESS' && 
-          a.status === 'IN_PROGRESS' && 
-          a.answer_count === 30
+          a => a.assessment_type === 'WELLNESS'
         );
         
         if (wellnessAssessment && wellnessAssessment.id) {
-          // If assessment has all answers but is not submitted, submit it automatically
-          try {
-            await submitAssessmentApi(wellnessAssessment.id);
-            // Redirect to results
+          // If assessment is already completed, redirect to results
+          if (wellnessAssessment.status === 'COMPLETED') {
             router.push(`/dashboard/assessments/results?id=${wellnessAssessment.id}`);
             return;
-          } catch (err) {
-            console.error('Failed to submit existing assessment:', err);
+          }
+          
+          // If assessment has all answers but is not submitted, submit it automatically
+          if (wellnessAssessment.status === 'IN_PROGRESS' && wellnessAssessment.answer_count === 30) {
+            try {
+              await submitAssessmentApi(wellnessAssessment.id);
+              // Redirect to results
+              router.push(`/dashboard/assessments/results?id=${wellnessAssessment.id}`);
+              return;
+            } catch (err: any) {
+              // If assessment is already completed (400 error), redirect to results
+              if (err?.response?.status === 400 && err?.response?.data?.detail?.includes('already been completed')) {
+                router.push(`/dashboard/assessments/results?id=${wellnessAssessment.id}`);
+                return;
+              }
+              console.error('Failed to submit existing assessment:', err);
+            }
           }
         }
       } catch (err) {
