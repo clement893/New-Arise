@@ -24,7 +24,7 @@ import {
 import MotionDiv from '@/components/motion/MotionDiv';
 import { wellnessQuestions } from '@/data/wellnessQuestionsReal';
 import { tkiQuestions } from '@/data/tkiQuestions';
-import { feedback360Questions, feedback360Capabilities, type Feedback360Question } from '@/data/feedback360Questions';
+import { feedback360Questions, feedback360Capabilities } from '@/data/feedback360Questions';
 
 type TabType = 'assessments' | 'questions' | 'rules';
 
