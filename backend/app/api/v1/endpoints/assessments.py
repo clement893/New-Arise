@@ -1177,6 +1177,17 @@ async def submit_360_evaluator_assessment(
             evaluator_assessment = result.scalar_one_or_none()
 
         if not evaluator_assessment:
+            # Verify that evaluator.assessment is loaded
+            if not evaluator.assessment:
+                # Reload evaluator with assessment if not loaded
+                await db.refresh(evaluator, ["assessment"])
+                if not evaluator.assessment:
+                    logger.error(f"Evaluator {evaluator.id} has no associated assessment")
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail="Evaluator assessment relationship not found"
+                    )
+            
             # Create new assessment for the evaluator
             evaluator_assessment = Assessment(
                 user_id=evaluator.assessment.user_id,  # Same user being evaluated
@@ -1255,11 +1266,26 @@ async def submit_360_evaluator_assessment(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error submitting evaluator assessment: {e}", exc_info=True)
+        error_type = type(e).__name__
+        error_message = str(e)
+        import traceback
+        error_traceback = traceback.format_exc()
+        logger.error(
+            f"Error submitting evaluator assessment: {error_type}: {error_message}",
+            exc_info=e,
+            context={
+                "token": token[:20] + "..." if len(token) > 20 else token,
+                "error_type": error_type,
+                "error_message": error_message,
+                "traceback": error_traceback
+            }
+        )
+        print(f"❌ ERROR submitting evaluator assessment: {error_type}: {error_message}")
+        print(f"   Traceback: {error_traceback}")
         await db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to submit evaluation: {str(e)}"
+            detail=f"Failed to submit evaluation: {error_type}: {error_message}"
         )
 
 
