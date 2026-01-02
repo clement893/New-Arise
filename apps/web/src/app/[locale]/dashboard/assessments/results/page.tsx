@@ -9,7 +9,8 @@ import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { assessmentsApi, AssessmentResult, PillarScore } from '@/lib/api/assessments';
 import { wellnessPillars } from '@/data/wellnessQuestionsReal';
-import { ArrowLeft, Download, Share2, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Download, Share2, TrendingUp, Loader2 } from 'lucide-react';
+import { apiClient } from '@/lib/api';
 
 function AssessmentResultsContent() {
   const router = useRouter();
@@ -19,6 +20,7 @@ function AssessmentResultsContent() {
   const [results, setResults] = useState<AssessmentResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     if (assessmentId) {
@@ -41,6 +43,81 @@ function AssessmentResultsContent() {
       setError(errorMessage || 'Failed to load results');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!results) return;
+
+    try {
+      setIsDownloading(true);
+      
+      const { scores } = results;
+      const { total_score, max_score, percentage, pillar_scores } = scores;
+
+      // Prepare data for PDF export
+      const exportData = [
+        {
+          'Assessment Type': 'Wellness Assessment',
+          'Overall Score': `${total_score} / ${max_score}`,
+          'Percentage': `${percentage.toFixed(1)}%`,
+          'Date': new Date().toLocaleDateString('fr-FR'),
+        },
+        ...(pillar_scores ? Object.entries(pillar_scores).map(([pillarId, pillarData]) => {
+          const pillar = wellnessPillars.find(p => p.id === pillarId);
+          const isPillarScoreObject = (data: number | PillarScore | undefined): data is PillarScore => {
+            return typeof data === 'object' && data !== null && 'score' in data;
+          };
+          const pillarScore = isPillarScoreObject(pillarData) ? pillarData.score : (typeof pillarData === 'number' ? pillarData : 0);
+          const pillarPercentage = isPillarScoreObject(pillarData) ? pillarData.percentage : (pillarScore / 25) * 100;
+          
+          return {
+            'Pillar': pillar?.name || pillarId,
+            'Score': `${pillarScore} / 25`,
+            'Percentage': `${pillarPercentage.toFixed(1)}%`,
+            'Status': pillarPercentage >= 80 ? 'Excellent' : pillarPercentage >= 60 ? 'Good' : 'Needs Attention',
+          };
+        }) : []),
+      ];
+
+      // Call the export API
+      const response = await apiClient.post(
+        '/v1/exports/export',
+        {
+          format: 'pdf',
+          data: exportData,
+          headers: Object.keys(exportData[0] || {}),
+          title: `Wellness Assessment Report - ${new Date().toLocaleDateString('fr-FR')}`,
+        },
+        {
+          responseType: 'blob',
+        }
+      );
+
+      // Handle blob response
+      let blob: Blob;
+      if (response.data instanceof Blob) {
+        blob = response.data;
+      } else if (response.data instanceof ArrayBuffer) {
+        blob = new Blob([response.data], { type: 'application/pdf' });
+      } else {
+        // Convert to blob if it's a string or other format
+        blob = new Blob([response.data], { type: 'application/pdf' });
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `wellness-assessment-report-${assessmentId || 'results'}-${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err: unknown) {
+      console.error('Error downloading PDF:', err);
+      setError('Failed to download PDF report. Please try again.');
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -112,9 +189,23 @@ function AssessmentResultsContent() {
                   {total_score} out of {max_score} points
                 </p>
                 <div className="mt-6 flex justify-center gap-4">
-                  <Button variant="outline" className="bg-white text-arise-deep-teal hover:bg-gray-100">
-                    <Download className="mr-2" size={16} />
-                    Download Report
+                  <Button 
+                    variant="outline" 
+                    className="bg-white text-arise-deep-teal hover:bg-gray-100"
+                    onClick={handleDownloadPDF}
+                    disabled={isDownloading}
+                  >
+                    {isDownloading ? (
+                      <>
+                        <Loader2 className="mr-2 animate-spin" size={16} />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="mr-2" size={16} />
+                        Download Report
+                      </>
+                    )}
                   </Button>
                   <Button variant="outline" className="bg-white text-arise-deep-teal hover:bg-gray-100">
                     <Share2 className="mr-2" size={16} />
