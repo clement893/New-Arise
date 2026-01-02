@@ -460,11 +460,11 @@ function AssessmentsContent() {
     <>
       <MotionDiv variant="fade" duration="normal">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">
-            Welcome John
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            Vos assessments
           </h1>
-          <p className="text-white/90 text-lg mb-6">
-            Continue your journey to authentic leadership
+          <p className="text-gray-600 dark:text-gray-400">
+            Suivez et gérez vos assessments de leadership
           </p>
         </div>
       </MotionDiv>

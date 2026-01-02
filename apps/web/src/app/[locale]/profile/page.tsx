@@ -360,7 +360,7 @@ export default function ProfilePage() {
           {/* Ready to accelerate your growth? Card */}
           <Card 
             className="p-8 text-white border-0 relative overflow-hidden"
-            style={{ backgroundColor: '#1B5E6B' } as React.CSSProperties}
+            style={{ backgroundColor: '#2e2e2e' } as React.CSSProperties}
           >
             <div className="flex items-center justify-between gap-8">
               <div className="flex-1">

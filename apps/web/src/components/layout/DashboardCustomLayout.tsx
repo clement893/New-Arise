@@ -31,10 +31,18 @@ export default function DashboardCustomLayout({ children }: DashboardCustomLayou
   ];
 
   const isActive = (href: string) => {
+    if (!pathname) return false;
+    
+    // Normalize pathname to remove locale prefix for comparison
+    const normalizedPath = pathname.replace(/^\/(fr|en)/, '') || pathname;
+    
     if (href === '/dashboard') {
-      return pathname === '/dashboard';
+      // Dashboard is active only on exact match (not on sub-pages)
+      return normalizedPath === '/dashboard' || normalizedPath === '/';
     }
-    return pathname?.startsWith(href);
+    
+    // For other pages, check if pathname starts with href
+    return normalizedPath.startsWith(href);
   };
 
   const handleLogout = () => {

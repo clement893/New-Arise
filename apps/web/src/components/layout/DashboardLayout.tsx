@@ -323,7 +323,7 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
   }, [logout]);
 
   return (
-    <div className="min-h-screen bg-arise-deep-teal relative">
+    <div className="min-h-screen relative" style={{ backgroundColor: '#2e2e2e' } as React.CSSProperties}>
       {/* Vertical lines texture */}
       <div 
         className="fixed inset-0 opacity-30 pointer-events-none z-0"
@@ -409,6 +409,7 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
             className="flex-1 overflow-y-auto px-3 sm:px-4 md:px-6 xl:px-8 2xl:px-10 py-4 sm:py-6 2xl:py-8"
             style={{
               animation: 'fadeInSlideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+              backgroundColor: '#2e2e2e',
             }}
           >
             {children}

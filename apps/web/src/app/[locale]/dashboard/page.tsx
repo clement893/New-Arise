@@ -297,10 +297,10 @@ function DashboardContent() {
           {/* Welcome Header */}
           <MotionDiv variant="fade" duration="normal">
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-white mb-2">
-                Welcome {user?.name?.split(' ')[0] || 'John'}
+              <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                Welcome {user?.name?.split(' ')[0] || 'User'}
               </h1>
-              <p className="text-white/90 text-lg">
+              <p className="text-gray-600 dark:text-gray-400 text-lg">
                 Continue your journey to authentic leadership
               </p>
             </div>
@@ -351,7 +351,7 @@ function DashboardContent() {
           <MotionDiv variant="slideUp" delay={200}>
             <Card 
               className="mb-8 text-white border-0"
-              style={{ backgroundColor: '#1B5E6B' } as React.CSSProperties}
+              style={{ backgroundColor: '#2e2e2e' } as React.CSSProperties}
             >
               <div className="flex justify-between items-start mb-6 gap-8">
                 <div className="flex-1">
@@ -404,7 +404,7 @@ function DashboardContent() {
           {/* Evaluations Section */}
           <MotionDiv variant="slideUp" delay={300}>
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-white mb-6">Your evaluations</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Your evaluations</h2>
               <Grid columns={{ mobile: 1, tablet: 2, desktop: 4 }} gap="normal">
                 {evaluations.map((evaluation, index) => {
                   const Icon = evaluation.icon;
@@ -478,7 +478,7 @@ function DashboardContent() {
           <MotionDiv variant="slideUp" delay={400}>
             <Card 
               className="text-white border-0 relative overflow-hidden"
-              style={{ backgroundColor: '#1B5E6B' } as React.CSSProperties}
+              style={{ backgroundColor: '#2e2e2e' } as React.CSSProperties}
             >
               {/* Background Pattern */}
               <div 

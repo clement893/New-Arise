@@ -114,30 +114,37 @@ export default function Sidebar({
       <div key={item.label}>
         <div
           className={clsx(
-            'flex items-center justify-between px-lg py-md rounded-lg transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] min-h-[44px]', // Improved spacing and touch target (UX/UI improvements - Batch 8, 17)
+            'flex items-center justify-between px-lg py-md rounded-lg transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] min-h-[44px] relative', // Improved spacing and touch target (UX/UI improvements - Batch 8, 17)
             isActive
-              ? 'bg-primary-100 dark:bg-primary-900/40 text-primary-900 dark:text-primary-100 font-medium'
+              ? 'text-white font-medium'
               : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800',
             level > 0 && 'ml-lg' // Increased indentation for nested items
           )}
+          style={isActive ? { backgroundColor: '#2e2e2e' } : undefined}
         >
           {item.href ? (
             <Link
               href={item.href}
-              className="flex items-center flex-1 space-x-3 min-w-0"
+              className={clsx(
+                "flex items-center flex-1 space-x-3 min-w-0",
+                isActive && "text-white"
+              )}
             >
-              {item.icon && <span className="flex-shrink-0 w-5 h-5">{item.icon}</span>}
-              {!collapsed && <span className="flex-1 truncate text-sm font-medium">{item.label}</span>}
+              {item.icon && <span className={clsx("flex-shrink-0 w-5 h-5", isActive && "text-white")}>{item.icon}</span>}
+              {!collapsed && <span className={clsx("flex-1 truncate text-sm font-medium", isActive && "text-white")}>{item.label}</span>}
             </Link>
           ) : (
             <button
               onClick={item.onClick || (hasChildren ? () => toggleItem(item.label) : undefined)}
-              className="flex items-center flex-1 space-x-3 text-left min-w-0"
+              className={clsx(
+                "flex items-center flex-1 space-x-3 text-left min-w-0",
+                isActive && "text-white"
+              )}
               aria-expanded={hasChildren ? isExpanded : undefined}
               aria-label={hasChildren ? `Toggle ${item.label}` : item.label}
             >
-              {item.icon && <span className="flex-shrink-0 w-5 h-5">{item.icon}</span>}
-              {!collapsed && <span className="flex-1 truncate text-sm font-medium">{item.label}</span>}
+              {item.icon && <span className={clsx("flex-shrink-0 w-5 h-5", isActive && "text-white")}>{item.icon}</span>}
+              {!collapsed && <span className={clsx("flex-1 truncate text-sm font-medium", isActive && "text-white")}>{item.label}</span>}
             </button>
           )}
           {!collapsed && (
@@ -149,9 +156,9 @@ export default function Sidebar({
               )}
               {hasChildren && (
                 isExpanded ? (
-                  <ChevronDown className="w-4 h-4 transition-transform text-gray-500 dark:text-gray-400" />
+                  <ChevronDown className={clsx("w-4 h-4 transition-transform", isActive ? "text-white" : "text-gray-500 dark:text-gray-400")} />
                 ) : (
-                  <ChevronRight className="w-4 h-4 transition-transform text-gray-500 dark:text-gray-400" />
+                  <ChevronRight className={clsx("w-4 h-4 transition-transform", isActive ? "text-white" : "text-gray-500 dark:text-gray-400")} />
                 )
               )}
             </div>
@@ -312,11 +319,16 @@ export default function Sidebar({
             {onLogoutClick && (
               <button
                 onClick={onLogoutClick}
-                className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] min-h-[44px] min-w-[44px] flex items-center justify-center"
+                className={clsx(
+                  "rounded-lg transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] min-h-[44px] flex items-center justify-center text-white",
+                  collapsed || isMobile ? "p-2 min-w-[44px]" : "px-4 py-3 gap-3 w-full"
+                )}
+                style={{ backgroundColor: '#2e2e2e' }}
                 aria-label="Déconnexion"
                 title="Déconnexion"
               >
                 <LogOut className="w-5 h-5" />
+                {!collapsed && !isMobile && <span className="text-sm font-medium">Logout</span>}
               </button>
             )}
           </div>
