@@ -12,7 +12,7 @@ import { mbtiQuestions } from '@/data/mbtiQuestions';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { Sidebar } from '@/components/dashboard/Sidebar';
-import MotionDiv from '@/components/motion/MotionDiv';
+import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 
 export default function MBTIAssessmentPage() {
@@ -135,7 +135,7 @@ export default function MBTIAssessmentPage() {
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto p-8">
           {/* Header */}
-          <MotionDiv
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
@@ -151,10 +151,10 @@ export default function MBTIAssessmentPage() {
 
             <h1 className="text-3xl font-bold text-gray-900 mb-2">MBTI Personality Assessment</h1>
             <p className="text-gray-600">Discover your personality type across 4 dimensions</p>
-          </MotionDiv>
+          </motion.div>
 
           {/* Progress Bar */}
-          <MotionDiv
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -181,7 +181,7 @@ export default function MBTIAssessmentPage() {
           </MotionDiv>
 
           {/* Question Card */}
-          <MotionDiv
+          <motion.div
             key={currentQuestionIndex}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -259,7 +259,7 @@ export default function MBTIAssessmentPage() {
 
           {/* Error Message */}
           {error && (
-            <MotionDiv
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="mb-8"
@@ -269,11 +269,11 @@ export default function MBTIAssessmentPage() {
                   <p className="text-red-800">{error}</p>
                 </div>
               </Card>
-            </MotionDiv>
+            </motion.div>
           )}
 
           {/* Navigation */}
-          <MotionDiv
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -303,7 +303,7 @@ export default function MBTIAssessmentPage() {
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             )}
-          </MotionDiv>
+          </motion.div>
         </div>
       </div>
     </div>
