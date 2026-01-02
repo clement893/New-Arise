@@ -3,7 +3,7 @@
  * Centralized API client with automatic error handling
  */
 
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { handleApiError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
 import type { ApiResponse } from '@modele/types';
@@ -116,22 +116,35 @@ class ApiClient {
                 throw new Error('No access_token in refresh response');
               }
             } catch (refreshError) {
-              // Refresh failed, clear tokens and redirect to login
-              logger.warn('Token refresh failed', refreshError);
-              await TokenStorage.removeTokens();
+              // Check if refresh failed due to server error (500) or auth error (401/403)
+              const refreshErrorStatus = (refreshError as AxiosError)?.response?.status;
+              const isServerError = refreshErrorStatus && refreshErrorStatus >= 500;
               
-              // Only redirect if we're on a protected page (not public pages like home, login, register)
-              const isPublicPage = typeof window !== 'undefined' && (
-                window.location.pathname === '/' ||
-                window.location.pathname.match(/^\/(en|fr|ar|he)?\/?$/) ||
-                window.location.pathname.includes('/auth/') ||
-                window.location.pathname.includes('/components') ||
-                window.location.pathname.includes('/pricing')
-              );
-              
-              // Prevent redirect loop - check if already on login page or public page
-              if (typeof window !== 'undefined' && !isPublicPage && !window.location.pathname.includes('/auth/login')) {
-                window.location.href = '/auth/login?error=session_expired';
+              // Only clear tokens and redirect if it's an auth error, not a server error
+              if (!isServerError) {
+                logger.warn('Token refresh failed (auth error)', refreshError);
+                await TokenStorage.removeTokens();
+                
+                // Only redirect if we're on a protected page (not public pages like home, login, register)
+                const isPublicPage = typeof window !== 'undefined' && (
+                  window.location.pathname === '/' ||
+                  window.location.pathname.match(/^\/(en|fr|ar|he)?\/?$/) ||
+                  window.location.pathname.includes('/auth/') ||
+                  window.location.pathname.includes('/components') ||
+                  window.location.pathname.includes('/pricing')
+                );
+                
+                // Prevent redirect loop - check if already on login page or public page
+                if (typeof window !== 'undefined' && !isPublicPage && !window.location.pathname.includes('/auth/login')) {
+                  window.location.href = '/auth/login?error=session_expired';
+                }
+              } else {
+                // Server error during refresh - don't clear tokens or redirect
+                // The user might still be authenticated, just the server is having issues
+                logger.warn('Token refresh failed (server error)', refreshError, {
+                  status: refreshErrorStatus,
+                  message: 'Server error during token refresh, not clearing tokens'
+                });
               }
               
               return Promise.reject(appError);

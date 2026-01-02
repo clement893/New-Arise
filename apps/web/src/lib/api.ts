@@ -184,21 +184,35 @@ apiClient.interceptors.response.use(
             await TokenStorage.setToken(access_token, refreshToken); // Keep same refresh token
             return access_token;
           }).catch(async refreshError => {
-            // Refresh failed, clear tokens and redirect
-            await TokenStorage.removeTokens();
+            // Check if refresh failed due to server error (500) or auth error (401/403)
+            const refreshErrorStatus = (refreshError as AxiosError)?.response?.status;
+            const isServerError = refreshErrorStatus && refreshErrorStatus >= 500;
             
-            // Only redirect if we're on a protected page (not public pages)
-            const isPublicPage = typeof window !== 'undefined' && (
-              window.location.pathname === '/' ||
-              window.location.pathname.match(/^\/(en|fr|ar|he)?\/?$/) ||
-              window.location.pathname.includes('/auth/') ||
-              window.location.pathname.includes('/components') ||
-              window.location.pathname.includes('/pricing')
-            );
-            
-            // Prevent redirect loop - check if already on login page or public page
-            if (typeof window !== 'undefined' && !isPublicPage && !window.location.pathname.includes('/auth/login')) {
-              window.location.href = '/auth/login?error=session_expired';
+            // Only clear tokens and redirect if it's an auth error, not a server error
+            if (!isServerError) {
+              // Refresh failed, clear tokens and redirect
+              await TokenStorage.removeTokens();
+              
+              // Only redirect if we're on a protected page (not public pages)
+              const isPublicPage = typeof window !== 'undefined' && (
+                window.location.pathname === '/' ||
+                window.location.pathname.match(/^\/(en|fr|ar|he)?\/?$/) ||
+                window.location.pathname.includes('/auth/') ||
+                window.location.pathname.includes('/components') ||
+                window.location.pathname.includes('/pricing')
+              );
+              
+              // Prevent redirect loop - check if already on login page or public page
+              if (typeof window !== 'undefined' && !isPublicPage && !window.location.pathname.includes('/auth/login')) {
+                window.location.href = '/auth/login?error=session_expired';
+              }
+            } else {
+              // Server error during refresh - don't clear tokens or redirect
+              // The user might still be authenticated, just the server is having issues
+              logger.warn('Token refresh failed (server error)', refreshError, {
+                status: refreshErrorStatus,
+                message: 'Server error during token refresh, not clearing tokens'
+              });
             }
             throw refreshError;
           }).finally(() => {
