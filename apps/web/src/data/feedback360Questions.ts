@@ -23,26 +23,32 @@ export const feedback360Capabilities = [
   {
     id: 'change_management' as Feedback360Capability,
     title: 'Change Management',
+    icon: '🔄',
   },
   {
     id: 'communication' as Feedback360Capability,
     title: 'Communication',
+    icon: '💬',
   },
   {
     id: 'leadership_style' as Feedback360Capability,
     title: 'Leadership Style',
+    icon: '👔',
   },
   {
     id: 'problem_solving_and_decision_making' as Feedback360Capability,
     title: 'Problem Solving and Decision Making',
+    icon: '🧩',
   },
   {
     id: 'stress_management' as Feedback360Capability,
     title: 'Stress Management',
+    icon: '🧘',
   },
   {
     id: 'team_culture' as Feedback360Capability,
     title: 'Team Culture',
+    icon: '👥',
   },
 ];
 
