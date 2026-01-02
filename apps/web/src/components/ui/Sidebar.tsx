@@ -319,10 +319,9 @@ export default function Sidebar({
               <button
                 onClick={onLogoutClick}
                 className={clsx(
-                  "rounded-lg transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] min-h-[44px] flex items-center justify-center text-white",
+                  "rounded-lg transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] min-h-[44px] flex items-center justify-center text-white bg-arise-dark-gray",
                   collapsed || isMobile ? "p-2 min-w-[44px]" : "px-4 py-3 gap-3 w-full"
                 )}
-                className="bg-arise-dark-gray"
                 aria-label="Déconnexion"
                 title="Déconnexion"
               >
