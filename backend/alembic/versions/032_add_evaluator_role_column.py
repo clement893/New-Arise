@@ -93,6 +93,7 @@ def upgrade():
         'started_at': sa.Column('started_at', sa.DateTime(timezone=True), nullable=True),
         'completed_at': sa.Column('completed_at', sa.DateTime(timezone=True), nullable=True),
         'evaluator_assessment_id': sa.Column('evaluator_assessment_id', sa.Integer(), nullable=True),
+        'status': sa.Column('status', sa.Enum('not_started', 'in_progress', 'completed', name='assessmentstatus'), nullable=False, server_default='not_started'),
     }
     
     for col_name, col_def in missing_columns.items():
