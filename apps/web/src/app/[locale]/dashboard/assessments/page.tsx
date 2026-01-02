@@ -135,24 +135,29 @@ function AssessmentsContent() {
         
         let status: 'completed' | 'in-progress' | 'locked' | 'available' = 'available';
         if (apiAssessment) {
-          // Normalize status to uppercase for comparison (handle case variations)
+          // Normalize status for comparison (backend returns lowercase with underscores)
+          // Backend enum values: "completed", "in_progress", "not_started"
           const rawStatus = String(apiAssessment.status);
-          const normalizedStatus = rawStatus.toUpperCase();
+          const normalizedStatus = rawStatus.toLowerCase().replace(/_/g, '_');
           
-          // Debug logging for Wellness assessments
-          if (apiType === 'WELLNESS' && process.env.NODE_ENV === 'development') {
+          // Debug logging for Wellness assessments (always log in production for troubleshooting)
+          if (apiType === 'WELLNESS') {
             console.log(`[Assessments] Wellness assessment status check:`, {
               rawStatus,
               normalizedStatus,
               assessmentId: apiAssessment.id,
               answerCount: apiAssessment.answer_count,
-              totalQuestions: apiAssessment.total_questions
+              totalQuestions: apiAssessment.total_questions,
+              status: apiAssessment.status
             });
           }
           
-          if (normalizedStatus === 'COMPLETED') {
+          // Check status (backend returns: "completed", "in_progress", "not_started")
+          if (normalizedStatus === 'completed' || rawStatus === 'COMPLETED' || rawStatus === 'completed') {
             status = 'completed';
-          } else if (normalizedStatus === 'IN_PROGRESS' || normalizedStatus === 'NOT_STARTED') {
+          } else if (normalizedStatus === 'in_progress' || normalizedStatus === 'not_started' || 
+                     rawStatus === 'IN_PROGRESS' || rawStatus === 'NOT_STARTED' ||
+                     rawStatus === 'in_progress' || rawStatus === 'not_started') {
             status = 'in-progress';
           } else {
             // If status is unknown but assessment exists, check if it has all answers
@@ -162,9 +167,7 @@ function AssessmentsContent() {
                 apiAssessment.answer_count >= apiAssessment.total_questions) {
               // All questions answered, treat as completed
               status = 'completed';
-              if (process.env.NODE_ENV === 'development') {
-                console.warn(`[Assessments] Assessment ${apiAssessment.id} has all answers but status is "${rawStatus}", treating as completed`);
-              }
+              console.warn(`[Assessments] Assessment ${apiAssessment.id} has all answers (${apiAssessment.answer_count}/${apiAssessment.total_questions}) but status is "${rawStatus}", treating as completed`);
             }
           }
         }
