@@ -8,7 +8,6 @@ import Button from '@/components/ui/Button';
 import { Alert } from '@/components/ui';
 import { 
   Calendar, 
-  Clock, 
   User, 
   CreditCard,
   ArrowLeft,
