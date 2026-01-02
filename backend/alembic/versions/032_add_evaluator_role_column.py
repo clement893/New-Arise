@@ -122,14 +122,16 @@ def upgrade():
     # Add status column separately with proper handling
     if 'status' not in columns:
         print("📝 Adding status column...")
-        # Use the first enum value as default (should be 'not_started')
-        default_value = assessmentstatus_enum_values[0] if assessmentstatus_enum_values else 'not_started'
+        # Use the first enum value as default (should match the actual enum values in DB)
+        default_value = assessmentstatus_enum_values[0] if assessmentstatus_enum_values else 'NOT_STARTED'
         # First add the column as nullable
-        op.add_column('assessment_360_evaluators', sa.Column('status', sa.Enum('not_started', 'in_progress', 'completed', name='assessmentstatus'), nullable=True))
+        # Use the actual enum values from the database
+        enum_type = sa.Enum(*assessmentstatus_enum_values, name='assessmentstatus') if assessmentstatus_enum_values else sa.Enum('NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', name='assessmentstatus')
+        op.add_column('assessment_360_evaluators', sa.Column('status', enum_type, nullable=True))
         # Then set default value for existing rows using the actual enum value
         conn.execute(sa.text(f"UPDATE assessment_360_evaluators SET status = '{default_value}'::assessmentstatus WHERE status IS NULL"))
-        # Finally make it NOT NULL with default
-        op.alter_column('assessment_360_evaluators', 'status', nullable=False, server_default=f"'{default_value}'::assessmentstatus")
+        # Finally make it NOT NULL with default - use sa.text() for proper SQL expression
+        op.alter_column('assessment_360_evaluators', 'status', nullable=False, server_default=sa.text(f"'{default_value}'::assessmentstatus"))
         print(f"✅ Added status column with default '{default_value}'")
     else:
         print("✅ status column already exists")
