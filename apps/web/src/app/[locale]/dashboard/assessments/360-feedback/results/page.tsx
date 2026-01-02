@@ -33,13 +33,11 @@ export default function Feedback360ResultsPage() {
   const loadResults = async () => {
     try {
       setIsLoading(true);
-      
+
       let id = assessmentId;
       if (!id) {
         const assessments = await getMyAssessments();
-        const feedback360Assessment = assessments.find(
-          (a) => a.assessment_type === '360_self'
-        );
+        const feedback360Assessment = assessments.find((a) => a.assessment_type === '360_self');
         if (!feedback360Assessment) {
           setError('No 360 feedback assessment found');
           setIsLoading(false);
@@ -47,13 +45,14 @@ export default function Feedback360ResultsPage() {
         }
         id = feedback360Assessment.id;
       }
-      
+
       const data = await getAssessmentResults(id);
       setResults(data);
     } catch (err: unknown) {
-      const errorMessage = err && typeof err === 'object' && 'message' in err
-        ? (err as { message?: string }).message
-        : undefined;
+      const errorMessage =
+        err && typeof err === 'object' && 'message' in err
+          ? (err as { message?: string }).message
+          : undefined;
       setError(errorMessage || 'Failed to load results');
     } finally {
       setIsLoading(false);
@@ -128,15 +127,16 @@ export default function Feedback360ResultsPage() {
   const hasEvaluatorResponses = comparisonData && Object.keys(comparisonData).length > 0;
 
   // Find strongest and weakest capabilities
-  const sortedCapabilities = Object.entries(capabilityScores)
-    .sort(([, a], [, b]) => (b as number) - (a as number));
+  const sortedCapabilities = Object.entries(capabilityScores).sort(
+    ([, a], [, b]) => (b as number) - (a as number)
+  );
   const strongestCapability = sortedCapabilities[0]?.[0] || '';
   const weakestCapability = sortedCapabilities[sortedCapabilities.length - 1]?.[0] || '';
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
-      
+
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-6xl mx-auto p-8">
           {/* Header */}
@@ -159,9 +159,7 @@ export default function Feedback360ResultsPage() {
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
                   Your 360° Feedback Results
                 </h1>
-                <p className="text-gray-600">
-                  Leadership capabilities assessment
-                </p>
+                <p className="text-gray-600">Leadership capabilities assessment</p>
               </div>
               <Button variant="outline">
                 <Download className="w-4 h-4 mr-2" />
@@ -187,9 +185,14 @@ export default function Feedback360ResultsPage() {
                         Get Complete 360° Feedback
                       </h3>
                       <p className="text-blue-800 mb-3">
-                        These results are based on your self-assessment only. Invite colleagues, managers, and direct reports to provide feedback for a complete 360° view.
+                        These results are based on your self-assessment only. Invite colleagues,
+                        managers, and direct reports to provide feedback for a complete 360° view.
                       </p>
-                      <Button size="sm" variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-100">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-blue-600 text-blue-600 hover:bg-blue-100"
+                      >
                         <UserPlus className="w-4 h-4 mr-2" />
                         Invite Evaluators
                       </Button>
@@ -215,9 +218,7 @@ export default function Feedback360ResultsPage() {
                       Overall Leadership Score
                     </h2>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-5xl font-bold text-amber-700">
-                        {totalScore}
-                      </span>
+                      <span className="text-5xl font-bold text-amber-700">{totalScore}</span>
                       <span className="text-2xl text-gray-600">/ {maxScore}</span>
                       <span className="text-xl text-amber-600 ml-4">
                         ({percentage.toFixed(1)}%)
@@ -227,9 +228,7 @@ export default function Feedback360ResultsPage() {
                   {hasEvaluatorResponses && (
                     <div className="flex items-center gap-2 text-gray-600">
                       <Users className="w-5 h-5" />
-                      <span className="text-sm">
-                        Based on feedback from multiple evaluators
-                      </span>
+                      <span className="text-sm">Based on feedback from multiple evaluators</span>
                     </div>
                   )}
                 </div>
@@ -263,8 +262,8 @@ export default function Feedback360ResultsPage() {
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">
                   Leadership Capabilities Profile
                 </h2>
-                <Feedback360BarChart 
-                  scores={capabilityScores} 
+                <Feedback360BarChart
+                  scores={capabilityScores}
                   comparisonScores={hasEvaluatorResponses ? comparisonData : undefined}
                 />
               </div>
@@ -298,7 +297,10 @@ export default function Feedback360ResultsPage() {
                       level={level}
                       score={score as number}
                       maxScore={25}
-                      description={insight?.description || `Your ${capabilityNames[capability].toLowerCase()} score indicates ${level} performance in this leadership capability.`}
+                      description={
+                        insight?.description ||
+                        `Your ${capabilityNames[capability].toLowerCase()} score indicates ${level} performance in this leadership capability.`
+                      }
                     />
                   </MotionDiv>
                 );
@@ -372,3 +374,5 @@ export default function Feedback360ResultsPage() {
     </div>
   );
 }
+
+

@@ -37,9 +37,10 @@ export default function MBTIResultsPage() {
       const data = await getAssessmentResults(Number(assessmentId));
       setResults(data);
     } catch (err: unknown) {
-      const errorMessage = err && typeof err === 'object' && 'response' in err
-        ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
-        : undefined;
+      const errorMessage =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
+          : undefined;
       setError(errorMessage || 'Failed to load results');
     } finally {
       setIsLoading(false);
@@ -48,24 +49,24 @@ export default function MBTIResultsPage() {
 
   const getDimensionLabel = (dimension: string): string => {
     const labels: Record<string, string> = {
-      'EI': 'Energy Source',
-      'SN': 'Information Gathering',
-      'TF': 'Decision Making',
-      'JP': 'Lifestyle',
+      EI: 'Energy Source',
+      SN: 'Information Gathering',
+      TF: 'Decision Making',
+      JP: 'Lifestyle',
     };
     return labels[dimension] || dimension;
   };
 
   const getPreferenceLabel = (preference: string): string => {
     const labels: Record<string, string> = {
-      'E': 'Extraversion',
-      'I': 'Introversion',
-      'S': 'Sensing',
-      'N': 'Intuition',
-      'T': 'Thinking',
-      'F': 'Feeling',
-      'J': 'Judging',
-      'P': 'Perceiving',
+      E: 'Extraversion',
+      I: 'Introversion',
+      S: 'Sensing',
+      N: 'Intuition',
+      T: 'Thinking',
+      F: 'Feeling',
+      J: 'Judging',
+      P: 'Perceiving',
     };
     return labels[preference] || preference;
   };
@@ -115,7 +116,7 @@ export default function MBTIResultsPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
-      
+
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-6xl mx-auto p-8">
           {/* Header */}
@@ -138,9 +139,7 @@ export default function MBTIResultsPage() {
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
                   Your MBTI Personality Type
                 </h1>
-                <p className="text-gray-600">
-                  Understanding your unique personality profile
-                </p>
+                <p className="text-gray-600">Understanding your unique personality profile</p>
               </div>
               <Button variant="outline">
                 <Download className="w-4 h-4 mr-2" />
@@ -161,18 +160,12 @@ export default function MBTIResultsPage() {
                 <div className="flex items-center gap-6">
                   <div className="flex-shrink-0">
                     <div className="w-24 h-24 bg-purple-600 rounded-full flex items-center justify-center">
-                      <span className="text-4xl font-bold text-white">
-                        {mbtiType}
-                      </span>
+                      <span className="text-4xl font-bold text-white">{mbtiType}</span>
                     </div>
                   </div>
                   <div className="flex-1">
-                    <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                      {typeInfo.name}
-                    </h2>
-                    <p className="text-lg text-gray-700 mb-4">
-                      {typeInfo.description}
-                    </p>
+                    <h2 className="text-3xl font-bold text-gray-900 mb-2">{typeInfo.name}</h2>
+                    <p className="text-lg text-gray-700 mb-4">{typeInfo.description}</p>
                     <div className="flex flex-wrap gap-2">
                       {typeInfo.strengths.map((strength, index) => (
                         <span
@@ -197,61 +190,61 @@ export default function MBTIResultsPage() {
             transition={{ delay: 0.2 }}
             className="mb-8"
           >
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Your Personality Dimensions
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Your Personality Dimensions</h2>
             <div className="grid gap-4">
-              {Object.entries(dimensionPreferences).map(([dimension, prefs]: [string, any], index) => {
-                const preference = prefs.preference;
-                const percentage = prefs[preference];
-                const oppositePreference = dimension.replace(preference, '').trim();
-                const oppositePercentage = prefs[oppositePreference] || (100 - percentage);
+              {Object.entries(dimensionPreferences).map(
+                ([dimension, prefs]: [string, any], index) => {
+                  const preference = prefs.preference;
+                  const percentage = prefs[preference];
+                  const oppositePreference = dimension.replace(preference, '').trim();
+                  const oppositePercentage = prefs[oppositePreference] || 100 - percentage;
 
-                return (
-                  <MotionDiv
-                    key={dimension}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 + index * 0.1 }}
-                  >
-                    <Card>
-                      <div className="p-6">
-                        <div className="flex items-center justify-between mb-3">
-                          <h3 className="font-semibold text-gray-900">
-                            {getDimensionLabel(dimension)}
-                          </h3>
-                          <span className="text-sm font-medium text-purple-600">
-                            {getPreferenceLabel(preference)}
-                          </span>
-                        </div>
-                        
-                        {/* Progress Bar */}
-                        <div className="relative h-8 bg-gray-200 rounded-full overflow-hidden mb-3">
-                          <div
-                            className="absolute left-0 h-full bg-purple-600 transition-all duration-500"
-                            style={{ width: `${percentage}%` }}
-                          />
-                          <div className="absolute inset-0 flex items-center justify-between px-4">
-                            <span className="text-xs font-medium text-gray-700">
-                              {dimension[0]} ({oppositePercentage.toFixed(0)}%)
-                            </span>
-                            <span className="text-xs font-medium text-white">
-                              {dimension[1]} ({percentage.toFixed(0)}%)
+                  return (
+                    <MotionDiv
+                      key={dimension}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 + index * 0.1 }}
+                    >
+                      <Card>
+                        <div className="p-6">
+                          <div className="flex items-center justify-between mb-3">
+                            <h3 className="font-semibold text-gray-900">
+                              {getDimensionLabel(dimension)}
+                            </h3>
+                            <span className="text-sm font-medium text-purple-600">
+                              {getPreferenceLabel(preference)}
                             </span>
                           </div>
-                        </div>
 
-                        {/* Description */}
-                        {insights.dimensions && insights.dimensions[dimension] && (
-                          <p className="text-sm text-gray-600">
-                            {insights.dimensions[dimension].description}
-                          </p>
-                        )}
-                      </div>
-                    </Card>
-                  </MotionDiv>
-                );
-              })}
+                          {/* Progress Bar */}
+                          <div className="relative h-8 bg-gray-200 rounded-full overflow-hidden mb-3">
+                            <div
+                              className="absolute left-0 h-full bg-purple-600 transition-all duration-500"
+                              style={{ width: `${percentage}%` }}
+                            />
+                            <div className="absolute inset-0 flex items-center justify-between px-4">
+                              <span className="text-xs font-medium text-gray-700">
+                                {dimension[0]} ({oppositePercentage.toFixed(0)}%)
+                              </span>
+                              <span className="text-xs font-medium text-white">
+                                {dimension[1]} ({percentage.toFixed(0)}%)
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Description */}
+                          {insights.dimensions && insights.dimensions[dimension] && (
+                            <p className="text-sm text-gray-600">
+                              {insights.dimensions[dimension].description}
+                            </p>
+                          )}
+                        </div>
+                      </Card>
+                    </MotionDiv>
+                  );
+                }
+              )}
             </div>
           </MotionDiv>
 
@@ -263,17 +256,13 @@ export default function MBTIResultsPage() {
               transition={{ delay: 0.6 }}
               className="mb-8"
             >
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Strengths & Growth Areas
-              </h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Strengths & Growth Areas</h2>
               <div className="grid md:grid-cols-2 gap-4">
                 {/* Strengths */}
                 {insights.strengths && (
                   <Card className="bg-green-50 border-green-200">
                     <div className="p-6">
-                      <h3 className="font-semibold text-green-900 mb-3">
-                        💪 Your Strengths
-                      </h3>
+                      <h3 className="font-semibold text-green-900 mb-3">💪 Your Strengths</h3>
                       <ul className="space-y-2">
                         {insights.strengths.map((strength: string, index: number) => (
                           <li key={index} className="text-sm text-green-800 flex items-start gap-2">
@@ -290,9 +279,7 @@ export default function MBTIResultsPage() {
                 {insights.challenges && (
                   <Card className="bg-amber-50 border-amber-200">
                     <div className="p-6">
-                      <h3 className="font-semibold text-amber-900 mb-3">
-                        🎯 Growth Areas
-                      </h3>
+                      <h3 className="font-semibold text-amber-900 mb-3">🎯 Growth Areas</h3>
                       <ul className="space-y-2">
                         {insights.challenges.map((challenge: string, index: number) => (
                           <li key={index} className="text-sm text-amber-800 flex items-start gap-2">

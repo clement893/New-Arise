@@ -42,7 +42,7 @@ export default function MBTIAssessmentPage() {
     // Load existing answer for current question
     const currentQuestion = mbtiQuestions[currentQuestionIndex];
     if (currentQuestion) {
-      const existingAnswer = answers.find(a => a.questionId === currentQuestion.id);
+      const existingAnswer = answers.find((a) => a.questionId === currentQuestion.id);
       if (existingAnswer) {
         // Determine which option was selected
         if (existingAnswer.preference === currentQuestion.optionA.preference) {
@@ -58,9 +58,8 @@ export default function MBTIAssessmentPage() {
 
   const handleSelectOption = async (option: 'A' | 'B') => {
     const currentQuestion = mbtiQuestions[currentQuestionIndex];
-    const preference = option === 'A' 
-      ? currentQuestion.optionA.preference 
-      : currentQuestion.optionB.preference;
+    const preference =
+      option === 'A' ? currentQuestion.optionA.preference : currentQuestion.optionB.preference;
 
     setSelectedOption(option);
 
@@ -116,7 +115,7 @@ export default function MBTIAssessmentPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
-      
+
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto p-8">
           {/* Header */}
@@ -134,12 +133,8 @@ export default function MBTIAssessmentPage() {
               Back to Assessments
             </Button>
 
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              MBTI Personality Assessment
-            </h1>
-            <p className="text-gray-600">
-              Discover your personality type across 4 dimensions
-            </p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">MBTI Personality Assessment</h1>
+            <p className="text-gray-600">Discover your personality type across 4 dimensions</p>
           </MotionDiv>
 
           {/* Progress Bar */}
@@ -202,19 +197,17 @@ export default function MBTIAssessmentPage() {
                     }`}
                   >
                     <div className="flex items-start gap-4">
-                      <div className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                        selectedOption === 'A'
-                          ? 'border-purple-600 bg-purple-600'
-                          : 'border-gray-300'
-                      }`}>
-                        {selectedOption === 'A' && (
-                          <Check className="w-4 h-4 text-white" />
-                        )}
+                      <div
+                        className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                          selectedOption === 'A'
+                            ? 'border-purple-600 bg-purple-600'
+                            : 'border-gray-300'
+                        }`}
+                      >
+                        {selectedOption === 'A' && <Check className="w-4 h-4 text-white" />}
                       </div>
                       <div className="flex-1">
-                        <p className="text-gray-900 font-medium">
-                          {currentQuestion.optionA.text}
-                        </p>
+                        <p className="text-gray-900 font-medium">{currentQuestion.optionA.text}</p>
                       </div>
                     </div>
                   </button>
@@ -229,19 +222,17 @@ export default function MBTIAssessmentPage() {
                     }`}
                   >
                     <div className="flex items-start gap-4">
-                      <div className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                        selectedOption === 'B'
-                          ? 'border-purple-600 bg-purple-600'
-                          : 'border-gray-300'
-                      }`}>
-                        {selectedOption === 'B' && (
-                          <Check className="w-4 h-4 text-white" />
-                        )}
+                      <div
+                        className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                          selectedOption === 'B'
+                            ? 'border-purple-600 bg-purple-600'
+                            : 'border-gray-300'
+                        }`}
+                      >
+                        {selectedOption === 'B' && <Check className="w-4 h-4 text-white" />}
                       </div>
                       <div className="flex-1">
-                        <p className="text-gray-900 font-medium">
-                          {currentQuestion.optionB.text}
-                        </p>
+                        <p className="text-gray-900 font-medium">{currentQuestion.optionB.text}</p>
                       </div>
                     </div>
                   </button>
@@ -291,10 +282,7 @@ export default function MBTIAssessmentPage() {
                 <Check className="w-4 h-4 ml-2" />
               </Button>
             ) : (
-              <Button
-                onClick={handleNext}
-                disabled={!selectedOption || isLastQuestion}
-              >
+              <Button onClick={handleNext} disabled={!selectedOption || isLastQuestion}>
                 Next
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>

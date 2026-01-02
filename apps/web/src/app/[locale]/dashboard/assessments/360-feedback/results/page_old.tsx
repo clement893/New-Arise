@@ -3,7 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { getAssessmentResults, getMyAssessments, PillarScore, AssessmentResult } from '@/lib/api/assessments';
+import {
+  getAssessmentResults,
+  getMyAssessments,
+  PillarScore,
+  AssessmentResult,
+} from '@/lib/api/assessments';
 import { useFeedback360Store } from '@/stores/feedback360Store';
 import { feedback360Capabilities } from '@/data/feedback360Questions';
 import Button from '@/components/ui/Button';
@@ -45,7 +50,7 @@ export default function Feedback360ResultsPage() {
   const loadResults = async () => {
     try {
       setIsLoading(true);
-      
+
       // Get assessment ID from store or find it from my assessments
       let id = assessmentId;
       if (!id) {
@@ -60,9 +65,9 @@ export default function Feedback360ResultsPage() {
         }
         id = feedback360Assessment.id;
       }
-      
+
       const response: AssessmentResult = await getAssessmentResults(id);
-      
+
       // Transform AssessmentResult to Results format
       const scores = response.scores;
       const capabilityScores: CapabilityScore[] = scores.capability_scores
@@ -77,7 +82,7 @@ export default function Feedback360ResultsPage() {
             };
           })
         : [];
-      
+
       // Check if there are evaluator responses (this would come from backend)
       // For now, we'll assume false if not provided
       const transformedResults: Results = {
@@ -88,12 +93,13 @@ export default function Feedback360ResultsPage() {
         has_evaluator_responses: false, // Backend should provide this
         evaluator_count: 0, // Backend should provide this
       };
-      
+
       setResults(transformedResults);
     } catch (err: unknown) {
-      const errorMessage = err && typeof err === 'object' && 'message' in err
-        ? (err as { message?: string }).message
-        : undefined;
+      const errorMessage =
+        err && typeof err === 'object' && 'message' in err
+          ? (err as { message?: string }).message
+          : undefined;
       setError(errorMessage || 'Failed to load results');
     } finally {
       setIsLoading(false);
@@ -113,9 +119,7 @@ export default function Feedback360ResultsPage() {
       <div className="flex min-h-screen items-center justify-center bg-arise-teal p-8">
         <div className="rounded-lg bg-white p-8 text-center shadow-lg">
           <p className="mb-4 text-red-600">{error || 'No results found'}</p>
-          <Button onClick={() => router.push('/dashboard/assessments')}>
-            Back to Assessments
-          </Button>
+          <Button onClick={() => router.push('/dashboard/assessments')}>Back to Assessments</Button>
         </div>
       </div>
     );
@@ -181,21 +185,21 @@ export default function Feedback360ResultsPage() {
             duration="normal"
             className="rounded-lg bg-white p-8 shadow-lg"
           >
-            <h1 className="mb-4 text-3xl font-bold text-gray-900">
-              360° Feedback Results
-            </h1>
+            <h1 className="mb-4 text-3xl font-bold text-gray-900">360° Feedback Results</h1>
 
             {results.has_evaluator_responses ? (
               <div className="flex items-center gap-2 text-gray-600">
                 <Users className="h-5 w-5" />
                 <span>
-                  Based on your self-assessment and feedback from {results.evaluator_count} colleague{results.evaluator_count !== 1 ? 's' : ''}
+                  Based on your self-assessment and feedback from {results.evaluator_count}{' '}
+                  colleague{results.evaluator_count !== 1 ? 's' : ''}
                 </span>
               </div>
             ) : (
               <div className="rounded-lg bg-blue-50 p-4">
                 <p className="text-sm text-blue-800">
-                  <strong>Note:</strong> These results are based on your self-assessment only. Invite colleagues to provide feedback for a complete 360° view.
+                  <strong>Note:</strong> These results are based on your self-assessment only.
+                  Invite colleagues to provide feedback for a complete 360° view.
                 </p>
               </div>
             )}
@@ -209,15 +213,11 @@ export default function Feedback360ResultsPage() {
           delay={0.1}
           className="mb-8 rounded-lg bg-white p-8 shadow-lg"
         >
-          <h2 className="mb-6 text-2xl font-semibold text-gray-900">
-            Overall Leadership Score
-          </h2>
+          <h2 className="mb-6 text-2xl font-semibold text-gray-900">Overall Leadership Score</h2>
 
           <div className="flex items-center justify-center">
             <div className="text-center">
-              <div className="mb-2 text-6xl font-bold text-arise-teal">
-                {results.percentage}%
-              </div>
+              <div className="mb-2 text-6xl font-bold text-arise-teal">{results.percentage}%</div>
               <div className="text-gray-600">
                 {results.total_score} out of {results.max_score} points
               </div>
@@ -232,15 +232,11 @@ export default function Feedback360ResultsPage() {
           delay={0.2}
           className="mb-8 rounded-lg bg-white p-8 shadow-lg"
         >
-          <h2 className="mb-6 text-2xl font-semibold text-gray-900">
-            Leadership Capabilities
-          </h2>
+          <h2 className="mb-6 text-2xl font-semibold text-gray-900">Leadership Capabilities</h2>
 
           <div className="space-y-6">
             {results.capability_scores.map((capScore, index) => {
-              const capInfo = feedback360Capabilities.find(
-                (c) => c.id === capScore.capability
-              );
+              const capInfo = feedback360Capabilities.find((c) => c.id === capScore.capability);
 
               return (
                 <MotionDiv
@@ -255,12 +251,8 @@ export default function Feedback360ResultsPage() {
                     <div className="flex items-center gap-3">
                       <span className="text-3xl">{capInfo?.icon}</span>
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          {capInfo?.title}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          {capInfo?.description}
-                        </p>
+                        <h3 className="text-lg font-semibold text-gray-900">{capInfo?.title}</h3>
+                        <p className="text-sm text-gray-600">{capInfo?.description}</p>
                       </div>
                     </div>
 
@@ -328,18 +320,16 @@ export default function Feedback360ResultsPage() {
           delay={0.4}
           className="rounded-lg bg-white p-8 shadow-lg"
         >
-          <h2 className="mb-6 text-2xl font-semibold text-gray-900">
-            Recommendations
-          </h2>
+          <h2 className="mb-6 text-2xl font-semibold text-gray-900">Recommendations</h2>
 
           <div className="space-y-4">
             {!results.has_evaluator_responses && (
               <div className="rounded-lg bg-blue-50 p-6">
-                <h3 className="mb-2 font-semibold text-blue-900">
-                  Complete Your 360° View
-                </h3>
+                <h3 className="mb-2 font-semibold text-blue-900">Complete Your 360° View</h3>
                 <p className="mb-4 text-sm text-blue-800">
-                  Invite colleagues, managers, and direct reports to provide their perspective on your leadership. This will give you a comprehensive view of how others perceive your capabilities.
+                  Invite colleagues, managers, and direct reports to provide their perspective on
+                  your leadership. This will give you a comprehensive view of how others perceive
+                  your capabilities.
                 </p>
                 <Button
                   onClick={() => router.push('/dashboard/assessments')}
@@ -351,20 +341,18 @@ export default function Feedback360ResultsPage() {
             )}
 
             <div className="rounded-lg bg-green-50 p-6">
-              <h3 className="mb-2 font-semibold text-green-900">
-                Create Your Development Plan
-              </h3>
+              <h3 className="mb-2 font-semibold text-green-900">Create Your Development Plan</h3>
               <p className="text-sm text-green-800">
-                Use these insights to create a personalized development plan focusing on your growth areas while leveraging your strengths.
+                Use these insights to create a personalized development plan focusing on your growth
+                areas while leveraging your strengths.
               </p>
             </div>
 
             <div className="rounded-lg bg-purple-50 p-6">
-              <h3 className="mb-2 font-semibold text-purple-900">
-                Schedule Coaching
-              </h3>
+              <h3 className="mb-2 font-semibold text-purple-900">Schedule Coaching</h3>
               <p className="text-sm text-purple-800">
-                Work with an ARISE coach to dive deeper into your results and create actionable strategies for leadership development.
+                Work with an ARISE coach to dive deeper into your results and create actionable
+                strategies for leadership development.
               </p>
             </div>
           </div>
@@ -373,3 +361,5 @@ export default function Feedback360ResultsPage() {
     </div>
   );
 }
+
+

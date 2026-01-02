@@ -38,9 +38,10 @@ export default function WellnessResultsPage() {
       const data = await getAssessmentResults(Number(assessmentId));
       setResults(data);
     } catch (err: unknown) {
-      const errorMessage = err && typeof err === 'object' && 'response' in err
-        ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
-        : undefined;
+      const errorMessage =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
+          : undefined;
       setError(errorMessage || 'Failed to load results');
     } finally {
       setIsLoading(false);
@@ -113,15 +114,16 @@ export default function WellnessResultsPage() {
   const recommendations = results.recommendations || [];
 
   // Find strongest and weakest pillars
-  const sortedPillars = Object.entries(pillarScores)
-    .sort(([, a], [, b]) => (b as number) - (a as number));
+  const sortedPillars = Object.entries(pillarScores).sort(
+    ([, a], [, b]) => (b as number) - (a as number)
+  );
   const strongestPillar = sortedPillars[0]?.[0] || '';
   const weakestPillar = sortedPillars[sortedPillars.length - 1]?.[0] || '';
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
-      
+
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-6xl mx-auto p-8">
           {/* Header */}
@@ -170,13 +172,9 @@ export default function WellnessResultsPage() {
                       Overall Wellness Score
                     </h2>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-5xl font-bold text-teal-700">
-                        {totalScore}
-                      </span>
+                      <span className="text-5xl font-bold text-teal-700">{totalScore}</span>
                       <span className="text-2xl text-gray-600">/ {maxScore}</span>
-                      <span className="text-xl text-teal-600 ml-4">
-                        ({percentage.toFixed(1)}%)
-                      </span>
+                      <span className="text-xl text-teal-600 ml-4">({percentage.toFixed(1)}%)</span>
                     </div>
                   </div>
                   <Heart className="w-16 h-16 text-teal-600" />
@@ -208,9 +206,7 @@ export default function WellnessResultsPage() {
           >
             <Card>
               <div className="p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Your Wellness Profile
-                </h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Wellness Profile</h2>
                 <WellnessBarChart scores={pillarScores} />
               </div>
             </Card>
@@ -223,9 +219,7 @@ export default function WellnessResultsPage() {
             transition={{ delay: 0.3 }}
             className="mb-8"
           >
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Detailed Insights by Pillar
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Detailed Insights by Pillar</h2>
             <div className="grid gap-4">
               {Object.entries(pillarScores).map(([pillar, score], index) => {
                 const level = getPillarLevel(score as number);
@@ -243,7 +237,10 @@ export default function WellnessResultsPage() {
                       level={level}
                       score={score as number}
                       maxScore={25}
-                      description={insight?.description || `Your ${pillarNames[pillar].toLowerCase()} score indicates ${level} performance in this area.`}
+                      description={
+                        insight?.description ||
+                        `Your ${pillarNames[pillar].toLowerCase()} score indicates ${level} performance in this area.`
+                      }
                     />
                   </MotionDiv>
                 );
@@ -317,3 +314,5 @@ export default function WellnessResultsPage() {
     </div>
   );
 }
+
+

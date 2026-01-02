@@ -39,9 +39,10 @@ export default function TKIResultsPage() {
       const data = await getAssessmentResults(Number(assessmentId));
       setResults(data);
     } catch (err: unknown) {
-      const errorMessage = err && typeof err === 'object' && 'response' in err
-        ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
-        : undefined;
+      const errorMessage =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
+          : undefined;
       setError(errorMessage || 'Failed to load results');
     } finally {
       setIsLoading(false);
@@ -49,7 +50,7 @@ export default function TKIResultsPage() {
   };
 
   const getModeInfo = (modeId: string) => {
-    return tkiModes.find(m => m.id === modeId);
+    return tkiModes.find((m) => m.id === modeId);
   };
 
   const getModeLevel = (count: number): 'low' | 'moderate' | 'high' => {
@@ -96,15 +97,16 @@ export default function TKIResultsPage() {
   const recommendations = results.recommendations || [];
 
   // Find dominant mode
-  const sortedModes = Object.entries(modeScores)
-    .sort(([, a], [, b]) => (b as number) - (a as number));
+  const sortedModes = Object.entries(modeScores).sort(
+    ([, a], [, b]) => (b as number) - (a as number)
+  );
   const dominantMode = sortedModes[0]?.[0] || '';
   const dominantModeInfo = getModeInfo(dominantMode);
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
-      
+
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-6xl mx-auto p-8">
           {/* Header */}
@@ -127,9 +129,7 @@ export default function TKIResultsPage() {
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
                   Your TKI Conflict Style Results
                 </h1>
-                <p className="text-gray-600">
-                  Understanding how you approach conflict situations
-                </p>
+                <p className="text-gray-600">Understanding how you approach conflict situations</p>
               </div>
               <Button variant="outline">
                 <Download className="w-4 h-4 mr-2" />
@@ -153,12 +153,8 @@ export default function TKIResultsPage() {
                 <div className="flex items-center gap-4">
                   <div className="text-5xl">{dominantModeInfo?.emoji}</div>
                   <div>
-                    <h3 className="text-2xl font-bold text-teal-700">
-                      {dominantModeInfo?.name}
-                    </h3>
-                    <p className="text-gray-700 mt-1">
-                      {dominantModeInfo?.description}
-                    </p>
+                    <h3 className="text-2xl font-bold text-teal-700">{dominantModeInfo?.name}</h3>
+                    <p className="text-gray-700 mt-1">{dominantModeInfo?.description}</p>
                   </div>
                 </div>
               </div>
@@ -189,9 +185,7 @@ export default function TKIResultsPage() {
             transition={{ delay: 0.3 }}
             className="mb-8"
           >
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Detailed Insights
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Detailed Insights</h2>
             <div className="grid gap-4">
               {Object.entries(modeScores).map(([mode, score], index) => {
                 const modeInfo = getModeInfo(mode);
@@ -259,9 +253,7 @@ export default function TKIResultsPage() {
           >
             <Card className="bg-gray-50">
               <div className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Ready to explore more?
-                </h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Ready to explore more?</h3>
                 <p className="text-gray-600 mb-4">
                   Continue your leadership development journey with our other assessments
                 </p>
@@ -284,3 +276,5 @@ export default function TKIResultsPage() {
     </div>
   );
 }
+
+

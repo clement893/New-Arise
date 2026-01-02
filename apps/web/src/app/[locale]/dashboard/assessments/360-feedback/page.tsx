@@ -93,11 +93,11 @@ export default function Feedback360Page() {
             duration="normal"
             className="rounded-lg bg-white p-8 shadow-lg"
           >
-            <h1 className="mb-4 text-3xl font-bold text-gray-900">
-              360° Feedback Assessment
-            </h1>
+            <h1 className="mb-4 text-3xl font-bold text-gray-900">360° Feedback Assessment</h1>
             <p className="mb-6 text-gray-600">
-              The 360° feedback process provides a complete view of your leadership by combining your self-reflection with feedback from colleagues, leaders, direct reports and external stakeholders.
+              The 360° feedback process provides a complete view of your leadership by combining
+              your self-reflection with feedback from colleagues, leaders, direct reports and
+              external stakeholders.
             </p>
 
             <div className="mb-8 rounded-lg bg-blue-50 p-6">
@@ -106,16 +106,20 @@ export default function Feedback360Page() {
               </h2>
               <ul className="space-y-2 text-sm text-blue-800">
                 <li>
-                  <strong>Reflective:</strong> Take time to carefully consider your actions, decisions, and the impact you have had on others in the last twelve months.
+                  <strong>Reflective:</strong> Take time to carefully consider your actions,
+                  decisions, and the impact you have had on others in the last twelve months.
                 </li>
                 <li>
-                  <strong>Honest:</strong> Acknowledge both your strengths and the areas where you can grow; authentic self-insight creates the most value.
+                  <strong>Honest:</strong> Acknowledge both your strengths and the areas where you
+                  can grow; authentic self-insight creates the most value.
                 </li>
                 <li>
-                  <strong>Balanced:</strong> Focus on real behaviors and outcomes, not just intentions or isolated moments.
+                  <strong>Balanced:</strong> Focus on real behaviors and outcomes, not just
+                  intentions or isolated moments.
                 </li>
                 <li>
-                  <strong>Developmental:</strong> Approach this as an opportunity to learn more about yourself and set a foundation for continued growth.
+                  <strong>Developmental:</strong> Approach this as an opportunity to learn more
+                  about yourself and set a foundation for continued growth.
                 </li>
               </ul>
             </div>
@@ -132,12 +136,8 @@ export default function Feedback360Page() {
                   >
                     <span className="text-2xl">{capability.icon}</span>
                     <div>
-                      <h3 className="font-semibold text-gray-900">
-                        {capability.title}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {capability.description}
-                      </p>
+                      <h3 className="font-semibold text-gray-900">{capability.title}</h3>
+                      <p className="text-sm text-gray-600">{capability.description}</p>
                     </div>
                   </div>
                 ))}
@@ -152,9 +152,7 @@ export default function Feedback360Page() {
               {isLoading ? 'Starting...' : 'Start Self-Assessment'}
             </Button>
 
-            {error && (
-              <p className="mt-4 text-center text-sm text-red-600">{error}</p>
-            )}
+            {error && <p className="mt-4 text-center text-sm text-red-600">{error}</p>}
           </MotionDiv>
         </div>
       </div>
@@ -171,16 +169,16 @@ export default function Feedback360Page() {
             className="rounded-lg bg-white p-8 text-center shadow-lg"
           >
             <CheckCircle className="mx-auto mb-4 h-16 w-16 text-green-500" />
-            <h1 className="mb-4 text-3xl font-bold text-gray-900">
-              Self-Assessment Complete!
-            </h1>
+            <h1 className="mb-4 text-3xl font-bold text-gray-900">Self-Assessment Complete!</h1>
             <p className="mb-8 text-gray-600">
               Thank you for completing your self-assessment. Your responses have been saved.
             </p>
 
             <div className="mb-8 rounded-lg bg-blue-50 p-6">
               <p className="text-sm text-blue-800">
-                <strong>Next Step:</strong> Invite colleagues to provide their feedback on your leadership. Their perspectives will be combined with your self-assessment to create a comprehensive 360° view.
+                <strong>Next Step:</strong> Invite colleagues to provide their feedback on your
+                leadership. Their perspectives will be combined with your self-assessment to create
+                a comprehensive 360° view.
               </p>
             </div>
 
@@ -201,9 +199,7 @@ export default function Feedback360Page() {
               </Button>
             </div>
 
-            {error && (
-              <p className="mt-4 text-center text-sm text-red-600">{error}</p>
-            )}
+            {error && <p className="mt-4 text-center text-sm text-red-600">{error}</p>}
           </MotionDiv>
         </div>
       </div>
@@ -217,10 +213,7 @@ export default function Feedback360Page() {
         <div className="mx-auto max-w-4xl">
           <div className="rounded-lg bg-white p-8 shadow-lg text-center">
             <p className="text-gray-600">Question not found</p>
-            <Button
-              onClick={() => router.push('/dashboard/assessments')}
-              className="mt-4"
-            >
+            <Button onClick={() => router.push('/dashboard/assessments')} className="mt-4">
               Back to Assessments
             </Button>
           </div>
@@ -261,9 +254,7 @@ export default function Feedback360Page() {
           </div>
 
           {/* Question */}
-          <h2 className="mb-8 text-2xl font-semibold text-gray-900">
-            {question.text}
-          </h2>
+          <h2 className="mb-8 text-2xl font-semibold text-gray-900">{question.text}</h2>
 
           {/* Scale */}
           <div className="mb-8 space-y-3">
@@ -278,12 +269,8 @@ export default function Feedback360Page() {
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-gray-900">
-                    {option.label}
-                  </span>
-                  <span className="text-2xl font-bold text-arise-teal">
-                    {option.value}
-                  </span>
+                  <span className="font-medium text-gray-900">{option.label}</span>
+                  <span className="text-2xl font-bold text-arise-teal">{option.value}</span>
                 </div>
               </button>
             ))}
@@ -291,11 +278,7 @@ export default function Feedback360Page() {
 
           {/* Navigation */}
           <div className="flex justify-between">
-            <Button
-              variant="outline"
-              onClick={handleBack}
-              disabled={currentQuestion === 0}
-            >
+            <Button variant="outline" onClick={handleBack} disabled={currentQuestion === 0}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
             </Button>

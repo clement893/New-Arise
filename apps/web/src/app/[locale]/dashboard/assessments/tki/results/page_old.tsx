@@ -35,26 +35,28 @@ export default function TKIResultsPage() {
     try {
       setIsLoading(true);
       const data = await getAssessmentResults(Number(assessmentId));
-      
+
       // Transform AssessmentResult to TKIResults format
       const { scores } = data;
       const modeScores = scores.mode_scores || {};
-      
+
       // Find dominant and secondary modes
-      const sortedModes = Object.entries(modeScores)
-        .sort(([, a], [, b]) => (b as number) - (a as number));
-      
+      const sortedModes = Object.entries(modeScores).sort(
+        ([, a], [, b]) => (b as number) - (a as number)
+      );
+
       const transformedResults: TKIResults = {
         mode_counts: modeScores as Record<string, number>,
         dominant_mode: sortedModes[0]?.[0] || '',
         secondary_mode: sortedModes[1]?.[0] || '',
       };
-      
+
       setResults(transformedResults);
     } catch (err: unknown) {
-      const errorMessage = err && typeof err === 'object' && 'response' in err
-        ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
-        : undefined;
+      const errorMessage =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
+          : undefined;
       setError(errorMessage || 'Failed to load results');
     } finally {
       setIsLoading(false);
@@ -62,7 +64,7 @@ export default function TKIResultsPage() {
   };
 
   const getModeInfo = (modeId: string) => {
-    return tkiModes.find(m => m.id === modeId);
+    return tkiModes.find((m) => m.id === modeId);
   };
 
   const getModePercentage = (count: number) => {
@@ -90,22 +92,26 @@ export default function TKIResultsPage() {
       },
       collaborating: {
         high: 'You excel at finding win-win solutions that fully satisfy both parties. This is ideal for complex issues requiring diverse perspectives.',
-        moderate: 'You use collaboration when appropriate, though you may also rely on other conflict modes.',
+        moderate:
+          'You use collaboration when appropriate, though you may also rely on other conflict modes.',
         low: 'You may benefit from developing your collaborative skills to find more integrative solutions.',
       },
       compromising: {
         high: 'You frequently seek middle-ground solutions, which can be efficient when time is limited or when goals are moderately important.',
-        moderate: 'You use compromise as one of several conflict management tools in your repertoire.',
+        moderate:
+          'You use compromise as one of several conflict management tools in your repertoire.',
         low: 'You tend to favor other approaches over compromise, which may mean you seek more complete solutions.',
       },
       avoiding: {
         high: 'You often postpone or withdraw from conflicts. While useful for trivial issues, overuse may leave important matters unresolved.',
-        moderate: 'You strategically avoid conflicts when appropriate, such as when emotions are high or more information is needed.',
+        moderate:
+          'You strategically avoid conflicts when appropriate, such as when emotions are high or more information is needed.',
         low: 'You rarely avoid conflicts, preferring to address issues directly.',
       },
       accommodating: {
-        high: 'You frequently yield to others\' concerns. This builds goodwill but may lead to your needs being overlooked if overused.',
-        moderate: 'You accommodate others when it makes sense, balancing their needs with your own.',
+        high: "You frequently yield to others' concerns. This builds goodwill but may lead to your needs being overlooked if overused.",
+        moderate:
+          'You accommodate others when it makes sense, balancing their needs with your own.',
         low: 'You rarely accommodate others, which may indicate a strong focus on your own goals.',
       },
     };
@@ -160,7 +166,7 @@ export default function TKIResultsPage() {
 
       <div className="flex-1 ml-64">
         {/* Background */}
-        <div 
+        <div
           className="fixed inset-0 ml-64 bg-cover bg-center opacity-10 pointer-events-none"
           style={{
             backgroundImage: 'url(/images/dashboard-bg.jpg)',
@@ -183,9 +189,7 @@ export default function TKIResultsPage() {
               <h1 className="text-4xl font-bold text-arise-teal mb-2">
                 TKI Conflict Style Results
               </h1>
-              <p className="text-gray-600">
-                Your conflict management profile
-              </p>
+              <p className="text-gray-600">Your conflict management profile</p>
             </div>
 
             {/* Dominant & Secondary Modes */}
@@ -196,7 +200,8 @@ export default function TKIResultsPage() {
                   <h3 className="text-sm font-medium opacity-90 mb-2">Dominant Mode</h3>
                   <h2 className="text-3xl font-bold mb-2">{dominantModeInfo?.title}</h2>
                   <p className="text-sm opacity-90">
-                    {results.dominant_mode ? (results.mode_counts[results.dominant_mode] || 0) : 0} out of 30 responses
+                    {results.dominant_mode ? results.mode_counts[results.dominant_mode] || 0 : 0}{' '}
+                    out of 30 responses
                   </p>
                 </div>
               </Card>
@@ -207,7 +212,8 @@ export default function TKIResultsPage() {
                   <h3 className="text-sm font-medium opacity-90 mb-2">Secondary Mode</h3>
                   <h2 className="text-3xl font-bold mb-2">{secondaryModeInfo?.title}</h2>
                   <p className="text-sm opacity-90">
-                    {results.secondary_mode ? (results.mode_counts[results.secondary_mode] || 0) : 0} out of 30 responses
+                    {results.secondary_mode ? results.mode_counts[results.secondary_mode] || 0 : 0}{' '}
+                    out of 30 responses
                   </p>
                 </div>
               </Card>
@@ -227,7 +233,10 @@ export default function TKIResultsPage() {
                   const percentage = getModePercentage(count);
 
                   return (
-                    <div key={modeId} className="border-b border-gray-200 last:border-0 pb-6 last:pb-0">
+                    <div
+                      key={modeId}
+                      className="border-b border-gray-200 last:border-0 pb-6 last:pb-0"
+                    >
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
                           <div className="text-2xl">{modeInfo?.icon}</div>
@@ -258,9 +267,7 @@ export default function TKIResultsPage() {
 
                       {/* Insight */}
                       <div className="bg-arise-beige p-4 rounded-lg">
-                        <p className="text-sm text-gray-700">
-                          {getModeInsight(modeId, count)}
-                        </p>
+                        <p className="text-sm text-gray-700">{getModeInsight(modeId, count)}</p>
                       </div>
                     </div>
                   );
@@ -270,18 +277,22 @@ export default function TKIResultsPage() {
 
             {/* Recommendations */}
             <Card className="bg-arise-gold/10 border-2 border-arise-gold/30">
-              <h2 className="text-2xl font-bold text-arise-teal mb-4">
-                Recommendations
-              </h2>
+              <h2 className="text-2xl font-bold text-arise-teal mb-4">Recommendations</h2>
               <div className="space-y-3">
                 <p className="text-gray-700">
-                  <strong>Leverage your strengths:</strong> Your dominant {dominantModeInfo?.title.toLowerCase()} style can be very effective in appropriate situations. Continue to use it when it serves you well.
+                  <strong>Leverage your strengths:</strong> Your dominant{' '}
+                  {dominantModeInfo?.title.toLowerCase()} style can be very effective in appropriate
+                  situations. Continue to use it when it serves you well.
                 </p>
                 <p className="text-gray-700">
-                  <strong>Develop flexibility:</strong> Consider situations where your less-used modes might be more effective. Expanding your conflict management repertoire will make you a more adaptable leader.
+                  <strong>Develop flexibility:</strong> Consider situations where your less-used
+                  modes might be more effective. Expanding your conflict management repertoire will
+                  make you a more adaptable leader.
                 </p>
                 <p className="text-gray-700">
-                  <strong>Context matters:</strong> No single conflict mode is best in all situations. The most effective leaders can flex between different approaches based on the context, relationship, and importance of the issue.
+                  <strong>Context matters:</strong> No single conflict mode is best in all
+                  situations. The most effective leaders can flex between different approaches based
+                  on the context, relationship, and importance of the issue.
                 </p>
               </div>
             </Card>
@@ -291,3 +302,5 @@ export default function TKIResultsPage() {
     </div>
   );
 }
+
+

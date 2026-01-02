@@ -16,14 +16,14 @@ interface WellnessState {
   currentStep: WellnessStep;
   currentQuestionIndex: number;
   answers: Record<string, number>;
-  
+
   // Loading and error states
   isLoading: boolean;
   error: string | null;
-  
+
   // Results
   results: AssessmentResult | null;
-  
+
   // Actions
   startAssessment: () => Promise<void>;
   setCurrentStep: (step: WellnessStep) => void;
@@ -33,7 +33,7 @@ interface WellnessState {
   setAnswer: (questionId: string, value: number) => Promise<void>;
   submitAssessment: () => Promise<void>;
   resetAssessment: () => void;
-  
+
   // Computed
   getProgress: () => number;
   getTotalQuestions: () => number;
@@ -70,9 +70,10 @@ export const useWellnessStore = create<WellnessState>()(
             isCompleted: false,
           });
         } catch (error: unknown) {
-          const errorMessage = axios.isAxiosError(error) && error.response?.data?.message
-            ? error.response.data.message
-            : 'Failed to start assessment';
+          const errorMessage =
+            axios.isAxiosError(error) && error.response?.data?.message
+              ? error.response.data.message
+              : 'Failed to start assessment';
           set({
             error: errorMessage,
             isLoading: false,
@@ -109,7 +110,7 @@ export const useWellnessStore = create<WellnessState>()(
       // Save an answer
       setAnswer: async (questionId: string, value: number) => {
         const { assessmentId, answers } = get();
-        
+
         // Update local state immediately for better UX
         set({ answers: { ...answers, [questionId]: value } });
 
@@ -122,9 +123,10 @@ export const useWellnessStore = create<WellnessState>()(
             await assessmentsApi.saveResponse(assessmentId, questionId, { pillar, score: value });
           } catch (error: unknown) {
             console.error('Failed to save answer:', error);
-            const errorMessage = axios.isAxiosError(error) && error.response?.data?.message
-              ? error.response.data.message
-              : 'Failed to save answer';
+            const errorMessage =
+              axios.isAxiosError(error) && error.response?.data?.message
+                ? error.response.data.message
+                : 'Failed to save answer';
             set({
               error: errorMessage,
             });
@@ -135,14 +137,14 @@ export const useWellnessStore = create<WellnessState>()(
       // Submit assessment for scoring
       submitAssessment: async () => {
         const { assessmentId } = get();
-        
+
         if (!assessmentId) {
           set({ error: 'No active assessment' });
           return;
         }
 
         set({ isLoading: true, error: null });
-        
+
         try {
           await assessmentsApi.submit(assessmentId);
           const results = await assessmentsApi.getResults(assessmentId);
@@ -153,9 +155,10 @@ export const useWellnessStore = create<WellnessState>()(
             isLoading: false,
           });
         } catch (error: unknown) {
-          const errorMessage = axios.isAxiosError(error) && error.response?.data?.message
-            ? error.response.data.message
-            : 'Failed to submit assessment';
+          const errorMessage =
+            axios.isAxiosError(error) && error.response?.data?.message
+              ? error.response.data.message
+              : 'Failed to submit assessment';
           set({
             error: errorMessage,
             isLoading: false,
@@ -170,16 +173,17 @@ export const useWellnessStore = create<WellnessState>()(
       },
 
       // Reset the store
-      resetAssessment: () => set({
-        assessmentId: null,
-        currentStep: 'intro',
-        currentQuestionIndex: 0,
-        answers: {},
-        isLoading: false,
-        error: null,
-        results: null,
-        isCompleted: false,
-      }),
+      resetAssessment: () =>
+        set({
+          assessmentId: null,
+          currentStep: 'intro',
+          currentQuestionIndex: 0,
+          answers: {},
+          isLoading: false,
+          error: null,
+          results: null,
+          isCompleted: false,
+        }),
 
       // Get progress percentage
       getProgress: () => {

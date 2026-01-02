@@ -6,7 +6,7 @@ générer des interprétations et des recommandations personnalisées.
 
 MBTI mesure 4 dimensions:
 - E/I: Extraversion vs Introversion
-- S/N: Sensing vs Intuition  
+- S/N: Sensing vs Intuition
 - T/F: Thinking vs Feeling
 - J/P: Judging vs Perceiving
 """
@@ -26,11 +26,11 @@ from app.models.assessment import Assessment, AssessmentAnswer, AssessmentResult
 def calculate_mbti_scores(assessment_id: int, db: Session) -> Dict[str, Any]:
     """
     Calcule les scores MBTI à partir des réponses.
-    
+
     Args:
         assessment_id: ID de l'assessment
         db: Session de base de données
-        
+
     Returns:
         Dict contenant:
         - dimension_scores: Dict avec E, I, S, N, T, F, J, P scores
@@ -41,10 +41,10 @@ def calculate_mbti_scores(assessment_id: int, db: Session) -> Dict[str, Any]:
     answers = db.query(AssessmentAnswer).filter(
         AssessmentAnswer.assessment_id == assessment_id
     ).all()
-    
+
     if not answers:
         raise ValueError("No answers found for this assessment")
-    
+
     # Compter les préférences pour chaque dimension
     dimension_counts = {
         'E': 0, 'I': 0,  # Extraversion vs Introversion
@@ -52,26 +52,26 @@ def calculate_mbti_scores(assessment_id: int, db: Session) -> Dict[str, Any]:
         'T': 0, 'F': 0,  # Thinking vs Feeling
         'J': 0, 'P': 0,  # Judging vs Perceiving
     }
-    
+
     for answer in answers:
         # answer_value contient la préférence choisie (E, I, S, N, T, F, J, P)
         preference = answer.answer_value.strip().upper()
         if preference in dimension_counts:
             dimension_counts[preference] += 1
-    
+
     # Déterminer le type MBTI (4 lettres)
     mbti_type = ""
     mbti_type += "E" if dimension_counts['E'] >= dimension_counts['I'] else "I"
     mbti_type += "S" if dimension_counts['S'] >= dimension_counts['N'] else "N"
     mbti_type += "T" if dimension_counts['T'] >= dimension_counts['F'] else "F"
     mbti_type += "J" if dimension_counts['J'] >= dimension_counts['P'] else "P"
-    
+
     # Calculer les pourcentages pour chaque dimension
     total_ei = dimension_counts['E'] + dimension_counts['I']
     total_sn = dimension_counts['S'] + dimension_counts['N']
     total_tf = dimension_counts['T'] + dimension_counts['F']
     total_jp = dimension_counts['J'] + dimension_counts['P']
-    
+
     dimension_preferences = {
         'EI': {
             'E': round((dimension_counts['E'] / total_ei * 100) if total_ei > 0 else 0, 1),
@@ -94,7 +94,7 @@ def calculate_mbti_scores(assessment_id: int, db: Session) -> Dict[str, Any]:
             'preference': 'J' if dimension_counts['J'] >= dimension_counts['P'] else 'P',
         },
     }
-    
+
     return {
         'mbti_type': mbti_type,
         'dimension_scores': dimension_counts,
@@ -210,11 +210,11 @@ MBTI_TYPE_DESCRIPTIONS = {
 def interpret_mbti_results(mbti_type: str, dimension_preferences: Dict[str, Any]) -> Dict[str, Any]:
     """
     Génère des interprétations détaillées pour le type MBTI.
-    
+
     Args:
         mbti_type: Type MBTI (ex: "INTJ")
         dimension_preferences: Préférences par dimension
-        
+
     Returns:
         Dict contenant les interprétations
     """
@@ -224,7 +224,7 @@ def interpret_mbti_results(mbti_type: str, dimension_preferences: Dict[str, Any]
         'strengths': [],
         'challenges': [],
     })
-    
+
     # Interprétations par dimension
     dimension_interpretations = {
         'EI': {
@@ -244,7 +244,7 @@ def interpret_mbti_results(mbti_type: str, dimension_preferences: Dict[str, Any]
             'P': 'You prefer flexibility, spontaneity, and keeping options open. You are adaptable, curious, and comfortable with ambiguity.',
         },
     }
-    
+
     insights = {
         'type_name': type_info['name'],
         'type_description': type_info['description'],
@@ -252,7 +252,7 @@ def interpret_mbti_results(mbti_type: str, dimension_preferences: Dict[str, Any]
         'challenges': type_info['challenges'],
         'dimensions': {}
     }
-    
+
     for dimension, prefs in dimension_preferences.items():
         preference = prefs['preference']
         insights['dimensions'][dimension] = {
@@ -260,7 +260,7 @@ def interpret_mbti_results(mbti_type: str, dimension_preferences: Dict[str, Any]
             'percentage': prefs[preference],
             'description': dimension_interpretations[dimension][preference],
         }
-    
+
     return insights
 
 
@@ -271,16 +271,16 @@ def interpret_mbti_results(mbti_type: str, dimension_preferences: Dict[str, Any]
 def generate_mbti_recommendations(mbti_type: str, dimension_preferences: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
     Génère des recommandations personnalisées basées sur le type MBTI.
-    
+
     Args:
         mbti_type: Type MBTI
         dimension_preferences: Préférences par dimension
-        
+
     Returns:
         Liste de recommandations
     """
     recommendations = []
-    
+
     # Recommandations générales par type
     type_recommendations = {
         'INTJ': {
@@ -303,14 +303,14 @@ def generate_mbti_recommendations(mbti_type: str, dimension_preferences: Dict[st
         },
         # Add more type-specific recommendations as needed
     }
-    
+
     # Recommandation principale basée sur le type
     if mbti_type in type_recommendations:
         recommendations.append({
             **type_recommendations[mbti_type],
             'priority': 'high',
         })
-    
+
     # Recommandations basées sur les dimensions
     ei_pref = dimension_preferences['EI']['preference']
     if ei_pref == 'I':
@@ -335,7 +335,7 @@ def generate_mbti_recommendations(mbti_type: str, dimension_preferences: Dict[st
             ],
             'priority': 'medium',
         })
-    
+
     # Recommandation pour le développement personnel
     recommendations.append({
         'title': 'Develop Your Less Preferred Functions',
@@ -351,7 +351,7 @@ def generate_mbti_recommendations(mbti_type: str, dimension_preferences: Dict[st
         ],
         'priority': 'low',
     })
-    
+
     return recommendations
 
 
@@ -362,40 +362,40 @@ def generate_mbti_recommendations(mbti_type: str, dimension_preferences: Dict[st
 def analyze_mbti_assessment(assessment_id: int, db: Session) -> Dict[str, Any]:
     """
     Analyse complète d'un assessment MBTI.
-    
+
     Args:
         assessment_id: ID de l'assessment
         db: Session de base de données
-        
+
     Returns:
         Dict contenant scores, insights et recommandations
     """
     try:
         # 1. Calculer les scores
         scores = calculate_mbti_scores(assessment_id, db)
-        
+
         # 2. Générer les interprétations
         insights = interpret_mbti_results(
             scores['mbti_type'],
             scores['dimension_preferences']
         )
-        
+
         # 3. Générer les recommandations
         recommendations = generate_mbti_recommendations(
             scores['mbti_type'],
             scores['dimension_preferences']
         )
-        
+
         # 4. Sauvegarder les résultats
         assessment = db.query(Assessment).filter(Assessment.id == assessment_id).first()
         if not assessment:
             raise ValueError(f"Assessment {assessment_id} not found")
-        
+
         # Créer ou mettre à jour le résultat
         result = db.query(AssessmentResult).filter(
             AssessmentResult.assessment_id == assessment_id
         ).first()
-        
+
         if not result:
             result = AssessmentResult(
                 assessment_id=assessment_id,
@@ -411,10 +411,10 @@ def analyze_mbti_assessment(assessment_id: int, db: Session) -> Dict[str, Any]:
             result.insights = insights
             result.recommendations = recommendations
             result.updated_at = datetime.utcnow()
-        
+
         db.commit()
         db.refresh(result)
-        
+
         return {
             'assessment_id': assessment_id,
             'mbti_type': scores['mbti_type'],
@@ -422,7 +422,9 @@ def analyze_mbti_assessment(assessment_id: int, db: Session) -> Dict[str, Any]:
             'insights': insights,
             'recommendations': recommendations,
         }
-        
+
     except Exception as e:
         db.rollback()
         raise Exception(f"Error analyzing MBTI assessment: {str(e)}")
+
+

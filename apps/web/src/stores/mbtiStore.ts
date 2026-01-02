@@ -17,10 +17,13 @@ interface MBTIState {
   answers: MBTIAnswer[];
   isLoading: boolean;
   error: string | null;
-  
+
   // Actions
   startMBTIAssessment: () => Promise<void>;
-  answerQuestion: (questionId: string, preference: 'E' | 'I' | 'S' | 'N' | 'T' | 'F' | 'J' | 'P') => Promise<void>;
+  answerQuestion: (
+    questionId: string,
+    preference: 'E' | 'I' | 'S' | 'N' | 'T' | 'F' | 'J' | 'P'
+  ) => Promise<void>;
   nextQuestion: () => void;
   previousQuestion: () => void;
   submitMBTI: () => Promise<void>;
@@ -38,24 +41,27 @@ export const useMBTIStore = create<MBTIState>((set, get) => ({
     try {
       set({ isLoading: true, error: null });
       const response = await startAssessment('mbti');
-      set({ 
+      set({
         assessmentId: response.id,
         currentQuestionIndex: 0,
         answers: [],
-        isLoading: false 
+        isLoading: false,
       });
     } catch (error) {
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to start assessment',
-        isLoading: false 
+        isLoading: false,
       });
       throw error;
     }
   },
 
-  answerQuestion: async (questionId: string, preference: 'E' | 'I' | 'S' | 'N' | 'T' | 'F' | 'J' | 'P') => {
+  answerQuestion: async (
+    questionId: string,
+    preference: 'E' | 'I' | 'S' | 'N' | 'T' | 'F' | 'J' | 'P'
+  ) => {
     const { assessmentId, answers } = get();
-    
+
     if (!assessmentId) {
       throw new Error('No active assessment');
     }
@@ -70,9 +76,9 @@ export const useMBTIStore = create<MBTIState>((set, get) => ({
       });
 
       // Update local state
-      const existingAnswerIndex = answers.findIndex(a => a.questionId === questionId);
+      const existingAnswerIndex = answers.findIndex((a) => a.questionId === questionId);
       let newAnswers: MBTIAnswer[];
-      
+
       if (existingAnswerIndex >= 0) {
         // Update existing answer
         newAnswers = [...answers];
@@ -84,9 +90,9 @@ export const useMBTIStore = create<MBTIState>((set, get) => ({
 
       set({ answers: newAnswers, isLoading: false });
     } catch (error) {
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to save answer',
-        isLoading: false 
+        isLoading: false,
       });
       throw error;
     }
@@ -106,7 +112,7 @@ export const useMBTIStore = create<MBTIState>((set, get) => ({
 
   submitMBTI: async () => {
     const { assessmentId, answers } = get();
-    
+
     if (!assessmentId) {
       throw new Error('No active assessment');
     }
@@ -120,9 +126,9 @@ export const useMBTIStore = create<MBTIState>((set, get) => ({
       await submitAssessment(assessmentId);
       set({ isLoading: false });
     } catch (error) {
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to submit assessment',
-        isLoading: false 
+        isLoading: false,
       });
       throw error;
     }

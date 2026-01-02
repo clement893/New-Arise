@@ -44,11 +44,12 @@ export const useFeedback360Store = create<Feedback360State>()(
             isLoading: false,
           });
         } catch (error: unknown) {
-          const errorMessage = error instanceof Error
-            ? error.message
-            : axios.isAxiosError(error) && error.response?.data?.detail
-            ? error.response.data.detail
-            : 'Failed to start assessment';
+          const errorMessage =
+            error instanceof Error
+              ? error.message
+              : axios.isAxiosError(error) && error.response?.data?.detail
+                ? error.response.data.detail
+                : 'Failed to start assessment';
           set({
             error: errorMessage,
             isLoading: false,
@@ -112,11 +113,12 @@ export const useFeedback360Store = create<Feedback360State>()(
           set({ isLoading: false });
           // Don't reset - keep data for results page
         } catch (error: unknown) {
-          const errorMessage = error instanceof Error
-            ? error.message
-            : axios.isAxiosError(error) && error.response?.data?.detail
-            ? error.response.data.detail
-            : 'Failed to submit assessment';
+          const errorMessage =
+            error instanceof Error
+              ? error.message
+              : axios.isAxiosError(error) && error.response?.data?.detail
+                ? error.response.data.detail
+                : 'Failed to submit assessment';
           set({
             error: errorMessage,
             isLoading: false,

@@ -19,7 +19,7 @@ from app.models.assessment import Assessment, AssessmentResponse, AssessmentResu
 def calculate_wellness_scores(responses: List[Dict]) -> Dict:
     """
     Calcule les scores Wellness à partir des réponses de l'utilisateur.
-    
+
     Le Wellness mesure 6 pillars de bien-être:
     - Sleep: Qualité et quantité de sommeil
     - Nutrition: Alimentation équilibrée et saine
@@ -27,14 +27,14 @@ def calculate_wellness_scores(responses: List[Dict]) -> Dict:
     - Movement: Activité physique régulière
     - Stress Management: Gestion du stress et résilience
     - Social Connection: Relations sociales et soutien
-    
+
     Chaque pillar est noté sur 25 points (5 questions × 5 points max)
     Score total: 150 points
-    
+
     Args:
         responses: Liste de réponses avec structure:
             [{"question_id": "q1", "pillar": "sleep", "score": 4}, ...]
-    
+
     Returns:
         Dict avec scores par pillar:
         {
@@ -60,24 +60,24 @@ def calculate_wellness_scores(responses: List[Dict]) -> Dict:
         'stress_management': [],
         'social_connection': []
     }
-    
+
     # Regrouper les scores par pillar
     for response in responses:
         pillar = response.get('pillar', '').lower()
         score = response.get('score', 0)  # Score de 1 à 5
-        
+
         if pillar in pillars:
             pillars[pillar].append(score)
-    
+
     # Calculer le total par pillar (max 25 points)
     scores = {}
     for pillar, values in pillars.items():
         scores[pillar] = sum(values)
-    
+
     total = sum(scores.values())
     average = total / len(scores) if scores else 0
     percentage = (total / 150) * 100  # 150 = score maximum (6 × 25)
-    
+
     return {
         'scores': scores,
         'total': total,
@@ -93,27 +93,27 @@ def calculate_wellness_scores(responses: List[Dict]) -> Dict:
 def interpret_wellness_results(scores: Dict) -> Dict:
     """
     Génère des interprétations détaillées des scores Wellness.
-    
+
     Ranges d'interprétation (sur 25 points max par pillar):
     - 5-10: Significant Growth Opportunity (Rouge)
     - 11-15: Early Development (Orange)
     - 16-20: Consistency Stage (Jaune)
     - 21-25: Strong Foundation (Vert)
-    
+
     Overall summary (sur 150 points total):
     - < 90 (60%): Needs significant improvement
     - 90-111 (60-74%): Developing, inconsistent
     - 112-127 (75-85%): Strong habits, mostly consistent
     - 128-150 (86-100%): Excellent overall health
-    
+
     Args:
         scores: Dict avec les scores par pillar
-    
+
     Returns:
         Dict avec interprétations détaillées
     """
     interpretations = {}
-    
+
     # Descriptions par pillar et range
     descriptions = {
         'sleep': {
@@ -153,7 +153,7 @@ def interpret_wellness_results(scores: Dict) -> Dict:
             'strong': "Your social connections are excellent. You have strong, supportive relationships and regularly invest time in meaningful connections. Your social network significantly supports your well-being."
         }
     }
-    
+
     # Générer les interprétations par pillar
     for pillar, score in scores.items():
         if score <= 10:
@@ -172,7 +172,7 @@ def interpret_wellness_results(scores: Dict) -> Dict:
             level = "Strong Foundation"
             color = "green"
             text = descriptions[pillar]['strong']
-        
+
         interpretations[pillar] = {
             'level': level,
             'color': color,
@@ -181,11 +181,11 @@ def interpret_wellness_results(scores: Dict) -> Dict:
             'percentage': (score / 25) * 100,
             'text': text
         }
-    
+
     # Overall summary
     total = sum(scores.values())
     percentage = (total / 150) * 100
-    
+
     if percentage < 60:
         overall_level = "Needs Significant Improvement"
         overall_text = "Your overall wellness shows significant room for improvement. Focus on building fundamental healthy habits across all pillars, starting with your lowest-scoring areas."
@@ -198,7 +198,7 @@ def interpret_wellness_results(scores: Dict) -> Dict:
     else:
         overall_level = "Excellent Overall Health"
         overall_text = "Your wellness habits are excellent. You demonstrate strong, consistent practices across all pillars. Continue to maintain and refine these habits for long-term health and well-being."
-    
+
     return {
         'by_pillar': interpretations,
         'overall': {
@@ -218,16 +218,16 @@ def interpret_wellness_results(scores: Dict) -> Dict:
 def generate_wellness_recommendations(scores: Dict, interpretations: Dict) -> List[Dict]:
     """
     Génère des recommandations personnalisées basées sur les scores Wellness.
-    
+
     Args:
         scores: Dict avec les scores par pillar
         interpretations: Dict avec les interprétations
-    
+
     Returns:
         Liste de recommandations avec actions concrètes
     """
     recommendations = []
-    
+
     # Recommandations par pillar
     pillar_recommendations = {
         'sleep': {
@@ -315,16 +315,16 @@ def generate_wellness_recommendations(scores: Dict, interpretations: Dict) -> Li
             ]
         }
     }
-    
+
     # Identifier les pillars à développer (score <= 20)
     development_areas = [(pillar, score) for pillar, score in scores.items() if score <= 20]
     development_areas.sort(key=lambda x: x[1])  # Trier par score croissant
-    
+
     # Générer des recommandations pour les 3 pillars les plus faibles
     for pillar, score in development_areas[:3]:
         priority = 'High' if score <= 15 else 'Medium'
         rec_data = pillar_recommendations.get(pillar, {})
-        
+
         recommendations.append({
             'category': pillar.replace('_', ' ').title(),
             'priority': priority,
@@ -334,15 +334,15 @@ def generate_wellness_recommendations(scores: Dict, interpretations: Dict) -> Li
             'actions': rec_data.get('actions', []),
             'resources': rec_data.get('resources', [])
         })
-    
+
     # Identifier les forces (score >= 21)
     strengths = [(pillar, score) for pillar, score in scores.items() if score >= 21]
-    
+
     # Recommandation pour la force principale
     if strengths:
         top_strength = max(strengths, key=lambda x: x[1])
         pillar, score = top_strength
-        
+
         recommendations.append({
             'category': pillar.replace('_', ' ').title(),
             'priority': 'Low',
@@ -357,7 +357,7 @@ def generate_wellness_recommendations(scores: Dict, interpretations: Dict) -> Li
             ],
             'resources': []
         })
-    
+
     # Recommandation générale sur l'approche holistique
     recommendations.append({
         'category': 'Holistic Wellness',
@@ -378,7 +378,7 @@ def generate_wellness_recommendations(scores: Dict, interpretations: Dict) -> Li
             'Reminder: Progress, not perfection, is the goal'
         ]
     })
-    
+
     return recommendations
 
 
@@ -389,18 +389,18 @@ def generate_wellness_recommendations(scores: Dict, interpretations: Dict) -> Li
 def analyze_wellness_assessment(assessment_id: int, db: Session) -> Dict:
     """
     Analyse complète d'un assessment Wellness.
-    
+
     Cette fonction:
     1. Récupère les réponses de l'assessment
     2. Calcule les scores
     3. Génère les interprétations
     4. Génère les recommandations
     5. Stocke les résultats dans la base de données
-    
+
     Args:
         assessment_id: ID de l'assessment à analyser
         db: Session de base de données
-    
+
     Returns:
         Dict avec tous les résultats de l'analyse
     """
@@ -408,11 +408,11 @@ def analyze_wellness_assessment(assessment_id: int, db: Session) -> Dict:
     assessment = db.query(Assessment).filter(Assessment.id == assessment_id).first()
     if not assessment:
         raise ValueError(f"Assessment {assessment_id} not found")
-    
+
     responses = db.query(AssessmentResponse).filter(
         AssessmentResponse.assessment_id == assessment_id
     ).all()
-    
+
     # Convertir les réponses en format dict
     responses_data = [
         {
@@ -422,37 +422,39 @@ def analyze_wellness_assessment(assessment_id: int, db: Session) -> Dict:
         }
         for r in responses
     ]
-    
+
     # Calculer les scores
     scores_result = calculate_wellness_scores(responses_data)
-    
+
     # Générer les interprétations
     interpretations = interpret_wellness_results(scores_result['scores'])
-    
+
     # Générer les recommandations
     recommendations = generate_wellness_recommendations(
         scores_result['scores'],
         interpretations
     )
-    
+
     # Créer ou mettre à jour le résultat dans la DB
     result = db.query(AssessmentResult).filter(
         AssessmentResult.assessment_id == assessment_id
     ).first()
-    
+
     if not result:
         result = AssessmentResult(assessment_id=assessment_id)
         db.add(result)
-    
+
     result.scores = scores_result
     result.insights = interpretations
     result.recommendations = recommendations
-    
+
     db.commit()
     db.refresh(result)
-    
+
     return {
         'scores': scores_result,
         'interpretations': interpretations,
         'recommendations': recommendations
     }
+
+

@@ -16,7 +16,7 @@ function AssessmentResultsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const assessmentId = searchParams.get('id');
-  
+
   const [results, setResults] = useState<AssessmentResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,9 +36,10 @@ function AssessmentResultsContent() {
       const data = await assessmentsApi.getResults(id);
       setResults(data);
     } catch (err: unknown) {
-      const errorMessage = err && typeof err === 'object' && 'response' in err
-        ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
-        : undefined;
+      const errorMessage =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+          : undefined;
       setError(errorMessage || 'Failed to load results');
     } finally {
       setIsLoading(false);
@@ -83,7 +84,7 @@ function AssessmentResultsContent() {
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
       <div className="flex-1 ml-64">
-        <div 
+        <div
           className="fixed inset-0 ml-64 bg-cover bg-center opacity-10 pointer-events-none"
           style={{
             backgroundImage: 'url(/images/dashboard-bg.jpg)',
@@ -121,11 +122,17 @@ function AssessmentResultsContent() {
                   {total_score} out of {max_score} points
                 </p>
                 <div className="mt-6 flex justify-center gap-4">
-                  <Button variant="outline" className="bg-white text-arise-deep-teal hover:bg-gray-100">
+                  <Button
+                    variant="outline"
+                    className="bg-white text-arise-deep-teal hover:bg-gray-100"
+                  >
                     <Download className="mr-2" size={16} />
                     Download Report
                   </Button>
-                  <Button variant="outline" className="bg-white text-arise-deep-teal hover:bg-gray-100">
+                  <Button
+                    variant="outline"
+                    className="bg-white text-arise-deep-teal hover:bg-gray-100"
+                  >
                     <Share2 className="mr-2" size={16} />
                     Share Results
                   </Button>
@@ -138,39 +145,36 @@ function AssessmentResultsContent() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {wellnessPillars.map((pillar, index) => {
               const pillarData = pillar_scores?.[pillar.id];
-              const isPillarScoreObject = (data: number | PillarScore | undefined): data is PillarScore => {
+              const isPillarScoreObject = (
+                data: number | PillarScore | undefined
+              ): data is PillarScore => {
                 return typeof data === 'object' && data !== null && 'score' in data;
               };
-              const pillarScore = isPillarScoreObject(pillarData) ? pillarData.score : (typeof pillarData === 'number' ? pillarData : 0);
-              const pillarPercentage = isPillarScoreObject(pillarData) ? pillarData.percentage : (pillarScore / 25) * 100; // Each pillar max is 25
-              
+              const pillarScore = isPillarScoreObject(pillarData)
+                ? pillarData.score
+                : typeof pillarData === 'number'
+                  ? pillarData
+                  : 0;
+              const pillarPercentage = isPillarScoreObject(pillarData)
+                ? pillarData.percentage
+                : (pillarScore / 25) * 100; // Each pillar max is 25
+
               return (
-                <MotionDiv 
-                  key={pillar.id}
-                  variant="slideUp"
-                  duration="normal"
-                  delay={index * 0.1}
-                >
+                <MotionDiv key={pillar.id} variant="slideUp" duration="normal" delay={index * 0.1}>
                   <Card className="hover:shadow-lg transition-shadow">
                     <div className="flex items-start mb-4">
                       <div className="text-4xl mr-4">{pillar.icon}</div>
                       <div className="flex-1">
-                        <h3 className="text-lg font-bold text-gray-900 mb-1">
-                          {pillar.name}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          {pillar.description}
-                        </p>
+                        <h3 className="text-lg font-bold text-gray-900 mb-1">{pillar.name}</h3>
+                        <p className="text-sm text-gray-600">{pillar.description}</p>
                       </div>
                     </div>
-                    
+
                     {/* Progress Bar */}
                     <div className="mb-3">
                       <div className="flex justify-between text-sm mb-1">
                         <span className="text-gray-600">Score</span>
-                        <span className="font-bold text-arise-deep-teal">
-                          {pillarScore} / 25
-                        </span>
+                        <span className="font-bold text-arise-deep-teal">{pillarScore} / 25</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-3">
                         <div
@@ -179,17 +183,23 @@ function AssessmentResultsContent() {
                         />
                       </div>
                     </div>
-                    
+
                     {/* Performance Level */}
                     <div className="text-center">
-                      <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                        pillarPercentage >= 80 ? 'bg-green-100 text-green-800' :
-                        pillarPercentage >= 60 ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
-                        {pillarPercentage >= 80 ? 'Excellent' :
-                         pillarPercentage >= 60 ? 'Good' :
-                         'Needs Attention'}
+                      <span
+                        className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+                          pillarPercentage >= 80
+                            ? 'bg-green-100 text-green-800'
+                            : pillarPercentage >= 60
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-red-100 text-red-800'
+                        }`}
+                      >
+                        {pillarPercentage >= 80
+                          ? 'Excellent'
+                          : pillarPercentage >= 60
+                            ? 'Good'
+                            : 'Needs Attention'}
                       </span>
                     </div>
                   </Card>
@@ -201,37 +211,53 @@ function AssessmentResultsContent() {
           {/* Insights Section */}
           <MotionDiv variant="fade" duration="normal">
             <Card className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Key Insights
-              </h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Key Insights</h2>
               <div className="space-y-4">
                 <div className="p-4 bg-green-50 rounded-lg">
                   <h3 className="font-bold text-green-900 mb-2">Strengths</h3>
                   <p className="text-green-800">
-                    Your strongest pillar is {wellnessPillars.find(p => {
+                    Your strongest pillar is{' '}
+                    {wellnessPillars.find((p) => {
                       const data = pillar_scores?.[p.id];
-                      const isPillarScoreObject = (d: number | PillarScore | undefined): d is PillarScore => {
+                      const isPillarScoreObject = (
+                        d: number | PillarScore | undefined
+                      ): d is PillarScore => {
                         return typeof d === 'object' && d !== null && 'score' in d;
                       };
-                      const score = isPillarScoreObject(data) ? data.score : (typeof data === 'number' ? data : 0);
-                      const allScores = Object.values(pillar_scores || {}).map(d => isPillarScoreObject(d) ? d.score : (typeof d === 'number' ? d : 0));
+                      const score = isPillarScoreObject(data)
+                        ? data.score
+                        : typeof data === 'number'
+                          ? data
+                          : 0;
+                      const allScores = Object.values(pillar_scores || {}).map((d) =>
+                        isPillarScoreObject(d) ? d.score : typeof d === 'number' ? d : 0
+                      );
                       return score === Math.max(...allScores);
-                    })?.name || 'N/A'}.
-                    Keep up the excellent work in this area!
+                    })?.name || 'N/A'}
+                    . Keep up the excellent work in this area!
                   </p>
                 </div>
                 <div className="p-4 bg-yellow-50 rounded-lg">
                   <h3 className="font-bold text-yellow-900 mb-2">Areas for Growth</h3>
                   <p className="text-yellow-800">
-                    Consider focusing on {wellnessPillars.find(p => {
+                    Consider focusing on{' '}
+                    {wellnessPillars.find((p) => {
                       const data = pillar_scores?.[p.id];
-                      const isPillarScoreObject = (d: number | PillarScore | undefined): d is PillarScore => {
+                      const isPillarScoreObject = (
+                        d: number | PillarScore | undefined
+                      ): d is PillarScore => {
                         return typeof d === 'object' && d !== null && 'score' in d;
                       };
-                      const score = isPillarScoreObject(data) ? data.score : (typeof data === 'number' ? data : 0);
-                      const allScores = Object.values(pillar_scores || {}).map(d => isPillarScoreObject(d) ? d.score : (typeof d === 'number' ? d : 0));
+                      const score = isPillarScoreObject(data)
+                        ? data.score
+                        : typeof data === 'number'
+                          ? data
+                          : 0;
+                      const allScores = Object.values(pillar_scores || {}).map((d) =>
+                        isPillarScoreObject(d) ? d.score : typeof d === 'number' ? d : 0
+                      );
                       return score === Math.min(...allScores);
-                    })?.name || 'N/A'} 
+                    })?.name || 'N/A'}
                     to achieve a more balanced wellness profile.
                   </p>
                 </div>
@@ -242,9 +268,7 @@ function AssessmentResultsContent() {
           {/* Next Steps */}
           <MotionDiv variant="fade" duration="normal">
             <Card>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Next Steps
-              </h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Next Steps</h2>
               <ul className="space-y-3">
                 <li className="flex items-start">
                   <div className="w-6 h-6 bg-arise-gold rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
@@ -272,16 +296,10 @@ function AssessmentResultsContent() {
                 </li>
               </ul>
               <div className="mt-6 flex gap-4">
-                <Button 
-                  variant="primary"
-                  onClick={() => router.push('/dashboard/assessments')}
-                >
+                <Button variant="primary" onClick={() => router.push('/dashboard/assessments')}>
                   Continue to Other Assessments
                 </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => router.push('/dashboard')}
-                >
+                <Button variant="outline" onClick={() => router.push('/dashboard')}>
                   Back to Dashboard
                 </Button>
               </div>

@@ -19,18 +19,18 @@ from app.models.assessment import Assessment, AssessmentResponse, AssessmentResu
 def calculate_tki_scores(responses: List[Dict]) -> Dict:
     """
     Calcule les scores TKI à partir des réponses de l'utilisateur.
-    
+
     Le TKI mesure 5 modes de gestion des conflits:
     - Competing (Compétition): Assertif et non coopératif
     - Collaborating (Collaboration): Assertif et coopératif
     - Compromising (Compromis): Modérément assertif et coopératif
     - Avoiding (Évitement): Non assertif et non coopératif
     - Accommodating (Accommodation): Non assertif et coopératif
-    
+
     Args:
         responses: Liste de réponses avec structure:
             [{"question_id": "q1", "selected_mode": "competing"}, ...]
-    
+
     Returns:
         Dict avec scores par mode et mode dominant:
         {
@@ -53,16 +53,16 @@ def calculate_tki_scores(responses: List[Dict]) -> Dict:
         'avoiding': 0,
         'accommodating': 0
     }
-    
+
     # Compter les réponses par mode
     for response in responses:
         selected_mode = response.get('selected_mode', '').lower()
         if selected_mode in modes:
             modes[selected_mode] += 1
-    
+
     # Identifier le mode dominant (score le plus élevé)
     dominant_mode = max(modes, key=modes.get)
-    
+
     return {
         'scores': modes,
         'dominant_mode': dominant_mode,
@@ -77,21 +77,21 @@ def calculate_tki_scores(responses: List[Dict]) -> Dict:
 def interpret_tki_results(scores: Dict) -> Dict:
     """
     Génère des interprétations détaillées des scores TKI.
-    
+
     Ranges d'interprétation (sur 12 points max par mode):
     - 0-3: Low preference (Faible préférence)
     - 4-6: Moderate preference (Préférence modérée)
     - 7-9: High preference (Forte préférence)
     - 10-12: Very high preference (Très forte préférence)
-    
+
     Args:
         scores: Dict avec les scores par mode
-    
+
     Returns:
         Dict avec interprétations détaillées par mode
     """
     interpretations = {}
-    
+
     # Descriptions par mode et niveau
     descriptions = {
         'competing': {
@@ -125,7 +125,7 @@ def interpret_tki_results(scores: Dict) -> Dict:
             'very_high': "You predominantly use the accommodating style. You consistently yield to others' concerns. While this maintains harmony, ensure you're also advocating for your own important needs and concerns."
         }
     }
-    
+
     # Générer les interprétations
     for mode, score in scores.items():
         if score <= 3:
@@ -140,13 +140,13 @@ def interpret_tki_results(scores: Dict) -> Dict:
         else:
             level = "Very High"
             text = descriptions[mode]['very_high']
-        
+
         interpretations[mode] = {
             'level': level,
             'score': score,
             'text': text
         }
-    
+
     return {
         'dominant_mode': max(scores, key=scores.get),
         'interpretations': interpretations
@@ -160,16 +160,16 @@ def interpret_tki_results(scores: Dict) -> Dict:
 def generate_tki_recommendations(scores: Dict, dominant_mode: str) -> List[Dict]:
     """
     Génère des recommandations personnalisées basées sur les scores TKI.
-    
+
     Args:
         scores: Dict avec les scores par mode
         dominant_mode: Le mode dominant de l'utilisateur
-    
+
     Returns:
         Liste de recommandations avec actions concrètes
     """
     recommendations = []
-    
+
     # Recommandations par mode
     mode_recommendations = {
         'competing': {
@@ -283,7 +283,7 @@ def generate_tki_recommendations(scores: Dict, dominant_mode: str) -> List[Dict]
             }
         }
     }
-    
+
     # Recommandation pour le mode dominant (force)
     if dominant_mode in mode_recommendations:
         rec = mode_recommendations[dominant_mode]['strength']
@@ -295,7 +295,7 @@ def generate_tki_recommendations(scores: Dict, dominant_mode: str) -> List[Dict]
             'description': rec['description'],
             'actions': rec['actions']
         })
-    
+
     # Recommandations pour les modes faibles (développement)
     weak_modes = [mode for mode, score in scores.items() if score <= 3]
     for mode in weak_modes[:2]:  # Limiter à 2 recommandations de développement
@@ -309,7 +309,7 @@ def generate_tki_recommendations(scores: Dict, dominant_mode: str) -> List[Dict]
                 'description': rec['description'],
                 'actions': rec['actions']
             })
-    
+
     # Recommandation générale sur l'équilibre
     recommendations.append({
         'category': 'Balance',
@@ -324,7 +324,7 @@ def generate_tki_recommendations(scores: Dict, dominant_mode: str) -> List[Dict]
             'Seek feedback from others on your conflict management approach'
         ]
     })
-    
+
     return recommendations
 
 
@@ -335,18 +335,18 @@ def generate_tki_recommendations(scores: Dict, dominant_mode: str) -> List[Dict]
 def analyze_tki_assessment(assessment_id: int, db: Session) -> Dict:
     """
     Analyse complète d'un assessment TKI.
-    
+
     Cette fonction:
     1. Récupère les réponses de l'assessment
     2. Calcule les scores
     3. Génère les interprétations
     4. Génère les recommandations
     5. Stocke les résultats dans la base de données
-    
+
     Args:
         assessment_id: ID de l'assessment à analyser
         db: Session de base de données
-    
+
     Returns:
         Dict avec tous les résultats de l'analyse
     """
@@ -354,11 +354,11 @@ def analyze_tki_assessment(assessment_id: int, db: Session) -> Dict:
     assessment = db.query(Assessment).filter(Assessment.id == assessment_id).first()
     if not assessment:
         raise ValueError(f"Assessment {assessment_id} not found")
-    
+
     responses = db.query(AssessmentResponse).filter(
         AssessmentResponse.assessment_id == assessment_id
     ).all()
-    
+
     # Convertir les réponses en format dict
     responses_data = [
         {
@@ -367,37 +367,39 @@ def analyze_tki_assessment(assessment_id: int, db: Session) -> Dict:
         }
         for r in responses
     ]
-    
+
     # Calculer les scores
     scores_result = calculate_tki_scores(responses_data)
-    
+
     # Générer les interprétations
     interpretations = interpret_tki_results(scores_result['scores'])
-    
+
     # Générer les recommandations
     recommendations = generate_tki_recommendations(
         scores_result['scores'],
         scores_result['dominant_mode']
     )
-    
+
     # Créer ou mettre à jour le résultat dans la DB
     result = db.query(AssessmentResult).filter(
         AssessmentResult.assessment_id == assessment_id
     ).first()
-    
+
     if not result:
         result = AssessmentResult(assessment_id=assessment_id)
         db.add(result)
-    
+
     result.scores = scores_result
     result.insights = interpretations
     result.recommendations = recommendations
-    
+
     db.commit()
     db.refresh(result)
-    
+
     return {
         'scores': scores_result,
         'interpretations': interpretations,
         'recommendations': recommendations
     }
+
+

@@ -75,7 +75,9 @@ export interface AssessmentResult {
 /**
  * Start a new assessment
  */
-export const startAssessment = async (assessmentType: AssessmentType): Promise<StartAssessmentResponse> => {
+export const startAssessment = async (
+  assessmentType: AssessmentType
+): Promise<StartAssessmentResponse> => {
   const response = await axios.post(
     `${API_BASE_URL}/api/v1/assessments/start`,
     { assessment_type: assessmentType },
@@ -141,10 +143,9 @@ export const submitAssessment = async (assessmentId: number): Promise<Assessment
  * Get assessment results
  */
 export const getAssessmentResults = async (assessmentId: number): Promise<AssessmentResult> => {
-  const response = await axios.get(
-    `${API_BASE_URL}/api/v1/assessments/${assessmentId}/results`,
-    { headers: getAuthHeaders() }
-  );
+  const response = await axios.get(`${API_BASE_URL}/api/v1/assessments/${assessmentId}/results`, {
+    headers: getAuthHeaders(),
+  });
   return response.data;
 };
 
@@ -152,10 +153,9 @@ export const getAssessmentResults = async (assessmentId: number): Promise<Assess
  * Get all assessments for the current user
  */
 export const getMyAssessments = async (): Promise<Assessment[]> => {
-  const response = await axios.get(
-    `${API_BASE_URL}/api/v1/assessments/my-assessments`,
-    { headers: getAuthHeaders() }
-  );
+  const response = await axios.get(`${API_BASE_URL}/api/v1/assessments/my-assessments`, {
+    headers: getAuthHeaders(),
+  });
   return response.data;
 };
 
@@ -163,17 +163,16 @@ export const getMyAssessments = async (): Promise<Assessment[]> => {
  * Get a specific assessment by ID
  */
 export const getAssessment = async (assessmentId: number): Promise<Assessment> => {
-  const response = await axios.get(
-    `${API_BASE_URL}/api/v1/assessments/${assessmentId}`,
-    { headers: getAuthHeaders() }
-  );
+  const response = await axios.get(`${API_BASE_URL}/api/v1/assessments/${assessmentId}`, {
+    headers: getAuthHeaders(),
+  });
   return response.data;
 };
 
 export const assessmentsApi = {
   start: startAssessment,
   saveAnswer,
-  saveResponse,  // NEW
+  saveResponse, // NEW
   submit: submitAssessment,
   getResults: getAssessmentResults,
   getMyAssessments,

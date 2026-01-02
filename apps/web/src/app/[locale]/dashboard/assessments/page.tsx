@@ -7,8 +7,23 @@ import { useRouter } from 'next/navigation';
 import { Card, Button, Stack } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { Brain, Target, Users, Heart, Upload, CheckCircle, Lock, type LucideIcon, Loader2 } from 'lucide-react';
-import { getMyAssessments, Assessment as ApiAssessment, AssessmentType, submitAssessment } from '@/lib/api/assessments';
+import {
+  Brain,
+  Target,
+  Users,
+  Heart,
+  Upload,
+  CheckCircle,
+  Lock,
+  type LucideIcon,
+  Loader2,
+} from 'lucide-react';
+import {
+  getMyAssessments,
+  Assessment as ApiAssessment,
+  AssessmentType,
+  submitAssessment,
+} from '@/lib/api/assessments';
 import { startAssessment } from '@/lib/api/assessments';
 
 interface AssessmentDisplay {
@@ -26,7 +41,16 @@ interface AssessmentDisplay {
 }
 
 // Mapping of assessment types to display info (using lowercase keys for internal mapping)
-const ASSESSMENT_CONFIG: Record<string, { title: string; description: string; icon: LucideIcon; externalLink?: string; requiresEvaluators?: boolean }> = {
+const ASSESSMENT_CONFIG: Record<
+  string,
+  {
+    title: string;
+    description: string;
+    icon: LucideIcon;
+    externalLink?: string;
+    requiresEvaluators?: boolean;
+  }
+> = {
   mbti: {
     title: 'MBTI Personality',
     description: 'Understanding your natural preferences',
@@ -72,50 +96,55 @@ function AssessmentsContent() {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       // Get assessments from API
       const apiAssessments: ApiAssessment[] = await getMyAssessments();
-      
+
       // Create a map of existing assessments by type
       const existingAssessmentsMap = new Map<AssessmentType, ApiAssessment>();
-      apiAssessments.forEach(assessment => {
+      apiAssessments.forEach((assessment) => {
         const existing = existingAssessmentsMap.get(assessment.assessment_type);
         // Keep the most recent assessment of each type
         if (!existing || new Date(assessment.created_at) > new Date(existing.created_at)) {
           existingAssessmentsMap.set(assessment.assessment_type, assessment);
         }
       });
-      
+
       // Build display assessments list
-      const displayAssessments: AssessmentDisplay[] = Object.entries(ASSESSMENT_CONFIG).map(([type, config]) => {
-        // Map lowercase type to uppercase for API
-        const apiType = type.toUpperCase() as AssessmentType;
-        const apiAssessment = existingAssessmentsMap.get(apiType);
-        
-        let status: 'completed' | 'in-progress' | 'locked' | 'available' = 'available';
-        if (apiAssessment) {
-          if (apiAssessment.status === 'COMPLETED') {
-            status = 'completed';
-          } else if (apiAssessment.status === 'IN_PROGRESS' || apiAssessment.status === 'NOT_STARTED') {
-            status = 'in-progress';
+      const displayAssessments: AssessmentDisplay[] = Object.entries(ASSESSMENT_CONFIG).map(
+        ([type, config]) => {
+          // Map lowercase type to uppercase for API
+          const apiType = type.toUpperCase() as AssessmentType;
+          const apiAssessment = existingAssessmentsMap.get(apiType);
+
+          let status: 'completed' | 'in-progress' | 'locked' | 'available' = 'available';
+          if (apiAssessment) {
+            if (apiAssessment.status === 'COMPLETED') {
+              status = 'completed';
+            } else if (
+              apiAssessment.status === 'IN_PROGRESS' ||
+              apiAssessment.status === 'NOT_STARTED'
+            ) {
+              status = 'in-progress';
+            }
           }
+
+          return {
+            id: type,
+            title: config.title,
+            description: config.description,
+            status,
+            icon: config.icon,
+            externalLink: config.externalLink,
+            requiresEvaluators: config.requiresEvaluators,
+            assessmentId: apiAssessment?.id,
+            assessmentType: apiType,
+            answerCount: apiAssessment?.answer_count,
+            totalQuestions: apiAssessment?.total_questions,
+          };
         }
-        
-        return {
-          id: type,
-          title: config.title,
-          description: config.description,
-          status,
-          icon: config.icon,
-          externalLink: config.externalLink,
-          requiresEvaluators: config.requiresEvaluators,
-          assessmentId: apiAssessment?.id,
-          assessmentType: apiType,
-          answerCount: apiAssessment?.answer_count,
-          totalQuestions: apiAssessment?.total_questions,
-        };
-      });
-      
+      );
+
       setAssessments(displayAssessments);
     } catch (err) {
       console.error('Failed to load assessments:', err);
@@ -128,7 +157,7 @@ function AssessmentsContent() {
   const handleStartAssessment = async (assessmentType: AssessmentType, assessmentId?: number) => {
     try {
       setStartingAssessment(assessmentType);
-      
+
       if (assessmentId) {
         // Resume existing assessment
         router.push(`/dashboard/assessments/${getAssessmentRoute(assessmentType)}`);
@@ -194,7 +223,7 @@ function AssessmentsContent() {
 
   const getActionButton = (assessment: AssessmentDisplay) => {
     const isStarting = startingAssessment === assessment.assessmentType;
-    
+
     switch (assessment.status) {
       case 'completed':
         if (assessment.externalLink && assessment.assessmentType === 'MBTI') {
@@ -211,15 +240,17 @@ function AssessmentsContent() {
         }
         // For other assessments, show "Voir les résultats"
         return (
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => {
               if (assessment.assessmentType === 'TKI') {
                 router.push(`/dashboard/assessments/tki/results?id=${assessment.assessmentId}`);
               } else if (assessment.assessmentType === 'WELLNESS') {
                 router.push(`/dashboard/assessments/results?id=${assessment.assessmentId}`);
               } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
-                router.push(`/dashboard/assessments/360-feedback/results?id=${assessment.assessmentId}`);
+                router.push(
+                  `/dashboard/assessments/360-feedback/results?id=${assessment.assessmentId}`
+                );
               }
             }}
           >
@@ -228,12 +259,14 @@ function AssessmentsContent() {
         );
       case 'in-progress':
         // If all questions are answered, show "Voir les résultats" button
-        if (assessment.answerCount !== undefined && 
-            assessment.totalQuestions !== undefined && 
-            assessment.answerCount === assessment.totalQuestions &&
-            assessment.assessmentId) {
+        if (
+          assessment.answerCount !== undefined &&
+          assessment.totalQuestions !== undefined &&
+          assessment.answerCount === assessment.totalQuestions &&
+          assessment.assessmentId
+        ) {
           return (
-            <Button 
+            <Button
               variant="outline"
               disabled={isStarting}
               onClick={async () => {
@@ -244,21 +277,29 @@ function AssessmentsContent() {
                     await submitAssessment(assessment.assessmentId);
                     // Then redirect to results
                     if (assessment.assessmentType === 'TKI') {
-                      router.push(`/dashboard/assessments/tki/results?id=${assessment.assessmentId}`);
+                      router.push(
+                        `/dashboard/assessments/tki/results?id=${assessment.assessmentId}`
+                      );
                     } else if (assessment.assessmentType === 'WELLNESS') {
                       router.push(`/dashboard/assessments/results?id=${assessment.assessmentId}`);
                     } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
-                      router.push(`/dashboard/assessments/360-feedback/results?id=${assessment.assessmentId}`);
+                      router.push(
+                        `/dashboard/assessments/360-feedback/results?id=${assessment.assessmentId}`
+                      );
                     }
                   } catch (err) {
                     console.error('Failed to submit assessment:', err);
                     // If submission fails, try to go to results anyway (might already be submitted)
                     if (assessment.assessmentType === 'TKI') {
-                      router.push(`/dashboard/assessments/tki/results?id=${assessment.assessmentId}`);
+                      router.push(
+                        `/dashboard/assessments/tki/results?id=${assessment.assessmentId}`
+                      );
                     } else if (assessment.assessmentType === 'WELLNESS') {
                       router.push(`/dashboard/assessments/results?id=${assessment.assessmentId}`);
                     } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
-                      router.push(`/dashboard/assessments/360-feedback/results?id=${assessment.assessmentId}`);
+                      router.push(
+                        `/dashboard/assessments/360-feedback/results?id=${assessment.assessmentId}`
+                      );
                     }
                   } finally {
                     setStartingAssessment(null);
@@ -279,14 +320,16 @@ function AssessmentsContent() {
         }
         // Otherwise, show "Continuer" button
         return (
-          <Button 
+          <Button
             variant="primary"
             disabled={isStarting}
             onClick={() => {
               if (assessment.requiresEvaluators) {
                 setShowEvaluatorModal(true);
               } else {
-                router.push(`/dashboard/assessments/${getAssessmentRoute(assessment.assessmentType)}`);
+                router.push(
+                  `/dashboard/assessments/${getAssessmentRoute(assessment.assessmentType)}`
+                );
               }
             }}
           >
@@ -302,10 +345,12 @@ function AssessmentsContent() {
         );
       case 'available':
         return (
-          <Button 
+          <Button
             variant="primary"
             disabled={isStarting}
-            onClick={() => handleStartAssessment(assessment.assessmentType, assessment.assessmentId)}
+            onClick={() =>
+              handleStartAssessment(assessment.assessmentType, assessment.assessmentId)
+            }
           >
             {isStarting ? (
               <>
@@ -356,12 +401,8 @@ function AssessmentsContent() {
     <>
       <MotionDiv variant="fade" duration="normal">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-arise-deep-teal mb-2">
-            Vos assessments
-          </h1>
-          <p className="text-gray-600">
-            Suivez et gérez vos assessments de leadership
-          </p>
+          <h1 className="text-4xl font-bold text-arise-deep-teal mb-2">Vos assessments</h1>
+          <p className="text-gray-600">Suivez et gérez vos assessments de leadership</p>
         </div>
       </MotionDiv>
 
@@ -377,21 +418,19 @@ function AssessmentsContent() {
                       <Icon className="text-arise-deep-teal" size={32} />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-xl font-bold text-gray-900 mb-1">
-                        {assessment.title}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {assessment.description}
-                      </p>
+                      <h3 className="text-xl font-bold text-gray-900 mb-1">{assessment.title}</h3>
+                      <p className="text-sm text-gray-600">{assessment.description}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     {getStatusBadge(assessment.status)}
-                    {assessment.status === 'in-progress' && assessment.answerCount !== undefined && assessment.totalQuestions !== undefined && (
-                      <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
-                        {assessment.answerCount}/{assessment.totalQuestions}
-                      </span>
-                    )}
+                    {assessment.status === 'in-progress' &&
+                      assessment.answerCount !== undefined &&
+                      assessment.totalQuestions !== undefined && (
+                        <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                          {assessment.answerCount}/{assessment.totalQuestions}
+                        </span>
+                      )}
                     {assessment.externalLink && assessment.status !== 'completed' && (
                       <span className="px-3 py-1 border border-arise-deep-teal text-arise-deep-teal rounded-full text-xs font-medium">
                         Lien externe
@@ -405,7 +444,7 @@ function AssessmentsContent() {
           })}
 
           {/* 360 Feedback Evaluators Section */}
-          {assessments.find(a => a.assessmentType === 'THREE_SIXTY_SELF') && (
+          {assessments.find((a) => a.assessmentType === 'THREE_SIXTY_SELF') && (
             <Card className="bg-arise-gold/10 border-2 border-arise-gold/30">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -421,7 +460,7 @@ function AssessmentsContent() {
                     </p>
                   </div>
                 </div>
-                <Button 
+                <Button
                   variant="primary"
                   className="bg-arise-gold text-white hover:bg-arise-gold/90"
                   onClick={() => setShowEvaluatorModal(true)}
@@ -438,22 +477,21 @@ function AssessmentsContent() {
       {showEvaluatorModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <Card className="max-w-md w-full mx-4">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Ajouter des évaluateurs
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Ajouter des évaluateurs</h2>
             <p className="text-gray-600 mb-6">
-              Cette fonctionnalité vous permettra d'inviter des collègues à évaluer votre leadership.
+              Cette fonctionnalité vous permettra d'inviter des collègues à évaluer votre
+              leadership.
             </p>
             <div className="flex gap-4">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="flex-1"
                 onClick={() => setShowEvaluatorModal(false)}
               >
                 Annuler
               </Button>
-              <Button 
-                variant="primary" 
+              <Button
+                variant="primary"
                 className="flex-1"
                 onClick={() => setShowEvaluatorModal(false)}
               >

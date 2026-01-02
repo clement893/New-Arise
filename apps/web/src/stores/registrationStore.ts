@@ -45,11 +45,13 @@ export const useRegistrationStore = create<RegistrationState>((set) => ({
   setStep: (step) => set({ step }),
   setRole: (role) => set({ role }),
   setPlanId: (planId) => set({ planId }),
-  setUserInfo: (userInfo) => set((state) => ({ 
-    userInfo: { ...state.userInfo, ...userInfo } 
-  })),
-  setProfileInfo: (profileInfo) => set((state) => ({ 
-    profileInfo: { ...state.profileInfo, ...profileInfo } 
-  })),
+  setUserInfo: (userInfo) =>
+    set((state) => ({
+      userInfo: { ...state.userInfo, ...userInfo },
+    })),
+  setProfileInfo: (profileInfo) =>
+    set((state) => ({
+      profileInfo: { ...state.profileInfo, ...profileInfo },
+    })),
   reset: () => set(initialState),
 }));

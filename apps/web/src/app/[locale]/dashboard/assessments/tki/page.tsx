@@ -70,19 +70,28 @@ export default function TKIAssessmentPage() {
           <Card className="bg-white p-8 text-center">
             <div className="mb-6">
               <div className="w-20 h-20 bg-arise-gold rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <svg
+                  className="w-10 h-10 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
               </div>
               <h1 className="text-3xl font-bold text-arise-teal mb-2">Congratulations!</h1>
-              <p className="text-gray-600">
-                You've completed the TKI Conflict Style Assessment
-              </p>
+              <p className="text-gray-600">You've completed the TKI Conflict Style Assessment</p>
             </div>
 
             <div className="mb-6 p-4 bg-arise-beige rounded-lg">
               <p className="text-sm text-gray-700">
-                Your conflict management style profile is being calculated. Click below to view your detailed results.
+                Your conflict management style profile is being calculated. Click below to view your
+                detailed results.
               </p>
             </div>
 
@@ -93,10 +102,7 @@ export default function TKIAssessmentPage() {
               >
                 View Results
               </Button>
-              <Button
-                onClick={() => router.push('/dashboard/assessments')}
-                variant="outline"
-              >
+              <Button onClick={() => router.push('/dashboard/assessments')} variant="outline">
                 Back to Assessments
               </Button>
             </div>
@@ -119,7 +125,9 @@ export default function TKIAssessmentPage() {
             </p>
 
             <div className="mb-8">
-              <h2 className="text-xl font-semibold text-arise-teal mb-4">Five Conflict Management Modes</h2>
+              <h2 className="text-xl font-semibold text-arise-teal mb-4">
+                Five Conflict Management Modes
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {tkiModes.map((mode) => (
                   <div key={mode.id} className="p-4 bg-arise-beige rounded-lg">
@@ -185,7 +193,9 @@ export default function TKIAssessmentPage() {
         {/* Progress Bar */}
         <div className="mb-4">
           <div className="flex justify-between text-white text-sm mb-2">
-            <span>Question {currentQuestion + 1} of {tkiQuestions.length}</span>
+            <span>
+              Question {currentQuestion + 1} of {tkiQuestions.length}
+            </span>
             <span>{Math.round(progress)}% Complete</span>
           </div>
           <div className="w-full bg-white/20 rounded-full h-2">
@@ -197,11 +207,7 @@ export default function TKIAssessmentPage() {
         </div>
 
         {/* Question Card */}
-        <MotionDiv
-          key={currentQuestion}
-          variant="slideUp"
-          duration="fast"
-        >
+        <MotionDiv key={currentQuestion} variant="slideUp" duration="fast">
           <Card className="bg-white p-8">
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-arise-teal mb-4">
@@ -221,10 +227,14 @@ export default function TKIAssessmentPage() {
                 }`}
               >
                 <div className="flex items-start">
-                  <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center mr-4 flex-shrink-0 ${
-                    selectedAnswer === 'A' ? 'border-arise-gold bg-arise-gold' : 'border-gray-300'
-                  }`}>
-                    <span className={`font-bold ${selectedAnswer === 'A' ? 'text-white' : 'text-gray-400'}`}>
+                  <div
+                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center mr-4 flex-shrink-0 ${
+                      selectedAnswer === 'A' ? 'border-arise-gold bg-arise-gold' : 'border-gray-300'
+                    }`}
+                  >
+                    <span
+                      className={`font-bold ${selectedAnswer === 'A' ? 'text-white' : 'text-gray-400'}`}
+                    >
                       A
                     </span>
                   </div>
@@ -243,10 +253,14 @@ export default function TKIAssessmentPage() {
                 }`}
               >
                 <div className="flex items-start">
-                  <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center mr-4 flex-shrink-0 ${
-                    selectedAnswer === 'B' ? 'border-arise-gold bg-arise-gold' : 'border-gray-300'
-                  }`}>
-                    <span className={`font-bold ${selectedAnswer === 'B' ? 'text-white' : 'text-gray-400'}`}>
+                  <div
+                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center mr-4 flex-shrink-0 ${
+                      selectedAnswer === 'B' ? 'border-arise-gold bg-arise-gold' : 'border-gray-300'
+                    }`}
+                  >
+                    <span
+                      className={`font-bold ${selectedAnswer === 'B' ? 'text-white' : 'text-gray-400'}`}
+                    >
                       B
                     </span>
                   </div>

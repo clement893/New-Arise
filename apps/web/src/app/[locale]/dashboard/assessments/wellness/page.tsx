@@ -44,11 +44,10 @@ function WellnessAssessmentContent() {
         setIsCheckingExisting(true);
         const assessments = await getMyAssessments();
         const wellnessAssessment = assessments.find(
-          a => a.assessment_type === 'WELLNESS' && 
-          a.status === 'IN_PROGRESS' && 
-          a.answer_count === 30
+          (a) =>
+            a.assessment_type === 'WELLNESS' && a.status === 'IN_PROGRESS' && a.answer_count === 30
         );
-        
+
         if (wellnessAssessment && wellnessAssessment.id) {
           // If assessment has all answers but is not submitted, submit it automatically
           try {
@@ -135,7 +134,7 @@ function WellnessAssessmentContent() {
       <div className="min-h-screen bg-gray-50 flex">
         <Sidebar />
         <div className="flex-1 ml-64">
-          <div 
+          <div
             className="fixed inset-0 ml-64 bg-cover bg-center opacity-10 pointer-events-none"
             style={{
               backgroundImage: 'url(/images/dashboard-bg.jpg)',
@@ -149,30 +148,27 @@ function WellnessAssessmentContent() {
                     Wellness Assessment
                   </h1>
                   <p className="text-gray-600 text-lg">
-                    This assessment will help you understand your overall well-being across six key pillars
+                    This assessment will help you understand your overall well-being across six key
+                    pillars
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                   {wellnessPillars.map((category) => (
-                    <div 
+                    <div
                       key={category.id}
                       className="bg-arise-deep-teal/5 rounded-lg p-6 text-center hover:bg-arise-deep-teal/10 transition-colors"
                     >
                       <div className="text-4xl mb-3">{category.icon}</div>
-                      <h3 className="text-lg font-bold text-gray-900 mb-2">
-                        {category.name}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {category.description}
-                      </p>
+                      <h3 className="text-lg font-bold text-gray-900 mb-2">{category.name}</h3>
+                      <p className="text-sm text-gray-600">{category.description}</p>
                     </div>
                   ))}
                 </div>
 
                 <div className="text-center">
-                  <Button 
-                    variant="primary" 
+                  <Button
+                    variant="primary"
                     size="lg"
                     onClick={async () => {
                       await startAssessment();
@@ -198,7 +194,7 @@ function WellnessAssessmentContent() {
       <div className="min-h-screen bg-gray-50 flex">
         <Sidebar />
         <div className="flex-1 ml-64">
-          <div 
+          <div
             className="fixed inset-0 ml-64 bg-cover bg-center opacity-10 pointer-events-none"
             style={{
               backgroundImage: 'url(/images/dashboard-bg.jpg)',
@@ -211,25 +207,21 @@ function WellnessAssessmentContent() {
                   <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <CheckCircle className="text-green-600" size={48} />
                   </div>
-                  <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                    Congratulations!
-                  </h1>
+                  <h1 className="text-4xl font-bold text-gray-900 mb-4">Congratulations!</h1>
                   <p className="text-gray-600 text-lg mb-2">
                     You've completed the Wellness Assessment
                   </p>
                   <p className="text-gray-500">
-                    Your results are being processed and will be available in your dashboard shortly.
+                    Your results are being processed and will be available in your dashboard
+                    shortly.
                   </p>
                 </div>
 
                 <div className="flex gap-4 justify-center">
-                  <Button 
-                    variant="outline"
-                    onClick={() => router.push('/dashboard')}
-                  >
+                  <Button variant="outline" onClick={() => router.push('/dashboard')}>
                     Go to Dashboard
                   </Button>
-                  <Button 
+                  <Button
                     variant="primary"
                     onClick={() => {
                       const { assessmentId } = useWellnessStore.getState();
@@ -240,10 +232,7 @@ function WellnessAssessmentContent() {
                   >
                     View Results
                   </Button>
-                  <Button 
-                    variant="outline"
-                    onClick={handleFinish}
-                  >
+                  <Button variant="outline" onClick={handleFinish}>
                     View All Assessments
                   </Button>
                 </div>
@@ -260,7 +249,7 @@ function WellnessAssessmentContent() {
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
       <div className="flex-1 ml-64">
-        <div 
+        <div
           className="fixed inset-0 ml-64 bg-cover bg-center opacity-10 pointer-events-none"
           style={{
             backgroundImage: 'url(/images/dashboard-bg.jpg)',
@@ -273,9 +262,7 @@ function WellnessAssessmentContent() {
               <span className="text-sm font-medium text-gray-600">
                 Question {currentQuestionIndex + 1} of {wellnessQuestions.length}
               </span>
-              <span className="text-sm font-medium text-arise-deep-teal">
-                {progress}% Complete
-              </span>
+              <span className="text-sm font-medium text-arise-deep-teal">{progress}% Complete</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
@@ -291,11 +278,9 @@ function WellnessAssessmentContent() {
               <Card className="mb-6">
                 <div className="mb-8">
                   <div className="inline-block px-3 py-1 bg-arise-deep-teal/10 text-arise-deep-teal rounded-full text-sm font-medium mb-4">
-                    {wellnessPillars.find(p => p.name === currentQuestion?.pillar)?.name}
+                    {wellnessPillars.find((p) => p.name === currentQuestion?.pillar)?.name}
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-900">
-                    {currentQuestion?.question}
-                  </h2>
+                  <h2 className="text-2xl font-bold text-gray-900">{currentQuestion?.question}</h2>
                 </div>
 
                 {/* Scale Options */}
@@ -306,9 +291,10 @@ function WellnessAssessmentContent() {
                       onClick={() => handleAnswerSelect(option.value)}
                       className={`
                         p-6 rounded-lg border-2 transition-all
-                        ${currentAnswer === option.value
-                          ? 'border-arise-deep-teal bg-arise-deep-teal text-white'
-                          : 'border-gray-200 bg-white hover:border-arise-deep-teal/50 hover:bg-arise-deep-teal/5'
+                        ${
+                          currentAnswer === option.value
+                            ? 'border-arise-deep-teal bg-arise-deep-teal text-white'
+                            : 'border-gray-200 bg-white hover:border-arise-deep-teal/50 hover:bg-arise-deep-teal/5'
                         }
                       `}
                     >
@@ -321,11 +307,7 @@ function WellnessAssessmentContent() {
 
               {/* Navigation Buttons */}
               <div className="flex justify-between">
-                <Button
-                  variant="outline"
-                  onClick={handleBack}
-                  className="flex items-center gap-2"
-                >
+                <Button variant="outline" onClick={handleBack} className="flex items-center gap-2">
                   <ArrowLeft size={20} />
                   Back
                 </Button>

@@ -19,7 +19,7 @@ from app.models.assessment import Assessment, AssessmentResponse, AssessmentResu
 def calculate_360_scores(responses: List[Dict]) -> Dict:
     """
     Calcule les scores 360° à partir des réponses de l'utilisateur.
-    
+
     Le 360° mesure 6 capabilities de leadership:
     - Communication: Clarté, écoute, feedback
     - Team Culture: Collaboration, inclusion, reconnaissance
@@ -27,14 +27,14 @@ def calculate_360_scores(responses: List[Dict]) -> Dict:
     - Talent Development: Coaching, mentorat, développement
     - Execution: Résultats, efficacité, qualité
     - Strategic Thinking: Vision, innovation, planification
-    
+
     Chaque capability est notée sur 25 points (5 questions × 5 points max)
     Score total: 150 points
-    
+
     Args:
         responses: Liste de réponses avec structure:
             [{"question_id": "q1", "capability": "communication", "score": 4}, ...]
-    
+
     Returns:
         Dict avec scores par capability:
         {
@@ -60,24 +60,24 @@ def calculate_360_scores(responses: List[Dict]) -> Dict:
         'execution': [],
         'strategic_thinking': []
     }
-    
+
     # Regrouper les scores par capability
     for response in responses:
         capability = response.get('capability', '').lower()
         score = response.get('score', 0)  # Score de 1 à 5
-        
+
         if capability in capabilities:
             capabilities[capability].append(score)
-    
+
     # Calculer le total par capability (max 25 points)
     scores = {}
     for capability, values in capabilities.items():
         scores[capability] = sum(values)
-    
+
     total = sum(scores.values())
     average = total / len(scores) if scores else 0
     percentage = (total / 150) * 100  # 150 = score maximum (6 × 25)
-    
+
     return {
         'scores': scores,
         'total': total,
@@ -93,27 +93,27 @@ def calculate_360_scores(responses: List[Dict]) -> Dict:
 def interpret_360_results(scores: Dict) -> Dict:
     """
     Génère des interprétations détaillées des scores 360°.
-    
+
     Ranges d'interprétation (sur 25 points max par capability):
     - 5-10: Significant Growth Opportunity (Rouge)
     - 11-15: Early Development (Orange)
     - 16-20: Consistency Stage (Jaune)
     - 21-25: Strong Foundation (Vert)
-    
+
     Overall summary (sur 150 points total):
     - < 90 (60%): Needs significant improvement
     - 90-111 (60-74%): Developing, inconsistent
     - 112-127 (75-85%): Strong habits, mostly consistent
     - 128-150 (86-100%): Excellent overall leadership
-    
+
     Args:
         scores: Dict avec les scores par capability
-    
+
     Returns:
         Dict avec interprétations détaillées
     """
     interpretations = {}
-    
+
     # Descriptions par capability et range
     descriptions = {
         'communication': {
@@ -153,7 +153,7 @@ def interpret_360_results(scores: Dict) -> Dict:
             'strong': "Strategic thinking is a significant strength. You excel at envisioning the future, thinking systemically, and positioning for long-term success. Your strategic insight guides important decisions."
         }
     }
-    
+
     # Générer les interprétations par capability
     for capability, score in scores.items():
         if score <= 10:
@@ -172,7 +172,7 @@ def interpret_360_results(scores: Dict) -> Dict:
             level = "Strong Foundation"
             color = "green"
             text = descriptions[capability]['strong']
-        
+
         interpretations[capability] = {
             'level': level,
             'color': color,
@@ -181,11 +181,11 @@ def interpret_360_results(scores: Dict) -> Dict:
             'percentage': (score / 25) * 100,
             'text': text
         }
-    
+
     # Overall summary
     total = sum(scores.values())
     percentage = (total / 150) * 100
-    
+
     if percentage < 60:
         overall_level = "Needs Significant Improvement"
         overall_text = "Your overall leadership capabilities show significant room for growth. Focus on developing fundamental skills across all areas, starting with your lowest-scoring capabilities."
@@ -198,7 +198,7 @@ def interpret_360_results(scores: Dict) -> Dict:
     else:
         overall_level = "Excellent Overall Leadership"
         overall_text = "Your leadership capabilities are excellent. You demonstrate strong, consistent skills across all areas. Continue to refine and deepen your expertise while serving as a role model for others."
-    
+
     return {
         'by_capability': interpretations,
         'overall': {
@@ -218,16 +218,16 @@ def interpret_360_results(scores: Dict) -> Dict:
 def generate_360_recommendations(scores: Dict, interpretations: Dict) -> List[Dict]:
     """
     Génère des recommandations personnalisées basées sur les scores 360°.
-    
+
     Args:
         scores: Dict avec les scores par capability
         interpretations: Dict avec les interprétations
-    
+
     Returns:
         Liste de recommandations avec actions concrètes
     """
     recommendations = []
-    
+
     # Recommandations par capability
     capability_recommendations = {
         'communication': {
@@ -309,16 +309,16 @@ def generate_360_recommendations(scores: Dict, interpretations: Dict) -> List[Di
             ]
         }
     }
-    
+
     # Identifier les capabilities à développer (score <= 20)
     development_areas = [(cap, score) for cap, score in scores.items() if score <= 20]
     development_areas.sort(key=lambda x: x[1])  # Trier par score croissant
-    
+
     # Générer des recommandations pour les 3 capabilities les plus faibles
     for capability, score in development_areas[:3]:
         priority = 'High' if score <= 15 else 'Medium'
         rec_data = capability_recommendations.get(capability, {})
-        
+
         recommendations.append({
             'category': capability.replace('_', ' ').title(),
             'priority': priority,
@@ -328,15 +328,15 @@ def generate_360_recommendations(scores: Dict, interpretations: Dict) -> List[Di
             'actions': rec_data.get('actions', []),
             'resources': rec_data.get('resources', [])
         })
-    
+
     # Identifier les forces (score >= 21)
     strengths = [(cap, score) for cap, score in scores.items() if score >= 21]
-    
+
     # Recommandation pour la force principale
     if strengths:
         top_strength = max(strengths, key=lambda x: x[1])
         capability, score = top_strength
-        
+
         recommendations.append({
             'category': capability.replace('_', ' ').title(),
             'priority': 'Medium',
@@ -351,7 +351,7 @@ def generate_360_recommendations(scores: Dict, interpretations: Dict) -> List[Di
             ],
             'resources': []
         })
-    
+
     return recommendations
 
 
@@ -362,14 +362,14 @@ def generate_360_recommendations(scores: Dict, interpretations: Dict) -> List[Di
 def calculate_360_comparison(self_scores: Dict, others_scores: List[Dict]) -> Dict:
     """
     Compare les scores self-assessment avec les scores des évaluateurs.
-    
+
     Cette fonction sera utilisée dans la Phase 3 quand le système d'évaluateurs
     sera implémenté.
-    
+
     Args:
         self_scores: Scores de l'auto-évaluation
         others_scores: Liste des scores des évaluateurs
-    
+
     Returns:
         Dict avec la comparaison et le niveau de self-awareness
     """
@@ -378,7 +378,7 @@ def calculate_360_comparison(self_scores: Dict, others_scores: List[Dict]) -> Di
     for capability in self_scores.keys():
         others_values = [s[capability] for s in others_scores if capability in s]
         avg_others_scores[capability] = sum(others_values) / len(others_values) if others_values else 0
-    
+
     # Calculer les différences
     differences = {}
     for capability in self_scores.keys():
@@ -389,10 +389,10 @@ def calculate_360_comparison(self_scores: Dict, others_scores: List[Dict]) -> Di
             'difference': diff,
             'percentage_diff': (diff / 25) * 100 if 25 > 0 else 0
         }
-    
+
     # Déterminer le niveau de self-awareness
     avg_diff = sum(d['difference'] for d in differences.values()) / len(differences)
-    
+
     if abs(avg_diff) <= 2:
         awareness_level = "Well Aligned"
         awareness_text = "Your self-perception is well aligned with how others see you. This indicates strong self-awareness."
@@ -402,7 +402,7 @@ def calculate_360_comparison(self_scores: Dict, others_scores: List[Dict]) -> Di
     else:
         awareness_level = "Underestimated"
         awareness_text = "You tend to rate yourself lower than others rate you. You may be more capable than you give yourself credit for."
-    
+
     return {
         'by_capability': differences,
         'self_awareness': {
@@ -420,18 +420,18 @@ def calculate_360_comparison(self_scores: Dict, others_scores: List[Dict]) -> Di
 def analyze_360_assessment(assessment_id: int, db: Session) -> Dict:
     """
     Analyse complète d'un assessment 360°.
-    
+
     Cette fonction:
     1. Récupère les réponses de l'assessment
     2. Calcule les scores
     3. Génère les interprétations
     4. Génère les recommandations
     5. Stocke les résultats dans la base de données
-    
+
     Args:
         assessment_id: ID de l'assessment à analyser
         db: Session de base de données
-    
+
     Returns:
         Dict avec tous les résultats de l'analyse
     """
@@ -439,11 +439,11 @@ def analyze_360_assessment(assessment_id: int, db: Session) -> Dict:
     assessment = db.query(Assessment).filter(Assessment.id == assessment_id).first()
     if not assessment:
         raise ValueError(f"Assessment {assessment_id} not found")
-    
+
     responses = db.query(AssessmentResponse).filter(
         AssessmentResponse.assessment_id == assessment_id
     ).all()
-    
+
     # Convertir les réponses en format dict
     responses_data = [
         {
@@ -453,37 +453,39 @@ def analyze_360_assessment(assessment_id: int, db: Session) -> Dict:
         }
         for r in responses
     ]
-    
+
     # Calculer les scores
     scores_result = calculate_360_scores(responses_data)
-    
+
     # Générer les interprétations
     interpretations = interpret_360_results(scores_result['scores'])
-    
+
     # Générer les recommandations
     recommendations = generate_360_recommendations(
         scores_result['scores'],
         interpretations
     )
-    
+
     # Créer ou mettre à jour le résultat dans la DB
     result = db.query(AssessmentResult).filter(
         AssessmentResult.assessment_id == assessment_id
     ).first()
-    
+
     if not result:
         result = AssessmentResult(assessment_id=assessment_id)
         db.add(result)
-    
+
     result.scores = scores_result
     result.insights = interpretations
     result.recommendations = recommendations
-    
+
     db.commit()
     db.refresh(result)
-    
+
     return {
         'scores': scores_result,
         'interpretations': interpretations,
         'recommendations': recommendations
     }
+
+

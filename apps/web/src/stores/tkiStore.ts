@@ -13,31 +13,33 @@ import axios from 'axios';
 function extractErrorMessage(error: unknown, defaultMessage: string): string {
   if (axios.isAxiosError(error) && error.response?.data) {
     const data = error.response.data;
-    
+
     // Handle string detail
     if (typeof data.detail === 'string') {
       return data.detail;
     }
-    
+
     // Handle array of validation errors (FastAPI format: [{type, loc, msg, input, ctx}])
     if (Array.isArray(data.detail)) {
-      return data.detail.map((err: any) => {
-        if (typeof err === 'string') return err;
-        if (err && typeof err === 'object') {
-          if (typeof err.msg === 'string') {
-            // Format: "field.path: message" if loc exists, otherwise just message
-            if (Array.isArray(err.loc) && err.loc.length > 0) {
-              return `${err.loc.join('.')}: ${err.msg}`;
+      return data.detail
+        .map((err: any) => {
+          if (typeof err === 'string') return err;
+          if (err && typeof err === 'object') {
+            if (typeof err.msg === 'string') {
+              // Format: "field.path: message" if loc exists, otherwise just message
+              if (Array.isArray(err.loc) && err.loc.length > 0) {
+                return `${err.loc.join('.')}: ${err.msg}`;
+              }
+              return err.msg;
             }
-            return err.msg;
+            // Fallback: stringify the error object
+            return JSON.stringify(err);
           }
-          // Fallback: stringify the error object
-          return JSON.stringify(err);
-        }
-        return String(err);
-      }).join(', ');
+          return String(err);
+        })
+        .join(', ');
     }
-    
+
     // Handle object detail (could be a single validation error object)
     if (data.detail && typeof data.detail === 'object' && !Array.isArray(data.detail)) {
       // FastAPI validation error object format: {type, loc, msg, input, ctx}
@@ -53,12 +55,12 @@ function extractErrorMessage(error: unknown, defaultMessage: string): string {
       // If it's an object but we can't extract a message, stringify it
       return JSON.stringify(data.detail);
     }
-    
+
     // Handle message field at root level
     if (typeof data.message === 'string') {
       return data.message;
     }
-    
+
     // Handle error field at root level
     if (data.error && typeof data.error === 'object') {
       if (typeof data.error.message === 'string') {
@@ -66,12 +68,12 @@ function extractErrorMessage(error: unknown, defaultMessage: string): string {
       }
     }
   }
-  
+
   // Handle Error instances
   if (error instanceof Error) {
     return error.message || defaultMessage;
   }
-  
+
   // Handle objects that might be validation errors
   if (error && typeof error === 'object') {
     const errObj = error as Record<string, unknown>;
@@ -88,7 +90,7 @@ function extractErrorMessage(error: unknown, defaultMessage: string): string {
       return defaultMessage;
     }
   }
-  
+
   // Ensure we always return a string
   return String(error || defaultMessage);
 }
@@ -100,7 +102,7 @@ interface TKIState {
   isLoading: boolean;
   error: string | null;
   isCompleted: boolean;
-  
+
   // Actions
   startAssessment: () => Promise<void>;
   answerQuestion: (questionId: string, answer: string) => Promise<void>;
@@ -128,7 +130,7 @@ export const useTKIStore = create<TKIState>()(
         set({ isLoading: true, error: null });
         try {
           const assessment = await startAssessment('tki');
-          set({ 
+          set({
             assessmentId: assessment.assessment_id,
             isLoading: false,
             currentQuestion: 0,
@@ -137,9 +139,9 @@ export const useTKIStore = create<TKIState>()(
           });
         } catch (error: unknown) {
           const errorMessage = extractErrorMessage(error, 'Failed to start assessment');
-          set({ 
+          set({
             error: errorMessage,
-            isLoading: false 
+            isLoading: false,
           });
         }
       },
@@ -152,27 +154,27 @@ export const useTKIStore = create<TKIState>()(
         try {
           // Save with new format: selected_mode
           await saveResponse(assessmentId, questionId, { selected_mode: answer });
-          set(state => ({
+          set((state) => ({
             answers: { ...state.answers, [questionId]: answer },
             isLoading: false,
           }));
         } catch (error: unknown) {
           const errorMessage = extractErrorMessage(error, 'Failed to save answer');
-          set({ 
+          set({
             error: errorMessage,
-            isLoading: false 
+            isLoading: false,
           });
         }
       },
 
       nextQuestion: () => {
-        set(state => ({
+        set((state) => ({
           currentQuestion: Math.min(state.currentQuestion + 1, 29), // 0-29 for 30 questions
         }));
       },
 
       previousQuestion: () => {
-        set(state => ({
+        set((state) => ({
           currentQuestion: Math.max(state.currentQuestion - 1, 0),
         }));
       },
@@ -184,15 +186,15 @@ export const useTKIStore = create<TKIState>()(
         set({ isLoading: true, error: null });
         try {
           await submitAssessment(assessmentId);
-          set({ 
+          set({
             isCompleted: true,
             isLoading: false,
           });
         } catch (error: unknown) {
           const errorMessage = extractErrorMessage(error, 'Failed to submit assessment');
-          set({ 
+          set({
             error: errorMessage,
-            isLoading: false 
+            isLoading: false,
           });
         }
       },

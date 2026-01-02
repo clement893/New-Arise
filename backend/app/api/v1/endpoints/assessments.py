@@ -55,7 +55,7 @@ class AssessmentResponse(BaseModel):
     started_at: Optional[datetime]
     completed_at: Optional[datetime]
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -78,15 +78,15 @@ async def start_assessment(
 ):
     """
     Démarre un nouvel assessment.
-    
+
     Args:
         request: Type d'assessment à démarrer
         current_user: Utilisateur authentifié
         db: Session de base de données
-    
+
     Returns:
         Assessment créé avec status NOT_STARTED
-    
+
     Raises:
         HTTPException 400: Type d'assessment invalide
     """
@@ -98,18 +98,18 @@ async def start_assessment(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid assessment type. Must be one of: {[t.value for t in AssessmentType]}"
         )
-    
+
     # Créer l'assessment
     assessment = Assessment(
         user_id=current_user.id,
         type=assessment_type,
         status=AssessmentStatus.NOT_STARTED
     )
-    
+
     db.add(assessment)
     db.commit()
     db.refresh(assessment)
-    
+
     return {
         "id": assessment.id,
         "type": assessment.type.value,
@@ -128,16 +128,16 @@ async def save_response(
 ):
     """
     Sauvegarde une réponse à une question d'assessment.
-    
+
     Args:
         assessment_id: ID de l'assessment
         request: Question ID et données de réponse
         current_user: Utilisateur authentifié
         db: Session de base de données
-    
+
     Returns:
         Message de confirmation
-    
+
     Raises:
         HTTPException 404: Assessment non trouvé
         HTTPException 403: Assessment n'appartient pas à l'utilisateur
@@ -148,25 +148,25 @@ async def save_response(
         Assessment.id == assessment_id,
         Assessment.user_id == current_user.id
     ).first()
-    
+
     if not assessment:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Assessment not found"
         )
-    
+
     if assessment.status == AssessmentStatus.COMPLETED:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot modify a completed assessment"
         )
-    
+
     # Créer ou mettre à jour la réponse
     response = db.query(AssessmentResponse).filter(
         AssessmentResponse.assessment_id == assessment_id,
         AssessmentResponse.question_id == request.question_id
     ).first()
-    
+
     if response:
         # Mettre à jour la réponse existante
         response.response_data = request.response_data
@@ -179,16 +179,16 @@ async def save_response(
             response_data=request.response_data
         )
         db.add(response)
-    
+
     # Mettre à jour le statut de l'assessment à IN_PROGRESS
     if assessment.status == AssessmentStatus.NOT_STARTED:
         assessment.status = AssessmentStatus.IN_PROGRESS
         assessment.started_at = datetime.utcnow()
-    
+
     assessment.updated_at = datetime.utcnow()
-    
+
     db.commit()
-    
+
     return {
         "message": "Response saved successfully",
         "question_id": request.question_id
@@ -203,7 +203,7 @@ async def submit_assessment(
 ):
     """
     Soumet un assessment complété et calcule les résultats.
-    
+
     Cette fonction:
     1. Vérifie que toutes les questions sont répondues
     2. Calcule les scores selon le type d'assessment
@@ -211,15 +211,15 @@ async def submit_assessment(
     4. Génère les recommandations
     5. Stocke les résultats dans assessment_results
     6. Met à jour le status à COMPLETED
-    
+
     Args:
         assessment_id: ID de l'assessment
         current_user: Utilisateur authentifié
         db: Session de base de données
-    
+
     Returns:
         Résultats calculés de l'assessment
-    
+
     Raises:
         HTTPException 404: Assessment non trouvé
         HTTPException 403: Assessment n'appartient pas à l'utilisateur
@@ -230,24 +230,24 @@ async def submit_assessment(
         Assessment.id == assessment_id,
         Assessment.user_id == current_user.id
     ).first()
-    
+
     if not assessment:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Assessment not found"
         )
-    
+
     if assessment.status == AssessmentStatus.COMPLETED:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Assessment already completed"
         )
-    
+
     # Vérifier que toutes les questions sont répondues
     responses_count = db.query(AssessmentResponse).filter(
         AssessmentResponse.assessment_id == assessment_id
     ).count()
-    
+
     # Nombre de questions attendues par type
     expected_count = {
         AssessmentType.TKI: 30,
@@ -255,15 +255,15 @@ async def submit_assessment(
         AssessmentType.THREE_SIXTY_SELF: 30,
         AssessmentType.MBTI: 60
     }
-    
+
     expected = expected_count.get(assessment.type, 30)
-    
+
     if responses_count < expected:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Not all questions answered. Expected {expected}, got {responses_count}"
         )
-    
+
     # Calculer les résultats selon le type d'assessment
     try:
         if assessment.type == AssessmentType.TKI:
@@ -282,14 +282,14 @@ async def submit_assessment(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error calculating results: {str(e)}"
         )
-    
+
     # Mettre à jour le statut de l'assessment
     assessment.status = AssessmentStatus.COMPLETED
     assessment.completed_at = datetime.utcnow()
     assessment.updated_at = datetime.utcnow()
-    
+
     db.commit()
-    
+
     return {
         "message": "Assessment submitted successfully",
         "assessment_id": assessment_id,
@@ -305,15 +305,15 @@ async def get_assessment_results(
 ):
     """
     Récupère les résultats d'un assessment complété.
-    
+
     Args:
         assessment_id: ID de l'assessment
         current_user: Utilisateur authentifié
         db: Session de base de données
-    
+
     Returns:
         Assessment et résultats calculés
-    
+
     Raises:
         HTTPException 404: Assessment ou résultats non trouvés
         HTTPException 403: Assessment n'appartient pas à l'utilisateur
@@ -324,30 +324,30 @@ async def get_assessment_results(
         Assessment.id == assessment_id,
         Assessment.user_id == current_user.id
     ).first()
-    
+
     if not assessment:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Assessment not found"
         )
-    
+
     if assessment.status != AssessmentStatus.COMPLETED:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Assessment not completed yet. Please submit the assessment first."
         )
-    
+
     # Récupérer les résultats
     result = db.query(AssessmentResult).filter(
         AssessmentResult.assessment_id == assessment_id
     ).first()
-    
+
     if not result:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Results not found. Please try submitting the assessment again."
         )
-    
+
     return {
         "assessment": {
             "id": assessment.id,
@@ -375,20 +375,20 @@ async def get_user_assessments(
 ):
     """
     Récupère tous les assessments de l'utilisateur.
-    
+
     Args:
         current_user: Utilisateur authentifié
         db: Session de base de données
         type: Filtrer par type d'assessment (optionnel)
         status: Filtrer par statut (optionnel)
-    
+
     Returns:
         Liste des assessments de l'utilisateur
     """
     query = db.query(Assessment).filter(
         Assessment.user_id == current_user.id
     )
-    
+
     # Filtrer par type si spécifié
     if type:
         try:
@@ -396,7 +396,7 @@ async def get_user_assessments(
             query = query.filter(Assessment.type == assessment_type)
         except ValueError:
             pass  # Ignorer les types invalides
-    
+
     # Filtrer par statut si spécifié
     if status:
         try:
@@ -404,9 +404,9 @@ async def get_user_assessments(
             query = query.filter(Assessment.status == assessment_status)
         except ValueError:
             pass  # Ignorer les statuts invalides
-    
+
     assessments = query.order_by(Assessment.created_at.desc()).all()
-    
+
     return [
         {
             "id": a.id,
@@ -428,15 +428,15 @@ async def get_assessment(
 ):
     """
     Récupère les détails d'un assessment.
-    
+
     Args:
         assessment_id: ID de l'assessment
         current_user: Utilisateur authentifié
         db: Session de base de données
-    
+
     Returns:
         Détails de l'assessment
-    
+
     Raises:
         HTTPException 404: Assessment non trouvé
         HTTPException 403: Assessment n'appartient pas à l'utilisateur
@@ -445,18 +445,18 @@ async def get_assessment(
         Assessment.id == assessment_id,
         Assessment.user_id == current_user.id
     ).first()
-    
+
     if not assessment:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Assessment not found"
         )
-    
+
     # Compter les réponses
     responses_count = db.query(AssessmentResponse).filter(
         AssessmentResponse.assessment_id == assessment_id
     ).count()
-    
+
     # Nombre de questions attendues
     expected_count = {
         AssessmentType.TKI: 30,
@@ -464,7 +464,7 @@ async def get_assessment(
         AssessmentType.THREE_SIXTY_SELF: 30,
         AssessmentType.MBTI: 60
     }
-    
+
     return {
         "id": assessment.id,
         "type": assessment.type.value,
@@ -488,15 +488,15 @@ async def delete_assessment(
 ):
     """
     Supprime un assessment.
-    
+
     Args:
         assessment_id: ID de l'assessment
         current_user: Utilisateur authentifié
         db: Session de base de données
-    
+
     Returns:
         Message de confirmation
-    
+
     Raises:
         HTTPException 404: Assessment non trouvé
         HTTPException 403: Assessment n'appartient pas à l'utilisateur
@@ -505,16 +505,16 @@ async def delete_assessment(
         Assessment.id == assessment_id,
         Assessment.user_id == current_user.id
     ).first()
-    
+
     if not assessment:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Assessment not found"
         )
-    
+
     db.delete(assessment)
     db.commit()
-    
+
     return {
         "message": "Assessment deleted successfully",
         "assessment_id": assessment_id
@@ -561,7 +561,7 @@ NOTES POUR CURSOR - ENDPOINTS ASSESSMENTS
    Dans backend/app/api/v1/api.py:
    ```python
    from app.api.v1.endpoints import assessments
-   
+
    api_router.include_router(
        assessments.router,
        prefix="/assessments",
@@ -576,19 +576,21 @@ NOTES POUR CURSOR - ENDPOINTS ASSESSMENTS
      -H "Authorization: Bearer YOUR_TOKEN" \
      -H "Content-Type: application/json" \
      -d '{"type": "TKI"}'
-   
+
    # Sauvegarder une réponse
    curl -X POST http://localhost:8000/api/v1/assessments/1/responses \
      -H "Authorization: Bearer YOUR_TOKEN" \
      -H "Content-Type: application/json" \
      -d '{"question_id": "q1", "response_data": {"selected_mode": "competing"}}'
-   
+
    # Soumettre
    curl -X POST http://localhost:8000/api/v1/assessments/1/submit \
      -H "Authorization: Bearer YOUR_TOKEN"
-   
+
    # Récupérer les résultats
    curl http://localhost:8000/api/v1/assessments/1/results \
      -H "Authorization: Bearer YOUR_TOKEN"
    ```
 """
+
+

@@ -17,7 +17,7 @@ from typing import Generator
 from app.main import app
 from app.core.database import Base, get_db
 from app.models.user import User
-from app.core.auth import get_password_hash, create_access_token
+from app.core.security import hash_password, create_access_token
 from datetime import timedelta
 
 
@@ -70,7 +70,7 @@ async def test_user(db: AsyncSession) -> User:
     """Create a test user"""
     user = User(
         email="test@example.com",
-        hashed_password=get_password_hash("testpassword123"),
+        hashed_password=hash_password("testpassword123"),
         first_name="Test",
         last_name="User",
         is_active=True,
@@ -86,7 +86,7 @@ async def admin_user(db: AsyncSession) -> User:
     """Create an admin test user"""
     user = User(
         email="admin@example.com",
-        hashed_password=get_password_hash("adminpassword123"),
+        hashed_password=hash_password("adminpassword123"),
         first_name="Admin",
         last_name="User",
         is_active=True,
@@ -107,7 +107,7 @@ async def authenticated_user(db: AsyncSession) -> User:
     """Create an authenticated test user with token"""
     user = User(
         email="auth@example.com",
-        hashed_password=get_password_hash("authpassword123"),
+        hashed_password=hash_password("authpassword123"),
         first_name="Auth",
         last_name="User",
         is_active=True,
@@ -120,3 +120,10 @@ async def authenticated_user(db: AsyncSession) -> User:
     token = create_access_token({"sub": user.email})
     user.access_token = token
     return user
+
+
+@pytest.fixture
+async def auth_headers(test_user: User) -> dict:
+    """Create auth headers for test user"""
+    token = create_access_token({"sub": test_user.email})
+    return {"Authorization": f"Bearer {token}"}

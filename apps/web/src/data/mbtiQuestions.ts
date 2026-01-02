@@ -1,7 +1,7 @@
 /**
  * MBTI Assessment Questions
  * Based on the Myers-Briggs Type Indicator framework
- * 
+ *
  * 4 Dimensions:
  * - E/I: Extraversion vs Introversion (Energy source)
  * - S/N: Sensing vs Intuition (Information gathering)
@@ -298,7 +298,7 @@ export const mbtiQuestions: MBTIQuestion[] = [
       preference: 'T',
     },
     optionB: {
-      text: 'People\'s feelings and values',
+      text: "People's feelings and values",
       preference: 'F',
     },
   },
@@ -554,88 +554,94 @@ export const mbtiQuestions: MBTIQuestion[] = [
 ];
 
 // MBTI Type Descriptions
-export const mbtiTypes: Record<string, { name: string; description: string; strengths: string[]; }> = {
-  ISTJ: {
-    name: 'The Inspector',
-    description: 'Practical, fact-minded individuals whose reliability cannot be doubted.',
-    strengths: ['Responsible', 'Organized', 'Detail-oriented', 'Loyal'],
-  },
-  ISFJ: {
-    name: 'The Protector',
-    description: 'Very dedicated and warm protectors, always ready to defend their loved ones.',
-    strengths: ['Supportive', 'Reliable', 'Patient', 'Observant'],
-  },
-  INFJ: {
-    name: 'The Counselor',
-    description: 'Quiet and mystical, yet very inspiring and tireless idealists.',
-    strengths: ['Insightful', 'Principled', 'Passionate', 'Creative'],
-  },
-  INTJ: {
-    name: 'The Mastermind',
-    description: 'Imaginative and strategic thinkers, with a plan for everything.',
-    strengths: ['Strategic', 'Independent', 'Determined', 'Innovative'],
-  },
-  ISTP: {
-    name: 'The Craftsman',
-    description: 'Bold and practical experimenters, masters of all kinds of tools.',
-    strengths: ['Practical', 'Flexible', 'Logical', 'Hands-on'],
-  },
-  ISFP: {
-    name: 'The Composer',
-    description: 'Flexible and charming artists, always ready to explore and experience something new.',
-    strengths: ['Artistic', 'Sensitive', 'Flexible', 'Spontaneous'],
-  },
-  INFP: {
-    name: 'The Healer',
-    description: 'Poetic, kind and altruistic people, always eager to help a good cause.',
-    strengths: ['Idealistic', 'Empathetic', 'Creative', 'Open-minded'],
-  },
-  INTP: {
-    name: 'The Architect',
-    description: 'Innovative inventors with an unquenchable thirst for knowledge.',
-    strengths: ['Analytical', 'Objective', 'Innovative', 'Curious'],
-  },
-  ESTP: {
-    name: 'The Dynamo',
-    description: 'Smart, energetic and very perceptive people, who truly enjoy living on the edge.',
-    strengths: ['Energetic', 'Pragmatic', 'Perceptive', 'Bold'],
-  },
-  ESFP: {
-    name: 'The Performer',
-    description: 'Spontaneous, energetic and enthusiastic people – life is never boring around them.',
-    strengths: ['Enthusiastic', 'Friendly', 'Spontaneous', 'Practical'],
-  },
-  ENFP: {
-    name: 'The Champion',
-    description: 'Enthusiastic, creative and sociable free spirits, who can always find a reason to smile.',
-    strengths: ['Enthusiastic', 'Creative', 'Sociable', 'Energetic'],
-  },
-  ENTP: {
-    name: 'The Visionary',
-    description: 'Smart and curious thinkers who cannot resist an intellectual challenge.',
-    strengths: ['Innovative', 'Charismatic', 'Knowledgeable', 'Quick-thinking'],
-  },
-  ESTJ: {
-    name: 'The Supervisor',
-    description: 'Excellent administrators, unsurpassed at managing things – or people.',
-    strengths: ['Organized', 'Practical', 'Dedicated', 'Strong-willed'],
-  },
-  ESFJ: {
-    name: 'The Provider',
-    description: 'Extraordinarily caring, social and popular people, always eager to help.',
-    strengths: ['Caring', 'Social', 'Loyal', 'Organized'],
-  },
-  ENFJ: {
-    name: 'The Teacher',
-    description: 'Charismatic and inspiring leaders, able to mesmerize their listeners.',
-    strengths: ['Charismatic', 'Altruistic', 'Natural leader', 'Reliable'],
-  },
-  ENTJ: {
-    name: 'The Commander',
-    description: 'Bold, imaginative and strong-willed leaders, always finding a way – or making one.',
-    strengths: ['Efficient', 'Strategic', 'Confident', 'Charismatic'],
-  },
-};
+export const mbtiTypes: Record<string, { name: string; description: string; strengths: string[] }> =
+  {
+    ISTJ: {
+      name: 'The Inspector',
+      description: 'Practical, fact-minded individuals whose reliability cannot be doubted.',
+      strengths: ['Responsible', 'Organized', 'Detail-oriented', 'Loyal'],
+    },
+    ISFJ: {
+      name: 'The Protector',
+      description: 'Very dedicated and warm protectors, always ready to defend their loved ones.',
+      strengths: ['Supportive', 'Reliable', 'Patient', 'Observant'],
+    },
+    INFJ: {
+      name: 'The Counselor',
+      description: 'Quiet and mystical, yet very inspiring and tireless idealists.',
+      strengths: ['Insightful', 'Principled', 'Passionate', 'Creative'],
+    },
+    INTJ: {
+      name: 'The Mastermind',
+      description: 'Imaginative and strategic thinkers, with a plan for everything.',
+      strengths: ['Strategic', 'Independent', 'Determined', 'Innovative'],
+    },
+    ISTP: {
+      name: 'The Craftsman',
+      description: 'Bold and practical experimenters, masters of all kinds of tools.',
+      strengths: ['Practical', 'Flexible', 'Logical', 'Hands-on'],
+    },
+    ISFP: {
+      name: 'The Composer',
+      description:
+        'Flexible and charming artists, always ready to explore and experience something new.',
+      strengths: ['Artistic', 'Sensitive', 'Flexible', 'Spontaneous'],
+    },
+    INFP: {
+      name: 'The Healer',
+      description: 'Poetic, kind and altruistic people, always eager to help a good cause.',
+      strengths: ['Idealistic', 'Empathetic', 'Creative', 'Open-minded'],
+    },
+    INTP: {
+      name: 'The Architect',
+      description: 'Innovative inventors with an unquenchable thirst for knowledge.',
+      strengths: ['Analytical', 'Objective', 'Innovative', 'Curious'],
+    },
+    ESTP: {
+      name: 'The Dynamo',
+      description:
+        'Smart, energetic and very perceptive people, who truly enjoy living on the edge.',
+      strengths: ['Energetic', 'Pragmatic', 'Perceptive', 'Bold'],
+    },
+    ESFP: {
+      name: 'The Performer',
+      description:
+        'Spontaneous, energetic and enthusiastic people – life is never boring around them.',
+      strengths: ['Enthusiastic', 'Friendly', 'Spontaneous', 'Practical'],
+    },
+    ENFP: {
+      name: 'The Champion',
+      description:
+        'Enthusiastic, creative and sociable free spirits, who can always find a reason to smile.',
+      strengths: ['Enthusiastic', 'Creative', 'Sociable', 'Energetic'],
+    },
+    ENTP: {
+      name: 'The Visionary',
+      description: 'Smart and curious thinkers who cannot resist an intellectual challenge.',
+      strengths: ['Innovative', 'Charismatic', 'Knowledgeable', 'Quick-thinking'],
+    },
+    ESTJ: {
+      name: 'The Supervisor',
+      description: 'Excellent administrators, unsurpassed at managing things – or people.',
+      strengths: ['Organized', 'Practical', 'Dedicated', 'Strong-willed'],
+    },
+    ESFJ: {
+      name: 'The Provider',
+      description: 'Extraordinarily caring, social and popular people, always eager to help.',
+      strengths: ['Caring', 'Social', 'Loyal', 'Organized'],
+    },
+    ENFJ: {
+      name: 'The Teacher',
+      description: 'Charismatic and inspiring leaders, able to mesmerize their listeners.',
+      strengths: ['Charismatic', 'Altruistic', 'Natural leader', 'Reliable'],
+    },
+    ENTJ: {
+      name: 'The Commander',
+      description:
+        'Bold, imaginative and strong-willed leaders, always finding a way – or making one.',
+      strengths: ['Efficient', 'Strategic', 'Confident', 'Charismatic'],
+    },
+  };
 
 export const mbtiDimensions = [
   {
@@ -659,3 +665,5 @@ export const mbtiDimensions = [
     description: 'How you approach the outside world',
   },
 ];
+
+
