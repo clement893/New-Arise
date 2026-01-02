@@ -6,7 +6,7 @@ import { PageHeader } from '@/components/layout';
 import { Card, Container } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { start360Feedback, get360Evaluators, type Evaluator360Data, type EvaluatorStatus } from '@/lib/api/assessments';
+import { start360Feedback, get360Evaluators, getMyAssessments, type Evaluator360Data, type EvaluatorStatus } from '@/lib/api/assessments';
 import { Users, UserPlus, CheckCircle, Plus, Trash2, Copy, Check } from 'lucide-react';
 import { Alert } from '@/components/ui';
 
@@ -40,22 +40,56 @@ export default function Start360FeedbackPage() {
   const [success, setSuccess] = useState(false);
   const [submittedEvaluatorsCount, setSubmittedEvaluatorsCount] = useState(0);
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
+  const [resolvedAssessmentId, setResolvedAssessmentId] = useState<number | null>(null);
 
-  // Load existing evaluators if assessmentId is provided
+  // Load existing evaluators - try to find assessment if not in URL
   useEffect(() => {
-    if (assessmentId) {
-      loadExistingEvaluators();
-    }
+    const loadEvaluators = async () => {
+      let id: number | null = null;
+      
+      // First, try to use assessmentId from URL
+      if (assessmentId) {
+        id = parseInt(assessmentId);
+      } else {
+        // If no assessmentId in URL, try to find existing 360 assessment
+        try {
+          const assessments = await getMyAssessments();
+          const feedback360Assessment = assessments.find(
+            (a) => a.assessment_type === 'THREE_SIXTY_SELF'
+          );
+          if (feedback360Assessment) {
+            id = feedback360Assessment.id;
+            setResolvedAssessmentId(id);
+            // Update URL without navigation
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.set('assessmentId', id.toString());
+            window.history.replaceState({}, '', newUrl.toString());
+          }
+        } catch (err) {
+          console.error('Failed to find existing 360 assessment:', err);
+        }
+      }
+      
+      if (id) {
+        await loadExistingEvaluators(id);
+      }
+    };
+    
+    loadEvaluators();
   }, [assessmentId]);
 
-  const loadExistingEvaluators = async () => {
+  const loadExistingEvaluators = async (id?: number) => {
+    const evaluatorId = id || parseInt(assessmentId!) || resolvedAssessmentId;
+    if (!evaluatorId) return;
+    
     try {
       setIsLoadingEvaluators(true);
-      const response = await get360Evaluators(parseInt(assessmentId!));
+      const response = await get360Evaluators(evaluatorId);
       setExistingEvaluators(response.evaluators);
     } catch (err: any) {
       console.error('Failed to load evaluators:', err);
       // Don't show error if assessment doesn't exist yet
+      setExistingEvaluators([]);
     } finally {
       setIsLoadingEvaluators(false);
     }
@@ -164,8 +198,10 @@ export default function Start360FeedbackPage() {
       setSuccess(true);
       
       // Reload evaluators if we're on an existing assessment
-      if (assessmentId) {
-        await loadExistingEvaluators();
+      const idToUse = response.assessment_id || parseInt(assessmentId!) || resolvedAssessmentId;
+      if (idToUse) {
+        setResolvedAssessmentId(idToUse);
+        await loadExistingEvaluators(idToUse);
       }
       
       // Redirect to the 360 feedback assessment page (auto-evaluation) after a short delay
@@ -198,8 +234,10 @@ export default function Start360FeedbackPage() {
       setSuccess(true);
       
       // Reload evaluators if we're on an existing assessment
-      if (assessmentId) {
-        await loadExistingEvaluators();
+      const idToUse = response.assessment_id || parseInt(assessmentId!) || resolvedAssessmentId;
+      if (idToUse) {
+        setResolvedAssessmentId(idToUse);
+        await loadExistingEvaluators(idToUse);
       }
       
       // Redirect to the 360 feedback assessment page (auto-evaluation) after a short delay
@@ -261,7 +299,12 @@ export default function Start360FeedbackPage() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={loadExistingEvaluators}
+                  onClick={() => {
+                    const idToUse = parseInt(assessmentId || '') || resolvedAssessmentId;
+                    if (idToUse) {
+                      loadExistingEvaluators(idToUse);
+                    }
+                  }}
                   disabled={isLoadingEvaluators}
                 >
                   {isLoadingEvaluators ? 'Chargement...' : 'Actualiser'}
