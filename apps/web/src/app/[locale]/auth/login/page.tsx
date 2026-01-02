@@ -7,6 +7,7 @@ import { AxiosError } from 'axios';
 import { authAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store';
 import { transformApiUserToStoreUser } from '@/lib/auth/userTransform';
+import { TokenStorage } from '@/lib/auth/tokenStorage';
 import { Input, Button, Alert, Card, Container } from '@/components/ui';
 
 interface ApiErrorResponse {
