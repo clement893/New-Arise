@@ -649,6 +649,7 @@ async def start_360_feedback(
                 
                 # Insert using raw SQL to bypass SQLAlchemy schema cache
                 # invitation_sent_at will be updated after email is sent successfully
+                logger.debug(f"Attempting to insert evaluator {evaluator_data.email} with role {evaluator_role.value}")
                 insert_result = await db.execute(
                     text("""
                         INSERT INTO assessment_360_evaluators 
@@ -669,20 +670,55 @@ async def start_360_feedback(
                 )
                 evaluator_row = insert_result.first()
                 evaluator_id = evaluator_row[0] if evaluator_row else None
-                logger.debug(f"Added evaluator {evaluator_data.email} (ID: {evaluator_id}) to database for assessment {self_assessment.id}")
+                logger.debug(f"Successfully inserted evaluator {evaluator_data.email} (ID: {evaluator_id}) to database for assessment {self_assessment.id}")
+                
+                # Commit immediately after each insert to avoid transaction issues
+                try:
+                    await db.commit()
+                    logger.debug(f"Committed evaluator {evaluator_data.email} (ID: {evaluator_id}) to database")
+                except Exception as commit_error:
+                    error_type = type(commit_error).__name__
+                    error_message = str(commit_error)
+                    import traceback
+                    error_traceback = traceback.format_exc()
+                    logger.error(
+                        f"❌ ERROR committing evaluator {evaluator_data.email}: {error_type}: {error_message}",
+                        exc_info=True,
+                        extra={
+                            "user_id": current_user.id,
+                            "assessment_id": self_assessment.id,
+                            "evaluator_email": evaluator_data.email,
+                            "evaluator_id": evaluator_id,
+                            "error_type": error_type,
+                            "error_message": error_message,
+                            "traceback": error_traceback
+                        }
+                    )
+                    await db.rollback()
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail=f"Failed to save evaluator to database: {error_type}: {error_message}"
+                    )
+            except HTTPException:
+                raise
             except Exception as add_error:
                 error_type = type(add_error).__name__
                 error_message = str(add_error)
+                import traceback
+                error_traceback = traceback.format_exc()
                 logger.error(
-                    f"Error creating evaluator record for {evaluator_data.email}: {error_type}: {error_message}",
+                    f"❌ ERROR creating evaluator record for {evaluator_data.email}: {error_type}: {error_message}",
                     exc_info=True,
                     extra={
                         "user_id": current_user.id,
                         "assessment_id": self_assessment.id,
                         "evaluator_email": evaluator_data.email,
-                        "error_type": error_type
+                        "error_type": error_type,
+                        "error_message": error_message,
+                        "traceback": error_traceback
                     }
                 )
+                await db.rollback()
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail=f"Failed to create evaluator record: {error_type}: {error_message}"
@@ -733,7 +769,9 @@ async def start_360_feedback(
                 "role": evaluator_data.role
             })
         
-        # Commit all changes to database
+        # All evaluators have been committed individually, so we just need to commit the self-assessment if it wasn't already committed
+        # Note: Since we commit after each evaluator insert, the self-assessment should already be committed
+        # But we'll do a final commit to ensure everything is saved
         try:
             await db.commit()
             logger.info(f"✅ Successfully committed 360 feedback assessment {self_assessment.id} to database with {len(invited_evaluators)} evaluators")
