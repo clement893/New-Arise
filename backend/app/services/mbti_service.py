@@ -428,3 +428,4 @@ def analyze_mbti_assessment(assessment_id: int, db: Session) -> Dict[str, Any]:
         raise Exception(f"Error analyzing MBTI assessment: {str(e)}")
 
 
+

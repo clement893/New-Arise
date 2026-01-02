@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { 
-  getAssessmentResults, 
-  getMyAssessments, 
-  PillarScore, 
+import {
+  getAssessmentResults,
+  getMyAssessments,
+  PillarScore,
   get360Evaluators,
   type EvaluatorStatus,
 } from '@/lib/api/assessments';
@@ -53,7 +53,7 @@ export default function Feedback360ResultsPage() {
   const loadResults = async () => {
     try {
       setIsLoading(true);
-      
+
       // Get assessment ID from URL params, store, or find it from my assessments
       let id: number | null = searchParams?.get('id') ? parseInt(searchParams.get('id')!) : null;
       if (!id) {
@@ -71,19 +71,19 @@ export default function Feedback360ResultsPage() {
         }
         id = feedback360Assessment.id;
       }
-      
+
       // Load results and evaluators in parallel
       const [response, evaluatorsResponse] = await Promise.all([
         getAssessmentResults(id),
         get360Evaluators(id).catch(() => ({ evaluators: [] })), // Don't fail if evaluators endpoint fails
       ]);
-      
+
       setEvaluators(evaluatorsResponse.evaluators || []);
-      
+
       const completedCount = evaluatorsResponse.evaluators?.filter(
         (e) => e.status === 'COMPLETED'
       ).length || 0;
-      
+
       // Transform AssessmentResult to Results format
       const scores = response.scores;
       const capabilityScores: CapabilityScore[] = scores.capability_scores
@@ -98,10 +98,10 @@ export default function Feedback360ResultsPage() {
             };
           })
         : [];
-      
+
       // Check if there are evaluator responses
       const hasEvaluatorResponses = completedCount > 0;
-      
+
       const transformedResults: Results = {
         total_score: scores.total_score,
         max_score: scores.max_score,
@@ -110,7 +110,7 @@ export default function Feedback360ResultsPage() {
         has_evaluator_responses: hasEvaluatorResponses,
         evaluator_count: completedCount,
       };
-      
+
       setResults(transformedResults);
     } catch (err: unknown) {
       const errorMessage = err && typeof err === 'object' && 'message' in err
@@ -221,7 +221,7 @@ export default function Feedback360ResultsPage() {
                 </p>
               </div>
             )}
-            
+
             {/* Evaluators Status Section */}
             {evaluators.length > 0 && (
               <div className="mt-6 rounded-lg border border-gray-200 p-4">
@@ -461,3 +461,4 @@ export default function Feedback360ResultsPage() {
     </div>
   );
 }
+

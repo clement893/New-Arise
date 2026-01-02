@@ -34,21 +34,21 @@ export default function TKIResultsPage() {
     try {
       setIsLoading(true);
       const data = await getAssessmentResults(Number(assessmentId));
-      
+
       // Transform AssessmentResult to TKIResults format
       const { scores } = data;
       const modeScores = scores.mode_scores || {};
-      
+
       // Find dominant and secondary modes
       const sortedModes = Object.entries(modeScores)
         .sort(([, a], [, b]) => (b as number) - (a as number));
-      
+
       const transformedResults: TKIResults = {
         mode_counts: modeScores as Record<string, number>,
         dominant_mode: sortedModes[0]?.[0] || '',
         secondary_mode: sortedModes[1]?.[0] || '',
       };
-      
+
       setResults(transformedResults);
     } catch (err: unknown) {
       const errorMessage = err && typeof err === 'object' && 'response' in err
@@ -150,7 +150,7 @@ export default function TKIResultsPage() {
   return (
     <div className="relative">
       {/* Background */}
-      <div 
+      <div
         className="fixed inset-0 bg-cover bg-center opacity-10 pointer-events-none"
         style={{
           backgroundImage: 'url(/images/dashboard-bg.jpg)',
@@ -280,3 +280,4 @@ export default function TKIResultsPage() {
     </div>
   );
 }
+
