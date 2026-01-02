@@ -19,7 +19,13 @@ import {
   Trash2,
   FileText,
   Calculator,
-  Save
+  Save,
+  TrendingUp,
+  Users,
+  BarChart3,
+  Filter,
+  Download,
+  RefreshCw
 } from 'lucide-react';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { wellnessQuestions } from '@/data/wellnessQuestionsReal';
@@ -217,12 +223,94 @@ export default function AdminAssessmentManagementPage() {
     setEditingRule(null);
   };
 
+  // Calculate statistics
+  const totalAssessments = assessments.length;
+  const completedAssessments = assessments.filter(a => a.status === 'COMPLETED').length;
+  const inProgressAssessments = assessments.filter(a => a.status === 'IN_PROGRESS').length;
+  const averageScore = assessments.length > 0
+    ? assessments
+        .filter(a => a.score_summary?.percentage !== undefined)
+        .reduce((sum, a) => sum + (a.score_summary?.percentage || 0), 0) /
+      assessments.filter(a => a.score_summary?.percentage !== undefined).length
+    : 0;
+
   const renderAssessmentsTab = () => (
     <>
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <MotionDiv variant="slideUp" duration="normal" delay={0}>
+          <Card className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">Total des tests</p>
+                <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">{totalAssessments}</p>
+              </div>
+              <div className="p-3 bg-blue-200 dark:bg-blue-800 rounded-full">
+                <ClipboardList className="w-6 h-6 text-blue-700 dark:text-blue-300" />
+              </div>
+            </div>
+          </Card>
+        </MotionDiv>
+
+        <MotionDiv variant="slideUp" duration="normal" delay={100}>
+          <Card className="p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-800">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-green-600 dark:text-green-400 mb-1">Terminés</p>
+                <p className="text-3xl font-bold text-green-900 dark:text-green-100">{completedAssessments}</p>
+                {totalAssessments > 0 && (
+                  <p className="text-xs text-green-700 dark:text-green-300 mt-1">
+                    {Math.round((completedAssessments / totalAssessments) * 100)}%
+                  </p>
+                )}
+              </div>
+              <div className="p-3 bg-green-200 dark:bg-green-800 rounded-full">
+                <CheckCircle className="w-6 h-6 text-green-700 dark:text-green-300" />
+              </div>
+            </div>
+          </Card>
+        </MotionDiv>
+
+        <MotionDiv variant="slideUp" duration="normal" delay={200}>
+          <Card className="p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 border-yellow-200 dark:border-yellow-800">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400 mb-1">En cours</p>
+                <p className="text-3xl font-bold text-yellow-900 dark:text-yellow-100">{inProgressAssessments}</p>
+                {totalAssessments > 0 && (
+                  <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
+                    {Math.round((inProgressAssessments / totalAssessments) * 100)}%
+                  </p>
+                )}
+              </div>
+              <div className="p-3 bg-yellow-200 dark:bg-yellow-800 rounded-full">
+                <Clock className="w-6 h-6 text-yellow-700 dark:text-yellow-300" />
+              </div>
+            </div>
+          </Card>
+        </MotionDiv>
+
+        <MotionDiv variant="slideUp" duration="normal" delay={300}>
+          <Card className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-purple-600 dark:text-purple-400 mb-1">Score moyen</p>
+                <p className="text-3xl font-bold text-purple-900 dark:text-purple-100">
+                  {averageScore > 0 ? averageScore.toFixed(0) : '-'}%
+                </p>
+              </div>
+              <div className="p-3 bg-purple-200 dark:bg-purple-800 rounded-full">
+                <TrendingUp className="w-6 h-6 text-purple-700 dark:text-purple-300" />
+              </div>
+            </div>
+          </Card>
+        </MotionDiv>
+      </div>
+
       {/* Search and Filters */}
       <Card className="mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
+        <div className="flex flex-col md:flex-row gap-4 items-center">
+          <div className="flex-1 relative w-full">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <Input
               placeholder="Rechercher par email utilisateur, nom ou type de test..."
@@ -231,23 +319,26 @@ export default function AdminAssessmentManagementPage() {
               className="pl-10"
             />
           </div>
-          <div className="flex gap-2">
-            <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-arise-teal"
-            >
-              <option value="all">Tous les types</option>
-              {Object.entries(ASSESSMENT_TYPE_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
+          <div className="flex gap-2 w-full md:w-auto">
+            <div className="relative flex-1 md:flex-none">
+              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
+              <select
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+                className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-arise-teal w-full md:w-auto"
+              >
+                <option value="all">Tous les types</option>
+                {Object.entries(ASSESSMENT_TYPE_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </div>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-arise-teal"
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-arise-teal w-full md:w-auto"
             >
               <option value="all">Tous les statuts</option>
               {Object.entries(STATUS_LABELS).map(([value, config]) => (
@@ -256,6 +347,24 @@ export default function AdminAssessmentManagementPage() {
                 </option>
               ))}
             </select>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fetchAssessments}
+              disabled={loading}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              Actualiser
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Exporter
+            </Button>
           </div>
         </div>
       </Card>
@@ -281,131 +390,143 @@ export default function AdminAssessmentManagementPage() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                    Utilisateur
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                    Type de test
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                    Statut
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                    Progression
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                    Score
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                    Dates
-                  </th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredAssessments.map((assessment, index) => (
-                  <MotionDiv
-                    key={assessment.id}
-                    variant="fade"
-                    duration="fast"
-                    delay={index * 0.05}
-                  >
-                    <tr className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                      <td className="py-4 px-4">
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {assessment.user_email || `User #${assessment.user_id}`}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {filteredAssessments.map((assessment, index) => (
+              <MotionDiv
+                key={assessment.id}
+                variant="slideUp"
+                duration="normal"
+                delay={index * 0.05}
+              >
+                <Card className="p-6 hover:shadow-lg transition-all duration-200 border-l-4 border-l-arise-teal">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2 bg-arise-teal/10 rounded-lg">
+                          <Users className="w-5 h-5 text-arise-teal" />
                         </div>
-                        {assessment.user_name && (
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            {assessment.user_name}
-                          </div>
-                        )}
-                      </td>
-                      <td className="py-4 px-4">
-                        <Badge variant="default">
-                          {ASSESSMENT_TYPE_LABELS[assessment.assessment_type] || assessment.assessment_type}
-                        </Badge>
-                      </td>
-                      <td className="py-4 px-4">
-                        <Badge variant={STATUS_LABELS[assessment.status]?.variant || 'default'}>
-                          {STATUS_LABELS[assessment.status]?.label || assessment.status}
-                        </Badge>
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                            <div
-                              className="bg-arise-teal h-2 rounded-full transition-all"
-                              style={{ width: `${getProgressPercentage(assessment)}%` }}
-                            />
-                          </div>
-                          <span className="text-xs text-gray-600 dark:text-gray-400 min-w-[3rem] text-right">
-                            {getProgressPercentage(assessment)}%
-                          </span>
+                        <div>
+                          <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                            {assessment.user_email || `User #${assessment.user_id}`}
+                          </h3>
+                          {assessment.user_name && (
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {assessment.user_name}
+                            </p>
+                          )}
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Badge 
+                        variant={STATUS_LABELS[assessment.status]?.variant || 'default'}
+                        className="text-xs"
+                      >
+                        {STATUS_LABELS[assessment.status]?.label || assessment.status}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* Type and Progress */}
+                    <div className="flex items-center justify-between">
+                      <Badge variant="default" className="text-xs">
+                        {ASSESSMENT_TYPE_LABELS[assessment.assessment_type] || assessment.assessment_type}
+                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <BarChart3 className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          {getProgressPercentage(assessment)}%
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-gray-600 dark:text-gray-400">Progression</span>
+                        <span className="text-xs text-gray-600 dark:text-gray-400">
                           {assessment.answer_count} / {assessment.total_questions} questions
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-500 ${
+                            getProgressPercentage(assessment) === 100
+                              ? 'bg-gradient-to-r from-green-500 to-green-600'
+                              : getProgressPercentage(assessment) >= 50
+                              ? 'bg-gradient-to-r from-arise-teal to-teal-600'
+                              : 'bg-gradient-to-r from-yellow-400 to-yellow-500'
+                          }`}
+                          style={{ width: `${getProgressPercentage(assessment)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Score */}
+                    {assessment.score_summary && (
+                      <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <TrendingUp className="w-4 h-4 text-arise-teal" />
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Score</span>
                         </div>
-                      </td>
-                      <td className="py-4 px-4">
-                        {assessment.score_summary ? (
-                          <div className="text-sm">
-                            {assessment.score_summary.percentage !== undefined && (
-                              <span className="font-semibold text-gray-900 dark:text-gray-100">
-                                {assessment.score_summary.percentage.toFixed(0)}%
-                              </span>
-                            )}
+                        {assessment.score_summary.percentage !== undefined ? (
+                          <div className="text-right">
+                            <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                              {assessment.score_summary.percentage.toFixed(0)}%
+                            </span>
                             {assessment.score_summary.dominant_mode && (
-                              <div className="text-xs text-gray-500 dark:text-gray-400">
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
                                 {assessment.score_summary.dominant_mode}
-                              </div>
+                              </p>
                             )}
                           </div>
                         ) : (
                           <span className="text-gray-400 dark:text-gray-500 text-sm">-</span>
                         )}
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="text-xs text-gray-600 dark:text-gray-400">
-                          {assessment.started_at && (
-                            <div className="flex items-center gap-1 mb-1">
-                              <Clock className="w-3 h-3" />
-                              Début: {new Date(assessment.started_at).toLocaleDateString('fr-FR')}
-                            </div>
-                          )}
-                          {assessment.completed_at && (
-                            <div className="flex items-center gap-1">
-                              <CheckCircle className="w-3 h-3" />
-                              Fin: {new Date(assessment.completed_at).toLocaleDateString('fr-FR')}
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => {
-                              // View assessment details
-                            }}
-                            title="Voir les détails"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  </MotionDiv>
-                ))}
-              </tbody>
-            </table>
+                      </div>
+                    )}
+
+                    {/* Dates */}
+                    <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
+                      <div className="flex flex-col gap-1">
+                        {assessment.started_at && (
+                          <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                            <Clock className="w-3 h-3" />
+                            <span>Début: {new Date(assessment.started_at).toLocaleDateString('fr-FR', { 
+                              day: '2-digit', 
+                              month: 'short', 
+                              year: 'numeric' 
+                            })}</span>
+                          </div>
+                        )}
+                        {assessment.completed_at && (
+                          <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                            <CheckCircle className="w-3 h-3 text-green-600" />
+                            <span>Terminé: {new Date(assessment.completed_at).toLocaleDateString('fr-FR', { 
+                              day: '2-digit', 
+                              month: 'short', 
+                              year: 'numeric' 
+                            })}</span>
+                          </div>
+                        )}
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          // View assessment details
+                        }}
+                        className="flex items-center gap-2"
+                      >
+                        <Eye className="w-4 h-4" />
+                        Détails
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              </MotionDiv>
+            ))}
           </div>
         )}
       </Card>
@@ -454,7 +575,9 @@ export default function AdminAssessmentManagementPage() {
         <Card>
           {questions.length === 0 ? (
             <div className="text-center py-12">
-              <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <div className="inline-flex p-4 bg-gray-100 dark:bg-gray-800 rounded-full mb-4">
+                <FileText className="w-12 h-12 text-gray-400" />
+              </div>
               <p className="text-gray-600 dark:text-gray-400 text-lg font-medium mb-2">
                 Aucune question trouvée
               </p>
@@ -467,128 +590,164 @@ export default function AdminAssessmentManagementPage() {
                   setEditingQuestion({ id: '', text: '', pillar: '' });
                   setQuestionEditModalOpen(true);
                 }}
+                className="flex items-center gap-2 mx-auto"
               >
-                <Plus size={20} className="mr-2" />
+                <Plus size={20} />
                 Ajouter la première question
               </Button>
             </div>
           ) : (
-            <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              {selectedTestType === 'WELLNESS' && wellnessQuestions.map((question) => (
-                <div key={question.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">
-                          {question.id}
-                        </span>
-                        <Badge variant="default">{question.pillar}</Badge>
-                      </div>
-                      <p className="text-gray-900 dark:text-gray-100">
-                        {question.question}
-                      </p>
-                    </div>
-                    <div className="flex gap-2 ml-4">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleEditQuestion({ ...question, text: question.question } as Question)}
-                        title="Modifier"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-red-600 hover:text-red-700"
-                        title="Supprimer"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              
-              {selectedTestType === 'TKI' && tkiQuestions.map((question) => (
-                <div key={question.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">
-                          Q{question.number}
-                        </span>
-                        <Badge variant="default" className="mr-2 capitalize">{question.modeA}</Badge>
-                        <Badge variant="default" className="capitalize">{question.modeB}</Badge>
-                      </div>
-                      <div className="space-y-2">
-                        <p className="text-gray-900 dark:text-gray-100">
-                          <strong>A:</strong> {question.optionA}
-                        </p>
-                        <p className="text-gray-900 dark:text-gray-100">
-                          <strong>B:</strong> {question.optionB}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2 ml-4">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleEditQuestion({ ...question, text: question.optionA + ' / ' + question.optionB } as Question)}
-                        title="Modifier"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-red-600 hover:text-red-700"
-                        title="Supprimer"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              
-              {(selectedTestType === 'THREE_SIXTY_SELF' || selectedTestType === 'THREE_SIXTY_EVALUATOR') && 
-                feedback360Questions.map((question) => (
-                  <div key={question.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                    <div className="flex items-start justify-between">
+            <div className="grid grid-cols-1 gap-4">
+              {selectedTestType === 'WELLNESS' && wellnessQuestions.map((question, index) => (
+                <MotionDiv
+                  key={question.id}
+                  variant="slideUp"
+                  duration="fast"
+                  delay={index * 0.03}
+                >
+                  <Card className="p-5 hover:shadow-md transition-all duration-200 border-l-4 border-l-blue-500">
+                    <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">
-                            Q{question.number}
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold text-sm">
+                            {index + 1}
+                          </div>
+                          <span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                            {question.id}
                           </span>
-                          <Badge variant="default">
-                            {feedback360Capabilities.find(c => c.id === question.capability)?.title || question.capability}
-                          </Badge>
+                          <Badge variant="default" className="capitalize">{question.pillar}</Badge>
                         </div>
-                        <p className="text-gray-900 dark:text-gray-100">
-                          {question.text}
+                        <p className="text-gray-900 dark:text-gray-100 text-base leading-relaxed">
+                          {question.question}
                         </p>
                       </div>
-                      <div className="flex gap-2 ml-4">
+                      <div className="flex gap-2 flex-shrink-0">
                         <Button
                           size="sm"
-                          variant="ghost"
-                          onClick={() => handleEditQuestion({ ...question, text: question.text } as Question)}
+                          variant="outline"
+                          onClick={() => handleEditQuestion({ ...question, text: question.question } as Question)}
                           title="Modifier"
+                          className="hover:bg-blue-50 dark:hover:bg-blue-900/20"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
                         <Button
                           size="sm"
-                          variant="ghost"
-                          className="text-red-600 hover:text-red-700"
+                          variant="outline"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
                           title="Supprimer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
-                  </div>
+                  </Card>
+                </MotionDiv>
+              ))}
+              
+              {selectedTestType === 'TKI' && tkiQuestions.map((question, index) => (
+                <MotionDiv
+                  key={question.id}
+                  variant="slideUp"
+                  duration="fast"
+                  delay={index * 0.03}
+                >
+                  <Card className="p-5 hover:shadow-md transition-all duration-200 border-l-4 border-l-purple-500">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-semibold text-sm">
+                            {question.number}
+                          </div>
+                          <span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                            {question.id}
+                          </span>
+                          <Badge variant="default" className="capitalize">{question.modeA}</Badge>
+                          <Badge variant="default" className="capitalize">{question.modeB}</Badge>
+                        </div>
+                        <div className="space-y-3">
+                          <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-1">Option A</p>
+                            <p className="text-gray-900 dark:text-gray-100">{question.optionA}</p>
+                          </div>
+                          <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                            <p className="text-sm font-semibold text-purple-700 dark:text-purple-300 mb-1">Option B</p>
+                            <p className="text-gray-900 dark:text-gray-100">{question.optionB}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 flex-shrink-0">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEditQuestion({ ...question, text: question.optionA + ' / ' + question.optionB } as Question)}
+                          title="Modifier"
+                          className="hover:bg-purple-50 dark:hover:bg-purple-900/20"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                          title="Supprimer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                </MotionDiv>
+              ))}
+              
+              {(selectedTestType === 'THREE_SIXTY_SELF' || selectedTestType === 'THREE_SIXTY_EVALUATOR') && 
+                feedback360Questions.map((question, index) => (
+                  <MotionDiv
+                    key={question.id}
+                    variant="slideUp"
+                    duration="fast"
+                    delay={index * 0.03}
+                  >
+                    <Card className="p-5 hover:shadow-md transition-all duration-200 border-l-4 border-l-teal-500">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 font-semibold text-sm">
+                              {question.number}
+                            </div>
+                            <span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                              {question.id}
+                            </span>
+                            <Badge variant="default">
+                              {feedback360Capabilities.find(c => c.id === question.capability)?.icon} {feedback360Capabilities.find(c => c.id === question.capability)?.title || question.capability}
+                            </Badge>
+                          </div>
+                          <p className="text-gray-900 dark:text-gray-100 text-base leading-relaxed">
+                            {question.text}
+                          </p>
+                        </div>
+                        <div className="flex gap-2 flex-shrink-0">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEditQuestion({ ...question, text: question.text } as Question)}
+                            title="Modifier"
+                            className="hover:bg-teal-50 dark:hover:bg-teal-900/20"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                            title="Supprimer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  </MotionDiv>
                 ))
               }
             </div>
@@ -717,60 +876,93 @@ export default function AdminAssessmentManagementPage() {
               {/* Wellness Rules */}
               {selectedRuleType === 'WELLNESS' && rules.pillars && (
                 <>
-                  <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  <Card className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800 mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+                      <Calculator className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                       Configuration générale
                     </h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Score maximum total:</span>
-                        <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">{rules.maxTotalScore}</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-700">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Score maximum total</p>
+                        <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{rules.maxTotalScore}</p>
                       </div>
-                      <div>
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Échelle:</span>
-                        <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
+                      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-700">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Échelle de réponse</p>
+                        <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
                           {rules.scale.min} - {rules.scale.max}
-                        </span>
+                        </p>
                       </div>
                     </div>
-                  </div>
+                  </Card>
                   
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
                       Règles par pilier
                     </h3>
-                    <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {rules.pillars.map((pillar: ScoringRule, index: number) => (
-                        <Card key={index} className="p-4">
-                          <div className="flex items-start justify-between mb-3">
-                            <div>
-                              <h4 className="font-semibold text-gray-900 dark:text-gray-100 capitalize">
-                                {pillar.name.replace(/_/g, ' ')}
-                              </h4>
-                              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                Score maximum: {pillar.maxScore}
+                        <MotionDiv
+                          key={index}
+                          variant="slideUp"
+                          duration="fast"
+                          delay={index * 0.05}
+                        >
+                          <Card className="p-5 hover:shadow-md transition-all duration-200 border-l-4 border-l-green-500">
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                                    <Calculator className="w-5 h-5 text-green-700 dark:text-green-300" />
+                                  </div>
+                                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 capitalize text-lg">
+                                    {pillar.name.replace(/_/g, ' ')}
+                                  </h4>
+                                </div>
+                                <div className="flex items-center gap-4 mt-3">
+                                  <div className="px-3 py-1.5 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                                    <p className="text-xs text-green-600 dark:text-green-400 mb-0.5">Score max</p>
+                                    <p className="text-lg font-bold text-green-700 dark:text-green-300">
+                                      {pillar.maxScore}
+                                    </p>
+                                  </div>
+                                  <div className="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                                    <p className="text-xs text-blue-600 dark:text-blue-400 mb-0.5">Questions</p>
+                                    <p className="text-lg font-bold text-blue-700 dark:text-blue-300">
+                                      {pillar.questions?.length || 0}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleEditRule(pillar)}
+                                title="Modifier"
+                                className="hover:bg-green-50 dark:hover:bg-green-900/20"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                            </div>
+                            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Questions associées:
                               </p>
+                              {pillar.questions?.length ? (
+                                <div className="flex flex-wrap gap-2">
+                                  {pillar.questions.map((qId: string) => (
+                                    <Badge key={qId} variant="default" className="text-xs font-mono">
+                                      {qId}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              ) : (
+                                <span className="text-sm text-gray-500 dark:text-gray-400 italic">
+                                  Aucune question associée
+                                </span>
+                              )}
                             </div>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleEditRule(pillar)}
-                              title="Modifier"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                              Questions associées:
-                            </p>
-                            <div className="flex flex-wrap gap-2">
-                              {pillar.questions?.map((qId: string) => (
-                                <Badge key={qId} variant="default">{qId}</Badge>
-                              )) || <span className="text-sm text-gray-500 dark:text-gray-400">Aucune question associée</span>}
-                            </div>
-                          </div>
-                        </Card>
+                          </Card>
+                        </MotionDiv>
                       ))}
                     </div>
                   </div>
@@ -779,28 +971,146 @@ export default function AdminAssessmentManagementPage() {
 
               {/* TKI Rules */}
               {selectedRuleType === 'TKI' && rules.modes && (
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                    Configuration
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <span className="text-sm text-gray-600 dark:text-gray-400">Total de questions:</span>
-                      <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">{rules.totalQuestions}</span>
+                <div className="space-y-6">
+                  <Card className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+                      <Calculator className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                      Configuration TKI
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total de questions</p>
+                        <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">{rules.totalQuestions}</p>
+                      </div>
+                      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Questions par mode</p>
+                        <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">{rules.questionsPerMode}</p>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-sm text-gray-600 dark:text-gray-400">Questions par mode:</span>
-                      <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">{rules.questionsPerMode}</span>
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Modes:
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {rules.modes.map((mode: string) => (
-                        <Badge key={mode} variant="default" className="capitalize">{mode}</Badge>
+                  </Card>
+                  
+                  <Card className="p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+                      <BarChart3 className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                      Modes de conflit
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {rules.modes.map((mode: string, index: number) => (
+                        <MotionDiv
+                          key={mode}
+                          variant="fade"
+                          duration="fast"
+                          delay={index * 0.05}
+                        >
+                          <div className="p-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 hover:shadow-md transition-all">
+                            <Badge variant="default" className="capitalize text-sm font-semibold w-full justify-center py-2">
+                              {mode}
+                            </Badge>
+                          </div>
+                        </MotionDiv>
                       ))}
+                    </div>
+                  </Card>
+                </div>
+              )}
+
+              {/* 360 Rules */}
+              {(selectedRuleType === 'THREE_SIXTY_SELF' || selectedRuleType === 'THREE_SIXTY_EVALUATOR') && rules.capabilities && (
+                <div className="space-y-6">
+                  <Card className="p-6 bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20 border-teal-200 dark:border-teal-800 mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+                      <Calculator className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                      Configuration générale
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-teal-200 dark:border-teal-700">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Score maximum total</p>
+                        <p className="text-2xl font-bold text-teal-900 dark:text-teal-100">{rules.maxTotalScore}</p>
+                      </div>
+                      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-teal-200 dark:border-teal-700">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Échelle de réponse</p>
+                        <p className="text-2xl font-bold text-teal-900 dark:text-teal-100">
+                          {rules.scale.min} - {rules.scale.max}
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
+                  
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+                      <BarChart3 className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                      Règles par capacité
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {rules.capabilities.map((capability: ScoringRule, index: number) => {
+                        const capInfo = feedback360Capabilities.find(c => c.id === capability.name);
+                        return (
+                          <MotionDiv
+                            key={index}
+                            variant="slideUp"
+                            duration="fast"
+                            delay={index * 0.05}
+                          >
+                            <Card className="p-5 hover:shadow-md transition-all duration-200 border-l-4 border-l-teal-500">
+                              <div className="flex items-start justify-between mb-4">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <div className="p-2 bg-teal-100 dark:bg-teal-900/30 rounded-lg">
+                                      <span className="text-teal-700 dark:text-teal-300 text-lg">
+                                        {capInfo?.icon || '📊'}
+                                      </span>
+                                    </div>
+                                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 capitalize text-lg">
+                                      {capInfo?.title || capability.name.replace(/_/g, ' ')}
+                                    </h4>
+                                  </div>
+                                  <div className="flex items-center gap-4 mt-3">
+                                    <div className="px-3 py-1.5 bg-teal-50 dark:bg-teal-900/20 rounded-lg">
+                                      <p className="text-xs text-teal-600 dark:text-teal-400 mb-0.5">Score max</p>
+                                      <p className="text-lg font-bold text-teal-700 dark:text-teal-300">
+                                        {capability.maxScore}
+                                      </p>
+                                    </div>
+                                    <div className="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                                      <p className="text-xs text-blue-600 dark:text-blue-400 mb-0.5">Questions</p>
+                                      <p className="text-lg font-bold text-blue-700 dark:text-blue-300">
+                                        {capability.questions?.length || 0}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleEditRule(capability)}
+                                  title="Modifier"
+                                  className="hover:bg-teal-50 dark:hover:bg-teal-900/20"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                              </div>
+                              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                  Questions associées:
+                                </p>
+                                {capability.questions?.length ? (
+                                  <div className="flex flex-wrap gap-2">
+                                    {capability.questions.map((qId: string) => (
+                                      <Badge key={qId} variant="default" className="text-xs font-mono">
+                                        {qId}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <span className="text-sm text-gray-500 dark:text-gray-400 italic">
+                                    Aucune question associée
+                                  </span>
+                                )}
+                              </div>
+                            </Card>
+                          </MotionDiv>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -870,13 +1180,20 @@ export default function AdminAssessmentManagementPage() {
 
   return (
     <Container className="py-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-          Gestion des Évaluations
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Gérez les évaluations, questions et règles de calcul des réponses
-        </p>
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-3">
+              <div className="p-2 bg-arise-teal/10 rounded-lg">
+                <ClipboardList className="w-8 h-8 text-arise-teal" />
+              </div>
+              Gestion des Évaluations
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 ml-14">
+              Gérez les évaluations, questions et règles de calcul des réponses
+            </p>
+          </div>
+        </div>
       </div>
 
       {error && (
