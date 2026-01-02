@@ -108,18 +108,22 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
       const hasUser = !!currentUser;
       const hasToken = !!currentToken;
       
+      // Check if we just logged in (to avoid premature redirects)
+      const justLoggedIn = typeof window !== 'undefined' && sessionStorage.getItem('just_logged_in') === 'true';
+      
       // If we have a token but no user, try to fetch user from API
       // This handles the case where Zustand persist hasn't hydrated yet but token exists
       let fetchedUser = currentUser;
       if (hasToken && !hasUser && typeof window !== 'undefined') {
-        // Wait a bit for store to hydrate after login (prevent race condition)
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // If we just logged in, wait longer for store to hydrate
+        const waitTime = justLoggedIn ? 300 : 100;
+        await new Promise(resolve => setTimeout(resolve, waitTime));
         
         // Re-check user after delay (store might have hydrated)
-        const { user: userAfterDelay } = useAuthStore.getState();
-        if (userAfterDelay) {
-          fetchedUser = userAfterDelay;
-          lastUserRef.current = userAfterDelay;
+        const storeState = useAuthStore.getState();
+        if (storeState.user) {
+          fetchedUser = storeState.user;
+          lastUserRef.current = storeState.user;
         } else {
           try {
             const { usersAPI } = await import('@/lib/api');
@@ -138,7 +142,8 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
             if (process.env.NODE_ENV === 'development') {
               logger.debug('Failed to fetch user in ProtectedRoute', {
                 error: err instanceof Error ? err.message : String(err),
-                statusCode
+                statusCode,
+                justLoggedIn
               });
             }
             // Only fail if it's an auth error (401/403), not server errors (500)
@@ -148,13 +153,22 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
               // Check if this might be a timing issue after login
               const tokenStillExists = TokenStorage.getToken();
               if (tokenStillExists) {
-                // Token still exists, might be a timing issue - wait a bit more
-                await new Promise(resolve => setTimeout(resolve, 200));
-                const { user: userAfterWait } = useAuthStore.getState();
-                if (userAfterWait) {
+                // If we just logged in, wait even longer before giving up
+                const additionalWaitTime = justLoggedIn ? 500 : 200;
+                await new Promise(resolve => setTimeout(resolve, additionalWaitTime));
+                const storeStateAfterWait = useAuthStore.getState();
+                if (storeStateAfterWait.user) {
                   // User appeared, continue
-                  fetchedUser = userAfterWait;
-                  lastUserRef.current = userAfterWait;
+                  fetchedUser = storeStateAfterWait.user;
+                  lastUserRef.current = storeStateAfterWait.user;
+                } else if (justLoggedIn) {
+                  // Still no user but we just logged in - might be a server issue
+                  // Don't redirect, just log and continue (user might appear later)
+                  logger.warn('User not found after login, but continuing (might be server delay)', {
+                    hasToken: !!tokenStillExists,
+                    pathname
+                  });
+                  // Continue with token check - don't redirect yet
                 } else {
                   // Still no user, token is likely invalid
                   if (typeof window !== 'undefined') {
