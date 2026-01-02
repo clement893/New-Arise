@@ -1,20 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui';
 import Button from '@/components/ui/Button';
-import { CheckCircle, Calendar, User } from 'lucide-react';
-import type { CoachingSession } from '@/lib/api/coaching';
+import { CheckCircle } from 'lucide-react';
 
 export default function CoachingSessionSuccessPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionIdParam = searchParams.get('session_id');
-  
-  const [session, setSession] = useState<CoachingSession | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Extract session_id from Stripe checkout session ID
@@ -22,8 +18,6 @@ export default function CoachingSessionSuccessPage() {
     // We need to find the coaching session by stripe_checkout_session_id
     // For now, we'll just show a success message
     // In a real implementation, you'd query the backend with the checkout session ID
-    
-    setLoading(false);
   }, [sessionIdParam]);
 
   return (
@@ -40,30 +34,6 @@ export default function CoachingSessionSuccessPage() {
             </p>
           </div>
 
-          {session && (
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 mb-6 text-left">
-              <h2 className="font-semibold mb-4">Détails de la session</h2>
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-gray-400" />
-                  <span>
-                    {new Date(session.scheduled_at).toLocaleDateString('fr-FR', {
-                      weekday: 'long',
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <User className="h-5 w-5 text-gray-400" />
-                  <span>Session ID: {session.id}</span>
-                </div>
-              </div>
-            </div>
-          )}
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
