@@ -1,596 +1,1333 @@
 """
-Assessment API Endpoints
-
-Endpoints pour gérer les assessments ARISE (TKI, Wellness, 360°, MBTI).
-
-Routes:
-- POST /start: Démarrer un nouvel assessment
-- POST /{id}/responses: Sauvegarder une réponse
-- POST /{id}/submit: Soumettre un assessment complété
-- GET /{id}/results: Récupérer les résultats
-- GET /user/assessments: Liste des assessments de l'utilisateur
+Assessments API Endpoints
+ARISE Leadership Assessment Tool
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from typing import List, Optional
-from datetime import datetime
-from pydantic import BaseModel
+from typing import List, Optional, Dict, Any
+import json
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Body
+from pydantic import BaseModel, Field, EmailStr
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, func, UniqueConstraint
+from sqlalchemy.orm import selectinload
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from datetime import datetime, timezone
 
+from app.core.database import get_db
+from app.dependencies import get_current_user
+from app.models.user import User
 from app.models.assessment import (
     Assessment,
-    AssessmentResponse,
+    AssessmentAnswer,
+    Assessment360Evaluator,
     AssessmentResult,
     AssessmentType,
-    AssessmentStatus
+    AssessmentStatus,
+    EvaluatorRole,
 )
-from app.services import tki_service, feedback360_service, wellness_service
-from app.core.deps import get_db, get_current_user
-from app.models.user import User
 
 router = APIRouter()
 
 
 # ============================================================================
-# SCHEMAS PYDANTIC
+# Pydantic Schemas
 # ============================================================================
 
-class StartAssessmentRequest(BaseModel):
-    """Requête pour démarrer un assessment"""
-    type: str  # "TKI", "WELLNESS", "THREE_SIXTY_SELF", "MBTI"
-
-
-class SaveResponseRequest(BaseModel):
-    """Requête pour sauvegarder une réponse"""
-    question_id: str
-    response_data: dict
-
-
-class AssessmentResponse(BaseModel):
-    """Réponse d'un assessment"""
+class AssessmentListItem(BaseModel):
+    """Assessment list item response"""
     id: int
-    user_id: int
-    type: str
+    assessment_type: str
     status: str
     started_at: Optional[datetime]
     completed_at: Optional[datetime]
-    created_at: datetime
-
+    score_summary: Optional[Dict[str, Any]] = None
+    answer_count: Optional[int] = 0  # Number of answers provided
+    total_questions: Optional[int] = 30  # Total number of questions (30 for most assessments)
+    
     class Config:
         from_attributes = True
 
 
-class AssessmentResultResponse(BaseModel):
-    """Réponse avec les résultats d'un assessment"""
-    assessment: dict
-    results: dict
+class AssessmentStartRequest(BaseModel):
+    """Request to start an assessment"""
+    assessment_type: AssessmentType
 
 
-# ============================================================================
-# ENDPOINTS
-# ============================================================================
+class AssessmentAnswerRequest(BaseModel):
+    """Request to save an answer"""
+    question_id: str = Field(..., description="Question ID (e.g., 'wellness_q1')")
+    answer_value: str = Field(..., description="Answer value (integer 1-5 or string 'A'/'B')")
 
-@router.post("/start", status_code=status.HTTP_201_CREATED)
-async def start_assessment(
-    request: StartAssessmentRequest,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    Démarre un nouvel assessment.
 
-    Args:
-        request: Type d'assessment à démarrer
-        current_user: Utilisateur authentifié
-        db: Session de base de données
+class AssessmentSubmitResponse(BaseModel):
+    """Response after submitting an assessment"""
+    assessment_id: int
+    status: str
+    completed_at: datetime
+    score: Dict[str, Any]
+    message: str
 
-    Returns:
-        Assessment créé avec status NOT_STARTED
 
-    Raises:
-        HTTPException 400: Type d'assessment invalide
-    """
-    # Valider le type d'assessment
-    try:
-        assessment_type = AssessmentType(request.type)
-    except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid assessment type. Must be one of: {[t.value for t in AssessmentType]}"
-        )
+class Evaluator360Data(BaseModel):
+    """Evaluator data for 360 feedback"""
+    name: str = Field(..., description="Evaluator name")
+    email: EmailStr = Field(..., description="Evaluator email")
+    role: str = Field(..., description="Evaluator role (PEER, MANAGER, DIRECT_REPORT, STAKEHOLDER)")
 
-    # Créer l'assessment
-    assessment = Assessment(
-        user_id=current_user.id,
-        type=assessment_type,
-        status=AssessmentStatus.NOT_STARTED
+
+class Evaluator360InviteRequest(BaseModel):
+    """Request to invite 360 evaluators"""
+    evaluators: List[Evaluator360Data] = Field(
+        ...,
+        min_items=1,
+        max_items=10,
+        description="List of evaluators (3 recommended)"
     )
 
-    db.add(assessment)
-    db.commit()
-    db.refresh(assessment)
 
-    return {
-        "id": assessment.id,
-        "type": assessment.type.value,
-        "status": assessment.status.value,
-        "created_at": assessment.created_at,
-        "message": "Assessment started successfully"
-    }
+class Start360FeedbackRequest(BaseModel):
+    """Request to start a 360 feedback with evaluators"""
+    evaluators: List[Evaluator360Data] = Field(
+        default_factory=list,
+        min_items=0,
+        max_items=10,
+        description="List of evaluators (0 or more, can add more later)"
+    )
 
 
-@router.post("/{assessment_id}/responses", status_code=status.HTTP_200_OK)
-async def save_response(
-    assessment_id: int,
-    request: SaveResponseRequest,
+class AssessmentResultResponse(BaseModel):
+    """Assessment result response"""
+    id: int
+    assessment_id: int
+    assessment_type: str
+    scores: Dict[str, Any]
+    insights: Optional[Dict[str, Any]]
+    recommendations: Optional[Dict[str, Any]]
+    comparison_data: Optional[Dict[str, Any]]  # For 360 assessments
+    generated_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+
+# ============================================================================
+# Endpoints
+# ============================================================================
+
+@router.get("/list", response_model=List[AssessmentListItem])
+@router.get("/my-assessments", response_model=List[AssessmentListItem])
+async def list_assessments(
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
     """
-    Sauvegarde une réponse à une question d'assessment.
-
-    Args:
-        assessment_id: ID de l'assessment
-        request: Question ID et données de réponse
-        current_user: Utilisateur authentifié
-        db: Session de base de données
-
-    Returns:
-        Message de confirmation
-
-    Raises:
-        HTTPException 404: Assessment non trouvé
-        HTTPException 403: Assessment n'appartient pas à l'utilisateur
-        HTTPException 400: Assessment déjà complété
+    Get list of all assessments for the current user
     """
-    # Vérifier que l'assessment existe et appartient à l'utilisateur
-    assessment = db.query(Assessment).filter(
-        Assessment.id == assessment_id,
-        Assessment.user_id == current_user.id
-    ).first()
+    result = await db.execute(
+        select(Assessment)
+        .where(Assessment.user_id == current_user.id)
+        .order_by(Assessment.created_at.desc())
+    )
+    assessments = result.scalars().all()
+    
+    # Format response
+    response = []
+    for assessment in assessments:
+        score_summary = None
+        if assessment.processed_score:
+            # Extract summary based on type
+            if assessment.assessment_type == AssessmentType.WELLNESS:
+                score_summary = {
+                    "total_score": assessment.processed_score.get("total_score"),
+                    "percentage": assessment.processed_score.get("percentage"),
+                }
+            elif assessment.assessment_type == AssessmentType.TKI:
+                score_summary = {
+                    "dominant_mode": assessment.processed_score.get("dominant_mode"),
+                }
+            elif assessment.assessment_type == AssessmentType.THREE_SIXTY_SELF:
+                score_summary = {
+                    "total_score": assessment.processed_score.get("total_score"),
+                }
+        
+        # Count answers for this assessment
+        answer_count_result = await db.execute(
+            select(func.count(AssessmentAnswer.id))
+            .where(AssessmentAnswer.assessment_id == assessment.id)
+        )
+        answer_count = answer_count_result.scalar() or 0
+        
+        # Determine total questions based on assessment type
+        total_questions = 30  # Default for TKI, WELLNESS, THREE_SIXTY_SELF
+        if assessment.assessment_type == AssessmentType.MBTI:
+            total_questions = 0  # MBTI is external upload
+        
+        response.append(AssessmentListItem(
+            id=assessment.id,
+            assessment_type=assessment.assessment_type.value,
+            status=assessment.status.value,
+            started_at=assessment.started_at,
+            completed_at=assessment.completed_at,
+            score_summary=score_summary,
+            answer_count=answer_count,
+            total_questions=total_questions
+        ))
+    
+    return response
 
-    if not assessment:
+
+@router.post("/start")
+async def start_assessment(
+    request: AssessmentStartRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Start a new assessment or resume an existing one
+    Note: For 360° feedback (THREE_SIXTY_SELF), use /360/start endpoint instead
+    """
+    # 360° feedback assessments must use the /360/start endpoint to invite evaluators
+    if request.assessment_type == AssessmentType.THREE_SIXTY_SELF:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Assessment not found"
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="For 360° feedback assessments, please use the /assessments/360/start endpoint to invite evaluators first"
         )
-
-    if assessment.status == AssessmentStatus.COMPLETED:
+    
+    try:
+        # Check if there's an existing in-progress assessment
+        result = await db.execute(
+            select(Assessment)
+            .where(
+                Assessment.user_id == current_user.id,
+                Assessment.assessment_type == request.assessment_type,
+                Assessment.status.in_([AssessmentStatus.NOT_STARTED, AssessmentStatus.IN_PROGRESS])
+            )
+            .order_by(Assessment.created_at.desc())
+        )
+        existing_assessment = result.scalar_one_or_none()
+        
+        if existing_assessment:
+            # Resume existing assessment
+            if existing_assessment.status == AssessmentStatus.NOT_STARTED:
+                existing_assessment.status = AssessmentStatus.IN_PROGRESS
+                existing_assessment.started_at = datetime.utcnow()
+                await db.commit()
+                await db.refresh(existing_assessment)
+            
+            return {
+                "id": existing_assessment.id,
+                "assessment_id": existing_assessment.id,
+                "status": existing_assessment.status.value,
+                "message": "Resuming existing assessment"
+            }
+        
+        # Create new assessment
+        new_assessment = Assessment(
+            user_id=current_user.id,
+            assessment_type=request.assessment_type,
+            status=AssessmentStatus.IN_PROGRESS,
+            started_at=datetime.utcnow()
+        )
+        db.add(new_assessment)
+        await db.commit()
+        await db.refresh(new_assessment)
+        
+        return {
+            "id": new_assessment.id,
+            "assessment_id": new_assessment.id,
+            "status": new_assessment.status.value,
+            "message": "Assessment started successfully"
+        }
+    except Exception as e:
+        from app.core.logging import logger
+        logger.error(f"Error starting assessment: {e}", exc_info=True)
+        await db.rollback()
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Cannot modify a completed assessment"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to start assessment: {str(e)}"
         )
 
-    # Créer ou mettre à jour la réponse
-    response = db.query(AssessmentResponse).filter(
-        AssessmentResponse.assessment_id == assessment_id,
-        AssessmentResponse.question_id == request.question_id
-    ).first()
 
-    if response:
-        # Mettre à jour la réponse existante
-        response.response_data = request.response_data
-        response.answered_at = datetime.utcnow()
-    else:
-        # Créer une nouvelle réponse
-        response = AssessmentResponse(
-            assessment_id=assessment_id,
-            question_id=request.question_id,
-            response_data=request.response_data
+@router.post("/{assessment_id}/answer")
+async def save_answer(
+    assessment_id: int,
+    request: AssessmentAnswerRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Save an answer to a question
+    """
+    from app.core.logging import logger
+    
+    try:
+        # Validate request
+        if not request.question_id or not request.answer_value:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="question_id and answer_value are required"
+            )
+        
+        # Get assessment
+        result = await db.execute(
+            select(Assessment)
+            .where(
+                Assessment.id == assessment_id,
+                Assessment.user_id == current_user.id
+            )
         )
-        db.add(response)
+        assessment = result.scalar_one_or_none()
+        
+        if not assessment:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Assessment not found"
+            )
+        
+        if assessment.status == AssessmentStatus.COMPLETED:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Assessment is already completed"
+            )
+        
+        # Check if answer already exists
+        result = await db.execute(
+            select(AssessmentAnswer)
+            .where(
+                AssessmentAnswer.assessment_id == assessment_id,
+                AssessmentAnswer.question_id == request.question_id
+            )
+        )
+        existing_answer = result.scalar_one_or_none()
+        
+        if existing_answer:
+            # Update existing answer
+            existing_answer.answer_value = str(request.answer_value)  # Ensure it's a string
+            # updated_at will be automatically updated by SQLAlchemy's onupdate
+        else:
+            # Create new answer
+            new_answer = AssessmentAnswer(
+                assessment_id=assessment_id,
+                question_id=str(request.question_id),
+                answer_value=str(request.answer_value)
+            )
+            db.add(new_answer)
+        
+        await db.commit()
+        
+        return {
+            "message": "Answer saved successfully",
+            "question_id": request.question_id
+        }
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
+    except IntegrityError as e:
+        from app.core.logging import logger
+        logger.error(f"Database integrity error saving answer for assessment {assessment_id}: {e}", exc_info=True)
+        await db.rollback()
+        # Check if it's a unique constraint violation
+        error_str = str(e).lower()
+        if 'unique' in error_str or 'duplicate' in error_str:
+            # Answer already exists, try to update it
+            try:
+                result = await db.execute(
+                    select(AssessmentAnswer)
+                    .where(
+                        AssessmentAnswer.assessment_id == assessment_id,
+                        AssessmentAnswer.question_id == request.question_id
+                    )
+                )
+                existing_answer = result.scalar_one_or_none()
+                if existing_answer:
+                    existing_answer.answer_value = str(request.answer_value)
+                    # updated_at will be automatically updated
+                    await db.commit()
+                    return {
+                        "message": "Answer saved successfully",
+                        "question_id": request.question_id
+                    }
+            except Exception as retry_error:
+                logger.error(f"Error retrying save answer: {retry_error}", exc_info=True)
+                await db.rollback()
+        
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to save answer due to database constraint violation"
+        )
+    except Exception as e:
+        logger.error(
+            f"Error saving answer for assessment {assessment_id}, question {request.question_id}: {type(e).__name__}: {e}",
+            exc_info=True
+        )
+        await db.rollback()
+        # Provide more detailed error message for debugging
+        error_detail = str(e)
+        if "column" in error_detail.lower() and "does not exist" in error_detail.lower():
+            error_detail = f"Database schema mismatch: {error_detail}. Please run database migrations."
+        elif "not null" in error_detail.lower():
+            error_detail = f"Missing required field: {error_detail}"
+        elif "foreign key" in error_detail.lower():
+            error_detail = f"Invalid reference: {error_detail}"
+        
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to save answer: {error_detail}"
+        )
 
-    # Mettre à jour le statut de l'assessment à IN_PROGRESS
-    if assessment.status == AssessmentStatus.NOT_STARTED:
-        assessment.status = AssessmentStatus.IN_PROGRESS
-        assessment.started_at = datetime.utcnow()
 
-    assessment.updated_at = datetime.utcnow()
-
-    db.commit()
-
-    return {
-        "message": "Response saved successfully",
-        "question_id": request.question_id
-    }
-
-
-@router.post("/{assessment_id}/submit", status_code=status.HTTP_200_OK)
+@router.post("/{assessment_id}/submit", response_model=AssessmentSubmitResponse)
 async def submit_assessment(
     assessment_id: int,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
     """
-    Soumet un assessment complété et calcule les résultats.
-
-    Cette fonction:
-    1. Vérifie que toutes les questions sont répondues
-    2. Calcule les scores selon le type d'assessment
-    3. Génère les interprétations
-    4. Génère les recommandations
-    5. Stocke les résultats dans assessment_results
-    6. Met à jour le status à COMPLETED
-
-    Args:
-        assessment_id: ID de l'assessment
-        current_user: Utilisateur authentifié
-        db: Session de base de données
-
-    Returns:
-        Résultats calculés de l'assessment
-
-    Raises:
-        HTTPException 404: Assessment non trouvé
-        HTTPException 403: Assessment n'appartient pas à l'utilisateur
-        HTTPException 400: Questions manquantes ou assessment déjà complété
+    Submit and complete an assessment
+    This will calculate scores and generate results
     """
-    # Vérifier que l'assessment existe et appartient à l'utilisateur
-    assessment = db.query(Assessment).filter(
-        Assessment.id == assessment_id,
-        Assessment.user_id == current_user.id
-    ).first()
-
+    # Get assessment with answers
+    result = await db.execute(
+        select(Assessment)
+        .where(
+            Assessment.id == assessment_id,
+            Assessment.user_id == current_user.id
+        )
+    )
+    assessment = result.scalar_one_or_none()
+    
     if not assessment:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Assessment not found"
         )
-
+    
     if assessment.status == AssessmentStatus.COMPLETED:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Assessment already completed"
+            detail="Assessment is already completed"
         )
-
-    # Vérifier que toutes les questions sont répondues
-    responses_count = db.query(AssessmentResponse).filter(
-        AssessmentResponse.assessment_id == assessment_id
-    ).count()
-
-    # Nombre de questions attendues par type
-    expected_count = {
-        AssessmentType.TKI: 30,
-        AssessmentType.WELLNESS: 30,
-        AssessmentType.THREE_SIXTY_SELF: 30,
-        AssessmentType.MBTI: 60
-    }
-
-    expected = expected_count.get(assessment.type, 30)
-
-    if responses_count < expected:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Not all questions answered. Expected {expected}, got {responses_count}"
-        )
-
-    # Calculer les résultats selon le type d'assessment
-    try:
-        if assessment.type == AssessmentType.TKI:
-            result = tki_service.analyze_tki_assessment(assessment_id, db)
-        elif assessment.type == AssessmentType.WELLNESS:
-            result = wellness_service.analyze_wellness_assessment(assessment_id, db)
-        elif assessment.type == AssessmentType.THREE_SIXTY_SELF:
-            result = feedback360_service.analyze_360_assessment(assessment_id, db)
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Assessment type {assessment.type} not yet supported"
-            )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error calculating results: {str(e)}"
-        )
-
-    # Mettre à jour le statut de l'assessment
+    
+    # Get all answers
+    result = await db.execute(
+        select(AssessmentAnswer)
+        .where(AssessmentAnswer.assessment_id == assessment_id)
+    )
+    answers = result.scalars().all()
+    
+    # Calculate scores based on assessment type
+    from app.services.assessment_scoring import calculate_scores
+    
+    scores = calculate_scores(
+        assessment_type=assessment.assessment_type,
+        answers=answers
+    )
+    
+    # Update assessment
     assessment.status = AssessmentStatus.COMPLETED
     assessment.completed_at = datetime.utcnow()
-    assessment.updated_at = datetime.utcnow()
+    assessment.raw_score = {answer.question_id: answer.answer_value for answer in answers}
+    assessment.processed_score = scores
+    
+    # Create assessment result
+    # Note: Database has result_data column, not scores. We'll store scores in result_data.
+    from sqlalchemy import text
+    
+    try:
+        # Serialize scores to JSON string for PostgreSQL JSONB column
+        result_data_json = json.dumps(scores)
+        await db.execute(
+            text("""
+                INSERT INTO assessment_results (assessment_id, result_data, created_at, updated_at)
+                VALUES (:assessment_id, CAST(:result_data AS jsonb), NOW(), NOW())
+                ON CONFLICT (assessment_id) DO UPDATE
+                SET result_data = CAST(:result_data AS jsonb), updated_at = NOW()
+            """),
+            {
+                "assessment_id": assessment.id,
+                "result_data": result_data_json
+            }
+        )
+        
+        await db.commit()
+    except Exception as e:
+        from app.core.logging import logger
+        logger.error(f"Error creating assessment result for assessment {assessment_id}: {e}", exc_info=True)
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to save assessment results: {str(e)}"
+        )
+    await db.refresh(assessment)
+    
+    return AssessmentSubmitResponse(
+        assessment_id=assessment.id,
+        status=assessment.status.value,
+        completed_at=assessment.completed_at,
+        score=scores,
+        message="Assessment submitted successfully"
+    )
 
-    db.commit()
 
-    return {
-        "message": "Assessment submitted successfully",
-        "assessment_id": assessment_id,
-        "results": result
-    }
-
-
-@router.get("/{assessment_id}/results", status_code=status.HTTP_200_OK)
+@router.get("/{assessment_id}/results", response_model=AssessmentResultResponse)
 async def get_assessment_results(
     assessment_id: int,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
     """
-    Récupère les résultats d'un assessment complété.
-
-    Args:
-        assessment_id: ID de l'assessment
-        current_user: Utilisateur authentifié
-        db: Session de base de données
-
-    Returns:
-        Assessment et résultats calculés
-
-    Raises:
-        HTTPException 404: Assessment ou résultats non trouvés
-        HTTPException 403: Assessment n'appartient pas à l'utilisateur
-        HTTPException 400: Assessment pas encore complété
+    Get results for a completed assessment
     """
-    # Vérifier que l'assessment existe et appartient à l'utilisateur
-    assessment = db.query(Assessment).filter(
-        Assessment.id == assessment_id,
-        Assessment.user_id == current_user.id
-    ).first()
+    from app.core.logging import logger
+    
+    try:
+        # First verify the assessment exists and belongs to the user
+        assessment_result = await db.execute(
+            select(Assessment)
+            .where(
+                Assessment.id == assessment_id,
+                Assessment.user_id == current_user.id
+            )
+        )
+        assessment = assessment_result.scalar_one_or_none()
+        
+        if not assessment:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Assessment not found"
+            )
+        
+        # Get assessment result using raw SQL since database has result_data, not scores
+        from sqlalchemy import text
+        result_query = await db.execute(
+            text("""
+                SELECT id, assessment_id, result_data, created_at, updated_at
+                FROM assessment_results
+                WHERE assessment_id = :assessment_id
+            """),
+            {"assessment_id": assessment_id}
+        )
+        result_row = result_query.first()
+        
+        if not result_row:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Assessment results not found. The assessment may not be completed yet."
+            )
+        
+        # Extract data from raw SQL result
+        result_id, result_assessment_id, result_data, created_at, updated_at = result_row
+        
+        if result_data is None:
+            logger.error(f"Could not retrieve result_data for assessment {assessment_id}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Assessment results are incomplete. Please contact support."
+            )
+        
+        # Get assessment type from the assessment object
+        assessment_type = assessment.assessment_type
+        assessment_type_str = assessment_type.value if hasattr(assessment_type, 'value') else str(assessment_type)
+        
+        # Use created_at as generated_at (database doesn't have generated_at)
+        generated_at = created_at or datetime.now(timezone.utc)
+        
+        return AssessmentResultResponse(
+            id=result_id,
+            assessment_id=result_assessment_id,
+            assessment_type=assessment_type_str,
+            scores=result_data,  # result_data contains the scores
+            insights=None,  # Database doesn't have insights column
+            recommendations=None,  # Database doesn't have recommendations column
+            comparison_data=None,  # Database doesn't have comparison_data column
+            generated_at=generated_at
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting assessment results for assessment {assessment_id}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to load assessment results: {str(e)}"
+        )
+
+
+@router.post("/360/start")
+async def start_360_feedback(
+    request: Start360FeedbackRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Start a new 360° feedback assessment and optionally invite evaluators
+    Creates the self-assessment and optionally sends invitation emails to evaluators (0 or more)
+    """
+    import secrets
+    import os
+    from app.services.email_service import EmailService
+    from app.core.logging import logger
+    
+    try:
+        # Validate evaluators data
+        if not isinstance(request.evaluators, list):
+            raise ValueError("evaluators must be a list")
+        
+        # Create the self-assessment
+        try:
+            self_assessment = Assessment(
+                user_id=current_user.id,
+                assessment_type=AssessmentType.THREE_SIXTY_SELF,
+                status=AssessmentStatus.IN_PROGRESS,
+                started_at=datetime.now(timezone.utc)
+            )
+            db.add(self_assessment)
+            logger.debug(f"Added self-assessment to session for user {current_user.id}")
+            
+            try:
+                await db.flush()  # Get the ID
+                logger.debug(f"Flushed self-assessment, got ID: {self_assessment.id}")
+            except Exception as flush_error:
+                error_type = type(flush_error).__name__
+                error_message = str(flush_error)
+                logger.error(
+                    f"❌ FLUSH ERROR creating self-assessment: {error_type}: {error_message}",
+                    exc_info=True
+                )
+                await db.rollback()
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=f"Failed to create assessment: {error_type}: {error_message}"
+                )
+        except HTTPException:
+            raise
+        except Exception as assessment_error:
+            error_type = type(assessment_error).__name__
+            error_message = str(assessment_error)
+            logger.error(
+                f"❌ ERROR creating self-assessment: {error_type}: {error_message}",
+                exc_info=True
+            )
+            await db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to create assessment: {error_type}: {error_message}"
+            )
+        
+        # Create evaluator invitations and send emails
+        email_service = EmailService()
+        frontend_url = os.getenv("FRONTEND_URL", os.getenv("NEXT_PUBLIC_APP_URL", "http://localhost:3000"))
+        invited_evaluators = []
+        
+        for evaluator_data in request.evaluators:
+            # Validate evaluator data
+            if not evaluator_data.name or not evaluator_data.email:
+                logger.warning(f"Skipping invalid evaluator: name={evaluator_data.name}, email={evaluator_data.email}")
+                continue
+            
+            # Generate unique token
+            # Note: We don't check for uniqueness before insert because:
+            # 1. The probability of collision with token_urlsafe(32) is extremely low (1 in 2^256)
+            # 2. The database has a unique constraint that will catch any collision
+            # 3. Checking before insert can fail if the schema cache is stale
+            # If a collision occurs, we'll handle it in the commit error handling
+            invitation_token = secrets.token_urlsafe(32)
+            
+            # Validate role
+            try:
+                evaluator_role = EvaluatorRole(evaluator_data.role.upper())
+            except ValueError as e:
+                logger.error(f"Invalid evaluator role: {evaluator_data.role}. Error: {e}")
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid evaluator role: {evaluator_data.role}. Must be one of: PEER, MANAGER, DIRECT_REPORT, STAKEHOLDER"
+                )
+            
+            # Create evaluator record
+            # Use raw SQL to avoid SQLAlchemy schema cache issues after migration
+            try:
+                from sqlalchemy import text
+                
+                # Insert using raw SQL to bypass SQLAlchemy schema cache
+                # invitation_sent_at will be updated after email is sent successfully
+                logger.info(f"🔵 Attempting to insert evaluator {evaluator_data.email} with role {evaluator_role.value} for assessment {self_assessment.id}")
+                evaluator_id = None
+                try:
+                    # Log the exact SQL parameters we're about to use
+                    logger.debug(f"SQL params: assessment_id={self_assessment.id}, name={evaluator_data.name}, email={evaluator_data.email}, role={evaluator_role.value}, token={invitation_token[:20]}...")
+                    insert_result = await db.execute(
+                        text("""
+                            INSERT INTO assessment_360_evaluators 
+                            (assessment_id, evaluator_name, evaluator_email, evaluator_role, invitation_token, 
+                             invitation_sent_at, invitation_opened_at, started_at, completed_at, status, evaluator_assessment_id)
+                            VALUES 
+                            (:assessment_id, :evaluator_name, :evaluator_email, :evaluator_role::evaluatorrole, :invitation_token,
+                             NULL, NULL, NULL, NULL, 'NOT_STARTED'::assessmentstatus, NULL)
+                            RETURNING id, created_at, updated_at
+                        """),
+                        {
+                            "assessment_id": self_assessment.id,
+                            "evaluator_name": evaluator_data.name,
+                            "evaluator_email": evaluator_data.email,
+                            "evaluator_role": evaluator_role.value,  # Use .value to get the string value
+                            "invitation_token": invitation_token
+                        }
+                    )
+                    evaluator_row = insert_result.first()
+                    evaluator_id = evaluator_row[0] if evaluator_row else None
+                    logger.info(f"✅ Successfully inserted evaluator {evaluator_data.email} (ID: {evaluator_id}) to database for assessment {self_assessment.id}")
+                except Exception as insert_error:
+                    # Catch ALL exceptions first, then check type
+                    error_type = type(insert_error).__name__
+                    error_message = str(insert_error)
+                    import traceback
+                    error_traceback = traceback.format_exc()
+                    
+                    # Check if it's a SQLAlchemy error
+                    is_sqlalchemy_error = isinstance(insert_error, (SQLAlchemyError, IntegrityError))
+                    
+                    # Log with appropriate prefix based on error type
+                    prefix = "❌ SQLALCHEMY ERROR" if is_sqlalchemy_error else "❌ UNEXPECTED ERROR"
+                    logger.error(
+                        f"{prefix} during INSERT for evaluator {evaluator_data.email}: {error_type}: {error_message}",
+                        exc_info=True,
+                        extra={
+                            "user_id": current_user.id,
+                            "assessment_id": self_assessment.id,
+                            "evaluator_email": evaluator_data.email,
+                            "error_type": error_type,
+                            "error_message": error_message,
+                            "is_sqlalchemy_error": is_sqlalchemy_error,
+                            "traceback": error_traceback
+                        }
+                    )
+                    logger.error(f"   Full INSERT error traceback:\n{error_traceback}")
+                    await db.rollback()
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail=f"Failed to insert evaluator record: {error_type}: {error_message}"
+                    )
+                    error_type = type(insert_error).__name__
+                    error_message = str(insert_error)
+                    import traceback
+                    error_traceback = traceback.format_exc()
+                    logger.error(
+                        f"❌ UNEXPECTED ERROR during INSERT for evaluator {evaluator_data.email}: {error_type}: {error_message}",
+                        exc_info=True,
+                        extra={
+                            "user_id": current_user.id,
+                            "assessment_id": self_assessment.id,
+                            "evaluator_email": evaluator_data.email,
+                            "error_type": error_type,
+                            "error_message": error_message,
+                            "traceback": error_traceback
+                        }
+                    )
+                    logger.error(f"   Full UNEXPECTED INSERT error traceback:\n{error_traceback}")
+                    await db.rollback()
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail=f"Failed to insert evaluator record: {error_type}: {error_message}"
+                    )
+                
+                # Commit immediately after each insert to avoid transaction issues
+                try:
+                    logger.info(f"🔵 Attempting to commit evaluator {evaluator_data.email} (ID: {evaluator_id})")
+                    await db.commit()
+                    logger.info(f"✅ Committed evaluator {evaluator_data.email} (ID: {evaluator_id}) to database")
+                except (SQLAlchemyError, IntegrityError) as commit_error:
+                    error_type = type(commit_error).__name__
+                    error_message = str(commit_error)
+                    import traceback
+                    error_traceback = traceback.format_exc()
+                    logger.error(
+                        f"❌ ERROR committing evaluator {evaluator_data.email}: {error_type}: {error_message}",
+                        exc_info=True,
+                        extra={
+                            "user_id": current_user.id,
+                            "assessment_id": self_assessment.id,
+                            "evaluator_email": evaluator_data.email,
+                            "evaluator_id": evaluator_id,
+                            "error_type": error_type,
+                            "error_message": error_message,
+                            "traceback": error_traceback
+                        }
+                    )
+                    logger.error(f"   Full COMMIT error traceback:\n{error_traceback}")
+                    await db.rollback()
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail=f"Failed to save evaluator to database: {error_type}: {error_message}"
+                    )
+                except Exception as commit_error:
+                    error_type = type(commit_error).__name__
+                    error_message = str(commit_error)
+                    import traceback
+                    error_traceback = traceback.format_exc()
+                    logger.error(
+                        f"❌ UNEXPECTED ERROR committing evaluator {evaluator_data.email}: {error_type}: {error_message}",
+                        exc_info=True,
+                        extra={
+                            "user_id": current_user.id,
+                            "assessment_id": self_assessment.id,
+                            "evaluator_email": evaluator_data.email,
+                            "evaluator_id": evaluator_id,
+                            "error_type": error_type,
+                            "error_message": error_message,
+                            "traceback": error_traceback
+                        }
+                    )
+                    logger.error(f"   Full UNEXPECTED COMMIT error traceback:\n{error_traceback}")
+                    await db.rollback()
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail=f"Failed to save evaluator to database: {error_type}: {error_message}"
+                    )
+            except HTTPException:
+                raise
+            except Exception as add_error:
+                error_type = type(add_error).__name__
+                error_message = str(add_error)
+                import traceback
+                error_traceback = traceback.format_exc()
+                logger.error(
+                    f"❌ UNEXPECTED ERROR creating evaluator record for {evaluator_data.email}: {error_type}: {error_message}",
+                    exc_info=True,
+                    extra={
+                        "user_id": current_user.id,
+                        "assessment_id": self_assessment.id,
+                        "evaluator_email": evaluator_data.email,
+                        "error_type": error_type,
+                        "error_message": error_message,
+                        "traceback": error_traceback
+                    }
+                )
+                logger.error(f"   Full UNEXPECTED error traceback:\n{error_traceback}")
+                await db.rollback()
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=f"Failed to create evaluator record: {error_type}: {error_message}"
+                )
+            
+            # Send invitation email
+            evaluation_url = f"{frontend_url.rstrip('/')}/360-evaluator/{invitation_token}"
+            
+            try:
+                if email_service.is_configured():
+                    sender_name = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
+                    role_label = evaluator_data.role.replace('_', ' ').title()
+                    try:
+                        email_service.send_360_evaluator_invitation(
+                            to_email=evaluator_data.email,
+                            evaluator_name=evaluator_data.name,
+                            sender_name=sender_name,
+                            evaluation_url=evaluation_url,
+                            role=role_label
+                        )
+                        # Update invitation_sent_at if email was sent successfully
+                        from sqlalchemy import text
+                        await db.execute(
+                            text("""
+                                UPDATE assessment_360_evaluators 
+                                SET invitation_sent_at = :invitation_sent_at
+                                WHERE id = :evaluator_id
+                            """),
+                            {
+                                "evaluator_id": evaluator_id,
+                                "invitation_sent_at": datetime.now(timezone.utc)
+                            }
+                        )
+                        logger.info(f"Sent 360 evaluator invitation email to {evaluator_data.email}")
+                    except Exception as email_error:
+                        logger.error(f"Failed to send invitation email to {evaluator_data.email}: {email_error}", exc_info=True)
+                        # Continue even if email fails - evaluator record is created
+                        # invitation_sent_at remains NULL
+                else:
+                    logger.warning(f"Email service not configured, skipping email to {evaluator_data.email}")
+            except Exception as e:
+                logger.error(f"Unexpected error processing evaluator {evaluator_data.email}: {e}", exc_info=True)
+                # Continue even if there's an error - evaluator record is created
+            
+            invited_evaluators.append({
+                "name": evaluator_data.name,
+                "email": evaluator_data.email,
+                "role": evaluator_data.role
+            })
+        
+        # All evaluators have been committed individually, so we just need to commit the self-assessment if it wasn't already committed
+        # Note: Since we commit after each evaluator insert, the self-assessment should already be committed
+        # But we'll do a final commit to ensure everything is saved
+        try:
+            await db.commit()
+            logger.info(f"✅ Successfully committed 360 feedback assessment {self_assessment.id} to database with {len(invited_evaluators)} evaluators")
+        except IntegrityError as integrity_error:
+            await db.rollback()
+            error_message = str(integrity_error)
+            logger.error(
+                f"❌ INTEGRITY ERROR committing 360 feedback assessment: {error_message}",
+                exc_info=True
+            )
+            # Extract more details from IntegrityError
+            if "invitation_token" in error_message.lower() or "unique" in error_message.lower() or "duplicate" in error_message.lower():
+                detail_msg = "A token collision occurred (extremely rare). Please try again - a new token will be generated."
+            elif "foreign key" in error_message.lower():
+                detail_msg = "Invalid assessment reference. Please try again."
+            elif "not null" in error_message.lower() or "null value" in error_message.lower():
+                detail_msg = "Missing required field. Please ensure all evaluator information is provided."
+            else:
+                detail_msg = f"Database integrity constraint violation: {error_message}"
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=detail_msg
+            )
+        except Exception as commit_error:
+            await db.rollback()
+            error_type = type(commit_error).__name__
+            error_message = str(commit_error)
+            import traceback
+            error_traceback = traceback.format_exc()
+            logger.error(
+                f"❌ DATABASE ERROR committing 360 feedback assessment: {error_type}: {error_message}",
+                exc_info=True,
+                extra={
+                    "user_id": current_user.id,
+                    "assessment_id": self_assessment.id if hasattr(self_assessment, 'id') else None,
+                    "evaluators_count": len(invited_evaluators),
+                    "error_type": error_type,
+                    "error_message": error_message,
+                    "traceback": error_traceback
+                }
+            )
+            logger.error(
+                f"   Full traceback:\n{error_traceback}"
+            )
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"A database error occurred: {error_type}. Please check the server logs for details."
+            )
+        
+        # Refresh to get the latest state from database
+        try:
+            await db.refresh(self_assessment)
+        except Exception as refresh_error:
+            logger.warning(f"Failed to refresh assessment after commit: {refresh_error}", exc_info=True)
+            # Don't fail the request if refresh fails - the commit was successful
+        
+        return {
+            "assessment_id": self_assessment.id,
+            "message": f"360° feedback started and {len(invited_evaluators)} evaluators invited",
+            "evaluators": invited_evaluators
+        }
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        await db.rollback()
+        raise
+    except Exception as e:
+        await db.rollback()
+        error_type = type(e).__name__
+        error_message = str(e)
+        logger.error(
+            f"Error in start_360_feedback: {error_type}: {error_message}",
+            exc_info=True,
+            extra={
+                "user_id": current_user.id,
+                "evaluators_count": len(request.evaluators) if request.evaluators else 0,
+                "error_type": error_type
+            }
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to start 360° feedback: {error_type}: {error_message}"
+        )
+
+
+@router.post("/{assessment_id}/360/invite-evaluators")
+async def invite_360_evaluators(
+    assessment_id: int,
+    request: Evaluator360InviteRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Invite additional evaluators for an existing 360 assessment
+    """
+    import secrets
+    import os
+    from app.services.email_service import EmailService
+    from app.core.logging import logger
+    
+    # Verify assessment exists and is a 360 self assessment
+    result = await db.execute(
+        select(Assessment)
+        .where(
+            Assessment.id == assessment_id,
+            Assessment.user_id == current_user.id,
+            Assessment.assessment_type == AssessmentType.THREE_SIXTY_SELF
+        )
+    )
+    assessment = result.scalar_one_or_none()
+    
+    if not assessment:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="360 Assessment not found"
+        )
+    
+    # Create evaluator invitations and send emails
+    email_service = EmailService()
+    frontend_url = os.getenv("FRONTEND_URL", os.getenv("NEXT_PUBLIC_APP_URL", "http://localhost:3000"))
+    invited_evaluators = []
+    
+    for evaluator_data in request.evaluators:
+        # Generate unique token
+        invitation_token = secrets.token_urlsafe(32)
+        
+        evaluator = Assessment360Evaluator(
+            assessment_id=assessment_id,
+            evaluator_name=evaluator_data.name,
+            evaluator_email=evaluator_data.email,
+            evaluator_role=EvaluatorRole(evaluator_data.role.upper()),
+            invitation_token=invitation_token,
+            status=AssessmentStatus.NOT_STARTED
+        )
+        db.add(evaluator)
+        
+        # Send invitation email
+        evaluation_url = f"{frontend_url.rstrip('/')}/360-evaluator/{invitation_token}"
+        
+        try:
+            if email_service.is_configured():
+                sender_name = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
+                role_label = evaluator_data.role.replace('_', ' ').title()
+                email_service.send_360_evaluator_invitation(
+                    to_email=evaluator_data.email,
+                    evaluator_name=evaluator_data.name,
+                    sender_name=sender_name,
+                    evaluation_url=evaluation_url,
+                    role=role_label
+                )
+                evaluator.invitation_sent_at = datetime.utcnow()
+                logger.info(f"Sent 360 evaluator invitation email to {evaluator_data.email}")
+            else:
+                logger.warning(f"Email service not configured, skipping email to {evaluator_data.email}")
+        except Exception as e:
+            logger.error(f"Failed to send invitation email to {evaluator_data.email}: {e}", exc_info=True)
+        
+        invited_evaluators.append({
+            "name": evaluator_data.name,
+            "email": evaluator_data.email,
+            "role": evaluator_data.role
+        })
+    
+    await db.commit()
+    
+    return {
+        "message": f"Invited {len(invited_evaluators)} evaluators successfully",
+        "evaluators": invited_evaluators
+    }
+
+
+@router.get("/{assessment_id}/360/evaluators")
+async def get_360_evaluators_status(
+    assessment_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get the status of all evaluators for a specific 360 self-assessment
+    """
+    # Verify assessment exists and belongs to the current user
+    assessment_result = await db.execute(
+        select(Assessment)
+        .where(
+            Assessment.id == assessment_id,
+            Assessment.user_id == current_user.id,
+            Assessment.assessment_type == AssessmentType.THREE_SIXTY_SELF
+        )
+    )
+    assessment = assessment_result.scalar_one_or_none()
 
     if not assessment:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Assessment not found"
+            detail="360 Self-Assessment not found or does not belong to current user"
         )
 
-    if assessment.status != AssessmentStatus.COMPLETED:
+    # Get all evaluators for this assessment
+    evaluators_result = await db.execute(
+        select(Assessment360Evaluator)
+        .where(Assessment360Evaluator.assessment_id == assessment_id)
+        .order_by(Assessment360Evaluator.created_at)
+    )
+    evaluators = evaluators_result.scalars().all()
+
+    # Format response
+    evaluators_list = []
+    for evaluator in evaluators:
+        evaluators_list.append({
+            "id": evaluator.id,
+            "name": evaluator.evaluator_name,
+            "email": evaluator.evaluator_email,
+            "role": evaluator.evaluator_role.value,
+            "status": evaluator.status.value,
+            "invitation_token": evaluator.invitation_token,  # Include token for sharing links
+            "invitation_sent_at": evaluator.invitation_sent_at.isoformat() if evaluator.invitation_sent_at else None,
+            "invitation_opened_at": evaluator.invitation_opened_at.isoformat() if evaluator.invitation_opened_at else None,
+            "started_at": evaluator.started_at.isoformat() if evaluator.started_at else None,
+            "completed_at": evaluator.completed_at.isoformat() if evaluator.completed_at else None,
+        })
+    
+    return {
+        "assessment_id": assessment_id,
+        "evaluators": evaluators_list
+    }
+
+
+@router.get("/360-evaluator/{token}")
+async def get_360_evaluator_assessment(
+    token: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get 360 evaluator assessment by invitation token (public endpoint)
+    """
+    from app.core.logging import logger
+    
+    try:
+        result = await db.execute(
+            select(Assessment360Evaluator)
+            .where(Assessment360Evaluator.invitation_token == token)
+            .options(selectinload(Assessment360Evaluator.assessment))
+        )
+        evaluator = result.scalar_one_or_none()
+        
+        if not evaluator:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Invalid invitation token"
+            )
+        
+        # Mark invitation as opened
+        if not evaluator.invitation_opened_at:
+            evaluator.invitation_opened_at = datetime.now(timezone.utc)
+            await db.commit()
+        
+        # Get user being evaluated - fetch user directly using assessment.user_id
+        user = None
+        if evaluator.assessment and evaluator.assessment.user_id:
+            user_result = await db.execute(
+                select(User)
+                .where(User.id == evaluator.assessment.user_id)
+            )
+            user = user_result.scalar_one_or_none()
+        else:
+            logger.warning(f"Assessment not found or missing user_id for evaluator {evaluator.id}")
+        
+        return {
+            "evaluator_id": evaluator.id,
+            "evaluator_name": evaluator.evaluator_name,
+            "evaluator_email": evaluator.evaluator_email,
+            "evaluator_role": evaluator.evaluator_role.value,
+            "status": evaluator.status.value,
+            "assessment_id": evaluator.evaluator_assessment_id,
+            "user_being_evaluated": {
+                "name": f"{user.first_name or ''} {user.last_name or ''}".strip() if user else None,
+                "email": user.email if user else None,
+            } if user else None
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in get_360_evaluator_assessment for token {token}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve evaluator assessment: {str(e)}"
+        )
+
+
+@router.post("/360-evaluator/{token}/submit")
+async def submit_360_evaluator_assessment(
+    token: str,
+    answers: List[Dict[str, Any]] = Body(..., description="List of answers with question_id and answer_value"),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Submit 360 evaluator assessment by invitation token (public endpoint)
+    """
+    from app.core.logging import logger
+    from app.services.assessment_scoring import calculate_scores
+    
+    try:
+        # Get evaluator by token
+        result = await db.execute(
+            select(Assessment360Evaluator)
+            .where(Assessment360Evaluator.invitation_token == token)
+            .options(selectinload(Assessment360Evaluator.assessment))
+        )
+        evaluator = result.scalar_one_or_none()
+        
+        if not evaluator:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Invalid invitation token"
+            )
+        
+        # Check if already completed
+        if evaluator.status == AssessmentStatus.COMPLETED:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="This evaluation has already been completed"
+            )
+        
+        # Get or create evaluator's assessment
+        evaluator_assessment = None
+        if evaluator.evaluator_assessment_id:
+            result = await db.execute(
+                select(Assessment)
+                .where(Assessment.id == evaluator.evaluator_assessment_id)
+            )
+            evaluator_assessment = result.scalar_one_or_none()
+        
+        if not evaluator_assessment:
+            # Create new assessment for the evaluator
+            evaluator_assessment = Assessment(
+                user_id=evaluator.assessment.user_id,  # Same user being evaluated
+                assessment_type=AssessmentType.THREE_SIXTY_SELF,  # Use same type as main assessment
+                status=AssessmentStatus.IN_PROGRESS,
+                started_at=datetime.now(timezone.utc) if not evaluator.started_at else evaluator.started_at
+            )
+            db.add(evaluator_assessment)
+            await db.flush()  # Get the ID
+            
+            evaluator.evaluator_assessment_id = evaluator_assessment.id
+            if not evaluator.started_at:
+                evaluator.started_at = datetime.now(timezone.utc)
+        
+        # Save all answers
+        for answer_data in answers:
+            question_id = answer_data.get("question_id")
+            answer_value = str(answer_data.get("answer_value"))
+            
+            if not question_id or not answer_value:
+                continue
+            
+            # Check if answer already exists
+            result = await db.execute(
+                select(AssessmentAnswer)
+                .where(
+                    AssessmentAnswer.assessment_id == evaluator_assessment.id,
+                    AssessmentAnswer.question_id == question_id
+                )
+            )
+            existing_answer = result.scalar_one_or_none()
+            
+            if existing_answer:
+                existing_answer.answer_value = answer_value
+            else:
+                new_answer = AssessmentAnswer(
+                    assessment_id=evaluator_assessment.id,
+                    question_id=question_id,
+                    answer_value=answer_value
+                )
+                db.add(new_answer)
+        
+        await db.flush()
+        
+        # Get all answers for scoring
+        result = await db.execute(
+            select(AssessmentAnswer)
+            .where(AssessmentAnswer.assessment_id == evaluator_assessment.id)
+        )
+        all_answers = result.scalars().all()
+        
+        # Calculate scores
+        scores = calculate_scores(
+            assessment_type=evaluator_assessment.assessment_type,
+            answers=all_answers
+        )
+        
+        # Update assessment
+        evaluator_assessment.status = AssessmentStatus.COMPLETED
+        evaluator_assessment.completed_at = datetime.now(timezone.utc)
+        evaluator_assessment.raw_score = {answer.question_id: answer.answer_value for answer in all_answers}
+        evaluator_assessment.processed_score = scores
+        
+        # Update evaluator status
+        evaluator.status = AssessmentStatus.COMPLETED
+        evaluator.completed_at = datetime.now(timezone.utc)
+        
+        await db.commit()
+        
+        return {
+            "message": "Evaluation submitted successfully",
+            "assessment_id": evaluator_assessment.id,
+            "status": "completed"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error submitting evaluator assessment: {e}", exc_info=True)
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to submit evaluation: {str(e)}"
+        )
+
+
+@router.post("/mbti/upload-score")
+async def upload_mbti_score(
+    mbti_profile: str = Body(..., description="MBTI profile (e.g., 'ISTJ')"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Upload MBTI score from external assessment
+    """
+    # Validate MBTI profile
+    valid_profiles = [
+        "ISTJ", "ISFJ", "INFJ", "INTJ",
+        "ISTP", "ISFP", "INFP", "INTP",
+        "ESTP", "ESFP", "ENFP", "ENTP",
+        "ESTJ", "ESFJ", "ENFJ", "ENTJ"
+    ]
+    
+    if mbti_profile.upper() not in valid_profiles:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Assessment not completed yet. Please submit the assessment first."
+            detail=f"Invalid MBTI profile. Must be one of: {', '.join(valid_profiles)}"
         )
-
-    # Récupérer les résultats
-    result = db.query(AssessmentResult).filter(
-        AssessmentResult.assessment_id == assessment_id
-    ).first()
-
-    if not result:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Results not found. Please try submitting the assessment again."
+    
+    # Create or update MBTI assessment
+    result = await db.execute(
+        select(Assessment)
+        .where(
+            Assessment.user_id == current_user.id,
+            Assessment.assessment_type == AssessmentType.MBTI
         )
-
-    return {
-        "assessment": {
-            "id": assessment.id,
-            "type": assessment.type.value,
-            "status": assessment.status.value,
-            "started_at": assessment.started_at,
-            "completed_at": assessment.completed_at,
-            "created_at": assessment.created_at
-        },
-        "results": {
-            "scores": result.scores,
-            "insights": result.insights,
-            "recommendations": result.recommendations,
-            "comparison": result.comparison if result.comparison else None
-        }
-    }
-
-
-@router.get("/user/assessments", status_code=status.HTTP_200_OK)
-async def get_user_assessments(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-    type: Optional[str] = None,
-    status: Optional[str] = None
-):
-    """
-    Récupère tous les assessments de l'utilisateur.
-
-    Args:
-        current_user: Utilisateur authentifié
-        db: Session de base de données
-        type: Filtrer par type d'assessment (optionnel)
-        status: Filtrer par statut (optionnel)
-
-    Returns:
-        Liste des assessments de l'utilisateur
-    """
-    query = db.query(Assessment).filter(
-        Assessment.user_id == current_user.id
+        .order_by(Assessment.created_at.desc())
     )
-
-    # Filtrer par type si spécifié
-    if type:
-        try:
-            assessment_type = AssessmentType(type)
-            query = query.filter(Assessment.type == assessment_type)
-        except ValueError:
-            pass  # Ignorer les types invalides
-
-    # Filtrer par statut si spécifié
-    if status:
-        try:
-            assessment_status = AssessmentStatus(status)
-            query = query.filter(Assessment.status == assessment_status)
-        except ValueError:
-            pass  # Ignorer les statuts invalides
-
-    assessments = query.order_by(Assessment.created_at.desc()).all()
-
-    return [
-        {
-            "id": a.id,
-            "type": a.type.value,
-            "status": a.status.value,
-            "started_at": a.started_at,
-            "completed_at": a.completed_at,
-            "created_at": a.created_at
-        }
-        for a in assessments
-    ]
-
-
-@router.get("/{assessment_id}", status_code=status.HTTP_200_OK)
-async def get_assessment(
-    assessment_id: int,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    Récupère les détails d'un assessment.
-
-    Args:
-        assessment_id: ID de l'assessment
-        current_user: Utilisateur authentifié
-        db: Session de base de données
-
-    Returns:
-        Détails de l'assessment
-
-    Raises:
-        HTTPException 404: Assessment non trouvé
-        HTTPException 403: Assessment n'appartient pas à l'utilisateur
-    """
-    assessment = db.query(Assessment).filter(
-        Assessment.id == assessment_id,
-        Assessment.user_id == current_user.id
-    ).first()
-
-    if not assessment:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Assessment not found"
+    assessment = result.scalar_one_or_none()
+    
+    if assessment:
+        # Update existing
+        assessment.status = AssessmentStatus.COMPLETED
+        assessment.completed_at = datetime.utcnow()
+        assessment.processed_score = {"profile": mbti_profile.upper()}
+    else:
+        # Create new
+        assessment = Assessment(
+            user_id=current_user.id,
+            assessment_type=AssessmentType.MBTI,
+            status=AssessmentStatus.COMPLETED,
+            started_at=datetime.utcnow(),
+            completed_at=datetime.utcnow(),
+            processed_score={"profile": mbti_profile.upper()}
         )
-
-    # Compter les réponses
-    responses_count = db.query(AssessmentResponse).filter(
-        AssessmentResponse.assessment_id == assessment_id
-    ).count()
-
-    # Nombre de questions attendues
-    expected_count = {
-        AssessmentType.TKI: 30,
-        AssessmentType.WELLNESS: 30,
-        AssessmentType.THREE_SIXTY_SELF: 30,
-        AssessmentType.MBTI: 60
-    }
-
+        db.add(assessment)
+    
+    await db.commit()
+    
     return {
-        "id": assessment.id,
-        "type": assessment.type.value,
-        "status": assessment.status.value,
-        "started_at": assessment.started_at,
-        "completed_at": assessment.completed_at,
-        "created_at": assessment.created_at,
-        "progress": {
-            "answered": responses_count,
-            "total": expected_count.get(assessment.type, 30),
-            "percentage": (responses_count / expected_count.get(assessment.type, 30)) * 100
-        }
+        "message": "MBTI score uploaded successfully",
+        "profile": mbti_profile.upper()
     }
-
-
-@router.delete("/{assessment_id}", status_code=status.HTTP_200_OK)
-async def delete_assessment(
-    assessment_id: int,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    Supprime un assessment.
-
-    Args:
-        assessment_id: ID de l'assessment
-        current_user: Utilisateur authentifié
-        db: Session de base de données
-
-    Returns:
-        Message de confirmation
-
-    Raises:
-        HTTPException 404: Assessment non trouvé
-        HTTPException 403: Assessment n'appartient pas à l'utilisateur
-    """
-    assessment = db.query(Assessment).filter(
-        Assessment.id == assessment_id,
-        Assessment.user_id == current_user.id
-    ).first()
-
-    if not assessment:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Assessment not found"
-        )
-
-    db.delete(assessment)
-    db.commit()
-
-    return {
-        "message": "Assessment deleted successfully",
-        "assessment_id": assessment_id
-    }
-
-
-# ============================================================================
-# NOTES POUR CURSOR
-# ============================================================================
-
-"""
-NOTES POUR CURSOR - ENDPOINTS ASSESSMENTS
-
-1. ROUTES DISPONIBLES:
-   - POST /api/v1/assessments/start: Démarrer un assessment
-   - POST /api/v1/assessments/{id}/responses: Sauvegarder une réponse
-   - POST /api/v1/assessments/{id}/submit: Soumettre et calculer
-   - GET /api/v1/assessments/{id}/results: Récupérer les résultats
-   - GET /api/v1/assessments/user/assessments: Liste des assessments
-   - GET /api/v1/assessments/{id}: Détails d'un assessment
-   - DELETE /api/v1/assessments/{id}: Supprimer un assessment
-
-2. AUTHENTIFICATION:
-   Tous les endpoints nécessitent un utilisateur authentifié (Bearer token).
-
-3. WORKFLOW TYPIQUE:
-   1. POST /start avec {"type": "TKI"}
-   2. POST /{id}/responses pour chaque question
-   3. POST /{id}/submit quand toutes les questions sont répondues
-   4. GET /{id}/results pour afficher les résultats
-
-4. GESTION DES ERREURS:
-   - 400: Données invalides ou assessment pas prêt
-   - 403: Accès non autorisé
-   - 404: Assessment ou résultats non trouvés
-   - 500: Erreur serveur lors du calcul
-
-5. INTÉGRATION AVEC LES SERVICES:
-   - tki_service.analyze_tki_assessment()
-   - wellness_service.analyze_wellness_assessment()
-   - feedback360_service.analyze_360_assessment()
-
-6. ENREGISTREMENT DANS LE ROUTER:
-   Dans backend/app/api/v1/api.py:
-   ```python
-   from app.api.v1.endpoints import assessments
-
-   api_router.include_router(
-       assessments.router,
-       prefix="/assessments",
-       tags=["assessments"]
-   )
-   ```
-
-7. TESTS:
-   ```bash
-   # Démarrer un assessment
-   curl -X POST http://localhost:8000/api/v1/assessments/start \
-     -H "Authorization: Bearer YOUR_TOKEN" \
-     -H "Content-Type: application/json" \
-     -d '{"type": "TKI"}'
-
-   # Sauvegarder une réponse
-   curl -X POST http://localhost:8000/api/v1/assessments/1/responses \
-     -H "Authorization: Bearer YOUR_TOKEN" \
-     -H "Content-Type: application/json" \
-     -d '{"question_id": "q1", "response_data": {"selected_mode": "competing"}}'
-
-   # Soumettre
-   curl -X POST http://localhost:8000/api/v1/assessments/1/submit \
-     -H "Authorization: Bearer YOUR_TOKEN"
-
-   # Récupérer les résultats
-   curl http://localhost:8000/api/v1/assessments/1/results \
-     -H "Authorization: Bearer YOUR_TOKEN"
-   ```
-"""
-
-

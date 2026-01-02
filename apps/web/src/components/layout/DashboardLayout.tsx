@@ -13,12 +13,13 @@
 
 'use client';
 
-import { useState, useMemo, memo, useCallback } from 'react';
+import { useState, useMemo, memo, useCallback, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
 import { useAuth } from '@/hooks/useAuth';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Sidebar from '@/components/ui/Sidebar';
+import { checkMySuperAdminStatus } from '@/lib/api/admin';
 import { ThemeToggleWithIcon } from '@/components/ui/ThemeToggle';
 import { 
   LayoutDashboard, 
@@ -28,7 +29,8 @@ import {
   ClipboardList,
   Users,
   Calendar,
-  Briefcase
+  Briefcase,
+  Menu
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import type { UserType } from '@/lib/store';
@@ -70,7 +72,7 @@ const createSidebarItems = (userType?: UserType, isAdmin?: boolean): SidebarItem
           },
           {
             label: 'Manage Tests',
-            href: '/dashboard/admin/tests',
+            href: '/dashboard/admin/assessment-management',
             icon: <ClipboardList className="w-5 h-5" />,
           },
           {
@@ -224,10 +226,31 @@ const MemoizedSidebar = memo(Sidebar);
 function DashboardLayoutContent({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user } = useAuthStore();
+  const { user, token } = useAuthStore();
   const { logout } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState<boolean | null>(null);
+
+  // Check superadmin status on mount
+  useEffect(() => {
+    const checkSuperAdmin = async () => {
+      if (!user || !token) {
+        setIsSuperAdmin(false);
+        return;
+      }
+      
+      try {
+        const status = await checkMySuperAdminStatus(token);
+        setIsSuperAdmin(status.is_superadmin === true);
+      } catch (error) {
+        console.error('Error checking superadmin status:', error);
+        setIsSuperAdmin(false);
+      }
+    };
+    
+    checkSuperAdmin();
+  }, [user, token]);
 
   // Check if user is admin or superadmin
   // Use user_type directly - superadmins have user_type='ADMIN' after migration
@@ -235,14 +258,18 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
   
   // If user_type is ADMIN, show admin menu
   // Also check is_admin as fallback (though migration should have set user_type)
+  // Also check superadmin status from API
   const isAdmin = user?.is_admin ?? false;
-  const effectiveUserType = (userType === 'ADMIN' || isAdmin) ? 'ADMIN' : userType;
+  const effectiveIsAdmin = isAdmin || isSuperAdmin === true;
+  const effectiveUserType = (userType === 'ADMIN' || effectiveIsAdmin) ? 'ADMIN' : userType;
   
   // Debug logging (remove in production if needed)
   if (typeof window !== 'undefined') {
     console.log('[DashboardLayout] User data:', {
       userType,
       isAdmin,
+      isSuperAdmin,
+      effectiveIsAdmin,
       effectiveUserType,
       user: user ? { id: user.id, email: user.email, user_type: user.user_type, is_admin: user.is_admin } : null
     });
@@ -251,8 +278,8 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
   // Memoize sidebar items - only recreate if admin status or user type changes
   // This prevents the sidebar from re-rendering on every navigation
   const sidebarItems = useMemo(
-    () => createSidebarItems(effectiveUserType, isAdmin),
-    [effectiveUserType, isAdmin]
+    () => createSidebarItems(effectiveUserType, effectiveIsAdmin),
+    [effectiveUserType, effectiveIsAdmin]
   );
 
   // Memoize callbacks to prevent re-renders
@@ -262,6 +289,10 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
 
   const handleMobileMenuClose = useCallback(() => {
     setMobileMenuOpen(false);
+  }, []);
+
+  const handleMobileMenuToggle = useCallback(() => {
+    setMobileMenuOpen(prev => !prev);
   }, []);
 
   const handleHomeClick = useCallback(() => {
@@ -300,7 +331,7 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
       {/* Mobile/Tablet Sidebar Overlay */}
       {mobileMenuOpen && (
         <div
-          className="xl:hidden fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
           onClick={handleMobileMenuClose}
         />
       )}
@@ -308,7 +339,7 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
       {/* Mobile/Tablet Sidebar - Fixed position, persists during navigation */}
       <aside
         className={clsx(
-          'xl:hidden fixed top-0 left-0 h-full z-50 transform transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] w-64 sm:w-72',
+          'lg:hidden fixed top-0 left-0 h-full z-50 transform transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] w-64 sm:w-72',
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
@@ -329,7 +360,7 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
       {/* Desktop Layout - Sidebar stays fixed, only content changes */}
       <div className="flex h-screen pt-0 xl:pt-0">
         {/* Desktop Sidebar - Fixed position, persists during navigation */}
-        <aside className="hidden xl:block">
+        <aside className="hidden lg:block">
           <MemoizedSidebar
             items={sidebarItems}
             currentPath={pathname}
@@ -346,6 +377,23 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
 
         {/* Main Content - Only this part changes during navigation */}
         <div className="flex-1 flex flex-col min-w-0 w-full relative z-10">
+          {/* Mobile Header with Hamburger Menu */}
+          <header className="lg:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30 flex-shrink-0">
+            <div className="px-4 py-3 flex items-center justify-between">
+              <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                MODELE
+              </h1>
+              <button
+                onClick={handleMobileMenuToggle}
+                className="inline-flex items-center justify-center p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors min-h-[44px] min-w-[44px]"
+                aria-label={mobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+                aria-expanded={mobileMenuOpen}
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+            </div>
+          </header>
+
           {/* Page Content - This is the only part that updates on navigation */}
           <main 
             key={pathname} 

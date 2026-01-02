@@ -29,7 +29,7 @@ export function FourDimensionsSection() {
   ];
 
   return (
-    <section className="py-20 bg-arise-deep-teal border-t-4 border-b-4 border-dotted border-black">
+    <section className="py-20 bg-arise-deep-teal">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center mb-16">
           <p className="text-arise-gold text-sm uppercase tracking-widest mb-4">

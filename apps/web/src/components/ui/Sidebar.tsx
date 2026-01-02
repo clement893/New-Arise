@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useState, useMemo } from 'react';
+import { ReactNode, useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { clsx } from 'clsx';
@@ -55,6 +55,17 @@ export default function Sidebar({
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const activePath = currentPath || pathname;
+
+  // Auto-expand all groups by default for better UX
+  useEffect(() => {
+    const initialExpanded = new Set<string>();
+    items.forEach((item) => {
+      if (item.children && item.children.length > 0) {
+        initialExpanded.add(item.label);
+      }
+    });
+    setExpandedItems(initialExpanded);
+  }, [items]);
   
   // Filter items based on search query (UX/UI improvements - Batch 8)
   const filteredItems = useMemo(() => {

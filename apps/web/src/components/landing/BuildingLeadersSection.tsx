@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 export function BuildingLeadersSection() {
   return (
-    <section className="py-20 bg-arise-light-beige border-t-4 border-b-4 border-dotted border-black">
+    <section className="py-20 bg-arise-light-beige">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           <div className="mb-12">

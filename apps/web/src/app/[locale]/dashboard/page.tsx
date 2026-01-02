@@ -19,6 +19,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { getMyAssessments, Assessment as ApiAssessment, AssessmentType } from '@/lib/api/assessments';
+import InviteAdditionalEvaluatorsModal from '@/components/360/InviteAdditionalEvaluatorsModal';
 
 // Mapping of assessment types to display info
 const ASSESSMENT_CONFIG: Record<string, { title: string; description: string; icon: typeof Brain; externalLink?: string }> = {
@@ -51,6 +52,7 @@ function DashboardContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [assessments, setAssessments] = useState<ApiAssessment[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [showEvaluatorModal, setShowEvaluatorModal] = useState(false);
 
   useEffect(() => {
     loadAssessments();
@@ -294,10 +296,10 @@ function DashboardContent() {
           {/* Welcome Header */}
           <MotionDiv variant="fade" duration="normal">
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              <h1 className="text-4xl font-bold text-white mb-2">
                 Welcome {user?.name?.split(' ')[0] || 'User'}
               </h1>
-              <p className="text-gray-600 text-lg">
+              <p className="text-white/80 text-lg">
                 Continue your journey to authentic leadership
               </p>
             </div>
@@ -312,10 +314,10 @@ function DashboardContent() {
                     <Info className="text-arise-deep-teal" size={20} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-1">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
                       Add Your 360° Feedback Evaluators
                     </h3>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
                       Get comprehensive feedback by inviting colleagues to evaluate your leadership.
                     </p>
                   </div>
@@ -323,7 +325,20 @@ function DashboardContent() {
                 <Button 
                   variant="primary" 
                   className="whitespace-nowrap"
-                  onClick={() => router.push('/dashboard/assessments')}
+                  onClick={() => {
+                    // Check if a 360° feedback assessment already exists
+                    const feedback360Assessment = assessments.find(
+                      a => a.assessment_type === 'THREE_SIXTY_SELF'
+                    );
+                    
+                    if (feedback360Assessment?.id) {
+                      // Open modal directly if assessment exists
+                      setShowEvaluatorModal(true);
+                    } else {
+                      // Redirect to start page if no assessment exists yet
+                      router.push('/dashboard/assessments/360-feedback/start');
+                    }
+                  }}
                 >
                   Ajouter des évaluateurs
                 </Button>
@@ -389,7 +404,7 @@ function DashboardContent() {
           {/* Evaluations Section */}
           <MotionDiv variant="slideUp" delay={300}>
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Your evaluations</h2>
+              <h2 className="text-2xl font-bold text-white mb-6">Your evaluations</h2>
               <Grid columns={{ mobile: 1, tablet: 2, desktop: 4 }} gap="normal">
                 {evaluations.map((evaluation, index) => {
                   const Icon = evaluation.icon;
@@ -401,7 +416,7 @@ function DashboardContent() {
                       <Stack gap="normal">
                         {/* Icon and Status */}
                         <div className="flex items-start justify-between">
-                          <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                          <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
                             <Icon className="text-arise-deep-teal" size={24} />
                           </div>
                           {evaluation.externalLink && evaluation.status !== 'completed' && (
@@ -413,10 +428,10 @@ function DashboardContent() {
 
                         {/* Title and Description */}
                         <div>
-                          <h3 className="text-lg font-bold text-gray-900 mb-2">
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
                             {evaluation.title}
                           </h3>
-                          <p className="text-sm text-gray-600 mb-4">
+                          <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                             {evaluation.description}
                           </p>
                         </div>
@@ -462,6 +477,7 @@ function DashboardContent() {
                 <Button 
                   variant="primary" 
                   className="bg-arise-gold text-arise-deep-teal hover:bg-arise-gold/90 flex items-center gap-2"
+                  onClick={() => router.push('/dashboard/coaching-options')}
                 >
                   Explore coaching options
                   <ArrowRight size={20} />
@@ -469,6 +485,27 @@ function DashboardContent() {
               </div>
             </Card>
           </MotionDiv>
+
+          {/* Evaluator Modal */}
+          {showEvaluatorModal && (() => {
+            const feedback360Assessment = assessments.find(
+              a => a.assessment_type === 'THREE_SIXTY_SELF'
+            );
+            if (!feedback360Assessment?.id) {
+              return null;
+            }
+            return (
+              <InviteAdditionalEvaluatorsModal
+                isOpen={showEvaluatorModal}
+                onClose={() => setShowEvaluatorModal(false)}
+                assessmentId={feedback360Assessment.id}
+                onSuccess={() => {
+                  setShowEvaluatorModal(false);
+                  loadAssessments(); // Reload to refresh evaluator status
+                }}
+              />
+            );
+          })()}
     </div>
   );
 }

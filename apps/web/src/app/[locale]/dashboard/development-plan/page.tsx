@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
+import { useRouter } from 'next/navigation';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import { Card } from '@/components/ui';
 import Button from '@/components/ui/Button';
@@ -10,6 +11,7 @@ import { Target, BookOpen, Video, FileText, Users, TrendingUp, CheckCircle2, Cir
 import Image from 'next/image';
 
 function DevelopmentPlanContent() {
+  const router = useRouter();
   // Mock data for development goals
   const goals = [
     {
@@ -78,10 +80,10 @@ function DevelopmentPlanContent() {
     <div className="space-y-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-white mb-2">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
           Development Plan
         </h1>
-        <p className="text-white/80">
+        <p className="text-gray-600 dark:text-gray-300">
           Track your personal and professional development journey
         </p>
       </div>
@@ -94,10 +96,10 @@ function DevelopmentPlanContent() {
               <Target className="text-arise-deep-teal" size={24} />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 Your Development Goals
               </h2>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-300">
                 Track your progress towards your leadership goals
               </p>
             </div>
@@ -109,29 +111,29 @@ function DevelopmentPlanContent() {
 
         <div className="space-y-4">
           {goals.map((goal) => (
-            <Card key={goal.id} className="p-4 border border-gray-200 hover:border-arise-deep-teal/30 transition-colors">
+            <Card key={goal.id} className="p-4 border border-gray-200 dark:border-gray-700 hover:border-arise-deep-teal/30 transition-colors">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-start gap-3 flex-1">
                   {goal.status === 'in_progress' ? (
                     <Circle className="text-arise-gold mt-1" size={20} />
                   ) : (
-                    <CheckCircle2 className="text-gray-300 mt-1" size={20} />
+                    <CheckCircle2 className="text-gray-300 dark:text-gray-500 mt-1" size={20} />
                   )}
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
                       {goal.title}
                     </h3>
-                    <p className="text-gray-600 text-sm mb-3">
+                    <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
                       {goal.description}
                     </p>
                     
                     {/* Progress Bar */}
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Progress</span>
+                        <span className="text-gray-600 dark:text-gray-300">Progress</span>
                         <span className="font-semibold text-arise-deep-teal">{goal.progress}%</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                         <div 
                           className="bg-arise-gold rounded-full h-2 transition-all duration-300"
                           style={{ width: `${goal.progress}%` }}
@@ -141,8 +143,8 @@ function DevelopmentPlanContent() {
                   </div>
                 </div>
                 <div className="text-right ml-4">
-                  <p className="text-sm text-gray-500">Due date</p>
-                  <p className="text-sm font-semibold text-gray-900">{goal.dueDate}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Due date</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{goal.dueDate}</p>
                 </div>
               </div>
             </Card>
@@ -157,10 +159,10 @@ function DevelopmentPlanContent() {
             <BookOpen className="text-arise-deep-teal" size={24} />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               Recommended Resources
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               Curated content to support your development goals
             </p>
           </div>
@@ -170,20 +172,20 @@ function DevelopmentPlanContent() {
           {resources.map((resource) => {
             const Icon = resource.icon;
             return (
-              <Card key={resource.id} className="p-4 border border-gray-200 hover:border-arise-deep-teal/30 transition-colors">
+              <Card key={resource.id} className="p-4 border border-gray-200 dark:border-gray-700 hover:border-arise-deep-teal/30 transition-colors">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center flex-shrink-0">
                     <Icon className="text-arise-deep-teal" size={20} />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-base font-semibold text-gray-900 mb-1">
+                    <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">
                       {resource.title}
                     </h3>
-                    <p className="text-gray-600 text-sm mb-2">
+                    <p className="text-gray-600 dark:text-gray-300 text-sm mb-2">
                       {resource.description}
                     </p>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">{resource.duration}</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">{resource.duration}</span>
                       <Button variant="secondary" size="sm">
                         View
                       </Button>
@@ -203,27 +205,27 @@ function DevelopmentPlanContent() {
             <TrendingUp className="text-arise-deep-teal" size={24} />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               Your Progress
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               Overview of your development journey
             </p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gray-50 rounded-lg p-4 text-center">
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 text-center">
             <p className="text-3xl font-bold text-arise-deep-teal mb-2">3</p>
-            <p className="text-gray-600">Active Goals</p>
+            <p className="text-gray-600 dark:text-gray-300">Active Goals</p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4 text-center">
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 text-center">
             <p className="text-3xl font-bold text-arise-gold mb-2">45%</p>
-            <p className="text-gray-600">Average Progress</p>
+            <p className="text-gray-600 dark:text-gray-300">Average Progress</p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4 text-center">
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 text-center">
             <p className="text-3xl font-bold text-green-600 mb-2">8</p>
-            <p className="text-gray-600">Resources Completed</p>
+            <p className="text-gray-600 dark:text-gray-300">Resources Completed</p>
           </div>
         </div>
       </Card>
@@ -239,7 +241,11 @@ function DevelopmentPlanContent() {
               Connect with expert ARISE coaches who specialize in leadership development. 
               Schedule your FREE coaching session to debrief your results and build a personalized development plan.
             </p>
-            <Button variant="secondary" className="bg-arise-gold hover:bg-arise-gold/90 text-white">
+            <Button 
+              variant="secondary" 
+              className="bg-arise-gold hover:bg-arise-gold/90 text-white"
+              onClick={() => router.push('/dashboard/coaching-options')}
+            >
               Explore coaching options →
             </Button>
           </div>

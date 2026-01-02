@@ -1,8 +1,10 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { ArrowRight } from 'lucide-react';
 
 export function CoachingSection() {
+  const router = useRouter();
   return (
     <div className="bg-arise-deep-teal/90 rounded-lg p-8 text-white relative overflow-hidden">
       {/* Background Pattern */}
@@ -28,7 +30,10 @@ export function CoachingSection() {
           Schedule your FREE coaching session to debrief your results and build a 
           personalized development plan.
         </p>
-        <button className="flex items-center gap-2 px-6 py-3 bg-arise-gold text-arise-deep-teal rounded-lg font-semibold hover:bg-arise-gold/90 transition-colors">
+        <button 
+          className="flex items-center gap-2 px-6 py-3 bg-arise-gold text-arise-deep-teal rounded-lg font-semibold hover:bg-arise-gold/90 transition-colors"
+          onClick={() => router.push('/dashboard/coaching-options')}
+        >
           Explore coaching options
           <ArrowRight size={20} />
         </button>

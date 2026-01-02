@@ -11,7 +11,6 @@ export { apiClient, getApiUrl, api } from '../api';
 // Re-export all API modules from the main api.ts file
 export {
   authAPI,
-  usersAPI,
   resourcesAPI,
   projectsAPI,
   aiAPI,
@@ -72,3 +71,7 @@ export * from './theme-errors';
 // Re-export API keys API
 export { apiKeysAPI } from './apiKeys';
 export type { APIKeyCreate, APIKeyResponse, APIKeyListResponse, APIKeyRotateResponse, AdminAPIKeyListResponse } from './apiKeys';
+
+// Re-export users API (from separate file)
+export { usersAPI } from './users';
+export type { User, UserListResponse, UserUpdate } from './users';

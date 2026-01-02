@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui';
 import Button from '@/components/ui/Button';
-import { User, Calendar, Phone, Briefcase, Building, Target, Users, Check } from 'lucide-react';
-import Image from 'next/image';
+import { User, Calendar, Briefcase, Target, Users, Check } from 'lucide-react';
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     firstName: 'John',
     lastName: 'Doe',
@@ -349,6 +350,7 @@ export default function ProfilePage() {
               </p>
               <Button
                 className="bg-arise-gold hover:bg-arise-gold/90 text-white px-6 py-3 rounded-lg font-semibold"
+                onClick={() => router.push('/dashboard/coaching-options')}
               >
                 Explore coaching options →
               </Button>

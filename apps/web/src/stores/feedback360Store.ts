@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { startAssessment, saveAnswer, submitAssessment, saveResponse } from '@/lib/api/assessments';
+import { saveAnswer, submitAssessment } from '@/lib/api/assessments';
 import axios from 'axios';
 
 interface Feedback360State {
@@ -34,28 +34,12 @@ export const useFeedback360Store = create<Feedback360State>()(
       ...initialState,
 
       startAssessment: async () => {
-        set({ isLoading: true, error: null });
-        try {
-          const response = await startAssessment('360_self');
-          set({
-            assessmentId: response.assessment_id,
-            currentQuestion: 0,
-            answers: {},
-            isLoading: false,
-          });
-        } catch (error: unknown) {
-          const errorMessage =
-            error instanceof Error
-              ? error.message
-              : axios.isAxiosError(error) && error.response?.data?.detail
-                ? error.response.data.detail
-                : 'Failed to start assessment';
-          set({
-            error: errorMessage,
-            isLoading: false,
-          });
-          throw error;
-        }
+        // 360° feedback assessments should be created via /360/start endpoint, not /start
+        // This method should not be called directly - redirect to start page instead
+        throw new Error(
+          '360° feedback assessments must be started via /dashboard/assessments/360-feedback/start page. ' +
+          'Please use the start page to invite evaluators first.'
+        );
       },
 
       setAnswer: async (questionId: string, value: number) => {
@@ -75,10 +59,7 @@ export const useFeedback360Store = create<Feedback360State>()(
 
         // Save to backend
         try {
-          // Save with new format: capability and score
-          // Extract capability from questionId (format: "capability_questionNumber")
-          const capability = questionId.split('_')[0];
-          await saveResponse(assessmentId, questionId, { capability, score: value });
+          await saveAnswer(assessmentId, questionId, value.toString());
         } catch (error: unknown) {
           console.error('Failed to save answer:', error);
           // Don't throw - allow user to continue even if save fails
@@ -113,12 +94,11 @@ export const useFeedback360Store = create<Feedback360State>()(
           set({ isLoading: false });
           // Don't reset - keep data for results page
         } catch (error: unknown) {
-          const errorMessage =
-            error instanceof Error
-              ? error.message
-              : axios.isAxiosError(error) && error.response?.data?.detail
-                ? error.response.data.detail
-                : 'Failed to submit assessment';
+          const errorMessage = error instanceof Error
+            ? error.message
+            : axios.isAxiosError(error) && error.response?.data?.detail
+            ? error.response.data.detail
+            : 'Failed to submit assessment';
           set({
             error: errorMessage,
             isLoading: false,

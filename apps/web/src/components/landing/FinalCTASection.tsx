@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export function FinalCTASection() {
   return (
-    <section className="py-20 bg-arise-beige border-t-4 border-b-4 border-dotted border-black">
+    <section className="py-20 bg-arise-beige">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-arise-deep-teal mb-6">

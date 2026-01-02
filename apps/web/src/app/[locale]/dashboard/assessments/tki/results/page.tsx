@@ -1,29 +1,26 @@
 'use client';
 
-/**
- * TKI Assessment Results Page (Improved)
- * Displays TKI results with radar chart, insights, and recommendations
- */
-
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getAssessmentResults, AssessmentResult } from '@/lib/api/assessments';
+import { getAssessmentResults } from '@/lib/api/assessments';
 import { tkiModes } from '@/data/tkiQuestions';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
-import { Sidebar } from '@/components/dashboard/Sidebar';
 import MotionDiv from '@/components/motion/MotionDiv';
-import TKIRadarChart from '@/components/assessments/charts/TKIRadarChart';
-import InsightCard from '@/components/assessments/InsightCard';
-import RecommendationCard from '@/components/assessments/RecommendationCard';
-import { ArrowLeft, Download } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, ArrowLeft, LucideIcon } from 'lucide-react';
+
+interface TKIResults {
+  mode_counts: Record<string, number>;
+  dominant_mode: string;
+  secondary_mode: string;
+}
 
 export default function TKIResultsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const assessmentId = searchParams.get('id');
 
-  const [results, setResults] = useState<AssessmentResult | null>(null);
+  const [results, setResults] = useState<TKIResults | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,12 +34,26 @@ export default function TKIResultsPage() {
     try {
       setIsLoading(true);
       const data = await getAssessmentResults(Number(assessmentId));
-      setResults(data);
+      
+      // Transform AssessmentResult to TKIResults format
+      const { scores } = data;
+      const modeScores = scores.mode_scores || {};
+      
+      // Find dominant and secondary modes
+      const sortedModes = Object.entries(modeScores)
+        .sort(([, a], [, b]) => (b as number) - (a as number));
+      
+      const transformedResults: TKIResults = {
+        mode_counts: modeScores as Record<string, number>,
+        dominant_mode: sortedModes[0]?.[0] || '',
+        secondary_mode: sortedModes[1]?.[0] || '',
+      };
+      
+      setResults(transformedResults);
     } catch (err: unknown) {
-      const errorMessage =
-        err && typeof err === 'object' && 'response' in err
-          ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
-          : undefined;
+      const errorMessage = err && typeof err === 'object' && 'response' in err
+        ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
+        : undefined;
       setError(errorMessage || 'Failed to load results');
     } finally {
       setIsLoading(false);
@@ -50,25 +61,64 @@ export default function TKIResultsPage() {
   };
 
   const getModeInfo = (modeId: string) => {
-    return tkiModes.find((m) => m.id === modeId);
+    return tkiModes.find(m => m.id === modeId);
   };
 
-  const getModeLevel = (count: number): 'low' | 'moderate' | 'high' => {
-    const percentage = Math.round((count / 12) * 100);
-    if (percentage >= 66) return 'high';
-    if (percentage >= 33) return 'moderate';
-    return 'low';
+  const getModePercentage = (count: number) => {
+    return Math.round((count / 30) * 100);
+  };
+
+  const getModeLevel = (count: number): { label: string; color: string; icon: LucideIcon } => {
+    const percentage = getModePercentage(count);
+    if (percentage >= 40) {
+      return { label: 'High', color: 'text-green-600', icon: TrendingUp };
+    } else if (percentage >= 20) {
+      return { label: 'Moderate', color: 'text-yellow-600', icon: Minus };
+    } else {
+      return { label: 'Low', color: 'text-gray-500', icon: TrendingDown };
+    }
+  };
+
+  const getModeInsight = (modeId: string, count: number) => {
+    const percentage = getModePercentage(count);
+    const insights: Record<string, Record<string, string>> = {
+      competing: {
+        high: 'You tend to pursue your own concerns assertively, which can be effective in emergencies or when quick decisions are needed.',
+        moderate: 'You use competing when necessary, balancing it with other approaches.',
+        low: 'You rarely use a competing approach, preferring more collaborative or accommodating styles.',
+      },
+      collaborating: {
+        high: 'You excel at finding win-win solutions that fully satisfy both parties. This is ideal for complex issues requiring diverse perspectives.',
+        moderate: 'You use collaboration when appropriate, though you may also rely on other conflict modes.',
+        low: 'You may benefit from developing your collaborative skills to find more integrative solutions.',
+      },
+      compromising: {
+        high: 'You frequently seek middle-ground solutions, which can be efficient when time is limited or when goals are moderately important.',
+        moderate: 'You use compromise as one of several conflict management tools in your repertoire.',
+        low: 'You tend to favor other approaches over compromise, which may mean you seek more complete solutions.',
+      },
+      avoiding: {
+        high: 'You often postpone or withdraw from conflicts. While useful for trivial issues, overuse may leave important matters unresolved.',
+        moderate: 'You strategically avoid conflicts when appropriate, such as when emotions are high or more information is needed.',
+        low: 'You rarely avoid conflicts, preferring to address issues directly.',
+      },
+      accommodating: {
+        high: 'You frequently yield to others\' concerns. This builds goodwill but may lead to your needs being overlooked if overused.',
+        moderate: 'You accommodate others when it makes sense, balancing their needs with your own.',
+        low: 'You rarely accommodate others, which may indicate a strong focus on your own goals.',
+      },
+    };
+
+    const level = percentage >= 40 ? 'high' : percentage >= 20 ? 'moderate' : 'low';
+    return insights[modeId]?.[level] || '';
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">
-        <Sidebar />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading your results...</p>
-          </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-arise-teal mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your results...</p>
         </div>
       </div>
     );
@@ -76,205 +126,157 @@ export default function TKIResultsPage() {
 
   if (error || !results) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">
-        <Sidebar />
-        <div className="flex-1 flex items-center justify-center">
-          <Card className="max-w-md">
-            <div className="p-6 text-center">
-              <p className="text-red-600 mb-4">{error || 'Results not found'}</p>
-              <Button onClick={() => router.push('/dashboard/assessments')}>
-                Back to Assessments
-              </Button>
-            </div>
-          </Card>
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="max-w-md">
+          <div className="text-center">
+            <p className="text-red-600 mb-4">{error || 'No results found'}</p>
+            <Button onClick={() => router.push('/dashboard/assessments')}>
+              Back to Assessments
+            </Button>
+          </div>
+        </Card>
       </div>
     );
   }
 
-  const modeScores = results.scores.mode_scores || {};
-  const insights = results.insights || {};
-  const recommendations = results.recommendations || [];
+  const dominantModeInfo = getModeInfo(results.dominant_mode);
+  const secondaryModeInfo = getModeInfo(results.secondary_mode);
 
-  // Find dominant mode
-  const sortedModes = Object.entries(modeScores).sort(
-    ([, a], [, b]) => (b as number) - (a as number)
-  );
-  const dominantMode = sortedModes[0]?.[0] || '';
-  const dominantModeInfo = getModeInfo(dominantMode);
+  // Sort modes by count for display
+  const sortedModes = Object.entries(results.mode_counts)
+    .sort(([, a], [, b]) => b - a)
+    .map(([modeId, count]) => ({ modeId, count }));
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
+    <div className="relative">
+      {/* Background */}
+      <div 
+        className="fixed inset-0 bg-cover bg-center opacity-10 pointer-events-none"
+        style={{
+          backgroundImage: 'url(/images/dashboard-bg.jpg)',
+        }}
+      />
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-6xl mx-auto p-8">
-          {/* Header */}
-          <MotionDiv
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
-          >
+      {/* Content */}
+      <div className="relative z-10 p-8">
+          <MotionDiv variant="slideUp" duration="normal">
             <Button
-              variant="ghost"
               onClick={() => router.push('/dashboard/assessments')}
-              className="mb-4"
+              variant="outline"
+              className="mb-6"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft size={16} className="mr-2" />
               Back to Assessments
             </Button>
 
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  Your TKI Conflict Style Results
-                </h1>
-                <p className="text-gray-600">Understanding how you approach conflict situations</p>
-              </div>
-              <Button variant="outline">
-                <Download className="w-4 h-4 mr-2" />
-                Export PDF
-              </Button>
+            <div className="mb-8">
+              <h1 className="text-4xl font-bold text-arise-teal mb-2">
+                TKI Conflict Style Results
+              </h1>
+              <p className="text-gray-600">
+                Your conflict management profile
+              </p>
             </div>
-          </MotionDiv>
 
-          {/* Dominant Mode Summary */}
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="mb-8"
-          >
-            <Card className="bg-gradient-to-r from-teal-50 to-cyan-50 border-teal-200">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                  Your Dominant Conflict Mode
-                </h2>
-                <div className="flex items-center gap-4">
-                  <div className="text-5xl">{dominantModeInfo?.emoji}</div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-teal-700">{dominantModeInfo?.name}</h3>
-                    <p className="text-gray-700 mt-1">{dominantModeInfo?.description}</p>
-                  </div>
+            {/* Dominant & Secondary Modes */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div className="rounded-lg border shadow-sm bg-gradient-to-br from-arise-teal to-arise-teal-dark text-white p-6">
+                <div className="text-center">
+                  <div className="text-4xl mb-3 text-white">{dominantModeInfo?.icon}</div>
+                  <h3 className="text-sm font-medium opacity-90 mb-2 text-white">Dominant Mode</h3>
+                  <h2 className="text-3xl font-bold mb-2 text-white">{dominantModeInfo?.title}</h2>
+                  <p className="text-sm opacity-90 text-white">
+                    {results.dominant_mode ? (results.mode_counts[results.dominant_mode] || 0) : 0} out of 30 responses
+                  </p>
                 </div>
               </div>
-            </Card>
-          </MotionDiv>
 
-          {/* Radar Chart */}
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mb-8"
-          >
-            <Card>
-              <div className="p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Your Conflict Mode Profile
-                </h2>
-                <TKIRadarChart scores={modeScores} />
+              <div className="rounded-lg border shadow-sm bg-gradient-to-br from-arise-gold to-arise-gold-dark text-white p-6">
+                <div className="text-center">
+                  <div className="text-4xl mb-3 text-white">{secondaryModeInfo?.icon}</div>
+                  <h3 className="text-sm font-medium opacity-90 mb-2 text-white">Secondary Mode</h3>
+                  <h2 className="text-3xl font-bold mb-2 text-white">{secondaryModeInfo?.title}</h2>
+                  <p className="text-sm opacity-90 text-white">
+                    {results.secondary_mode ? (results.mode_counts[results.secondary_mode] || 0) : 0} out of 30 responses
+                  </p>
+                </div>
               </div>
-            </Card>
-          </MotionDiv>
-
-          {/* Insights */}
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="mb-8"
-          >
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Detailed Insights</h2>
-            <div className="grid gap-4">
-              {Object.entries(modeScores).map(([mode, score], index) => {
-                const modeInfo = getModeInfo(mode);
-                const level = getModeLevel(score as number);
-                const insight = insights[mode];
-
-                return (
-                  <MotionDiv
-                    key={mode}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 + index * 0.1 }}
-                  >
-                    <InsightCard
-                      title={modeInfo?.name || mode}
-                      level={level}
-                      score={score as number}
-                      maxScore={12}
-                      description={insight?.description || modeInfo?.description || ''}
-                    />
-                  </MotionDiv>
-                );
-              })}
             </div>
-          </MotionDiv>
 
-          {/* Recommendations */}
-          {recommendations.length > 0 && (
-            <MotionDiv
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-              className="mb-8"
-            >
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Personalized Recommendations
+            {/* All Modes Breakdown */}
+            <Card className="mb-8">
+              <h2 className="text-2xl font-bold text-arise-teal mb-6">
+                Your Conflict Management Profile
               </h2>
-              <div className="grid gap-4">
-                {recommendations.map((rec: any, index: number) => (
-                  <MotionDiv
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.9 + index * 0.1 }}
-                  >
-                    <RecommendationCard
-                      title={rec.title}
-                      description={rec.description}
-                      actions={rec.actions}
-                      resources={rec.resources}
-                      priority={rec.priority || 'medium'}
-                    />
-                  </MotionDiv>
-                ))}
-              </div>
-            </MotionDiv>
-          )}
 
-          {/* Next Steps */}
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.2 }}
-            className="text-center"
-          >
-            <Card className="bg-gray-50">
-              <div className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Ready to explore more?</h3>
-                <p className="text-gray-600 mb-4">
-                  Continue your leadership development journey with our other assessments
+              <div className="space-y-6">
+                {sortedModes.map(({ modeId, count }) => {
+                  const modeInfo = getModeInfo(modeId);
+                  const level = getModeLevel(count);
+                  const LevelIcon = level.icon;
+                  const percentage = getModePercentage(count);
+
+                  return (
+                    <div key={modeId} className="border-b border-gray-200 last:border-0 pb-6 last:pb-0">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="text-2xl">{modeInfo?.icon}</div>
+                          <div>
+                            <h3 className="font-bold text-gray-900">{modeInfo?.title}</h3>
+                            <p className="text-sm text-gray-600">{modeInfo?.description}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <LevelIcon size={20} className={level.color} />
+                          <span className={`font-semibold ${level.color}`}>{level.label}</span>
+                        </div>
+                      </div>
+
+                      {/* Progress Bar */}
+                      <div className="mb-3">
+                        <div className="flex justify-between text-sm text-gray-600 mb-1">
+                          <span>{count} responses</span>
+                          <span>{percentage}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-3">
+                          <div
+                            className="bg-arise-teal h-3 rounded-full transition-all"
+                            style={{ width: `${percentage}%`, transitionDuration: '800ms' }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Insight */}
+                      <div className="bg-arise-beige p-4 rounded-lg">
+                        <p className="text-sm text-gray-700">
+                          {getModeInsight(modeId, count)}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+
+            {/* Recommendations */}
+            <Card className="bg-arise-gold/10 border-2 border-arise-gold/30">
+              <h2 className="text-2xl font-bold text-arise-teal mb-4">
+                Recommendations
+              </h2>
+              <div className="space-y-3">
+                <p className="text-gray-700">
+                  <strong>Leverage your strengths:</strong> Your dominant {dominantModeInfo?.title.toLowerCase()} style can be very effective in appropriate situations. Continue to use it when it serves you well.
                 </p>
-                <div className="flex gap-4 justify-center">
-                  <Button onClick={() => router.push('/dashboard/assessments/wellness')}>
-                    Take Wellness Assessment
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => router.push('/dashboard/assessments/360-feedback')}
-                  >
-                    Try 360° Feedback
-                  </Button>
-                </div>
+                <p className="text-gray-700">
+                  <strong>Develop flexibility:</strong> Consider situations where your less-used modes might be more effective. Expanding your conflict management repertoire will make you a more adaptable leader.
+                </p>
+                <p className="text-gray-700">
+                  <strong>Context matters:</strong> No single conflict mode is best in all situations. The most effective leaders can flex between different approaches based on the context, relationship, and importance of the issue.
+                </p>
               </div>
             </Card>
           </MotionDiv>
         </div>
-      </div>
     </div>
   );
 }
-
-
