@@ -247,43 +247,166 @@ def upgrade():
         assessmentstatus_enum_values = ['not_started', 'in_progress', 'completed']
         print("✅ Created assessmentstatus enum type")
     
-    # Add status column separately with proper handling
-    if 'status' not in columns:
+    # Add status column separately with proper handling - use raw SQL
+    check_status_result = conn.execute(sa.text("""
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'assessment_360_evaluators' 
+        AND column_name = 'status'
+    """))
+    status_column_exists_in_db = check_status_result.fetchone() is not None
+    
+    if 'status' not in columns or not status_column_exists_in_db:
         print("📝 Adding status column...")
+        # ALWAYS drop and recreate to ensure clean state
+        if status_column_exists_in_db:
+            print("⚠️  status column exists in DB but may not be visible to asyncpg, dropping and recreating...")
+            try:
+                conn.execute(sa.text("ALTER TABLE assessment_360_evaluators DROP COLUMN IF EXISTS status CASCADE"))
+                print("✅ Dropped existing status column")
+            except Exception as e:
+                print(f"⚠️  Could not drop column (may not exist): {e}")
+        
         # Use the first enum value as default (should match the actual enum values in DB)
         default_value = assessmentstatus_enum_values[0] if assessmentstatus_enum_values else 'NOT_STARTED'
-        # First add the column as nullable
-        # Use the actual enum values from the database
-        enum_type = sa.Enum(*assessmentstatus_enum_values, name='assessmentstatus') if assessmentstatus_enum_values else sa.Enum('NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', name='assessmentstatus')
-        op.add_column('assessment_360_evaluators', sa.Column('status', enum_type, nullable=True))
-        # Then set default value for existing rows using the actual enum value
+        # Add column using raw SQL
+        conn.execute(sa.text(f"""
+            ALTER TABLE assessment_360_evaluators 
+            ADD COLUMN status assessmentstatus
+        """))
+        print("✅ Added status column as nullable")
+        
+        # Update existing rows
         conn.execute(sa.text(f"UPDATE assessment_360_evaluators SET status = '{default_value}'::assessmentstatus WHERE status IS NULL"))
-        # Finally make it NOT NULL with default - use sa.text() for proper SQL expression
-        op.alter_column('assessment_360_evaluators', 'status', nullable=False, server_default=sa.text(f"'{default_value}'::assessmentstatus"))
-        print(f"✅ Added status column with default '{default_value}'")
+        print(f"✅ Updated existing rows with default '{default_value}' for status")
+        
+        # Make it NOT NULL with default
+        conn.execute(sa.text(f"""
+            ALTER TABLE assessment_360_evaluators 
+            ALTER COLUMN status SET NOT NULL,
+            ALTER COLUMN status SET DEFAULT '{default_value}'::assessmentstatus
+        """))
+        print(f"✅ Set status column to NOT NULL with default '{default_value}'")
+        
+        # Force commit
+        conn.commit()
+        print("✅ Committed status column addition")
+        
+        # Verify
+        verify_status_result = conn.execute(sa.text("""
+            SELECT column_name, data_type, udt_name, is_nullable, column_default
+            FROM information_schema.columns 
+            WHERE table_name = 'assessment_360_evaluators' 
+            AND column_name = 'status'
+        """))
+        verify_status_row = verify_status_result.fetchone()
+        if verify_status_row:
+            print(f"✅ Verified status column exists: {verify_status_row}")
+        else:
+            print("❌ ERROR: status column was not added successfully!")
+            raise Exception("Failed to add status column")
+        
+        # Force PostgreSQL to notify all connections about schema change
+        try:
+            conn.execute(sa.text("NOTIFY schema_change, 'status_added'"))
+            print("✅ Sent NOTIFY to force schema cache reload for status")
+        except Exception as e:
+            print(f"⚠️  Could not send NOTIFY (non-critical): {e}")
     else:
         print("✅ status column already exists")
     
-    for col_name, col_def in missing_columns.items():
-        if col_name not in columns:
+    # Add other missing columns using raw SQL with force drop/recreate
+    columns_to_add = {
+        'invitation_opened_at': ('TIMESTAMP WITH TIME ZONE', 'NULL'),
+        'started_at': ('TIMESTAMP WITH TIME ZONE', 'NULL'),
+        'evaluator_assessment_id': ('INTEGER', 'NULL'),
+    }
+    
+    for col_name, (col_type, nullable) in columns_to_add.items():
+        check_col_result = conn.execute(sa.text(f"""
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = 'assessment_360_evaluators' 
+            AND column_name = '{col_name}'
+        """))
+        col_exists_in_db = check_col_result.fetchone() is not None
+        
+        if col_name not in columns or not col_exists_in_db:
             print(f"📝 Adding {col_name} column...")
-            op.add_column('assessment_360_evaluators', col_def)
+            # ALWAYS drop and recreate to ensure clean state
+            if col_exists_in_db:
+                print(f"⚠️  {col_name} column exists in DB but may not be visible to asyncpg, dropping and recreating...")
+                try:
+                    conn.execute(sa.text(f"ALTER TABLE assessment_360_evaluators DROP COLUMN IF EXISTS {col_name} CASCADE"))
+                    print(f"✅ Dropped existing {col_name} column")
+                except Exception as e:
+                    print(f"⚠️  Could not drop column (may not exist): {e}")
+            
+            # Add column using raw SQL
+            conn.execute(sa.text(f"""
+                ALTER TABLE assessment_360_evaluators 
+                ADD COLUMN {col_name} {col_type}
+            """))
             print(f"✅ Added {col_name} column")
+            
+            # Force commit
+            conn.commit()
+            print(f"✅ Committed {col_name} column addition")
+            
+            # Verify
+            verify_col_result = conn.execute(sa.text(f"""
+                SELECT column_name, data_type, udt_name, is_nullable
+                FROM information_schema.columns 
+                WHERE table_name = 'assessment_360_evaluators' 
+                AND column_name = '{col_name}'
+            """))
+            verify_col_row = verify_col_result.fetchone()
+            if verify_col_row:
+                print(f"✅ Verified {col_name} column exists: {verify_col_row}")
+            else:
+                print(f"❌ ERROR: {col_name} column was not added successfully!")
+                raise Exception(f"Failed to add {col_name} column")
+            
+            # Force PostgreSQL to notify all connections about schema change
+            try:
+                conn.execute(sa.text(f"NOTIFY schema_change, '{col_name}_added'"))
+                print(f"✅ Sent NOTIFY to force schema cache reload for {col_name}")
+            except Exception as e:
+                print(f"⚠️  Could not send NOTIFY (non-critical): {e}")
         else:
             print(f"✅ {col_name} column already exists")
     
     # Add foreign key for evaluator_assessment_id if column was just added
-    if 'evaluator_assessment_id' not in columns:
+    check_fk_result = conn.execute(sa.text("""
+        SELECT constraint_name 
+        FROM information_schema.table_constraints 
+        WHERE table_name = 'assessment_360_evaluators' 
+        AND constraint_name = 'fk_assessment_360_evaluators_evaluator_assessment_id'
+    """))
+    fk_exists = check_fk_result.fetchone() is not None
+    
+    if 'evaluator_assessment_id' in columns or not fk_exists:
         print("📝 Adding foreign key constraint for evaluator_assessment_id...")
-        op.create_foreign_key(
-            'fk_assessment_360_evaluators_evaluator_assessment_id',
-            'assessment_360_evaluators',
-            'assessments',
-            ['evaluator_assessment_id'],
-            ['id'],
-            ondelete='SET NULL'
-        )
-        print("✅ Added foreign key constraint")
+        try:
+            # Drop existing FK if it exists
+            conn.execute(sa.text("""
+                ALTER TABLE assessment_360_evaluators 
+                DROP CONSTRAINT IF EXISTS fk_assessment_360_evaluators_evaluator_assessment_id
+            """))
+            # Add FK using raw SQL
+            conn.execute(sa.text("""
+                ALTER TABLE assessment_360_evaluators 
+                ADD CONSTRAINT fk_assessment_360_evaluators_evaluator_assessment_id
+                FOREIGN KEY (evaluator_assessment_id) 
+                REFERENCES assessments(id) 
+                ON DELETE SET NULL
+            """))
+            conn.commit()
+            print("✅ Added foreign key constraint")
+        except Exception as e:
+            print(f"⚠️  Could not add foreign key (may already exist): {e}")
+    else:
+        print("✅ Foreign key constraint already exists")
 
 
 def downgrade():
