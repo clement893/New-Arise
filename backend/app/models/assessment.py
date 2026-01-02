@@ -79,7 +79,7 @@ class Assessment(Base):
     # Relations
     answers = relationship("AssessmentAnswer", back_populates="assessment", cascade="all, delete-orphan")
     result = relationship("AssessmentResult", back_populates="assessment", uselist=False, cascade="all, delete-orphan")
-    evaluators = relationship("Assessment360Evaluator", back_populates="assessment", cascade="all, delete-orphan")
+    evaluators = relationship("Assessment360Evaluator", back_populates="assessment", cascade="all, delete-orphan", foreign_keys="Assessment360Evaluator.assessment_id")
 
     def __repr__(self):
         return f"<Assessment(id={self.id}, type={self.assessment_type}, status={self.status}, user_id={self.user_id})>"
