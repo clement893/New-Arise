@@ -632,9 +632,9 @@ async def start_360_feedback(
             # If a collision occurs, we'll handle it in the commit error handling
             invitation_token = secrets.token_urlsafe(32)
 
-            # Validate role
+            # Validate role - convert to lowercase to match enum values
             try:
-                evaluator_role = EvaluatorRole(evaluator_data.role.upper())
+                evaluator_role = EvaluatorRole(evaluator_data.role.lower())
             except ValueError as e:
                 logger.error(f"Invalid evaluator role: {evaluator_data.role}. Error: {e}")
                 raise HTTPException(
@@ -985,7 +985,7 @@ async def invite_360_evaluators(
             assessment_id=assessment_id,
             evaluator_name=evaluator_data.name,
             evaluator_email=evaluator_data.email,
-            evaluator_role=EvaluatorRole(evaluator_data.role.upper()),
+            evaluator_role=EvaluatorRole(evaluator_data.role.lower()),
             invitation_token=invitation_token,
             status=AssessmentStatus.NOT_STARTED
         )
