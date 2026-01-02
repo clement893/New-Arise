@@ -22,15 +22,16 @@ function extractErrorMessage(error: unknown, defaultMessage: string): string {
     // Handle array of validation errors (FastAPI format: [{type, loc, msg, input, ctx}])
     if (Array.isArray(data.detail)) {
       return data.detail
-        .map((err: any) => {
+        .map((err: unknown) => {
           if (typeof err === 'string') return err;
           if (err && typeof err === 'object') {
-            if (typeof err.msg === 'string') {
+            const errObj = err as Record<string, unknown>;
+            if (typeof errObj.msg === 'string') {
               // Format: "field.path: message" if loc exists, otherwise just message
-              if (Array.isArray(err.loc) && err.loc.length > 0) {
-                return `${err.loc.join('.')}: ${err.msg}`;
+              if (Array.isArray(errObj.loc) && errObj.loc.length > 0) {
+                return `${errObj.loc.join('.')}: ${errObj.msg}`;
               }
-              return err.msg;
+              return errObj.msg;
             }
             // Fallback: stringify the error object
             return JSON.stringify(err);
@@ -129,7 +130,7 @@ export const useTKIStore = create<TKIState>()(
       startAssessment: async () => {
         set({ isLoading: true, error: null });
         try {
-          const assessment = await startAssessment('tki');
+          const assessment = await startAssessment('TKI');
           set({
             assessmentId: assessment.assessment_id,
             isLoading: false,

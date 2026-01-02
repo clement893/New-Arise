@@ -40,7 +40,7 @@ export const useMBTIStore = create<MBTIState>((set, get) => ({
   startMBTIAssessment: async () => {
     try {
       set({ isLoading: true, error: null });
-      const response = await startAssessment('mbti');
+      const response = await startAssessment('MBTI');
       set({
         assessmentId: response.id,
         currentQuestionIndex: 0,
