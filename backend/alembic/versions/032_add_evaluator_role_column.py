@@ -59,9 +59,27 @@ def upgrade():
         enum_name = 'evaluatorrole'
         print("✅ Created evaluatorrole enum type")
     
-    # Add evaluator_role column if missing
-    if 'evaluator_role' not in columns:
+    # Add evaluator_role column - force check and add if missing
+    # Double-check by querying the database directly
+    check_result = conn.execute(sa.text("""
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'assessment_360_evaluators' 
+        AND column_name = 'evaluator_role'
+    """))
+    column_exists_in_db = check_result.fetchone() is not None
+    
+    if 'evaluator_role' not in columns or not column_exists_in_db:
         print("📝 Adding evaluator_role column...")
+        # Drop column if it exists but is broken
+        if column_exists_in_db:
+            print("⚠️  Column exists in inspector but may be broken, attempting to drop and recreate...")
+            try:
+                op.drop_column('assessment_360_evaluators', 'evaluator_role')
+                print("✅ Dropped existing broken column")
+            except Exception as e:
+                print(f"⚠️  Could not drop column (may not exist): {e}")
+        
         # Use uppercase values to match Python model
         # First add as nullable, then update existing rows, then make NOT NULL
         op.add_column(
@@ -72,11 +90,15 @@ def upgrade():
         conn.execute(sa.text("UPDATE assessment_360_evaluators SET evaluator_role = 'PEER'::evaluatorrole WHERE evaluator_role IS NULL"))
         # Make it NOT NULL with default
         op.alter_column('assessment_360_evaluators', 'evaluator_role', nullable=False, server_default=sa.text("'PEER'::evaluatorrole"))
-        # Verify column was added
-        inspector = sa.inspect(conn)
-        updated_columns = {col['name']: col for col in inspector.get_columns('assessment_360_evaluators')}
-        if 'evaluator_role' in updated_columns:
-            print("✅ Added evaluator_role column and verified it exists")
+        # Verify column was added by querying database directly
+        verify_result = conn.execute(sa.text("""
+            SELECT column_name, data_type 
+            FROM information_schema.columns 
+            WHERE table_name = 'assessment_360_evaluators' 
+            AND column_name = 'evaluator_role'
+        """))
+        if verify_result.fetchone():
+            print("✅ Added evaluator_role column and verified it exists in database")
         else:
             print("❌ ERROR: evaluator_role column was not added successfully!")
             raise Exception("Failed to add evaluator_role column")
