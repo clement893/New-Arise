@@ -69,6 +69,27 @@ function AssessmentsContent() {
     loadAssessments();
   }, []);
 
+  // Refresh assessments when page becomes visible (user returns to tab)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        loadAssessments();
+      }
+    };
+
+    const handleFocus = () => {
+      loadAssessments();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
+
   const loadAssessments = async () => {
     try {
       setIsLoading(true);
@@ -76,6 +97,17 @@ function AssessmentsContent() {
       
       // Get assessments from API
       const apiAssessments: ApiAssessment[] = await getMyAssessments();
+      
+      // Debug: Log assessment statuses for troubleshooting
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[Assessments] Loaded assessments:', apiAssessments.map(a => ({
+          type: a.assessment_type,
+          status: a.status,
+          id: a.id,
+          answer_count: a.answer_count,
+          total_questions: a.total_questions
+        })));
+      }
       
       // Create a map of existing assessments by type
       const existingAssessmentsMap = new Map<AssessmentType, ApiAssessment>();
@@ -103,9 +135,11 @@ function AssessmentsContent() {
         
         let status: 'completed' | 'in-progress' | 'locked' | 'available' = 'available';
         if (apiAssessment) {
-          if (apiAssessment.status === 'COMPLETED') {
+          // Normalize status to uppercase for comparison (handle case variations)
+          const normalizedStatus = String(apiAssessment.status).toUpperCase();
+          if (normalizedStatus === 'COMPLETED') {
             status = 'completed';
-          } else if (apiAssessment.status === 'IN_PROGRESS' || apiAssessment.status === 'NOT_STARTED') {
+          } else if (normalizedStatus === 'IN_PROGRESS' || normalizedStatus === 'NOT_STARTED') {
             status = 'in-progress';
           }
         }
