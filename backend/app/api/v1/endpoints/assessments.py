@@ -644,10 +644,8 @@ async def start_360_feedback(
 
             # Create evaluator record
             # Use SQLAlchemy ORM model to ensure schema is detected correctly
+            # Assessment360Evaluator and AssessmentStatus are already imported at the top of the file
             try:
-                from app.models.assessment import Assessment360Evaluator
-                from app.models.assessment import AssessmentStatus
-
                 # Convert enum value to match Python enum (lowercase)
                 # The Python enum uses lowercase, but PostgreSQL uses uppercase
                 # SQLAlchemy will handle the conversion
