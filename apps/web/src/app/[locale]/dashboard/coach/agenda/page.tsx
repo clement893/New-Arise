@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { PageHeader } from '@/components/layout';
 import { Card, Container, Button, Grid } from '@/components/ui';
 import { 
@@ -86,11 +87,16 @@ const mockSessions: Session[] = [
 ];
 
 export default function AgendaPage() {
+  const router = useRouter();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<'month' | 'week' | 'day'>('month');
   const [selectedCoachee, setSelectedCoachee] = useState<number | 'all'>('all');
   const [sessions] = useState<Session[]>(mockSessions);
-  const [, setShowAddModal] = useState(false);
+
+  const handleNewSession = () => {
+    // Redirect to coaching booking page
+    router.push('/dashboard/coaching-options/book');
+  };
 
   // Get sessions for current date range
   const getSessionsForDate = (date: Date): Session[] => {
@@ -407,7 +413,7 @@ export default function AgendaPage() {
                 <Button
                   variant="primary"
                   className="w-full flex items-center justify-center gap-2"
-                  onClick={() => setShowAddModal(true)}
+                  onClick={handleNewSession}
                 >
                   <Plus size={20} />
                   Nouvelle session
