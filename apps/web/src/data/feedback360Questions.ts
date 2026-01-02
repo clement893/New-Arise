@@ -24,31 +24,37 @@ export const feedback360Capabilities = [
     id: 'change_management' as Feedback360Capability,
     title: 'Change Management',
     icon: '🔄',
+    description: 'Ability to adapt to and drive organizational changes effectively.',
   },
   {
     id: 'communication' as Feedback360Capability,
     title: 'Communication',
     icon: '💬',
+    description: 'Effectiveness in conveying ideas and understanding others.',
   },
   {
     id: 'leadership_style' as Feedback360Capability,
     title: 'Leadership Style',
     icon: '👔',
+    description: 'Approach to inspiring, motivating, and guiding others.',
   },
   {
     id: 'problem_solving_and_decision_making' as Feedback360Capability,
     title: 'Problem Solving and Decision Making',
     icon: '🧩',
+    description: 'Ability to analyze situations and make effective decisions.',
   },
   {
     id: 'stress_management' as Feedback360Capability,
     title: 'Stress Management',
     icon: '🧘',
+    description: 'Capacity to handle pressure and maintain composure.',
   },
   {
     id: 'team_culture' as Feedback360Capability,
     title: 'Team Culture',
     icon: '👥',
+    description: 'Contribution to building positive and collaborative team environments.',
   },
 ];
 
