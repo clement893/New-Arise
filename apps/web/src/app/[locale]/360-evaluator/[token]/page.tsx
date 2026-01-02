@@ -256,7 +256,7 @@ export default function Evaluator360Page() {
           </div>
 
           {/* Question */}
-          <h2 className="mb-8 text-2xl font-semibold text-gray-900">{question.text}</h2>
+          <h2 className="mb-8 text-2xl font-semibold text-gray-900">{question.question}</h2>
 
           {/* Scale */}
           <div className="mb-8 space-y-3">
