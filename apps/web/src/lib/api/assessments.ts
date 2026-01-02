@@ -18,8 +18,8 @@ const getAuthHeaders = () => {
   return {};
 };
 
-export type AssessmentType = 'WELLNESS' | 'TKI' | 'THREE_SIXTY_SELF' | 'MBTI';
-export type AssessmentStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+export type AssessmentType = 'wellness' | 'tki' | '360_self' | 'mbti';
+export type AssessmentStatus = 'not_started' | 'in_progress' | 'completed';
 
 export interface StartAssessmentResponse {
   assessment_id: number;
@@ -85,22 +85,44 @@ export const startAssessment = async (assessmentType: AssessmentType): Promise<S
 };
 
 /**
- * Save an answer to an assessment question
+ * Save a response to an assessment question (NEW FORMAT)
+ * @param assessmentId - ID of the assessment
+ * @param questionId - ID of the question (e.g., "q1", "q2")
+ * @param responseData - Response data object (format depends on assessment type)
+ */
+export const saveResponse = async (
+  assessmentId: number,
+  questionId: string,
+  responseData: Record<string, any>
+): Promise<void> => {
+  await axios.post(
+    `${API_BASE_URL}/api/v1/assessments/${assessmentId}/responses`,
+    {
+      question_id: questionId,
+      response_data: responseData,
+    },
+    { headers: getAuthHeaders() }
+  );
+};
+
+/**
+ * Save an answer to an assessment question (LEGACY - kept for backward compatibility)
+ * @deprecated Use saveResponse() instead
  */
 export const saveAnswer = async (
   assessmentId: number,
   questionId: string,
   answerValue: string
 ): Promise<AssessmentAnswer> => {
-  const response = await axios.post(
-    `${API_BASE_URL}/api/v1/assessments/${assessmentId}/answer`,
-    {
-      question_id: questionId,
-      answer_value: answerValue,
-    },
-    { headers: getAuthHeaders() }
-  );
-  return response.data;
+  // Use new endpoint with legacy format
+  await saveResponse(assessmentId, questionId, { value: answerValue });
+  return {
+    id: 0,
+    assessment_id: assessmentId,
+    question_id: questionId,
+    answer_value: answerValue,
+    created_at: new Date().toISOString(),
+  };
 };
 
 /**
@@ -151,6 +173,7 @@ export const getAssessment = async (assessmentId: number): Promise<Assessment> =
 export const assessmentsApi = {
   start: startAssessment,
   saveAnswer,
+  saveResponse,  // NEW
   submit: submitAssessment,
   getResults: getAssessmentResults,
   getMyAssessments,

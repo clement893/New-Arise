@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { startAssessment, saveAnswer, submitAssessment } from '@/lib/api/assessments';
+import { startAssessment, saveAnswer, submitAssessment, saveResponse } from '@/lib/api/assessments';
 import axios from 'axios';
 
 // Helper function to extract error message from various error formats
@@ -127,7 +127,7 @@ export const useTKIStore = create<TKIState>()(
       startAssessment: async () => {
         set({ isLoading: true, error: null });
         try {
-          const assessment = await startAssessment('TKI');
+          const assessment = await startAssessment('tki');
           set({ 
             assessmentId: assessment.assessment_id,
             isLoading: false,
@@ -150,7 +150,8 @@ export const useTKIStore = create<TKIState>()(
 
         set({ isLoading: true, error: null });
         try {
-          await saveAnswer(assessmentId, questionId, answer);
+          // Save with new format: selected_mode
+          await saveResponse(assessmentId, questionId, { selected_mode: answer });
           set(state => ({
             answers: { ...state.answers, [questionId]: answer },
             isLoading: false,

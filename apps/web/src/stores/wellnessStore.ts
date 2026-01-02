@@ -60,7 +60,7 @@ export const useWellnessStore = create<WellnessState>()(
       startAssessment: async () => {
         set({ isLoading: true, error: null });
         try {
-          const assessment = await assessmentsApi.start('WELLNESS');
+          const assessment = await assessmentsApi.start('wellness');
           set({
             assessmentId: assessment.assessment_id,
             currentStep: 'questions',
@@ -116,7 +116,10 @@ export const useWellnessStore = create<WellnessState>()(
         // Save to backend if assessment is started
         if (assessmentId) {
           try {
-            await assessmentsApi.saveAnswer(assessmentId, questionId, value.toString());
+            // Save with new format: pillar and score
+            // Extract pillar from questionId (format: "pillar_questionNumber")
+            const pillar = questionId.split('_')[0];
+            await assessmentsApi.saveResponse(assessmentId, questionId, { pillar, score: value });
           } catch (error: unknown) {
             console.error('Failed to save answer:', error);
             const errorMessage = axios.isAxiosError(error) && error.response?.data?.message

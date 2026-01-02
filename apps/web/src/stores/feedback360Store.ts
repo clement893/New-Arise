@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { startAssessment, saveAnswer, submitAssessment } from '@/lib/api/assessments';
+import { startAssessment, saveAnswer, submitAssessment, saveResponse } from '@/lib/api/assessments';
 import axios from 'axios';
 
 interface Feedback360State {
@@ -36,7 +36,7 @@ export const useFeedback360Store = create<Feedback360State>()(
       startAssessment: async () => {
         set({ isLoading: true, error: null });
         try {
-          const response = await startAssessment('THREE_SIXTY_SELF');
+          const response = await startAssessment('360_self');
           set({
             assessmentId: response.assessment_id,
             currentQuestion: 0,
@@ -74,7 +74,10 @@ export const useFeedback360Store = create<Feedback360State>()(
 
         // Save to backend
         try {
-          await saveAnswer(assessmentId, questionId, value.toString());
+          // Save with new format: capability and score
+          // Extract capability from questionId (format: "capability_questionNumber")
+          const capability = questionId.split('_')[0];
+          await saveResponse(assessmentId, questionId, { capability, score: value });
         } catch (error: unknown) {
           console.error('Failed to save answer:', error);
           // Don't throw - allow user to continue even if save fails
