@@ -643,7 +643,11 @@ export default function AdminAssessmentManagementPage() {
                 </label>
                 <Input
                   value={editingQuestion?.pillar || ''}
-                  onChange={(e) => setEditingQuestion({ ...editingQuestion, pillar: e.target.value })}
+                  onChange={(e) => {
+                    if (editingQuestion) {
+                      setEditingQuestion({ ...editingQuestion, pillar: e.target.value });
+                    }
+                  }}
                   placeholder="ex: Movement"
                 />
               </div>
