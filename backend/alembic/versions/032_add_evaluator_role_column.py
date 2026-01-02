@@ -60,8 +60,8 @@ def upgrade():
         print("✅ Created evaluatorrole enum type")
     
     # Add evaluator_role column - force check and add if missing
-    # Double-check by querying the database directly using op.execute for proper transaction handling
-    check_result = op.execute(sa.text("""
+    # Double-check by querying the database directly using conn.execute for SELECT queries
+    check_result = conn.execute(sa.text("""
         SELECT column_name 
         FROM information_schema.columns 
         WHERE table_name = 'assessment_360_evaluators' 
@@ -82,14 +82,27 @@ def upgrade():
         
         # Use raw SQL to ensure the column is added correctly
         # This bypasses any potential SQLAlchemy schema cache issues
-        op.execute(sa.text("""
+        # First add as nullable, then update existing rows, then make NOT NULL
+        conn.execute(sa.text("""
             ALTER TABLE assessment_360_evaluators 
-            ADD COLUMN IF NOT EXISTS evaluator_role evaluatorrole NOT NULL DEFAULT 'PEER'::evaluatorrole
+            ADD COLUMN IF NOT EXISTS evaluator_role evaluatorrole
+        """))
+        # Update existing rows with default value
+        conn.execute(sa.text("""
+            UPDATE assessment_360_evaluators 
+            SET evaluator_role = 'PEER'::evaluatorrole 
+            WHERE evaluator_role IS NULL
+        """))
+        # Make it NOT NULL with default
+        conn.execute(sa.text("""
+            ALTER TABLE assessment_360_evaluators 
+            ALTER COLUMN evaluator_role SET NOT NULL,
+            ALTER COLUMN evaluator_role SET DEFAULT 'PEER'::evaluatorrole
         """))
         print("✅ Added evaluator_role column using raw SQL")
         
         # Verify column was added by querying database directly
-        verify_result = op.execute(sa.text("""
+        verify_result = conn.execute(sa.text("""
             SELECT column_name, data_type, udt_name
             FROM information_schema.columns 
             WHERE table_name = 'assessment_360_evaluators' 
