@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field, EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, UniqueConstraint
 from sqlalchemy.orm import selectinload
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from datetime import datetime, timezone
 
 from app.core.database import get_db
@@ -672,7 +672,7 @@ async def start_360_feedback(
                     evaluator_row = insert_result.first()
                     evaluator_id = evaluator_row[0] if evaluator_row else None
                     logger.info(f"✅ Successfully inserted evaluator {evaluator_data.email} (ID: {evaluator_id}) to database for assessment {self_assessment.id}")
-                except Exception as insert_error:
+                except (SQLAlchemyError, IntegrityError) as insert_error:
                     error_type = type(insert_error).__name__
                     error_message = str(insert_error)
                     import traceback
@@ -695,13 +695,36 @@ async def start_360_feedback(
                         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                         detail=f"Failed to insert evaluator record: {error_type}: {error_message}"
                     )
+                except Exception as insert_error:
+                    error_type = type(insert_error).__name__
+                    error_message = str(insert_error)
+                    import traceback
+                    error_traceback = traceback.format_exc()
+                    logger.error(
+                        f"❌ UNEXPECTED ERROR during INSERT for evaluator {evaluator_data.email}: {error_type}: {error_message}",
+                        exc_info=True,
+                        extra={
+                            "user_id": current_user.id,
+                            "assessment_id": self_assessment.id,
+                            "evaluator_email": evaluator_data.email,
+                            "error_type": error_type,
+                            "error_message": error_message,
+                            "traceback": error_traceback
+                        }
+                    )
+                    logger.error(f"   Full UNEXPECTED INSERT error traceback:\n{error_traceback}")
+                    await db.rollback()
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail=f"Failed to insert evaluator record: {error_type}: {error_message}"
+                    )
                 
                 # Commit immediately after each insert to avoid transaction issues
                 try:
                     logger.info(f"🔵 Attempting to commit evaluator {evaluator_data.email} (ID: {evaluator_id})")
                     await db.commit()
                     logger.info(f"✅ Committed evaluator {evaluator_data.email} (ID: {evaluator_id}) to database")
-                except Exception as commit_error:
+                except (SQLAlchemyError, IntegrityError) as commit_error:
                     error_type = type(commit_error).__name__
                     error_message = str(commit_error)
                     import traceback
@@ -720,6 +743,30 @@ async def start_360_feedback(
                         }
                     )
                     logger.error(f"   Full COMMIT error traceback:\n{error_traceback}")
+                    await db.rollback()
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail=f"Failed to save evaluator to database: {error_type}: {error_message}"
+                    )
+                except Exception as commit_error:
+                    error_type = type(commit_error).__name__
+                    error_message = str(commit_error)
+                    import traceback
+                    error_traceback = traceback.format_exc()
+                    logger.error(
+                        f"❌ UNEXPECTED ERROR committing evaluator {evaluator_data.email}: {error_type}: {error_message}",
+                        exc_info=True,
+                        extra={
+                            "user_id": current_user.id,
+                            "assessment_id": self_assessment.id,
+                            "evaluator_email": evaluator_data.email,
+                            "evaluator_id": evaluator_id,
+                            "error_type": error_type,
+                            "error_message": error_message,
+                            "traceback": error_traceback
+                        }
+                    )
+                    logger.error(f"   Full UNEXPECTED COMMIT error traceback:\n{error_traceback}")
                     await db.rollback()
                     raise HTTPException(
                         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
