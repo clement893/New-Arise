@@ -1,277 +1,230 @@
 /**
- * 360° Feedback Questions
+ * 360° Feedback Questions - FROM EXCEL
  * 30 questions across 6 leadership capabilities
- * Scale: 1-5 (Never to Always)
+ * Each question is rated on a scale of 1-5
  */
 
 export type Feedback360Capability = 
-  | 'communication'
-  | 'team_culture'
-  | 'leadership_style'
   | 'change_management'
-  | 'problem_solving'
-  | 'stress_management';
+  | 'communication'
+  | 'leadership_style'
+  | 'problem_solving_and_decision_making'
+  | 'stress_management'
+  | 'team_culture';
 
 export interface Feedback360Question {
   id: string;
   number: number;
   capability: Feedback360Capability;
-  text: string;
+  question: string;
 }
-
-export const feedback360Scale = [
-  { value: 1, label: 'Never' },
-  { value: 2, label: 'Rarely' },
-  { value: 3, label: 'Sometimes' },
-  { value: 4, label: 'Often' },
-  { value: 5, label: 'Almost always or Always' },
-];
 
 export const feedback360Capabilities = [
   {
-    id: 'communication' as Feedback360Capability,
-    title: 'Communication',
-    description: 'Clear, adaptive, and collaborative communication',
-    icon: '💬',
-    color: 'bg-blue-500',
+    id: 'change_management' as Feedback360Capability,
+    title: 'Change Management',
   },
   {
-    id: 'team_culture' as Feedback360Capability,
-    title: 'Team Culture',
-    description: 'Building trust, respect, and inclusivity',
-    icon: '🤝',
-    color: 'bg-green-500',
+    id: 'communication' as Feedback360Capability,
+    title: 'Communication',
   },
   {
     id: 'leadership_style' as Feedback360Capability,
     title: 'Leadership Style',
-    description: 'Inspiring, empowering, and adaptive leadership',
-    icon: '👑',
-    color: 'bg-purple-500',
   },
   {
-    id: 'change_management' as Feedback360Capability,
-    title: 'Change Management',
-    description: 'Embracing and driving organizational change',
-    icon: '🔄',
-    color: 'bg-orange-500',
-  },
-  {
-    id: 'problem_solving' as Feedback360Capability,
+    id: 'problem_solving_and_decision_making' as Feedback360Capability,
     title: 'Problem Solving and Decision Making',
-    description: 'Analytical, collaborative, and effective solutions',
-    icon: '🧩',
-    color: 'bg-red-500',
   },
   {
     id: 'stress_management' as Feedback360Capability,
     title: 'Stress Management',
-    description: 'Resilience, composure, and well-being',
-    icon: '🧘',
-    color: 'bg-teal-500',
+  },
+  {
+    id: 'team_culture' as Feedback360Capability,
+    title: 'Team Culture',
   },
 ];
 
 export const feedback360Questions: Feedback360Question[] = [
-  // Communication (5 questions)
   {
-    id: '360_q1',
+    id: '360_1',
     number: 1,
     capability: 'communication',
-    text: 'I communicate my ideas and expectations clearly and in a way that is easy to understand.',
+    question: 'I communicate my ideas and expectations clearly and in a way that is easy to understand.',
   },
   {
-    id: '360_q2',
+    id: '360_2',
     number: 2,
     capability: 'communication',
-    text: 'I listen attentively and demonstrate understanding of others\' perspectives before responding.',
+    question: 'I listen attentively and demonstrate understanding of others’ perspectives before responding',
   },
   {
-    id: '360_q3',
+    id: '360_3',
     number: 3,
     capability: 'communication',
-    text: 'I adapt my communication style to different audiences and situations.',
+    question: 'I adapt my communication style to different audiences and situations.',
   },
   {
-    id: '360_q4',
+    id: '360_4',
     number: 4,
     capability: 'communication',
-    text: 'I provide feedback that is respectful, actionable, and supportive of growth.',
+    question: 'I provide feedback that is respectful, actionable, and supportive of growth',
   },
   {
-    id: '360_q5',
+    id: '360_5',
     number: 5,
     capability: 'communication',
-    text: 'My communication fosters collaboration, engagement and alignment within the team.',
+    question: 'My communication fosters collaboration, engagement and alignment within the team.',
   },
-
-  // Team Culture (5 questions)
   {
-    id: '360_q6',
+    id: '360_6',
     number: 6,
     capability: 'team_culture',
-    text: 'I promote teamwork and support colleagues to achieve shared goals.',
+    question: 'I promote teamwork and support colleagues to achieve shared goals',
   },
   {
-    id: '360_q7',
+    id: '360_7',
     number: 7,
     capability: 'team_culture',
-    text: 'I treat team members with respect and encourage an inclusive environment where everyone feels valued.',
+    question: 'I treat team members with respect and encourage an inclusive environment where everyone feels valued.',
   },
   {
-    id: '360_q8',
+    id: '360_8',
     number: 8,
     capability: 'team_culture',
-    text: 'I build trust within the team by being reliable, transparent and accountable.',
+    question: 'I build trust within the team by being reliable, transparent and accountable',
   },
   {
-    id: '360_q9',
+    id: '360_9',
     number: 9,
     capability: 'team_culture',
-    text: 'I address and resolve conflicts in a constructive and respectful way.',
+    question: 'I address and resolve conflicts in a constructive and respectful way',
   },
   {
-    id: '360_q10',
+    id: '360_10',
     number: 10,
     capability: 'team_culture',
-    text: 'I actively contribute to building a positive, motivating and collaborative team culture.',
+    question: 'I actively contribute to building a positive, motivating and collaborative team culture.',
   },
-
-  // Leadership Style (5 questions)
   {
-    id: '360_q11',
+    id: '360_11',
     number: 11,
     capability: 'leadership_style',
-    text: 'I inspire and motivate others towards a shared vision.',
+    question: 'I inspire and motivate others towards a shared vision',
   },
   {
-    id: '360_q12',
+    id: '360_12',
     number: 12,
     capability: 'leadership_style',
-    text: 'I demonstrate fairness, integrity and consistency in my leadership.',
+    question: 'I demonstrate fairness, integrity and consistency in my leadership.',
   },
   {
-    id: '360_q13',
+    id: '360_13',
     number: 13,
     capability: 'leadership_style',
-    text: 'I empower others to take ownership and make decisions.',
+    question: 'I empower others to take ownership and make decisions.',
   },
   {
-    id: '360_q14',
+    id: '360_14',
     number: 14,
     capability: 'leadership_style',
-    text: 'I adapt my leadership style to different situations and individuals.',
+    question: 'I adapt my leadership style to different situations and individuals.',
   },
   {
-    id: '360_q15',
+    id: '360_15',
     number: 15,
     capability: 'leadership_style',
-    text: 'I provide clear direction while also encouraging autonomy.',
+    question: 'I provide clear direction while also encouraging autonomy.',
   },
-
-  // Change Management (5 questions)
   {
-    id: '360_q16',
+    id: '360_16',
     number: 16,
     capability: 'change_management',
-    text: 'I embrace and adapt effectively to organizational changes.',
+    question: 'I embrace and adapt effectively to organizational changes.',
   },
   {
-    id: '360_q17',
+    id: '360_17',
     number: 17,
     capability: 'change_management',
-    text: 'I help others understand and navigate change confidently.',
+    question: 'I help others understand and navigate change confidently.',
   },
   {
-    id: '360_q18',
+    id: '360_18',
     number: 18,
     capability: 'change_management',
-    text: 'I maintain a positive and flexible attitude during transitions.',
+    question: 'I maintain a positive and flexible attitude during transitions.',
   },
   {
-    id: '360_q19',
+    id: '360_19',
     number: 19,
     capability: 'change_management',
-    text: 'I support the team effectively during challenges linked to change.',
+    question: 'I support the team effectively during challenges linked to change.',
   },
   {
-    id: '360_q20',
+    id: '360_20',
     number: 20,
     capability: 'change_management',
-    text: 'I actively contribute to driving and sustaining change initiatives.',
+    question: 'I actively contribute to driving and sustaining change initiatives.',
   },
-
-  // Problem Solving and Decision Making (5 questions)
   {
-    id: '360_q21',
+    id: '360_21',
     number: 21,
-    capability: 'problem_solving',
-    text: 'I analyze problems effectively and identify appropriate solutions.',
+    capability: 'problem_solving_and_decision_making',
+    question: 'I analyze problems effectively and identify appropriate solutions.',
   },
   {
-    id: '360_q22',
+    id: '360_22',
     number: 22,
-    capability: 'problem_solving',
-    text: 'I consider diverse perspectives when solving problems.',
+    capability: 'problem_solving_and_decision_making',
+    question: 'I consider diverse perspectives when solving problems.',
   },
   {
-    id: '360_q23',
+    id: '360_23',
     number: 23,
-    capability: 'problem_solving',
-    text: 'I manage disagreements constructively and seek mutually beneficial solutions.',
+    capability: 'problem_solving_and_decision_making',
+    question: 'I manage disagreements constructively and seek mutually beneficial solutions.',
   },
   {
-    id: '360_q24',
+    id: '360_24',
     number: 24,
-    capability: 'problem_solving',
-    text: 'I remain calm and constructive under pressure.',
+    capability: 'problem_solving_and_decision_making',
+    question: 'I remains calm and constructive under pressure.',
   },
   {
-    id: '360_q25',
+    id: '360_25',
     number: 25,
-    capability: 'problem_solving',
-    text: 'I follow through on problem-solving actions to ensure effective outcomes.',
+    capability: 'problem_solving_and_decision_making',
+    question: 'I follow through on problem-solving actions to ensure effective outcomes.',
   },
-
-  // Stress Management (5 questions)
   {
-    id: '360_q26',
+    id: '360_26',
     number: 26,
     capability: 'stress_management',
-    text: 'I manage stress without negatively affecting performance or team dynamics.',
+    question: 'I manage stress without negatively affecting performance or team dynamics.',
   },
   {
-    id: '360_q27',
+    id: '360_27',
     number: 27,
     capability: 'stress_management',
-    text: 'I demonstrate resilience and composure under pressure.',
+    question: 'I demonstrate resilience and composure under pressure.',
   },
   {
-    id: '360_q28',
+    id: '360_28',
     number: 28,
     capability: 'stress_management',
-    text: 'I use healthy coping strategies to handle stress effectively.',
+    question: 'I use healthy coping strategies to handle stress effectively.',
   },
   {
-    id: '360_q29',
+    id: '360_29',
     number: 29,
     capability: 'stress_management',
-    text: 'I support colleagues in managing stress and maintaining well-being.',
+    question: 'I support colleagues in managing stress and maintaining well-being.',
   },
   {
-    id: '360_q30',
+    id: '360_30',
     number: 30,
     capability: 'stress_management',
-    text: 'I balance workload and prioritize effectively to prevent unnecessary stress.',
+    question: 'I balance workload and prioritize effectively to prevent unnecessary stress.',
   },
 ];
-
-// Helper function to get questions by capability
-export const getQuestionsByCapability = (capability: Feedback360Capability) => {
-  return feedback360Questions.filter(q => q.capability === capability);
-};
-
-// Helper function to get capability info
-export const getCapabilityInfo = (capability: Feedback360Capability) => {
-  return feedback360Capabilities.find(c => c.id === capability);
-};

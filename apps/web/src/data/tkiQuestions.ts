@@ -1,5 +1,5 @@
 /**
- * TKI Conflict Style Questions
+ * TKI Conflict Style Questions - CORRECTED FROM EXCEL
  * 30 questions with binary choices (A vs B)
  * Each choice corresponds to one of 5 conflict management modes
  */
@@ -15,75 +15,37 @@ export interface TKIQuestion {
   modeB: TKIMode;
 }
 
-export const tkiModes = [
-  {
-    id: 'competing' as TKIMode,
-    title: 'Competing',
-    shortCode: 'CO',
-    description: 'Assertive and uncooperative - pursuing your own concerns at the other person\'s expense',
-    icon: '⚔️',
-  },
-  {
-    id: 'collaborating' as TKIMode,
-    title: 'Collaborating',
-    shortCode: 'CL',
-    description: 'Assertive and cooperative - working with others to find solutions that fully satisfy both parties',
-    icon: '🤝',
-  },
-  {
-    id: 'compromising' as TKIMode,
-    title: 'Compromising',
-    shortCode: 'CM',
-    description: 'Moderate in both assertiveness and cooperativeness - finding mutually acceptable solutions',
-    icon: '⚖️',
-  },
-  {
-    id: 'avoiding' as TKIMode,
-    title: 'Avoiding',
-    shortCode: 'AV',
-    description: 'Unassertive and uncooperative - not immediately pursuing your own concerns or those of others',
-    icon: '🚪',
-  },
-  {
-    id: 'accommodating' as TKIMode,
-    title: 'Accommodating',
-    shortCode: 'AC',
-    description: 'Unassertive and cooperative - neglecting your own concerns to satisfy the concerns of others',
-    icon: '🤲',
-  },
-];
-
 export const tkiQuestions: TKIQuestion[] = [
   {
     id: 'tki_1',
     number: 1,
-    optionA: 'There are times when I let others take responsibility for solving the problem.',
-    optionB: 'Rather than negotiate the things on which we disagree, I try to stress those things upon which we both agree.',
-    modeA: 'avoiding',
-    modeB: 'accommodating',
+    optionA: 'I press to get my points across',
+    optionB: 'I try to investigate an issue to find a mutually acceptable solution.',
+    modeA: 'competing',
+    modeB: 'collaborating',
   },
   {
     id: 'tki_2',
     number: 2,
-    optionA: 'I try to find a compromise solution.',
-    optionB: 'I attempt to deal with all of his or her and my concerns.',
-    modeA: 'compromising',
-    modeB: 'collaborating',
+    optionA: 'I generally pursue my goals firmly.',
+    optionB: 'I try to postpone the issue until I can properly reflect about it',
+    modeA: 'competing',
+    modeB: 'avoiding',
   },
   {
     id: 'tki_3',
     number: 3,
-    optionA: 'I am usually firm in pursuing my goals.',
-    optionB: 'I might try to soothe the other\'s feelings and preserve our relationship.',
-    modeA: 'competing',
-    modeB: 'accommodating',
+    optionA: 'I attempt to postpone the issue until I\'ve had some time to think it over.',
+    optionB: 'I give up some points in exchange for others.',
+    modeA: 'avoiding',
+    modeB: 'compromising',
   },
   {
     id: 'tki_4',
     number: 4,
-    optionA: 'I try to find a compromise solution.',
-    optionB: 'I sometimes sacrifice my own wishes for the wishes of the other person.',
-    modeA: 'compromising',
+    optionA: 'I try to win my position.',
+    optionB: 'I might try to soothe the other\'s feelings and preserve our relationship.',
+    modeA: 'competing',
     modeB: 'accommodating',
   },
   {
@@ -97,33 +59,33 @@ export const tkiQuestions: TKIQuestion[] = [
   {
     id: 'tki_6',
     number: 6,
-    optionA: 'I try to avoid creating unpleasantness for myself.',
-    optionB: 'I try to win my position.',
-    modeA: 'avoiding',
-    modeB: 'competing',
+    optionA: 'I am firm in pursuing my goals.',
+    optionB: 'I try to find a compromise solution.',
+    modeA: 'competing',
+    modeB: 'compromising',
   },
   {
     id: 'tki_7',
     number: 7,
-    optionA: 'I try to postpone the issue until I have had some time to think it over.',
-    optionB: 'I give up some points in exchange for others.',
-    modeA: 'avoiding',
-    modeB: 'compromising',
+    optionA: 'I try to find a middle ground.',
+    optionB: 'I attempt to get all concerns and issues immediately out in the open.',
+    modeA: 'compromising',
+    modeB: 'collaborating',
   },
   {
     id: 'tki_8',
     number: 8,
-    optionA: 'I am usually firm in pursuing my goals.',
-    optionB: 'I attempt to get all concerns and issues immediately out in the open.',
-    modeA: 'competing',
-    modeB: 'collaborating',
+    optionA: 'I sometimes avoid taking positions that would create controversy.',
+    optionB: 'I will let the other person have some of his/her positions if he/she lets me have some of mine.',
+    modeA: 'avoiding',
+    modeB: 'compromising',
   },
   {
     id: 'tki_9',
     number: 9,
-    optionA: 'I feel that differences are not always worth worrying about.',
-    optionB: 'I make some effort to get my way.',
-    modeA: 'avoiding',
+    optionA: 'I suggest a middle ground.',
+    optionB: 'I press to get my points made.',
+    modeA: 'compromising',
     modeB: 'competing',
   },
   {
@@ -146,7 +108,7 @@ export const tkiQuestions: TKIQuestion[] = [
     id: 'tki_12',
     number: 12,
     optionA: 'I try to win my position.',
-    optionB: 'Rather than negotiate on things we both disagree, I rather stress those things upon which we both agree.',
+    optionB: 'Rather negotiate on things we both disagree, I rather stress those things on upon which we both agree',
     modeA: 'competing',
     modeB: 'accommodating',
   },
@@ -202,7 +164,7 @@ export const tkiQuestions: TKIQuestion[] = [
     id: 'tki_19',
     number: 19,
     optionA: 'I propose a middle ground.',
-    optionB: 'I am frequently concerned in satisfying all wishes.',
+    optionB: 'I am frequently concerned in satistying all wishes',
     modeA: 'compromising',
     modeB: 'collaborating',
   },
@@ -258,7 +220,7 @@ export const tkiQuestions: TKIQuestion[] = [
     id: 'tki_26',
     number: 26,
     optionA: 'I try to find a middle ground.',
-    optionB: 'I try to get the other person to settle for a compromise.',
+    optionB: 'I try to get the other person to settle for a compromise',
     modeA: 'compromising',
     modeB: 'competing',
   },
