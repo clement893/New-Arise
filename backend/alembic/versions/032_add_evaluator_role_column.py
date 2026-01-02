@@ -1,4 +1,4 @@
-"""add evaluator_role column to assessment_360_evaluators
+"""add missing columns to assessment_360_evaluators
 
 Revision ID: 032
 Revises: 031
@@ -17,7 +17,7 @@ depends_on = None
 
 
 def upgrade():
-    """Add evaluator_role column to assessment_360_evaluators if it doesn't exist"""
+    """Add missing columns to assessment_360_evaluators if they don't exist"""
     conn = op.get_bind()
     inspector = sa.inspect(conn)
     
@@ -27,30 +27,94 @@ def upgrade():
         print("⚠️  assessment_360_evaluators table does not exist, skipping column addition")
         return
     
-    # Check if column already exists
-    columns = [col['name'] for col in inspector.get_columns('assessment_360_evaluators')]
+    # Get existing columns
+    columns = {col['name']: col for col in inspector.get_columns('assessment_360_evaluators')}
+    print(f"📋 Existing columns in assessment_360_evaluators: {list(columns.keys())}")
     
-    if 'evaluator_role' not in columns:
-        print("📝 Adding evaluator_role column to assessment_360_evaluators table...")
-        
-        # First, create the enum type if it doesn't exist
+    # Check and create enum type with correct values (uppercase to match Python model)
+    # First check what enum values exist
+    enum_result = conn.execute(sa.text("""
+        SELECT t.typname, e.enumlabel 
+        FROM pg_type t 
+        JOIN pg_enum e ON t.oid = e.enumtypid 
+        WHERE t.typname = 'evaluatorrole'
+        ORDER BY e.enumsortorder;
+    """))
+    existing_enum_values = [row[1] for row in enum_result.fetchall()]
+    
+    if existing_enum_values:
+        print(f"📋 Existing evaluatorrole enum values: {existing_enum_values}")
+        # Use existing enum if it exists
+        enum_name = 'evaluatorrole'
+    else:
+        print("📝 Creating evaluatorrole enum type...")
+        # Create enum with uppercase values to match Python model
         conn.execute(sa.text("""
             DO $$ BEGIN
-                CREATE TYPE evaluatorrole AS ENUM ('peer', 'manager', 'direct_report', 'stakeholder');
+                CREATE TYPE evaluatorrole AS ENUM ('PEER', 'MANAGER', 'DIRECT_REPORT', 'STAKEHOLDER');
             EXCEPTION
                 WHEN duplicate_object THEN null;
             END $$;
         """))
-        
-        # Add the column with a default value
+        enum_name = 'evaluatorrole'
+        print("✅ Created evaluatorrole enum type")
+    
+    # Add evaluator_role column if missing
+    if 'evaluator_role' not in columns:
+        print("📝 Adding evaluator_role column...")
+        # Use uppercase values to match Python model
         op.add_column(
             'assessment_360_evaluators',
-            sa.Column('evaluator_role', sa.Enum('peer', 'manager', 'direct_report', 'stakeholder', name='evaluatorrole'), nullable=False, server_default='peer')
+            sa.Column('evaluator_role', sa.Enum('PEER', 'MANAGER', 'DIRECT_REPORT', 'STAKEHOLDER', name='evaluatorrole'), nullable=False, server_default='PEER')
         )
-        
-        print("✅ Added evaluator_role column to assessment_360_evaluators table")
+        print("✅ Added evaluator_role column")
     else:
-        print("✅ evaluator_role column already exists in assessment_360_evaluators table")
+        print("✅ evaluator_role column already exists")
+    
+    # Add invitation_token column if missing
+    if 'invitation_token' not in columns:
+        print("📝 Adding invitation_token column...")
+        op.add_column(
+            'assessment_360_evaluators',
+            sa.Column('invitation_token', sa.String(length=100), nullable=False, server_default='')
+        )
+        # Add unique constraint
+        op.create_unique_constraint('uq_assessment_360_evaluators_invitation_token', 'assessment_360_evaluators', ['invitation_token'])
+        # Add index
+        op.create_index('idx_360_evaluators_token', 'assessment_360_evaluators', ['invitation_token'])
+        print("✅ Added invitation_token column with unique constraint and index")
+    else:
+        print("✅ invitation_token column already exists")
+    
+    # Add other missing columns that might be needed
+    missing_columns = {
+        'invitation_sent_at': sa.Column('invitation_sent_at', sa.DateTime(timezone=True), nullable=True),
+        'invitation_opened_at': sa.Column('invitation_opened_at', sa.DateTime(timezone=True), nullable=True),
+        'started_at': sa.Column('started_at', sa.DateTime(timezone=True), nullable=True),
+        'completed_at': sa.Column('completed_at', sa.DateTime(timezone=True), nullable=True),
+        'evaluator_assessment_id': sa.Column('evaluator_assessment_id', sa.Integer(), nullable=True),
+    }
+    
+    for col_name, col_def in missing_columns.items():
+        if col_name not in columns:
+            print(f"📝 Adding {col_name} column...")
+            op.add_column('assessment_360_evaluators', col_def)
+            print(f"✅ Added {col_name} column")
+        else:
+            print(f"✅ {col_name} column already exists")
+    
+    # Add foreign key for evaluator_assessment_id if column was just added
+    if 'evaluator_assessment_id' not in columns:
+        print("📝 Adding foreign key constraint for evaluator_assessment_id...")
+        op.create_foreign_key(
+            'fk_assessment_360_evaluators_evaluator_assessment_id',
+            'assessment_360_evaluators',
+            'assessments',
+            ['evaluator_assessment_id'],
+            ['id'],
+            ondelete='SET NULL'
+        )
+        print("✅ Added foreign key constraint")
 
 
 def downgrade():
