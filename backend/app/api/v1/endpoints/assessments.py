@@ -186,6 +186,16 @@ async def start_assessment(
     Start a new assessment or resume an existing one
     Note: For 360° feedback (THREE_SIXTY_SELF), use /360/start endpoint instead
     """
+    from app.core.logging import logger
+    logger.info(
+        f"Received assessment start request: type={request.assessment_type}, user_id={current_user.id}",
+        context={
+            "assessment_type": str(request.assessment_type),
+            "assessment_type_value": request.assessment_type.value if hasattr(request.assessment_type, 'value') else str(request.assessment_type),
+            "user_id": current_user.id
+        }
+    )
+    
     # 360° feedback assessments must use the /360/start endpoint to invite evaluators
     if request.assessment_type == AssessmentType.THREE_SIXTY_SELF:
         raise HTTPException(
