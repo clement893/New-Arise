@@ -188,6 +188,21 @@ export default function EvaluatorAssessmentPage() {
     ? Math.ceil((new Date(assessmentInfo.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
     : 0;
 
+  if (!currentQuestion) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <Card className="max-w-md">
+          <div className="p-6 text-center">
+            <p className="text-red-600 mb-4">Question not found</p>
+            <p className="text-gray-600 text-sm">
+              The requested question could not be found.
+            </p>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto p-8">
