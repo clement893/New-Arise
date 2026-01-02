@@ -1,182 +1,314 @@
 """
-Assessment Model
-SQLAlchemy model for ARISE assessments
+Assessment Models
+
+Modèles de base de données pour le système d'assessments ARISE.
+
+Tables:
+- assessments: Assessments créés par les utilisateurs
+- assessment_responses: Réponses aux questions d'assessment
+- assessment_results: Résultats calculés des assessments
+- evaluators: Évaluateurs pour le 360° Feedback (Phase 3)
 """
 
-from datetime import datetime
-from enum import Enum as PyEnum
-
-from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, JSON, String, Text, func, Index, UniqueConstraint
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum as SQLEnum, JSON, Boolean
 from sqlalchemy.orm import relationship
+from datetime import datetime
+import enum
 
-from app.core.database import Base
-
-
-class AssessmentType(str, PyEnum):
-    """Assessment type enum"""
-    MBTI = "MBTI"
-    TKI = "TKI"
-    WELLNESS = "WELLNESS"
-    THREE_SIXTY_SELF = "THREE_SIXTY_SELF"
-    THREE_SIXTY_EVALUATOR = "THREE_SIXTY_EVALUATOR"
+from app.models.base import Base
 
 
-class AssessmentStatus(str, PyEnum):
-    """Assessment status enum"""
+# ============================================================================
+# ENUMS
+# ============================================================================
+
+class AssessmentType(str, enum.Enum):
+    """Types d'assessments disponibles"""
+    TKI = "TKI"  # Thomas-Kilmann Conflict Mode Instrument
+    WELLNESS = "WELLNESS"  # Wellness Assessment
+    THREE_SIXTY_SELF = "THREE_SIXTY_SELF"  # 360° Feedback (Self-assessment)
+    THREE_SIXTY_EVALUATOR = "THREE_SIXTY_EVALUATOR"  # 360° Feedback (Evaluator)
+    MBTI = "MBTI"  # Myers-Briggs Type Indicator (Phase 3)
+
+
+class AssessmentStatus(str, enum.Enum):
+    """Statuts possibles d'un assessment"""
     NOT_STARTED = "NOT_STARTED"
     IN_PROGRESS = "IN_PROGRESS"
     COMPLETED = "COMPLETED"
+    ARCHIVED = "ARCHIVED"
 
 
-class EvaluatorRole(str, PyEnum):
-    """360 Evaluator role enum"""
-    PEER = "PEER"
+class EvaluatorRole(str, enum.Enum):
+    """Rôles des évaluateurs pour le 360° (Phase 3)"""
     MANAGER = "MANAGER"
+    PEER = "PEER"
     DIRECT_REPORT = "DIRECT_REPORT"
-    STAKEHOLDER = "STAKEHOLDER"
+    OTHER = "OTHER"
 
+
+class EvaluatorStatus(str, enum.Enum):
+    """Statuts des évaluateurs (Phase 3)"""
+    PENDING = "PENDING"
+    COMPLETED = "COMPLETED"
+    EXPIRED = "EXPIRED"
+
+
+# ============================================================================
+# MODELS
+# ============================================================================
 
 class Assessment(Base):
-    """Assessment model"""
+    """
+    Modèle pour les assessments.
+    
+    Un assessment représente une instance d'évaluation pour un utilisateur.
+    Chaque assessment a un type (TKI, Wellness, 360°, MBTI) et un statut.
+    """
     __tablename__ = "assessments"
-    __table_args__ = (
-        Index("idx_assessments_user_id", "user_id"),
-        Index("idx_assessments_type", "assessment_type"),
-        Index("idx_assessments_status", "status"),
-        Index("idx_assessments_user_type", "user_id", "assessment_type"),
-    )
-
+    
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    assessment_type = Column(Enum(AssessmentType), nullable=False)
-    status = Column(Enum(AssessmentStatus), default=AssessmentStatus.NOT_STARTED, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    type = Column(SQLEnum(AssessmentType), nullable=False, index=True)
+    status = Column(SQLEnum(AssessmentStatus), default=AssessmentStatus.NOT_STARTED, nullable=False)
     
-    # Timestamps
-    started_at = Column(DateTime(timezone=True), nullable=True)
-    completed_at = Column(DateTime(timezone=True), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+    # Métadonnées
+    started_at = Column(DateTime, nullable=True)
+    completed_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     
-    # Scores and results (JSON structure depends on assessment type)
-    raw_score = Column(JSON, nullable=True)  # Raw scores before processing
-    processed_score = Column(JSON, nullable=True)  # Processed scores with calculations
+    # Données additionnelles (JSON flexible)
+    metadata = Column(JSON, default={})
     
-    # Relationships
-    user = relationship("User", backref="assessments")
-    answers = relationship("AssessmentAnswer", back_populates="assessment", cascade="all, delete-orphan")
-    evaluators = relationship(
-        "Assessment360Evaluator", 
-        back_populates="assessment", 
-        cascade="all, delete-orphan",
-        foreign_keys="Assessment360Evaluator.assessment_id"
-    )
+    # Relations
+    responses = relationship("AssessmentResponse", back_populates="assessment", cascade="all, delete-orphan")
     result = relationship("AssessmentResult", back_populates="assessment", uselist=False, cascade="all, delete-orphan")
+    evaluators = relationship("Evaluator", back_populates="assessment", cascade="all, delete-orphan")
+    
+    def __repr__(self):
+        return f"<Assessment(id={self.id}, type={self.type}, status={self.status}, user_id={self.user_id})>"
 
-    def __repr__(self) -> str:
-        return f"<Assessment(id={self.id}, user_id={self.user_id}, type={self.assessment_type}, status={self.status})>"
 
-
-class AssessmentAnswer(Base):
-    """Assessment answer model"""
-    __tablename__ = "assessment_answers"
-    __table_args__ = (
-        Index("idx_assessment_answers_assessment_id", "assessment_id"),
-        Index("idx_assessment_answers_question_id", "question_id"),
-        UniqueConstraint("assessment_id", "question_id", name="uq_assessment_answers_assessment_question"),
-    )
-
+class AssessmentResponse(Base):
+    """
+    Modèle pour les réponses aux questions d'assessment.
+    
+    Chaque réponse est liée à un assessment et contient les données
+    de la réponse dans un format JSON flexible.
+    """
+    __tablename__ = "assessment_responses"
+    
     id = Column(Integer, primary_key=True, index=True)
-    assessment_id = Column(Integer, ForeignKey("assessments.id", ondelete="CASCADE"), nullable=False)
-    question_id = Column(String(100), nullable=False)  # e.g., "wellness_q1", "tki_q1"
-    answer_value = Column(String(500), nullable=False)  # Can be integer (1-5) or string ("A"/"B")
-    # Note: Database uses created_at/updated_at (from SQL migration), not answered_at
-    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+    assessment_id = Column(Integer, ForeignKey("assessments.id"), nullable=False, index=True)
+    question_id = Column(String(50), nullable=False)  # ID de la question (ex: "q1", "q2")
     
-    # Relationships
-    assessment = relationship("Assessment", back_populates="answers")
+    # Données de la réponse (JSON flexible pour différents types de questions)
+    # Exemples:
+    # TKI: {"selected_mode": "competing"}
+    # Wellness: {"pillar": "sleep", "score": 4}
+    # 360°: {"capability": "communication", "score": 5}
+    # MBTI: {"dimension": "EI", "score": 4, "direction": "positive"}
+    response_data = Column(JSON, nullable=False)
     
-    # Property for backward compatibility
-    @property
-    def answered_at(self):
-        """Return created_at for backward compatibility"""
-        return self.created_at
-
-    def __repr__(self) -> str:
-        return f"<AssessmentAnswer(id={self.id}, assessment_id={self.assessment_id}, question_id={self.question_id})>"
-
-
-class Assessment360Evaluator(Base):
-    """360 Assessment evaluator model"""
-    __tablename__ = "assessment_360_evaluators"
-    __table_args__ = (
-        Index("idx_360_evaluators_assessment_id", "assessment_id"),
-        Index("idx_360_evaluators_email", "evaluator_email"),
-        Index("idx_360_evaluators_token", "invitation_token"),
-    )
-
-    id = Column(Integer, primary_key=True, index=True)
-    assessment_id = Column(Integer, ForeignKey("assessments.id", ondelete="CASCADE"), nullable=False)
+    # Métadonnées
+    answered_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     
-    # Evaluator information
-    evaluator_name = Column(String(200), nullable=False)
-    evaluator_email = Column(String(255), nullable=False)
-    evaluator_role = Column(Enum(EvaluatorRole), nullable=False)
+    # Relations
+    assessment = relationship("Assessment", back_populates="responses")
     
-    # Invitation and completion tracking
-    invitation_token = Column(String(100), unique=True, nullable=False, index=True)
-    invitation_sent_at = Column(DateTime(timezone=True), nullable=True)
-    invitation_opened_at = Column(DateTime(timezone=True), nullable=True)
-    started_at = Column(DateTime(timezone=True), nullable=True)
-    completed_at = Column(DateTime(timezone=True), nullable=True)
-    status = Column(Enum(AssessmentStatus), default=AssessmentStatus.NOT_STARTED, nullable=False)
-    
-    # Their assessment (when they complete it)
-    evaluator_assessment_id = Column(Integer, ForeignKey("assessments.id", ondelete="SET NULL"), nullable=True)
-    
-    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
-    
-    # Relationships
-    assessment = relationship("Assessment", back_populates="evaluators", foreign_keys=[assessment_id])
-    evaluator_assessment = relationship("Assessment", foreign_keys=[evaluator_assessment_id])
-
-    def __repr__(self) -> str:
-        return f"<Assessment360Evaluator(id={self.id}, email={self.evaluator_email}, role={self.evaluator_role})>"
+    def __repr__(self):
+        return f"<AssessmentResponse(id={self.id}, assessment_id={self.assessment_id}, question_id={self.question_id})>"
 
 
 class AssessmentResult(Base):
-    """Assessment result model with insights and recommendations"""
+    """
+    Modèle pour les résultats calculés des assessments.
+    
+    Stocke les scores, interprétations, et recommandations générées
+    par les services d'analyse.
+    """
     __tablename__ = "assessment_results"
-    __table_args__ = (
-        Index("idx_assessment_results_assessment_id", "assessment_id"),
-    )
-
+    
     id = Column(Integer, primary_key=True, index=True)
-    assessment_id = Column(Integer, ForeignKey("assessments.id", ondelete="CASCADE"), nullable=False, unique=True)
-    # Note: user_id removed - can be accessed via assessment.user_id
-    # The database table was created without user_id (from SQL migration)
+    assessment_id = Column(Integer, ForeignKey("assessments.id"), nullable=False, unique=True, index=True)
     
-    # Detailed scores and analysis
-    # Note: Database may have 'result_data' (old schema) or 'scores' (new schema)
-    # We handle both in the API endpoint
-    scores = Column(JSON, nullable=True)  # Detailed score breakdown (nullable to support old schema)
-    insights = Column(JSON, nullable=True)  # AI-generated insights
-    recommendations = Column(JSON, nullable=True)  # Personalized recommendations
+    # Scores calculés (JSON)
+    # Exemples:
+    # TKI: {"scores": {"competing": 8, "collaborating": 10, ...}, "dominant_mode": "collaborating"}
+    # Wellness: {"scores": {"sleep": 20, "nutrition": 18, ...}, "total": 115, "percentage": 76.7}
+    # 360°: {"scores": {"communication": 20, "team_culture": 18, ...}, "total": 117}
+    # MBTI: {"type": "INTJ", "dimensions": {"EI": 15, "SN": -10, ...}}
+    scores = Column(JSON, nullable=False)
     
-    # For 360 assessments: comparison data
-    comparison_data = Column(JSON, nullable=True)  # Self vs Evaluators comparison
+    # Interprétations détaillées (JSON)
+    # Contient les textes d'interprétation pour chaque dimension/mode/pillar
+    insights = Column(JSON, default={})
     
-    # Report generation
-    report_generated = Column(Boolean, default=False, nullable=False)
-    report_url = Column(String(500), nullable=True)  # S3 URL to PDF report
+    # Recommandations personnalisées (JSON)
+    # Liste de recommandations avec actions concrètes
+    recommendations = Column(JSON, default=[])
     
-    generated_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+    # Comparaison self vs others pour 360° (Phase 3)
+    comparison = Column(JSON, default={})
     
-    # Relationships
+    # Métadonnées
+    calculated_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    
+    # Relations
     assessment = relationship("Assessment", back_populates="result")
-    # Note: user relationship removed - access via assessment.user
-
-    def __repr__(self) -> str:
+    
+    def __repr__(self):
         return f"<AssessmentResult(id={self.id}, assessment_id={self.assessment_id})>"
+
+
+class Evaluator(Base):
+    """
+    Modèle pour les évaluateurs du 360° Feedback (Phase 3).
+    
+    Permet d'inviter des évaluateurs externes (managers, pairs, direct reports)
+    à évaluer un utilisateur dans le cadre d'un 360° Feedback.
+    """
+    __tablename__ = "evaluators"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    assessment_id = Column(Integer, ForeignKey("assessments.id"), nullable=False, index=True)
+    
+    # Informations de l'évaluateur
+    email = Column(String(255), nullable=False)
+    name = Column(String(255), nullable=True)
+    role = Column(SQLEnum(EvaluatorRole), nullable=False)
+    
+    # Token unique pour l'accès à l'évaluation
+    token = Column(String(255), unique=True, nullable=False, index=True)
+    
+    # Statut
+    status = Column(SQLEnum(EvaluatorStatus), default=EvaluatorStatus.PENDING, nullable=False)
+    
+    # Métadonnées
+    invited_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    completed_at = Column(DateTime, nullable=True)
+    expires_at = Column(DateTime, nullable=True)  # Expiration du token (ex: 30 jours)
+    
+    # ID de l'assessment de l'évaluateur (créé quand il répond)
+    evaluator_assessment_id = Column(Integer, ForeignKey("assessments.id"), nullable=True)
+    
+    # Relations
+    assessment = relationship("Assessment", back_populates="evaluators", foreign_keys=[assessment_id])
+    
+    def __repr__(self):
+        return f"<Evaluator(id={self.id}, email={self.email}, role={self.role}, status={self.status})>"
+
+
+# ============================================================================
+# NOTES POUR CURSOR
+# ============================================================================
+
+"""
+NOTES POUR CURSOR - MODÈLES D'ASSESSMENT
+
+1. STRUCTURE DES DONNÉES:
+   - assessments: Table principale, un record par assessment
+   - assessment_responses: Réponses aux questions, format JSON flexible
+   - assessment_results: Résultats calculés, scores et interprétations
+   - evaluators: Évaluateurs pour le 360° (Phase 3)
+
+2. ENUMS:
+   - AssessmentType: TKI, WELLNESS, THREE_SIXTY_SELF, THREE_SIXTY_EVALUATOR, MBTI
+   - AssessmentStatus: NOT_STARTED, IN_PROGRESS, COMPLETED, ARCHIVED
+   - EvaluatorRole: MANAGER, PEER, DIRECT_REPORT, OTHER
+   - EvaluatorStatus: PENDING, COMPLETED, EXPIRED
+
+3. FORMAT JSON DES RÉPONSES (response_data):
+   TKI:
+   {
+       "selected_mode": "competing" | "collaborating" | "compromising" | "avoiding" | "accommodating"
+   }
+   
+   Wellness:
+   {
+       "pillar": "sleep" | "nutrition" | "hydration" | "movement" | "stress_management" | "social_connection",
+       "score": 1-5
+   }
+   
+   360° Feedback:
+   {
+       "capability": "communication" | "team_culture" | "accountability" | "talent_development" | "execution" | "strategic_thinking",
+       "score": 1-5
+   }
+   
+   MBTI (Phase 3):
+   {
+       "dimension": "EI" | "SN" | "TF" | "JP",
+       "score": 1-5,
+       "direction": "positive" | "negative"
+   }
+
+4. FORMAT JSON DES SCORES (scores):
+   TKI:
+   {
+       "scores": {
+           "competing": 8,
+           "collaborating": 10,
+           "compromising": 6,
+           "avoiding": 3,
+           "accommodating": 3
+       },
+       "dominant_mode": "collaborating",
+       "total": 30
+   }
+   
+   Wellness:
+   {
+       "scores": {
+           "sleep": 20,
+           "nutrition": 18,
+           "hydration": 22,
+           "movement": 15,
+           "stress_management": 19,
+           "social_connection": 21
+       },
+       "total": 115,
+       "average": 19.2,
+       "percentage": 76.7
+   }
+   
+   360° Feedback:
+   {
+       "scores": {
+           "communication": 20,
+           "team_culture": 18,
+           "accountability": 22,
+           "talent_development": 15,
+           "execution": 23,
+           "strategic_thinking": 19
+       },
+       "total": 117,
+       "average": 19.5,
+       "percentage": 78.0
+   }
+
+5. MIGRATIONS:
+   Pour créer les tables, exécuter:
+   ```bash
+   cd backend
+   alembic revision --autogenerate -m "Add assessment models"
+   alembic upgrade head
+   ```
+
+6. UTILISATION DANS LES SERVICES:
+   ```python
+   from app.models.assessment import Assessment, AssessmentResponse, AssessmentResult
+   from app.services.tki_service import analyze_tki_assessment
+   
+   # Analyser un assessment TKI
+   result = analyze_tki_assessment(assessment_id=1, db=db)
+   ```
+
+7. PROCHAINES ÉTAPES:
+   - Créer les endpoints API (assessments.py)
+   - Créer les schémas Pydantic (schemas/assessment.py)
+   - Créer les pages frontend de résultats
+   - Implémenter le système d'évaluateurs (Phase 3)
+"""
