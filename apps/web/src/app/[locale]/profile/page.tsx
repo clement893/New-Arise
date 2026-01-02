@@ -6,7 +6,7 @@ import { useAuthStore } from '@/lib/store';
 import { Card } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { User, ArrowRight, Plus } from 'lucide-react';
+import { ArrowRight, Plus } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export default function ProfilePage() {
