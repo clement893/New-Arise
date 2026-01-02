@@ -26,13 +26,17 @@ export function initGoogleAnalytics(measurementId: string): void {
   script1.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
   document.head.appendChild(script1);
 
+  // Use textContent instead of innerHTML for better security
+  // The script content is static and safe, but we use textContent to be explicit
   const script2 = document.createElement('script');
-  script2.innerHTML = `
+  const scriptContent = `
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', '${measurementId}');
   `;
+  // Use textContent for static content (safer than innerHTML)
+  script2.textContent = scriptContent;
   document.head.appendChild(script2);
 }
 

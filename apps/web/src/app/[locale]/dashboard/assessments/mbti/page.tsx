@@ -59,7 +59,10 @@ export default function MBTIAssessmentPage() {
   const handleSelectOption = async (option: 'A' | 'B') => {
     const currentQuestion = mbtiQuestions[currentQuestionIndex];
     if (!currentQuestion) {
-      console.error('Current question not found');
+      // Question not found - this should not happen in normal flow
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Current question not found');
+      }
       return;
     }
     const preference =
@@ -97,7 +100,11 @@ export default function MBTIAssessmentPage() {
       await submitMBTI();
       router.push(`/dashboard/assessments/mbti/results?id=${assessmentId}`);
     } catch (err) {
-      console.error('Failed to submit assessment:', err);
+      // Error is already handled by the store and displayed to user
+      // Only log in development for debugging
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to submit assessment:', err);
+      }
     }
   };
 

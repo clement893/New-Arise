@@ -47,6 +47,26 @@ interface Assessment {
   created_at: string;
 }
 
+interface Question {
+  id: string;
+  text?: string;
+  question?: string;
+  pillar?: string;
+  category?: string;
+  optionA?: string;
+  optionB?: string;
+  modeA?: string;
+  modeB?: string;
+  [key: string]: unknown; // Allow additional properties
+}
+
+interface ScoringRule {
+  name: string;
+  maxScore?: number;
+  questions?: string[];
+  [key: string]: unknown; // Allow additional properties
+}
+
 const ASSESSMENT_TYPE_LABELS: Record<string, string> = {
   MBTI: 'MBTI',
   TKI: 'TKI',
@@ -74,12 +94,12 @@ export default function AdminAssessmentManagementPage() {
   // Questions management
   const [selectedTestType, setSelectedTestType] = useState<string>('WELLNESS');
   const [questionEditModalOpen, setQuestionEditModalOpen] = useState(false);
-  const [editingQuestion, setEditingQuestion] = useState<any>(null);
+  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   
   // Rules management
   const [selectedRuleType, setSelectedRuleType] = useState<string>('WELLNESS');
   const [ruleEditModalOpen, setRuleEditModalOpen] = useState(false);
-  const [editingRule, setEditingRule] = useState<any>(null);
+  const [editingRule, setEditingRule] = useState<ScoringRule | null>(null);
 
   useEffect(() => {
     if (activeTab === 'assessments') {
@@ -175,7 +195,7 @@ export default function AdminAssessmentManagementPage() {
     }
   };
 
-  const handleEditQuestion = (question: any) => {
+  const handleEditQuestion = (question: Question) => {
     setEditingQuestion(question);
     setQuestionEditModalOpen(true);
   };
@@ -186,7 +206,7 @@ export default function AdminAssessmentManagementPage() {
     setEditingQuestion(null);
   };
 
-  const handleEditRule = (rule: any) => {
+  const handleEditRule = (rule: ScoringRule) => {
     setEditingRule(rule);
     setRuleEditModalOpen(true);
   };
@@ -708,7 +728,7 @@ export default function AdminAssessmentManagementPage() {
                       Règles par pilier
                     </h3>
                     <div className="space-y-4">
-                      {rules.pillars.map((pillar: any, index: number) => (
+                      {rules.pillars.map((pillar: ScoringRule, index: number) => (
                         <Card key={index} className="p-4">
                           <div className="flex items-start justify-between mb-3">
                             <div>

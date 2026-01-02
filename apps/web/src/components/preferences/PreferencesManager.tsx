@@ -35,6 +35,8 @@ const STANDARD_PREFERENCES = {
   time_format: 'time_format',
 } as const;
 
+type StandardPreferenceKey = typeof STANDARD_PREFERENCES[keyof typeof STANDARD_PREFERENCES];
+
 // Theme options
 const THEME_OPTIONS: SelectOption[] = [
   { label: 'Light', value: 'light' },
@@ -350,7 +352,7 @@ export function PreferencesManager({ className = '' }: PreferencesManagerProps) 
         {/* Custom Preferences */}
         {Object.entries(editedPreferences).map(([key, value]) => {
           // Skip standard preferences that are already displayed
-          if (Object.values(STANDARD_PREFERENCES).includes(key as any)) {
+          if (Object.values(STANDARD_PREFERENCES).includes(key as StandardPreferenceKey)) {
             return null;
           }
           

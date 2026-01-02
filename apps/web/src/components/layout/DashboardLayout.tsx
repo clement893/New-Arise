@@ -54,7 +54,10 @@ const createSidebarItems = (userType?: UserType, isAdmin?: boolean): SidebarItem
   
   // Debug logging
   if (typeof window !== 'undefined') {
-    console.log('[createSidebarItems] Creating sidebar items:', { userType: type, isAdmin });
+    // Only log in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[createSidebarItems] Creating sidebar items:', { userType: type, isAdmin });
+    }
   }
   
   // Super admins see all sections grouped
@@ -244,7 +247,10 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
         const status = await checkMySuperAdminStatus(token);
         setIsSuperAdmin(status.is_superadmin === true);
       } catch (error) {
-        console.error('Error checking superadmin status:', error);
+        // Only log in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error checking superadmin status:', error);
+        }
         setIsSuperAdmin(false);
       }
     };
@@ -265,10 +271,12 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
   
   // Debug logging (remove in production if needed)
   if (typeof window !== 'undefined') {
-    console.log('[DashboardLayout] User data:', {
-      userType,
-      isAdmin,
-      isSuperAdmin,
+    // Only log in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[DashboardLayout] User data:', {
+        userType,
+        isAdmin,
+        isSuperAdmin,
       effectiveIsAdmin,
       effectiveUserType,
       user: user ? { id: user.id, email: user.email, user_type: user.user_type, is_admin: user.is_admin } : null

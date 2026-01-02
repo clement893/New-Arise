@@ -177,20 +177,41 @@ export default function InviteAdditionalEvaluatorsModal({
           onSuccess();
         }
       }, 2000);
-    } catch (err: any) {
-      console.error('❌ Failed to invite evaluators:', err);
-      console.error('❌ Error details:', {
-        message: err.message,
-        response: err.response?.data,
-        status: err.response?.status,
-        statusText: err.response?.statusText,
-      });
-      const errorMessage = 
-        err.response?.data?.detail || 
-        err.response?.data?.message ||
-        err.message || 
-        'Une erreur est survenue lors de l\'invitation des évaluateurs';
-      console.error('❌ Setting error message:', errorMessage);
+    } catch (err: unknown) {
+      // Extract error message safely
+      let errorMessage = 'Une erreur est survenue lors de l\'invitation des évaluateurs';
+      
+      if (err && typeof err === 'object') {
+        const errorObj = err as Record<string, unknown>;
+        if (errorObj.response && typeof errorObj.response === 'object') {
+          const response = errorObj.response as Record<string, unknown>;
+          if (response.data && typeof response.data === 'object') {
+            const data = response.data as Record<string, unknown>;
+            if (typeof data.detail === 'string') {
+              errorMessage = data.detail;
+            } else if (typeof data.message === 'string') {
+              errorMessage = data.message;
+            }
+          }
+        } else if (typeof errorObj.message === 'string') {
+          errorMessage = errorObj.message;
+        }
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      
+      // Only log in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('❌ Failed to invite evaluators:', err);
+        if (err && typeof err === 'object') {
+          const errorObj = err as Record<string, unknown>;
+          console.error('❌ Error details:', {
+            message: typeof errorObj.message === 'string' ? errorObj.message : 'Unknown',
+            response: errorObj.response,
+          });
+        }
+      }
+      
       setError(errorMessage);
     } finally {
       setIsSubmitting(false);

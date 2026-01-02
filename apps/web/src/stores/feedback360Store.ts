@@ -61,8 +61,11 @@ export const useFeedback360Store = create<Feedback360State>()(
         try {
           await saveAnswer(assessmentId, questionId, value.toString());
         } catch (error: unknown) {
-          console.error('Failed to save answer:', error);
           // Don't throw - allow user to continue even if save fails
+          // Only log in development for debugging
+          if (process.env.NODE_ENV === 'development') {
+            console.error('Failed to save answer:', error);
+          }
         }
       },
 

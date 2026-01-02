@@ -62,7 +62,10 @@ export default function Feedback360Page() {
     // Assessment should already be created via /360/start endpoint
     // Just proceed to questions screen - no need to call startAssessment()
     if (!effectiveAssessmentId) {
-      console.error('No assessment ID found. Please start the 360° feedback from the start page.');
+      // Redirect to start page if no assessment ID found
+      if (process.env.NODE_ENV === 'development') {
+        console.error('No assessment ID found. Please start the 360° feedback from the start page.');
+      }
       router.push('/dashboard/assessments/360-feedback/start');
       return;
     }
@@ -95,7 +98,11 @@ export default function Feedback360Page() {
       await submitAssessment();
       router.push('/dashboard/assessments/360-feedback/results');
     } catch (err) {
-      console.error('Failed to submit assessment:', err);
+      // Error is already handled by the store and displayed to user
+      // Only log in development for debugging
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to submit assessment:', err);
+      }
     }
   };
 

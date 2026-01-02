@@ -1,0 +1,602 @@
+{
+  "timestamp": "2026-01-02T03:40:14.998Z",
+  "summary": {
+    "totalFiles": 1556,
+    "totalLines": 242513,
+    "consoleLogs": 269,
+    "todos": 363,
+    "anyTypes": 56,
+    "largeFiles": 31,
+    "complexFunctions": 148
+  },
+  "security": {
+    "critical": 6,
+    "high": 3,
+    "medium": 0,
+    "low": 0,
+    "positives": 357,
+    "issues": [
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\examples\\auth\\page.tsx",
+        "issue": "Hardcoded password",
+        "matches": [
+          "password = 'Mot de passe requis'",
+          "password = 'Le mot de passe doit contenir au moins 8 caractères'"
+        ]
+      },
+      {
+        "file": "apps\\web\\src\\components\\auth\\MFA.stories.tsx",
+        "issue": "Hardcoded secret",
+        "matches": [
+          "secret: 'JBSWY3DPEHPK3PXP'",
+          "secret=\"JBSWY3DPEHPK3PXP\""
+        ]
+      },
+      {
+        "file": "apps\\web\\src\\components\\settings\\WebhooksSettings.stories.tsx",
+        "issue": "Hardcoded secret",
+        "matches": [
+          "secret: 'whsec_1234567890'",
+          "secret: 'whsec_abcdef123456'"
+        ]
+      },
+      {
+        "file": "apps\\web\\src\\components\\ui\\Form.stories.tsx",
+        "issue": "Hardcoded password",
+        "matches": [
+          "password = 'Password is required'",
+          "password = 'Password must be at least 8 characters'"
+        ]
+      },
+      {
+        "file": "apps\\web\\src\\lib\\i18n\\messages.ts",
+        "issue": "Hardcoded password",
+        "matches": [
+          "password: 'Mot de passe'",
+          "Password: 'Mot de passe oublié?'"
+        ]
+      },
+      {
+        "file": "backend\\app\\core\\patterns\\factory.py",
+        "issue": "Hardcoded password",
+        "matches": [
+          "password=\"password123\"",
+          "password=\"secure123\""
+        ]
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\layout.tsx",
+        "issue": "Potential XSS: dangerouslySetInnerHTML usage"
+      },
+      {
+        "file": "apps\\web\\src\\components\\ui\\RichTextEditor.tsx",
+        "issue": "Potential XSS: innerHTML assignment"
+      },
+      {
+        "file": "apps\\web\\src\\lib\\marketing\\analytics.ts",
+        "issue": "Potential XSS: innerHTML assignment"
+      }
+    ]
+  },
+  "quality": {
+    "totalIssues": 264,
+    "issues": [
+      {
+        "file": "apps\\web\\src\\app\\api\\upload\\validate\\route.ts",
+        "issue": "1 TODO/FIXME comment(s) found",
+        "severity": "low",
+        "details": [
+          "bug('File validation successful', {"
+        ]
+      },
+      {
+        "file": "apps\\web\\src\\app\\auth\\callback\\page.tsx",
+        "issue": "4 TODO/FIXME comment(s) found",
+        "severity": "low",
+        "details": [
+          "bug('Storing token...');",
+          "bug('Token verification', {",
+          "bug('Fetching user info from API...', {"
+        ]
+      },
+      {
+        "file": "apps\\web\\src\\app\\components\\data\\DataContent.tsx",
+        "issue": "12 TODO/FIXME comment(s) found",
+        "severity": "low",
+        "details": [
+          "todo', color: getStatusColor('todo') },",
+          "todo', priority: 'high', assignee: 'John Doe' },",
+          "todo', priority: 'medium', assignee: 'Jane Smith' },"
+        ]
+      },
+      {
+        "file": "apps\\web\\src\\app\\components\\feedback\\FeedbackComponentsContent.tsx",
+        "issue": "1 TODO/FIXME comment(s) found",
+        "severity": "low",
+        "details": [
+          "bug reports, feature requests, questions, etc.)."
+        ]
+      },
+      {
+        "file": "apps\\web\\src\\app\\components\\forms\\FormsContent.tsx",
+        "issue": "3 TODO/FIXME comment(s) found",
+        "severity": "low",
+        "details": [
+          "bug('Files selected', { count: files.length })}",
+          "bug('Form submitted', { fields: Object.keys(data) });",
+          "bug('FormBuilder submitted', { fields: Object.keys(data) });"
+        ]
+      },
+      {
+        "file": "apps\\web\\src\\app\\components\\media\\MediaContent.tsx",
+        "issue": "10 TODO/FIXME comment(s) found",
+        "severity": "low",
+        "details": [
+          "bug('Video playing')}",
+          "bug('Video paused')}",
+          "bug('Video ended')}"
+        ]
+      },
+      {
+        "file": "apps\\web\\src\\app\\docs\\error.tsx",
+        "issue": "1 TODO/FIXME comment(s) found",
+        "severity": "low",
+        "details": [
+          "bugging purposes."
+        ]
+      },
+      {
+        "file": "apps\\web\\src\\app\\monitoring\\page.tsx",
+        "issue": "1 TODO/FIXME comment(s) found",
+        "severity": "low",
+        "details": [
+          "bug', 'Cache hit rate: 85%', { cache: 'redis' }, 'cache');"
+        ]
+      },
+      {
+        "file": "apps\\web\\src\\app\\upload\\page.tsx",
+        "issue": "5 TODO/FIXME comment(s) found",
+        "severity": "low",
+        "details": [
+          "bug('Files selected', { count: files.length, names: files.map(f => f.name) });",
+          "bug('handleUpload called', { selectedFilesCount: selectedFiles.length });",
+          "TODO: Create /v1/media/validate endpoint in backend when needed"
+        ]
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\360-evaluator\\[token]\\page.tsx",
+        "issue": "2 console statement(s) found",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\360-evaluator\\[token]\\page.tsx",
+        "issue": "2 'any' type(s) found",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\admin\\articles\\AdminArticlesContent.tsx",
+        "issue": "1 TODO/FIXME comment(s) found",
+        "severity": "low",
+        "details": [
+          "bug('[AdminArticles] Loaded articles', { count: articlesData.length });"
+        ]
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\admin\\media\\AdminMediaContent.tsx",
+        "issue": "1 TODO/FIXME comment(s) found",
+        "severity": "low",
+        "details": [
+          "bug('[AdminMedia] Loaded media files', { count: mediaData.length });"
+        ]
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\admin\\pages\\AdminPagesContent.tsx",
+        "issue": "1 TODO/FIXME comment(s) found",
+        "severity": "low",
+        "details": [
+          "bug('[AdminPages] Loaded pages', { count: pagesData.length });"
+        ]
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\admin\\settings\\AdminSettingsContent.tsx",
+        "issue": "2 TODO/FIXME comment(s) found",
+        "severity": "low",
+        "details": [
+          "TODO: Load actual system settings from API when endpoint is available",
+          "TODO: Implement API endpoint for system settings"
+        ]
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\admin\\tenancy\\TenancyContent.tsx",
+        "issue": "2 TODO/FIXME comment(s) found",
+        "severity": "low",
+        "details": [
+          "TODO: Replace with actual API endpoint when available",
+          "TODO: Replace with actual API endpoint when available"
+        ]
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\admin\\themes\\components\\ThemeEditor.tsx",
+        "issue": "4 TODO/FIXME comment(s) found",
+        "severity": "low",
+        "details": [
+          "bugging",
+          "bug('[ThemeEditor] ThemeValidationError message', { message: errorMessage });",
+          "bug('[ThemeEditor] Validation error message', { message: errorMessage });"
+        ]
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\admin-logs\\testing\\AdminLogsContent.tsx",
+        "issue": "7 TODO/FIXME comment(s) found",
+        "severity": "low",
+        "details": [
+          "bug('[AdminLogs] Fetching logs from', { url });",
+          "bug('[AdminLogs] Response received', {",
+          "bug('[AdminLogs] Response is direct array', { logsCount: logsData.length });"
+        ]
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\auth\\callback\\page.tsx",
+        "issue": "4 TODO/FIXME comment(s) found",
+        "severity": "low",
+        "details": [
+          "bug('Storing token...');",
+          "bug('Token verification', {",
+          "bug('Fetching user info from API...', {"
+        ]
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\client\\tickets\\page.tsx",
+        "issue": "1 TODO/FIXME comment(s) found",
+        "severity": "low",
+        "details": [
+          "bug\">Bug Report</option>"
+        ]
+      }
+    ]
+  },
+  "performance": {
+    "issues": [
+      {
+        "file": "backend\\app\\api\\v1\\endpoints\\admin.py",
+        "issue": "Potential N+1 query pattern detected",
+        "severity": "high"
+      },
+      {
+        "file": "backend\\app\\api\\v1\\endpoints\\evaluators.py",
+        "issue": "Potential N+1 query pattern detected",
+        "severity": "high"
+      },
+      {
+        "file": "backend\\app\\api\\v1\\endpoints\\posts.py",
+        "issue": "Potential N+1 query pattern detected",
+        "severity": "high"
+      },
+      {
+        "file": "backend\\app\\api\\v1\\endpoints\\rbac.py",
+        "issue": "Potential N+1 query pattern detected",
+        "severity": "high"
+      },
+      {
+        "file": "backend\\app\\services\\rbac_service.py",
+        "issue": "Potential N+1 query pattern detected",
+        "severity": "high"
+      }
+    ],
+    "positives": [
+      "Eager loading used in backend\\app\\api\\v1\\endpoints\\api_keys.py",
+      "Eager loading used in backend\\app\\api\\v1\\endpoints\\assessments.py",
+      "Eager loading used in backend\\app\\api\\v1\\endpoints\\commercial\\contacts.py",
+      "Eager loading used in backend\\app\\api\\v1\\endpoints\\erp\\clients.py",
+      "Eager loading used in backend\\app\\api\\v1\\endpoints\\erp\\invoices.py",
+      "Eager loading used in backend\\app\\api\\v1\\endpoints\\rbac.py",
+      "Eager loading used in backend\\app\\api\\v1\\endpoints\\teams.py",
+      "Eager loading used in backend\\app\\core\\query_optimization.py",
+      "Eager loading used in backend\\app\\models\\user.py",
+      "Eager loading used in backend\\app\\services\\client_service.py"
+    ]
+  },
+  "maintainability": {
+    "issues": [
+      {
+        "file": "apps\\web\\src\\app\\auth\\register\\page.tsx",
+        "issue": "High complexity: 34 control flow statements",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\admin\\organizations\\AdminOrganizationsContent.tsx",
+        "issue": "Large file: 752 lines",
+        "severity": "low"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\admin\\organizations\\AdminOrganizationsContent.tsx",
+        "issue": "High complexity: 42 control flow statements",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\admin\\statistics\\AdminStatisticsContent.tsx",
+        "issue": "Large file: 833 lines",
+        "severity": "low"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\admin\\statistics\\AdminStatisticsContent.tsx",
+        "issue": "High complexity: 55 control flow statements",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\admin\\themes\\components\\JSONEditor.tsx",
+        "issue": "High complexity: 34 control flow statements",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\admin\\themes\\components\\ThemeEditor.tsx",
+        "issue": "High complexity: 30 control flow statements",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\auth\\register\\page.tsx",
+        "issue": "High complexity: 34 control flow statements",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\components\\ComponentsContent.tsx",
+        "issue": "Large file: 568 lines",
+        "severity": "low"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\dashboard\\admin\\assessment-management\\page.tsx",
+        "issue": "Large file: 881 lines",
+        "severity": "low"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\dashboard\\assessments\\360-feedback\\results\\page.tsx",
+        "issue": "High complexity: 30 control flow statements",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\dashboard\\assessments\\360-feedback\\results\\page_old.tsx",
+        "issue": "High complexity: 29 control flow statements",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\dashboard\\assessments\\360-feedback\\start\\page.tsx",
+        "issue": "Large file: 517 lines",
+        "severity": "low"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\dashboard\\assessments\\360-feedback\\start\\page.tsx",
+        "issue": "High complexity: 24 control flow statements",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\dashboard\\assessments\\page.tsx",
+        "issue": "High complexity: 49 control flow statements",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\dashboard\\coaching-options\\book\\page.tsx",
+        "issue": "Large file: 541 lines",
+        "severity": "low"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\dashboard\\page.tsx",
+        "issue": "Large file: 520 lines",
+        "severity": "low"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\dashboard\\page.tsx",
+        "issue": "High complexity: 31 control flow statements",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\dashboard\\reports\\page.tsx",
+        "issue": "High complexity: 21 control flow statements",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\dashboard\\reseau\\contacts\\page.tsx",
+        "issue": "Large file: 850 lines",
+        "severity": "low"
+      }
+    ]
+  },
+  "architecture": {
+    "positives": []
+  },
+  "tests": {
+    "issues": [
+      {
+        "file": "apps\\web\\src\\app\\ai\\test\\page.tsx",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\auth\\google\\test\\page.tsx",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\email\\test\\page.tsx",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\sentry\\test\\page.tsx",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\stripe\\test\\page.tsx",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\admin-logs\\testing\\page.tsx",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\ai\\testing\\page.tsx",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\api-connections\\testing\\components\\BackendCheckCard.tsx",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\api-connections\\testing\\components\\ComponentTestCard.tsx",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\api-connections\\testing\\components\\EndpointTestCard.tsx",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\api-connections\\testing\\components\\FrontendCheckCard.tsx",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\api-connections\\testing\\components\\OverviewSection.tsx",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\api-connections\\testing\\components\\ReportGeneratorCard.tsx",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\api-connections\\testing\\hooks\\useConnectionTests.ts",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\api-connections\\testing\\hooks\\useEndpointTests.ts",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\api-connections\\testing\\hooks\\useReportGeneration.ts",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\api-connections\\testing\\hooks\\useTemplateHealth.ts",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\api-connections\\testing\\services\\healthChecker.ts",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\api-connections\\testing\\services\\reportGenerator.ts",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\api-connections\\testing\\types\\health.types.ts",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\stripe\\testing\\page.tsx",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\test\\admin-logs\\page.tsx",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\test\\api-connections\\components\\BackendCheckCard.tsx",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\test\\api-connections\\components\\ComponentTestCard.tsx",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\test\\api-connections\\components\\EndpointTestCard.tsx",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\test\\api-connections\\components\\FrontendCheckCard.tsx",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\test\\api-connections\\components\\OverviewSection.tsx",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\test\\api-connections\\components\\ReportGeneratorCard.tsx",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\test\\api-connections\\hooks\\useConnectionTests.ts",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\test\\api-connections\\hooks\\useEndpointTests.ts",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\test\\api-connections\\hooks\\useReportGeneration.ts",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\test\\api-connections\\hooks\\useTemplateHealth.ts",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\test\\api-connections\\services\\healthChecker.ts",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\test\\api-connections\\services\\reportGenerator.ts",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\test\\api-connections\\types\\health.types.ts",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      },
+      {
+        "file": "apps\\web\\src\\app\\[locale]\\test\\layout.tsx",
+        "issue": "Test file without assertions",
+        "severity": "medium"
+      }
+    ],
+    "positives": [
+      "Test file with assertions: apps\\web\\src\\app\\db\\test\\page.tsx",
+      "Test file with assertions: apps\\web\\src\\app\\test-sentry\\page.tsx",
+      "Test file with assertions: apps\\web\\src\\app\\[locale]\\admin-logs\\testing\\AdminLogsContent.tsx",
+      "Test file with assertions: apps\\web\\src\\app\\[locale]\\api-connections\\testing\\page.tsx",
+      "Test file with assertions: apps\\web\\src\\app\\[locale]\\api-connections\\testing\\services\\endpointTester.ts",
+      "Test file with assertions: apps\\web\\src\\app\\[locale]\\auth\\google\\testing\\page.tsx",
+      "Test file with assertions: apps\\web\\src\\app\\[locale]\\db\\test\\page.tsx",
+      "Test file with assertions: apps\\web\\src\\app\\[locale]\\email\\testing\\page.tsx",
+      "Test file with assertions: apps\\web\\src\\app\\[locale]\\sentry\\testing\\page.tsx",
+      "Test file with assertions: apps\\web\\src\\app\\[locale]\\test\\admin-logs\\AdminLogsContent.tsx"
+    ]
+  }
+}

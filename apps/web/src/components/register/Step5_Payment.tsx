@@ -121,9 +121,33 @@ export function Step5_Payment() {
         setError('Failed to create checkout session. Please try again.');
         setIsProcessing(false);
       }
-    } catch (err: any) {
-      console.error('Error creating checkout session:', err);
-      const errorMessage = err?.response?.data?.detail || err?.message || 'Failed to process payment. Please try again.';
+    } catch (err: unknown) {
+      // Extract error message safely
+      let errorMessage = 'Failed to process payment. Please try again.';
+      if (err && typeof err === 'object') {
+        const errorObj = err as Record<string, unknown>;
+        if (errorObj.response && typeof errorObj.response === 'object') {
+          const response = errorObj.response as Record<string, unknown>;
+          if (response.data && typeof response.data === 'object') {
+            const data = response.data as Record<string, unknown>;
+            if (typeof data.detail === 'string') {
+              errorMessage = data.detail;
+            } else if (typeof data.message === 'string') {
+              errorMessage = data.message;
+            }
+          }
+        } else if (typeof errorObj.message === 'string') {
+          errorMessage = errorObj.message;
+        }
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      
+      // Only log in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error creating checkout session:', err);
+      }
+      
       setError(errorMessage);
       setIsProcessing(false);
     }
