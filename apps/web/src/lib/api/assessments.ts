@@ -11,6 +11,20 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 export type AssessmentType = 'WELLNESS' | 'TKI' | 'THREE_SIXTY_SELF' | 'MBTI';
 export type AssessmentStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
 
+/**
+ * Convert frontend AssessmentType to backend format (lowercase)
+ * Backend expects: 'mbti', 'tki', 'wellness', '360_self', '360_evaluator'
+ */
+function convertAssessmentTypeForBackend(type: AssessmentType): string {
+  const mapping: Record<AssessmentType, string> = {
+    'MBTI': 'mbti',
+    'TKI': 'tki',
+    'WELLNESS': 'wellness',
+    'THREE_SIXTY_SELF': '360_self',
+  };
+  return mapping[type] || type.toLowerCase();
+}
+
 export interface StartAssessmentResponse {
   assessment_id: number;
   status: AssessmentStatus;
@@ -71,9 +85,11 @@ export interface AssessmentResult {
  * Uses apiClient to benefit from automatic token refresh on 401 errors
  */
 export const startAssessment = async (assessmentType: AssessmentType): Promise<StartAssessmentResponse> => {
+  // Convert to backend format (lowercase)
+  const backendType = convertAssessmentTypeForBackend(assessmentType);
   const response = await apiClient.post(
     `/v1/assessments/start`,
-    { assessment_type: assessmentType }
+    { assessment_type: backendType }
   );
   return response.data as StartAssessmentResponse;
 };
