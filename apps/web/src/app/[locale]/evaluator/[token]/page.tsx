@@ -6,7 +6,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { feedback360Questions } from '@/data/feedback360Questions';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -30,7 +30,6 @@ interface Answer {
 
 export default function EvaluatorAssessmentPage() {
   const params = useParams();
-  const router = useRouter();
   const token = params.token as string;
 
   const [assessmentInfo, setAssessmentInfo] = useState<AssessmentInfo | null>(null);
