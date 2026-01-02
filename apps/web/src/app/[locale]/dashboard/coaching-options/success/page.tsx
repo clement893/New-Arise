@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui';
 import Button from '@/components/ui/Button';
-import { CheckCircle, Calendar, User, ArrowRight } from 'lucide-react';
+import { CheckCircle, Calendar, User } from 'lucide-react';
 import { getCoachingSession } from '@/lib/api/coaching';
 import type { CoachingSession } from '@/lib/api/coaching';
 
