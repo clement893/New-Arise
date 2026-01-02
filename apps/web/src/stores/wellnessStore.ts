@@ -38,7 +38,7 @@ interface WellnessState {
   getProgress: () => number;
   getTotalQuestions: () => number;
   isCompleted: boolean;
-  completeAssessment: () => void;
+  completeAssessment: () => Promise<void>;
 }
 
 const TOTAL_QUESTIONS = 30;
@@ -224,9 +224,46 @@ export const useWellnessStore = create<WellnessState>()(
       },
 
       // Complete assessment (for compatibility)
-      completeAssessment: () => {
-        const { submitAssessment } = get();
-        submitAssessment();
+      completeAssessment: async () => {
+        const { assessmentId, submitAssessment } = get();
+        
+        if (!assessmentId) {
+          set({ error: 'No active assessment' });
+          return;
+        }
+
+        // Check if assessment is already completed before submitting
+        try {
+          const assessments = await assessmentsApi.getMyAssessments();
+          const currentAssessment = assessments.find(a => a.id === assessmentId);
+          
+          if (currentAssessment?.status === 'COMPLETED') {
+            // Assessment is already completed, get results and mark as completed
+            try {
+              const results = await assessmentsApi.getResults(assessmentId);
+              set({
+                results,
+                currentStep: 'congratulations',
+                isCompleted: true,
+                isLoading: false,
+              });
+              return;
+            } catch (err) {
+              // If we can't get results, still mark as completed
+              set({
+                isCompleted: true,
+                isLoading: false,
+              });
+              return;
+            }
+          }
+        } catch (err) {
+          // If we can't check status, proceed with submission
+          console.warn('Failed to check assessment status:', err);
+        }
+
+        // If not completed, proceed with submission
+        await submitAssessment();
       },
 
       // Reset the store

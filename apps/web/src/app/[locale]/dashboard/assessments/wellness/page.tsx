@@ -47,8 +47,14 @@ function WellnessAssessmentContent() {
         );
         
         if (wellnessAssessment && wellnessAssessment.id) {
-          // If assessment is already completed, redirect to results
+          // If assessment is already completed, redirect to results immediately
           if (wellnessAssessment.status === 'COMPLETED') {
+            // Update store to reflect completed status
+            useWellnessStore.setState({
+              assessmentId: wellnessAssessment.id,
+              isCompleted: true,
+              currentStep: 'congratulations',
+            });
             router.push(`/dashboard/assessments/results?id=${wellnessAssessment.id}`);
             return;
           }
@@ -63,11 +69,22 @@ function WellnessAssessmentContent() {
             } catch (err: any) {
               // If assessment is already completed (400 error), redirect to results
               if (err?.response?.status === 400 && err?.response?.data?.detail?.includes('already been completed')) {
+                // Update store to reflect completed status
+                useWellnessStore.setState({
+                  assessmentId: wellnessAssessment.id,
+                  isCompleted: true,
+                  currentStep: 'congratulations',
+                });
                 router.push(`/dashboard/assessments/results?id=${wellnessAssessment.id}`);
                 return;
               }
               console.error('Failed to submit existing assessment:', err);
             }
+          } else {
+            // Update store with existing assessment ID if not completed
+            useWellnessStore.setState({
+              assessmentId: wellnessAssessment.id,
+            });
           }
         }
       } catch (err) {
@@ -100,9 +117,9 @@ function WellnessAssessmentContent() {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (isLastQuestion) {
-      completeAssessment();
+      await completeAssessment();
       // Completion will trigger automatic redirect via useEffect
     } else {
       nextQuestion();
