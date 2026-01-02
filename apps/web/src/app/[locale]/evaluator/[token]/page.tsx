@@ -190,11 +190,7 @@ export default function EvaluatorAssessmentPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto p-8">
         {/* Header */}
-        <MotionDiv
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
+        <MotionDiv variant="slideUp" duration="normal" className="mb-8">
           <Card className="bg-gradient-to-r from-teal-50 to-cyan-50 border-teal-200">
             <div className="p-6">
               <h1 className="text-2xl font-bold text-gray-900 mb-2">
@@ -212,12 +208,7 @@ export default function EvaluatorAssessmentPage() {
         </MotionDiv>
 
         {/* Progress Bar */}
-        <MotionDiv
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-8"
-        >
+        <MotionDiv variant="slideUp" duration="normal" delay={100} className="mb-8">
           <Card>
             <div className="p-6">
               <div className="flex items-center justify-between mb-2">
@@ -241,9 +232,8 @@ export default function EvaluatorAssessmentPage() {
         {/* Question Card */}
         <MotionDiv
           key={currentQuestionIndex}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3 }}
+          variant="slideUp"
+          duration="fast"
           className="mb-8"
         >
           <Card>
@@ -303,11 +293,7 @@ export default function EvaluatorAssessmentPage() {
 
         {/* Error Message */}
         {error && assessmentInfo && (
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
-          >
+          <MotionDiv variant="slideUp" duration="normal" className="mb-8">
             <Card className="bg-red-50 border-red-200">
               <div className="p-4">
                 <p className="text-red-800">{error}</p>
@@ -317,12 +303,7 @@ export default function EvaluatorAssessmentPage() {
         )}
 
         {/* Navigation */}
-        <MotionDiv
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="flex items-center justify-between"
-        >
+        <MotionDiv variant="slideUp" duration="normal" delay={200} className="flex items-center justify-between">
           <Button
             variant="outline"
             onClick={handlePrevious}
