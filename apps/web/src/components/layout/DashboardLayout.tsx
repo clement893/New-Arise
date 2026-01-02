@@ -281,6 +281,7 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
       effectiveUserType,
       user: user ? { id: user.id, email: user.email, user_type: user.user_type, is_admin: user.is_admin } : null
     });
+    }
   }
 
   // Memoize sidebar items - only recreate if admin status or user type changes
