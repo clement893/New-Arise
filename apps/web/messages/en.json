@@ -529,5 +529,136 @@
         "errorPrefix": "Error"
       }
     }
+  },
+  "landing": {
+    "header": {
+      "products": "Products",
+      "pricing": "Pricing",
+      "news": "News",
+      "signIn": "Sign In",
+      "getStarted": "Get Started"
+    },
+    "hero": {
+      "platform": "ARISE PLATFORM",
+      "title": "Empowering authentic",
+      "titleHighlight": "leaders",
+      "subtitle": "Discover a holistic approach to leadership development that combines performance, self-awareness, and well-being",
+      "getStarted": "Get Started"
+    },
+    "buildingLeaders": {
+      "title": "Building leaders",
+      "description": "Leadership development is not just about skills and competencies. It's about cultivating authentic leaders who understand themselves, inspire others, and create lasting impact. Our holistic approach combines cutting-edge assessments with personalized insights to help leaders thrive."
+    },
+    "fourDimensions": {
+      "methodology": "OUR METHODOLOGY",
+      "title": "Four dimensions,",
+      "subtitle": "one unified profile",
+      "dimensions": {
+        "mbti": {
+          "title": "MBTI",
+          "subtitle": "Personality Assessment",
+          "description": "Understand your natural preferences and how you interact with the world around you through the Myers-Briggs Type Indicator."
+        },
+        "tki": {
+          "title": "TKI",
+          "subtitle": "Conflict Management",
+          "description": "Discover your conflict-handling styles and learn how to navigate challenging situations with confidence and effectiveness."
+        },
+        "360": {
+          "title": "360°",
+          "subtitle": "Peer Leadership",
+          "description": "Gain comprehensive feedback from colleagues, managers, and direct reports to understand your leadership impact from all angles."
+        },
+        "wellness": {
+          "title": "WELLNESS",
+          "subtitle": "Well-being Assessment",
+          "description": "Assess your physical and mental health, work-life balance, and overall wellness to ensure sustainable leadership performance."
+        }
+      },
+      "integration": "All four assessments integrate",
+      "integrationHighlight": "seamlessly",
+      "integrationText": "to create your",
+      "profileHighlight": "comprehensive leadership profile",
+      "insights": "Gain deep insights into your strengths, growth areas, and unique leadership style.",
+      "startNow": "Start Now"
+    },
+    "choosePath": {
+      "title": "Choose your path",
+      "subtitle": "Whether you're an individual leader, a coach, or an organization, we have the right solution for you.",
+      "individual": {
+        "title": "INDIVIDUAL",
+        "description": "Perfect for leaders looking to develop their personal leadership skills and gain deep self-awareness.",
+        "features": {
+          "assessment": "Complete all 4 assessments",
+          "profile": "Personal leadership profile",
+          "insights": "Actionable insights",
+          "tracking": "Progress tracking"
+        },
+        "explore": "Explore"
+      },
+      "coach": {
+        "title": "COACH",
+        "description": "Designed for professional coaches who guide leaders through their development journey.",
+        "features": {
+          "clients": "Manage multiple clients",
+          "reports": "Access client reports",
+          "progress": "Track client progress",
+          "tools": "Coaching tools & resources"
+        },
+        "explore": "Explore"
+      },
+      "business": {
+        "title": "BUSINESS",
+        "description": "Comprehensive solution for organizations committed to developing their leadership talent.",
+        "features": {
+          "assessments": "Team assessments",
+          "insights": "Organization-wide insights",
+          "reporting": "Custom reporting",
+          "support": "Dedicated support"
+        },
+        "explore": "Explore"
+      }
+    },
+    "testimonials": {
+      "title": "What leaders say",
+      "testimonial1": {
+        "quote": "ARISE transformed how I understand my leadership style. The comprehensive assessment gave me insights I never had before.",
+        "author": "Sarah Johnson",
+        "role": "CEO, Tech Innovations"
+      },
+      "testimonial2": {
+        "quote": "The 360° feedback combined with personality assessments provided a complete picture of my strengths and areas for growth.",
+        "author": "Michael Chen",
+        "role": "VP Operations, Global Corp"
+      },
+      "testimonial3": {
+        "quote": "As a coach, ARISE has become an invaluable tool for helping my clients develop authentic leadership capabilities.",
+        "author": "Dr. Emily Rodriguez",
+        "role": "Executive Coach"
+      }
+    },
+    "finalCTA": {
+      "title": "Ready to elevate your leadership?",
+      "subtitle": "Join thousands of leaders who have discovered their authentic leadership style through ARISE.",
+      "discoverMore": "Discover More",
+      "getStarted": "Get Started"
+    },
+    "footer": {
+      "description": "Empowering authentic leaders through holistic assessment and development.",
+      "aboutUs": "About Us",
+      "ourStory": "Our Story",
+      "team": "Team",
+      "careers": "Careers",
+      "support": "Support",
+      "helpCenter": "Help Center",
+      "contactUs": "Contact Us",
+      "faq": "FAQ",
+      "legal": "Legal",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "cookiePolicy": "Cookie Policy",
+      "copyright": "© {year} Arise Human Capital. All rights reserved.",
+      "year": "2026"
+    }
   }
 }

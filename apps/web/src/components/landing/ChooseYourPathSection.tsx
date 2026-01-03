@@ -1,43 +1,49 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/routing';
 import Button from '@/components/ui/Button';
-import Link from 'next/link';
 import { User, Users, Building2 } from 'lucide-react';
 
 export function ChooseYourPathSection() {
+  const t = useTranslations('landing.choosePath');
+
   const paths = [
     {
       icon: User,
-      title: 'INDIVIDUAL',
-      description: 'Perfect for leaders looking to develop their personal leadership skills and gain deep self-awareness.',
+      title: t('individual.title'),
+      description: t('individual.description'),
       features: [
-        'Complete all 4 assessments',
-        'Personal leadership profile',
-        'Actionable insights',
-        'Progress tracking'
-      ]
+        t('individual.features.assessment'),
+        t('individual.features.profile'),
+        t('individual.features.insights'),
+        t('individual.features.tracking')
+      ],
+      explore: t('individual.explore')
     },
     {
       icon: Users,
-      title: 'COACH',
-      description: 'Designed for professional coaches who guide leaders through their development journey.',
+      title: t('coach.title'),
+      description: t('coach.description'),
       features: [
-        'Manage multiple clients',
-        'Access client reports',
-        'Track client progress',
-        'Coaching tools & resources'
-      ]
+        t('coach.features.clients'),
+        t('coach.features.reports'),
+        t('coach.features.progress'),
+        t('coach.features.tools')
+      ],
+      explore: t('coach.explore')
     },
     {
       icon: Building2,
-      title: 'BUSINESS',
-      description: 'Comprehensive solution for organizations committed to developing their leadership talent.',
+      title: t('business.title'),
+      description: t('business.description'),
       features: [
-        'Team assessments',
-        'Organization-wide insights',
-        'Custom reporting',
-        'Dedicated support'
-      ]
+        t('business.features.assessments'),
+        t('business.features.insights'),
+        t('business.features.reporting'),
+        t('business.features.support')
+      ],
+      explore: t('business.explore')
     }
   ];
 
@@ -47,10 +53,10 @@ export function ChooseYourPathSection() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-arise-deep-teal mb-4">
-              Choose your path
+              {t('title')}
             </h2>
             <p className="text-lg text-gray-700 max-w-2xl mx-auto">
-              Whether you're an individual leader, a coach, or an organization, we have the right solution for you.
+              {t('subtitle')}
             </p>
           </div>
 
@@ -95,7 +101,7 @@ export function ChooseYourPathSection() {
                   asChild 
                   className="w-full bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold"
                 >
-                  <Link href="/register">Explore</Link>
+                  <Link href="/register">{path.explore}</Link>
                 </Button>
               </div>
             ))}

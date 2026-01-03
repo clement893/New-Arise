@@ -1,20 +1,21 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
 export function BuildingLeadersSection() {
+  const t = useTranslations('landing.buildingLeaders');
+
   return (
     <section className="py-20 bg-arise-light-beige">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           <div className="mb-12">
             <h2 className="text-4xl md:text-5xl font-bold text-arise-deep-teal mb-4">
-              Building leaders
+              {t('title')}
             </h2>
             <p className="text-lg text-gray-700 max-w-3xl">
-              Leadership development is not just about skills and competencies. It's about cultivating authentic leaders 
-              who understand themselves, inspire others, and create lasting impact. Our holistic approach combines 
-              cutting-edge assessments with personalized insights to help leaders thrive.
+              {t('description')}
             </p>
           </div>
 

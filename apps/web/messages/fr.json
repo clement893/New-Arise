@@ -441,5 +441,136 @@
         "errorPrefix": "Erreur"
       }
     }
+  },
+  "landing": {
+    "header": {
+      "products": "Produits",
+      "pricing": "Tarifs",
+      "news": "Actualités",
+      "signIn": "Connexion",
+      "getStarted": "Commencer"
+    },
+    "hero": {
+      "platform": "PLATEFORME ARISE",
+      "title": "Autonomiser des",
+      "titleHighlight": "leaders authentiques",
+      "subtitle": "Découvrez une approche holistique du développement du leadership qui combine performance, conscience de soi et bien-être",
+      "getStarted": "Commencer"
+    },
+    "buildingLeaders": {
+      "title": "Construire des leaders",
+      "description": "Le développement du leadership ne se limite pas aux compétences et aux aptitudes. Il s'agit de cultiver des leaders authentiques qui se comprennent eux-mêmes, inspirent les autres et créent un impact durable. Notre approche holistique combine des évaluations de pointe avec des insights personnalisés pour aider les leaders à s'épanouir."
+    },
+    "fourDimensions": {
+      "methodology": "NOTRE MÉTHODOLOGIE",
+      "title": "Quatre dimensions,",
+      "subtitle": "un profil unifié",
+      "dimensions": {
+        "mbti": {
+          "title": "MBTI",
+          "subtitle": "Évaluation de la personnalité",
+          "description": "Comprenez vos préférences naturelles et la façon dont vous interagissez avec le monde qui vous entoure grâce à l'indicateur de type Myers-Briggs."
+        },
+        "tki": {
+          "title": "TKI",
+          "subtitle": "Gestion des conflits",
+          "description": "Découvrez vos styles de gestion des conflits et apprenez à naviguer dans des situations difficiles avec confiance et efficacité."
+        },
+        "360": {
+          "title": "360°",
+          "subtitle": "Leadership par les pairs",
+          "description": "Obtenez des retours complets de la part de collègues, de managers et de subordonnés directs pour comprendre votre impact en leadership sous tous les angles."
+        },
+        "wellness": {
+          "title": "BIEN-ÊTRE",
+          "subtitle": "Évaluation du bien-être",
+          "description": "Évaluez votre santé physique et mentale, votre équilibre travail-vie personnelle et votre bien-être global pour assurer une performance de leadership durable."
+        }
+      },
+      "integration": "Les quatre évaluations s'intègrent",
+      "integrationHighlight": "parfaitement",
+      "integrationText": "pour créer votre",
+      "profileHighlight": "profil de leadership complet",
+      "insights": "Obtenez des insights approfondis sur vos forces, vos domaines de croissance et votre style de leadership unique.",
+      "startNow": "Commencer maintenant"
+    },
+    "choosePath": {
+      "title": "Choisissez votre parcours",
+      "subtitle": "Que vous soyez un leader individuel, un coach ou une organisation, nous avons la solution adaptée pour vous.",
+      "individual": {
+        "title": "INDIVIDUEL",
+        "description": "Parfait pour les leaders qui cherchent à développer leurs compétences de leadership personnelles et à acquérir une profonde conscience de soi.",
+        "features": {
+          "assessment": "Compléter les 4 évaluations",
+          "profile": "Profil de leadership personnel",
+          "insights": "Insights exploitables",
+          "tracking": "Suivi des progrès"
+        },
+        "explore": "Explorer"
+      },
+      "coach": {
+        "title": "COACH",
+        "description": "Conçu pour les coaches professionnels qui guident les leaders dans leur parcours de développement.",
+        "features": {
+          "clients": "Gérer plusieurs clients",
+          "reports": "Accéder aux rapports clients",
+          "progress": "Suivre les progrès des clients",
+          "tools": "Outils et ressources de coaching"
+        },
+        "explore": "Explorer"
+      },
+      "business": {
+        "title": "ENTREPRISE",
+        "description": "Solution complète pour les organisations engagées dans le développement de leurs talents de leadership.",
+        "features": {
+          "assessments": "Évaluations d'équipe",
+          "insights": "Insights à l'échelle de l'organisation",
+          "reporting": "Rapports personnalisés",
+          "support": "Support dédié"
+        },
+        "explore": "Explorer"
+      }
+    },
+    "testimonials": {
+      "title": "Ce que disent les leaders",
+      "testimonial1": {
+        "quote": "ARISE a transformé ma compréhension de mon style de leadership. L'évaluation complète m'a donné des insights que je n'avais jamais eus auparavant.",
+        "author": "Sarah Johnson",
+        "role": "PDG, Tech Innovations"
+      },
+      "testimonial2": {
+        "quote": "Le feedback 360° combiné aux évaluations de personnalité a fourni une image complète de mes forces et de mes domaines de croissance.",
+        "author": "Michael Chen",
+        "role": "VP Opérations, Global Corp"
+      },
+      "testimonial3": {
+        "quote": "En tant que coach, ARISE est devenu un outil inestimable pour aider mes clients à développer des capacités de leadership authentiques.",
+        "author": "Dr. Emily Rodriguez",
+        "role": "Coach exécutif"
+      }
+    },
+    "finalCTA": {
+      "title": "Prêt à élever votre leadership ?",
+      "subtitle": "Rejoignez des milliers de leaders qui ont découvert leur style de leadership authentique grâce à ARISE.",
+      "discoverMore": "En savoir plus",
+      "getStarted": "Commencer"
+    },
+    "footer": {
+      "description": "Autonomiser des leaders authentiques grâce à une évaluation et un développement holistiques.",
+      "aboutUs": "À propos de nous",
+      "ourStory": "Notre histoire",
+      "team": "Équipe",
+      "careers": "Carrières",
+      "support": "Support",
+      "helpCenter": "Centre d'aide",
+      "contactUs": "Nous contacter",
+      "faq": "FAQ",
+      "legal": "Légal",
+      "privacyPolicy": "Politique de confidentialité",
+      "termsOfService": "Conditions d'utilisation",
+      "cookiePolicy": "Politique des cookies",
+      "copyright": "© {year} Arise Human Capital. Tous droits réservés.",
+      "year": "2026"
+    }
   }
 }

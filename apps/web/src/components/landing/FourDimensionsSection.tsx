@@ -1,33 +1,36 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/routing';
 import Button from '@/components/ui/Button';
-import Link from 'next/link';
 
 export function FourDimensionsSection() {
+  const t = useTranslations('landing.fourDimensions');
+
   const dimensions = [
     {
       number: '01',
-      title: 'MBTI',
-      subtitle: 'Personality Assessment',
-      description: 'Understand your natural preferences and how you interact with the world around you through the Myers-Briggs Type Indicator.'
+      title: t('dimensions.mbti.title'),
+      subtitle: t('dimensions.mbti.subtitle'),
+      description: t('dimensions.mbti.description')
     },
     {
       number: '02',
-      title: 'TKI',
-      subtitle: 'Conflict Management',
-      description: 'Discover your conflict-handling styles and learn how to navigate challenging situations with confidence and effectiveness.'
+      title: t('dimensions.tki.title'),
+      subtitle: t('dimensions.tki.subtitle'),
+      description: t('dimensions.tki.description')
     },
     {
       number: '03',
-      title: '360°',
-      subtitle: 'Peer Leadership',
-      description: 'Gain comprehensive feedback from colleagues, managers, and direct reports to understand your leadership impact from all angles.'
+      title: t('dimensions.360.title'),
+      subtitle: t('dimensions.360.subtitle'),
+      description: t('dimensions.360.description')
     },
     {
       number: '04',
-      title: 'WELLNESS',
-      subtitle: 'Well-being Assessment',
-      description: 'Assess your physical and mental health, work-life balance, and overall wellness to ensure sustainable leadership performance.'
+      title: t('dimensions.wellness.title'),
+      subtitle: t('dimensions.wellness.subtitle'),
+      description: t('dimensions.wellness.description')
     }
   ];
 
@@ -36,13 +39,13 @@ export function FourDimensionsSection() {
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center mb-16">
           <p className="text-arise-gold text-sm uppercase tracking-widest mb-4">
-            OUR METHODOLOGY
+            {t('methodology')}
           </p>
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Four dimensions,
+            {t('title')}
           </h2>
           <h3 className="text-3xl md:text-4xl font-semibold text-white/90">
-            one unified profile
+            {t('subtitle')}
           </h3>
         </div>
 
@@ -74,11 +77,11 @@ export function FourDimensionsSection() {
 
         <div className="max-w-3xl mx-auto mt-12 text-center">
           <p className="text-xl text-white/90">
-            All four assessments integrate <span className="text-arise-gold font-semibold">seamlessly</span> to create your{' '}
-            <span className="text-arise-gold font-semibold">comprehensive leadership profile</span>.
+            {t('integration')} <span className="text-arise-gold font-semibold">{t('integrationHighlight')}</span> {t('integrationText')}{' '}
+            <span className="text-arise-gold font-semibold">{t('profileHighlight')}</span>.
           </p>
           <p className="text-lg text-white/70 mt-4">
-            Gain deep insights into your strengths, growth areas, and unique leadership style.
+            {t('insights')}
           </p>
           
           <div className="mt-8">
@@ -87,7 +90,7 @@ export function FourDimensionsSection() {
               size="lg"
               className="bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold px-8 py-6 text-lg"
             >
-              <Link href="/register">Commencer maintenant</Link>
+              <Link href="/register">{t('startNow')}</Link>
             </Button>
           </div>
         </div>

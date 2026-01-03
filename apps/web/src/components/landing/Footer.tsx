@@ -1,9 +1,12 @@
 'use client';
 
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/routing';
 import { Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
 
 export function Footer() {
+  const t = useTranslations('landing.footer');
+
   return (
     <footer className="bg-gray-900 text-white py-12">
       <div className="container mx-auto px-4">
@@ -12,27 +15,27 @@ export function Footer() {
           <div>
             <h3 className="text-2xl font-bold text-arise-gold mb-4">ARISE</h3>
             <p className="text-gray-400 text-sm">
-              Empowering authentic leaders through holistic assessment and development.
+              {t('description')}
             </p>
           </div>
 
           {/* About Us */}
           <div>
-            <h4 className="font-semibold text-lg mb-4">About Us</h4>
+            <h4 className="font-semibold text-lg mb-4">{t('aboutUs')}</h4>
             <ul className="space-y-2">
               <li>
                 <Link href="/about" className="text-gray-400 hover:text-arise-gold transition-colors">
-                  Our Story
+                  {t('ourStory')}
                 </Link>
               </li>
               <li>
                 <Link href="/team" className="text-gray-400 hover:text-arise-gold transition-colors">
-                  Team
+                  {t('team')}
                 </Link>
               </li>
               <li>
                 <Link href="/careers" className="text-gray-400 hover:text-arise-gold transition-colors">
-                  Careers
+                  {t('careers')}
                 </Link>
               </li>
             </ul>
@@ -40,21 +43,21 @@ export function Footer() {
 
           {/* Support */}
           <div>
-            <h4 className="font-semibold text-lg mb-4">Support</h4>
+            <h4 className="font-semibold text-lg mb-4">{t('support')}</h4>
             <ul className="space-y-2">
               <li>
                 <Link href="/help" className="text-gray-400 hover:text-arise-gold transition-colors">
-                  Help Center
+                  {t('helpCenter')}
                 </Link>
               </li>
               <li>
                 <Link href="/contact" className="text-gray-400 hover:text-arise-gold transition-colors">
-                  Contact Us
+                  {t('contactUs')}
                 </Link>
               </li>
               <li>
                 <Link href="/faq" className="text-gray-400 hover:text-arise-gold transition-colors">
-                  FAQ
+                  {t('faq')}
                 </Link>
               </li>
             </ul>
@@ -62,21 +65,21 @@ export function Footer() {
 
           {/* Legal */}
           <div>
-            <h4 className="font-semibold text-lg mb-4">Legal</h4>
+            <h4 className="font-semibold text-lg mb-4">{t('legal')}</h4>
             <ul className="space-y-2">
               <li>
                 <Link href="/privacy" className="text-gray-400 hover:text-arise-gold transition-colors">
-                  Privacy Policy
+                  {t('privacyPolicy')}
                 </Link>
               </li>
               <li>
                 <Link href="/terms" className="text-gray-400 hover:text-arise-gold transition-colors">
-                  Terms of Service
+                  {t('termsOfService')}
                 </Link>
               </li>
               <li>
                 <Link href="/cookies" className="text-gray-400 hover:text-arise-gold transition-colors">
-                  Cookie Policy
+                  {t('cookiePolicy')}
                 </Link>
               </li>
             </ul>
@@ -86,7 +89,7 @@ export function Footer() {
         {/* Social Links */}
         <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm mb-4 md:mb-0">
-            © {new Date().getFullYear()} Arise Human Capital. All rights reserved.
+            {t('copyright', { year: t('year') })}
           </p>
           <div className="flex space-x-6">
             <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-arise-gold transition-colors">

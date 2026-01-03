@@ -1,21 +1,25 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 export function TestimonialsSection() {
+  const t = useTranslations('landing.testimonials');
+
   const testimonials = [
     {
-      quote: "ARISE transformed how I understand my leadership style. The comprehensive assessment gave me insights I never had before.",
-      author: "Sarah Johnson",
-      role: "CEO, Tech Innovations"
+      quote: t('testimonial1.quote'),
+      author: t('testimonial1.author'),
+      role: t('testimonial1.role')
     },
     {
-      quote: "The 360° feedback combined with personality assessments provided a complete picture of my strengths and areas for growth.",
-      author: "Michael Chen",
-      role: "VP Operations, Global Corp"
+      quote: t('testimonial2.quote'),
+      author: t('testimonial2.author'),
+      role: t('testimonial2.role')
     },
     {
-      quote: "As a coach, ARISE has become an invaluable tool for helping my clients develop authentic leadership capabilities.",
-      author: "Dr. Emily Rodriguez",
-      role: "Executive Coach"
+      quote: t('testimonial3.quote'),
+      author: t('testimonial3.author'),
+      role: t('testimonial3.role')
     }
   ];
 
@@ -24,7 +28,7 @@ export function TestimonialsSection() {
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-bold text-arise-deep-teal mb-12 text-center">
-            What leaders say
+            {t('title')}
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
