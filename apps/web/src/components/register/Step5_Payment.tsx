@@ -36,12 +36,36 @@ function PaymentFormContent() {
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [loadingPlan, setLoadingPlan] = useState(true);
   const isMountedRef = useRef(true);
+  const isProcessingRef = useRef(false);
 
   // Track component mount status
   useEffect(() => {
     isMountedRef.current = true;
+    isProcessingRef.current = false;
+    
+    // Add global error handler for unhandled promise rejections
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const error = event.reason;
+      if (error && typeof error === 'object') {
+        const errorMessage = String(error.message || '');
+        const isStripeUnmountError = errorMessage.includes('Element') && 
+                                    (errorMessage.includes('mounted') || 
+                                     errorMessage.includes('retrieve data'));
+        
+        if (isStripeUnmountError && !isMountedRef.current) {
+          // Silently ignore if component is unmounted
+          event.preventDefault();
+          return;
+        }
+      }
+    };
+    
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    
     return () => {
       isMountedRef.current = false;
+      isProcessingRef.current = false;
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     };
   }, []);
 
@@ -101,6 +125,7 @@ function PaymentFormContent() {
     }
 
     setIsProcessing(true);
+    isProcessingRef.current = true;
     setError(null);
     setCardError(null);
 
@@ -123,6 +148,7 @@ function PaymentFormContent() {
         if (isMountedRef.current) {
           setError('Card element is no longer available. Please refresh the page.');
           setIsProcessing(false);
+          isProcessingRef.current = false;
         }
         return;
       }
@@ -156,6 +182,7 @@ function PaymentFormContent() {
           if (isMountedRef.current) {
             setError('Payment form was reset. Please try again.');
             setIsProcessing(false);
+            isProcessingRef.current = false;
           }
           return;
         }
@@ -172,6 +199,7 @@ function PaymentFormContent() {
         if (isMountedRef.current) {
           setCardError(pmError.message || 'An error occurred while processing your card.');
           setIsProcessing(false);
+          isProcessingRef.current = false;
         }
         return;
       }
@@ -180,6 +208,7 @@ function PaymentFormContent() {
         if (isMountedRef.current) {
           setError('Failed to create payment method. Please try again.');
           setIsProcessing(false);
+          isProcessingRef.current = false;
         }
         return;
       }
@@ -214,20 +243,22 @@ function PaymentFormContent() {
         
         // Reset processing state before changing step
         setIsProcessing(false);
+        isProcessingRef.current = false;
         
         // Use requestAnimationFrame + setTimeout to ensure all operations complete
         // before unmounting the component
         requestAnimationFrame(() => {
           setTimeout(() => {
-            if (isMountedRef.current) {
+            if (isMountedRef.current && !isProcessingRef.current) {
               setStep(6);
             }
-          }, 100);
+          }, 200);
         });
       } else {
         if (isMountedRef.current) {
           setError('Failed to create subscription. Please try again.');
           setIsProcessing(false);
+          isProcessingRef.current = false;
         }
       }
     } catch (err: unknown) {
@@ -250,6 +281,7 @@ function PaymentFormContent() {
           if (isMountedRef.current) {
             setError('Payment form was reset. Please try again.');
             setIsProcessing(false);
+            isProcessingRef.current = false;
           }
           return;
         }
@@ -284,6 +316,7 @@ function PaymentFormContent() {
       if (isMountedRef.current) {
         setError(errorMessage);
         setIsProcessing(false);
+        isProcessingRef.current = false;
       }
     }
   };
