@@ -103,16 +103,24 @@ function WellnessAssessmentContent() {
           }
           
           // Load existing answers and navigate to last unanswered question
-          // Only if we don't already have an assessmentId set (to avoid overwriting)
-          const { assessmentId: currentAssessmentId } = useWellnessStore.getState();
-          if (!currentAssessmentId || currentAssessmentId !== wellnessAssessment.id) {
-            console.log(`[Wellness] Loading existing answers for assessment ${wellnessAssessment.id}`);
-            await loadExistingAnswers(wellnessAssessment.id);
-          } else {
-            console.log(`[Wellness] Assessment ID already set (${currentAssessmentId}), skipping loadExistingAnswers`);
-            // Just ensure we're on the questions step
-            useWellnessStore.setState({ currentStep: 'questions' });
+          // Always call loadExistingAnswers to ensure we're at the right question
+          const { assessmentId: currentAssessmentId, currentStep: currentStepState } = useWellnessStore.getState();
+          
+          console.log(`[Wellness] Found existing assessment ${wellnessAssessment.id}, currentAssessmentId: ${currentAssessmentId}, currentStep: ${currentStepState}`);
+          
+          // Always load existing answers to ensure we're at the correct question
+          // This will merge local and backend answers and set currentQuestionIndex correctly
+          await loadExistingAnswers(wellnessAssessment.id);
+          
+          // After loading, check if we should show intro or questions
+          const { currentStep: updatedStep } = useWellnessStore.getState();
+          if (updatedStep === 'questions') {
+            // We have an in-progress assessment, skip intro and show questions
+            setShowIntro(false);
           }
+        } else {
+          // No existing assessment, show intro
+          setShowIntro(true);
         }
       } catch (err) {
         console.error('Failed to check existing assessments:', err);
@@ -122,7 +130,7 @@ function WellnessAssessmentContent() {
     };
 
     checkExistingAssessment();
-  }, [router]);
+  }, [router, loadExistingAnswers]);
 
   useEffect(() => {
     if (isCompleted) {

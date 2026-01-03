@@ -86,51 +86,56 @@ export const useWellnessStore = create<WellnessState>()(
       loadExistingAnswers: async (assessmentId: number) => {
         set({ isLoading: true, error: null });
         try {
-          const { answers: existingLocalAnswers } = get();
+          const { answers: existingLocalAnswers, currentQuestionIndex: currentIndex } = get();
           
-          // Only load from backend if we don't have local answers
-          // This prevents overwriting answers that haven't been saved yet
-          if (Object.keys(existingLocalAnswers).length > 0) {
-            console.log('[Wellness] Local answers exist, skipping load from backend to prevent overwrite');
-            // Just update assessmentId if needed
-            const currentAssessmentId = get().assessmentId;
-            if (currentAssessmentId !== assessmentId) {
-              set({ assessmentId, isLoading: false });
-            } else {
-              set({ isLoading: false });
-            }
-            return;
-          }
-
-          const existingAnswers = await getAssessmentAnswers(assessmentId);
-          
-          // Convert answer values to numbers (wellness uses 1-5 scale)
-          const answers: Record<string, number> = {};
-          Object.entries(existingAnswers).forEach(([questionId, answerValue]) => {
-            const numValue = parseInt(answerValue, 10);
-            if (!isNaN(numValue)) {
-              answers[questionId] = numValue;
-            }
-          });
-
-          console.log(`[Wellness] Loaded ${Object.keys(answers).length} answers from backend for assessment ${assessmentId}`);
-
-          // Find the first unanswered question
-          // Import wellnessQuestions to check which questions exist
-          const { wellnessQuestions } = await import('@/data/wellnessQuestionsReal');
-          let firstUnansweredIndex = 0;
-          for (let i = 0; i < wellnessQuestions.length; i++) {
-            const question = wellnessQuestions[i];
-            if (!question) continue;
-            if (!answers[question.id]) {
-              firstUnansweredIndex = i;
-              break;
+          // Helper function to find first unanswered question index
+          const findFirstUnansweredIndex = (answersToCheck: Record<string, number>): number => {
+            const { wellnessQuestions } = require('@/data/wellnessQuestionsReal');
+            for (let i = 0; i < wellnessQuestions.length; i++) {
+              const question = wellnessQuestions[i];
+              if (!question) continue;
+              if (!answersToCheck[question.id]) {
+                return i;
+              }
             }
             // If all questions are answered, stay at the last question
-            if (i === wellnessQuestions.length - 1) {
-              firstUnansweredIndex = i;
+            return wellnessQuestions.length - 1;
+          };
+
+          // If we have local answers, use them to find the first unanswered question
+          // but also merge with backend answers to ensure consistency
+          let answers: Record<string, number> = { ...existingLocalAnswers };
+          
+          try {
+            // Always try to load from backend to merge with local answers
+            const existingAnswers = await getAssessmentAnswers(assessmentId);
+            
+            // Convert answer values to numbers (wellness uses 1-5 scale)
+            Object.entries(existingAnswers).forEach(([questionId, answerValue]) => {
+              const numValue = parseInt(answerValue, 10);
+              if (!isNaN(numValue)) {
+                // Merge: backend answers take precedence (they're the source of truth)
+                answers[questionId] = numValue;
+              }
+            });
+
+            console.log(`[Wellness] Loaded ${Object.keys(existingAnswers).length} answers from backend for assessment ${assessmentId}`);
+            console.log(`[Wellness] Total answers (local + backend): ${Object.keys(answers).length}`);
+          } catch (error: unknown) {
+            // If backend load fails but we have local answers, use them
+            console.warn('[Wellness] Failed to load from backend, using local answers:', error);
+            if (Object.keys(existingLocalAnswers).length === 0) {
+              // No local answers either, re-throw the error
+              throw error;
             }
           }
+
+          // Find the first unanswered question based on merged answers
+          const { wellnessQuestions } = await import('@/data/wellnessQuestionsReal');
+          const firstUnansweredIndex = findFirstUnansweredIndex(answers);
+
+          console.log(`[Wellness] First unanswered question index: ${firstUnansweredIndex} (out of ${wellnessQuestions.length} total)`);
+          console.log(`[Wellness] Current question index before update: ${currentIndex}`);
 
           set({
             assessmentId,
@@ -139,6 +144,8 @@ export const useWellnessStore = create<WellnessState>()(
             currentStep: 'questions',
             isLoading: false,
           });
+
+          console.log(`[Wellness] Updated currentQuestionIndex to: ${firstUnansweredIndex}`);
         } catch (error: unknown) {
           console.error('[Wellness] Failed to load existing answers:', error);
           const errorMessage =
