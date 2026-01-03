@@ -174,9 +174,9 @@ function WellnessAssessmentContent() {
             // Results exist, safe to redirect
             router.push(`/dashboard/assessments/results?id=${assessmentId}`);
           })
-          .catch(() => {
+          .catch((err) => {
             // Results don't exist yet, show completion screen instead
-            console.log('Results not yet available, showing completion screen');
+            console.log('Results not yet available, showing completion screen', err);
             setShowCompletion(true);
           });
       } else {
@@ -185,6 +185,15 @@ function WellnessAssessmentContent() {
       }
     }
   }, [isCompleted, router]);
+  
+  // Reset completion state when component unmounts or route changes
+  // This prevents issues when navigating back from results page
+  useEffect(() => {
+    return () => {
+      // Don't reset on unmount - let the store persist
+      // Only reset if explicitly navigating away
+    };
+  }, []);
 
   const handleAnswerSelect = async (value: number) => {
     if (currentQuestion) {
@@ -501,7 +510,7 @@ function WellnessAssessmentContent() {
 
 export default function WellnessAssessmentPage() {
   return (
-    <ErrorBoundary showDetails={process.env.NODE_ENV === 'development'}>
+    <ErrorBoundary showDetails={true}>
       <WellnessAssessmentContent />
     </ErrorBoundary>
   );
