@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, Button, Stack } from '@/components/ui';
+import { Card, Button, Stack, Progress } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { Brain, Target, Users, Heart, Upload, CheckCircle, Lock, type LucideIcon, Loader2 } from 'lucide-react';
@@ -475,7 +475,7 @@ function AssessmentsContent() {
             const Icon = assessment.icon;
             return (
               <Card key={assessment.id} className="hover:shadow-lg transition-shadow">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-4 flex-1">
                     <div className="w-16 h-16 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center flex-shrink-0">
                       <Icon className="text-arise-deep-teal" size={32} />
@@ -504,6 +504,19 @@ function AssessmentsContent() {
                     {getActionButton(assessment)}
                   </div>
                 </div>
+                {/* Progress bar */}
+                {assessment.answerCount !== undefined && assessment.totalQuestions !== undefined && assessment.totalQuestions > 0 && (
+                  <div className="mt-4">
+                    <Progress
+                      value={assessment.answerCount}
+                      max={assessment.totalQuestions}
+                      variant={assessment.status === 'completed' ? 'success' : 'default'}
+                      size="md"
+                      showLabel={true}
+                      label={`Progression: ${assessment.answerCount}/${assessment.totalQuestions} questions`}
+                    />
+                  </div>
+                )}
               </Card>
             );
           })}
