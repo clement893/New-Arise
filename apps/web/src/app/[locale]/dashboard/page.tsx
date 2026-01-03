@@ -308,12 +308,12 @@ function DashboardContent() {
 
           {/* Wrapper for 3 sections with background color block */}
           <div className="relative mb-8" style={{ paddingBottom: '32px' }}>
-            {/* Background color block behind the 3 sections */}
+            {/* Background color block behind the 3 sections - starts a bit higher */}
             <div 
               className="absolute"
               style={{ 
                 backgroundColor: '#D5DEE0',
-                top: 0,
+                top: '-20px',
                 bottom: 0,
                 left: '-15%',
                 right: '-15%',
