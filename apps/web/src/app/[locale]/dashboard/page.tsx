@@ -435,7 +435,25 @@ function DashboardContent() {
           {/* Evaluations Section */}
           <MotionDiv variant="slideUp" delay={300}>
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Your evaluations</h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Your evaluations</h2>
+                <Button 
+                  variant="primary" 
+                  className="text-white font-semibold"
+                  style={{ backgroundColor: '#0f4c56' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#0f4c56';
+                    e.currentTarget.style.opacity = '0.9';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#0f4c56';
+                    e.currentTarget.style.opacity = '1';
+                  }}
+                  onClick={() => router.push('/dashboard/assessments')}
+                >
+                  Add assessment
+                </Button>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {evaluations.map((evaluation, index) => {
                   const Icon = evaluation.icon;
