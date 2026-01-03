@@ -104,7 +104,11 @@ function DevelopmentPlanContent() {
               </p>
             </div>
           </div>
-          <Button variant="primary" className="bg-arise-gold hover:bg-arise-gold/90 text-white">
+          <Button 
+            variant="primary" 
+            className="!bg-arise-gold hover:!bg-arise-gold/90 !text-white"
+            style={{ backgroundColor: '#d8b868', color: '#000000' }}
+          >
             Add New Goal
           </Button>
         </div>
