@@ -341,6 +341,37 @@ function WellnessAssessmentContent() {
   }
 
   // Question Screen
+  // Safety check: ensure we have valid question data before rendering
+  if (!currentQuestion || !wellnessQuestions || wellnessQuestions.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Card className="p-6">
+          <p className="text-gray-600 mb-4">Unable to load question data.</p>
+          <Button onClick={() => window.location.reload()}>Refresh Page</Button>
+        </Card>
+      </div>
+    );
+  }
+  
+  // Safety check: ensure currentQuestionIndex is valid
+  if (currentQuestionIndex < 0 || currentQuestionIndex >= wellnessQuestions.length) {
+    console.error('[Wellness] Invalid currentQuestionIndex:', {
+      currentQuestionIndex,
+      questionsLength: wellnessQuestions.length,
+    });
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Card className="p-6">
+          <p className="text-gray-600 mb-4">Invalid question index. Resetting...</p>
+          <Button onClick={() => {
+            useWellnessStore.setState({ currentQuestionIndex: 0 });
+            window.location.reload();
+          }}>Reset Assessment</Button>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="relative">
       <div 
