@@ -102,7 +102,9 @@ export const useWellnessStore = create<WellnessState>()(
           const { wellnessQuestions } = await import('@/data/wellnessQuestionsReal');
           let firstUnansweredIndex = 0;
           for (let i = 0; i < wellnessQuestions.length; i++) {
-            if (!answers[wellnessQuestions[i].id]) {
+            const question = wellnessQuestions[i];
+            if (!question) continue;
+            if (!answers[question.id]) {
               firstUnansweredIndex = i;
               break;
             }
