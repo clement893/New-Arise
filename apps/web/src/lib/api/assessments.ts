@@ -242,6 +242,20 @@ export interface EvaluatorStatus {
   completed_at: string | null;
 }
 
+/**
+ * Remove an evaluator from a 360 assessment
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
+ */
+export const remove360Evaluator = async (
+  assessmentId: number,
+  evaluatorId: number
+): Promise<{ message: string }> => {
+  const response = await apiClient.delete(
+    `/v1/assessments/${assessmentId}/evaluators/${evaluatorId}`
+  );
+  return response.data;
+};
+
 export interface EvaluatorsResponse {
   assessment_id: number;
   evaluators: EvaluatorStatus[];
