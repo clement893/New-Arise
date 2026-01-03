@@ -287,7 +287,6 @@ function EvaluatorsContent() {
             </div>
             {assessmentId && (
               <Button
-                variant="primary"
                 variant="arise-primary"
                 className="font-semibold"
                 onClick={() => setShowEvaluatorModal(true)}
