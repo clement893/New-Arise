@@ -325,6 +325,7 @@ function DashboardContent() {
                 right: '-15%',
                 width: 'calc(100% + 30%)',
                 zIndex: 0,
+                borderRadius: '16px',
               }}
             />
             
