@@ -419,6 +419,7 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
               animation: 'fadeInSlideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
               zIndex: 10,
               marginLeft: '15%',
+              marginRight: '5%',
             }}
           >
             {children}
