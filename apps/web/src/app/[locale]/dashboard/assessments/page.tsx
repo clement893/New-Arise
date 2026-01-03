@@ -137,18 +137,33 @@ function AssessmentsContent() {
         // Use utility function for consistent status determination
         let status: 'completed' | 'in-progress' | 'locked' | 'available' = 'available';
         if (apiAssessment) {
-          // Debug logging for Wellness assessments (always log in production for troubleshooting)
+          // Always log for Wellness assessments (even in production) for troubleshooting
           if (apiType === 'WELLNESS') {
             console.log(`[Assessments] Wellness assessment status check:`, {
               rawStatus: apiAssessment.status,
               assessmentId: apiAssessment.id,
               answerCount: apiAssessment.answer_count,
               totalQuestions: apiAssessment.total_questions,
-              status: apiAssessment.status
+              hasAllAnswers: apiAssessment.answer_count !== undefined && 
+                            apiAssessment.total_questions !== undefined &&
+                            apiAssessment.total_questions > 0 &&
+                            apiAssessment.answer_count >= apiAssessment.total_questions,
+              fullAssessment: apiAssessment
             });
           }
           
           status = determineAssessmentStatus(apiAssessment);
+          
+          // Always log the determined status for Wellness
+          if (apiType === 'WELLNESS') {
+            console.log(`[Assessments] Wellness assessment determined status:`, {
+              assessmentId: apiAssessment.id,
+              determinedStatus: status,
+              rawStatus: apiAssessment.status,
+              answerCount: apiAssessment.answer_count,
+              totalQuestions: apiAssessment.total_questions
+            });
+          }
           
           // Log if status was determined as completed but backend status wasn't
           if (status === 'completed' && 
@@ -264,6 +279,19 @@ function AssessmentsContent() {
 
   const getActionButton = (assessment: AssessmentDisplay) => {
     const isStarting = startingAssessment === assessment.assessmentType;
+    
+    // Debug logging for Wellness button determination
+    if (assessment.assessmentType === 'WELLNESS') {
+      console.log(`[Assessments] Wellness button determination:`, {
+        status: assessment.status,
+        answerCount: assessment.answerCount,
+        totalQuestions: assessment.totalQuestions,
+        assessmentId: assessment.assessmentId,
+        hasAllAnswers: assessment.answerCount !== undefined && 
+                      assessment.totalQuestions !== undefined && 
+                      assessment.answerCount >= assessment.totalQuestions
+      });
+    }
     
     switch (assessment.status) {
       case 'completed':
