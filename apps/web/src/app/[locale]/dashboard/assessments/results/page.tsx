@@ -94,10 +94,12 @@ function AssessmentResultsContent() {
             throw new Error('Failed to complete assessment. Please try again.');
           }
         } catch (submitError: unknown) {
-          console.error(`[Results] Failed to submit assessment ${id}:`, submitError);
-          const errorDetail = submitError && typeof submitError === 'object' && 'response' in submitError
-            ? (submitError as { response?: { data?: { detail?: string; message?: string } } }).response?.data?.detail
+          // Convert error to string to prevent React error #130
+          const errorMessage = submitError && typeof submitError === 'object' && 'response' in submitError
+            ? (submitError as { response?: { data?: { detail?: string; message?: string } } }).response?.data?.detail || 'Unknown error'
             : submitError instanceof Error ? submitError.message : 'Unknown error';
+          console.error(`[Results] Failed to submit assessment ${id}:`, errorMessage);
+          const errorDetail = errorMessage;
           
           setError(`Unable to complete assessment: ${errorDetail || 'Please ensure all questions are answered correctly.'}`);
           setIsLoading(false);
@@ -206,7 +208,9 @@ function AssessmentResultsContent() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (err: unknown) {
-      console.error('Error downloading PDF:', err);
+      // Convert error to string to prevent React error #130
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      console.error('Error downloading PDF:', errorMessage);
       setError('Failed to download PDF report. Please try again.');
     } finally {
       setIsDownloading(false);
@@ -483,7 +487,7 @@ function AssessmentResultsContent() {
 
 export default function AssessmentResultsPage() {
   return (
-    <ErrorBoundary>
+    <ErrorBoundary showDetails={process.env.NODE_ENV === 'development'}>
       <AssessmentResultsContent />
     </ErrorBoundary>
   );
