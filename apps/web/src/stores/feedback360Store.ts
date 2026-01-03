@@ -43,6 +43,53 @@ export const useFeedback360Store = create<Feedback360State>()(
         );
       },
 
+      // Load existing answers and navigate to last unanswered question
+      loadExistingAnswers: async (assessmentId: number) => {
+        set({ isLoading: true, error: null });
+        try {
+          const existingAnswers = await getAssessmentAnswers(assessmentId);
+          
+          // Convert answer values to numbers (360° uses 1-5 scale)
+          const answers: Record<string, number> = {};
+          Object.entries(existingAnswers).forEach(([questionId, answerValue]) => {
+            const numValue = parseInt(answerValue, 10);
+            if (!isNaN(numValue)) {
+              answers[questionId] = numValue;
+            }
+          });
+
+          // Find the first unanswered question
+          const { feedback360Questions } = await import('@/data/feedback360Questions');
+          let firstUnansweredIndex = 0;
+          for (let i = 0; i < feedback360Questions.length; i++) {
+            if (!answers[feedback360Questions[i].id]) {
+              firstUnansweredIndex = i;
+              break;
+            }
+            // If all questions are answered, stay at the last question
+            if (i === feedback360Questions.length - 1) {
+              firstUnansweredIndex = i;
+            }
+          }
+
+          set({
+            assessmentId,
+            answers,
+            currentQuestion: firstUnansweredIndex,
+            isLoading: false,
+          });
+        } catch (error: unknown) {
+          // Don't throw - allow user to continue even if load fails
+          // Only log in development for debugging
+          if (process.env.NODE_ENV === 'development') {
+            console.error('Failed to load existing answers:', error);
+          }
+          set({
+            isLoading: false,
+          });
+        }
+      },
+
       setAnswer: async (questionId: string, value: number) => {
         const { assessmentId, answers } = get();
 
