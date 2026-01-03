@@ -15,19 +15,29 @@ import { Footer } from '@/components/landing/Footer';
 export default function RegisterPage() {
   const step = useRegistrationStore((state) => state.step);
   const [prevStep, setPrevStep] = useState(step);
+  const [keepStep5Mounted, setKeepStep5Mounted] = useState(false);
 
   // Track step changes to handle Stripe component unmounting
   useEffect(() => {
+    // When transitioning from step 5 to 6, keep Step5 mounted for a bit
+    if (prevStep === 5 && step === 6) {
+      setKeepStep5Mounted(true);
+      // Clean up after 2 seconds to allow all Stripe operations to complete
+      const timer = setTimeout(() => {
+        setKeepStep5Mounted(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
     setPrevStep(step);
-  }, [step]);
+  }, [step, prevStep]);
 
   const renderStep = () => {
     // Keep Step5 mounted during transition from step 5 to 6 to prevent Stripe unmount errors
     // This ensures the Stripe element stays mounted until all operations complete
-    if (prevStep === 5 && step === 6) {
+    if (keepStep5Mounted && step === 6) {
       return (
         <>
-          <div style={{ position: 'absolute', visibility: 'hidden', pointerEvents: 'none' }}>
+          <div style={{ position: 'absolute', visibility: 'hidden', pointerEvents: 'none', width: 0, height: 0, overflow: 'hidden' }}>
             <Step5_Payment />
           </div>
           <Step6_CompleteProfile />
