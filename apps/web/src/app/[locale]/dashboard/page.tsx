@@ -105,7 +105,12 @@ function DashboardContent() {
         <Card className="p-6">
           <div className="text-center">
             <p className="text-red-600 mb-4">{error}</p>
-            <Button variant="primary" onClick={loadAssessments}>
+            <Button 
+              variant="primary" 
+              className="!bg-[#0F454D] hover:!bg-[#0d4148] text-white"
+              style={{ backgroundColor: '#0F454D', color: '#ffffff' }}
+              onClick={loadAssessments}
+            >
               Réessayer
             </Button>
           </div>
@@ -343,10 +348,10 @@ function DashboardContent() {
                     </div>
                     <Button 
                       variant="primary" 
-                      className="whitespace-nowrap font-semibold text-white"
+                      className="!bg-[#0F454D] hover:!bg-[#0d4148] whitespace-nowrap font-semibold text-white"
                       style={{ backgroundColor: '#0F454D' }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#0F454D';
+                        e.currentTarget.style.backgroundColor = '#0d4148';
                         e.currentTarget.style.opacity = '0.9';
                       }}
                       onMouseLeave={(e) => {
@@ -458,10 +463,10 @@ function DashboardContent() {
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Your evaluations</h2>
                     <Button 
                       variant="primary" 
-                      className="text-white font-semibold"
+                      className="!bg-[#0F454D] hover:!bg-[#0d4148] text-white font-semibold"
                       style={{ backgroundColor: '#0F454D', color: '#ffffff' }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#0F454D';
+                        e.currentTarget.style.backgroundColor = '#0d4148';
                         e.currentTarget.style.opacity = '0.9';
                       }}
                       onMouseLeave={(e) => {
