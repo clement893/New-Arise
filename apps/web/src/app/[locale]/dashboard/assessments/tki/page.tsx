@@ -29,9 +29,16 @@ export default function TKIAssessmentPage() {
   const [showIntro, setShowIntro] = useState(!assessmentId);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 
-  const currentQuestionData = tkiQuestions[currentQuestion];
-  const progress = ((currentQuestion + 1) / tkiQuestions.length) * 100;
-  const isLastQuestion = currentQuestion === tkiQuestions.length - 1;
+  // Safety check: ensure tkiQuestions is loaded and currentQuestion is valid
+  const currentQuestionData = tkiQuestions && tkiQuestions.length > 0 && currentQuestion >= 0 && currentQuestion < tkiQuestions.length
+    ? tkiQuestions[currentQuestion]
+    : null;
+  const progress = tkiQuestions && tkiQuestions.length > 0
+    ? ((currentQuestion + 1) / tkiQuestions.length) * 100
+    : 0;
+  const isLastQuestion = tkiQuestions && tkiQuestions.length > 0
+    ? currentQuestion === tkiQuestions.length - 1
+    : false;
 
   // Check for existing assessment and load answers on mount
   useEffect(() => {
@@ -203,16 +210,40 @@ export default function TKIAssessmentPage() {
   }
 
   // Early return if no question data
-  if (!currentQuestionData) {
+  if (!currentQuestionData || !tkiQuestions || tkiQuestions.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-arise-teal via-arise-teal-dark to-arise-teal flex items-center justify-center p-4">
         <Card className="bg-white p-8 text-center">
-          <p className="text-gray-600 mb-4">Question not found</p>
+          <p className="text-gray-600 mb-4">Unable to load question data.</p>
           <Button
-            onClick={() => router.push('/dashboard/assessments')}
+            onClick={() => window.location.reload()}
             className="bg-arise-gold hover:bg-arise-gold-dark text-white"
           >
-            Back to Assessments
+            Refresh Page
+          </Button>
+        </Card>
+      </div>
+    );
+  }
+  
+  // Safety check: ensure currentQuestion is valid
+  if (currentQuestion < 0 || currentQuestion >= tkiQuestions.length) {
+    console.error('[TKI] Invalid currentQuestion:', {
+      currentQuestion,
+      questionsLength: tkiQuestions.length,
+    });
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-arise-teal via-arise-teal-dark to-arise-teal flex items-center justify-center p-4">
+        <Card className="bg-white p-8 text-center">
+          <p className="text-gray-600 mb-4">Invalid question index. Resetting...</p>
+          <Button
+            onClick={() => {
+              useTKIStore.setState({ currentQuestion: 0 });
+              window.location.reload();
+            }}
+            className="bg-arise-gold hover:bg-arise-gold-dark text-white"
+          >
+            Reset Assessment
           </Button>
         </Card>
       </div>

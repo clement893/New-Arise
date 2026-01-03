@@ -32,7 +32,10 @@ export default function Feedback360Page() {
   const [screen, setScreen] = useState<'intro' | 'questions' | 'complete'>('intro');
   const [selectedValue, setSelectedValue] = useState<number | null>(null);
 
-  const question = feedback360Questions[currentQuestion];
+  // Safety check: ensure feedback360Questions is loaded and currentQuestion is valid
+  const question = feedback360Questions && feedback360Questions.length > 0 && currentQuestion >= 0 && currentQuestion < feedback360Questions.length
+    ? feedback360Questions[currentQuestion]
+    : null;
   const progress = getProgress();
 
   // Get assessmentId from URL params (set when coming from /360-feedback/start)
