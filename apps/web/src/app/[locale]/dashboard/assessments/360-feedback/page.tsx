@@ -249,9 +249,9 @@ export default function Feedback360Page() {
       <div className="mx-auto max-w-4xl">
         {/* Progress Bar */}
         <div className="mb-6">
-          <div className="mb-2 flex items-center justify-between text-sm text-white">
-            <span>Question {currentQuestion + 1} of 30</span>
-            <span>{progress}% Complete</span>
+          <div className="mb-2 flex items-center justify-between text-sm">
+            <span className="text-white">Question {currentQuestion + 1} of 30</span>
+            <span className="text-white">{progress}% Complete</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-white/30">
             <div
@@ -261,12 +261,13 @@ export default function Feedback360Page() {
           </div>
         </div>
 
-        <MotionDiv
-          key={currentQuestion}
-          variant="slideUp"
-          duration="normal"
-          className="rounded-lg bg-white p-8 shadow-lg"
-        >
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <MotionDiv
+            key={currentQuestion}
+            variant="slideUp"
+            duration="normal"
+            className="rounded-lg bg-white p-8 shadow-lg w-full max-w-4xl"
+          >
           {/* Capability Badge */}
           <div className="mb-4">
             <span className="inline-flex items-center gap-2 rounded-full bg-arise-teal/10 px-4 py-2 text-sm font-medium text-arise-teal">
@@ -340,6 +341,7 @@ export default function Feedback360Page() {
             </Button>
           </div>
         </MotionDiv>
+        </div>
       </div>
     </div>
   );

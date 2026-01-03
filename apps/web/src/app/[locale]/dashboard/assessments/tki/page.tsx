@@ -193,10 +193,10 @@ export default function TKIAssessmentPage() {
         {/* Progress Bar */}
         <div className="mb-4">
           <div className="flex justify-between text-white text-sm mb-2">
-            <span>
+            <span className="text-white">
               Question {currentQuestion + 1} of {tkiQuestions.length}
             </span>
-            <span>{Math.round(progress)}% Complete</span>
+            <span className="text-white">{Math.round(progress)}% Complete</span>
           </div>
           <div className="w-full bg-white/20 rounded-full h-2">
             <div

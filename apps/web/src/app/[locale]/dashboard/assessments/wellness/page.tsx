@@ -312,10 +312,10 @@ function WellnessAssessmentContent() {
           {/* Progress Bar */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-600">
+              <span className="text-sm font-medium text-white">
                 Question {currentQuestionIndex + 1} of {wellnessQuestions.length}
               </span>
-              <span className="text-sm font-medium text-arise-deep-teal">
+              <span className="text-sm font-medium text-white">
                 {progress}% Complete
               </span>
             </div>
@@ -327,21 +327,22 @@ function WellnessAssessmentContent() {
             </div>
           </div>
 
-          {/* Question Card */}
-          <div className="max-w-4xl mx-auto">
-            <MotionDiv variant="slideUp" duration="fast" key={currentQuestionIndex}>
-              <Card className="mb-6">
-                <div className="mb-8">
-                  <div className="inline-block px-3 py-1 bg-arise-deep-teal/10 text-arise-deep-teal rounded-full text-sm font-medium mb-4">
-                    {wellnessPillars.find(p => p.name === currentQuestion?.pillar)?.name}
+          {/* Question Card - Centered */}
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="max-w-4xl w-full">
+              <MotionDiv variant="slideUp" duration="fast" key={currentQuestionIndex}>
+                <Card className="mb-6">
+                  <div className="mb-8">
+                    <div className="inline-block px-3 py-1 bg-arise-deep-teal/10 text-arise-deep-teal rounded-full text-sm font-medium mb-4">
+                      {wellnessPillars.find(p => p.name === currentQuestion?.pillar)?.name}
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      {currentQuestion?.question}
+                    </h2>
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-900">
-                    {currentQuestion?.question}
-                  </h2>
-                </div>
 
-                {/* Scale Options */}
-                <div className="grid grid-cols-5 gap-4">
+                  {/* Scale Options */}
+                  <div className="grid grid-cols-5 gap-4">
                   {scaleOptions.map((option) => (
                     <button
                       key={option.value}
@@ -369,30 +370,31 @@ function WellnessAssessmentContent() {
                       </div>
                     </button>
                   ))}
-                </div>
-              </Card>
+                  </div>
+                </Card>
 
-              {/* Navigation Buttons */}
-              <div className="flex justify-between">
-                <Button
-                  variant="outline"
-                  onClick={handleBack}
-                  className="flex items-center gap-2"
-                >
-                  <ArrowLeft size={20} />
-                  Back
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={handleNext}
-                  disabled={!currentAnswer}
-                  className="flex items-center gap-2"
-                >
-                  {isLastQuestion ? 'Complete' : 'Next'}
-                  <ArrowRight size={20} />
-                </Button>
-              </div>
-            </MotionDiv>
+                {/* Navigation Buttons */}
+                <div className="flex justify-between">
+                  <Button
+                    variant="outline"
+                    onClick={handleBack}
+                    className="flex items-center gap-2"
+                  >
+                    <ArrowLeft size={20} />
+                    Back
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={handleNext}
+                    disabled={!currentAnswer}
+                    className="flex items-center gap-2"
+                  >
+                    {isLastQuestion ? 'Complete' : 'Next'}
+                    <ArrowRight size={20} />
+                  </Button>
+                </div>
+              </MotionDiv>
+            </div>
           </div>
         </div>
     </div>
