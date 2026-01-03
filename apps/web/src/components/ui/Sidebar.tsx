@@ -134,6 +134,13 @@ export default function Sidebar({
       normalizedActivePath === normalizedHref || 
       (normalizedActivePath && normalizedHref && normalizedActivePath.startsWith(normalizedHref + '/'))
     );
+    
+    // Debug in development
+    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development' && item.href) {
+      if (normalizedActivePath === normalizedHref || (normalizedActivePath && normalizedHref && normalizedActivePath.startsWith(normalizedHref + '/'))) {
+        console.log('[Sidebar] Active item detected:', item.label, 'Path:', normalizedActivePath, 'Href:', normalizedHref);
+      }
+    }
 
     return (
       <div key={item.label}>

@@ -529,13 +529,13 @@ function DashboardContent() {
 
           {/* Color block under all 3 sections - wider */}
           <div 
-            className="mb-8"
+            className="mb-8 absolute left-0 right-0"
             style={{ 
               backgroundColor: '#d5dee0',
               height: '32px',
-              marginLeft: '-15%',
-              marginRight: '-15%',
-              width: 'calc(100% + 30%)',
+              width: '100vw',
+              marginLeft: 'calc(-15% - var(--content-padding, 0px))',
+              position: 'relative',
             }}
           />
 
