@@ -159,7 +159,7 @@ function AssessmentResultsContent() {
       />
       <div className="relative z-10 p-8">
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-8 pb-6">
             <Button
               variant="outline"
               onClick={() => router.push('/dashboard/assessments')}

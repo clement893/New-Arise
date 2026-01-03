@@ -255,7 +255,7 @@ function EvaluatorsContent() {
   return (
     <>
       <MotionDiv variant="fade" duration="normal">
-        <div className="mb-8">
+        <div className="mb-8 pb-6">
           <div className="flex items-center gap-4 mb-4">
             <Button
               variant="outline"

@@ -467,7 +467,7 @@ function AssessmentsContent() {
   return (
     <>
       <MotionDiv variant="fade" duration="normal">
-        <div className="mb-8">
+        <div className="mb-8 pb-6">
           <h1 className="text-4xl font-bold mb-2">
             <span className="text-white">Vos </span>
             <span style={{ color: '#D5B667' }}>assessments</span>

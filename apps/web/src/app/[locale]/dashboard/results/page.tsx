@@ -152,7 +152,7 @@ function ResultsReportsContent() {
   if (isLoading) {
     return (
       <div className="space-y-8">
-        <div className="mb-8">
+        <div className="mb-8 pb-6">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             Results & Reports
           </h1>
@@ -170,7 +170,7 @@ function ResultsReportsContent() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-8 pb-6">
         <h1 className="text-4xl font-bold text-gray-900 mb-2">
           Results & Reports
         </h1>

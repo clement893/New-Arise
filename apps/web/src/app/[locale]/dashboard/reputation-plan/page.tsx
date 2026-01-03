@@ -10,7 +10,7 @@ import { Award } from 'lucide-react';
 function ReputationPlanContent() {
   return (
     <div className="space-y-8">
-      <div className="mb-8">
+      <div className="mb-8 pb-6">
         <h1 className="text-4xl font-bold text-arise-deep-teal mb-2">
           Reputation Plan
         </h1>

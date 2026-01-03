@@ -169,7 +169,7 @@ export default function TKIResultsPage() {
               Back to Assessments
             </Button>
 
-            <div className="mb-8">
+            <div className="mb-8 pb-6">
               <h1 className="text-4xl font-bold text-arise-teal mb-2">
                 TKI Conflict Style Results
               </h1>
