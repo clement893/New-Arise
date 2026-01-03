@@ -25,6 +25,10 @@ function AppContent({ children }: { children: React.ReactNode }) {
   
   // Check if it's an auth page (login, register, etc.) - these should have their own backgrounds
   const isAuthPage = pathname?.includes('/auth/');
+  
+  // Check if it's the landing page (home page) - it has its own Header and Footer
+  const isLandingPage = pathname === '/' || pathname === '/fr' || pathname === '/en' || 
+                        (pathname?.match(/^\/[a-z]{2}$/) !== null);
 
   useEffect(() => {
     // Track page views
@@ -119,6 +123,11 @@ function AppContent({ children }: { children: React.ReactNode }) {
 
   // For auth pages, don't wrap with Header/Footer or background - let them handle their own styling
   if (isAuthPage) {
+    return <>{children}</>;
+  }
+
+  // For landing page, don't wrap with Header/Footer - it has its own ARISE Header and Footer
+  if (isLandingPage) {
     return <>{children}</>;
   }
 
