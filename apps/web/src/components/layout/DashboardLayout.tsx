@@ -414,11 +414,11 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
           {/* Page Content - This is the only part that updates on navigation */}
           <main 
             key={pathname} 
-            className="flex-1 overflow-y-auto px-3 sm:px-4 md:px-6 xl:px-8 2xl:px-10 py-4 sm:py-6 2xl:py-8 relative"
+            className="flex-1 overflow-y-auto px-2 sm:px-3 md:px-4 xl:px-6 2xl:px-8 py-4 sm:py-6 2xl:py-8 relative"
             style={{
               animation: 'fadeInSlideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
               zIndex: 10,
-              marginLeft: '15%',
+              marginLeft: '14%',
               marginRight: '5%',
               scrollbarWidth: 'none', // Firefox
               msOverflowStyle: 'none', // IE and Edge

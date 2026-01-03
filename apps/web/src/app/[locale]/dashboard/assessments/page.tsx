@@ -135,16 +135,18 @@ function AssessmentsContent() {
         
         let status: 'completed' | 'in-progress' | 'locked' | 'available' = 'available';
         if (apiAssessment) {
-          // Normalize status for comparison (backend returns lowercase with underscores)
-          // Backend enum values: "completed", "in_progress", "not_started"
+          // Normalize status for comparison (backend can return various formats)
+          // Backend enum values: "completed", "in_progress", "not_started" (or uppercase versions)
           const rawStatus = String(apiAssessment.status);
-          const normalizedStatus = rawStatus.toLowerCase().replace(/_/g, '_');
+          
+          // Normalize to lowercase and replace underscores/hyphens for consistent comparison
+          const statusNormalized = rawStatus.toLowerCase().trim().replace(/[_-]/g, '');
           
           // Debug logging for Wellness assessments (always log in production for troubleshooting)
           if (apiType === 'WELLNESS') {
             console.log(`[Assessments] Wellness assessment status check:`, {
               rawStatus,
-              normalizedStatus,
+              statusNormalized,
               assessmentId: apiAssessment.id,
               answerCount: apiAssessment.answer_count,
               totalQuestions: apiAssessment.total_questions,
@@ -152,37 +154,32 @@ function AssessmentsContent() {
             });
           }
           
-          // Check status (backend returns: "completed", "in_progress", "not_started")
-          // Normalize to lowercase for comparison
-          const statusLower = rawStatus.toLowerCase().trim();
+          // First, check if assessment is actually completed by checking answer count
+          // This handles cases where status might not be updated correctly
+          const hasAllAnswers = apiAssessment.answer_count !== undefined && 
+                                apiAssessment.total_questions !== undefined &&
+                                apiAssessment.total_questions > 0 &&
+                                apiAssessment.answer_count >= apiAssessment.total_questions;
           
-          // Always log for Wellness to debug
-          if (apiType === 'WELLNESS') {
-            console.log(`[Assessments] Status comparison for Wellness:`, {
-              rawStatus,
-              statusLower,
-              matchesCompleted: statusLower === 'completed',
-              answerCount: apiAssessment.answer_count,
-              totalQuestions: apiAssessment.total_questions
-            });
-          }
-          
-          if (statusLower === 'completed') {
+          if (hasAllAnswers) {
+            // All questions answered, treat as completed regardless of status
             status = 'completed';
-          } else if (statusLower === 'in_progress' || statusLower === 'not_started') {
+            if (statusNormalized !== 'completed') {
+              console.log(`[Assessments] Assessment ${apiAssessment.id} (${apiType}) has all answers (${apiAssessment.answer_count}/${apiAssessment.total_questions}) but status is "${rawStatus}", treating as completed`);
+            }
+          } else if (statusNormalized === 'completed' || statusNormalized === 'complete') {
+            // Status explicitly says completed
+            status = 'completed';
+          } else if (statusNormalized === 'inprogress' || statusNormalized === 'in_progress' || statusNormalized === 'notstarted' || statusNormalized === 'not_started') {
+            // Status is in progress or not started, and not all answers are provided
             status = 'in-progress';
           } else {
-            // If status is unknown but assessment exists, check if it has all answers
-            // This handles edge cases where status might not be updated correctly
-            if (apiAssessment.answer_count !== undefined && 
-                apiAssessment.total_questions !== undefined &&
-                apiAssessment.answer_count >= apiAssessment.total_questions) {
-              // All questions answered, treat as completed
-              status = 'completed';
-              console.warn(`[Assessments] Assessment ${apiAssessment.id} has all answers (${apiAssessment.answer_count}/${apiAssessment.total_questions}) but status is "${rawStatus}", treating as completed`);
+            // Unknown status - log for debugging but default to in-progress if there are some answers
+            console.warn(`[Assessments] Unknown status "${rawStatus}" for assessment ${apiAssessment.id}, type ${apiType}`);
+            if (apiAssessment.answer_count !== undefined && apiAssessment.answer_count > 0) {
+              status = 'in-progress';
             } else {
-              // Log unknown status for debugging
-              console.warn(`[Assessments] Unknown status "${rawStatus}" for assessment ${apiAssessment.id}, type ${apiType}`);
+              status = 'available';
             }
           }
         }
@@ -462,8 +459,9 @@ function AssessmentsContent() {
     <>
       <MotionDiv variant="fade" duration="normal">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">
-            Vos assessments
+          <h1 className="text-4xl font-bold mb-2">
+            <span className="text-white">Vos </span>
+            <span style={{ color: '#D5B667' }}>assessments</span>
           </h1>
           <p className="text-white">
             Suivez et gérez vos assessments de leadership
@@ -494,11 +492,19 @@ function AssessmentsContent() {
             <Stack gap="normal">
               {assessments.map((assessment) => {
                 const Icon = assessment.icon;
+                const is360Feedback = assessment.assessmentType === 'THREE_SIXTY_SELF';
                 return (
-                  <Card key={assessment.id} className="hover:shadow-lg transition-shadow">
+                  <Card 
+                    key={assessment.id} 
+                    className="hover:shadow-lg transition-shadow"
+                    style={is360Feedback ? { backgroundColor: '#e7eeef' } : undefined}
+                  >
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-4 flex-1">
-                        <div className="w-16 h-16 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <div 
+                          className="w-16 h-16 rounded-lg flex items-center justify-center flex-shrink-0"
+                          style={{ backgroundColor: '#e7eeef' }}
+                        >
                           <Icon className="text-arise-deep-teal" size={32} />
                         </div>
                         <div className="flex-1">
@@ -532,9 +538,12 @@ function AssessmentsContent() {
                         let progressValue = 0;
                         let progressMax = 100;
                         let progressLabel = 'Progression';
+                        let progressPercentage = 0;
                         
                         if (assessment.status === 'completed') {
                           progressValue = 100;
+                          progressMax = 100;
+                          progressPercentage = 100;
                           progressLabel = 'Terminé';
                         } else if (assessment.status === 'in-progress' && 
                                    assessment.answerCount !== undefined && 
@@ -542,59 +551,83 @@ function AssessmentsContent() {
                                    assessment.totalQuestions > 0) {
                           progressValue = assessment.answerCount;
                           progressMax = assessment.totalQuestions;
+                          progressPercentage = Math.round((assessment.answerCount / assessment.totalQuestions) * 100);
                           progressLabel = `Progression: ${assessment.answerCount}/${assessment.totalQuestions} questions`;
                         } else if (assessment.status === 'available') {
                           progressValue = 0;
+                          progressMax = 100;
+                          progressPercentage = 0;
                           progressLabel = 'Non commencé';
                         } else if (assessment.status === 'locked') {
                           progressValue = 0;
+                          progressMax = 100;
+                          progressPercentage = 0;
                           progressLabel = 'Verrouillé';
                         }
                         
+                        // Determine bar color: #d8b868 when there's progress, gray when 0
+                        const barColor = progressPercentage > 0 ? '#d8b868' : '#9ca3af';
+                        
                         return (
-                          <Progress
-                            value={progressValue}
-                            max={progressMax}
-                            variant={assessment.status === 'completed' ? 'success' : 'default'}
-                            size="md"
-                            showLabel={true}
-                            label={progressLabel}
-                          />
+                          <div className="w-full">
+                            <div className="flex justify-between items-center mb-1">
+                              <span className="text-sm font-medium text-gray-700">
+                                {progressLabel}
+                              </span>
+                              <span className="text-sm text-gray-600">{progressPercentage}%</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                              <div
+                                className="h-full rounded-full transition-all duration-300"
+                                style={{ 
+                                  width: `${progressPercentage}%`,
+                                  backgroundColor: barColor
+                                }}
+                                role="progressbar"
+                                aria-valuenow={progressValue}
+                                aria-valuemin={0}
+                                aria-valuemax={progressMax}
+                              />
+                            </div>
+                          </div>
                         );
                       })()}
                     </div>
+                    
+                    {/* 360 Feedback Evaluators Section - integrated in the same Card */}
+                    {is360Feedback && (
+                      <div className="mt-6 pt-6 border-t border-gray-300">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div 
+                              className="w-12 h-12 rounded-full flex items-center justify-center"
+                              style={{ backgroundColor: '#e7eeef' }}
+                            >
+                              <Users className="text-arise-gold" size={24} />
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-bold text-gray-900 mb-1">
+                                Ajoutez vos évaluateurs avant de commencer cet assessment
+                              </h3>
+                              <p className="text-sm text-gray-600">
+                                Invitez des collègues à fournir un feedback 360° sur votre leadership
+                              </p>
+                            </div>
+                          </div>
+                          <Button 
+                            variant="primary"
+                            className="!bg-arise-gold !text-white hover:!bg-arise-gold/90"
+                            style={{ backgroundColor: '#d8b868', color: '#000000' }}
+                            onClick={() => setShowEvaluatorModal(true)}
+                          >
+                            Ajouter
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </Card>
                 );
               })}
-
-              {/* 360 Feedback Evaluators Section */}
-              {assessments.find(a => a.assessmentType === 'THREE_SIXTY_SELF') && (
-                <Card className="bg-arise-gold/10 border-2 border-arise-gold/30">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-arise-gold/20 rounded-full flex items-center justify-center">
-                        <Users className="text-arise-gold" size={24} />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-bold text-gray-900 mb-1">
-                          Ajoutez vos évaluateurs avant de commencer cet assessment
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          Invitez des collègues à fournir un feedback 360° sur votre leadership
-                        </p>
-                      </div>
-                    </div>
-                    <Button 
-                      variant="primary"
-                      className="!bg-arise-gold !text-white hover:!bg-arise-gold/90"
-                      style={{ backgroundColor: '#d8b868', color: '#000000' }}
-                      onClick={() => setShowEvaluatorModal(true)}
-                    >
-                      Ajouter
-                    </Button>
-                  </div>
-                </Card>
-              )}
             </Stack>
           </MotionDiv>
         </div>
