@@ -410,7 +410,20 @@ function DashboardContent() {
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="border-2 border-white text-white hover:bg-white/10"
+                  className="text-white font-semibold"
+                  style={{ 
+                    borderColor: '#0f4c56', 
+                    borderWidth: '2px',
+                    backgroundColor: 'transparent'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#0f4c56';
+                    e.currentTarget.style.opacity = '0.9';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.opacity = '1';
+                  }}
                   onClick={() => router.push('/dashboard/results')}
                 >
                   View Reports
