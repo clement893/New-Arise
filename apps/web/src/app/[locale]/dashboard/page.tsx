@@ -199,29 +199,8 @@ function DashboardContent() {
       }
       const assessment = assessments.find(a => a.assessment_type === type);
       
-      let status: 'completed' | 'in-progress' | 'locked' | 'available' = 'available';
-      if (assessment) {
-        // First, check if assessment is actually completed by checking answer count
-        const hasAllAnswers = assessment.answer_count !== undefined && 
-                              assessment.total_questions !== undefined &&
-                              assessment.total_questions > 0 &&
-                              assessment.answer_count >= assessment.total_questions;
-        
-        if (hasAllAnswers || assessment.status === 'COMPLETED') {
-          status = 'completed';
-        } else if (assessment.status === 'NOT_STARTED') {
-          // Assessment créé mais pas encore commencé
-          // Si answer_count est 0 ou undefined, c'est disponible (pas commencé)
-          // Si answer_count > 0, c'est en cours
-          if (assessment.answer_count === undefined || assessment.answer_count === 0) {
-            status = 'available'; // Pas encore commencé, affichera "Commencer"
-          } else {
-            status = 'in-progress'; // Commencé mais pas complété, affichera "Continuer"
-          }
-        } else if (assessment.status === 'IN_PROGRESS') {
-          status = 'in-progress';
-        }
-      }
+      // Use utility function for consistent status determination
+      const status = determineAssessmentStatus(assessment);
       
       const evaluation: EvaluationItem = {
         title: config.title,
@@ -312,22 +291,40 @@ function DashboardContent() {
       );
     }
 
-    // Cas: En cours avec toutes les réponses → Voir les résultats
+    // Cas: En cours avec toutes les réponses → Voir les résultats (avec soumission auto)
     if (evaluation.status === 'in-progress' && 
         evaluation.answerCount !== undefined && 
         evaluation.totalQuestions !== undefined && 
-        evaluation.answerCount >= evaluation.totalQuestions) {
+        evaluation.answerCount >= evaluation.totalQuestions &&
+        evaluation.assessmentId) {
       return (
         <Button 
           variant="outline" 
           className="w-full rounded-full"
-          onClick={() => {
-            if (evaluation.assessmentType === 'TKI' && evaluation.assessmentId) {
-              router.push(`/dashboard/assessments/tki/results?id=${evaluation.assessmentId}`);
-            } else if (evaluation.assessmentType === 'WELLNESS' && evaluation.assessmentId) {
-              router.push(`/dashboard/assessments/results?id=${evaluation.assessmentId}`);
-            } else if (evaluation.assessmentType === 'THREE_SIXTY_SELF' && evaluation.assessmentId) {
-              router.push(`/dashboard/assessments/360-feedback/results?id=${evaluation.assessmentId}`);
+          onClick={async () => {
+            if (!evaluation.assessmentId) return;
+            
+            try {
+              // Submit assessment first if not already submitted
+              await submitAssessment(evaluation.assessmentId);
+              // Then redirect to results
+              if (evaluation.assessmentType === 'TKI') {
+                router.push(`/dashboard/assessments/tki/results?id=${evaluation.assessmentId}`);
+              } else if (evaluation.assessmentType === 'WELLNESS') {
+                router.push(`/dashboard/assessments/results?id=${evaluation.assessmentId}`);
+              } else if (evaluation.assessmentType === 'THREE_SIXTY_SELF') {
+                router.push(`/dashboard/assessments/360-feedback/results?id=${evaluation.assessmentId}`);
+              }
+            } catch (err) {
+              console.error('Failed to submit assessment:', err);
+              // If submission fails, try to go to results anyway (might already be submitted)
+              if (evaluation.assessmentType === 'TKI') {
+                router.push(`/dashboard/assessments/tki/results?id=${evaluation.assessmentId}`);
+              } else if (evaluation.assessmentType === 'WELLNESS') {
+                router.push(`/dashboard/assessments/results?id=${evaluation.assessmentId}`);
+              } else if (evaluation.assessmentType === 'THREE_SIXTY_SELF') {
+                router.push(`/dashboard/assessments/360-feedback/results?id=${evaluation.assessmentId}`);
+              }
             }
           }}
         >

@@ -133,20 +133,13 @@ function AssessmentsContent() {
         }
         const apiAssessment = existingAssessmentsMap.get(apiType);
         
+        // Use utility function for consistent status determination
         let status: 'completed' | 'in-progress' | 'locked' | 'available' = 'available';
         if (apiAssessment) {
-          // Normalize status for comparison (backend can return various formats)
-          // Backend enum values: "completed", "in_progress", "not_started" (or uppercase versions)
-          const rawStatus = String(apiAssessment.status);
-          
-          // Normalize to lowercase and replace underscores/hyphens for consistent comparison
-          const statusNormalized = rawStatus.toLowerCase().trim().replace(/[_-]/g, '');
-          
           // Debug logging for Wellness assessments (always log in production for troubleshooting)
           if (apiType === 'WELLNESS') {
             console.log(`[Assessments] Wellness assessment status check:`, {
-              rawStatus,
-              statusNormalized,
+              rawStatus: apiAssessment.status,
               assessmentId: apiAssessment.id,
               answerCount: apiAssessment.answer_count,
               totalQuestions: apiAssessment.total_questions,
@@ -154,42 +147,13 @@ function AssessmentsContent() {
             });
           }
           
-          // First, check if assessment is actually completed by checking answer count
-          // This handles cases where status might not be updated correctly
-          const hasAllAnswers = apiAssessment.answer_count !== undefined && 
-                                apiAssessment.total_questions !== undefined &&
-                                apiAssessment.total_questions > 0 &&
-                                apiAssessment.answer_count >= apiAssessment.total_questions;
+          status = determineAssessmentStatus(apiAssessment);
           
-          if (hasAllAnswers) {
-            // All questions answered, treat as completed regardless of status
-            status = 'completed';
-            if (statusNormalized !== 'completed') {
-              console.log(`[Assessments] Assessment ${apiAssessment.id} (${apiType}) has all answers (${apiAssessment.answer_count}/${apiAssessment.total_questions}) but status is "${rawStatus}", treating as completed`);
-            }
-          } else if (statusNormalized === 'completed' || statusNormalized === 'complete') {
-            // Status explicitly says completed
-            status = 'completed';
-          } else if (statusNormalized === 'notstarted' || statusNormalized === 'not_started') {
-            // Assessment créé mais pas encore commencé
-            // Si answer_count est 0 ou undefined, c'est disponible (pas commencé)
-            // Si answer_count > 0, c'est en cours
-            if (apiAssessment.answer_count === undefined || apiAssessment.answer_count === 0) {
-              status = 'available'; // Pas encore commencé, affichera "Commencer"
-            } else {
-              status = 'in-progress'; // Commencé mais pas complété, affichera "Continuer"
-            }
-          } else if (statusNormalized === 'inprogress' || statusNormalized === 'in_progress') {
-            // Status is explicitly in progress
-            status = 'in-progress';
-          } else {
-            // Unknown status - log for debugging but default to in-progress if there are some answers
-            console.warn(`[Assessments] Unknown status "${rawStatus}" for assessment ${apiAssessment.id}, type ${apiType}`);
-            if (apiAssessment.answer_count !== undefined && apiAssessment.answer_count > 0) {
-              status = 'in-progress';
-            } else {
-              status = 'available';
-            }
+          // Log if status was determined as completed but backend status wasn't
+          if (status === 'completed' && 
+              apiAssessment.status !== 'completed' && 
+              apiAssessment.status !== 'COMPLETED') {
+            console.log(`[Assessments] Assessment ${apiAssessment.id} (${apiType}) has all answers (${apiAssessment.answer_count}/${apiAssessment.total_questions}) but status is "${apiAssessment.status}", treating as completed`);
           }
         }
         
