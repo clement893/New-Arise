@@ -35,6 +35,15 @@ function PaymentFormContent() {
   const [cardError, setCardError] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [loadingPlan, setLoadingPlan] = useState(true);
+  const [isMounted, setIsMounted] = useState(true);
+
+  // Track component mount status
+  useEffect(() => {
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
 
   // Load plan details
   useEffect(() => {
@@ -98,11 +107,21 @@ function PaymentFormContent() {
     }
 
     try {
+      // Check if component is still mounted before proceeding
+      if (!isMounted) {
+        return;
+      }
+
       // Create payment method
       const { error: pmError, paymentMethod } = await stripe.createPaymentMethod({
         type: 'card',
         card: cardElement,
       });
+
+      // Check if component is still mounted after async operation
+      if (!isMounted) {
+        return;
+      }
 
       if (pmError) {
         setCardError(pmError.message || 'An error occurred while processing your card.');
@@ -125,8 +144,25 @@ function PaymentFormContent() {
         payment_method_id: paymentMethod.id,
       });
 
+      // Check if component is still mounted after API call
+      if (!isMounted) {
+        return;
+      }
+
       if (response.data) {
-        // Payment successful, move to next step
+        // Payment successful, wait a bit to ensure Stripe operations are complete
+        // before unmounting the component
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Final check before changing step
+        if (!isMounted) {
+          return;
+        }
+        
+        // Reset processing state before changing step
+        setIsProcessing(false);
+        
+        // Move to next step after ensuring Stripe operations are complete
         setStep(6);
       } else {
         setError('Failed to create subscription. Please try again.');
@@ -157,8 +193,11 @@ function PaymentFormContent() {
         console.error('Error creating subscription:', err);
       }
       
-      setError(errorMessage);
-      setIsProcessing(false);
+      // Only update state if component is still mounted
+      if (isMounted) {
+        setError(errorMessage);
+        setIsProcessing(false);
+      }
     }
   };
 
