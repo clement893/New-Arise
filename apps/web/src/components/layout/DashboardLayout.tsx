@@ -65,6 +65,37 @@ const createSidebarItems = (userType?: UserType, isAdmin?: boolean): SidebarItem
   if (type === 'ADMIN' || isAdmin === true) {
     return [
       {
+        label: 'Individual',
+        icon: <LayoutDashboard className="w-5 h-5" />,
+        children: [
+          {
+            label: 'Dashboard',
+            href: '/dashboard',
+            icon: <LayoutDashboard className="w-5 h-5" />,
+          },
+          {
+            label: 'Assessments',
+            href: '/dashboard/assessments',
+            icon: <ClipboardList className="w-5 h-5" />,
+          },
+          {
+            label: 'Results & Reports',
+            href: '/dashboard/reports',
+            icon: <FileText className="w-5 h-5" />,
+          },
+          {
+            label: 'Development plan',
+            href: '/dashboard/development-plan',
+            icon: <TrendingUp className="w-5 h-5" />,
+          },
+          {
+            label: 'Profile',
+            href: '/profile',
+            icon: <User className="w-5 h-5" />,
+          },
+        ],
+      },
+      {
         label: 'Admin',
         icon: <Users className="w-5 h-5" />,
         children: [
@@ -114,37 +145,6 @@ const createSidebarItems = (userType?: UserType, isAdmin?: boolean): SidebarItem
             label: 'Employees',
             href: '/dashboard/business/employees',
             icon: <Briefcase className="w-5 h-5" />,
-          },
-          {
-            label: 'Profile',
-            href: '/profile',
-            icon: <User className="w-5 h-5" />,
-          },
-        ],
-      },
-      {
-        label: 'Individual',
-        icon: <LayoutDashboard className="w-5 h-5" />,
-        children: [
-          {
-            label: 'Dashboard',
-            href: '/dashboard',
-            icon: <LayoutDashboard className="w-5 h-5" />,
-          },
-          {
-            label: 'Assessments',
-            href: '/dashboard/assessments',
-            icon: <ClipboardList className="w-5 h-5" />,
-          },
-          {
-            label: 'Results & Reports',
-            href: '/dashboard/reports',
-            icon: <FileText className="w-5 h-5" />,
-          },
-          {
-            label: 'Development plan',
-            href: '/dashboard/development-plan',
-            icon: <TrendingUp className="w-5 h-5" />,
           },
           {
             label: 'Profile',

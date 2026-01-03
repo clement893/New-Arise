@@ -77,12 +77,15 @@ export default function Sidebar({
     }
   }, [activePath, currentPath, pathname]);
 
-  // Auto-expand all groups by default for better UX
+  // Auto-expand only "Individual" section by default, keep others collapsed
   useEffect(() => {
     const initialExpanded = new Set<string>();
     items.forEach((item) => {
       if (item.children && item.children.length > 0) {
-        initialExpanded.add(item.label);
+        // Only expand "Individual" section by default
+        if (item.label === 'Individual') {
+          initialExpanded.add(item.label);
+        }
       }
     });
     setExpandedItems(initialExpanded);
