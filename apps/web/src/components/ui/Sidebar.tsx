@@ -108,7 +108,11 @@ export default function Sidebar({
   const renderItem = (item: SidebarItem, level = 0) => {
     const hasChildren = item.children && item.children.length > 0;
     const isExpanded = expandedItems.has(item.label);
-    const isActive = activePath === item.href || (item.href && activePath?.startsWith(item.href));
+    const isActive = item.href && (
+      activePath === item.href || 
+      activePath?.startsWith(item.href + '/') ||
+      (activePath?.includes('?') && activePath?.split('?')[0] === item.href)
+    );
 
     return (
       <div key={item.label}>
