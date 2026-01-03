@@ -476,7 +476,8 @@ function DashboardContent() {
           {/* Coaching Section */}
           <MotionDiv variant="slideUp" delay={400}>
             <Card 
-              className="text-white border-0 relative overflow-hidden bg-arise-dark-gray"
+              className="text-white border-0 relative overflow-hidden"
+              style={{ backgroundColor: '#2e2e2e' }}
             >
               {/* Background Pattern */}
               <div 
