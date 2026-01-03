@@ -9,6 +9,7 @@
  * Détermine le status d'affichage d'un assessment basé sur le status backend et les réponses
  * 
  * @param apiAssessment - Assessment depuis l'API (peut être undefined)
+ * @param assessmentType - Type d'assessment (pour gérer les cas spéciaux comme MBTI)
  * @returns Status d'affichage: 'completed' | 'in-progress' | 'available'
  */
 export function determineAssessmentStatus(
@@ -16,7 +17,8 @@ export function determineAssessmentStatus(
     status: string;
     answer_count?: number;
     total_questions?: number;
-  } | undefined
+  } | undefined,
+  assessmentType?: 'MBTI' | 'TKI' | 'WELLNESS' | 'THREE_SIXTY_SELF'
 ): 'completed' | 'in-progress' | 'available' {
   if (!apiAssessment) {
     return 'available';
@@ -27,8 +29,19 @@ export function determineAssessmentStatus(
   const rawStatus = String(apiAssessment.status);
   const statusNormalized = rawStatus.toLowerCase().trim().replace(/[_-]/g, '');
 
+  // SPECIAL CASE: MBTI is external assessment (no internal questions)
+  // Only check backend status, ignore answer_count
+  if (assessmentType === 'MBTI') {
+    if (statusNormalized === 'completed' || statusNormalized === 'complete') {
+      return 'completed';
+    }
+    // For MBTI, if status is not completed, it's available (no "in-progress" state)
+    return 'available';
+  }
+
   // PRIMARY CHECK: If all answers are provided, it's completed (regardless of status)
   // This handles cases where status might not be updated correctly
+  // Only check if total_questions > 0 (excludes MBTI and other external assessments)
   const hasAllAnswers = 
     apiAssessment.answer_count !== undefined && 
     apiAssessment.total_questions !== undefined &&
@@ -40,8 +53,23 @@ export function determineAssessmentStatus(
   }
 
   // SECONDARY CHECK: Check normalized status
+  // But only trust "completed" status if there are some answers OR total_questions is 0
+  // This prevents false positives where status is "completed" but no answers exist
   if (statusNormalized === 'completed' || statusNormalized === 'complete') {
-    return 'completed';
+    // For assessments with questions, verify there are answers
+    if (apiAssessment.total_questions !== undefined && apiAssessment.total_questions > 0) {
+      // If total_questions > 0, we need answers to trust "completed" status
+      if (apiAssessment.answer_count !== undefined && apiAssessment.answer_count > 0) {
+        return 'completed';
+      }
+      // Status says completed but no answers - might be a data inconsistency
+      // Check if we have all answers (already checked above, so this won't trigger)
+      // Fall through to check answer count
+    } else {
+      // For assessments without questions (like MBTI, already handled above)
+      // Trust the status
+      return 'completed';
+    }
   }
 
   // Handle NOT_STARTED: if there are answers, it's actually in progress

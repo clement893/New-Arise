@@ -201,7 +201,7 @@ function DashboardContent() {
       const assessment = assessments.find(a => a.assessment_type === type);
       
       // Use utility function for consistent status determination
-      const status = determineAssessmentStatus(assessment);
+      const status = determineAssessmentStatus(assessment, type);
       
       const evaluation: EvaluationItem = {
         title: config.title,

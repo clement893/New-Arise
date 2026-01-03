@@ -166,7 +166,7 @@ function AssessmentsContent() {
             });
           }
           
-          status = determineAssessmentStatus(apiAssessment);
+          status = determineAssessmentStatus(apiAssessment, apiType);
           
           // Always log the determined status for Wellness
           if (apiType === 'WELLNESS') {
