@@ -9,6 +9,8 @@ import Container from '@/components/ui/Container';
 import PricingCardSimple from '@/components/ui/PricingCardSimple';
 import BillingPeriodToggle from '@/components/ui/BillingPeriodToggle';
 import FAQItem from '@/components/ui/FAQItem';
+import { Header } from '@/components/landing/Header';
+import { Footer } from '@/components/landing/Footer';
 
 interface Plan {
   id: string;
@@ -81,7 +83,8 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-muted dark:to-muted">
-      <Container className="py-16">
+      <Header />
+      <Container className="py-24">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold text-foreground mb-4">Tarifs</h1>
           <p className="text-xl text-muted-foreground mb-8">
@@ -125,6 +128,7 @@ export default function PricingPage() {
           </div>
         </div>
       </Container>
+      <Footer />
     </div>
   );
 }
