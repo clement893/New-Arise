@@ -470,7 +470,8 @@ function DashboardContent() {
               {/* Progress Section */}
               <MotionDiv variant="slideUp" delay={200}>
                 <Card 
-                  className="mb-8 text-white border-0 bg-arise-button-primary"
+                  className="mb-8 text-white border-0"
+                  style={{ backgroundColor: '#0F454D' }}
                 >
                   <div className="flex justify-between items-start mb-6 gap-8">
                     <div className="flex-1">
