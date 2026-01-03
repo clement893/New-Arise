@@ -520,8 +520,7 @@ function DashboardContent() {
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="text-white font-semibold"
-                      className="bg-arise-button-primary text-white border-2"
+                      className="bg-arise-button-primary text-white border-2 font-semibold"
                       style={{ 
                         borderColor: '#799ba1', 
                       }}
