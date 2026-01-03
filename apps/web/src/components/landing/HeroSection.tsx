@@ -6,6 +6,13 @@ import Link from 'next/link';
 export function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center justify-center bg-arise-deep-teal overflow-hidden">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-10"
+        style={{
+          backgroundImage: 'url(/images/dashboard-bg.jpg)',
+        }}
+      />
       {/* Vertical lines texture */}
       <div 
         className="absolute inset-0 opacity-20"

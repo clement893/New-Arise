@@ -324,6 +324,13 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
 
   return (
     <div className="min-h-screen relative bg-white">
+      {/* Background Image */}
+      <div 
+        className="fixed inset-0 bg-cover bg-center opacity-10 pointer-events-none z-0"
+        style={{
+          backgroundImage: 'url(/images/dashboard-bg.jpg)',
+        }}
+      />
       {/* Vertical lines texture */}
       <div 
         className="fixed inset-0 opacity-30 pointer-events-none z-0"
