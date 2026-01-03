@@ -8,7 +8,7 @@ import { Step4_ReviewConfirm } from '@/components/register/Step4_ReviewConfirm';
 import { Step5_Payment } from '@/components/register/Step5_Payment';
 import { Step6_CompleteProfile } from '@/components/register/Step6_CompleteProfile';
 import { Step7_Welcome } from '@/components/register/Step7_Welcome';
-import Link from 'next/link';
+import { Header } from '@/components/landing/Header';
 
 export default function RegisterPage() {
   const step = useRegistrationStore((state) => state.step);
@@ -36,6 +36,8 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-arise-deep-teal relative overflow-hidden">
+      <Header />
+      
       {/* Background pattern */}
       <div 
         className="absolute inset-0 opacity-10"
@@ -50,23 +52,14 @@ export default function RegisterPage() {
         }}
       />
 
-      {/* Header */}
-      <div className="relative z-10 container mx-auto px-4 py-6">
-        <div className="flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold text-white">
-            ARISE
-          </Link>
-          {step < 7 && (
-            <div className="text-white text-sm">
-              Step {step} of 7
-            </div>
-          )}
-        </div>
-      </div>
-
       {/* Progress Bar */}
       {step < 7 && (
-        <div className="relative z-10 container mx-auto px-4 mb-8">
+        <div className="relative z-10 container mx-auto px-4 pt-24 mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <div className="text-white text-sm font-medium">
+              Step {step} of 7
+            </div>
+          </div>
           <div className="bg-white/20 rounded-full h-2 overflow-hidden">
             <div 
               className="bg-arise-gold h-full transition-all duration-500"

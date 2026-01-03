@@ -9,6 +9,7 @@ import { useAuthStore } from '@/lib/store';
 import { transformApiUserToStoreUser } from '@/lib/auth/userTransform';
 import { TokenStorage } from '@/lib/auth/tokenStorage';
 import { Input, Button, Alert, Card, Container } from '@/components/ui';
+import { Header } from '@/components/landing/Header';
 
 interface ApiErrorResponse {
   detail?: string;
@@ -157,8 +158,10 @@ function LoginContent() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 dark:from-muted dark:to-muted">
-      <Container className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 dark:from-muted dark:to-muted">
+      <Header />
+      <main className="min-h-screen flex items-center justify-center pt-24 pb-8 px-4">
+        <Container className="w-full max-w-md">
         <Card>
           <h1 className="text-3xl font-bold text-center text-foreground mb-8">
             Login
@@ -250,7 +253,8 @@ function LoginContent() {
           </p>
         </Card>
       </Container>
-    </main>
+      </main>
+    </div>
   );
 }
 

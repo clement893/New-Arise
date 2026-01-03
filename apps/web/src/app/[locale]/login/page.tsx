@@ -5,12 +5,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 import { login } from '@/lib/api/auth';
 import { useAuthStore } from '@/lib/store';
+import { Header } from '@/components/landing/Header';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -73,7 +74,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-arise-deep-teal relative overflow-hidden flex items-center justify-center p-4">
+    <div className="min-h-screen bg-arise-deep-teal relative overflow-hidden">
+      <Header />
+      
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center opacity-20"
@@ -95,16 +98,8 @@ export default function LoginPage() {
         }}
       />
 
-      {/* Back to Home Link */}
-      <Link 
-        href="/" 
-        className="absolute top-6 right-6 text-white hover:text-arise-gold transition-colors z-20"
-      >
-        Back to home
-      </Link>
-
       {/* Login Card */}
-      <div className="relative z-10 w-full max-w-md">
+      <div className="relative z-10 w-full max-w-md mx-auto pt-24 pb-8 px-4 flex items-center justify-center min-h-screen">
         <div className="bg-white rounded-lg shadow-2xl p-8">
           {/* Logo */}
           <div className="text-center mb-8">

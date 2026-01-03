@@ -2,13 +2,14 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { AxiosError } from 'axios';
 import { authAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store';
 import { transformApiUserToStoreUser } from '@/lib/auth/userTransform';
 import { handleApiError } from '@/lib/errors/api';
 import { Input, Button, Alert, Card, Container } from '@/components/ui';
+import { Header } from '@/components/landing/Header';
 
 interface ApiErrorResponse {
   detail?: string;
@@ -172,8 +173,10 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 dark:from-muted dark:to-muted">
-      <Container className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 dark:from-muted dark:to-muted">
+      <Header />
+      <main className="min-h-screen flex items-center justify-center pt-24 pb-8 px-4">
+        <Container className="w-full max-w-md">
         <Card>
           <h1 className="text-3xl font-bold text-center text-foreground mb-8">
             Register
@@ -249,6 +252,7 @@ export default function RegisterPage() {
           </p>
         </Card>
       </Container>
-    </main>
+      </main>
+    </div>
   );
 }
