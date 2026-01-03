@@ -13,6 +13,7 @@ from app.dependencies import (
     get_current_user,
     get_subscription_service,
     get_stripe_service,
+    is_superadmin,
 )
 from app.models import User
 from app.models.plan import PlanStatus
@@ -58,11 +59,12 @@ async def list_plans(
 async def create_plan(
     plan_create: PlanCreate,
     current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
     subscription_service: SubscriptionService = Depends(get_subscription_service),
 ):
     """Create a new plan (admin only)"""
-    # Check if user is admin
-    if not current_user.is_superuser:
+    # Check if user is superadmin
+    if not await is_superadmin(current_user, db):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only administrators can create plans"
@@ -107,11 +109,12 @@ async def update_plan(
     plan_id: int,
     plan_update: PlanUpdate,
     current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
     subscription_service: SubscriptionService = Depends(get_subscription_service),
 ):
     """Update plan (admin only)"""
-    # Check if user is admin
-    if not current_user.is_superuser:
+    # Check if user is superadmin
+    if not await is_superadmin(current_user, db):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only administrators can update plans"
