@@ -138,9 +138,16 @@ function WellnessAssessmentContent() {
     }
   }, [isCompleted, router]);
 
-  const handleAnswerSelect = (value: number) => {
+  const handleAnswerSelect = async (value: number) => {
     if (currentQuestion) {
-      setAnswer(currentQuestion.id, value);
+      const { assessmentId } = useWellnessStore.getState();
+      if (!assessmentId) {
+        console.error('[Wellness] Cannot save answer: assessmentId is null');
+        // Show error to user
+        alert('Erreur: L\'assessment n\'est pas démarré. Veuillez recommencer.');
+        return;
+      }
+      await setAnswer(currentQuestion.id, value);
     }
   };
 

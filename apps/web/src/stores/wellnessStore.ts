@@ -86,6 +86,22 @@ export const useWellnessStore = create<WellnessState>()(
       loadExistingAnswers: async (assessmentId: number) => {
         set({ isLoading: true, error: null });
         try {
+          const { answers: existingLocalAnswers } = get();
+          
+          // Only load from backend if we don't have local answers
+          // This prevents overwriting answers that haven't been saved yet
+          if (Object.keys(existingLocalAnswers).length > 0) {
+            console.log('[Wellness] Local answers exist, skipping load from backend to prevent overwrite');
+            // Just update assessmentId if needed
+            const currentAssessmentId = get().assessmentId;
+            if (currentAssessmentId !== assessmentId) {
+              set({ assessmentId, isLoading: false });
+            } else {
+              set({ isLoading: false });
+            }
+            return;
+          }
+
           const existingAnswers = await getAssessmentAnswers(assessmentId);
           
           // Convert answer values to numbers (wellness uses 1-5 scale)
@@ -96,6 +112,8 @@ export const useWellnessStore = create<WellnessState>()(
               answers[questionId] = numValue;
             }
           });
+
+          console.log(`[Wellness] Loaded ${Object.keys(answers).length} answers from backend for assessment ${assessmentId}`);
 
           // Find the first unanswered question
           // Import wellnessQuestions to check which questions exist
@@ -122,6 +140,7 @@ export const useWellnessStore = create<WellnessState>()(
             isLoading: false,
           });
         } catch (error: unknown) {
+          console.error('[Wellness] Failed to load existing answers:', error);
           const errorMessage =
             axios.isAxiosError(error) && error.response?.data?.message
               ? error.response.data.message
@@ -174,12 +193,22 @@ export const useWellnessStore = create<WellnessState>()(
               question_id: questionId,
               answer_value: String(value),
             });
-          } catch (error: unknown) {
-            // Error is handled and displayed to user via error state
-            // Only log in development for debugging
+            // Log success in development
             if (process.env.NODE_ENV === 'development') {
-              console.error('Failed to save answer:', error);
+              console.log(`[Wellness] Answer saved successfully: ${questionId} = ${value}`);
             }
+          } catch (error: unknown) {
+            // ALWAYS log errors, even in production, for debugging
+            console.error('[Wellness] Failed to save answer:', {
+              questionId,
+              value,
+              assessmentId,
+              error: error instanceof Error ? error.message : String(error),
+              axiosError: axios.isAxiosError(error) ? {
+                status: error.response?.status,
+                data: error.response?.data,
+              } : null,
+            });
             const errorMessage =
               axios.isAxiosError(error) && error.response?.data?.message
                 ? error.response.data.message
@@ -187,7 +216,19 @@ export const useWellnessStore = create<WellnessState>()(
             set({
               error: errorMessage,
             });
+            // Re-throw to allow caller to handle
+            throw error;
           }
+        } else {
+          // Log warning if assessmentId is missing
+          console.warn('[Wellness] Cannot save answer: assessmentId is null', {
+            questionId,
+            value,
+          });
+          set({
+            error: 'Assessment not started. Please start the assessment first.',
+          });
+          throw new Error('Assessment not started');
         }
       },
 
