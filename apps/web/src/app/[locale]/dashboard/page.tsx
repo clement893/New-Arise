@@ -574,8 +574,8 @@ function DashboardContent() {
                 }}
               />
 
-              <div className="relative z-10 flex items-center justify-between gap-8">
-                <div className="flex-1">
+              <div className="relative z-10 flex items-center justify-between gap-8 px-8 py-8">
+                <div className="flex-1 min-w-0">
                   <h2 className="text-3xl font-bold mb-4">
                     Ready to accelerate your growth?
                   </h2>
