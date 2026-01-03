@@ -34,14 +34,27 @@ function WellnessAssessmentContent() {
   const [isCheckingExisting, setIsCheckingExisting] = useState(true);
 
   // Safety check: ensure wellnessQuestions is loaded and currentQuestionIndex is valid
-  const currentQuestion = wellnessQuestions && wellnessQuestions.length > 0 && currentQuestionIndex >= 0 && currentQuestionIndex < wellnessQuestions.length
-    ? wellnessQuestions[currentQuestionIndex]
-    : null;
-  const progress = getProgress();
-  const isLastQuestion = wellnessQuestions && wellnessQuestions.length > 0 
-    ? currentQuestionIndex === wellnessQuestions.length - 1
-    : false;
-  const currentAnswer = currentQuestion ? answers[currentQuestion.id] : undefined;
+  // Wrap in try-catch to prevent errors from breaking the component
+  let currentQuestion = null;
+  let progress = 0;
+  let isLastQuestion = false;
+  let currentAnswer: number | undefined = undefined;
+  
+  try {
+    if (wellnessQuestions && Array.isArray(wellnessQuestions) && wellnessQuestions.length > 0) {
+      if (currentQuestionIndex >= 0 && currentQuestionIndex < wellnessQuestions.length) {
+        currentQuestion = wellnessQuestions[currentQuestionIndex];
+      }
+      progress = getProgress();
+      isLastQuestion = currentQuestionIndex === wellnessQuestions.length - 1;
+      if (currentQuestion && currentQuestion.id) {
+        currentAnswer = answers[currentQuestion.id];
+      }
+    }
+  } catch (error) {
+    console.error('[Wellness] Error accessing question data:', error);
+    // Fallback values - component will show error state
+  }
 
   // Check for existing assessment on mount
   useEffect(() => {
@@ -196,32 +209,50 @@ function WellnessAssessmentContent() {
   }, []);
 
   const handleAnswerSelect = async (value: number) => {
-    if (currentQuestion) {
+    try {
+      if (!currentQuestion || !currentQuestion.id) {
+        console.error('[Wellness] Cannot save answer: currentQuestion is invalid', { currentQuestion });
+        alert('Erreur: Question invalide. Veuillez rafraîchir la page.');
+        return;
+      }
       const { assessmentId } = useWellnessStore.getState();
       if (!assessmentId) {
         console.error('[Wellness] Cannot save answer: assessmentId is null');
-        // Show error to user
         alert('Erreur: L\'assessment n\'est pas démarré. Veuillez recommencer.');
         return;
       }
       await setAnswer(currentQuestion.id, value);
+    } catch (error) {
+      console.error('[Wellness] Error in handleAnswerSelect:', error);
+      alert('Erreur lors de la sauvegarde de la réponse. Veuillez réessayer.');
     }
   };
 
   const handleNext = async () => {
-    if (isLastQuestion) {
-      await completeAssessment();
-      // Completion will trigger automatic redirect via useEffect
-    } else {
-      nextQuestion();
+    try {
+      if (isLastQuestion) {
+        await completeAssessment();
+        // Completion will trigger automatic redirect via useEffect
+      } else {
+        nextQuestion();
+      }
+    } catch (error) {
+      console.error('[Wellness] Error in handleNext:', error);
+      alert('Erreur lors de la navigation. Veuillez réessayer.');
     }
   };
 
   const handleBack = () => {
-    if (currentQuestionIndex === 0) {
+    try {
+      if (currentQuestionIndex === 0) {
+        setShowIntro(true);
+      } else {
+        previousQuestion();
+      }
+    } catch (error) {
+      console.error('[Wellness] Error in handleBack:', error);
+      // Fallback: just show intro
       setShowIntro(true);
-    } else {
-      previousQuestion();
     }
   };
 
@@ -441,10 +472,10 @@ function WellnessAssessmentContent() {
                 <Card className="mb-6">
                   <div className="mb-8">
                     <div className="inline-block px-3 py-1 bg-arise-deep-teal/10 text-arise-deep-teal rounded-full text-sm font-medium mb-4">
-                      {wellnessPillars.find(p => p.name === currentQuestion?.pillar)?.name}
+                      {currentQuestion?.pillar ? (wellnessPillars.find(p => p.name === currentQuestion.pillar)?.name || currentQuestion.pillar) : 'Question'}
                     </div>
                     <h2 className="text-2xl font-bold text-gray-900">
-                      {currentQuestion?.question}
+                      {currentQuestion?.question || 'Question not available'}
                     </h2>
                   </div>
 
