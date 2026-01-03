@@ -408,7 +408,8 @@ function AssessmentsContent() {
         return (
           <Button 
             variant="primary"
-            className="bg-[#0F454D] hover:bg-[#0d4148] text-white"
+            className="!bg-[#0F454D] hover:!bg-[#0d4148] !text-white"
+            style={{ backgroundColor: '#0F454D', color: '#ffffff' }}
             disabled={isStarting}
             onClick={() => handleStartAssessment(assessment.assessmentType, assessment.assessmentId)}
           >
