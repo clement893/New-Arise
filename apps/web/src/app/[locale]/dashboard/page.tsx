@@ -16,7 +16,6 @@ import {
   Users, 
   Heart,
   Info,
-  ArrowRight,
   CheckCircle,
   Lock
 } from 'lucide-react';
