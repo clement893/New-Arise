@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { login } from '@/lib/api/auth';
 import { useAuthStore } from '@/lib/store';
 import { Header } from '@/components/landing/Header';
+import { Footer } from '@/components/landing/Footer';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -99,8 +100,8 @@ export default function LoginPage() {
       />
 
       {/* Login Card */}
-      <div className="relative z-10 w-full max-w-md mx-auto pt-24 pb-8 px-4 flex items-center justify-center min-h-screen">
-        <div className="bg-white rounded-lg shadow-2xl p-8">
+      <div className="relative z-10 w-full max-w-md mx-auto pt-24 pb-12 px-4 flex items-center justify-center min-h-[calc(100vh-200px)]">
+        <div className="bg-white rounded-lg shadow-2xl p-8 w-full">
           {/* Logo */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-arise-deep-teal mb-2">
@@ -257,6 +258,7 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

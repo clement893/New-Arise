@@ -9,6 +9,7 @@ import { Step5_Payment } from '@/components/register/Step5_Payment';
 import { Step6_CompleteProfile } from '@/components/register/Step6_CompleteProfile';
 import { Step7_Welcome } from '@/components/register/Step7_Welcome';
 import { Header } from '@/components/landing/Header';
+import { Footer } from '@/components/landing/Footer';
 
 export default function RegisterPage() {
   const step = useRegistrationStore((state) => state.step);
@@ -73,6 +74,7 @@ export default function RegisterPage() {
       <div className="relative z-10 container mx-auto px-4 py-8">
         {renderStep()}
       </div>
+      <Footer />
     </div>
   );
 }

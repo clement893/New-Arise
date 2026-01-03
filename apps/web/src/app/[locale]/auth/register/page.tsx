@@ -10,6 +10,7 @@ import { transformApiUserToStoreUser } from '@/lib/auth/userTransform';
 import { handleApiError } from '@/lib/errors/api';
 import { Input, Button, Alert, Card, Container } from '@/components/ui';
 import { Header } from '@/components/landing/Header';
+import { Footer } from '@/components/landing/Footer';
 
 interface ApiErrorResponse {
   detail?: string;
@@ -173,9 +174,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 dark:from-muted dark:to-muted">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 dark:from-muted dark:to-muted flex flex-col">
       <Header />
-      <main className="min-h-screen flex items-center justify-center pt-24 pb-8 px-4">
+      <main className="flex-1 flex items-center justify-center pt-24 pb-8 px-4">
         <Container className="w-full max-w-md">
         <Card>
           <h1 className="text-3xl font-bold text-center text-foreground mb-8">
@@ -253,6 +254,7 @@ export default function RegisterPage() {
         </Card>
       </Container>
       </main>
+      <Footer />
     </div>
   );
 }
