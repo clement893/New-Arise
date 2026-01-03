@@ -324,12 +324,11 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
 
   return (
     <div className="min-h-screen relative">
-      {/* Background Image */}
+      {/* Background Color */}
       <div 
-        className="fixed inset-0 bg-cover bg-center bg-no-repeat pointer-events-none"
+        className="fixed inset-0 pointer-events-none"
         style={{
-          backgroundImage: 'url(/images/dashboard-bg.jpg)',
-          opacity: 0.4,
+          backgroundColor: '#0f454d',
           zIndex: 0,
         }}
       />
