@@ -61,8 +61,26 @@ const ASSESSMENT_CONFIG: Record<string, { title: string; description: string; ic
 function AssessmentsContent() {
   const router = useRouter();
   const [showEvaluatorModal, setShowEvaluatorModal] = useState(false);
-  const [assessments, setAssessments] = useState<AssessmentDisplay[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // Try to load cached assessments from sessionStorage for instant display
+  const getCachedAssessments = (): AssessmentDisplay[] => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const cached = sessionStorage.getItem('assessments_cache');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        // Check if cache is recent (less than 5 minutes old)
+        if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) {
+          return parsed.data || [];
+        }
+      }
+    } catch (e) {
+      // Ignore cache errors
+    }
+    return [];
+  };
+
+  const [assessments, setAssessments] = useState<AssessmentDisplay[]>(getCachedAssessments());
+  const [isLoading, setIsLoading] = useState(false); // Start with false to show cached data immediately
   const [error, setError] = useState<string | null>(null);
   const [startingAssessment, setStartingAssessment] = useState<string | null>(null);
 
@@ -197,12 +215,24 @@ function AssessmentsContent() {
           requiresEvaluators: config.requiresEvaluators,
           assessmentId: apiAssessment?.id,
           assessmentType: apiType,
-          answerCount: apiAssessment?.answer_count,
-          totalQuestions: apiAssessment?.total_questions,
+          answerCount: apiAssessment?.answer_count ?? undefined,
+          totalQuestions: apiAssessment?.total_questions ?? undefined,
         };
       });
       
       setAssessments(displayAssessments);
+      
+      // Cache assessments in sessionStorage for instant display on next visit
+      if (typeof window !== 'undefined') {
+        try {
+          sessionStorage.setItem('assessments_cache', JSON.stringify({
+            data: displayAssessments,
+            timestamp: Date.now()
+          }));
+        } catch (e) {
+          // Ignore cache errors
+        }
+      }
     } catch (err) {
       console.error('Failed to load assessments:', err);
       setError(err instanceof Error ? err.message : 'Failed to load assessments');
@@ -444,7 +474,8 @@ function AssessmentsContent() {
     }
   };
 
-  if (isLoading) {
+  // Show loading indicator only if we have no cached data
+  if (isLoading && assessments.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
@@ -503,6 +534,15 @@ function AssessmentsContent() {
         
         {/* Content sections with relative positioning */}
         <div className="relative z-10">
+          {/* Show subtle loading indicator if refreshing in background */}
+          {isLoading && assessments.length > 0 && (
+            <div className="mb-4 flex items-center justify-end">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Actualisation...</span>
+              </div>
+            </div>
+          )}
           <MotionDiv variant="slideUp" delay={100}>
             <Stack gap="normal">
               {assessments.map((assessment) => {
@@ -564,14 +604,26 @@ function AssessmentsContent() {
                           progressMax = 100;
                           progressPercentage = 100;
                           progressLabel = 'Terminé';
-                        } else if (assessment.status === 'in-progress' && 
-                                   assessment.answerCount !== undefined && 
-                                   assessment.totalQuestions !== undefined && 
-                                   assessment.totalQuestions > 0) {
-                          progressValue = assessment.answerCount;
-                          progressMax = assessment.totalQuestions;
-                          progressPercentage = Math.round((assessment.answerCount / assessment.totalQuestions) * 100);
-                          progressLabel = `Progression: ${assessment.answerCount}/${assessment.totalQuestions} questions`;
+                        } else if (assessment.status === 'in-progress') {
+                          if (assessment.answerCount !== undefined && 
+                              assessment.totalQuestions !== undefined && 
+                              assessment.totalQuestions > 0) {
+                            progressValue = assessment.answerCount;
+                            progressMax = assessment.totalQuestions;
+                            progressPercentage = Math.round((assessment.answerCount / assessment.totalQuestions) * 100);
+                            progressLabel = `Progression: ${assessment.answerCount}/${assessment.totalQuestions} questions`;
+                          } else if (assessment.answerCount !== undefined && assessment.answerCount > 0) {
+                            // Fallback: show answer count even if total_questions is missing
+                            progressValue = assessment.answerCount;
+                            progressMax = 100; // Unknown total, use 100 as max
+                            progressPercentage = Math.min(assessment.answerCount * 10, 99); // Estimate: assume ~10 questions per answer
+                            progressLabel = `Progression: ${assessment.answerCount} réponses`;
+                          } else {
+                            progressValue = 0;
+                            progressMax = 100;
+                            progressPercentage = 0;
+                            progressLabel = 'En cours';
+                          }
                         } else if (assessment.status === 'available') {
                           progressValue = 0;
                           progressMax = 100;
