@@ -411,7 +411,11 @@ function ResultsReportsContent() {
               </div>
 
               <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <Button variant="primary" className="w-full bg-arise-deep-teal hover:bg-arise-deep-teal/90 text-white">
+                <Button 
+                  variant="primary" 
+                  className="w-full !bg-arise-deep-teal hover:!bg-arise-deep-teal/90 !text-white"
+                  style={{ backgroundColor: '#0F454D', color: '#ffffff' }}
+                >
                   Download Complete Leadership Profile
                 </Button>
               </div>
