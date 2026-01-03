@@ -239,14 +239,38 @@ export default function Feedback360Page() {
   }
 
   // Questions screen
-  if (!question) {
+  // Safety check: ensure we have valid question data
+  if (!question || !feedback360Questions || feedback360Questions.length === 0) {
     return (
       <div className="min-h-screen bg-arise-teal p-8">
         <div className="mx-auto max-w-4xl">
           <div className="rounded-lg bg-white p-8 shadow-lg text-center">
-            <p className="text-gray-600">Question not found</p>
-            <Button onClick={() => router.push('/dashboard/assessments')} className="mt-4">
-              Back to Assessments
+            <p className="text-gray-600 mb-4">Unable to load question data.</p>
+            <Button onClick={() => window.location.reload()} className="mt-4">
+              Refresh Page
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // Safety check: ensure currentQuestion is valid
+  if (currentQuestion < 0 || currentQuestion >= feedback360Questions.length) {
+    console.error('[360°] Invalid currentQuestion:', {
+      currentQuestion,
+      questionsLength: feedback360Questions.length,
+    });
+    return (
+      <div className="min-h-screen bg-arise-teal p-8">
+        <div className="mx-auto max-w-4xl">
+          <div className="rounded-lg bg-white p-8 shadow-lg text-center">
+            <p className="text-gray-600 mb-4">Invalid question index. Resetting...</p>
+            <Button onClick={() => {
+              useFeedback360Store.setState({ currentQuestion: 0 });
+              window.location.reload();
+            }} className="mt-4">
+              Reset Assessment
             </Button>
           </div>
         </div>
