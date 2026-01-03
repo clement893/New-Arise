@@ -48,6 +48,18 @@ function WellnessAssessmentContent() {
     const checkExistingAssessment = async () => {
       try {
         setIsCheckingExisting(true);
+        
+        // Check if we're coming back from results page - if so, don't auto-redirect
+        const { isCompleted: storeIsCompleted, assessmentId: storeAssessmentId } = useWellnessStore.getState();
+        if (storeIsCompleted && storeAssessmentId) {
+          // Assessment is marked as completed in store, likely coming back from results
+          // Don't auto-redirect, just show the assessment state
+          console.log('[Wellness] Assessment is completed in store, not auto-redirecting');
+          setShowIntro(false);
+          setIsCheckingExisting(false);
+          return;
+        }
+        
         const assessments = await getMyAssessments();
         const wellnessAssessment = assessments.find(
           a => a.assessment_type === 'WELLNESS'
@@ -107,21 +119,33 @@ function WellnessAssessmentContent() {
             }
           }
           
-          // Load existing answers and navigate to last unanswered question
-          // Always call loadExistingAnswers to ensure we're at the right question
-          const { assessmentId: currentAssessmentId, currentStep: currentStepState } = useWellnessStore.getState();
-          
-          console.log(`[Wellness] Found existing assessment ${wellnessAssessment.id}, currentAssessmentId: ${currentAssessmentId}, currentStep: ${currentStepState}`);
-          
-          // Always load existing answers to ensure we're at the correct question
-          // This will merge local and backend answers and set currentQuestionIndex correctly
-          await loadExistingAnswers(wellnessAssessment.id);
-          
-          // After loading, check if we should show intro or questions
-          const { currentStep: updatedStep } = useWellnessStore.getState();
-          if (updatedStep === 'questions') {
-            // We have an in-progress assessment, skip intro and show questions
-            setShowIntro(false);
+          // Only load existing answers if assessment is NOT completed
+          // This prevents errors when coming back from results page
+          if (status !== 'completed') {
+            // Load existing answers and navigate to last unanswered question
+            const { assessmentId: currentAssessmentId, currentStep: currentStepState } = useWellnessStore.getState();
+            
+            console.log(`[Wellness] Found existing assessment ${wellnessAssessment.id}, currentAssessmentId: ${currentAssessmentId}, currentStep: ${currentStepState}`);
+            
+            // Always load existing answers to ensure we're at the correct question
+            // This will merge local and backend answers and set currentQuestionIndex correctly
+            try {
+              await loadExistingAnswers(wellnessAssessment.id);
+              
+              // After loading, check if we should show intro or questions
+              const { currentStep: updatedStep } = useWellnessStore.getState();
+              if (updatedStep === 'questions') {
+                // We have an in-progress assessment, skip intro and show questions
+                setShowIntro(false);
+              }
+            } catch (loadErr) {
+              console.error('[Wellness] Failed to load existing answers:', loadErr);
+              // If loading fails, show intro as fallback
+              setShowIntro(true);
+            }
+          } else {
+            // Assessment is completed, show intro (user can view results from here)
+            setShowIntro(true);
           }
         } else {
           // No existing assessment, show intro
@@ -129,6 +153,8 @@ function WellnessAssessmentContent() {
         }
       } catch (err) {
         console.error('Failed to check existing assessments:', err);
+        // On error, show intro as safe fallback
+        setShowIntro(true);
       } finally {
         setIsCheckingExisting(false);
       }
