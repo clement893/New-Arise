@@ -513,7 +513,7 @@ function AssessmentsContent() {
                   <Card 
                     key={assessment.id} 
                     className="hover:shadow-lg transition-shadow"
-                    style={is360Feedback ? { backgroundColor: '#e7eeef' } : undefined}
+                    style={is360Feedback ? { backgroundColor: 'rgb(255, 255, 255)' } : undefined}
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-4 flex-1">
