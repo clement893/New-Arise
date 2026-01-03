@@ -19,16 +19,23 @@ export default function RegisterPage() {
 
   // Track step changes to handle Stripe component unmounting
   useEffect(() => {
+    setPrevStep(step);
+    
     // When transitioning from step 5 to 6, keep Step5 mounted for a bit
+    let timer: NodeJS.Timeout | undefined;
     if (prevStep === 5 && step === 6) {
       setKeepStep5Mounted(true);
       // Clean up after 2 seconds to allow all Stripe operations to complete
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         setKeepStep5Mounted(false);
       }, 2000);
-      return () => clearTimeout(timer);
     }
-    setPrevStep(step);
+    
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
   }, [step, prevStep]);
 
   const renderStep = () => {
