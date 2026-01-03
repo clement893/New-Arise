@@ -326,10 +326,11 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
     <div className="min-h-screen relative">
       {/* Background Image */}
       <div 
-        className="fixed inset-0 bg-cover bg-center bg-no-repeat pointer-events-none z-0"
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat pointer-events-none"
         style={{
           backgroundImage: 'url(/images/dashboard-bg.jpg)',
           opacity: 0.3,
+          zIndex: -1,
         }}
       />
       {/* Vertical lines texture */}
@@ -414,9 +415,10 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
           {/* Page Content - This is the only part that updates on navigation */}
           <main 
             key={pathname} 
-            className="flex-1 overflow-y-auto px-3 sm:px-4 md:px-6 xl:px-8 2xl:px-10 py-4 sm:py-6 2xl:py-8 bg-transparent"
+            className="flex-1 overflow-y-auto px-3 sm:px-4 md:px-6 xl:px-8 2xl:px-10 py-4 sm:py-6 2xl:py-8 relative"
             style={{
               animation: 'fadeInSlideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+              zIndex: 10,
             }}
           >
             {children}
