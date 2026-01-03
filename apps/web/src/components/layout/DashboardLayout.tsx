@@ -329,8 +329,8 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
         className="fixed inset-0 bg-cover bg-center bg-no-repeat pointer-events-none"
         style={{
           backgroundImage: 'url(/images/dashboard-bg.jpg)',
-          opacity: 0.3,
-          zIndex: -1,
+          opacity: 0.4,
+          zIndex: 0,
         }}
       />
       {/* Vertical lines texture */}
