@@ -298,7 +298,7 @@ function DashboardContent() {
           <MotionDiv variant="fade" duration="normal">
             <div className="mb-8">
               <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                Welcome {user?.name?.split(' ')[0] || 'User'}
+                Welcome <span style={{ color: '#0f4c56' }}>{user?.name?.split(' ')[0] || 'User'}</span>
               </h1>
               <p className="text-gray-600 dark:text-gray-400 text-lg">
                 Continue your journey to authentic leadership
