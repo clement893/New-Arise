@@ -306,238 +306,246 @@ function DashboardContent() {
             </div>
           </MotionDiv>
 
-          {/* Feedback Banner */}
-          <MotionDiv variant="slideUp" delay={100}>
-            <Card className="mb-8">
-              <div className="flex items-center justify-between">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-arise-deep-teal/10 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Info className="text-arise-deep-teal" size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
-                      Add Your 360° Feedback: Evaluators
-                    </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Get comprehensive feedback by inviting colleagues to evaluate your leadership.
-                    </p>
-                  </div>
-                </div>
-                <Button 
-                  variant="primary" 
-                  className="whitespace-nowrap font-semibold text-white"
-                  style={{ backgroundColor: '#0F454D' }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#0F454D';
-                    e.currentTarget.style.opacity = '0.9';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#0F454D';
-                    e.currentTarget.style.opacity = '1';
-                  }}
-                  onClick={() => {
-                    // Check if a 360° feedback assessment already exists
-                    const feedback360Assessment = assessments.find(
-                      a => a.assessment_type === 'THREE_SIXTY_SELF'
-                    );
-                    
-                    if (feedback360Assessment?.id) {
-                      // Open modal directly if assessment exists
-                      setShowEvaluatorModal(true);
-                    } else {
-                      // Redirect to start page if no assessment exists yet
-                      router.push('/dashboard/assessments/360-feedback/start');
-                    }
-                  }}
-                >
-                  Add evaluators
-                </Button>
-              </div>
-            </Card>
-          </MotionDiv>
-
-          {/* Progress Section */}
-          <MotionDiv variant="slideUp" delay={200}>
-            <Card 
-              className="mb-8 text-white border-0"
-              style={{ backgroundColor: '#0F454D' }}
-            >
-              <div className="flex justify-between items-start mb-6 gap-8">
-                <div className="flex-1">
-                  <h2 className="text-2xl font-bold mb-2 text-white">Your Progress</h2>
-                  <div className="text-6xl font-bold mb-2" style={{ color: '#d5b667' }}>{progressData.overall} %</div>
-                  <p className="text-white/90 mb-1">
-                    You are making good progress in your holistic leadership journey. Keep it up!
-                  </p>
-                </div>
-                
-                {/* Progress Bars - Right side */}
-                <div className="flex-1 space-y-4 min-w-[200px]">
-                {progressData.items.map((item, index) => (
-                  <div key={index}>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium text-white">{item.label}</span>
-                      <span className="text-sm font-semibold" style={{ color: '#d5b667' }}>{item.percentage} %</span>
+          {/* Wrapper for 3 sections with background color block */}
+          <div className="relative mb-8" style={{ paddingBottom: '32px' }}>
+            {/* Background color block behind the 3 sections */}
+            <div 
+              className="absolute"
+              style={{ 
+                backgroundColor: '#D5DEE0',
+                top: 0,
+                bottom: 0,
+                left: '-15%',
+                right: '-15%',
+                width: 'calc(100% + 30%)',
+                zIndex: 0,
+              }}
+            />
+            
+            {/* Content sections with relative positioning */}
+            <div className="relative z-10">
+              {/* Feedback Banner */}
+              <MotionDiv variant="slideUp" delay={100}>
+                <Card className="mb-8">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 bg-arise-deep-teal/10 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Info className="text-arise-deep-teal" size={20} />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
+                          Add Your 360° Feedback: Evaluators
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                          Get comprehensive feedback by inviting colleagues to evaluate your leadership.
+                        </p>
+                      </div>
                     </div>
-                    <div className="w-full bg-white/20 rounded-full h-2">
-                      <div
-                        className={`${getProgressColor(item.color)} h-2 rounded-full transition-all duration-500`}
-                        style={{ width: `${item.percentage}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-4">
-                <Button 
-                  variant="primary" 
-                  className="font-semibold"
-                  style={{ backgroundColor: '#d5b667', color: '#000000' }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#d5b667';
-                    e.currentTarget.style.opacity = '0.9';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#d5b667';
-                    e.currentTarget.style.opacity = '1';
-                  }}
-                  onClick={() => router.push('/dashboard/assessments')}
-                >
-                  Continue Learning
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="text-white font-semibold"
-                  style={{ 
-                    borderColor: '#799ba1', 
-                    borderWidth: '2px',
-                    backgroundColor: '#0F454D',
-                    color: '#ffffff'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#0F454D';
-                    e.currentTarget.style.opacity = '0.9';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#0F454D';
-                    e.currentTarget.style.opacity = '1';
-                  }}
-                  onClick={() => router.push('/dashboard/results')}
-                >
-                  View Reports
-                </Button>
-              </div>
-            </Card>
-          </MotionDiv>
-
-          {/* Evaluations Section */}
-          <MotionDiv variant="slideUp" delay={300}>
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Your evaluations</h2>
-                <Button 
-                  variant="primary" 
-                  className="text-white font-semibold"
-                  style={{ backgroundColor: '#0F454D', color: '#ffffff' }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#0F454D';
-                    e.currentTarget.style.opacity = '0.9';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#0F454D';
-                    e.currentTarget.style.opacity = '1';
-                  }}
-                  onClick={() => router.push('/dashboard/assessments')}
-                >
-                  Add assessment
-                </Button>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {evaluations.map((evaluation, index) => {
-                  const Icon = evaluation.icon;
-                  return (
-                    <Card 
-                      key={index} 
-                      className={`group relative transition-colors duration-300 ${evaluation.status === 'locked' ? 'opacity-60' : 'hover:bg-[#6f949a]'}`}
+                    <Button 
+                      variant="primary" 
+                      className="whitespace-nowrap font-semibold text-white"
+                      style={{ backgroundColor: '#0F454D' }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#0F454D';
+                        e.currentTarget.style.opacity = '0.9';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#0F454D';
+                        e.currentTarget.style.opacity = '1';
+                      }}
+                      onClick={() => {
+                        // Check if a 360° feedback assessment already exists
+                        const feedback360Assessment = assessments.find(
+                          a => a.assessment_type === 'THREE_SIXTY_SELF'
+                        );
+                        
+                        if (feedback360Assessment?.id) {
+                          // Open modal directly if assessment exists
+                          setShowEvaluatorModal(true);
+                        } else {
+                          // Redirect to start page if no assessment exists yet
+                          router.push('/dashboard/assessments/360-feedback/start');
+                        }
+                      }}
                     >
-                      <Stack gap="normal">
-                        {/* Icon in upper left corner */}
-                        <div className="absolute top-4 left-4 w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center z-10">
-                          <Icon className="text-arise-deep-teal" size={24} />
+                      Add evaluators
+                    </Button>
+                  </div>
+                </Card>
+              </MotionDiv>
+
+              {/* Progress Section */}
+              <MotionDiv variant="slideUp" delay={200}>
+                <Card 
+                  className="mb-8 text-white border-0"
+                  style={{ backgroundColor: '#0F454D' }}
+                >
+                  <div className="flex justify-between items-start mb-6 gap-8">
+                    <div className="flex-1">
+                      <h2 className="text-2xl font-bold mb-2 text-white">Your Progress</h2>
+                      <div className="text-6xl font-bold mb-2" style={{ color: '#d5b667' }}>{progressData.overall} %</div>
+                      <p className="text-white/90 mb-1">
+                        You are making good progress in your holistic leadership journey. Keep it up!
+                      </p>
+                    </div>
+                    
+                    {/* Progress Bars - Right side */}
+                    <div className="flex-1 space-y-4 min-w-[200px]">
+                    {progressData.items.map((item, index) => (
+                      <div key={index}>
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm font-medium text-white">{item.label}</span>
+                          <span className="text-sm font-semibold" style={{ color: '#d5b667' }}>{item.percentage} %</span>
                         </div>
-                        {/* Status badges */}
-                        <div className="flex items-start justify-end">
-                          {/* Badges based on assessment type */}
-                          {evaluation.assessmentType === 'MBTI' && evaluation.externalLink && (
-                            <span className="inline-block px-3 py-1 border border-arise-deep-teal text-arise-deep-teal text-xs rounded-full font-medium">
-                              External link
-                            </span>
-                          )}
-                          {evaluation.assessmentType === 'TKI' && (
-                            <span className="inline-block px-3 py-1 border border-arise-deep-teal text-arise-deep-teal text-xs rounded-full font-medium">
-                              Label
-                            </span>
-                          )}
-                          {evaluation.assessmentType === 'THREE_SIXTY_SELF' && (
-                            <span className="inline-block px-3 py-1 border border-arise-deep-teal text-arise-deep-teal text-xs rounded-full font-medium">
-                              ARISE Platform
-                            </span>
-                          )}
-                          {evaluation.assessmentType === 'WELLNESS' && (
-                            <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center">
-                              <Users className="w-3 h-3 text-gray-600" />
+                        <div className="w-full bg-white/20 rounded-full h-2">
+                          <div
+                            className={`${getProgressColor(item.color)} h-2 rounded-full transition-all duration-500`}
+                            style={{ width: `${item.percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-4">
+                    <Button 
+                      variant="primary" 
+                      className="font-semibold"
+                      style={{ backgroundColor: '#d5b667', color: '#000000' }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#d5b667';
+                        e.currentTarget.style.opacity = '0.9';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#d5b667';
+                        e.currentTarget.style.opacity = '1';
+                      }}
+                      onClick={() => router.push('/dashboard/assessments')}
+                    >
+                      Continue Learning
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="text-white font-semibold"
+                      style={{ 
+                        borderColor: '#799ba1', 
+                        borderWidth: '2px',
+                        backgroundColor: '#0F454D',
+                        color: '#ffffff'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#0F454D';
+                        e.currentTarget.style.opacity = '0.9';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#0F454D';
+                        e.currentTarget.style.opacity = '1';
+                      }}
+                      onClick={() => router.push('/dashboard/results')}
+                    >
+                      View Reports
+                    </Button>
+                  </div>
+                </Card>
+              </MotionDiv>
+
+              {/* Evaluations Section */}
+              <MotionDiv variant="slideUp" delay={300}>
+                <div className="mb-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Your evaluations</h2>
+                    <Button 
+                      variant="primary" 
+                      className="text-white font-semibold"
+                      style={{ backgroundColor: '#0F454D', color: '#ffffff' }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#0F454D';
+                        e.currentTarget.style.opacity = '0.9';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#0F454D';
+                        e.currentTarget.style.opacity = '1';
+                      }}
+                      onClick={() => router.push('/dashboard/assessments')}
+                    >
+                      Add assessment
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {evaluations.map((evaluation, index) => {
+                      const Icon = evaluation.icon;
+                      return (
+                        <Card 
+                          key={index} 
+                          className={`group relative transition-colors duration-300 ${evaluation.status === 'locked' ? 'opacity-60' : 'hover:bg-[#6f949a]'}`}
+                        >
+                          <Stack gap="normal">
+                            {/* Icon in upper left corner */}
+                            <div className="absolute top-4 left-4 w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center z-10">
+                              <Icon className="text-arise-deep-teal" size={24} />
                             </div>
-                          )}
-                        </div>
-                        {/* Add padding top to account for icon */}
-                        <div className="pt-12">
-                          {/* Title and Description */}
-                          <div>
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-white transition-colors">
-                              {evaluation.title}
-                            </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 group-hover:text-white/90 transition-colors">
-                              {evaluation.description}
-                            </p>
-                          </div>
-                        </div>
+                            {/* Status badges */}
+                            <div className="flex items-start justify-end">
+                              {/* Badges based on assessment type */}
+                              {evaluation.assessmentType === 'MBTI' && evaluation.externalLink && (
+                                <span className="inline-block px-3 py-1 border border-arise-deep-teal text-arise-deep-teal text-xs rounded-full font-medium">
+                                  External link
+                                </span>
+                              )}
+                              {evaluation.assessmentType === 'TKI' && (
+                                <span className="inline-block px-3 py-1 border border-arise-deep-teal text-arise-deep-teal text-xs rounded-full font-medium">
+                                  Label
+                                </span>
+                              )}
+                              {evaluation.assessmentType === 'THREE_SIXTY_SELF' && (
+                                <span className="inline-block px-3 py-1 border border-arise-deep-teal text-arise-deep-teal text-xs rounded-full font-medium">
+                                  ARISE Platform
+                                </span>
+                              )}
+                              {evaluation.assessmentType === 'WELLNESS' && (
+                                <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center">
+                                  <Users className="w-3 h-3 text-gray-600" />
+                                </div>
+                              )}
+                            </div>
+                            {/* Add padding top to account for icon */}
+                            <div className="pt-12">
+                              {/* Title and Description */}
+                              <div>
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-white transition-colors">
+                                  {evaluation.title}
+                                </h3>
+                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 group-hover:text-white/90 transition-colors">
+                                  {evaluation.description}
+                                </p>
+                              </div>
+                            </div>
 
-                        {/* Status Badge */}
-                        {evaluation.status === 'locked' ? (
-                          <div className="flex items-center gap-2">
-                            <Lock className="w-4 h-4 text-gray-400" />
-                            <span className="text-xs text-gray-500">Locked</span>
-                          </div>
-                        ) : (
-                          getStatusBadge(evaluation.status, evaluation.answerCount, evaluation.totalQuestions)
-                        )}
+                            {/* Status Badge */}
+                            {evaluation.status === 'locked' ? (
+                              <div className="flex items-center gap-2">
+                                <Lock className="w-4 h-4 text-gray-400" />
+                                <span className="text-xs text-gray-500">Locked</span>
+                              </div>
+                            ) : (
+                              getStatusBadge(evaluation.status, evaluation.answerCount, evaluation.totalQuestions)
+                            )}
 
-                        {/* Action Button */}
-                        <div className="mt-auto">
-                          {getActionButton(evaluation)}
-                        </div>
-                      </Stack>
-                    </Card>
-                  );
-                })}
-              </div>
+                            {/* Action Button */}
+                            <div className="mt-auto">
+                              {getActionButton(evaluation)}
+                            </div>
+                          </Stack>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </div>
+              </MotionDiv>
             </div>
-          </MotionDiv>
-
-          {/* Color block under all 3 sections - wider */}
-          <div 
-            className="mb-8"
-            style={{ 
-              backgroundColor: '#d5dee0',
-              height: '32px',
-              marginLeft: '-15%',
-              marginRight: '-15%',
-              width: 'calc(100% + 30%)',
-            }}
-          />
+          </div>
 
           {/* Coaching Section */}
           <MotionDiv variant="slideUp" delay={400}>
