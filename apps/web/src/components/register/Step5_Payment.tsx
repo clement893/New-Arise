@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { useRegistrationStore } from '@/stores/registrationStore';
@@ -35,13 +35,13 @@ function PaymentFormContent() {
   const [cardError, setCardError] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [loadingPlan, setLoadingPlan] = useState(true);
-  const [isMounted, setIsMounted] = useState(true);
+  const isMountedRef = useRef(true);
 
   // Track component mount status
   useEffect(() => {
-    setIsMounted(true);
+    isMountedRef.current = true;
     return () => {
-      setIsMounted(false);
+      isMountedRef.current = false;
     };
   }, []);
 
@@ -113,30 +113,34 @@ function PaymentFormContent() {
 
     try {
       // Check if component is still mounted before proceeding
-      if (!isMounted) {
+      if (!isMountedRef.current) {
         return;
       }
 
-      // Create payment method
+      // Create payment method - this is the critical operation that needs the element
       const { error: pmError, paymentMethod } = await stripe.createPaymentMethod({
         type: 'card',
         card: cardElement,
       });
 
       // Check if component is still mounted after async operation
-      if (!isMounted) {
+      if (!isMountedRef.current) {
         return;
       }
 
       if (pmError) {
-        setCardError(pmError.message || 'An error occurred while processing your card.');
-        setIsProcessing(false);
+        if (isMountedRef.current) {
+          setCardError(pmError.message || 'An error occurred while processing your card.');
+          setIsProcessing(false);
+        }
         return;
       }
 
       if (!paymentMethod) {
-        setError('Failed to create payment method. Please try again.');
-        setIsProcessing(false);
+        if (isMountedRef.current) {
+          setError('Failed to create payment method. Please try again.');
+          setIsProcessing(false);
+        }
         return;
       }
 
@@ -150,28 +154,34 @@ function PaymentFormContent() {
       });
 
       // Check if component is still mounted after API call
-      if (!isMounted) {
+      if (!isMountedRef.current) {
         return;
       }
 
       if (response.data) {
-        // Payment successful, wait a bit to ensure Stripe operations are complete
-        // before unmounting the component
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Payment successful, wait longer to ensure all Stripe operations are complete
+        // Stripe may have async callbacks that need to finish
+        await new Promise(resolve => setTimeout(resolve, 300));
         
-        // Final check before changing step
-        if (!isMounted) {
+        // Final check before changing step - only proceed if still mounted
+        if (!isMountedRef.current) {
           return;
         }
         
         // Reset processing state before changing step
         setIsProcessing(false);
         
-        // Move to next step after ensuring Stripe operations are complete
-        setStep(6);
+        // Use setTimeout to ensure state updates are processed before unmounting
+        setTimeout(() => {
+          if (isMountedRef.current) {
+            setStep(6);
+          }
+        }, 0);
       } else {
-        setError('Failed to create subscription. Please try again.');
-        setIsProcessing(false);
+        if (isMountedRef.current) {
+          setError('Failed to create subscription. Please try again.');
+          setIsProcessing(false);
+        }
       }
     } catch (err: unknown) {
       let errorMessage = 'Failed to process payment. Please try again.';
@@ -199,7 +209,7 @@ function PaymentFormContent() {
       }
       
       // Only update state if component is still mounted
-      if (isMounted) {
+      if (isMountedRef.current) {
         setError(errorMessage);
         setIsProcessing(false);
       }
