@@ -225,17 +225,17 @@ function ResultsReportsContent() {
           </div>
 
           {/* Assessment Results */}
-          <Card className="p-6">
+          <Card className="p-6 text-white border-0" style={{ backgroundColor: '#0F454D' }}>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
                   <FileText className="text-arise-deep-teal" size={24} />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  <h2 className="text-2xl font-bold text-white">
                     Your Assessment Results
                   </h2>
-                  <p className="text-gray-600 dark:text-gray-300">
+                  <p className="text-white/90">
                     Comprehensive overview of your completed assessments
                   </p>
                 </div>
@@ -423,7 +423,7 @@ function ResultsReportsContent() {
           </Card>
 
           {/* Ready to accelerate your growth? */}
-          <Card className="bg-arise-deep-teal text-white p-8">
+          <Card className="text-white border-0 p-8" style={{ backgroundColor: '#2E2E2E' }}>
             <div className="flex flex-col md:flex-row items-center gap-6">
               <div className="flex-1">
                 <h2 className="text-2xl font-bold mb-3">
