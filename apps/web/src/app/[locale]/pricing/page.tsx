@@ -28,34 +28,29 @@ export default function PricingPage() {
 
   const plans: Plan[] = [
     {
-      id: 'starter',
-      name: 'Starter',
-      price: 29,
+      id: 'basic',
+      name: 'Basic',
+      price: 49,
       period: billingPeriod,
-      description: 'Parfait pour les petites organisations',
+      description: 'Parfait pour démarrer',
       features: [
-        'Jusqu\'à 100 utilisateurs',
-        '1 projet actif',
-        'Support email',
-        'Rapports de base',
-        'API limitée',
+        'Les 4 évaluations',
+        'Profil personnel',
+        'Insights de base',
       ],
       buttonText: 'Commencer',
     },
     {
       id: 'professional',
       name: 'Professional',
-      price: 79,
+      price: 99,
       period: billingPeriod,
-      description: 'Pour les organisations en croissance',
+      description: 'Pour les professionnels',
       features: [
-        'Jusqu\'à 1,000 utilisateurs',
-        'Projets illimités',
+        'Les 4 évaluations',
+        'Analyses avancées',
         'Support prioritaire',
-        'Rapports avancés',
-        'API complète',
-        'Intégrations tierces',
-        'Formulaires personnalisés',
+        'Rapports personnalisés',
       ],
       popular: true,
       buttonText: 'Essayer gratuitement',
@@ -63,19 +58,14 @@ export default function PricingPage() {
     {
       id: 'enterprise',
       name: 'Enterprise',
-      price: 199,
+      price: -1, // -1 indicates custom pricing
       period: billingPeriod,
-      description: 'Pour les grandes organisations',
+      description: 'Pour les entreprises',
       features: [
-        'Utilisateurs illimités',
-        'Toutes les fonctionnalités',
-        'Support dédié 24/7',
-        'Rapports personnalisés',
-        'API illimitée',
-        'Intégrations personnalisées',
-        'Formulaires avancés',
-        'Multi-organisations',
-        'RBAC avancé',
+        'Évaluations illimitées',
+        'Gestion d\'équipe',
+        'Support dédié',
+        'Accès API',
       ],
       buttonText: 'Nous contacter',
     },
@@ -86,9 +76,9 @@ export default function PricingPage() {
       <Header />
       <Container className="py-24">
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-foreground mb-4">Tarifs</h1>
+          <h1 className="text-5xl font-bold text-foreground mb-4">Choose your plan</h1>
           <p className="text-xl text-muted-foreground mb-8">
-            Choisissez le plan qui correspond à vos besoins
+            Select the plan that best fits your needs
           </p>
 
           <BillingPeriodToggle value={billingPeriod} onChange={setBillingPeriod} />

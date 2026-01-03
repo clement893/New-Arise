@@ -28,6 +28,9 @@ export default function PricingCardSimple({
   onSelect: _onSelect,
 }: PricingCardSimpleProps) {
   const calculatePrice = () => {
+    if (plan.price === -1) {
+      return null; // Custom pricing
+    }
     if (billingPeriod === 'year') {
       return Math.round((plan.price * 12 * 0.8) / 12);
     }
@@ -35,11 +38,16 @@ export default function PricingCardSimple({
   };
 
   const calculateYearlyPrice = () => {
+    if (plan.price === -1) {
+      return null; // Custom pricing
+    }
     if (billingPeriod === 'year') {
       return Math.round(plan.price * 12 * 0.8);
     }
     return null;
   };
+
+  const isCustomPricing = plan.price === -1;
 
   return (
     <Card
@@ -61,14 +69,24 @@ export default function PricingCardSimple({
         </h2>
         <p className="text-gray-600 dark:text-gray-400 mb-6">{plan.description}</p>
         <div className="mb-6">
-          <span className="text-4xl font-bold text-gray-900 dark:text-gray-100">
-            {calculatePrice()}€
-          </span>
-          <span className="text-gray-600 dark:text-gray-400">/mois</span>
-          {billingPeriod === 'year' && calculateYearlyPrice() && (
-            <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              {calculateYearlyPrice()}€/an
+          {isCustomPricing ? (
+            <div>
+              <span className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+                Sur devis
+              </span>
             </div>
+          ) : (
+            <>
+              <span className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+                {calculatePrice()}€
+              </span>
+              <span className="text-gray-600 dark:text-gray-400">/mois</span>
+              {billingPeriod === 'year' && calculateYearlyPrice() && (
+                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  {calculateYearlyPrice()}€/an
+                </div>
+              )}
+            </>
           )}
         </div>
         <Link href={`/subscriptions?plan=${plan.id}&period=${billingPeriod}`}>
