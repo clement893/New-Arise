@@ -104,6 +104,15 @@ const variants = {
     ['focus:ring-danger-500', 'dark:focus:ring-danger-400'],
     'color-danger-500'
   ),
+  'arise-primary': [
+    'bg-arise-button-primary',
+    'text-white',
+    'hover:bg-arise-button-primary-hover',
+    'focus:ring-arise-button-primary',
+    'dark:bg-arise-button-primary',
+    'dark:hover:bg-arise-button-primary-hover',
+    '[background-color:var(--color-arise-button-primary,#0F454D)]',
+  ].join(' '),
 };
 
 // Default sizes (fallback if theme config not available)

@@ -131,6 +131,8 @@ const config: Config = {
         arise: {
           'deep-teal': 'var(--color-arise-deep-teal, #0A3A40)',
           'deep-teal-alt': 'var(--color-arise-deep-teal-alt, #1B5E6B)', // Alternative deep teal used in dashboard
+          'button-primary': 'var(--color-arise-button-primary, #0F454D)', // Primary button color
+          'button-primary-hover': 'var(--color-arise-button-primary-hover, #0d4148)', // Primary button hover color
           'gold': 'var(--color-arise-gold, #D4AF37)',
           'gold-alt': 'var(--color-arise-gold-alt, #F4B860)', // Alternative gold used in buttons
           'dark-gray': 'var(--color-arise-dark-gray, #2e2e2e)', // Dark gray for backgrounds

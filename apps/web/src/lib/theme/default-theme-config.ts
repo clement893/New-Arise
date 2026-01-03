@@ -78,6 +78,8 @@ export const DEFAULT_THEME_CONFIG = {
     // ARISE Brand Colors - Design system colors
     ariseDeepTeal: "#0A3A40",  // ARISE deep teal (exact design color)
     ariseDeepTealAlt: "#1B5E6B",  // ARISE deep teal alternative (used in dashboard)
+    ariseButtonPrimary: "#0F454D",  // ARISE primary button color
+    ariseButtonPrimaryHover: "#0d4148",  // ARISE primary button hover color
     ariseGold: "#D4AF37",  // ARISE gold (exact design color)
     ariseGoldAlt: "#F4B860",  // ARISE gold alternative (used in buttons)
     ariseDarkGray: "#2e2e2e",  // ARISE dark gray (used for backgrounds)
