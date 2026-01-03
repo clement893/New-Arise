@@ -44,7 +44,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div>
+    <div className="relative">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-white mb-2">Your profile</h1>
@@ -58,7 +58,7 @@ export default function ProfilePage() {
               'px-6 py-3 rounded-t-lg font-semibold transition-colors',
               activeTab === 'profile'
                 ? 'bg-white text-arise-deep-teal-alt'
-                : 'bg-[#2B8A9E] text-white/80 hover:text-white'
+                : 'bg-white/20 text-white/80 hover:bg-white/30 hover:text-white'
             )}
           >
             Profile
@@ -69,7 +69,7 @@ export default function ProfilePage() {
               'px-6 py-3 rounded-t-lg font-semibold transition-colors',
               activeTab === 'subscription'
                 ? 'bg-white text-arise-deep-teal-alt'
-                : 'bg-[#2B8A9E] text-white/80 hover:text-white'
+                : 'bg-white/20 text-white/80 hover:bg-white/30 hover:text-white'
             )}
           >
             Subscription
@@ -297,7 +297,8 @@ export default function ProfilePage() {
           <div className="flex justify-end">
             <Button
               onClick={handleSave}
-              className="bg-arise-gold-alt text-arise-deep-teal-alt hover:bg-arise-gold-alt/90 font-semibold px-8 py-3"
+              className="!bg-arise-gold-alt !text-arise-deep-teal-alt hover:!bg-arise-gold-alt/90 font-semibold px-8 py-3"
+              style={{ backgroundColor: 'var(--color-arise-gold-alt, #F4B860)', color: 'var(--color-arise-deep-teal-alt, #1B5E6B)' }}
             >
               Save
             </Button>
@@ -370,7 +371,8 @@ export default function ProfilePage() {
                   personalized development plan.
                 </p>
                 <Button 
-                  className="bg-arise-gold-alt text-arise-deep-teal-alt hover:bg-arise-gold-alt/90 flex items-center gap-2 font-semibold"
+                  className="!bg-arise-gold-alt !text-arise-deep-teal-alt hover:!bg-arise-gold-alt/90 flex items-center gap-2 font-semibold"
+                  style={{ backgroundColor: 'var(--color-arise-gold-alt, #F4B860)', color: 'var(--color-arise-deep-teal-alt, #1B5E6B)' }}
                   onClick={() => router.push('/dashboard/coaching-options')}
                 >
                   Explore coaching options
