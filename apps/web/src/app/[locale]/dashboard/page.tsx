@@ -354,12 +354,15 @@ function DashboardContent() {
                 </Button>
               </div>
             </Card>
-            {/* Color block under section */}
+            {/* Color block under section - wider */}
             <div 
-              className="h-4 -mt-4 mb-8"
+              className="h-4 -mt-4 mb-8 relative"
               style={{ 
-                backgroundColor: '#d1d9db',
+                backgroundColor: '#d5dee0',
                 zIndex: 1,
+                marginLeft: '-15%',
+                marginRight: '-15%',
+                width: 'calc(100% + 30%)',
               }}
             />
           </MotionDiv>
@@ -438,12 +441,15 @@ function DashboardContent() {
                 </Button>
               </div>
             </Card>
-            {/* Color block under section */}
+            {/* Color block under section - wider */}
             <div 
-              className="h-4 -mt-4 mb-8"
+              className="h-4 -mt-4 mb-8 relative"
               style={{ 
-                backgroundColor: '#d1d9db',
+                backgroundColor: '#d5dee0',
                 zIndex: 1,
+                marginLeft: '-15%',
+                marginRight: '-15%',
+                width: 'calc(100% + 30%)',
               }}
             />
           </MotionDiv>
@@ -539,13 +545,15 @@ function DashboardContent() {
                   );
                 })}
               </div>
-              {/* Color block under section */}
+              {/* Color block under section - wider */}
               <div 
-                className="relative -mt-8 mb-8 h-4"
+                className="h-4 -mt-4 mb-8 relative"
                 style={{ 
-                  backgroundColor: '#d1d9db',
-                  zIndex: 5,
-                  marginTop: '-2rem',
+                  backgroundColor: '#d5dee0',
+                  zIndex: 1,
+                  marginLeft: '-15%',
+                  marginRight: '-15%',
+                  width: 'calc(100% + 30%)',
                 }}
               />
             </div>
