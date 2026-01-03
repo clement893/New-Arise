@@ -183,7 +183,7 @@ function WellnessAssessmentContent() {
     };
 
     checkExistingAssessment();
-  }, [router, loadExistingAnswers]);
+  }, [router]); // Removed loadExistingAnswers from dependencies to prevent re-runs
 
   useEffect(() => {
     if (isCompleted) {
