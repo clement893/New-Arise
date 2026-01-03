@@ -74,6 +74,13 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-arise-deep-teal relative overflow-hidden flex items-center justify-center p-4">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-20"
+        style={{
+          backgroundImage: 'url(/images/dashboard-bg.jpg)',
+        }}
+      />
       {/* Vertical lines texture */}
       <div 
         className="absolute inset-0 opacity-20"

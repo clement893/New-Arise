@@ -323,24 +323,25 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
   }, [logout]);
 
   return (
-    <div className="min-h-screen relative bg-white">
+    <div className="min-h-screen relative">
       {/* Background Image */}
       <div 
-        className="fixed inset-0 bg-cover bg-center opacity-10 pointer-events-none z-0"
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat pointer-events-none z-0"
         style={{
           backgroundImage: 'url(/images/dashboard-bg.jpg)',
+          opacity: 0.3,
         }}
       />
       {/* Vertical lines texture */}
       <div 
-        className="fixed inset-0 opacity-30 pointer-events-none z-0"
+        className="fixed inset-0 opacity-20 pointer-events-none z-0"
         style={{
           backgroundImage: `repeating-linear-gradient(
             90deg,
             transparent,
             transparent 3px,
-            rgba(255, 255, 255, 0.05) 3px,
-            rgba(255, 255, 255, 0.05) 4px
+            rgba(0, 0, 0, 0.05) 3px,
+            rgba(0, 0, 0, 0.05) 4px
           )`,
         }}
       />
@@ -413,7 +414,7 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
           {/* Page Content - This is the only part that updates on navigation */}
           <main 
             key={pathname} 
-            className="flex-1 overflow-y-auto px-3 sm:px-4 md:px-6 xl:px-8 2xl:px-10 py-4 sm:py-6 2xl:py-8 bg-white"
+            className="flex-1 overflow-y-auto px-3 sm:px-4 md:px-6 xl:px-8 2xl:px-10 py-4 sm:py-6 2xl:py-8 bg-transparent"
             style={{
               animation: 'fadeInSlideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
