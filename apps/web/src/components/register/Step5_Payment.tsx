@@ -90,6 +90,11 @@ function PaymentFormContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Prevent double submission
+    if (isProcessing) {
+      return;
+    }
+
     if (!stripe || !elements || !selectedPlan || !planId) {
       setError('Please wait for Stripe to load and select a plan.');
       return;
