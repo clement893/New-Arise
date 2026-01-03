@@ -250,7 +250,7 @@ function DashboardContent() {
       return (
         <Button 
           variant="outline" 
-          className="w-full"
+          className="w-full rounded-full"
           onClick={() => {
             if (evaluation.assessmentType === 'TKI' && evaluation.assessmentId) {
               router.push(`/dashboard/assessments/tki/results?id=${evaluation.assessmentId}`);
@@ -350,7 +350,8 @@ function DashboardContent() {
           {/* Progress Section */}
           <MotionDiv variant="slideUp" delay={200}>
             <Card 
-              className="mb-8 text-white border-0 bg-arise-dark-gray"
+              className="mb-8 text-white border-0"
+              style={{ backgroundColor: '#0f4c56' }}
             >
               <div className="flex justify-between items-start mb-6 gap-8">
                 <div className="flex-1">
@@ -410,14 +411,15 @@ function DashboardContent() {
                   return (
                     <Card 
                       key={index} 
-                      className={`${evaluation.status === 'locked' ? 'opacity-60' : ''}`}
+                      className={`group relative transition-colors duration-300 ${evaluation.status === 'locked' ? 'opacity-60' : 'hover:bg-[#6f949a]'}`}
                     >
                       <Stack gap="normal">
-                        {/* Icon and Status */}
-                        <div className="flex items-start justify-between">
-                          <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
-                            <Icon className="text-arise-deep-teal" size={24} />
-                          </div>
+                        {/* Icon in upper left corner */}
+                        <div className="absolute top-4 left-4 w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center z-10">
+                          <Icon className="text-arise-deep-teal" size={24} />
+                        </div>
+                        {/* Status badges */}
+                        <div className="flex items-start justify-end">
                           {/* Badges based on assessment type */}
                           {evaluation.assessmentType === 'MBTI' && evaluation.externalLink && (
                             <span className="inline-block px-3 py-1 border border-arise-deep-teal text-arise-deep-teal text-xs rounded-full font-medium">
@@ -440,15 +442,17 @@ function DashboardContent() {
                             </div>
                           )}
                         </div>
-
-                        {/* Title and Description */}
-                        <div>
-                          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
-                            {evaluation.title}
-                          </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                            {evaluation.description}
-                          </p>
+                        {/* Add padding top to account for icon */}
+                        <div className="pt-12">
+                          {/* Title and Description */}
+                          <div>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-white transition-colors">
+                              {evaluation.title}
+                            </h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 group-hover:text-white/90 transition-colors">
+                              {evaluation.description}
+                            </p>
+                          </div>
                         </div>
 
                         {/* Status Badge */}
