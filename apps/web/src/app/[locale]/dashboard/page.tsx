@@ -676,10 +676,10 @@ function DashboardContent() {
             <Card 
               className="text-white border-0 relative overflow-hidden"
               style={{ 
-                backgroundColor: '#2e2e2e',
-                marginLeft: '-15%',
-                marginRight: '-15%',
-                width: 'calc(100% + 30%)',
+                backgroundColor: '#0F454D',
+                marginLeft: 'calc(-14% - 0.5rem)',
+                marginRight: 'calc(-5% - 0.5rem)',
+                width: 'calc(100% + 19% + 1rem)',
                 borderRadius: '16px',
               }}
             >
@@ -693,7 +693,7 @@ function DashboardContent() {
 
               <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 px-8 py-8">
                 <div className="flex-1 min-w-0 pr-0 lg:pr-8">
-                  <h2 className="text-3xl font-bold mb-4">
+                  <h2 className="text-3xl font-bold mb-4 text-white">
                     Ready to accelerate your growth?
                   </h2>
                   <p className="text-white/90 mb-6">
