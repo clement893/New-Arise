@@ -335,7 +335,7 @@ const benefits = [
                     <textarea
                       rows={6}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-arise-deep-teal focus:border-transparent resize-none"
-                      placeholder={t('applicationForm.coverLetter')}
+                      placeholder="Tell us why you're interested in joining ARISE..."
                     />
                   </div>
 

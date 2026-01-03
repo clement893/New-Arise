@@ -223,12 +223,13 @@ export default function AboutPage() {
               {t('cta.subtitle')}
             </p>
             <Button
-              as={Link}
-              href="/register"
+              asChild
               className="!bg-arise-gold hover:!bg-arise-gold/90 !text-arise-deep-teal font-semibold px-8 py-3 text-lg inline-flex items-center gap-2"
             >
-              {t('cta.getStarted')}
-              <ArrowRight size={20} />
+              <Link href="/register">
+                {t('cta.getStarted')}
+                <ArrowRight size={20} />
+              </Link>
             </Button>
           </Card>
         </MotionDiv>
