@@ -356,7 +356,7 @@ function DashboardContent() {
               <div className="flex justify-between items-start mb-6 gap-8">
                 <div className="flex-1">
                   <h2 className="text-2xl font-bold mb-2 text-white">Your Progress</h2>
-                  <div className="text-6xl font-bold mb-2 text-white">{progressData.overall} %</div>
+                  <div className="text-6xl font-bold mb-2" style={{ color: '#d5b667' }}>{progressData.overall} %</div>
                   <p className="text-white/90 mb-1">
                     You are making good progress in your holistic leadership journey. Keep it up!
                   </p>
@@ -368,7 +368,7 @@ function DashboardContent() {
                   <div key={index}>
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-sm font-medium text-white">{item.label}</span>
-                      <span className="text-sm font-semibold text-white">{item.percentage} %</span>
+                      <span className="text-sm font-semibold" style={{ color: '#d5b667' }}>{item.percentage} %</span>
                     </div>
                     <div className="w-full bg-white/20 rounded-full h-2">
                       <div
@@ -385,7 +385,16 @@ function DashboardContent() {
               <div className="flex gap-4">
                 <Button 
                   variant="primary" 
-                  className="bg-arise-gold-alt text-arise-deep-teal-alt hover:bg-arise-gold-alt/90 font-semibold"
+                  className="font-semibold"
+                  style={{ backgroundColor: '#d5b667', color: '#000000' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#d5b667';
+                    e.currentTarget.style.opacity = '0.9';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#d5b667';
+                    e.currentTarget.style.opacity = '1';
+                  }}
                   onClick={() => router.push('/dashboard/assessments')}
                 >
                   Continue Learning
