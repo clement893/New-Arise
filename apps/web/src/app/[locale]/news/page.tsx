@@ -5,7 +5,7 @@ import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
 import { Card } from '@/components/ui';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { Calendar, User, ArrowRight, TrendingUp, BookOpen, Users } from 'lucide-react';
+import { Calendar, User, ArrowRight, TrendingUp, BookOpen, Users, Newspaper } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 
 export default function NewsPage() {
