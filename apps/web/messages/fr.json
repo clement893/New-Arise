@@ -572,5 +572,582 @@
       "copyright": "© {year} Arise Human Capital. Tous droits réservés.",
       "year": "2026"
     }
+  },
+  "privacy": {
+    "title": "Politique de confidentialité",
+    "subtitle": "Votre vie privée est importante pour nous. Cette politique explique comment nous collectons, utilisons et protégeons vos informations personnelles.",
+    "lastUpdated": "Dernière mise à jour",
+    "introduction": {
+      "title": "Introduction",
+      "text1": "ARISE Human Capital (\"nous\", \"notre\" ou \"nos\") s'engage à protéger votre vie privée. Cette Politique de Confidentialité explique comment nous collectons, utilisons, divulguons et protégeons vos informations lorsque vous utilisez notre plateforme et nos services.",
+      "text2": "En utilisant nos services, vous acceptez la collecte et l'utilisation d'informations conformément à cette politique."
+    },
+    "informationWeCollect": {
+      "title": "1. Informations que nous collectons",
+      "personalInfo": {
+        "title": "1.1 Informations personnelles",
+        "text": "Nous collectons les informations que vous nous fournissez directement, notamment :",
+        "items": [
+          "Nom et coordonnées (adresse e-mail, numéro de téléphone)",
+          "Identifiants de compte (nom d'utilisateur, mot de passe)",
+          "Informations de profil (titre du poste, organisation, préférences)",
+          "Réponses et résultats d'évaluations",
+          "Informations de paiement (traitées de manière sécurisée via des fournisseurs tiers)"
+        ]
+      },
+      "usageInfo": {
+        "title": "1.2 Informations d'utilisation",
+        "text": "Nous collectons automatiquement certaines informations lorsque vous utilisez nos services :",
+        "items": [
+          "Informations sur l'appareil (adresse IP, type de navigateur, système d'exploitation)",
+          "Données d'utilisation (pages visitées, temps passé, fonctionnalités utilisées)",
+          "Cookies et technologies de suivi similaires"
+        ]
+      },
+      "assessmentData": {
+        "title": "1.3 Données d'évaluation",
+        "text": "Nous collectons et stockons vos réponses aux évaluations, résultats et données de progression pour vous fournir des insights personnalisés et des recommandations de développement."
+      }
+    },
+    "howWeUse": {
+      "title": "2. Comment nous utilisons vos informations",
+      "text": "Nous utilisons les informations que nous collectons pour :",
+      "items": [
+        "Fournir, maintenir et améliorer nos services",
+        "Traiter vos évaluations et générer des rapports personnalisés",
+        "Communiquer avec vous concernant votre compte, vos évaluations et nos services",
+        "Vous envoyer des mises à jour, newsletters et communications marketing (avec votre consentement)",
+        "Répondre à vos demandes et fournir un support client",
+        "Détecter, prévenir et résoudre les problèmes techniques et les menaces de sécurité",
+        "Se conformer aux obligations légales et faire respecter nos conditions"
+      ]
+    },
+    "informationSharing": {
+      "title": "3. Partage et divulgation d'informations",
+      "serviceProviders": {
+        "title": "3.1 Prestataires de services",
+        "text": "Nous pouvons partager vos informations avec des prestataires de services tiers qui effectuent des services en notre nom, tels que l'hébergement, l'analyse, le traitement des paiements et le support client. Ces prestataires sont contractuellement tenus de protéger vos informations."
+      },
+      "businessTransfers": {
+        "title": "3.2 Transferts d'entreprise",
+        "text": "En cas de fusion, d'acquisition ou de vente d'actifs, vos informations peuvent être transférées à l'entité acquéreuse."
+      },
+      "legalRequirements": {
+        "title": "3.3 Exigences légales",
+        "text": "Nous pouvons divulguer vos informations si la loi l'exige ou en réponse à des demandes légales valides, telles que des ordonnances judiciaires ou des enquêtes gouvernementales."
+      },
+      "withYourConsent": {
+        "title": "3.4 Avec votre consentement",
+        "text": "Nous pouvons partager vos informations avec votre consentement explicite ou à votre demande, par exemple lorsque vous choisissez de partager les résultats d'évaluations avec des coaches ou des collègues."
+      }
+    },
+    "yourRights": {
+      "title": "4. Vos droits (Conformité RGPD)",
+      "text": "En vertu du Règlement Général sur la Protection des Données (RGPD) et d'autres lois applicables, vous disposez des droits suivants :",
+      "items": [
+        "Droit d'accès : Demander une copie de vos données personnelles",
+        "Droit de rectification : Corriger les données inexactes ou incomplètes",
+        "Droit à l'effacement : Demander la suppression de vos données personnelles",
+        "Droit à la limitation du traitement : Limiter la façon dont nous utilisons vos données",
+        "Droit à la portabilité des données : Recevoir vos données dans un format structuré",
+        "Droit d'opposition : Vous opposer au traitement de vos données",
+        "Droit de retirer le consentement : Retirer votre consentement à tout moment"
+      ],
+      "contact": "Pour exercer ces droits, veuillez nous contacter à"
+    },
+    "dataSecurity": {
+      "title": "5. Sécurité des données",
+      "text": "Nous mettons en œuvre des mesures techniques et organisationnelles appropriées pour protéger vos informations personnelles contre l'accès non autorisé, l'altération, la divulgation ou la destruction. Ces mesures comprennent :",
+      "items": [
+        "Chiffrement des données en transit et au repos",
+        "Évaluations de sécurité régulières et mises à jour",
+        "Contrôles d'accès et mécanismes d'authentification",
+        "Formation des employés sur la protection des données",
+        "Centres de données et infrastructure sécurisés"
+      ],
+      "disclaimer": "Cependant, aucune méthode de transmission sur Internet ou de stockage électronique n'est sécurisée à 100%. Bien que nous nous efforcions de protéger vos données, nous ne pouvons garantir une sécurité absolue."
+    },
+    "dataRetention": {
+      "title": "6. Conservation des données",
+      "text": "Nous conservons vos informations personnelles aussi longtemps que nécessaire pour remplir les objectifs décrits dans cette politique, sauf si une période de conservation plus longue est requise ou autorisée par la loi. Lorsque vous supprimez votre compte, nous supprimerons ou anonymiserons vos données personnelles, sauf lorsque nous sommes tenus de les conserver à des fins légales ou commerciales légitimes."
+    },
+    "cookies": {
+      "title": "7. Cookies et technologies de suivi",
+      "text": "Nous utilisons des cookies et des technologies de suivi similaires pour améliorer votre expérience, analyser l'utilisation et aider aux efforts marketing. Pour des informations détaillées sur notre utilisation des cookies, veuillez consulter notre"
+    },
+    "childrensPrivacy": {
+      "title": "8. Confidentialité des enfants",
+      "text": "Nos services ne sont pas destinés aux personnes de moins de 18 ans. Nous ne collectons pas sciemment d'informations personnelles auprès d'enfants. Si vous pensez que nous avons collecté des informations auprès d'un enfant, veuillez nous contacter immédiatement."
+    },
+    "internationalTransfers": {
+      "title": "9. Transferts internationaux de données",
+      "text": "Vos informations peuvent être transférées et traitées dans des pays autres que votre pays de résidence. Nous veillons à ce que des garanties appropriées soient en place pour protéger vos données conformément à cette Politique de Confidentialité et aux lois applicables sur la protection des données."
+    },
+    "changesToPolicy": {
+      "title": "10. Modifications de cette politique de confidentialité",
+      "text1": "Nous pouvons mettre à jour cette Politique de Confidentialité de temps à autre. Nous vous informerons de tout changement matériel en publiant la nouvelle politique sur cette page et en mettant à jour la date de \"Dernière mise à jour\".",
+      "text2": "Nous vous encourageons à consulter périodiquement cette Politique de Confidentialité pour rester informé de la façon dont nous protégeons vos informations."
+    },
+    "contact": {
+      "title": "11. Contactez-nous",
+      "text": "Si vous avez des questions, des préoccupations ou des demandes concernant cette Politique de Confidentialité ou nos pratiques en matière de données, veuillez nous contacter :",
+      "email": "Email :",
+      "dpo": "Délégué à la protection des données :",
+      "address": "Adresse :"
+    }
+  },
+  "terms": {
+    "title": "Conditions d'utilisation",
+    "subtitle": "Veuillez lire attentivement ces conditions avant d'utiliser nos services.",
+    "lastUpdated": "Dernière mise à jour",
+    "acceptance": {
+      "title": "1. Acceptation des conditions",
+      "text1": "En accédant ou en utilisant la plateforme ARISE Human Capital (\"Service\"), vous acceptez d'être lié par ces Conditions d'Utilisation (\"Conditions\"). Si vous n'êtes pas d'accord avec une partie de ces conditions, vous ne pouvez pas accéder au Service.",
+      "text2": "Ces Conditions s'appliquent à tous les utilisateurs du Service, y compris sans limitation les utilisateurs qui sont des navigateurs, des vendeurs, des clients, des commerçants et des contributeurs de contenu."
+    },
+    "description": {
+      "title": "2. Description du service",
+      "text": "ARISE fournit une plateforme complète de développement du leadership qui comprend :",
+      "items": [
+        "Évaluations de personnalité et comportementales (MBTI, TKI, Feedback 360°, Bien-être)",
+        "Profils et insights de leadership personnalisés",
+        "Plans de développement et recommandations",
+        "Services et ressources de coaching",
+        "Outils de suivi des progrès et de reporting"
+      ]
+    },
+    "userAccounts": {
+      "title": "3. Comptes utilisateurs",
+      "accountCreation": {
+        "title": "3.1 Création de compte",
+        "text": "Pour accéder à certaines fonctionnalités du Service, vous devez créer un compte. Vous acceptez de fournir des informations exactes, actuelles et complètes lors de l'inscription et de mettre à jour ces informations pour les garder exactes, actuelles et complètes."
+      },
+      "accountSecurity": {
+        "title": "3.2 Sécurité du compte",
+        "text": "Vous êtes responsable de maintenir la confidentialité de vos identifiants de compte et de toutes les activités qui se produisent sous votre compte. Vous acceptez de nous notifier immédiatement de toute utilisation non autorisée de votre compte."
+      },
+      "accountTermination": {
+        "title": "3.3 Résiliation du compte",
+        "text": "Nous nous réservons le droit de suspendre ou de résilier votre compte à tout moment pour violation de ces Conditions ou pour toute autre raison que nous jugeons nécessaire."
+      }
+    },
+    "useOfService": {
+      "title": "4. Utilisation du service",
+      "permittedUse": {
+        "title": "4.1 Utilisation autorisée",
+        "text": "Vous pouvez utiliser le Service uniquement à des fins légales. Vous acceptez de :",
+        "items": [
+          "Utiliser le Service conformément à toutes les lois et réglementations applicables",
+          "Fournir des informations exactes et véridiques",
+          "Respecter les droits des autres utilisateurs",
+          "Maintenir la sécurité de votre compte"
+        ]
+      },
+      "prohibitedActivities": {
+        "title": "4.2 Activités interdites",
+        "text": "Vous acceptez de ne pas :",
+        "items": [
+          "Violer toute loi ou réglementation applicable",
+          "Porter atteinte aux droits d'autrui",
+          "Transmettre tout code nuisible, virus ou logiciel malveillant",
+          "Tenter d'obtenir un accès non autorisé au Service ou aux systèmes associés",
+          "Interférer avec ou perturber le Service ou les serveurs",
+          "Utiliser le Service à des fins frauduleuses ou trompeuses",
+          "Copier, modifier ou créer des œuvres dérivées du Service",
+          "Rétro-ingénierie ou tentative d'extraction du code source"
+        ]
+      }
+    },
+    "intellectualProperty": {
+      "title": "5. Propriété intellectuelle",
+      "ourRights": {
+        "title": "5.1 Nos droits",
+        "text": "Le Service et son contenu original, ses fonctionnalités et sa fonctionnalité sont la propriété d'ARISE Human Capital et sont protégés par les lois internationales sur le droit d'auteur, les marques de commerce, les brevets, les secrets commerciaux et autres droits de propriété intellectuelle."
+      },
+      "yourContent": {
+        "title": "5.2 Votre contenu",
+        "text1": "Vous conservez la propriété de tout contenu que vous soumettez au Service. En soumettant du contenu, vous nous accordez une licence mondiale, non exclusive et sans redevance pour utiliser, reproduire, modifier et distribuer votre contenu uniquement dans le but de fournir et d'améliorer le Service.",
+        "text2": "Vous déclarez et garantissez que vous avez tous les droits nécessaires pour accorder cette licence et que votre contenu ne viole aucun droit de tiers."
+      },
+      "assessmentResults": {
+        "title": "5.3 Résultats d'évaluation",
+        "text": "Les résultats et rapports d'évaluation générés via le Service sont votre propriété. Cependant, nous pouvons utiliser des données anonymisées et agrégées à des fins de recherche, d'analyse et d'amélioration du service."
+      }
+    },
+    "paymentTerms": {
+      "title": "6. Conditions de paiement",
+      "subscriptionFees": {
+        "title": "6.1 Frais d'abonnement",
+        "text": "Certaines fonctionnalités du Service peuvent nécessiter le paiement de frais d'abonnement. Les frais sont facturés à l'avance sur une base mensuelle ou annuelle et ne sont pas remboursables sauf si la loi l'exige."
+      },
+      "priceChanges": {
+        "title": "6.2 Changements de prix",
+        "text": "Nous nous réservons le droit de modifier nos prix à tout moment. Nous fournirons un avis de changement de prix au moins 30 jours à l'avance. L'utilisation continue du Service après un changement de prix constitue une acceptation du nouveau prix."
+      },
+      "refunds": {
+        "title": "6.3 Remboursements",
+        "text": "Les remboursements sont fournis à notre seule discrétion et conformément à la loi applicable. Si vous n'êtes pas satisfait du Service, veuillez nous contacter pour discuter des options de remboursement."
+      }
+    },
+    "limitationOfLiability": {
+      "title": "7. Limitation de responsabilité",
+      "disclaimer": {
+        "title": "7.1 Avertissement",
+        "text1": "LE SERVICE EST FOURNI \"EN L'ÉTAT\" ET \"TEL QUE DISPONIBLE\" SANS GARANTIES D'AUCUNE SORTE, EXPRESSES OU IMPLICITES, Y COMPRIS MAIS SANS S'Y LIMITER LES GARANTIES IMPLICITES DE QUALITÉ MARCHANDE, D'ADÉQUATION À UN USAGE PARTICULIER ET DE NON-CONTREFAÇON.",
+        "text2": "Nous ne garantissons pas que le Service sera ininterrompu, sécurisé ou sans erreur, ou que les défauts seront corrigés."
+      },
+      "limitation": {
+        "title": "7.2 Limitation de responsabilité",
+        "text1": "DANS LA MESURE MAXIMALE PERMISE PAR LA LOI, ARISE HUMAN CAPITAL NE SERA PAS RESPONSABLE DE TOUT DOMMAGE INDIRECT, ACCESSOIRE, SPÉCIAL, CONSÉCUTIF OU PUNITIF, OU DE TOUTE PERTE DE PROFITS OU DE REVENUS, QU'ILS SOIENT ENCOURUS DIRECTEMENT OU INDIRECTEMENT, OU DE TOUTE PERTE DE DONNÉES, D'UTILISATION, DE BONNE VOLONTÉ OU D'AUTRES PERTES INTANGIBLES.",
+        "text2": "Notre responsabilité totale pour toute réclamation découlant ou liée au Service ne dépassera pas le montant que vous nous avez payé au cours des douze (12) mois précédant la réclamation."
+      },
+      "assessmentResults": {
+        "title": "7.3 Résultats d'évaluation",
+        "text": "Les résultats et recommandations d'évaluation sont fournis à des fins d'information et de développement uniquement. Ils ne doivent pas être utilisés comme seule base pour les décisions d'emploi, de promotion ou d'autres décisions de personnel. Nous ne sommes pas responsables des décisions prises sur la base des résultats d'évaluation."
+      }
+    },
+    "indemnification": {
+      "title": "8. Indemnisation",
+      "text": "Vous acceptez d'indemniser, de défendre et de dégager de toute responsabilité ARISE Human Capital et ses dirigeants, administrateurs, employés et agents de toute réclamation, responsabilité, dommage, perte et dépense, y compris les honoraires d'avocat raisonnables, découlant ou liés de quelque manière que ce soit à votre utilisation du Service, à la violation de ces Conditions ou à l'atteinte aux droits d'un autre."
+    },
+    "termination": {
+      "title": "9. Résiliation",
+      "byYou": {
+        "title": "9.1 Résiliation par vous",
+        "text": "Vous pouvez résilier votre compte à tout moment en nous contactant ou en utilisant la fonctionnalité de suppression de compte dans vos paramètres."
+      },
+      "byUs": {
+        "title": "9.2 Résiliation par nous",
+        "text": "Nous pouvons résilier ou suspendre votre compte et l'accès au Service immédiatement, sans préavis, pour un comportement que nous croyons violer ces Conditions ou nuire à d'autres utilisateurs, à nous ou à des tiers, ou pour toute autre raison."
+      },
+      "effect": {
+        "title": "9.3 Effet de la résiliation",
+        "text": "Lors de la résiliation, votre droit d'utiliser le Service cessera immédiatement. Nous pouvons supprimer votre compte et vos données, sous réserve de nos politiques de conservation des données et de nos obligations légales."
+      }
+    },
+    "governingLaw": {
+      "title": "10. Loi applicable",
+      "text": "Ces Conditions seront régies et interprétées conformément aux lois de [Juridiction], sans égard à ses dispositions de conflit de lois. Tout litige découlant de ces Conditions ou du Service sera soumis à la juridiction exclusive des tribunaux de [Juridiction]."
+    },
+    "changesToTerms": {
+      "title": "11. Modifications des conditions",
+      "text1": "Nous nous réservons le droit de modifier ou de remplacer ces Conditions à tout moment. Si une révision est importante, nous fournirons un préavis d'au moins 30 jours avant que les nouvelles conditions ne prennent effet.",
+      "text2": "Ce qui constitue un changement important sera déterminé à notre seule discrétion. En continuant à accéder ou à utiliser le Service après que ces révisions deviennent effectives, vous acceptez d'être lié par les conditions révisées."
+    },
+    "severability": {
+      "title": "12. Divisibilité",
+      "text": "Si une disposition de ces Conditions est jugée inapplicable ou invalide, cette disposition sera limitée ou éliminée dans la mesure minimale nécessaire pour que ces Conditions restent par ailleurs en vigueur et applicables."
+    },
+    "entireAgreement": {
+      "title": "13. Accord complet",
+      "text": "Ces Conditions, ainsi que notre Politique de Confidentialité et notre Politique des Cookies, constituent l'accord complet entre vous et ARISE Human Capital concernant l'utilisation du Service et remplacent tous les accords et compréhensions antérieurs."
+    },
+    "contact": {
+      "title": "14. Informations de contact",
+      "text": "Si vous avez des questions concernant ces Conditions d'Utilisation, veuillez nous contacter :",
+      "email": "Email :",
+      "address": "Adresse :"
+    }
+  },
+  "cookies": {
+    "title": "Politique des cookies",
+    "subtitle": "Découvrez comment nous utilisons les cookies et technologies similaires sur notre plateforme.",
+    "lastUpdated": "Dernière mise à jour",
+    "whatAreCookies": {
+      "title": "Que sont les cookies ?",
+      "text1": "Les cookies sont de petits fichiers texte qui sont placés sur votre appareil lorsque vous visitez un site Web. Ils sont largement utilisés pour rendre les sites Web plus efficaces et pour fournir des informations aux propriétaires de sites Web.",
+      "text2": "Les cookies permettent à un site Web de reconnaître votre appareil et de stocker des informations sur vos préférences ou vos actions passées. Cela nous aide à vous fournir une meilleure expérience lorsque vous naviguez sur notre plateforme."
+    },
+    "types": {
+      "title": "Types de cookies que nous utilisons",
+      "essential": {
+        "title": "1. Cookies essentiels",
+        "description": "Ces cookies sont nécessaires au bon fonctionnement du site Web. Ils permettent des fonctionnalités essentielles telles que la sécurité, la gestion du réseau et l'accessibilité.",
+        "examples": "Exemples :",
+        "items": [
+          "Cookies d'authentification (pour vous garder connecté)",
+          "Cookies de session (pour maintenir votre session)",
+          "Cookies de sécurité (pour protéger contre la fraude)"
+        ],
+        "note": "Ces cookies ne peuvent pas être désactivés car ils sont essentiels au fonctionnement du Service."
+      },
+      "analytics": {
+        "title": "2. Cookies analytiques",
+        "description": "Ces cookies nous aident à comprendre comment les visiteurs interagissent avec notre site Web en collectant et en rapportant des informations de manière anonyme.",
+        "examples": "Exemples :",
+        "items": [
+          "Cookies Google Analytics (pour suivre les pages vues et le comportement des utilisateurs)",
+          "Cookies de surveillance des performances (pour identifier les problèmes techniques)",
+          "Cookies de statistiques d'utilisation (pour améliorer nos services)"
+        ],
+        "note": "Ces cookies nous aident à améliorer notre site Web et nos services en comprenant comment ils sont utilisés."
+      },
+      "marketing": {
+        "title": "3. Cookies marketing",
+        "description": "Ces cookies sont utilisés pour suivre les visiteurs sur les sites Web afin d'afficher des publicités pertinentes et de mesurer l'efficacité de nos campagnes marketing.",
+        "examples": "Exemples :",
+        "items": [
+          "Cookies publicitaires (pour afficher des publicités pertinentes)",
+          "Cookies de réseaux sociaux (pour permettre le partage social)",
+          "Cookies de reciblage (pour vous rappeler nos services)"
+        ],
+        "note": "Ces cookies nécessitent votre consentement et peuvent être gérés via vos préférences de cookies."
+      }
+    },
+    "cookieTable": {
+      "title": "Détails des cookies",
+      "cookieName": "Nom du cookie",
+      "purpose": "Objectif",
+      "type": "Type",
+      "duration": "Durée"
+    },
+    "thirdParty": {
+      "title": "Cookies tiers",
+      "text": "En plus de nos propres cookies, nous pouvons également utiliser divers cookies tiers pour rapporter les statistiques d'utilisation, diffuser des publicités et fournir des fonctionnalités améliorées.",
+      "googleAnalytics": {
+        "title": "Google Analytics",
+        "text": "Nous utilisons Google Analytics pour comprendre comment les visiteurs utilisent notre site Web. Pour plus d'informations, veuillez visiter"
+      },
+      "paymentProcessors": {
+        "title": "Processeurs de paiement",
+        "text": "Lorsque vous effectuez un paiement, nos processeurs de paiement peuvent définir des cookies pour traiter votre transaction de manière sécurisée."
+      }
+    },
+    "managingCookies": {
+      "title": "Gestion des cookies",
+      "browserSettings": {
+        "title": "Paramètres du navigateur",
+        "text": "La plupart des navigateurs Web vous permettent de contrôler les cookies via leurs paramètres. Vous pouvez configurer votre navigateur pour refuser les cookies ou vous alerter lorsque des cookies sont envoyés.",
+        "instructions": "Voici comment gérer les cookies dans les navigateurs populaires :",
+        "items": [
+          "Chrome : Paramètres → Confidentialité et sécurité → Cookies et autres données de site",
+          "Firefox : Options → Vie privée et sécurité → Cookies et données de site",
+          "Safari : Préférences → Confidentialité → Cookies et données de site Web",
+          "Edge : Paramètres → Confidentialité, recherche et services → Cookies et autorisations de site"
+        ]
+      },
+      "cookiePreferences": {
+        "title": "Préférences de cookies",
+        "text1": "Vous pouvez gérer vos préférences de cookies directement sur notre plateforme via le panneau des paramètres de cookies, qui apparaît lors de votre première visite sur notre site Web ou peut être accessible à tout moment via les paramètres de votre compte.",
+        "text2": "Note : La désactivation de certains cookies peut affecter la fonctionnalité du Service. Les cookies essentiels ne peuvent pas être désactivés car ils sont nécessaires au fonctionnement du Service."
+      },
+      "optOutLinks": {
+        "title": "Liens de désinscription",
+        "text": "Vous pouvez vous désinscrire de certains cookies tiers :"
+      }
+    },
+    "doNotTrack": {
+      "title": "Signaux Ne pas suivre",
+      "text": "Certains navigateurs incluent une fonctionnalité \"Ne pas suivre\" (DNT) qui signale aux sites Web que vous visitez que vous ne souhaitez pas que votre activité en ligne soit suivie. Actuellement, il n'y a pas de norme pour la façon dont les signaux DNT doivent être interprétés. En conséquence, nous ne répondons actuellement pas aux signaux ou mécanismes DNT du navigateur."
+    },
+    "updates": {
+      "title": "Mises à jour de cette politique des cookies",
+      "text1": "Nous pouvons mettre à jour cette Politique des Cookies de temps à autre pour refléter les changements dans nos pratiques ou pour d'autres raisons opérationnelles, légales ou réglementaires. Nous vous informerons de tout changement matériel en publiant la nouvelle politique sur cette page et en mettant à jour la date de \"Dernière mise à jour\".",
+      "text2": "Nous vous encourageons à consulter périodiquement cette Politique des Cookies pour rester informé de notre utilisation des cookies."
+    },
+    "contact": {
+      "title": "Contactez-nous",
+      "text": "Si vous avez des questions sur notre utilisation des cookies, veuillez nous contacter :",
+      "email": "Email :",
+      "address": "Adresse :"
+    }
+  },
+  "contact": {
+    "title": "Contactez-nous",
+    "subtitle": "Vous avez une question ? Nous serions ravis de vous entendre. Envoyez-nous un message et nous répondrons dans les plus brefs délais.",
+    "getInTouch": {
+      "title": "Contactez-nous",
+      "email": "Email",
+      "emailText": "Nous répondrons dans les 24 heures",
+      "phone": "Téléphone",
+      "phoneText": "Lun-Ven, 9h-18h EST",
+      "address": "Adresse",
+      "officeHours": "Heures de bureau",
+      "officeHoursText": "Lundi - Vendredi : 9h00 - 18h00 EST"
+    },
+    "quickLinks": {
+      "title": "Liens rapides",
+      "faq": "FAQ",
+      "helpCenter": "Centre d'aide",
+      "privacy": "Politique de confidentialité",
+      "terms": "Conditions d'utilisation"
+    },
+    "form": {
+      "name": "Nom",
+      "email": "Email",
+      "subject": "Sujet",
+      "message": "Message",
+      "sendMessage": "Envoyer le message",
+      "sending": "Envoi...",
+      "messageSent": "Message envoyé !",
+      "thankYou": "Merci de nous avoir contactés. Nous vous répondrons dans les plus brefs délais.",
+      "requiredFields": "Champs obligatoires",
+      "selectSubject": "Sélectionner un sujet",
+      "general": "Demande générale",
+      "support": "Support technique",
+      "billing": "Question de facturation",
+      "partnership": "Opportunité de partenariat",
+      "feedback": "Commentaires",
+      "other": "Autre",
+      "placeholder": "Dites-nous comment nous pouvons vous aider..."
+    }
+  },
+  "about": {
+    "title": "Notre histoire",
+    "subtitle": "Autonomiser des leaders authentiques grâce à une évaluation et un développement holistiques",
+    "mission": {
+      "title": "Notre mission",
+      "text1": "Autonomiser les leaders du monde entier en fournissant des évaluations complètes basées sur la science et des voies de développement personnalisées qui libèrent leur potentiel de leadership authentique.",
+      "text2": "Nous croyons que le grand leadership commence par la conscience de soi. Grâce à notre approche holistique combinant des insights de personnalité, des compétences de gestion des conflits, un feedback 360° et une évaluation du bien-être, nous aidons les leaders à se comprendre profondément et à grandir de manière authentique."
+    },
+    "vision": {
+      "title": "Notre vision",
+      "text1": "Un monde où chaque leader atteint son plein potentiel, créant un impact positif dans leurs organisations et communautés.",
+      "text2": "Nous envisageons un avenir où le développement du leadership est accessible, personnalisé et fondé sur la recherche scientifique. Où les leaders sont équipés non seulement de compétences, mais aussi d'une profonde conscience de soi et d'un objectif authentique."
+    },
+    "values": {
+      "title": "Nos valeurs",
+      "subtitle": "Les principes qui guident tout ce que nous faisons",
+      "authenticity": {
+        "title": "Authenticité",
+        "text": "Nous croyons en un leadership authentique qui vient de la compréhension et de l'acceptation de votre vrai moi."
+      },
+      "growth": {
+        "title": "Croissance",
+        "text": "Nous nous engageons à l'apprentissage continu et à aider les leaders à grandir tout au long de leur parcours."
+      },
+      "innovation": {
+        "title": "Innovation",
+        "text": "Nous exploitons la science et la technologie de pointe pour fournir les meilleurs outils d'évaluation et de développement."
+      },
+      "excellence": {
+        "title": "Excellence",
+        "text": "Nous visons la plus haute qualité dans tout ce que nous faisons, des évaluations au support client."
+      }
+    },
+    "journey": {
+      "title": "Notre parcours",
+      "2020": {
+        "title": "2020 - Fondation",
+        "text": "ARISE a été fondé avec une vision de révolutionner le développement du leadership grâce à une évaluation holistique et des insights personnalisés."
+      },
+      "2021": {
+        "title": "2021 - Premières évaluations",
+        "text": "Lancement de notre première suite d'évaluations complète, combinant MBTI, TKI, Feedback 360° et évaluations du bien-être."
+      },
+      "2022": {
+        "title": "2022 - Lancement de la plateforme",
+        "text": "Introduction de notre plateforme intégrée, rendant le développement du leadership accessible aux individus, coaches et organisations du monde entier."
+      },
+      "2023": {
+        "title": "2023 - Expansion mondiale",
+        "text": "Expansion de nos services à l'échelle mondiale, soutenant des milliers de leaders dans plusieurs pays et industries."
+      },
+      "2024": {
+        "title": "2024 - Aujourd'hui",
+        "text": "Continuant à innover et à s'étendre, aidant plus de leaders à découvrir leur style de leadership authentique et à atteindre leur plein potentiel."
+      }
+    },
+    "cta": {
+      "title": "Prêt à commencer votre parcours de leadership ?",
+      "subtitle": "Rejoignez des milliers de leaders qui ont découvert leur style de leadership authentique grâce à ARISE.",
+      "getStarted": "Commencer"
+    }
+  },
+  "team": {
+    "title": "Rencontrez notre équipe",
+    "subtitle": "Des experts passionnés dédiés à l'autonomisation de leaders authentiques",
+    "leadership": {
+      "title": "Équipe dirigeante"
+    },
+    "advisory": {
+      "title": "Conseil consultatif",
+      "subtitle": "Des experts de premier plan qui guident notre mission et assurent la rigueur scientifique"
+    },
+    "joinUs": {
+      "title": "Rejoignez notre équipe",
+      "subtitle": "Nous recherchons toujours des individus passionnés qui partagent notre mission d'autonomisation de leaders authentiques.",
+      "viewPositions": "Voir les postes ouverts"
+    }
+  },
+  "careers": {
+    "title": "Rejoignez notre équipe",
+    "subtitle": "Aidez-nous à autonomiser des leaders authentiques dans le monde entier. Nous construisons l'avenir du développement du leadership.",
+    "whyWorkWithUs": {
+      "title": "Pourquoi travailler avec nous"
+    },
+    "benefits": {
+      "competitiveSalary": {
+        "title": "Salaire compétitif",
+        "description": "Nous offrons des packages de rémunération compétitifs avec des options d'actions."
+      },
+      "healthWellness": {
+        "title": "Santé et bien-être",
+        "description": "Assurance santé, dentaire et vision complète pour vous et votre famille."
+      },
+      "flexibleWork": {
+        "title": "Travail flexible",
+        "description": "Culture remote-first avec horaires flexibles et congés illimités."
+      },
+      "teamCulture": {
+        "title": "Culture d'équipe",
+        "description": "Environnement collaboratif avec des événements d'équipe réguliers et des retraites."
+      },
+      "professionalGrowth": {
+        "title": "Croissance professionnelle",
+        "description": "Budget d'apprentissage, participation à des conférences et soutien au développement de carrière."
+      },
+      "workLifeBalance": {
+        "title": "Équilibre travail-vie",
+        "description": "Nous croyons en des pratiques de travail durables et respectons votre temps personnel."
+      }
+    },
+    "openPositions": {
+      "title": "Postes ouverts"
+    },
+    "noPositions": {
+      "title": "Aucun poste ouvert",
+      "text": "Nous n'avons aucun poste ouvert pour le moment, mais nous sommes toujours intéressés par des personnes talentueuses.",
+      "submitApplication": "Soumettre une candidature générale"
+    },
+    "applicationForm": {
+      "title": "Postuler pour le poste",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Email",
+      "position": "Poste demandé",
+      "resume": "CV/Resume",
+      "coverLetter": "Lettre de motivation",
+      "submit": "Soumettre la candidature",
+      "cancel": "Annuler",
+      "dropFile": "Déposez votre fichier ici ou cliquez pour parcourir",
+      "chooseFile": "Choisir un fichier",
+      "selectPosition": "Sélectionner un poste",
+      "generalApplication": "Candidature générale"
+    },
+    "culture": {
+      "title": "Notre culture",
+      "missionDriven": {
+        "title": "Axé sur la mission",
+        "text": "Chaque membre de l'équipe est passionné par notre mission d'autonomisation de leaders authentiques. Nous croyons en le travail que nous faisons et l'impact que nous créons."
+      },
+      "collaborative": {
+        "title": "Collaboratif",
+        "text": "Nous travaillons ensemble en équipe, partageant les connaissances et soutenant la croissance de chacun. La collaboration est au cœur de tout ce que nous faisons."
+      },
+      "innovative": {
+        "title": "Innovant",
+        "text": "Nous encourageons l'expérimentation et la pensée créative. Les nouvelles idées sont les bienvenues et soutenues, qu'elles viennent d'internes ou d'executives."
+      },
+      "inclusive": {
+        "title": "Inclusif",
+        "text": "Nous célébrons la diversité et créons un environnement inclusif où chacun peut s'épanouir et apporter son vrai moi au travail."
+      }
+    },
+    "cta": {
+      "title": "Vous ne voyez pas de rôle qui correspond ?",
+      "subtitle": "Nous sommes toujours intéressés par des personnes talentueuses. Envoyez-nous votre CV et dites-nous comment vous aimeriez contribuer.",
+      "submitApplication": "Soumettre une candidature générale"
+    }
   }
 }

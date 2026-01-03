@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
 import { Card } from '@/components/ui';
@@ -8,8 +9,10 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle } from 'lucide-react';
+import { Link } from '@/i18n/routing';
 
 export default function ContactPage() {
+  const t = useTranslations('contact');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -48,11 +51,11 @@ export default function ContactPage() {
             <div className="flex items-center gap-3 mb-4">
               <Mail className="text-arise-deep-teal" size={32} />
               <h1 className="text-4xl font-bold text-gray-900">
-                Contact Us
+                {t('title')}
               </h1>
             </div>
             <p className="text-gray-600 text-lg">
-              Have a question? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+              {t('subtitle')}
             </p>
           </div>
         </MotionDiv>
@@ -61,7 +64,7 @@ export default function ContactPage() {
           {/* Contact Information */}
           <div className="lg:col-span-1 space-y-6">
             <Card className="p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Get in Touch</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-6">{t('getInTouch.title')}</h2>
               
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
@@ -69,11 +72,11 @@ export default function ContactPage() {
                     <Mail className="text-arise-deep-teal" size={20} />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
+                    <h3 className="font-semibold text-gray-900 mb-1">{t('getInTouch.email')}</h3>
                     <a href="mailto:contact@arise.com" className="text-arise-deep-teal hover:underline">
                       contact@arise.com
                     </a>
-                    <p className="text-sm text-gray-600 mt-1">We'll respond within 24 hours</p>
+                    <p className="text-sm text-gray-600 mt-1">{t('getInTouch.emailText')}</p>
                   </div>
                 </div>
 
@@ -82,11 +85,11 @@ export default function ContactPage() {
                     <Phone className="text-arise-deep-teal" size={20} />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Phone</h3>
+                    <h3 className="font-semibold text-gray-900 mb-1">{t('getInTouch.phone')}</h3>
                     <a href="tel:+1234567890" className="text-arise-deep-teal hover:underline">
                       +1 (234) 567-890
                     </a>
-                    <p className="text-sm text-gray-600 mt-1">Mon-Fri, 9am-6pm EST</p>
+                    <p className="text-sm text-gray-600 mt-1">{t('getInTouch.phoneText')}</p>
                   </div>
                 </div>
 
@@ -95,7 +98,7 @@ export default function ContactPage() {
                     <MapPin className="text-arise-deep-teal" size={20} />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Address</h3>
+                    <h3 className="font-semibold text-gray-900 mb-1">{t('getInTouch.address')}</h3>
                     <p className="text-gray-700">
                       123 Leadership Avenue<br />
                       Suite 100<br />
@@ -110,10 +113,9 @@ export default function ContactPage() {
                     <Clock className="text-arise-deep-teal" size={20} />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Office Hours</h3>
+                    <h3 className="font-semibold text-gray-900 mb-1">{t('getInTouch.officeHours')}</h3>
                     <p className="text-gray-700 text-sm">
-                      Monday - Friday: 9:00 AM - 6:00 PM EST<br />
-                      Saturday - Sunday: Closed
+                      {t('getInTouch.officeHoursText')}
                     </p>
                   </div>
                 </div>
@@ -122,27 +124,27 @@ export default function ContactPage() {
 
             {/* Quick FAQ */}
             <Card className="p-6 bg-arise-gold/5">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Links</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">{t('quickLinks.title')}</h2>
               <ul className="space-y-2">
                 <li>
-                  <a href="/help/faq" className="text-arise-deep-teal hover:underline text-sm">
-                    Frequently Asked Questions
-                  </a>
+                  <Link href="/help/faq" className="text-arise-deep-teal hover:underline text-sm">
+                    {t('quickLinks.faq')}
+                  </Link>
                 </li>
                 <li>
-                  <a href="/help" className="text-arise-deep-teal hover:underline text-sm">
-                    Help Center
-                  </a>
+                  <Link href="/help" className="text-arise-deep-teal hover:underline text-sm">
+                    {t('quickLinks.helpCenter')}
+                  </Link>
                 </li>
                 <li>
-                  <a href="/privacy" className="text-arise-deep-teal hover:underline text-sm">
-                    Privacy Policy
-                  </a>
+                  <Link href="/privacy" className="text-arise-deep-teal hover:underline text-sm">
+                    {t('quickLinks.privacy')}
+                  </Link>
                 </li>
                 <li>
-                  <a href="/terms" className="text-arise-deep-teal hover:underline text-sm">
-                    Terms of Service
-                  </a>
+                  <Link href="/terms" className="text-arise-deep-teal hover:underline text-sm">
+                    {t('quickLinks.terms')}
+                  </Link>
                 </li>
               </ul>
             </Card>
@@ -156,9 +158,9 @@ export default function ContactPage() {
                   <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <CheckCircle className="text-green-600" size={32} />
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">Message Sent!</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('form.messageSent')}</h2>
                   <p className="text-gray-600">
-                    Thank you for contacting us. We'll get back to you as soon as possible.
+                    {t('form.thankYou')}
                   </p>
                 </div>
               ) : (
@@ -166,7 +168,7 @@ export default function ContactPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                        Name *
+                        {t('form.name')} *
                       </label>
                       <Input
                         id="name"
@@ -175,14 +177,14 @@ export default function ContactPage() {
                         required
                         value={formData.name}
                         onChange={handleInputChange}
-                        placeholder="Your full name"
+                        placeholder={t('form.name')}
                         className="w-full"
                       />
                     </div>
 
                     <div>
                       <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                        Email *
+                        {t('form.email')} *
                       </label>
                       <Input
                         id="email"
@@ -191,7 +193,7 @@ export default function ContactPage() {
                         required
                         value={formData.email}
                         onChange={handleInputChange}
-                        placeholder="your.email@example.com"
+                        placeholder={t('form.email')}
                         className="w-full"
                       />
                     </div>
@@ -199,7 +201,7 @@ export default function ContactPage() {
 
                   <div>
                     <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                      Subject *
+                      {t('form.subject')} *
                     </label>
                     <select
                       id="subject"
@@ -209,19 +211,19 @@ export default function ContactPage() {
                       onChange={handleInputChange}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-arise-deep-teal focus:border-transparent"
                     >
-                      <option value="">Select a subject</option>
-                      <option value="general">General Inquiry</option>
-                      <option value="support">Technical Support</option>
-                      <option value="billing">Billing Question</option>
-                      <option value="partnership">Partnership Opportunity</option>
-                      <option value="feedback">Feedback</option>
-                      <option value="other">Other</option>
+                      <option value="">{t('form.selectSubject')}</option>
+                      <option value="general">{t('form.general')}</option>
+                      <option value="support">{t('form.support')}</option>
+                      <option value="billing">{t('form.billing')}</option>
+                      <option value="partnership">{t('form.partnership')}</option>
+                      <option value="feedback">{t('form.feedback')}</option>
+                      <option value="other">{t('form.other')}</option>
                     </select>
                   </div>
 
                   <div>
                     <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                      Message *
+                      {t('form.message')} *
                     </label>
                     <textarea
                       id="message"
@@ -230,7 +232,7 @@ export default function ContactPage() {
                       rows={6}
                       value={formData.message}
                       onChange={handleInputChange}
-                      placeholder="Tell us how we can help you..."
+                      placeholder={t('form.placeholder')}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-arise-deep-teal focus:border-transparent resize-none"
                     />
                   </div>
@@ -244,17 +246,17 @@ export default function ContactPage() {
                       {isSubmitting ? (
                         <>
                           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          Sending...
+                          {t('form.sending')}
                         </>
                       ) : (
                         <>
                           <Send size={16} />
-                          Send Message
+                          {t('form.sendMessage')}
                         </>
                       )}
                     </Button>
                     <p className="text-sm text-gray-500">
-                      * Required fields
+                      * {t('form.requiredFields')}
                     </p>
                   </div>
                 </form>

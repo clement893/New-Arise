@@ -660,5 +660,582 @@
       "copyright": "© {year} Arise Human Capital. All rights reserved.",
       "year": "2026"
     }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "subtitle": "Your privacy is important to us. This policy explains how we collect, use, and protect your personal information.",
+    "lastUpdated": "Last updated",
+    "introduction": {
+      "title": "Introduction",
+      "text1": "ARISE Human Capital (\"we\", \"our\", or \"us\") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform and services.",
+      "text2": "By using our services, you agree to the collection and use of information in accordance with this policy."
+    },
+    "informationWeCollect": {
+      "title": "1. Information We Collect",
+      "personalInfo": {
+        "title": "1.1 Personal Information",
+        "text": "We collect information that you provide directly to us, including:",
+        "items": [
+          "Name and contact information (email address, phone number)",
+          "Account credentials (username, password)",
+          "Profile information (job title, organization, preferences)",
+          "Assessment responses and results",
+          "Payment information (processed securely through third-party providers)"
+        ]
+      },
+      "usageInfo": {
+        "title": "1.2 Usage Information",
+        "text": "We automatically collect certain information when you use our services:",
+        "items": [
+          "Device information (IP address, browser type, operating system)",
+          "Usage data (pages visited, time spent, features used)",
+          "Cookies and similar tracking technologies"
+        ]
+      },
+      "assessmentData": {
+        "title": "1.3 Assessment Data",
+        "text": "We collect and store your assessment responses, results, and progress data to provide you with personalized insights and development recommendations."
+      }
+    },
+    "howWeUse": {
+      "title": "2. How We Use Your Information",
+      "text": "We use the information we collect to:",
+      "items": [
+        "Provide, maintain, and improve our services",
+        "Process your assessments and generate personalized reports",
+        "Communicate with you about your account, assessments, and services",
+        "Send you updates, newsletters, and marketing communications (with your consent)",
+        "Respond to your inquiries and provide customer support",
+        "Detect, prevent, and address technical issues and security threats",
+        "Comply with legal obligations and enforce our terms"
+      ]
+    },
+    "informationSharing": {
+      "title": "3. Information Sharing and Disclosure",
+      "serviceProviders": {
+        "title": "3.1 Service Providers",
+        "text": "We may share your information with third-party service providers who perform services on our behalf, such as hosting, analytics, payment processing, and customer support. These providers are contractually obligated to protect your information."
+      },
+      "businessTransfers": {
+        "title": "3.2 Business Transfers",
+        "text": "In the event of a merger, acquisition, or sale of assets, your information may be transferred to the acquiring entity."
+      },
+      "legalRequirements": {
+        "title": "3.3 Legal Requirements",
+        "text": "We may disclose your information if required by law or in response to valid legal requests, such as court orders or government investigations."
+      },
+      "withYourConsent": {
+        "title": "3.4 With Your Consent",
+        "text": "We may share your information with your explicit consent or at your direction, such as when you choose to share assessment results with coaches or colleagues."
+      }
+    },
+    "yourRights": {
+      "title": "4. Your Rights (GDPR Compliance)",
+      "text": "Under the General Data Protection Regulation (GDPR) and other applicable laws, you have the following rights:",
+      "items": [
+        "Right to Access: Request a copy of your personal data",
+        "Right to Rectification: Correct inaccurate or incomplete data",
+        "Right to Erasure: Request deletion of your personal data",
+        "Right to Restrict Processing: Limit how we use your data",
+        "Right to Data Portability: Receive your data in a structured format",
+        "Right to Object: Object to processing of your data",
+        "Right to Withdraw Consent: Withdraw consent at any time"
+      ],
+      "contact": "To exercise these rights, please contact us at"
+    },
+    "dataSecurity": {
+      "title": "5. Data Security",
+      "text": "We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. These measures include:",
+      "items": [
+        "Encryption of data in transit and at rest",
+        "Regular security assessments and updates",
+        "Access controls and authentication mechanisms",
+        "Employee training on data protection",
+        "Secure data centers and infrastructure"
+      ],
+      "disclaimer": "However, no method of transmission over the Internet or electronic storage is 100% secure. While we strive to protect your data, we cannot guarantee absolute security."
+    },
+    "dataRetention": {
+      "title": "6. Data Retention",
+      "text": "We retain your personal information for as long as necessary to fulfill the purposes outlined in this policy, unless a longer retention period is required or permitted by law. When you delete your account, we will delete or anonymize your personal data, except where we are required to retain it for legal or legitimate business purposes."
+    },
+    "cookies": {
+      "title": "7. Cookies and Tracking Technologies",
+      "text": "We use cookies and similar tracking technologies to enhance your experience, analyze usage, and assist with marketing efforts. For detailed information about our use of cookies, please see our"
+    },
+    "childrensPrivacy": {
+      "title": "8. Children's Privacy",
+      "text": "Our services are not intended for individuals under the age of 18. We do not knowingly collect personal information from children. If you believe we have collected information from a child, please contact us immediately."
+    },
+    "internationalTransfers": {
+      "title": "9. International Data Transfers",
+      "text": "Your information may be transferred to and processed in countries other than your country of residence. We ensure that appropriate safeguards are in place to protect your data in accordance with this Privacy Policy and applicable data protection laws."
+    },
+    "changesToPolicy": {
+      "title": "10. Changes to This Privacy Policy",
+      "text1": "We may update this Privacy Policy from time to time. We will notify you of any material changes by posting the new policy on this page and updating the \"Last updated\" date.",
+      "text2": "We encourage you to review this Privacy Policy periodically to stay informed about how we protect your information."
+    },
+    "contact": {
+      "title": "11. Contact Us",
+      "text": "If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:",
+      "email": "Email:",
+      "dpo": "Data Protection Officer:",
+      "address": "Address:"
+    }
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "subtitle": "Please read these terms carefully before using our services.",
+    "lastUpdated": "Last updated",
+    "acceptance": {
+      "title": "1. Acceptance of Terms",
+      "text1": "By accessing or using the ARISE Human Capital platform (\"Service\"), you agree to be bound by these Terms of Service (\"Terms\"). If you disagree with any part of these terms, you may not access the Service.",
+      "text2": "These Terms apply to all users of the Service, including without limitation users who are browsers, vendors, customers, merchants, and contributors of content."
+    },
+    "description": {
+      "title": "2. Description of Service",
+      "text": "ARISE provides a comprehensive leadership development platform that includes:",
+      "items": [
+        "Personality and behavioral assessments (MBTI, TKI, 360° Feedback, Wellness)",
+        "Personalized leadership profiles and insights",
+        "Development plans and recommendations",
+        "Coaching services and resources",
+        "Progress tracking and reporting tools"
+      ]
+    },
+    "userAccounts": {
+      "title": "3. User Accounts",
+      "accountCreation": {
+        "title": "3.1 Account Creation",
+        "text": "To access certain features of the Service, you must create an account. You agree to provide accurate, current, and complete information during registration and to update such information to keep it accurate, current, and complete."
+      },
+      "accountSecurity": {
+        "title": "3.2 Account Security",
+        "text": "You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. You agree to notify us immediately of any unauthorized use of your account."
+      },
+      "accountTermination": {
+        "title": "3.3 Account Termination",
+        "text": "We reserve the right to suspend or terminate your account at any time for violation of these Terms or for any other reason we deem necessary."
+      }
+    },
+    "useOfService": {
+      "title": "4. Use of Service",
+      "permittedUse": {
+        "title": "4.1 Permitted Use",
+        "text": "You may use the Service for lawful purposes only. You agree to:",
+        "items": [
+          "Use the Service in accordance with all applicable laws and regulations",
+          "Provide accurate and truthful information",
+          "Respect the rights of other users",
+          "Maintain the security of your account"
+        ]
+      },
+      "prohibitedActivities": {
+        "title": "4.2 Prohibited Activities",
+        "text": "You agree not to:",
+        "items": [
+          "Violate any applicable laws or regulations",
+          "Infringe upon the rights of others",
+          "Transmit any harmful code, viruses, or malicious software",
+          "Attempt to gain unauthorized access to the Service or related systems",
+          "Interfere with or disrupt the Service or servers",
+          "Use the Service for any fraudulent or deceptive purpose",
+          "Copy, modify, or create derivative works of the Service",
+          "Reverse engineer or attempt to extract source code"
+        ]
+      }
+    },
+    "intellectualProperty": {
+      "title": "5. Intellectual Property",
+      "ourRights": {
+        "title": "5.1 Our Rights",
+        "text": "The Service and its original content, features, and functionality are owned by ARISE Human Capital and are protected by international copyright, trademark, patent, trade secret, and other intellectual property laws."
+      },
+      "yourContent": {
+        "title": "5.2 Your Content",
+        "text1": "You retain ownership of any content you submit to the Service. By submitting content, you grant us a worldwide, non-exclusive, royalty-free license to use, reproduce, modify, and distribute your content solely for the purpose of providing and improving the Service.",
+        "text2": "You represent and warrant that you have all necessary rights to grant this license and that your content does not violate any third-party rights."
+      },
+      "assessmentResults": {
+        "title": "5.3 Assessment Results",
+        "text": "Assessment results and reports generated through the Service are your property. However, we may use anonymized and aggregated data for research, analytics, and service improvement purposes."
+      }
+    },
+    "paymentTerms": {
+      "title": "6. Payment Terms",
+      "subscriptionFees": {
+        "title": "6.1 Subscription Fees",
+        "text": "Some features of the Service may require payment of subscription fees. Fees are billed in advance on a monthly or annual basis and are non-refundable except as required by law."
+      },
+      "priceChanges": {
+        "title": "6.2 Price Changes",
+        "text": "We reserve the right to change our pricing at any time. We will provide notice of price changes at least 30 days in advance. Continued use of the Service after a price change constitutes acceptance of the new pricing."
+      },
+      "refunds": {
+        "title": "6.3 Refunds",
+        "text": "Refunds are provided at our sole discretion and in accordance with applicable law. If you are not satisfied with the Service, please contact us to discuss refund options."
+      }
+    },
+    "limitationOfLiability": {
+      "title": "7. Limitation of Liability",
+      "disclaimer": {
+        "title": "7.1 Disclaimer",
+        "text1": "THE SERVICE IS PROVIDED \"AS IS\" AND \"AS AVAILABLE\" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.",
+        "text2": "We do not warrant that the Service will be uninterrupted, secure, or error-free, or that defects will be corrected."
+      },
+      "limitation": {
+        "title": "7.2 Limitation of Liability",
+        "text1": "TO THE MAXIMUM EXTENT PERMITTED BY LAW, ARISE HUMAN CAPITAL SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES.",
+        "text2": "Our total liability for any claims arising from or related to the Service shall not exceed the amount you paid us in the twelve (12) months preceding the claim."
+      },
+      "assessmentResults": {
+        "title": "7.3 Assessment Results",
+        "text": "Assessment results and recommendations are provided for informational and developmental purposes only. They should not be used as the sole basis for employment, promotion, or other personnel decisions. We are not responsible for decisions made based on assessment results."
+      }
+    },
+    "indemnification": {
+      "title": "8. Indemnification",
+      "text": "You agree to indemnify, defend, and hold harmless ARISE Human Capital and its officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses, including reasonable attorneys' fees, arising out of or in any way connected with your use of the Service, violation of these Terms, or infringement of any rights of another."
+    },
+    "termination": {
+      "title": "9. Termination",
+      "byYou": {
+        "title": "9.1 Termination by You",
+        "text": "You may terminate your account at any time by contacting us or using the account deletion feature in your settings."
+      },
+      "byUs": {
+        "title": "9.2 Termination by Us",
+        "text": "We may terminate or suspend your account and access to the Service immediately, without prior notice, for conduct that we believe violates these Terms or is harmful to other users, us, or third parties, or for any other reason."
+      },
+      "effect": {
+        "title": "9.3 Effect of Termination",
+        "text": "Upon termination, your right to use the Service will immediately cease. We may delete your account and data, subject to our data retention policies and legal obligations."
+      }
+    },
+    "governingLaw": {
+      "title": "10. Governing Law",
+      "text": "These Terms shall be governed by and construed in accordance with the laws of [Jurisdiction], without regard to its conflict of law provisions. Any disputes arising from these Terms or the Service shall be subject to the exclusive jurisdiction of the courts in [Jurisdiction]."
+    },
+    "changesToTerms": {
+      "title": "11. Changes to Terms",
+      "text1": "We reserve the right to modify or replace these Terms at any time. If a revision is material, we will provide at least 30 days' notice prior to any new terms taking effect.",
+      "text2": "What constitutes a material change will be determined at our sole discretion. By continuing to access or use the Service after those revisions become effective, you agree to be bound by the revised terms."
+    },
+    "severability": {
+      "title": "12. Severability",
+      "text": "If any provision of these Terms is found to be unenforceable or invalid, that provision shall be limited or eliminated to the minimum extent necessary so that these Terms shall otherwise remain in full force and effect and enforceable."
+    },
+    "entireAgreement": {
+      "title": "13. Entire Agreement",
+      "text": "These Terms, together with our Privacy Policy and Cookie Policy, constitute the entire agreement between you and ARISE Human Capital regarding the use of the Service and supersede all prior agreements and understandings."
+    },
+    "contact": {
+      "title": "14. Contact Information",
+      "text": "If you have any questions about these Terms of Service, please contact us:",
+      "email": "Email:",
+      "address": "Address:"
+    }
+  },
+  "cookies": {
+    "title": "Cookie Policy",
+    "subtitle": "Learn about how we use cookies and similar technologies on our platform.",
+    "lastUpdated": "Last updated",
+    "whatAreCookies": {
+      "title": "What Are Cookies?",
+      "text1": "Cookies are small text files that are placed on your device when you visit a website. They are widely used to make websites work more efficiently and to provide information to website owners.",
+      "text2": "Cookies allow a website to recognize your device and store some information about your preferences or past actions. This helps us provide you with a better experience when you browse our platform."
+    },
+    "types": {
+      "title": "Types of Cookies We Use",
+      "essential": {
+        "title": "1. Essential Cookies",
+        "description": "These cookies are necessary for the website to function properly. They enable core functionality such as security, network management, and accessibility.",
+        "examples": "Examples:",
+        "items": [
+          "Authentication cookies (to keep you logged in)",
+          "Session cookies (to maintain your session)",
+          "Security cookies (to protect against fraud)"
+        ],
+        "note": "These cookies cannot be disabled as they are essential for the Service to function."
+      },
+      "analytics": {
+        "title": "2. Analytics Cookies",
+        "description": "These cookies help us understand how visitors interact with our website by collecting and reporting information anonymously.",
+        "examples": "Examples:",
+        "items": [
+          "Google Analytics cookies (to track page views and user behavior)",
+          "Performance monitoring cookies (to identify technical issues)",
+          "Usage statistics cookies (to improve our services)"
+        ],
+        "note": "These cookies help us improve our website and services by understanding how they are used."
+      },
+      "marketing": {
+        "title": "3. Marketing Cookies",
+        "description": "These cookies are used to track visitors across websites to display relevant advertisements and measure the effectiveness of our marketing campaigns.",
+        "examples": "Examples:",
+        "items": [
+          "Advertising cookies (to show relevant ads)",
+          "Social media cookies (to enable social sharing)",
+          "Retargeting cookies (to remind you of our services)"
+        ],
+        "note": "These cookies require your consent and can be managed through your cookie preferences."
+      }
+    },
+    "cookieTable": {
+      "title": "Cookie Details",
+      "cookieName": "Cookie Name",
+      "purpose": "Purpose",
+      "type": "Type",
+      "duration": "Duration"
+    },
+    "thirdParty": {
+      "title": "Third-Party Cookies",
+      "text": "In addition to our own cookies, we may also use various third-party cookies to report usage statistics, deliver advertisements, and provide enhanced functionality.",
+      "googleAnalytics": {
+        "title": "Google Analytics",
+        "text": "We use Google Analytics to understand how visitors use our website. For more information, please visit"
+      },
+      "paymentProcessors": {
+        "title": "Payment Processors",
+        "text": "When you make a payment, our payment processors may set cookies to process your transaction securely."
+      }
+    },
+    "managingCookies": {
+      "title": "Managing Cookies",
+      "browserSettings": {
+        "title": "Browser Settings",
+        "text": "Most web browsers allow you to control cookies through their settings. You can set your browser to refuse cookies or to alert you when cookies are being sent.",
+        "instructions": "Here's how to manage cookies in popular browsers:",
+        "items": [
+          "Chrome: Settings → Privacy and security → Cookies and other site data",
+          "Firefox: Options → Privacy & Security → Cookies and Site Data",
+          "Safari: Preferences → Privacy → Cookies and website data",
+          "Edge: Settings → Privacy, search, and services → Cookies and site permissions"
+        ]
+      },
+      "cookiePreferences": {
+        "title": "Cookie Preferences",
+        "text1": "You can manage your cookie preferences directly on our platform through the cookie settings panel, which appears when you first visit our website or can be accessed at any time through your account settings.",
+        "text2": "Note: Disabling certain cookies may affect the functionality of the Service. Essential cookies cannot be disabled as they are necessary for the Service to function."
+      },
+      "optOutLinks": {
+        "title": "Opt-Out Links",
+        "text": "You can opt out of certain third-party cookies:"
+      }
+    },
+    "doNotTrack": {
+      "title": "Do Not Track Signals",
+      "text": "Some browsers include a \"Do Not Track\" (DNT) feature that signals to websites you visit that you do not want to have your online activity tracked. Currently, there is no standard for how DNT signals should be interpreted. As a result, we do not currently respond to DNT browser signals or mechanisms."
+    },
+    "updates": {
+      "title": "Updates to This Cookie Policy",
+      "text1": "We may update this Cookie Policy from time to time to reflect changes in our practices or for other operational, legal, or regulatory reasons. We will notify you of any material changes by posting the new policy on this page and updating the \"Last updated\" date.",
+      "text2": "We encourage you to review this Cookie Policy periodically to stay informed about our use of cookies."
+    },
+    "contact": {
+      "title": "Contact Us",
+      "text": "If you have any questions about our use of cookies, please contact us:",
+      "email": "Email:",
+      "address": "Address:"
+    }
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Have a question? We'd love to hear from you. Send us a message and we'll respond as soon as possible.",
+    "getInTouch": {
+      "title": "Get in Touch",
+      "email": "Email",
+      "emailText": "We'll respond within 24 hours",
+      "phone": "Phone",
+      "phoneText": "Mon-Fri, 9am-6pm EST",
+      "address": "Address",
+      "officeHours": "Office Hours",
+      "officeHoursText": "Monday - Friday: 9:00 AM - 6:00 PM EST"
+    },
+    "quickLinks": {
+      "title": "Quick Links",
+      "faq": "FAQ",
+      "helpCenter": "Help Center",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service"
+    },
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "subject": "Subject",
+      "message": "Message",
+      "sendMessage": "Send Message",
+      "sending": "Sending...",
+      "messageSent": "Message Sent!",
+      "thankYou": "Thank you for contacting us. We'll get back to you as soon as possible.",
+      "requiredFields": "Required fields",
+      "selectSubject": "Select a subject",
+      "general": "General Inquiry",
+      "support": "Technical Support",
+      "billing": "Billing Question",
+      "partnership": "Partnership Opportunity",
+      "feedback": "Feedback",
+      "other": "Other",
+      "placeholder": "Tell us how we can help you..."
+    }
+  },
+  "about": {
+    "title": "Our Story",
+    "subtitle": "Empowering authentic leaders through holistic assessment and development",
+    "mission": {
+      "title": "Our Mission",
+      "text1": "To empower leaders worldwide by providing comprehensive, science-based assessments and personalized development pathways that unlock their authentic leadership potential.",
+      "text2": "We believe that great leadership starts with self-awareness. Through our holistic approach combining personality insights, conflict management skills, 360° feedback, and wellness assessment, we help leaders understand themselves deeply and grow authentically."
+    },
+    "vision": {
+      "title": "Our Vision",
+      "text1": "A world where every leader reaches their full potential, creating positive impact in their organizations and communities.",
+      "text2": "We envision a future where leadership development is accessible, personalized, and grounded in scientific research. Where leaders are equipped not just with skills, but with deep self-awareness and authentic purpose."
+    },
+    "values": {
+      "title": "Our Values",
+      "subtitle": "The principles that guide everything we do",
+      "authenticity": {
+        "title": "Authenticity",
+        "text": "We believe in genuine leadership that comes from understanding and embracing your true self."
+      },
+      "growth": {
+        "title": "Growth",
+        "text": "We are committed to continuous learning and helping leaders grow throughout their journey."
+      },
+      "innovation": {
+        "title": "Innovation",
+        "text": "We leverage cutting-edge science and technology to deliver the best assessment and development tools."
+      },
+      "excellence": {
+        "title": "Excellence",
+        "text": "We strive for the highest quality in everything we do, from assessments to customer support."
+      }
+    },
+    "journey": {
+      "title": "Our Journey",
+      "2020": {
+        "title": "2020 - Foundation",
+        "text": "ARISE was founded with a vision to revolutionize leadership development through holistic assessment and personalized insights."
+      },
+      "2021": {
+        "title": "2021 - First Assessments",
+        "text": "Launched our first comprehensive assessment suite, combining MBTI, TKI, 360° Feedback, and Wellness assessments."
+      },
+      "2022": {
+        "title": "2022 - Platform Launch",
+        "text": "Introduced our integrated platform, making leadership development accessible to individuals, coaches, and organizations worldwide."
+      },
+      "2023": {
+        "title": "2023 - Global Expansion",
+        "text": "Expanded our services globally, supporting thousands of leaders across multiple countries and industries."
+      },
+      "2024": {
+        "title": "2024 - Today",
+        "text": "Continuing to innovate and expand, helping more leaders discover their authentic leadership style and reach their full potential."
+      }
+    },
+    "cta": {
+      "title": "Ready to Start Your Leadership Journey?",
+      "subtitle": "Join thousands of leaders who have discovered their authentic leadership style through ARISE.",
+      "getStarted": "Get Started"
+    }
+  },
+  "team": {
+    "title": "Meet Our Team",
+    "subtitle": "Passionate experts dedicated to empowering authentic leaders",
+    "leadership": {
+      "title": "Leadership Team"
+    },
+    "advisory": {
+      "title": "Advisory Board",
+      "subtitle": "Leading experts who guide our mission and ensure scientific rigor"
+    },
+    "joinUs": {
+      "title": "Join Our Team",
+      "subtitle": "We're always looking for passionate individuals who share our mission of empowering authentic leaders.",
+      "viewPositions": "View Open Positions"
+    }
+  },
+  "careers": {
+    "title": "Join Our Team",
+    "subtitle": "Help us empower authentic leaders around the world. We're building the future of leadership development.",
+    "whyWorkWithUs": {
+      "title": "Why Work With Us"
+    },
+    "benefits": {
+      "competitiveSalary": {
+        "title": "Competitive Salary",
+        "description": "We offer competitive compensation packages with equity options."
+      },
+      "healthWellness": {
+        "title": "Health & Wellness",
+        "description": "Comprehensive health, dental, and vision insurance for you and your family."
+      },
+      "flexibleWork": {
+        "title": "Flexible Work",
+        "description": "Remote-first culture with flexible hours and unlimited PTO."
+      },
+      "teamCulture": {
+        "title": "Team Culture",
+        "description": "Collaborative environment with regular team events and retreats."
+      },
+      "professionalGrowth": {
+        "title": "Professional Growth",
+        "description": "Learning budget, conference attendance, and career development support."
+      },
+      "workLifeBalance": {
+        "title": "Work-Life Balance",
+        "description": "We believe in sustainable work practices and respect your personal time."
+      }
+    },
+    "openPositions": {
+      "title": "Open Positions"
+    },
+    "noPositions": {
+      "title": "No Open Positions",
+      "text": "We don't have any open positions at the moment, but we're always interested in hearing from talented individuals.",
+      "submitApplication": "Submit General Application"
+    },
+    "applicationForm": {
+      "title": "Apply for Position",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "position": "Position Applied For",
+      "resume": "Resume/CV",
+      "coverLetter": "Cover Letter",
+      "submit": "Submit Application",
+      "cancel": "Cancel",
+      "dropFile": "Drop your file here or click to browse",
+      "chooseFile": "Choose File",
+      "selectPosition": "Select a position",
+      "generalApplication": "General Application"
+    },
+    "culture": {
+      "title": "Our Culture",
+      "missionDriven": {
+        "title": "Mission-Driven",
+        "text": "Every team member is passionate about our mission to empower authentic leaders. We believe in the work we do and the impact we create."
+      },
+      "collaborative": {
+        "title": "Collaborative",
+        "text": "We work together as a team, sharing knowledge and supporting each other's growth. Collaboration is at the heart of everything we do."
+      },
+      "innovative": {
+        "title": "Innovative",
+        "text": "We encourage experimentation and creative thinking. New ideas are welcomed and supported, whether they come from interns or executives."
+      },
+      "inclusive": {
+        "title": "Inclusive",
+        "text": "We celebrate diversity and create an inclusive environment where everyone can thrive and bring their authentic selves to work."
+      }
+    },
+    "cta": {
+      "title": "Don't See a Role That Fits?",
+      "subtitle": "We're always interested in connecting with talented individuals. Send us your resume and let us know how you'd like to contribute.",
+      "submitApplication": "Submit General Application"
+    }
   }
 }
