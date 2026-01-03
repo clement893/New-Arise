@@ -31,11 +31,25 @@ export function Step2_PlanSelection() {
       try {
         setIsLoading(true);
         setError(null);
+        // First try to fetch active plans
         const response = await subscriptionsAPI.getPlans(true);
-        setPlans(response.data?.plans || []);
-      } catch (err) {
+        let fetchedPlans = response.data?.plans || [];
+        
+        // If no active plans found, try fetching all plans (including inactive)
+        if (fetchedPlans.length === 0) {
+          console.log('No active plans found, fetching all plans...');
+          const allPlansResponse = await subscriptionsAPI.getPlans(false);
+          fetchedPlans = allPlansResponse.data?.plans || [];
+          console.log(`Found ${fetchedPlans.length} total plans`);
+        } else {
+          console.log(`Found ${fetchedPlans.length} active plans`);
+        }
+        
+        setPlans(fetchedPlans);
+      } catch (err: any) {
         console.error('Error loading plans:', err);
-        setError('Failed to load plans. Please try again.');
+        const errorMessage = err?.response?.data?.detail || err?.message || 'Failed to load plans. Please try again.';
+        setError(errorMessage);
       } finally {
         setIsLoading(false);
       }
