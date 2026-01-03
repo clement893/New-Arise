@@ -141,14 +141,22 @@ function PaymentFormContent() {
         paymentMethod = result.paymentMethod;
       } catch (stripeError: any) {
         // Handle Stripe errors, especially unmount errors
-        if (stripeError?.message?.includes('Element') && stripeError?.message?.includes('mounted')) {
-          // Element was unmounted during operation - this is expected if component unmounts
+        const errorMessage = stripeError?.message || '';
+        const isUnmountError = errorMessage.includes('Element') && 
+                              (errorMessage.includes('mounted') || 
+                               errorMessage.includes('retrieve data'));
+        
+        if (isUnmountError) {
+          // Element was unmounted during operation
           if (!isMountedRef.current) {
-            return; // Component was unmounted, silently return
+            // Component was unmounted, silently return
+            return;
           }
           // Component still mounted but element was unmounted - show error
-          setError('Payment form was reset. Please try again.');
-          setIsProcessing(false);
+          if (isMountedRef.current) {
+            setError('Payment form was reset. Please try again.');
+            setIsProcessing(false);
+          }
           return;
         }
         // Re-throw other errors
@@ -191,9 +199,13 @@ function PaymentFormContent() {
       }
 
       if (response.data) {
-        // Payment successful, wait longer to ensure all Stripe operations are complete
-        // Stripe may have async callbacks that need to finish
-        await new Promise(resolve => setTimeout(resolve, 300));
+        // Payment successful - wait for all Stripe operations to complete
+        // Use requestAnimationFrame to ensure DOM updates are processed
+        await new Promise(resolve => {
+          requestAnimationFrame(() => {
+            setTimeout(resolve, 500); // Wait 500ms for all async operations
+          });
+        });
         
         // Final check before changing step - only proceed if still mounted
         if (!isMountedRef.current) {
@@ -203,12 +215,15 @@ function PaymentFormContent() {
         // Reset processing state before changing step
         setIsProcessing(false);
         
-        // Use setTimeout to ensure state updates are processed before unmounting
-        setTimeout(() => {
-          if (isMountedRef.current) {
-            setStep(6);
-          }
-        }, 0);
+        // Use requestAnimationFrame + setTimeout to ensure all operations complete
+        // before unmounting the component
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            if (isMountedRef.current) {
+              setStep(6);
+            }
+          }, 100);
+        });
       } else {
         if (isMountedRef.current) {
           setError('Failed to create subscription. Please try again.');
@@ -216,6 +231,31 @@ function PaymentFormContent() {
         }
       }
     } catch (err: unknown) {
+      // Check if this is a Stripe unmount error
+      if (err && typeof err === 'object') {
+        const errorObj = err as Record<string, unknown>;
+        const errorMessage = String(errorObj.message || '');
+        
+        // Check if it's a Stripe unmount error
+        const isUnmountError = errorMessage.includes('Element') && 
+                              (errorMessage.includes('mounted') || 
+                               errorMessage.includes('retrieve data'));
+        
+        if (isUnmountError) {
+          // Element was unmounted - silently return if component is unmounted
+          if (!isMountedRef.current) {
+            return;
+          }
+          // Component still mounted - show user-friendly error
+          if (isMountedRef.current) {
+            setError('Payment form was reset. Please try again.');
+            setIsProcessing(false);
+          }
+          return;
+        }
+      }
+      
+      // Handle other errors
       let errorMessage = 'Failed to process payment. Please try again.';
       if (err && typeof err === 'object') {
         const errorObj = err as Record<string, unknown>;
