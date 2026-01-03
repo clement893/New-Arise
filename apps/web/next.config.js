@@ -13,6 +13,9 @@ const nextConfig = {
   // This ensures Next.js can resolve paths correctly in standalone mode
   basePath: '',
   
+  // Set outputFileTracingRoot to avoid lockfile detection issues
+  outputFileTracingRoot: require('path').resolve(__dirname, '../..'),
+  
   // Disable source maps in production for faster builds
   // Source maps are only needed for debugging, not for production builds
   productionBrowserSourceMaps: false,
@@ -241,13 +244,13 @@ const nextConfig = {
     
     const cspDirectives = [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.railway.app blob:", // Required for Next.js dev mode and Sentry workers
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.railway.app https://js.stripe.com https://*.stripe.com blob:", // Required for Next.js dev mode, Sentry workers, and Stripe
       "worker-src 'self' blob:", // Required for Sentry workers and web workers
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.railway.app", // Required for Tailwind CSS
       "font-src 'self' https://fonts.gstatic.com data:",
       "img-src 'self' data: https: blob:",
-      "connect-src " + connectSrcUrls.join(' '),
-      "frame-src 'none'",
+      "connect-src " + connectSrcUrls.join(' ') + " https://*.stripe.com", // Add Stripe API endpoints
+      "frame-src 'self' https://*.stripe.com https://js.stripe.com", // Allow Stripe checkout iframes
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
@@ -326,8 +329,11 @@ const isSentryConfigured =
   process.env.NEXT_PUBLIC_SENTRY_DSN ||
   (process.env.SENTRY_ORG && process.env.SENTRY_PROJECT);
 
-// Apply Sentry config only if DSN is configured
-const configWithSentry = isSentryConfigured
+// Temporarily disable Sentry webpack plugin in dev mode to avoid compatibility issues
+// Apply Sentry config only if DSN is configured AND not in development
+const shouldUseSentry = isSentryConfigured && process.env.NODE_ENV !== 'development';
+
+const configWithSentry = shouldUseSentry
   ? withSentryConfig(withNextIntl(nextConfig), sentryWebpackPluginOptions)
   : withNextIntl(nextConfig);
 
