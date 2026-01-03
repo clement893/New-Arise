@@ -5,6 +5,7 @@ Service for managing subscriptions
 
 from typing import List, Optional
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -67,6 +68,40 @@ class SubscriptionService:
             select(Plan).where(Plan.id == plan_id)
         )
         return result.scalar_one_or_none()
+
+    async def update_plan(
+        self,
+        plan_id: int,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        amount: Optional[float] = None,
+        status: Optional[PlanStatus] = None,
+        is_popular: Optional[bool] = None,
+        features: Optional[str] = None,
+    ) -> Optional[Plan]:
+        """Update plan"""
+        plan = await self.get_plan(plan_id)
+        if not plan:
+            return None
+        
+        if name is not None:
+            plan.name = name
+        if description is not None:
+            plan.description = description
+        if amount is not None:
+            # Convert to Decimal for database storage
+            plan.amount = Decimal(str(amount))
+        if status is not None:
+            plan.status = status
+        if is_popular is not None:
+            plan.is_popular = is_popular
+        if features is not None:
+            plan.features = features
+        
+        plan.updated_at = datetime.now(timezone.utc)
+        await self.db.commit()
+        await self.db.refresh(plan)
+        return plan
 
     async def create_subscription(
         self,

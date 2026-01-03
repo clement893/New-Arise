@@ -23,7 +23,8 @@ import {
   Cog,
   Network,
   Building2,
-  MessageSquare
+  MessageSquare,
+  CreditCard
 } from 'lucide-react';
 
 export interface NavigationItem {
@@ -172,6 +173,11 @@ export function getNavigationConfig(isAdmin: boolean): NavigationConfig {
           name: 'Thèmes',
           href: '/admin/themes',
           icon: <Palette className="w-5 h-5" />,
+        },
+        {
+          name: 'Plans',
+          href: '/admin/plans',
+          icon: <CreditCard className="w-5 h-5" />,
         },
         {
           name: 'Configuration',

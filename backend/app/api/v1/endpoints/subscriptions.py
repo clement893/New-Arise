@@ -20,6 +20,7 @@ from app.services.stripe_service import StripeService
 from app.schemas.subscription import (
     PlanResponse,
     PlanListResponse,
+    PlanUpdate,
     SubscriptionResponse,
     CheckoutSessionCreate,
     CheckoutSessionResponse,
@@ -58,6 +59,40 @@ async def get_plan(
 ):
     """Get plan by ID"""
     plan = await subscription_service.get_plan(plan_id)
+    
+    if not plan:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Plan not found"
+        )
+    
+    return PlanResponse.model_validate(plan)
+
+
+@router.put("/plans/{plan_id}", response_model=PlanResponse)
+async def update_plan(
+    plan_id: int,
+    plan_update: PlanUpdate,
+    current_user: User = Depends(get_current_user),
+    subscription_service: SubscriptionService = Depends(get_subscription_service),
+):
+    """Update plan (admin only)"""
+    # Check if user is admin
+    if not current_user.is_superuser:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only administrators can update plans"
+        )
+    
+    plan = await subscription_service.update_plan(
+        plan_id=plan_id,
+        name=plan_update.name,
+        description=plan_update.description,
+        amount=float(plan_update.amount) if plan_update.amount is not None else None,
+        status=plan_update.status,
+        is_popular=plan_update.is_popular,
+        features=plan_update.features,
+    )
     
     if not plan:
         raise HTTPException(

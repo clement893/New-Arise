@@ -495,6 +495,15 @@ export const subscriptionsAPI = {
   getPlan: (planId: number) => {
     return apiClient.get(`/v1/subscriptions/plans/${planId}`);
   },
+  updatePlan: (planId: number, data: {
+    name?: string;
+    description?: string | null;
+    amount?: number;
+    is_popular?: boolean;
+    features?: string | null;
+  }) => {
+    return apiClient.put(`/v1/subscriptions/plans/${planId}`, data);
+  },
   getMySubscription: () => {
     return apiClient.get('/v1/subscriptions/me');
   },

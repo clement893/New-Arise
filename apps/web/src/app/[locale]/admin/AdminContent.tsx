@@ -92,6 +92,17 @@ export default function AdminContent() {
           </Link>
         </Card>
 
+        <Card title="Plans d'abonnement" className="flex flex-col">
+          <p className="text-muted-foreground mb-4">
+            Gérez les plans d'abonnement, modifiez les prix et descriptions.
+          </p>
+          <Link href="/admin/plans">
+            <Button variant="primary" className="w-full">
+              Gérer les plans
+            </Button>
+          </Link>
+        </Card>
+
         <Card title="Paramètres" className="flex flex-col">
           <p className="text-muted-foreground mb-4">
             Configuration générale du système.
