@@ -470,112 +470,132 @@ function AssessmentsContent() {
         </div>
       </MotionDiv>
 
-      <MotionDiv variant="slideUp" delay={100}>
-        <Stack gap="normal">
-          {assessments.map((assessment) => {
-            const Icon = assessment.icon;
-            return (
-              <Card key={assessment.id} className="hover:shadow-lg transition-shadow">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-4 flex-1">
-                    <div className="w-16 h-16 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Icon className="text-arise-deep-teal" size={32} />
+      {/* Wrapper for assessments with background color block */}
+      <div className="relative mb-8" style={{ paddingBottom: '32px' }}>
+        {/* Background color block behind all assessments */}
+        <div 
+          className="absolute"
+          style={{ 
+            backgroundColor: '#D5DEE0',
+            top: '-20px',
+            bottom: 0,
+            left: '-15%',
+            right: '-15%',
+            width: 'calc(100% + 30%)',
+            zIndex: 0,
+          }}
+        />
+        
+        {/* Content sections with relative positioning */}
+        <div className="relative z-10">
+          <MotionDiv variant="slideUp" delay={100}>
+            <Stack gap="normal">
+              {assessments.map((assessment) => {
+                const Icon = assessment.icon;
+                return (
+                  <Card key={assessment.id} className="hover:shadow-lg transition-shadow">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-4 flex-1">
+                        <div className="w-16 h-16 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Icon className="text-arise-deep-teal" size={32} />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-xl font-bold text-gray-900 mb-1">
+                            {assessment.title}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            {assessment.description}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        {getStatusBadge(assessment.status)}
+                        {assessment.status === 'in-progress' && assessment.answerCount !== undefined && assessment.totalQuestions !== undefined && (
+                          <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                            {assessment.answerCount}/{assessment.totalQuestions}
+                          </span>
+                        )}
+                        {assessment.externalLink && assessment.status !== 'completed' && (
+                          <span className="px-3 py-1 border border-arise-deep-teal text-arise-deep-teal rounded-full text-xs font-medium">
+                            Lien externe
+                          </span>
+                        )}
+                        {getActionButton(assessment)}
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-gray-900 mb-1">
-                        {assessment.title}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {assessment.description}
-                      </p>
+                    {/* Progress bar - always visible */}
+                    <div className="mt-4">
+                      {(() => {
+                        // Calculate progress percentage
+                        let progressValue = 0;
+                        let progressMax = 100;
+                        let progressLabel = 'Progression';
+                        
+                        if (assessment.status === 'completed') {
+                          progressValue = 100;
+                          progressLabel = 'Terminé';
+                        } else if (assessment.status === 'in-progress' && 
+                                   assessment.answerCount !== undefined && 
+                                   assessment.totalQuestions !== undefined && 
+                                   assessment.totalQuestions > 0) {
+                          progressValue = assessment.answerCount;
+                          progressMax = assessment.totalQuestions;
+                          progressLabel = `Progression: ${assessment.answerCount}/${assessment.totalQuestions} questions`;
+                        } else if (assessment.status === 'available') {
+                          progressValue = 0;
+                          progressLabel = 'Non commencé';
+                        } else if (assessment.status === 'locked') {
+                          progressValue = 0;
+                          progressLabel = 'Verrouillé';
+                        }
+                        
+                        return (
+                          <Progress
+                            value={progressValue}
+                            max={progressMax}
+                            variant={assessment.status === 'completed' ? 'success' : 'default'}
+                            size="md"
+                            showLabel={true}
+                            label={progressLabel}
+                          />
+                        );
+                      })()}
                     </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    {getStatusBadge(assessment.status)}
-                    {assessment.status === 'in-progress' && assessment.answerCount !== undefined && assessment.totalQuestions !== undefined && (
-                      <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
-                        {assessment.answerCount}/{assessment.totalQuestions}
-                      </span>
-                    )}
-                    {assessment.externalLink && assessment.status !== 'completed' && (
-                      <span className="px-3 py-1 border border-arise-deep-teal text-arise-deep-teal rounded-full text-xs font-medium">
-                        Lien externe
-                      </span>
-                    )}
-                    {getActionButton(assessment)}
-                  </div>
-                </div>
-                {/* Progress bar - always visible */}
-                <div className="mt-4">
-                  {(() => {
-                    // Calculate progress percentage
-                    let progressValue = 0;
-                    let progressMax = 100;
-                    let progressLabel = 'Progression';
-                    
-                    if (assessment.status === 'completed') {
-                      progressValue = 100;
-                      progressLabel = 'Terminé';
-                    } else if (assessment.status === 'in-progress' && 
-                               assessment.answerCount !== undefined && 
-                               assessment.totalQuestions !== undefined && 
-                               assessment.totalQuestions > 0) {
-                      progressValue = assessment.answerCount;
-                      progressMax = assessment.totalQuestions;
-                      progressLabel = `Progression: ${assessment.answerCount}/${assessment.totalQuestions} questions`;
-                    } else if (assessment.status === 'available') {
-                      progressValue = 0;
-                      progressLabel = 'Non commencé';
-                    } else if (assessment.status === 'locked') {
-                      progressValue = 0;
-                      progressLabel = 'Verrouillé';
-                    }
-                    
-                    return (
-                      <Progress
-                        value={progressValue}
-                        max={progressMax}
-                        variant={assessment.status === 'completed' ? 'success' : 'default'}
-                        size="md"
-                        showLabel={true}
-                        label={progressLabel}
-                      />
-                    );
-                  })()}
-                </div>
-              </Card>
-            );
-          })}
+                  </Card>
+                );
+              })}
 
-          {/* 360 Feedback Evaluators Section */}
-          {assessments.find(a => a.assessmentType === 'THREE_SIXTY_SELF') && (
-            <Card className="bg-arise-gold/10 border-2 border-arise-gold/30">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-arise-gold/20 rounded-full flex items-center justify-center">
-                    <Users className="text-arise-gold" size={24} />
+              {/* 360 Feedback Evaluators Section */}
+              {assessments.find(a => a.assessmentType === 'THREE_SIXTY_SELF') && (
+                <Card className="bg-arise-gold/10 border-2 border-arise-gold/30">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-arise-gold/20 rounded-full flex items-center justify-center">
+                        <Users className="text-arise-gold" size={24} />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-1">
+                          Ajoutez vos évaluateurs avant de commencer cet assessment
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          Invitez des collègues à fournir un feedback 360° sur votre leadership
+                        </p>
+                      </div>
+                    </div>
+                    <Button 
+                      variant="primary"
+                      className="bg-arise-gold text-white hover:bg-arise-gold/90"
+                      onClick={() => setShowEvaluatorModal(true)}
+                    >
+                      Ajouter
+                    </Button>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-1">
-                      Ajoutez vos évaluateurs avant de commencer cet assessment
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      Invitez des collègues à fournir un feedback 360° sur votre leadership
-                    </p>
-                  </div>
-                </div>
-                <Button 
-                  variant="primary"
-                  className="bg-arise-gold text-white hover:bg-arise-gold/90"
-                  onClick={() => setShowEvaluatorModal(true)}
-                >
-                  Ajouter
-                </Button>
-              </div>
-            </Card>
-          )}
-        </Stack>
-      </MotionDiv>
+                </Card>
+              )}
+            </Stack>
+          </MotionDiv>
+        </div>
+      </div>
 
       {/* Evaluator Modal */}
       {showEvaluatorModal && (() => {
