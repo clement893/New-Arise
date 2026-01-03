@@ -114,9 +114,12 @@ export default function Sidebar({
     const hasChildren = item.children && item.children.length > 0;
     const isExpanded = expandedItems.has(item.label);
     // Improved active detection - check exact match or if path starts with href
-    const normalizePath = (path: string) => path?.split('?')[0].split('#')[0];
-    const normalizedActivePath = normalizePath(activePath || '');
-    const normalizedHref = normalizePath(item.href || '');
+    const normalizePath = (path: string | undefined | null): string => {
+      if (!path) return '';
+      return path.split('?')[0].split('#')[0];
+    };
+    const normalizedActivePath = normalizePath(activePath);
+    const normalizedHref = normalizePath(item.href);
     
     const isActive = item.href && (
       normalizedActivePath === normalizedHref || 
