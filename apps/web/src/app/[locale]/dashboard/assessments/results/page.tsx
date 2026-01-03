@@ -34,13 +34,62 @@ function AssessmentResultsContent() {
   const loadResults = async (id: number) => {
     try {
       setIsLoading(true);
+      setError(null);
+      
+      // First, verify the assessment exists and get its details
+      const { getMyAssessments } = await import('@/lib/api/assessments');
+      const assessments = await getMyAssessments();
+      const assessment = assessments.find(a => a.id === id);
+      
+      if (!assessment) {
+        setError('Assessment not found. You may not have permission to view this assessment.');
+        setIsLoading(false);
+        return;
+      }
+      
+      // Check if assessment is completed
+      if (assessment.status !== 'completed' && assessment.status !== 'COMPLETED') {
+        // Check if all questions are answered
+        const hasAllAnswers = assessment.answer_count !== undefined && 
+                              assessment.total_questions !== undefined &&
+                              assessment.total_questions > 0 &&
+                              assessment.answer_count >= assessment.total_questions;
+        
+        if (!hasAllAnswers) {
+          setError('This assessment is not completed yet. Please complete all questions first.');
+          setIsLoading(false);
+          // Redirect to assessment page after 3 seconds
+          setTimeout(() => {
+            if (assessment.assessment_type === 'WELLNESS') {
+              router.push(`/dashboard/assessments/wellness?id=${id}`);
+            } else if (assessment.assessment_type === 'TKI') {
+              router.push(`/dashboard/assessments/tki?id=${id}`);
+            } else {
+              router.push(`/dashboard/assessments`);
+            }
+          }, 3000);
+          return;
+        }
+      }
+      
+      // Try to load results
       const data = await assessmentsApi.getResults(id);
       setResults(data);
     } catch (err: unknown) {
-      const errorMessage = err && typeof err === 'object' && 'response' in err
-        ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
-        : undefined;
-      setError(errorMessage || 'Failed to load results');
+      let errorMessage = 'Failed to load results';
+      
+      if (err && typeof err === 'object' && 'response' in err) {
+        const response = (err as { response?: { data?: { detail?: string; message?: string }; status?: number } }).response;
+        if (response?.status === 404) {
+          errorMessage = response.data?.detail || response.data?.message || 'Results not found. The assessment may not be completed yet.';
+        } else {
+          errorMessage = response?.data?.detail || response?.data?.message || errorMessage;
+        }
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -133,14 +182,29 @@ function AssessmentResultsContent() {
   }
 
   if (error || !results) {
+    const assessmentId = searchParams.get('id');
+    const isNotCompleted = error?.includes('not completed') || error?.includes('not found');
+    
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Card className="max-w-md text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Error</h2>
+        <Card className="max-w-md text-center p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            {isNotCompleted ? 'Assessment Not Completed' : 'Error'}
+          </h2>
           <p className="text-gray-600 mb-6">{error || 'Results not found'}</p>
-          <Button onClick={() => router.push('/dashboard/assessments')}>
-            Back to Assessments
-          </Button>
+          <div className="flex flex-col gap-3">
+            {isNotCompleted && assessmentId && (
+              <Button 
+                onClick={() => router.push(`/dashboard/assessments/wellness?id=${assessmentId}`)}
+                variant="primary"
+              >
+                Continue Assessment
+              </Button>
+            )}
+            <Button onClick={() => router.push('/dashboard/assessments')} variant="outline">
+              Back to Assessments
+            </Button>
+          </div>
         </Card>
       </div>
     );
