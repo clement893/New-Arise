@@ -117,11 +117,43 @@ function PaymentFormContent() {
         return;
       }
 
+      // Verify element is still available before using it
+      const currentElement = elements.getElement(CardElement);
+      if (!currentElement) {
+        if (isMountedRef.current) {
+          setError('Card element is no longer available. Please refresh the page.');
+          setIsProcessing(false);
+        }
+        return;
+      }
+
       // Create payment method - this is the critical operation that needs the element
-      const { error: pmError, paymentMethod } = await stripe.createPaymentMethod({
-        type: 'card',
-        card: cardElement,
-      });
+      // Wrap in try-catch to handle potential unmount errors
+      let pmError: any = null;
+      let paymentMethod: any = null;
+      
+      try {
+        const result = await stripe.createPaymentMethod({
+          type: 'card',
+          card: currentElement,
+        });
+        pmError = result.error;
+        paymentMethod = result.paymentMethod;
+      } catch (stripeError: any) {
+        // Handle Stripe errors, especially unmount errors
+        if (stripeError?.message?.includes('Element') && stripeError?.message?.includes('mounted')) {
+          // Element was unmounted during operation - this is expected if component unmounts
+          if (!isMountedRef.current) {
+            return; // Component was unmounted, silently return
+          }
+          // Component still mounted but element was unmounted - show error
+          setError('Payment form was reset. Please try again.');
+          setIsProcessing(false);
+          return;
+        }
+        // Re-throw other errors
+        throw stripeError;
+      }
 
       // Check if component is still mounted after async operation
       if (!isMountedRef.current) {
