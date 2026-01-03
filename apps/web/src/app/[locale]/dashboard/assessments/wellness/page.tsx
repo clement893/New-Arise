@@ -45,10 +45,14 @@ function WellnessAssessmentContent() {
       if (currentQuestionIndex >= 0 && currentQuestionIndex < wellnessQuestions.length) {
         currentQuestion = wellnessQuestions[currentQuestionIndex];
       }
-      progress = getProgress();
+      const progressResult = getProgress();
+      // Ensure progress is a number, not an object
+      progress = typeof progressResult === 'number' ? progressResult : 0;
       isLastQuestion = currentQuestionIndex === wellnessQuestions.length - 1;
       if (currentQuestion && currentQuestion.id) {
-        currentAnswer = answers[currentQuestion.id];
+        const answerValue = answers[currentQuestion.id];
+        // Ensure currentAnswer is a number or undefined, not an object
+        currentAnswer = typeof answerValue === 'number' ? answerValue : undefined;
       }
     }
   } catch (error) {
@@ -480,13 +484,13 @@ function WellnessAssessmentContent() {
                 Question {currentQuestionIndex + 1} of {wellnessQuestions.length}
               </span>
               <span className="text-sm font-medium text-white">
-                {progress}% Complete
+                {typeof progress === 'number' ? progress : 0}% Complete
               </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
                 className="bg-arise-deep-teal h-2 rounded-full transition-all duration-300"
-                style={{ width: `${progress}%` }}
+                style={{ width: `${typeof progress === 'number' ? progress : 0}%` }}
               />
             </div>
           </div>
