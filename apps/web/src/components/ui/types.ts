@@ -20,7 +20,7 @@ export type AlertVariant = 'info' | 'success' | 'warning' | 'error';
 /**
  * Variants de style pour les boutons
  */
-export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'arise-primary';
 
 /**
  * Tailles communes pour les composants
