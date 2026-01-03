@@ -31,24 +31,54 @@ export function Step2_PlanSelection() {
       try {
         setIsLoading(true);
         setError(null);
+        
+        console.log('[PlanSelection] Starting to load plans...');
+        
         // First try to fetch active plans
         const response = await subscriptionsAPI.getPlans(true);
+        console.log('[PlanSelection] Active plans response:', {
+          status: response.status,
+          data: response.data,
+          plansCount: response.data?.plans?.length || 0,
+        });
+        
         let fetchedPlans = response.data?.plans || [];
         
         // If no active plans found, try fetching all plans (including inactive)
         if (fetchedPlans.length === 0) {
-          console.log('No active plans found, fetching all plans...');
+          console.log('[PlanSelection] No active plans found, fetching all plans...');
           const allPlansResponse = await subscriptionsAPI.getPlans(false);
+          console.log('[PlanSelection] All plans response:', {
+            status: allPlansResponse.status,
+            data: allPlansResponse.data,
+            plansCount: allPlansResponse.data?.plans?.length || 0,
+          });
           fetchedPlans = allPlansResponse.data?.plans || [];
-          console.log(`Found ${fetchedPlans.length} total plans`);
+          console.log(`[PlanSelection] Found ${fetchedPlans.length} total plans`);
         } else {
-          console.log(`Found ${fetchedPlans.length} active plans`);
+          console.log(`[PlanSelection] Found ${fetchedPlans.length} active plans`);
+        }
+        
+        if (fetchedPlans.length === 0) {
+          console.warn('[PlanSelection] No plans found in database. Please create plans in the admin panel.');
         }
         
         setPlans(fetchedPlans);
       } catch (err: any) {
-        console.error('Error loading plans:', err);
-        const errorMessage = err?.response?.data?.detail || err?.message || 'Failed to load plans. Please try again.';
+        console.error('[PlanSelection] Error loading plans:', {
+          error: err,
+          message: err?.message,
+          response: err?.response,
+          status: err?.response?.status,
+          data: err?.response?.data,
+          url: err?.config?.url,
+          baseURL: err?.config?.baseURL,
+        });
+        
+        const errorMessage = err?.response?.data?.detail 
+          || err?.response?.data?.message
+          || err?.message 
+          || `Failed to load plans (${err?.response?.status || 'unknown error'}). Please try again.`;
         setError(errorMessage);
       } finally {
         setIsLoading(false);
