@@ -423,13 +423,13 @@ function ResultsReportsContent() {
           </Card>
 
           {/* Ready to accelerate your growth? */}
-          <Card className="text-white border-0 p-8" style={{ backgroundColor: '#2E2E2E' }}>
+          <Card className="text-white border-0 p-8 overflow-hidden" style={{ backgroundColor: '#2E2E2E' }}>
             <div className="flex flex-col md:flex-row items-center gap-6">
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <h2 className="text-2xl font-bold mb-3">
                   Ready to accelerate your growth?
                 </h2>
-                <p className="text-white/90 mb-4">
+                <p className="text-white/90 mb-4 break-words">
                   Connect with expert ARISE coaches who specialize in leadership development. 
                   Schedule your FREE coaching session to debrief your results and build a personalized development plan.
                 </p>
