@@ -195,7 +195,22 @@ export default function Sidebar({
         className
       )}
     >
-      {/* Header: User info + Notifications (top left) */}
+      {/* Header: ARISE Logo */}
+      <div className="p-lg border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className={clsx(
+          'flex items-center justify-center',
+          collapsed && 'justify-center'
+        )}>
+          <h1 className={clsx(
+            "text-2xl font-bold text-arise-deep-teal",
+            collapsed && "text-xl"
+          )}>
+            ARISE
+          </h1>
+        </div>
+      </div>
+
+      {/* User info */}
       {user && (
         <div className="p-lg border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className={clsx(
