@@ -14,7 +14,7 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-      <main className="container mx-auto px-4 py-12">
+      <main className="container mx-auto px-4 pt-24 pb-12">
         {/* Hero Section */}
         <MotionDiv variant="fade" duration="normal">
           <div className="mb-12 pb-6 text-center">
