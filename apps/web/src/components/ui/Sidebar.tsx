@@ -132,15 +132,21 @@ export default function Sidebar({
     const normalizedActivePath = normalizePath(activePath);
     const normalizedHref = normalizePath(item.href);
     
+    // Special handling for exact routes like /dashboard - they should only be active on exact match
+    // For other routes, allow prefix matching (e.g., /dashboard/assessments matches /dashboard/assessments/*)
+    // Normalize both paths to handle trailing slashes
+    const normalizedHrefClean = normalizedHref?.replace(/\/$/, '') || '';
+    const normalizedActivePathClean = normalizedActivePath?.replace(/\/$/, '') || '';
+    const isExactRoute = normalizedHrefClean === '/dashboard';
     const isActive = item.href && (
-      normalizedActivePath === normalizedHref || 
-      (normalizedActivePath && normalizedHref && normalizedActivePath.startsWith(normalizedHref + '/'))
+      normalizedActivePathClean === normalizedHrefClean || 
+      (!isExactRoute && normalizedActivePathClean && normalizedHrefClean && normalizedActivePathClean.startsWith(normalizedHrefClean + '/'))
     );
     
     // Debug in development
     if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development' && item.href) {
-      if (normalizedActivePath === normalizedHref || (normalizedActivePath && normalizedHref && normalizedActivePath.startsWith(normalizedHref + '/'))) {
-        console.log('[Sidebar] Active item detected:', item.label, 'Path:', normalizedActivePath, 'Href:', normalizedHref);
+      if (isActive) {
+        console.log('[Sidebar] Active item detected:', item.label, 'Path:', normalizedActivePath, 'Href:', normalizedHref, 'IsExactRoute:', isExactRoute);
       }
     }
 

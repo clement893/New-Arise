@@ -80,10 +80,10 @@ function DevelopmentPlanContent() {
     <div className="space-y-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+        <h1 className="text-4xl font-bold text-white mb-2">
           Development Plan
         </h1>
-        <p className="text-gray-600 dark:text-gray-300">
+        <p className="text-white">
           Track your personal and professional development journey
         </p>
       </div>
