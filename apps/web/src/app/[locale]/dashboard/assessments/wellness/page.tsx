@@ -420,8 +420,8 @@ function WellnessAssessmentContent() {
   // Question Screen
   // Safety check: ensure we have valid question data before rendering
   // Also check if assessment is completed - if so, don't show questions
-  const { isCompleted: storeIsCompleted } = useWellnessStore.getState();
-  if (storeIsCompleted) {
+  // Use the hook value instead of getState() to avoid stale closures
+  if (isCompleted) {
     // Assessment is completed, redirect to results or show completion screen
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
