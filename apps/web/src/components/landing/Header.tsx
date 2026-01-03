@@ -19,8 +19,8 @@ export function Header() {
 
           {/* Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/products" className="text-gray-700 hover:text-arise-deep-teal transition-colors">
-              {t('products')}
+            <Link href="/about" className="text-gray-700 hover:text-arise-deep-teal transition-colors">
+              {t('about')}
             </Link>
             <Link href="/pricing" className="text-gray-700 hover:text-arise-deep-teal transition-colors">
               {t('pricing')}
