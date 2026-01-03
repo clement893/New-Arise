@@ -240,7 +240,11 @@ function ResultsReportsContent() {
                   </p>
                 </div>
               </div>
-              <Button variant="secondary" className="flex items-center gap-2">
+              <Button 
+                variant="secondary" 
+                className="flex items-center gap-2 !bg-[#0F454D] hover:!bg-[#0d4148] !text-white"
+                style={{ backgroundColor: '#0F454D', color: '#ffffff' }}
+              >
                 <Download size={16} />
                 Export All
               </Button>
@@ -284,6 +288,8 @@ function ResultsReportsContent() {
                         <Button 
                           variant="secondary" 
                           size="sm"
+                          className="!bg-[#0F454D] hover:!bg-[#0d4148] !text-white"
+                          style={{ backgroundColor: '#0F454D', color: '#ffffff' }}
                           onClick={() => handleViewDetails(assessment)}
                         >
                           View Details
@@ -435,7 +441,8 @@ function ResultsReportsContent() {
                 </p>
                 <Button 
                   variant="secondary" 
-                  className="bg-arise-gold hover:bg-arise-gold/90 text-white"
+                  className="!bg-[#0F454D] hover:!bg-[#0d4148] !text-white"
+                  style={{ backgroundColor: '#0F454D', color: '#ffffff' }}
                   onClick={() => router.push('/dashboard/coaching-options')}
                 >
                   Explore coaching options →
