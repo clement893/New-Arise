@@ -44,11 +44,20 @@ export default function Feedback360Page() {
   const effectiveAssessmentId = urlAssessmentId || assessmentId;
 
   useEffect(() => {
-    // If we have an assessmentId from URL but not in store, update the store
-    if (urlAssessmentId && urlAssessmentId !== assessmentId) {
-      useFeedback360Store.setState({ assessmentId: urlAssessmentId });
+    // If we have an assessmentId from URL but not in store, load existing answers
+    if (urlAssessmentId) {
+      if (urlAssessmentId !== assessmentId) {
+        // Load existing answers and navigate to last question
+        loadExistingAnswers(urlAssessmentId);
+      } else if (assessmentId && Object.keys(answers).length === 0) {
+        // Assessment ID matches but no answers loaded, load them
+        loadExistingAnswers(assessmentId);
+      }
+    } else if (assessmentId && Object.keys(answers).length === 0) {
+      // We have an assessmentId in store but no answers, load them
+      loadExistingAnswers(assessmentId);
     }
-  }, [urlAssessmentId, assessmentId]);
+  }, [urlAssessmentId, assessmentId, loadExistingAnswers]);
 
   useEffect(() => {
     // Load existing answer for current question
