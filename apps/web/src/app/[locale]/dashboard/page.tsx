@@ -672,7 +672,16 @@ function DashboardContent() {
 
           {/* Coaching Section */}
           <MotionDiv variant="slideUp" delay={400}>
-            <Card className="text-white border-0 p-8 overflow-hidden" style={{ backgroundColor: '#2E2E2E' }}>
+            <Card 
+              className="text-white border-0 p-8 overflow-hidden" 
+              style={{ 
+                backgroundColor: '#2E2E2E',
+                marginLeft: '-15%',
+                marginRight: '-15%',
+                width: 'calc(100% + 30%)',
+                borderRadius: '16px',
+              }}
+            >
               <div className="flex flex-col md:flex-row items-center gap-6">
                 <div className="flex-1 min-w-0">
                   <h2 className="text-2xl font-bold mb-3">
@@ -684,7 +693,16 @@ function DashboardContent() {
                   </p>
                   <Button 
                     variant="secondary" 
-                    className="bg-arise-gold hover:bg-arise-gold/90 text-white"
+                    className="text-white"
+                    style={{ backgroundColor: '#0F454D', borderColor: '#0F454D' }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#0d4148';
+                      e.currentTarget.style.borderColor = '#0d4148';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#0F454D';
+                      e.currentTarget.style.borderColor = '#0F454D';
+                    }}
                     onClick={() => router.push('/dashboard/coaching-options')}
                   >
                     Explore coaching options →
