@@ -441,7 +441,7 @@ function DashboardContent() {
                 <Button 
                   variant="primary" 
                   className="text-white font-semibold"
-                  style={{ backgroundColor: '#0f4c56' }}
+                  style={{ backgroundColor: '#0f4c56', color: '#ffffff' }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = '#0f4c56';
                     e.currentTarget.style.opacity = '0.9';
