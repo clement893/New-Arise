@@ -1,12 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
 import { Card } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { Briefcase, MapPin, Clock, DollarSign, Users, Heart, Zap, Award, ArrowRight, Plus } from 'lucide-react';
+
+export default function CareersPage() {
+  const t = useTranslations('careers');
 
 // Job listings - to be replaced with real data or API
 const openPositions = [
@@ -90,9 +94,17 @@ const benefits = [
   },
 ];
 
-export default function CareersPage() {
   const [selectedJob, setSelectedJob] = useState<number | null>(null);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
+
+  const benefitsList = [
+    { icon: DollarSign, key: 'competitiveSalary' },
+    { icon: Heart, key: 'healthWellness' },
+    { icon: Zap, key: 'flexibleWork' },
+    { icon: Users, key: 'teamCulture' },
+    { icon: Award, key: 'professionalGrowth' },
+    { icon: Clock, key: 'workLifeBalance' },
+  ];
 
   return (
     <div className="min-h-screen bg-white">
@@ -103,11 +115,11 @@ export default function CareersPage() {
             <div className="flex items-center justify-center gap-3 mb-4">
               <Briefcase className="text-arise-deep-teal" size={40} />
               <h1 className="text-5xl font-bold text-gray-900">
-                Join Our Team
+                {t('title')}
               </h1>
             </div>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Help us empower authentic leaders around the world. We're building the future of leadership development.
+              {t('subtitle')}
             </p>
           </div>
         </MotionDiv>
@@ -116,11 +128,11 @@ export default function CareersPage() {
         <div className="mb-16">
           <Card className="p-8 md:p-12 bg-gradient-to-br from-arise-deep-teal/5 to-white">
             <MotionDiv variant="fade" duration="normal">
-              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Why Work With Us</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">{t('whyWorkWithUs.title')}</h2>
             </MotionDiv>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {benefits.map((benefit, index) => {
+              {benefitsList.map((benefit, index) => {
                 const Icon = benefit.icon;
                 return (
                   <MotionDiv key={index} variant="slideUp" delay={index * 50}>
@@ -128,8 +140,8 @@ export default function CareersPage() {
                       <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center mb-4">
                         <Icon className="text-arise-deep-teal" size={24} />
                       </div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">{benefit.title}</h3>
-                      <p className="text-gray-600">{benefit.description}</p>
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">{t(`benefits.${benefit.key}.title`)}</h3>
+                      <p className="text-gray-600">{t(`benefits.${benefit.key}.description`)}</p>
                     </Card>
                   </MotionDiv>
                 );
@@ -141,7 +153,7 @@ export default function CareersPage() {
         {/* Open Positions */}
         <div className="mb-16">
           <MotionDiv variant="fade" duration="normal">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Open Positions</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">{t('openPositions.title')}</h2>
           </MotionDiv>
 
           <div className="space-y-6">
@@ -191,14 +203,14 @@ export default function CareersPage() {
                         onClick={() => setSelectedJob(selectedJob === job.id ? null : job.id)}
                         className="whitespace-nowrap"
                       >
-                        {selectedJob === job.id ? 'Hide Details' : 'View Details'}
+                        {selectedJob === job.id ? t('applicationForm.cancel') : t('applicationForm.submit')}
                       </Button>
                       <Button
                         variant="primary"
                         onClick={() => setShowApplicationForm(true)}
                         className="!bg-arise-deep-teal hover:!bg-arise-deep-teal/90 !text-white whitespace-nowrap"
                       >
-                        Apply Now
+                        {t('applicationForm.submit')}
                       </Button>
                     </div>
                   </div>
@@ -210,16 +222,16 @@ export default function CareersPage() {
           {openPositions.length === 0 && (
             <Card className="p-12 text-center">
               <Briefcase className="text-gray-400 mx-auto mb-4" size={48} />
-              <h3 className="text-xl font-bold text-gray-900 mb-2">No Open Positions</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{t('noPositions.title')}</h3>
               <p className="text-gray-600 mb-6">
-                We don't have any open positions at the moment, but we're always interested in hearing from talented individuals.
+                {t('noPositions.text')}
               </p>
               <Button
                 variant="primary"
                 onClick={() => setShowApplicationForm(true)}
                 className="!bg-arise-deep-teal hover:!bg-arise-deep-teal/90 !text-white"
               >
-                Submit General Application
+                {t('noPositions.submitApplication')}
               </Button>
             </Card>
           )}
@@ -231,7 +243,7 @@ export default function CareersPage() {
             <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">Apply for Position</h2>
+                  <h2 className="text-2xl font-bold text-gray-900">{t('applicationForm.title')}</h2>
                   <button
                     onClick={() => setShowApplicationForm(false)}
                     className="text-gray-400 hover:text-gray-600"
@@ -244,7 +256,7 @@ export default function CareersPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        First Name *
+                        {t('applicationForm.firstName')} *
                       </label>
                       <input
                         type="text"
@@ -254,7 +266,7 @@ export default function CareersPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Last Name *
+                        {t('applicationForm.lastName')} *
                       </label>
                       <input
                         type="text"
@@ -266,7 +278,7 @@ export default function CareersPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email *
+                      {t('applicationForm.email')} *
                     </label>
                     <input
                       type="email"
@@ -277,28 +289,28 @@ export default function CareersPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Position Applied For *
+                      {t('applicationForm.position')} *
                     </label>
                     <select
                       required
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-arise-deep-teal focus:border-transparent"
                     >
-                      <option value="">Select a position</option>
+                      <option value="">{t('applicationForm.selectPosition')}</option>
                       {openPositions.map(job => (
                         <option key={job.id} value={job.id}>{job.title}</option>
                       ))}
-                      <option value="general">General Application</option>
+                      <option value="general">{t('applicationForm.generalApplication')}</option>
                     </select>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Resume/CV *
+                      {t('applicationForm.resume')} *
                     </label>
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                       <Plus className="text-gray-400 mx-auto mb-2" size={24} />
                       <p className="text-sm text-gray-600 mb-2">
-                        Drop your file here or click to browse
+                        {t('applicationForm.dropFile')}
                       </p>
                       <input
                         type="file"
@@ -311,19 +323,19 @@ export default function CareersPage() {
                         htmlFor="resume-upload"
                         className="inline-block px-4 py-2 bg-arise-deep-teal text-white rounded-lg cursor-pointer hover:bg-arise-deep-teal/90"
                       >
-                        Choose File
+                        {t('applicationForm.chooseFile')}
                       </label>
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Cover Letter
+                      {t('applicationForm.coverLetter')}
                     </label>
                     <textarea
                       rows={6}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-arise-deep-teal focus:border-transparent resize-none"
-                      placeholder="Tell us why you're interested in joining ARISE..."
+                      placeholder={t('applicationForm.coverLetter')}
                     />
                   </div>
 
@@ -332,7 +344,7 @@ export default function CareersPage() {
                       type="submit"
                       className="!bg-arise-deep-teal hover:!bg-arise-deep-teal/90 !text-white flex items-center gap-2"
                     >
-                      Submit Application
+                      {t('applicationForm.submit')}
                       <ArrowRight size={16} />
                     </Button>
                     <Button
@@ -340,7 +352,7 @@ export default function CareersPage() {
                       variant="outline"
                       onClick={() => setShowApplicationForm(false)}
                     >
-                      Cancel
+                      {t('applicationForm.cancel')}
                     </Button>
                   </div>
                 </form>
@@ -353,32 +365,32 @@ export default function CareersPage() {
         <div className="mb-16">
           <Card className="p-8 md:p-12">
             <MotionDiv variant="fade" duration="normal">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">Our Culture</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">{t('culture.title')}</h2>
             </MotionDiv>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Mission-Driven</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">{t('culture.missionDriven.title')}</h3>
                 <p className="text-gray-700">
-                  Every team member is passionate about our mission to empower authentic leaders. We believe in the work we do and the impact we create.
+                  {t('culture.missionDriven.text')}
                 </p>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Collaborative</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">{t('culture.collaborative.title')}</h3>
                 <p className="text-gray-700">
-                  We work together as a team, sharing knowledge and supporting each other's growth. Collaboration is at the heart of everything we do.
+                  {t('culture.collaborative.text')}
                 </p>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Innovative</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">{t('culture.innovative.title')}</h3>
                 <p className="text-gray-700">
-                  We encourage experimentation and creative thinking. New ideas are welcomed and supported, whether they come from interns or executives.
+                  {t('culture.innovative.text')}
                 </p>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Inclusive</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">{t('culture.inclusive.title')}</h3>
                 <p className="text-gray-700">
-                  We celebrate diversity and create an inclusive environment where everyone can thrive and bring their authentic selves to work.
+                  {t('culture.inclusive.text')}
                 </p>
               </div>
             </div>
@@ -388,16 +400,16 @@ export default function CareersPage() {
         {/* CTA */}
         <MotionDiv variant="fade" duration="normal">
           <Card className="p-8 md:p-12 bg-gradient-to-r from-arise-deep-teal to-arise-deep-teal/90 text-white text-center">
-            <h2 className="text-3xl font-bold mb-4">Don't See a Role That Fits?</h2>
+            <h2 className="text-3xl font-bold mb-4">{t('cta.title')}</h2>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              We're always interested in connecting with talented individuals. Send us your resume and let us know how you'd like to contribute.
+              {t('cta.subtitle')}
             </p>
             <Button
               variant="secondary"
               onClick={() => setShowApplicationForm(true)}
               className="!bg-arise-gold hover:!bg-arise-gold/90 !text-arise-deep-teal font-semibold px-8 py-3"
             >
-              Submit General Application
+              {t('cta.submitApplication')}
             </Button>
           </Card>
         </MotionDiv>

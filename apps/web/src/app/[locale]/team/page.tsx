@@ -1,11 +1,16 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
 import { Card } from '@/components/ui';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { Users, Linkedin, Mail, Award, GraduationCap, Briefcase } from 'lucide-react';
 import Image from 'next/image';
+import { Link } from '@/i18n/routing';
+
+export default function TeamPage() {
+  const t = useTranslations('team');
 
 // Team members data - to be replaced with real data
 const teamMembers = [
@@ -74,7 +79,6 @@ const advisoryBoard = [
   },
 ];
 
-export default function TeamPage() {
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -84,11 +88,11 @@ export default function TeamPage() {
             <div className="flex items-center justify-center gap-3 mb-4">
               <Users className="text-arise-deep-teal" size={40} />
               <h1 className="text-5xl font-bold text-gray-900">
-                Meet Our Team
+                {t('title')}
               </h1>
             </div>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Passionate experts dedicated to empowering authentic leaders
+              {t('subtitle')}
             </p>
           </div>
         </MotionDiv>
@@ -96,7 +100,7 @@ export default function TeamPage() {
         {/* Leadership Team */}
         <div className="mb-16">
           <MotionDiv variant="fade" duration="normal">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Leadership Team</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">{t('leadership.title')}</h2>
           </MotionDiv>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -168,15 +172,15 @@ export default function TeamPage() {
         {/* Advisory Board */}
         <div className="mb-16">
           <MotionDiv variant="fade" duration="normal">
-            <div className="text-center mb-8">
-              <div className="flex items-center justify-center gap-3 mb-2">
-                <Award className="text-arise-gold" size={32} />
-                <h2 className="text-3xl font-bold text-gray-900">Advisory Board</h2>
+              <div className="text-center mb-8">
+                <div className="flex items-center justify-center gap-3 mb-2">
+                  <Award className="text-arise-gold" size={32} />
+                  <h2 className="text-3xl font-bold text-gray-900">{t('advisory.title')}</h2>
+                </div>
+                <p className="text-gray-600">
+                  {t('advisory.subtitle')}
+                </p>
               </div>
-              <p className="text-gray-600">
-                Leading experts who guide our mission and ensure scientific rigor
-              </p>
-            </div>
           </MotionDiv>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
@@ -209,16 +213,16 @@ export default function TeamPage() {
         {/* Join Us CTA */}
         <MotionDiv variant="fade" duration="normal">
           <Card className="p-8 md:p-12 bg-gradient-to-r from-arise-deep-teal to-arise-deep-teal/90 text-white text-center">
-            <h2 className="text-3xl font-bold mb-4">Join Our Team</h2>
+            <h2 className="text-3xl font-bold mb-4">{t('joinUs.title')}</h2>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              We're always looking for passionate individuals who share our mission of empowering authentic leaders.
+              {t('joinUs.subtitle')}
             </p>
-            <a
+            <Link
               href="/careers"
               className="inline-flex items-center gap-2 px-8 py-3 bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold rounded-lg transition-colors"
             >
-              View Open Positions
-            </a>
+              {t('joinUs.viewPositions')}
+            </Link>
           </Card>
         </MotionDiv>
       </main>

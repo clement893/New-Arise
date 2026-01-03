@@ -1,7 +1,14 @@
 'use client';
 
-import { redirect } from 'next/navigation';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function FAQRedirectPage() {
-  redirect('/help/faq');
+  const router = useRouter();
+  
+  useEffect(() => {
+    router.replace('/help/faq');
+  }, [router]);
+  
+  return null;
 }
