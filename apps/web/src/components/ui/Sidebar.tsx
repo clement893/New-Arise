@@ -116,10 +116,11 @@ export default function Sidebar({
           className={clsx(
             'flex items-center justify-between px-lg py-md rounded-lg transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] min-h-[44px] relative', // Improved spacing and touch target (UX/UI improvements - Batch 8, 17)
             isActive
-              ? 'text-white font-medium bg-arise-dark-gray'
+              ? 'text-white font-medium'
               : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800',
             level > 0 && 'ml-lg' // Increased indentation for nested items
           )}
+          style={isActive ? { backgroundColor: '#0f4c56' } : undefined}
         >
           {item.href ? (
             <Link
