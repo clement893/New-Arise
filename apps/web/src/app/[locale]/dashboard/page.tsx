@@ -585,7 +585,16 @@ function DashboardContent() {
                   </p>
                   <Button 
                     variant="primary" 
-                    className="bg-arise-gold-alt text-arise-deep-teal-alt hover:bg-arise-gold-alt/90 flex items-center gap-2 font-semibold"
+                    className="flex items-center gap-2 font-semibold"
+                    style={{ backgroundColor: '#d8b868', color: '#000000' }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#d8b868';
+                      e.currentTarget.style.opacity = '0.9';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#d8b868';
+                      e.currentTarget.style.opacity = '1';
+                    }}
                     onClick={() => router.push('/dashboard/coaching-options')}
                   >
                     Explore coaching options
