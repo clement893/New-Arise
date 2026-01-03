@@ -10,7 +10,7 @@ import { PageHeader, PageContainer } from '@/components/layout';
 import { Card, Button, Input, Textarea, Badge, Alert } from '@/components/ui';
 import { subscriptionsAPI } from '@/lib/api';
 import ProtectedSuperAdminRoute from '@/components/auth/ProtectedSuperAdminRoute';
-import { Edit2, Save, X, Loader2, CheckCircle } from 'lucide-react';
+import { Edit2, Save, X, Loader2 } from 'lucide-react';
 
 interface Plan {
   id: number;
