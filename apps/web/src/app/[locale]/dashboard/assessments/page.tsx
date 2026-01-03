@@ -586,7 +586,8 @@ function AssessmentsContent() {
                     </div>
                     <Button 
                       variant="primary"
-                      className="bg-arise-gold text-white hover:bg-arise-gold/90"
+                      className="!bg-arise-gold !text-white hover:!bg-arise-gold/90"
+                      style={{ backgroundColor: '#d8b868', color: '#000000' }}
                       onClick={() => setShowEvaluatorModal(true)}
                     >
                       Ajouter
