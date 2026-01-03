@@ -47,12 +47,17 @@ function WellnessAssessmentContent() {
       }
       const progressResult = getProgress();
       // Ensure progress is a number, not an object
-      progress = typeof progressResult === 'number' ? progressResult : 0;
+      progress = typeof progressResult === 'number' && !isNaN(progressResult) ? progressResult : 0;
       isLastQuestion = currentQuestionIndex === wellnessQuestions.length - 1;
       if (currentQuestion && currentQuestion.id) {
         const answerValue = answers[currentQuestion.id];
         // Ensure currentAnswer is a number or undefined, not an object
-        currentAnswer = typeof answerValue === 'number' ? answerValue : undefined;
+        if (answerValue !== undefined && answerValue !== null) {
+          const numValue = typeof answerValue === 'number' ? answerValue : Number(answerValue);
+          currentAnswer = !isNaN(numValue) ? numValue : undefined;
+        } else {
+          currentAnswer = undefined;
+        }
       }
     }
   } catch (error) {
