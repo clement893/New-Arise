@@ -325,7 +325,16 @@ function DashboardContent() {
                 </div>
                 <Button 
                   variant="primary" 
-                  className="whitespace-nowrap bg-arise-gold-alt text-arise-deep-teal-alt hover:bg-arise-gold-alt/90 font-semibold"
+                  className="whitespace-nowrap font-semibold text-white"
+                  style={{ backgroundColor: '#0f4c56' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#0f4c56';
+                    e.currentTarget.style.opacity = '0.9';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#0f4c56';
+                    e.currentTarget.style.opacity = '1';
+                  }}
                   onClick={() => {
                     // Check if a 360° feedback assessment already exists
                     const feedback360Assessment = assessments.find(
