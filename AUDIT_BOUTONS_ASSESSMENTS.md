@@ -1,267 +1,546 @@
-# Audit des Boutons des Assessments
+# Audit des Boutons d'Assessments - Rapport Complet
 
-## Date: 2024
-## Objectif: Corriger la logique des boutons pour afficher correctement "Commencer", "Continuer", ou "Voir les résultats"
-
----
-
-## 📋 État Actuel des Boutons
-
-### 1. Page `/dashboard/assessments/page.tsx`
-
-**Fonction `getActionButton` (lignes 291-430)**
-
-| Statut | Bouton Actuel | Comportement | Problème Identifié |
-|--------|---------------|--------------|-------------------|
-| `completed` | "Voir les résultats" | ✅ Correct | Aucun |
-| `in-progress` (toutes réponses) | "Voir les résultats" | ✅ Correct | Aucun |
-| `in-progress` (réponses partielles) | "Continuer" | ⚠️ Partiel | Le statut `in-progress` peut inclure des assessments avec `status = "not_started"` qui n'ont pas encore été commencés. Ces cas devraient afficher "Commencer" |
-| `available` | "Commencer" | ✅ Correct | Aucun |
-| `locked` | "Verrouillé" (disabled) | ✅ Correct | Aucun |
-
-**Problèmes identifiés:**
-- Le statut `in-progress` est assigné à la fois aux assessments réellement en cours ET aux assessments avec `status = "not_started"` (ligne 173-175)
-- Un assessment avec `status = "not_started"` et `answer_count = 0` devrait afficher "Commencer" mais affiche actuellement "Continuer"
-
-### 2. Page `/dashboard/page.tsx`
-
-**Fonction `getActionButton` (lignes 245-288)**
-
-| Statut | Bouton Actuel | Comportement | Problème Identifié |
-|--------|---------------|--------------|-------------------|
-| `completed` | "View Results" | ⚠️ Texte en anglais | Devrait être "Voir les résultats" |
-| `in-progress` | "Continue" | ⚠️ Texte en anglais | Devrait être "Continuer" |
-| `available` | "Add the assessment" | ❌ Incorrect | Devrait être "Commencer" |
-| `locked` | "Locked" (disabled) | ⚠️ Texte en anglais | Devrait être "Verrouillé" |
-
-**Problèmes identifiés:**
-1. Tous les textes sont en anglais au lieu de français
-2. Pour `available`, le texte est "Add the assessment" au lieu de "Commencer"
-3. La logique ne vérifie pas si l'assessment a réellement été commencé (answer_count > 0)
+**Date :** 2024-01-XX  
+**Objectif :** Identifier et corriger les problèmes avec la logique des 3 états des boutons de tests
 
 ---
 
-## 🎯 Logique Attendue
+## 📋 Résumé Exécutif
 
-### Règles de détermination du statut:
+Les boutons des assessments doivent afficher 3 états distincts :
+1. **"Commencer"** - Test non commencé (status = `available`)
+2. **"Continuer"** - Test commencé mais non complété (status = `in-progress` avec `answer_count < total_questions`)
+3. **"Voir les résultats"** - Test complété (status = `completed` OU `answer_count >= total_questions`)
 
-1. **"Commencer"** doit être affiché quand:
-   - `status = 'available'` OU
-   - `status = 'in-progress'` ET `answer_count = 0` (ou undefined/null) ET `assessmentId` existe (assessment créé mais pas commencé)
-
-2. **"Continuer"** doit être affiché quand:
-   - `status = 'in-progress'` ET `answer_count > 0` ET `answer_count < total_questions`
-
-3. **"Voir les résultats"** doit être affiché quand:
-   - `status = 'completed'` OU
-   - `status = 'in-progress'` ET `answer_count >= total_questions` (toutes les questions répondues)
+**Problèmes identifiés :** Plusieurs incohérences dans la détermination du status et la logique des boutons.
 
 ---
 
 ## 🔍 Analyse Détaillée
 
-### Problème de détermination du statut dans `loadAssessments`
+### 1. Format du Status Backend
 
-**Fichier:** `apps/web/src/app/[locale]/dashboard/assessments/page.tsx` (lignes 136-185)
-
-```typescript
-// Problème actuel:
-else if (statusNormalized === 'inprogress' || statusNormalized === 'in_progress' || statusNormalized === 'notstarted' || statusNormalized === 'not_started') {
-  // Status is in progress or not started, and not all answers are provided
-  status = 'in-progress';  // ❌ Problème: "not_started" devient "in-progress"
-}
+**Backend (`backend/app/models/assessment.py`) :**
+```python
+class AssessmentStatus(str, enum.Enum):
+    NOT_STARTED = "not_started"  # Valeur retournée: "not_started"
+    IN_PROGRESS = "in_progress"  # Valeur retournée: "in_progress"
+    COMPLETED = "completed"      # Valeur retournée: "completed"
 ```
 
-**Solution:** Distinguer `not_started` de `in_progress`:
-- `not_started` + `answer_count = 0` → `status = 'available'`
-- `not_started` + `answer_count > 0` → `status = 'in-progress'`
-- `in_progress` → `status = 'in-progress'`
+**API Response (`backend/app/api/v1/endpoints/assessments.py`) :**
+- Le backend retourne `assessment.status.value` qui est toujours en **minuscules avec underscores**
+- Format exact : `"not_started"`, `"in_progress"`, `"completed"`
+
+### 2. Pages Concernées
+
+#### A. `/dashboard/assessments` (`apps/web/src/app/[locale]/dashboard/assessments/page.tsx`)
+
+**Fonction de détermination du status (lignes 136-194) :**
+
+✅ **Points positifs :**
+- Normalise correctement le status : `rawStatus.toLowerCase().trim().replace(/[_-]/g, '')`
+- Vérifie `answer_count >= total_questions` en premier (logique correcte)
+- Gère le cas `NOT_STARTED` avec `answer_count > 0` → `in-progress`
+
+⚠️ **Problèmes identifiés :**
+
+1. **Normalisation trop agressive** (ligne 143) :
+   ```typescript
+   const statusNormalized = rawStatus.toLowerCase().trim().replace(/[_-]/g, '');
+   ```
+   - `"not_started"` devient `"notstarted"` ✅
+   - `"in_progress"` devient `"inprogress"` ✅
+   - Mais `"not_started"` et `"notstarted"` deviennent identiques (pas de problème ici)
+   - **Problème réel** : Si le backend retourne une valeur inattendue, la normalisation peut créer des collisions
+
+2. **Vérification `hasAllAnswers`** (lignes 159-162) :
+   ```typescript
+   const hasAllAnswers = apiAssessment.answer_count !== undefined && 
+                         apiAssessment.total_questions !== undefined &&
+                         apiAssessment.total_questions > 0 &&
+                         apiAssessment.answer_count >= apiAssessment.total_questions;
+   ```
+   - ✅ Correcte en théorie
+   - ⚠️ Si `total_questions` est `undefined` ou `0`, un assessment complété peut être considéré comme `in-progress`
+
+3. **Ordre des vérifications** :
+   - ✅ Correct : Vérifie `hasAllAnswers` AVANT le status normalisé
+   - ✅ Correct : Gère `NOT_STARTED` avec réponses
+
+**Fonction `getActionButton` (lignes 300-439) :**
+
+✅ **Logique correcte :**
+- `completed` → "Voir les résultats" ✅
+- `in-progress` avec `answerCount >= totalQuestions` → "Voir les résultats" ✅
+- `in-progress` avec `answerCount < totalQuestions` → "Continuer" ✅
+- `available` → "Commencer" ✅
+
+⚠️ **Problème :**
+- Pour `in-progress` avec toutes les réponses, soumet l'assessment avant de rediriger (lignes 348-349) ✅
+- Mais si la soumission échoue, redirige quand même (lignes 360-367) - peut causer des problèmes
+
+#### B. `/dashboard` (`apps/web/src/app/[locale]/dashboard/page.tsx`)
+
+**Fonction de détermination du status (lignes 202-224) :**
+
+❌ **Problèmes majeurs identifiés :**
+
+1. **Pas de normalisation du status** :
+   ```typescript
+   if (hasAllAnswers || assessment.status === 'COMPLETED') {
+     status = 'completed';
+   } else if (assessment.status === 'NOT_STARTED') {
+     // ...
+   } else if (assessment.status === 'IN_PROGRESS') {
+     status = 'in-progress';
+   }
+   ```
+   - Compare directement avec `'COMPLETED'`, `'NOT_STARTED'`, `'IN_PROGRESS'` (uppercase)
+   - Mais le backend retourne `'completed'`, `'not_started'`, `'in_progress'` (lowercase avec underscores)
+   - **RÉSULTAT : Les comparaisons échouent toujours !**
+
+2. **Logique incohérente** :
+   - La vérification `hasAllAnswers` est correcte
+   - Mais si `hasAllAnswers` est `false` et que le status est `'completed'` (lowercase), l'assessment sera considéré comme `available` ou `in-progress` au lieu de `completed`
+
+**Fonction `getActionButton` (lignes 283-368) :**
+
+⚠️ **Problèmes :**
+
+1. **Pas de soumission automatique** :
+   - Pour `in-progress` avec toutes les réponses, redirige directement vers les résultats
+   - Ne soumet pas l'assessment avant (contrairement à `assessments/page.tsx`)
+   - **RÉSULTAT : L'assessment peut ne pas être marqué comme `completed` dans la base de données**
+
+2. **Logique correcte mais incomplète** :
+   - Les vérifications sont dans le bon ordre
+   - Mais manque la soumission automatique
 
 ---
 
-## 📝 Plan d'Implémentation
+## 🐛 Problèmes Critiques Identifiés
 
-### Phase 1: Corriger la détermination du statut
+### ❌ Problème Critique #1 : Comparaison incorrecte du status dans `dashboard/page.tsx`
 
-**Fichier:** `apps/web/src/app/[locale]/dashboard/assessments/page.tsx`
+**Fichier :** `apps/web/src/app/[locale]/dashboard/page.tsx`  
+**Lignes :** 210, 212, 221
 
-1. **Modifier la logique de détermination du statut (lignes 136-185)**
-   - Séparer le traitement de `not_started` et `in_progress`
-   - Si `not_started` ET `answer_count = 0` → `status = 'available'`
-   - Si `not_started` ET `answer_count > 0` → `status = 'in-progress'`
-   - Si `in_progress` → `status = 'in-progress'`
+**Description :**
+```typescript
+// ❌ INCORRECT - Compare avec uppercase
+if (assessment.status === 'COMPLETED') { ... }
+else if (assessment.status === 'NOT_STARTED') { ... }
+else if (assessment.status === 'IN_PROGRESS') { ... }
 
-### Phase 2: Améliorer la fonction `getActionButton` dans assessments/page.tsx
+// ✅ CORRECT - Backend retourne lowercase avec underscores
+// "completed", "not_started", "in_progress"
+```
 
-**Fichier:** `apps/web/src/app/[locale]/dashboard/assessments/page.tsx`
+**Impact :**
+- Les assessments avec status `'completed'` ne sont jamais détectés comme complétés
+- Les assessments avec status `'not_started'` ne sont jamais détectés comme non commencés
+- Les assessments avec status `'in_progress'` ne sont jamais détectés comme en cours
+- **RÉSULTAT : Tous les assessments affichent "Commencer" ou le mauvais bouton**
 
-1. **Simplifier la logique (lignes 291-430)**
-   - Pour `available`: Toujours afficher "Commencer"
-   - Pour `in-progress`: 
-     - Si `answer_count >= total_questions` → "Voir les résultats"
-     - Sinon → "Continuer"
-   - Pour `completed`: Toujours afficher "Voir les résultats"
+**Solution :**
+- Normaliser le status comme dans `assessments/page.tsx`
+- OU comparer avec les valeurs lowercase avec underscores
 
-### Phase 3: Corriger la page dashboard
+### ⚠️ Problème #2 : Pas de soumission automatique dans `dashboard/page.tsx`
 
-**Fichier:** `apps/web/src/app/[locale]/dashboard/page.tsx`
+**Fichier :** `apps/web/src/app/[locale]/dashboard/page.tsx`  
+**Lignes :** 315-336
 
-1. **Traduire tous les textes en français**
-   - "View Results" → "Voir les résultats"
-   - "Continue" → "Continuer"
-   - "Add the assessment" → "Commencer"
-   - "Locked" → "Verrouillé"
+**Description :**
+- Quand un assessment a toutes les réponses (`answerCount >= totalQuestions`), le bouton "Voir les résultats" redirige directement
+- Ne soumet pas l'assessment avant (contrairement à `assessments/page.tsx` lignes 348-349)
 
-2. **Corriger la logique de détermination du statut**
-   - Utiliser la même logique que dans assessments/page.tsx
-   - Vérifier `answer_count` pour déterminer si l'assessment a été commencé
+**Impact :**
+- L'assessment reste avec status `'in_progress'` dans la base de données
+- Les résultats peuvent ne pas être calculés
+- Incohérence entre les deux pages
 
-3. **Améliorer la fonction `getActionButton` (lignes 245-288)**
-   - Appliquer la même logique que dans assessments/page.tsx
-   - Vérifier `answer_count` pour distinguer "Commencer" de "Continuer"
+**Solution :**
+- Ajouter la soumission automatique avant de rediriger vers les résultats
 
-### Phase 4: Tests et Validation
+### ⚠️ Problème #3 : Gestion incomplète des cas limites
 
-1. **Scénarios de test:**
-   - Assessment non créé → "Commencer"
-   - Assessment créé mais pas commencé (`not_started`, `answer_count = 0`) → "Commencer"
-   - Assessment en cours (`in_progress`, `answer_count > 0`, `answer_count < total`) → "Continuer"
-   - Assessment complété (`answer_count >= total`) → "Voir les résultats"
-   - Assessment avec statut `completed` → "Voir les résultats"
+**Description :**
+- Si `total_questions` est `undefined` ou `0`, la vérification `hasAllAnswers` échoue toujours
+- Si `answer_count` est `undefined`, un assessment peut être mal catégorisé
 
-2. **Types d'assessments à tester:**
-   - TKI
-   - Wellness
-   - 360° Feedback
-   - MBTI (lien externe)
+**Impact :**
+- Assessments complétés peuvent afficher "Continuer" au lieu de "Voir les résultats"
+- Comportement imprévisible dans certains cas
 
 ---
 
-## 🔧 Modifications Détaillées
+## 🔧 Solutions Proposées
 
-### Modification 1: Corriger la détermination du statut
+### Solution 1 : Créer une fonction utilitaire pour déterminer le status
+
+**Fichier à créer :** `apps/web/src/lib/utils/assessmentStatus.ts`
 
 ```typescript
-// Avant (ligne 173-175):
-else if (statusNormalized === 'inprogress' || statusNormalized === 'in_progress' || statusNormalized === 'notstarted' || statusNormalized === 'not_started') {
-  status = 'in-progress';
-}
+import type { Assessment } from '@/lib/api/assessments';
 
-// Après:
-else if (statusNormalized === 'notstarted' || statusNormalized === 'not_started') {
-  // Assessment créé mais pas commencé
-  if (apiAssessment.answer_count === undefined || apiAssessment.answer_count === 0) {
-    status = 'available'; // Pas encore commencé
-  } else {
-    status = 'in-progress'; // Commencé mais pas complété
+/**
+ * Détermine le status d'affichage d'un assessment basé sur le status backend et les réponses
+ * 
+ * @param apiAssessment - Assessment depuis l'API (peut être undefined)
+ * @returns Status d'affichage: 'completed' | 'in-progress' | 'available'
+ */
+export function determineAssessmentStatus(
+  apiAssessment: {
+    status: string;
+    answer_count?: number;
+    total_questions?: number;
+  } | undefined
+): 'completed' | 'in-progress' | 'available' {
+  if (!apiAssessment) {
+    return 'available';
   }
-} else if (statusNormalized === 'inprogress' || statusNormalized === 'in_progress') {
-  status = 'in-progress';
+
+  // Normalize status: backend returns "not_started", "in_progress", "completed"
+  // Handle variations: uppercase, lowercase, with/without underscores
+  const rawStatus = String(apiAssessment.status);
+  const statusNormalized = rawStatus.toLowerCase().trim().replace(/[_-]/g, '');
+
+  // PRIMARY CHECK: If all answers are provided, it's completed (regardless of status)
+  const hasAllAnswers = 
+    apiAssessment.answer_count !== undefined && 
+    apiAssessment.total_questions !== undefined &&
+    apiAssessment.total_questions > 0 &&
+    apiAssessment.answer_count >= apiAssessment.total_questions;
+
+  if (hasAllAnswers) {
+    return 'completed';
+  }
+
+  // SECONDARY CHECK: Check normalized status
+  if (statusNormalized === 'completed' || statusNormalized === 'complete') {
+    return 'completed';
+  }
+
+  // Handle NOT_STARTED: if there are answers, it's actually in progress
+  if (statusNormalized === 'notstarted' || statusNormalized === 'notstarted') {
+    if (apiAssessment.answer_count !== undefined && apiAssessment.answer_count > 0) {
+      return 'in-progress';
+    }
+    return 'available';
+  }
+
+  // Handle IN_PROGRESS
+  if (statusNormalized === 'inprogress' || statusNormalized === 'inprogress') {
+    return 'in-progress';
+  }
+
+  // FALLBACK: If there are some answers, it's in progress
+  if (apiAssessment.answer_count !== undefined && apiAssessment.answer_count > 0) {
+    return 'in-progress';
+  }
+
+  return 'available';
 }
 ```
 
-### Modification 2: Simplifier getActionButton dans assessments/page.tsx
+### Solution 2 : Créer une fonction utilitaire pour générer le bouton d'action
+
+**Fichier à créer :** `apps/web/src/lib/utils/assessmentButton.tsx`
 
 ```typescript
-const getActionButton = (assessment: AssessmentDisplay) => {
-  const isStarting = startingAssessment === assessment.assessmentType;
-  
-  // Cas spécial: MBTI avec lien externe et complété
-  if (assessment.status === 'completed' && assessment.externalLink && assessment.assessmentType === 'MBTI') {
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import Button from '@/components/ui/Button';
+import { Loader2 } from 'lucide-react';
+import type { AssessmentType } from '@/lib/api/assessments';
+import { submitAssessment } from '@/lib/api/assessments';
+
+interface AssessmentButtonProps {
+  status: 'completed' | 'in-progress' | 'available' | 'locked';
+  assessmentType: AssessmentType;
+  assessmentId?: number;
+  answerCount?: number;
+  totalQuestions?: number;
+  externalLink?: string;
+  requiresEvaluators?: boolean;
+  onEvaluatorModalOpen?: () => void;
+  className?: string;
+}
+
+export function getAssessmentActionButton({
+  status,
+  assessmentType,
+  assessmentId,
+  answerCount,
+  totalQuestions,
+  externalLink,
+  requiresEvaluators,
+  onEvaluatorModalOpen,
+  className = '',
+}: AssessmentButtonProps) {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Helper function to get route
+  const getAssessmentRoute = (type: AssessmentType): string => {
+    switch (type) {
+      case 'TKI': return 'tki';
+      case 'WELLNESS': return 'wellness';
+      case 'THREE_SIXTY_SELF': return '360-feedback';
+      case 'MBTI': return 'mbti';
+      default: return String(type).toLowerCase();
+    }
+  };
+
+  // Helper function to navigate to results
+  const navigateToResults = (type: AssessmentType, id?: number) => {
+    if (!id) return;
+    
+    if (type === 'TKI') {
+      router.push(`/dashboard/assessments/tki/results?id=${id}`);
+    } else if (type === 'WELLNESS') {
+      router.push(`/dashboard/assessments/results?id=${id}`);
+    } else if (type === 'THREE_SIXTY_SELF') {
+      router.push(`/dashboard/assessments/360-feedback/results?id=${id}`);
+    } else if (type === 'MBTI' && externalLink) {
+      window.open(externalLink, '_blank');
+    }
+  };
+
+  // Case 1: Locked
+  if (status === 'locked') {
     return (
-      <Button variant="outline" className="flex items-center gap-2" onClick={() => window.open(assessment.externalLink, '_blank')}>
-        <Upload size={16} />
-        Télécharger mon score
+      <Button variant="secondary" disabled className={className}>
+        Verrouillé
       </Button>
     );
   }
-  
-  // Cas: Complété → Voir les résultats
-  if (assessment.status === 'completed') {
+
+  // Case 2: Completed → Voir les résultats
+  if (status === 'completed') {
+    if (assessmentType === 'MBTI' && externalLink) {
+      return (
+        <Button
+          variant="outline"
+          className={className}
+          onClick={() => window.open(externalLink, '_blank')}
+        >
+          Télécharger mon score
+        </Button>
+      );
+    }
+    
     return (
-      <Button variant="outline" onClick={() => {
-        // Navigation vers résultats selon le type
-      }}>
+      <Button
+        variant="outline"
+        className={className}
+        onClick={() => navigateToResults(assessmentType, assessmentId)}
+      >
         Voir les résultats
       </Button>
     );
   }
-  
-  // Cas: En cours avec toutes les réponses → Voir les résultats
-  if (assessment.status === 'in-progress' && 
-      assessment.answerCount !== undefined && 
-      assessment.totalQuestions !== undefined && 
-      assessment.answerCount >= assessment.totalQuestions) {
+
+  // Case 3: In-progress with all answers → Voir les résultats (with auto-submit)
+  if (status === 'in-progress' &&
+      answerCount !== undefined &&
+      totalQuestions !== undefined &&
+      answerCount >= totalQuestions &&
+      assessmentId) {
     return (
-      <Button variant="outline" onClick={async () => {
-        // Soumettre et rediriger vers résultats
-      }}>
-        Voir les résultats
+      <Button
+        variant="outline"
+        className={className}
+        disabled={isSubmitting}
+        onClick={async () => {
+          try {
+            setIsSubmitting(true);
+            // Submit assessment first
+            await submitAssessment(assessmentId);
+            // Then navigate to results
+            navigateToResults(assessmentType, assessmentId);
+          } catch (err) {
+            console.error('Failed to submit assessment:', err);
+            // If submission fails, try to go to results anyway (might already be submitted)
+            navigateToResults(assessmentType, assessmentId);
+          } finally {
+            setIsSubmitting(false);
+          }
+        }}
+      >
+        {isSubmitting ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Chargement...
+          </>
+        ) : (
+          'Voir les résultats'
+        )}
       </Button>
     );
   }
-  
-  // Cas: En cours avec réponses partielles → Continuer
-  if (assessment.status === 'in-progress') {
+
+  // Case 4: In-progress with partial answers → Continuer
+  if (status === 'in-progress') {
     return (
-      <Button variant="primary" onClick={() => {
-        // Continuer l'assessment
-      }}>
+      <Button
+        variant="primary"
+        className={className}
+        onClick={() => {
+          if (requiresEvaluators && onEvaluatorModalOpen) {
+            onEvaluatorModalOpen();
+          } else {
+            if (assessmentType === 'THREE_SIXTY_SELF' && assessmentId) {
+              router.push(`/dashboard/assessments/360-feedback?assessmentId=${assessmentId}`);
+            } else {
+              router.push(`/dashboard/assessments/${getAssessmentRoute(assessmentType)}`);
+            }
+          }
+        }}
+      >
         Continuer
       </Button>
     );
   }
-  
-  // Cas: Disponible ou pas commencé → Commencer
-  if (assessment.status === 'available') {
-    return (
-      <Button variant="primary" onClick={() => handleStartAssessment(assessment.assessmentType, assessment.assessmentId)}>
-        Commencer
-      </Button>
-    );
-  }
-  
-  // Cas: Verrouillé
+
+  // Case 5: Available → Commencer
   return (
-    <Button variant="secondary" disabled>
-      Verrouillé
+    <Button
+      variant="primary"
+      className={className}
+      onClick={() => {
+        if (requiresEvaluators && onEvaluatorModalOpen) {
+          onEvaluatorModalOpen();
+        } else {
+          if (assessmentType === 'THREE_SIXTY_SELF' && assessmentId) {
+            router.push(`/dashboard/assessments/360-feedback?assessmentId=${assessmentId}`);
+          } else {
+            router.push(`/dashboard/assessments/${getAssessmentRoute(assessmentType)}`);
+          }
+        }
+      }}
+    >
+      Commencer
     </Button>
   );
-};
+}
 ```
 
-### Modification 3: Corriger dashboard/page.tsx
+### Solution 3 : Refactoriser les deux pages pour utiliser les utilitaires
 
-1. Traduire tous les textes
-2. Utiliser la même logique de détermination du statut
-3. Appliquer la même logique de boutons
-
----
-
-## ✅ Checklist de Validation
-
-- [ ] Les assessments non créés affichent "Commencer"
-- [ ] Les assessments créés mais non commencés (`not_started`, `answer_count = 0`) affichent "Commencer"
-- [ ] Les assessments en cours (`in_progress`, réponses partielles) affichent "Continuer"
-- [ ] Les assessments complétés (toutes réponses) affichent "Voir les résultats"
-- [ ] Les assessments avec statut `completed` affichent "Voir les résultats"
-- [ ] Tous les textes sont en français
-- [ ] La logique fonctionne pour tous les types d'assessments (TKI, Wellness, 360°, MBTI)
-- [ ] Les boutons redirigent correctement vers les bonnes pages
+**Actions :**
+1. Importer `determineAssessmentStatus` dans les deux pages
+2. Remplacer la logique de détermination du status par l'appel à la fonction
+3. Utiliser la fonction `getAssessmentActionButton` ou refactoriser `getActionButton` pour utiliser la même logique
 
 ---
 
-## 📌 Notes Importantes
+## 📊 Tableau de Comparaison Actuel
 
-1. **Distinction `not_started` vs `in_progress`:**
-   - Un assessment peut être créé (`assessmentId` existe) mais pas encore commencé (`answer_count = 0`)
-   - Dans ce cas, le statut backend peut être `not_started` mais l'UI devrait afficher "Commencer"
+| Aspect | `assessments/page.tsx` | `dashboard/page.tsx` | Problème |
+|--------|------------------------|----------------------|----------|
+| Normalisation du status | ✅ Oui | ❌ Non | **CRITIQUE** |
+| Comparaison status | ✅ Normalisé | ❌ Directe (uppercase) | **CRITIQUE** |
+| Vérification `hasAllAnswers` | ✅ Oui | ✅ Oui | OK |
+| Gestion `NOT_STARTED` avec réponses | ✅ Oui | ✅ Oui | OK |
+| Soumission auto avant résultats | ✅ Oui | ❌ Non | **IMPORTANT** |
+| Gestion cas limites | ⚠️ Partielle | ⚠️ Partielle | À améliorer |
 
-2. **Cohérence entre les pages:**
-   - La logique doit être identique entre `/dashboard` et `/dashboard/assessments`
-   - Les textes doivent être cohérents (toujours en français)
+---
 
-3. **Gestion des cas limites:**
-   - `answer_count` peut être `undefined` ou `null`
-   - `total_questions` peut être `undefined` ou `null`
-   - Il faut gérer ces cas avec des vérifications appropriées
+## 🎯 Plan d'Action Recommandé
+
+### Phase 1 : Créer les fonctions utilitaires (PRIORITÉ HAUTE)
+1. ✅ Créer `apps/web/src/lib/utils/assessmentStatus.ts`
+2. ✅ Créer une fonction helper pour générer les boutons (ou refactoriser `getActionButton`)
+
+### Phase 2 : Corriger `dashboard/page.tsx` (PRIORITÉ CRITIQUE)
+1. ✅ Utiliser `determineAssessmentStatus` au lieu de la logique inline
+2. ✅ Corriger les comparaisons de status (utiliser normalisation)
+3. ✅ Ajouter la soumission automatique avant d'afficher les résultats
+
+### Phase 3 : Unifier `assessments/page.tsx`
+1. ✅ Utiliser `determineAssessmentStatus` pour cohérence
+2. ✅ S'assurer que la logique est identique dans les deux pages
+
+### Phase 4 : Tests et validation
+1. ✅ Tester les 3 états sur chaque type d'assessment
+2. ✅ Vérifier les cas limites
+3. ✅ Valider avec des données réelles
+
+---
+
+## 🔍 Checklist de Validation
+
+### Scénarios à Tester
+
+- [ ] **Scénario 1** : Assessment créé mais jamais commencé
+  - `status = "not_started"`, `answer_count = 0` ou `undefined`
+  - **Attendu :** Bouton "Commencer"
+
+- [ ] **Scénario 2** : Assessment commencé mais pas complété
+  - `status = "not_started"` ou `"in_progress"`, `answer_count > 0` mais `< total_questions`
+  - **Attendu :** Bouton "Continuer"
+
+- [ ] **Scénario 3** : Assessment avec toutes les réponses mais status pas mis à jour
+  - `status = "in_progress"`, `answer_count >= total_questions`
+  - **Attendu :** Bouton "Voir les résultats" (avec soumission auto)
+
+- [ ] **Scénario 4** : Assessment complété
+  - `status = "completed"`, `answer_count >= total_questions`
+  - **Attendu :** Bouton "Voir les résultats"
+
+- [ ] **Scénario 5** : Assessment avec `total_questions` undefined
+  - `status = "in_progress"`, `answer_count > 0`, `total_questions = undefined`
+  - **Attendu :** Bouton "Continuer" (gestion gracieuse)
+
+- [ ] **Scénario 6** : Assessment avec `answer_count` undefined
+  - `status = "not_started"`, `answer_count = undefined`
+  - **Attendu :** Bouton "Commencer"
+
+---
+
+## 📝 Notes Techniques
+
+### Backend Status Values (Confirmé)
+
+D'après `backend/app/models/assessment.py` et `backend/app/api/v1/endpoints/assessments.py` :
+- Le backend retourne **toujours** : `"not_started"`, `"in_progress"`, `"completed"` (lowercase avec underscores)
+- Format exact via `assessment.status.value`
+
+### API Response Structure
+
+```typescript
+interface ApiAssessment {
+  id: number;
+  assessment_type: AssessmentType;
+  status: string; // "not_started" | "in_progress" | "completed" (lowercase avec underscores)
+  answer_count?: number;
+  total_questions?: number;
+  created_at: string;
+  updated_at: string;
+}
+```
+
+---
+
+## ✅ Conclusion
+
+**Problèmes critiques identifiés :**
+
+1. ❌ **CRITIQUE** : `dashboard/page.tsx` compare le status avec des valeurs uppercase alors que le backend retourne lowercase
+2. ⚠️ **IMPORTANT** : Pas de soumission automatique dans `dashboard/page.tsx`
+3. ⚠️ **MOYEN** : Gestion incomplète des cas limites
+
+**Recommandation immédiate :**
+1. Créer la fonction utilitaire `determineAssessmentStatus`
+2. Corriger `dashboard/page.tsx` pour utiliser la normalisation
+3. Ajouter la soumission automatique dans `dashboard/page.tsx`
+4. Unifier la logique entre les deux pages
+
+**Impact attendu :**
+- Les boutons afficheront correctement les 3 états
+- Cohérence entre les deux pages
+- Meilleure gestion des cas limites
