@@ -393,8 +393,7 @@ function AssessmentsContent() {
         return (
           <Button 
             variant="outline"
-            className="!border-[#0F454D] !text-[#0F454D] hover:!bg-[#0F454D] hover:!text-white"
-            style={{ borderColor: '#0F454D', color: '#0F454D' }}
+            className="border-arise-button-primary text-arise-button-primary hover:bg-arise-button-primary hover:text-white"
             disabled={isStarting}
             onClick={() => {
               if (assessment.requiresEvaluators) {
@@ -407,14 +406,6 @@ function AssessmentsContent() {
                   router.push(`/dashboard/assessments/${getAssessmentRoute(assessment.assessmentType)}`);
                 }
               }
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#0F454D';
-              e.currentTarget.style.color = '#ffffff';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.color = '#0F454D';
             }}
           >
             {isStarting ? (
@@ -430,9 +421,7 @@ function AssessmentsContent() {
       case 'available':
         return (
           <Button 
-            variant="primary"
-            className="!bg-[#0F454D] hover:!bg-[#0d4148] !text-white"
-            style={{ backgroundColor: '#0F454D', color: '#ffffff' }}
+            variant="arise-primary"
             disabled={isStarting}
             onClick={() => handleStartAssessment(assessment.assessmentType, assessment.assessmentId)}
           >

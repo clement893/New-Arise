@@ -288,8 +288,8 @@ function EvaluatorsContent() {
             {assessmentId && (
               <Button
                 variant="primary"
-                className="!bg-[#0F454D] hover:!bg-[#0d4148] text-white font-semibold"
-                style={{ backgroundColor: '#0F454D' }}
+                variant="arise-primary"
+                className="font-semibold"
                 onClick={() => setShowEvaluatorModal(true)}
               >
                 <Plus size={20} className="mr-2" />

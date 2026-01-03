@@ -129,9 +129,7 @@ function DashboardContent() {
           <div className="text-center">
             <p className="text-red-600 mb-4">{error}</p>
             <Button 
-              variant="primary" 
-              className="!bg-[#0F454D] hover:!bg-[#0d4148] text-white"
-              style={{ backgroundColor: '#0F454D', color: '#ffffff' }}
+              variant="arise-primary"
               onClick={loadAssessments}
             >
               Réessayer
@@ -338,18 +336,9 @@ function DashboardContent() {
       return (
         <Button 
           variant="outline"
-          className="w-full !border-[#0F454D] !text-[#0F454D] hover:!bg-[#0F454D] hover:!text-white font-semibold"
-          style={{ borderColor: '#0F454D', color: '#0F454D' }}
+          className="w-full border-arise-button-primary text-arise-button-primary hover:bg-arise-button-primary hover:text-white font-semibold"
           onClick={() => {
             router.push(`/dashboard/assessments/${getAssessmentRoute(evaluation.assessmentType)}`);
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#0F454D';
-            e.currentTarget.style.color = '#ffffff';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent';
-            e.currentTarget.style.color = '#0F454D';
           }}
         >
           Continuer
@@ -440,12 +429,7 @@ function DashboardContent() {
                     {evaluators.length > 0 && (
                       <Button 
                         variant="outline" 
-                        className="whitespace-nowrap font-semibold"
-                        style={{ 
-                          borderColor: '#0F454D',
-                          color: '#0F454D',
-                          backgroundColor: 'transparent'
-                        }}
+                        className="whitespace-nowrap font-semibold border-arise-button-primary text-arise-button-primary"
                         onClick={() => {
                           const feedback360Assessment = assessments.find(
                             a => a.assessment_type === 'THREE_SIXTY_SELF'
@@ -459,17 +443,8 @@ function DashboardContent() {
                       </Button>
                     )}
                     <Button 
-                      variant="primary" 
-                      className="!bg-[#0F454D] hover:!bg-[#0d4148] whitespace-nowrap font-semibold text-white"
-                      style={{ backgroundColor: '#0F454D' }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#0d4148';
-                        e.currentTarget.style.opacity = '0.9';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = '#0F454D';
-                        e.currentTarget.style.opacity = '1';
-                      }}
+                      variant="arise-primary"
+                      className="whitespace-nowrap font-semibold"
                       onClick={() => {
                         // Check if a 360° feedback assessment already exists
                         const feedback360Assessment = assessments.find(
@@ -495,8 +470,7 @@ function DashboardContent() {
               {/* Progress Section */}
               <MotionDiv variant="slideUp" delay={200}>
                 <Card 
-                  className="mb-8 text-white border-0"
-                  style={{ backgroundColor: '#0F454D' }}
+                  className="mb-8 text-white border-0 bg-arise-button-primary"
                 >
                   <div className="flex justify-between items-start mb-6 gap-8">
                     <div className="flex-1">
@@ -547,19 +521,9 @@ function DashboardContent() {
                     <Button 
                       variant="outline" 
                       className="text-white font-semibold"
+                      className="bg-arise-button-primary text-white border-2"
                       style={{ 
                         borderColor: '#799ba1', 
-                        borderWidth: '2px',
-                        backgroundColor: '#0F454D',
-                        color: '#ffffff'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#0F454D';
-                        e.currentTarget.style.opacity = '0.9';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = '#0F454D';
-                        e.currentTarget.style.opacity = '1';
                       }}
                       onClick={() => router.push('/dashboard/results')}
                     >
@@ -575,17 +539,8 @@ function DashboardContent() {
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Your evaluations</h2>
                     <Button 
-                      variant="primary" 
-                      className="!bg-[#0F454D] hover:!bg-[#0d4148] text-white font-semibold"
-                      style={{ backgroundColor: '#0F454D', color: '#ffffff' }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#0d4148';
-                        e.currentTarget.style.opacity = '0.9';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = '#0F454D';
-                        e.currentTarget.style.opacity = '1';
-                      }}
+                      variant="arise-primary"
+                      className="font-semibold"
                       onClick={() => router.push('/dashboard/assessments')}
                     >
                       Add assessment
@@ -704,17 +659,7 @@ function DashboardContent() {
                     Schedule your FREE coaching session to debrief your results and build a personalized development plan.
                   </p>
                   <Button 
-                    variant="secondary" 
-                    className="text-white"
-                    style={{ backgroundColor: '#0F454D', borderColor: '#0F454D' }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#0d4148';
-                      e.currentTarget.style.borderColor = '#0d4148';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#0F454D';
-                      e.currentTarget.style.borderColor = '#0F454D';
-                    }}
+                    variant="arise-primary"
                     onClick={() => router.push('/dashboard/coaching-options')}
                   >
                     Explore coaching options →

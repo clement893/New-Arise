@@ -225,7 +225,7 @@ function ResultsReportsContent() {
           </div>
 
           {/* Assessment Results */}
-          <Card className="p-6 text-white border-0" style={{ backgroundColor: '#0F454D' }}>
+          <Card className="p-6 text-white border-0 bg-arise-button-primary">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
@@ -241,9 +241,8 @@ function ResultsReportsContent() {
                 </div>
               </div>
               <Button 
-                variant="secondary" 
-                className="flex items-center gap-2 !bg-[#0F454D] hover:!bg-[#0d4148] !text-white"
-                style={{ backgroundColor: '#0F454D', color: '#ffffff' }}
+                variant="arise-primary"
+                className="flex items-center gap-2"
               >
                 <Download size={16} />
                 Export All
@@ -286,10 +285,8 @@ function ResultsReportsContent() {
                       </div>
                       <div className="flex items-center gap-2">
                         <Button 
-                          variant="secondary" 
+                          variant="arise-primary"
                           size="sm"
-                          className="!bg-[#0F454D] hover:!bg-[#0d4148] !text-white"
-                          style={{ backgroundColor: '#0F454D', color: '#ffffff' }}
                           onClick={() => handleViewDetails(assessment)}
                         >
                           View Details
@@ -418,9 +415,8 @@ function ResultsReportsContent() {
 
               <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <Button 
-                  variant="primary" 
-                  className="w-full !bg-arise-deep-teal hover:!bg-arise-deep-teal/90 !text-white"
-                  style={{ backgroundColor: '#0F454D', color: '#ffffff' }}
+                  variant="arise-primary"
+                  className="w-full"
                 >
                   Download Complete Leadership Profile
                 </Button>
@@ -440,9 +436,7 @@ function ResultsReportsContent() {
                   Schedule your FREE coaching session to debrief your results and build a personalized development plan.
                 </p>
                 <Button 
-                  variant="secondary" 
-                  className="!bg-[#0F454D] hover:!bg-[#0d4148] !text-white"
-                  style={{ backgroundColor: '#0F454D', color: '#ffffff' }}
+                  variant="arise-primary"
                   onClick={() => router.push('/dashboard/coaching-options')}
                 >
                   Explore coaching options →
