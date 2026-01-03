@@ -297,8 +297,8 @@ function DashboardContent() {
           {/* Welcome Header */}
           <MotionDiv variant="fade" duration="normal">
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                Welcome <span style={{ color: '#0f4c56' }}>{user?.name?.split(' ')[0] || 'User'}</span>
+              <h1 className="text-4xl font-bold mb-2">
+                <span className="text-white">Welcome</span> <span style={{ color: '#D5B667' }}>{user?.name?.split(' ')[0] || 'User'}</span>
               </h1>
               <p className="text-gray-600 dark:text-gray-400 text-lg">
                 Continue your journey to authentic leadership
