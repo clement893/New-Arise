@@ -56,18 +56,61 @@ function AssessmentResultsContent() {
                               assessment.answer_count >= assessment.total_questions;
         
         if (!hasAllAnswers) {
-          setError('This assessment is not completed yet. Please complete all questions first.');
+          // Provide more helpful error message with progress info
+          const progressInfo = assessment.answer_count !== undefined && assessment.total_questions !== undefined
+            ? ` (${assessment.answer_count}/${assessment.total_questions} questions answered)`
+            : '';
+          setError(`This assessment is not completed yet. Please complete all questions first.${progressInfo}`);
           setIsLoading(false);
-          // Redirect to assessment page after 3 seconds
-          setTimeout(() => {
-            if (assessment.assessment_type === 'WELLNESS') {
-              router.push(`/dashboard/assessments/wellness?id=${id}`);
-            } else if (assessment.assessment_type === 'TKI') {
-              router.push(`/dashboard/assessments/tki?id=${id}`);
-            } else {
-              router.push(`/dashboard/assessments`);
-            }
-          }, 3000);
+          // Redirect to assessment page immediately (no delay)
+          if (assessment.assessment_type === 'WELLNESS') {
+            router.push(`/dashboard/assessments/wellness?id=${id}`);
+          } else if (assessment.assessment_type === 'TKI') {
+            router.push(`/dashboard/assessments/tki?id=${id}`);
+          } else if (assessment.assessment_type === 'THREE_SIXTY_SELF') {
+            router.push(`/dashboard/assessments/360-feedback?assessmentId=${id}`);
+          } else {
+            router.push(`/dashboard/assessments`);
+          }
+          return;
+        }
+        
+        // If all answers are provided but status is not completed, try to submit
+        // This handles cases where user answered all questions but didn't submit
+        try {
+          console.log(`[Results] Assessment ${id} has all answers but status is "${assessment.status}", attempting to submit...`);
+          const { submitAssessment } = await import('@/lib/api/assessments');
+          await submitAssessment(id);
+          // Wait a moment for results to be calculated
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          // Reload assessment to get updated status
+          const updatedAssessments = await getMyAssessments();
+          const updatedAssessment = updatedAssessments.find(a => a.id === id);
+          if (updatedAssessment?.status === 'COMPLETED' || updatedAssessment?.status === 'completed') {
+            // Assessment is now completed, continue to load results
+            console.log(`[Results] Assessment ${id} successfully submitted, loading results...`);
+          } else {
+            // Submission didn't complete the assessment, show error
+            throw new Error('Failed to complete assessment. Please try again.');
+          }
+        } catch (submitError: unknown) {
+          console.error(`[Results] Failed to submit assessment ${id}:`, submitError);
+          const errorDetail = submitError && typeof submitError === 'object' && 'response' in submitError
+            ? (submitError as { response?: { data?: { detail?: string; message?: string } } }).response?.data?.detail
+            : submitError instanceof Error ? submitError.message : 'Unknown error';
+          
+          setError(`Unable to complete assessment: ${errorDetail || 'Please ensure all questions are answered correctly.'}`);
+          setIsLoading(false);
+          // Redirect to assessment page
+          if (assessment.assessment_type === 'WELLNESS') {
+            router.push(`/dashboard/assessments/wellness?id=${id}`);
+          } else if (assessment.assessment_type === 'TKI') {
+            router.push(`/dashboard/assessments/tki?id=${id}`);
+          } else if (assessment.assessment_type === 'THREE_SIXTY_SELF') {
+            router.push(`/dashboard/assessments/360-feedback?assessmentId=${id}`);
+          } else {
+            router.push(`/dashboard/assessments`);
+          }
           return;
         }
       }
