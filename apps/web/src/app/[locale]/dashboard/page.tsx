@@ -354,17 +354,6 @@ function DashboardContent() {
                 </Button>
               </div>
             </Card>
-            {/* Color block under section - wider */}
-            <div 
-              className="h-4 -mt-4 mb-8 relative"
-              style={{ 
-                backgroundColor: '#d5dee0',
-                zIndex: 1,
-                marginLeft: '-15%',
-                marginRight: '-15%',
-                width: 'calc(100% + 30%)',
-              }}
-            />
           </MotionDiv>
 
           {/* Progress Section */}
@@ -441,17 +430,6 @@ function DashboardContent() {
                 </Button>
               </div>
             </Card>
-            {/* Color block under section - wider */}
-            <div 
-              className="h-4 -mt-4 mb-8 relative"
-              style={{ 
-                backgroundColor: '#d5dee0',
-                zIndex: 1,
-                marginLeft: '-15%',
-                marginRight: '-15%',
-                width: 'calc(100% + 30%)',
-              }}
-            />
           </MotionDiv>
 
           {/* Evaluations Section */}
@@ -545,19 +523,20 @@ function DashboardContent() {
                   );
                 })}
               </div>
-              {/* Color block under section - wider */}
-              <div 
-                className="h-4 -mt-4 mb-8 relative"
-                style={{ 
-                  backgroundColor: '#d5dee0',
-                  zIndex: 1,
-                  marginLeft: '-15%',
-                  marginRight: '-15%',
-                  width: 'calc(100% + 30%)',
-                }}
-              />
             </div>
           </MotionDiv>
+
+          {/* Color block under all 3 sections - wider */}
+          <div 
+            className="h-4 mb-8 relative"
+            style={{ 
+              backgroundColor: '#d5dee0',
+              zIndex: 1,
+              marginLeft: '-15%',
+              marginRight: '-15%',
+              width: 'calc(100% + 30%)',
+            }}
+          />
 
           {/* Coaching Section */}
           <MotionDiv variant="slideUp" delay={400}>
