@@ -14,19 +14,6 @@ export default function ConditionalProfileLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-  
-  // Use custom layout for the main profile page
-  const isMainProfile = pathname === '/profile' || pathname === '/fr/profile' || pathname === '/en/profile';
-  
-  if (isMainProfile) {
-    return (
-      <ProtectedRoute>
-        <DashboardCustomLayout>{children}</DashboardCustomLayout>
-      </ProtectedRoute>
-    );
-  }
-  
-  // Use default layout for all other profile pages
+  // Use DashboardLayout for all profile pages to ensure consistent menu and background
   return <DashboardLayout>{children}</DashboardLayout>;
 }
