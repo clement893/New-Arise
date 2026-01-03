@@ -1,7 +1,8 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import Button from '@/components/ui/Button';
+import { LanguageToggle } from './LanguageToggle';
 
 export function Header() {
   return (
@@ -31,6 +32,7 @@ export function Header() {
             <Link href="/login" className="text-gray-700 hover:text-arise-deep-teal transition-colors">
               Sign In
             </Link>
+            <LanguageToggle />
             <Button asChild className="bg-arise-deep-teal hover:bg-arise-deep-teal/90 text-white">
               <Link href="/register">Get Started</Link>
             </Button>

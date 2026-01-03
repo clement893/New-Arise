@@ -1,5 +1,8 @@
 'use client';
 
+import Button from '@/components/ui/Button';
+import Link from 'next/link';
+
 export function FourDimensionsSection() {
   const dimensions = [
     {
@@ -77,6 +80,16 @@ export function FourDimensionsSection() {
           <p className="text-lg text-white/70 mt-4">
             Gain deep insights into your strengths, growth areas, and unique leadership style.
           </p>
+          
+          <div className="mt-8">
+            <Button 
+              asChild 
+              size="lg"
+              className="bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold px-8 py-6 text-lg"
+            >
+              <Link href="/register">Commencer maintenant</Link>
+            </Button>
+          </div>
         </div>
       </div>
     </section>
