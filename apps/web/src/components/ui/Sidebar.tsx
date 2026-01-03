@@ -108,10 +108,12 @@ export default function Sidebar({
   const renderItem = (item: SidebarItem, level = 0) => {
     const hasChildren = item.children && item.children.length > 0;
     const isExpanded = expandedItems.has(item.label);
+    // Improved active detection - check exact match or if path starts with href
     const isActive = item.href && (
       activePath === item.href || 
-      activePath?.startsWith(item.href + '/') ||
-      (activePath?.includes('?') && activePath?.split('?')[0] === item.href)
+      (activePath && item.href && activePath.startsWith(item.href + '/')) ||
+      (activePath?.includes('?') && activePath.split('?')[0] === item.href) ||
+      (activePath?.includes('#') && activePath.split('#')[0] === item.href)
     );
 
     return (
@@ -124,7 +126,7 @@ export default function Sidebar({
               : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800',
             level > 0 && 'ml-lg' // Increased indentation for nested items
           )}
-          style={isActive ? { backgroundColor: '#0f4c56' } : undefined}
+          style={isActive ? { backgroundColor: '#0f4c56', color: '#ffffff' } : undefined}
         >
           {item.href ? (
             <Link
@@ -133,9 +135,24 @@ export default function Sidebar({
                 "flex items-center flex-1 space-x-3 min-w-0",
                 isActive && "text-white"
               )}
+              style={isActive ? { color: '#ffffff' } : undefined}
             >
-              {item.icon && <span className={clsx("flex-shrink-0 w-5 h-5", isActive && "text-white")}>{item.icon}</span>}
-              {!collapsed && <span className={clsx("flex-1 truncate text-sm font-medium", isActive && "text-white")}>{item.label}</span>}
+              {item.icon && (
+                <span 
+                  className={clsx("flex-shrink-0 w-5 h-5", isActive && "text-white")}
+                  style={isActive ? { color: '#ffffff' } : undefined}
+                >
+                  {item.icon}
+                </span>
+              )}
+              {!collapsed && (
+                <span 
+                  className={clsx("flex-1 truncate text-sm font-medium", isActive && "text-white")}
+                  style={isActive ? { color: '#ffffff' } : undefined}
+                >
+                  {item.label}
+                </span>
+              )}
             </Link>
           ) : (
             <button
@@ -144,11 +161,26 @@ export default function Sidebar({
                 "flex items-center flex-1 space-x-3 text-left min-w-0",
                 isActive && "text-white"
               )}
+              style={isActive ? { color: '#ffffff' } : undefined}
               aria-expanded={hasChildren ? isExpanded : undefined}
               aria-label={hasChildren ? `Toggle ${item.label}` : item.label}
             >
-              {item.icon && <span className={clsx("flex-shrink-0 w-5 h-5", isActive && "text-white")}>{item.icon}</span>}
-              {!collapsed && <span className={clsx("flex-1 truncate text-sm font-medium", isActive && "text-white")}>{item.label}</span>}
+              {item.icon && (
+                <span 
+                  className={clsx("flex-shrink-0 w-5 h-5", isActive && "text-white")}
+                  style={isActive ? { color: '#ffffff' } : undefined}
+                >
+                  {item.icon}
+                </span>
+              )}
+              {!collapsed && (
+                <span 
+                  className={clsx("flex-1 truncate text-sm font-medium", isActive && "text-white")}
+                  style={isActive ? { color: '#ffffff' } : undefined}
+                >
+                  {item.label}
+                </span>
+              )}
             </button>
           )}
           {!collapsed && (
@@ -182,14 +214,20 @@ export default function Sidebar({
     items.forEach((item) => {
       if (item.children) {
         const hasActiveChild = item.children.some(
-          (child) => activePath === child.href || (child.href && activePath?.startsWith(child.href))
+          (child) => {
+            if (!child.href) return false;
+            return activePath === child.href || 
+                   (activePath && child.href && activePath.startsWith(child.href + '/')) ||
+                   (activePath?.includes('?') && activePath.split('?')[0] === child.href) ||
+                   (activePath?.includes('#') && activePath.split('#')[0] === child.href);
+          }
         );
         if (hasActiveChild && !expandedItems.has(item.label)) {
           setExpandedItems((prev) => new Set(prev).add(item.label));
         }
       }
     });
-  }, [items, activePath]);
+  }, [items, activePath, expandedItems]);
 
   return (
     <aside
