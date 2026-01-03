@@ -203,7 +203,7 @@ const benefits = [
                         onClick={() => setSelectedJob(selectedJob === job.id ? null : job.id)}
                         className="whitespace-nowrap"
                       >
-                        {selectedJob === job.id ? t('applicationForm.cancel') : t('applicationForm.submit')}
+                        {selectedJob === job.id ? 'Hide Details' : 'View Details'}
                       </Button>
                       <Button
                         variant="primary"
