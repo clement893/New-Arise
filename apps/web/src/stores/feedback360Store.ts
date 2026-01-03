@@ -62,7 +62,9 @@ export const useFeedback360Store = create<Feedback360State>()(
           const { feedback360Questions } = await import('@/data/feedback360Questions');
           let firstUnansweredIndex = 0;
           for (let i = 0; i < feedback360Questions.length; i++) {
-            if (!answers[feedback360Questions[i].id]) {
+            const question = feedback360Questions[i];
+            if (!question) continue;
+            if (!answers[question.id]) {
               firstUnansweredIndex = i;
               break;
             }
