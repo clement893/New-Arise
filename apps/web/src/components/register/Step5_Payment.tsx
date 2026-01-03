@@ -1,11 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
 import { useRegistrationStore } from '@/stores/registrationStore';
 import Button from '@/components/ui/Button';
 import { CreditCard, Lock, Loader2, AlertCircle } from 'lucide-react';
 import { subscriptionsAPI } from '@/lib/api';
 import { Alert } from '@/components/ui';
+import { StripeCardElement } from './StripeCardElement';
+import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
+
+// Initialize Stripe
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
 interface Plan {
   id: number;
@@ -19,33 +26,15 @@ interface Plan {
   is_active: boolean;
 }
 
-export function Step5_Payment() {
+function PaymentFormContent() {
   const { planId, setStep } = useRegistrationStore();
+  const stripe = useStripe();
+  const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cardError, setCardError] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [loadingPlan, setLoadingPlan] = useState(true);
-
-  // Check for Stripe redirect parameters
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const success = urlParams.get('success');
-    const canceled = urlParams.get('canceled');
-    const sessionId = urlParams.get('session_id');
-
-    if (success === 'true' && sessionId) {
-      // Payment successful, move to next step
-      setStep(6);
-      // Clean URL
-      window.history.replaceState({}, '', '/register');
-    } else if (canceled === 'true') {
-      // Payment canceled
-      setError('Payment was canceled. You can try again.');
-      window.history.replaceState({}, '', '/register');
-    }
-  }, [setStep]);
 
   // Load plan details
   useEffect(() => {
@@ -58,11 +47,9 @@ export function Step5_Payment() {
 
       try {
         setLoadingPlan(true);
-        // Convert planId string to number (assuming planId is the plan ID)
         const planIdNum = parseInt(planId, 10);
         
         if (isNaN(planIdNum)) {
-          // If planId is not a number, try to find plan by name
           const plansResponse = await subscriptionsAPI.getPlans(true);
           const plans = plansResponse.data?.plans || [];
           const plan = plans.find((p: Plan) => p.name.toLowerCase() === planId.toLowerCase());
@@ -73,7 +60,6 @@ export function Step5_Payment() {
             setError('Plan not found. Please select a valid plan.');
           }
         } else {
-          // Fetch plan by ID
           const planResponse = await subscriptionsAPI.getPlan(planIdNum);
           if (planResponse.data) {
             setSelectedPlan(planResponse.data);
@@ -92,37 +78,61 @@ export function Step5_Payment() {
     loadPlan();
   }, [planId]);
 
-  const handlePayment = async () => {
-    if (!selectedPlan || !planId) {
-      setError('Please select a plan first.');
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!stripe || !elements || !selectedPlan || !planId) {
+      setError('Please wait for Stripe to load and select a plan.');
       return;
     }
 
     setIsProcessing(true);
     setError(null);
+    setCardError(null);
+
+    const cardElement = elements.getElement(CardElement);
+    if (!cardElement) {
+      setError('Card element not found. Please refresh the page.');
+      setIsProcessing(false);
+      return;
+    }
 
     try {
-      const baseUrl = window.location.origin;
-      const planIdNum = typeof planId === 'string' ? parseInt(planId, 10) : planId;
-
-      // If planId is not a number, use the selectedPlan.id
-      const finalPlanId = isNaN(planIdNum) ? selectedPlan.id : planIdNum;
-
-      const response = await subscriptionsAPI.createCheckoutSession({
-        plan_id: finalPlanId,
-        success_url: `${baseUrl}/register?success=true&session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${baseUrl}/register?canceled=true`,
+      // Create payment method
+      const { error: pmError, paymentMethod } = await stripe.createPaymentMethod({
+        type: 'card',
+        card: cardElement,
       });
 
-      if (response.data?.url) {
-        // Redirect to Stripe Checkout
-        window.location.href = response.data.url;
+      if (pmError) {
+        setCardError(pmError.message || 'An error occurred while processing your card.');
+        setIsProcessing(false);
+        return;
+      }
+
+      if (!paymentMethod) {
+        setError('Failed to create payment method. Please try again.');
+        setIsProcessing(false);
+        return;
+      }
+
+      // Create subscription with payment method
+      const planIdNum = typeof planId === 'string' ? parseInt(planId, 10) : planId;
+      const finalPlanId = isNaN(planIdNum) ? selectedPlan.id : planIdNum;
+
+      const response = await subscriptionsAPI.createSubscriptionWithPaymentMethod({
+        plan_id: finalPlanId,
+        payment_method_id: paymentMethod.id,
+      });
+
+      if (response.data) {
+        // Payment successful, move to next step
+        setStep(6);
       } else {
-        setError('Failed to create checkout session. Please try again.');
+        setError('Failed to create subscription. Please try again.');
         setIsProcessing(false);
       }
     } catch (err: unknown) {
-      // Extract error message safely
       let errorMessage = 'Failed to process payment. Please try again.';
       if (err && typeof err === 'object') {
         const errorObj = err as Record<string, unknown>;
@@ -143,9 +153,8 @@ export function Step5_Payment() {
         errorMessage = err.message;
       }
       
-      // Only log in development
       if (process.env.NODE_ENV === 'development') {
-        console.error('Error creating checkout session:', err);
+        console.error('Error creating subscription:', err);
       }
       
       setError(errorMessage);
@@ -192,7 +201,7 @@ export function Step5_Payment() {
             <div className="bg-arise-light-beige border-2 border-arise-gold rounded-lg p-4 flex items-center gap-3">
               <Lock className="w-5 h-5 text-arise-gold" />
               <p className="text-sm text-gray-700">
-                Your payment information is secure and encrypted. You will be redirected to Stripe's secure checkout page.
+                Your payment information is secure and encrypted. We use Stripe to process your payment securely.
               </p>
             </div>
 
@@ -202,32 +211,62 @@ export function Step5_Payment() {
                 <p className="text-gray-600">Loading plan details...</p>
               </div>
             ) : selectedPlan ? (
-              <div className="border-2 border-gray-200 rounded-lg p-6 bg-gray-50">
-                <div className="flex items-center gap-4 mb-4">
-                  <CreditCard className="w-8 h-8 text-arise-gold" />
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {selectedPlan.name} Plan
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      Secure checkout powered by Stripe
+              <>
+                <div className="border-2 border-gray-200 rounded-lg p-6 bg-gray-50">
+                  <div className="flex items-center gap-4 mb-4">
+                    <CreditCard className="w-8 h-8 text-arise-gold" />
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        {selectedPlan.name} Plan
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        Secure checkout powered by Stripe
+                      </p>
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-sm text-gray-700">
+                    <p>
+                      <strong>Plan:</strong> {selectedPlan.name}
+                    </p>
+                    {selectedPlan.description && (
+                      <p>
+                        <strong>Description:</strong> {selectedPlan.description}
+                      </p>
+                    )}
+                    <p>
+                      <strong>Amount:</strong> {formatPrice(selectedPlan)} / {getIntervalLabel(selectedPlan)}
                     </p>
                   </div>
                 </div>
-                <div className="space-y-2 text-sm text-gray-700">
-                  <p>
-                    <strong>Plan:</strong> {selectedPlan.name}
-                  </p>
-                  {selectedPlan.description && (
-                    <p>
-                      <strong>Description:</strong> {selectedPlan.description}
-                    </p>
-                  )}
-                  <p>
-                    <strong>Amount:</strong> {formatPrice(selectedPlan)} / {getIntervalLabel(selectedPlan)}
-                  </p>
-                </div>
-              </div>
+
+                {!isProcessing && (
+                  <>
+                    <StripeCardElement
+                      onError={setCardError}
+                      cardError={cardError}
+                    />
+                    <Button
+                      onClick={handleSubmit}
+                      disabled={!stripe || !selectedPlan}
+                      className="w-full bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      <CreditCard className="w-5 h-5" />
+                      Complete Payment
+                    </Button>
+                  </>
+                )}
+
+                {isProcessing && (
+                  <div className="border-2 border-gray-200 rounded-lg p-8 text-center">
+                    <Loader2 className="w-12 h-12 text-arise-gold mx-auto mb-4 animate-spin" />
+                    <p className="text-gray-600">Processing your payment...</p>
+                  </div>
+                )}
+
+                <p className="text-xs text-gray-500 text-center">
+                  Your payment information is processed securely by Stripe and never stored on our servers.
+                </p>
+              </>
             ) : (
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                 <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -237,29 +276,6 @@ export function Step5_Payment() {
                 </p>
               </div>
             )}
-
-            <Button
-              onClick={handlePayment}
-              disabled={isProcessing || loadingPlan || !selectedPlan}
-              className="w-full bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {isProcessing ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Redirecting to Stripe...
-                </>
-              ) : (
-                <>
-                  <CreditCard className="w-5 h-5" />
-                  Continue to Payment
-                </>
-              )}
-            </Button>
-
-            <p className="text-xs text-gray-500 text-center">
-              By clicking "Continue to Payment", you will be redirected to Stripe's secure checkout page.
-              Your payment information is processed securely and never stored on our servers.
-            </p>
           </div>
         </div>
 
@@ -299,5 +315,13 @@ export function Step5_Payment() {
         </div>
       </div>
     </div>
+  );
+}
+
+export function Step5_Payment() {
+  return (
+    <Elements stripe={stripePromise}>
+      <PaymentFormContent />
+    </Elements>
   );
 }

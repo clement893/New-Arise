@@ -24,6 +24,7 @@ from app.schemas.subscription import (
     CheckoutSessionCreate,
     CheckoutSessionResponse,
     PortalSessionResponse,
+    SubscriptionWithPaymentMethodCreate,
 )
 
 router = APIRouter(prefix="/subscriptions", tags=["subscriptions"])
@@ -156,6 +157,66 @@ async def cancel_subscription(
         )
     
     return None
+
+
+@router.post("/create-with-payment-method", response_model=SubscriptionResponse)
+async def create_subscription_with_payment_method(
+    subscription_data: SubscriptionWithPaymentMethodCreate,
+    current_user: User = Depends(get_current_user),
+    subscription_service: SubscriptionService = Depends(get_subscription_service),
+    stripe_service: StripeService = Depends(get_stripe_service),
+):
+    """Create subscription with payment method"""
+    from datetime import datetime, timedelta
+    
+    plan = await subscription_service.get_plan(subscription_data.plan_id)
+    if not plan:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Plan not found"
+        )
+    
+    if not plan.stripe_price_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Plan is not configured for Stripe"
+        )
+    
+    # Create subscription in Stripe
+    stripe_result = await stripe_service.create_subscription_with_payment_method(
+        user=current_user,
+        plan=plan,
+        payment_method_id=subscription_data.payment_method_id,
+        trial_days=subscription_data.trial_days,
+    )
+    
+    # Calculate trial_end if trial_days is provided
+    trial_end = None
+    if subscription_data.trial_days:
+        trial_end = datetime.utcnow() + timedelta(days=subscription_data.trial_days)
+    
+    # Create subscription in database
+    subscription = await subscription_service.create_subscription(
+        user_id=current_user.id,
+        plan_id=plan.id,
+        stripe_subscription_id=stripe_result['subscription_id'],
+        stripe_customer_id=stripe_result['customer_id'],
+        trial_end=trial_end,
+    )
+    
+    if not subscription:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to create subscription"
+        )
+    
+    # Reload with plan relationship
+    subscription = await subscription_service.get_user_subscription(
+        current_user.id,
+        include_plan=True
+    )
+    
+    return SubscriptionResponse.model_validate(subscription)
 
 
 @router.post("/upgrade/{plan_id}", response_model=SubscriptionResponse)

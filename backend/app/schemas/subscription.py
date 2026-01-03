@@ -122,6 +122,12 @@ class PortalSessionResponse(BaseModel):
     url: str
 
 
+class SubscriptionWithPaymentMethodCreate(BaseModel):
+    plan_id: int
+    payment_method_id: str = Field(..., description="Stripe payment method ID")
+    trial_days: Optional[int] = Field(None, ge=0, le=365, description="Trial period in days")
+
+
 # Invoice Schemas
 class InvoiceResponse(BaseModel):
     id: int

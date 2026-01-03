@@ -213,6 +213,62 @@ class StripeService:
             logger.error(f"Stripe error updating subscription {subscription.id}: {e}")
             return False
 
+    async def create_subscription_with_payment_method(
+        self,
+        user: User,
+        plan: Plan,
+        payment_method_id: str,
+        trial_days: Optional[int] = None
+    ) -> Dict[str, Any]:
+        """Create Stripe subscription with payment method"""
+        if not plan.stripe_price_id:
+            raise ValueError(f"Plan {plan.id} does not have stripe_price_id configured")
+
+        try:
+            customer_id = await self.get_or_create_customer(user)
+
+            # Attach payment method to customer
+            stripe.PaymentMethod.attach(
+                payment_method_id,
+                customer=customer_id,
+            )
+
+            # Set as default payment method
+            stripe.Customer.modify(
+                customer_id,
+                invoice_settings={
+                    'default_payment_method': payment_method_id,
+                },
+            )
+
+            # Create subscription
+            subscription_params = {
+                'customer': customer_id,
+                'items': [{
+                    'price': plan.stripe_price_id,
+                }],
+                'default_payment_method': payment_method_id,
+                'metadata': {
+                    'user_id': str(user.id),
+                    'plan_id': str(plan.id),
+                },
+            }
+
+            if trial_days:
+                subscription_params['trial_period_days'] = trial_days
+
+            subscription = stripe.Subscription.create(**subscription_params)
+
+            return {
+                'subscription_id': subscription.id,
+                'customer_id': customer_id,
+                'status': subscription.status,
+            }
+
+        except stripe.StripeError as e:
+            logger.error(f"Stripe error creating subscription with payment method: {e}")
+            raise
+
     async def handle_webhook(self, payload: bytes, sig_header: str) -> Dict[str, Any]:
         """Handle Stripe webhook"""
         try:

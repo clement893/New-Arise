@@ -506,6 +506,13 @@ export const subscriptionsAPI = {
   }) => {
     return apiClient.post('/v1/subscriptions/checkout', data);
   },
+  createSubscriptionWithPaymentMethod: (data: {
+    plan_id: number;
+    payment_method_id: string;
+    trial_days?: number;
+  }) => {
+    return apiClient.post('/v1/subscriptions/create-with-payment-method', data);
+  },
   createPortalSession: (returnUrl: string) => {
     return apiClient.post('/v1/subscriptions/portal', null, {
       params: { return_url: returnUrl },
