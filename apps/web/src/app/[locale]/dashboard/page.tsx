@@ -423,16 +423,16 @@ function DashboardContent() {
                   variant="outline" 
                   className="text-white font-semibold"
                   style={{ 
-                    borderColor: '#0f4c56', 
+                    borderColor: '#799ba1', 
                     borderWidth: '2px',
-                    backgroundColor: 'transparent'
+                    backgroundColor: '#0f4c56'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = '#0f4c56';
                     e.currentTarget.style.opacity = '0.9';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.backgroundColor = '#0f4c56';
                     e.currentTarget.style.opacity = '1';
                   }}
                   onClick={() => router.push('/dashboard/results')}
