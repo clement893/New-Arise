@@ -7,7 +7,7 @@ import { Footer } from '@/components/landing/Footer';
 import { Card } from '@/components/ui';
 import { SafeHTML } from '@/components/ui/SafeHTML';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { Calendar, User, ArrowLeft, Newspaper } from 'lucide-react';
+import { Calendar, User, ArrowLeft, TrendingUp, BookOpen, Users } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 
 export default function NewsArticlePage() {
@@ -15,16 +15,16 @@ export default function NewsArticlePage() {
   const articleId = params?.id as string;
   const t = useTranslations('news');
 
-  // Map article IDs to translation keys
-  const articleMap: Record<string, string> = {
-    '1': 'articles.article1',
-    '2': 'articles.article2',
-    '3': 'articles.article3',
+  // Map article IDs to translation keys and styling
+  const articleMap: Record<string, { key: string; icon: typeof TrendingUp; gradient: string }> = {
+    '1': { key: 'articles.article1', icon: TrendingUp, gradient: 'from-arise-deep-teal via-teal-600 to-arise-gold' },
+    '2': { key: 'articles.article2', icon: BookOpen, gradient: 'from-blue-500 via-indigo-600 to-purple-600' },
+    '3': { key: 'articles.article3', icon: Users, gradient: 'from-orange-500 via-red-500 to-pink-500' },
   };
 
-  const articleKey = articleMap[articleId];
+  const articleConfig = articleMap[articleId];
   
-  if (!articleKey) {
+  if (!articleConfig) {
     return (
       <div className="min-h-screen bg-white">
         <Header />
@@ -50,13 +50,14 @@ export default function NewsArticlePage() {
     );
   }
 
+  const IconComponent = articleConfig.icon;
   const article = {
-    title: t(`${articleKey}.title`),
-    excerpt: t(`${articleKey}.excerpt`),
-    author: t(`${articleKey}.author`),
-    date: t(`${articleKey}.date`),
-    category: t(`${articleKey}.category`),
-    content: t(`${articleKey}.content`),
+    title: t(`${articleConfig.key}.title`),
+    excerpt: t(`${articleConfig.key}.excerpt`),
+    author: t(`${articleConfig.key}.author`),
+    date: t(`${articleConfig.key}.date`),
+    category: t(`${articleConfig.key}.category`),
+    content: t(`${articleConfig.key}.content`),
   };
 
   // Parse date for proper formatting
@@ -70,7 +71,7 @@ export default function NewsArticlePage() {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-      <main className="container mx-auto px-4 py-12 max-w-4xl">
+      <main className="container mx-auto px-4 pt-24 pb-12 max-w-4xl">
         {/* Back Link */}
         <MotionDiv variant="fade" duration="normal">
           <Link
@@ -119,8 +120,18 @@ export default function NewsArticlePage() {
             </header>
 
             {/* Featured Image Placeholder */}
-            <div className="aspect-video bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 rounded-lg mb-6 flex items-center justify-center">
-              <Newspaper className="text-arise-deep-teal/40" size={64} />
+            <div className={`relative aspect-video bg-gradient-to-br ${articleConfig.gradient} rounded-lg mb-8 overflow-hidden shadow-lg`}>
+              <div className="absolute inset-0 bg-black/5" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="relative">
+                  <IconComponent className="text-white/90" size={80} strokeWidth={1.5} />
+                  <div className="absolute inset-0 bg-white/20 rounded-full blur-2xl" />
+                </div>
+              </div>
+              {/* Decorative elements */}
+              <div className="absolute top-8 right-8 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
+              <div className="absolute bottom-8 left-8 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-white/5 rounded-full blur-3xl" />
             </div>
 
             {/* Post Excerpt */}
