@@ -56,11 +56,26 @@ export default function Sidebar({
   const [searchQuery, setSearchQuery] = useState('');
   const activePath = currentPath || pathname;
   
+  // Improved active detection - check exact match or if path starts with href
+  const normalizePath = (path: string | undefined | null): string => {
+    if (!path) return '';
+    // Remove locale prefix (e.g., /fr/dashboard -> /dashboard)
+    let normalized = path;
+    if (normalized.match(/^\/[a-z]{2}\//)) {
+      normalized = normalized.replace(/^\/[a-z]{2}/, '');
+    }
+    // Remove query params and hash
+    const withoutQuery = normalized.split('?')[0] || '';
+    return withoutQuery.split('#')[0] || '';
+  };
+
   // Debug: log active path in development
-  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-    console.log('[Sidebar] Active path:', activePath, 'Current path:', currentPath, 'Pathname:', pathname);
-    console.log('[Sidebar] Normalized active path:', normalizePath(activePath));
-  }
+  useEffect(() => {
+    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+      console.log('[Sidebar] Active path:', activePath, 'Current path:', currentPath, 'Pathname:', pathname);
+      console.log('[Sidebar] Normalized active path:', normalizePath(activePath));
+    }
+  }, [activePath, currentPath, pathname]);
 
   // Auto-expand all groups by default for better UX
   useEffect(() => {
@@ -109,19 +124,6 @@ export default function Sidebar({
       }
       return newSet;
     });
-  };
-
-  // Improved active detection - check exact match or if path starts with href
-  const normalizePath = (path: string | undefined | null): string => {
-    if (!path) return '';
-    // Remove locale prefix (e.g., /fr/dashboard -> /dashboard)
-    let normalized = path;
-    if (normalized.match(/^\/[a-z]{2}\//)) {
-      normalized = normalized.replace(/^\/[a-z]{2}/, '');
-    }
-    // Remove query params and hash
-    const withoutQuery = normalized.split('?')[0] || '';
-    return withoutQuery.split('#')[0] || '';
   };
 
   const renderItem = (item: SidebarItem, level = 0) => {
