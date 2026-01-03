@@ -439,7 +439,7 @@ function WellnessAssessmentContent() {
 
 export default function WellnessAssessmentPage() {
   return (
-    <ErrorBoundary>
+    <ErrorBoundary showDetails={process.env.NODE_ENV === 'development'}>
       <WellnessAssessmentContent />
     </ErrorBoundary>
   );

@@ -728,7 +728,7 @@ function AssessmentsContent() {
 
 export default function AssessmentsPage() {
   return (
-    <ErrorBoundary>
+    <ErrorBoundary showDetails={process.env.NODE_ENV === 'development'}>
       <AssessmentsContent />
     </ErrorBoundary>
   );
