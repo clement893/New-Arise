@@ -41,7 +41,7 @@ function PlansPageContent() {
     description: '',
     amount: '',
     currency: 'eur',
-    interval: 'MONTH',
+    interval: 'month', // Backend expects lowercase
     interval_count: 1,
     is_popular: false,
     features: '',
@@ -147,7 +147,7 @@ function PlansPageContent() {
         description: newPlan.description || null,
         amount: amountInCents,
         currency: newPlan.currency,
-        interval: newPlan.interval,
+        interval: newPlan.interval, // Already in lowercase
         interval_count: newPlan.interval_count,
         is_popular: newPlan.is_popular,
         features: newPlan.features || null,
@@ -160,7 +160,7 @@ function PlansPageContent() {
         description: '',
         amount: '',
         currency: 'eur',
-        interval: 'MONTH',
+        interval: 'month',
         interval_count: 1,
         is_popular: false,
         features: '',
@@ -547,10 +547,10 @@ function PlansPageContent() {
                 onChange={(e) => setNewPlan({ ...newPlan, interval: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600"
               >
-                <option value="MONTH">Mensuel</option>
-                <option value="YEAR">Annuel</option>
-                <option value="WEEK">Hebdomadaire</option>
-                <option value="DAY">Quotidien</option>
+                <option value="month">Mensuel</option>
+                <option value="year">Annuel</option>
+                <option value="week">Hebdomadaire</option>
+                <option value="day">Quotidien</option>
               </select>
             </div>
 
