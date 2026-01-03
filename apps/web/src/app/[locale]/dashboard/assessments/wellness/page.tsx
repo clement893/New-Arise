@@ -127,7 +127,7 @@ function WellnessAssessmentContent() {
             // Results exist, safe to redirect
             router.push(`/dashboard/assessments/results?id=${assessmentId}`);
           })
-          .catch((err) => {
+          .catch(() => {
             // Results don't exist yet, show completion screen instead
             console.log('Results not yet available, showing completion screen');
             setShowCompletion(true);
