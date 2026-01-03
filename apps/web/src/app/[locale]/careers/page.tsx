@@ -61,39 +61,6 @@ const openPositions = [
   },
 ];
 
-const benefits = [
-  {
-    icon: DollarSign,
-    title: 'Competitive Salary',
-    description: 'We offer competitive compensation packages with equity options.',
-  },
-  {
-    icon: Heart,
-    title: 'Health & Wellness',
-    description: 'Comprehensive health, dental, and vision insurance for you and your family.',
-  },
-  {
-    icon: Zap,
-    title: 'Flexible Work',
-    description: 'Remote-first culture with flexible hours and unlimited PTO.',
-  },
-  {
-    icon: Users,
-    title: 'Team Culture',
-    description: 'Collaborative environment with regular team events and retreats.',
-  },
-  {
-    icon: Award,
-    title: 'Professional Growth',
-    description: 'Learning budget, conference attendance, and career development support.',
-  },
-  {
-    icon: Clock,
-    title: 'Work-Life Balance',
-    description: 'We believe in sustainable work practices and respect your personal time.',
-  },
-];
-
   const [selectedJob, setSelectedJob] = useState<number | null>(null);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
 
