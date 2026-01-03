@@ -408,7 +408,7 @@ function AssessmentsContent() {
         return (
           <Button 
             variant="primary"
-            className="bg-[#0f4c56] hover:bg-[#0d4148] text-white"
+            className="bg-[#0F454D] hover:bg-[#0d4148] text-white"
             disabled={isStarting}
             onClick={() => handleStartAssessment(assessment.assessmentType, assessment.assessmentId)}
           >
@@ -505,19 +505,44 @@ function AssessmentsContent() {
                     {getActionButton(assessment)}
                   </div>
                 </div>
-                {/* Progress bar */}
-                {assessment.answerCount !== undefined && assessment.totalQuestions !== undefined && assessment.totalQuestions > 0 && (
-                  <div className="mt-4">
-                    <Progress
-                      value={assessment.answerCount}
-                      max={assessment.totalQuestions}
-                      variant={assessment.status === 'completed' ? 'success' : 'default'}
-                      size="md"
-                      showLabel={true}
-                      label={`Progression: ${assessment.answerCount}/${assessment.totalQuestions} questions`}
-                    />
-                  </div>
-                )}
+                {/* Progress bar - always visible */}
+                <div className="mt-4">
+                  {(() => {
+                    // Calculate progress percentage
+                    let progressValue = 0;
+                    let progressMax = 100;
+                    let progressLabel = 'Progression';
+                    
+                    if (assessment.status === 'completed') {
+                      progressValue = 100;
+                      progressLabel = 'Terminé';
+                    } else if (assessment.status === 'in-progress' && 
+                               assessment.answerCount !== undefined && 
+                               assessment.totalQuestions !== undefined && 
+                               assessment.totalQuestions > 0) {
+                      progressValue = assessment.answerCount;
+                      progressMax = assessment.totalQuestions;
+                      progressLabel = `Progression: ${assessment.answerCount}/${assessment.totalQuestions} questions`;
+                    } else if (assessment.status === 'available') {
+                      progressValue = 0;
+                      progressLabel = 'Non commencé';
+                    } else if (assessment.status === 'locked') {
+                      progressValue = 0;
+                      progressLabel = 'Verrouillé';
+                    }
+                    
+                    return (
+                      <Progress
+                        value={progressValue}
+                        max={progressMax}
+                        variant={assessment.status === 'completed' ? 'success' : 'default'}
+                        size="md"
+                        showLabel={true}
+                        label={progressLabel}
+                      />
+                    );
+                  })()}
+                </div>
               </Card>
             );
           })}
