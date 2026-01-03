@@ -529,14 +529,11 @@ function DashboardContent() {
 
           {/* Color block under all 3 sections - wider */}
           <div 
-            className="mb-8"
+            className="mb-8 -mx-[15%]"
             style={{ 
               backgroundColor: '#d5dee0',
-              height: '20px',
-              position: 'relative',
-              left: '-15%',
+              height: '24px',
               width: 'calc(100% + 30%)',
-              zIndex: 1,
             }}
           />
 

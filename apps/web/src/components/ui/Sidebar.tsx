@@ -55,6 +55,11 @@ export default function Sidebar({
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const activePath = currentPath || pathname;
+  
+  // Debug: log active path in development
+  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+    console.log('[Sidebar] Active path:', activePath, 'Current path:', currentPath, 'Pathname:', pathname);
+  }
 
   // Auto-expand all groups by default for better UX
   useEffect(() => {
@@ -109,11 +114,13 @@ export default function Sidebar({
     const hasChildren = item.children && item.children.length > 0;
     const isExpanded = expandedItems.has(item.label);
     // Improved active detection - check exact match or if path starts with href
+    const normalizePath = (path: string) => path?.split('?')[0].split('#')[0];
+    const normalizedActivePath = normalizePath(activePath || '');
+    const normalizedHref = normalizePath(item.href || '');
+    
     const isActive = item.href && (
-      activePath === item.href || 
-      (activePath && item.href && activePath.startsWith(item.href + '/')) ||
-      (activePath?.includes('?') && activePath.split('?')[0] === item.href) ||
-      (activePath?.includes('#') && activePath.split('#')[0] === item.href)
+      normalizedActivePath === normalizedHref || 
+      (normalizedActivePath && normalizedHref && normalizedActivePath.startsWith(normalizedHref + '/'))
     );
 
     return (
