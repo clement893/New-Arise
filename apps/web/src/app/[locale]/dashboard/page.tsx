@@ -293,7 +293,7 @@ function DashboardContent() {
   };
 
   return (
-    <div>
+    <div className="relative">
           {/* Welcome Header */}
           <MotionDiv variant="fade" duration="normal">
             <div className="mb-8">
@@ -529,10 +529,12 @@ function DashboardContent() {
 
           {/* Color block under all 3 sections - wider */}
           <div 
-            className="mb-8 -mx-[15%]"
+            className="mb-8"
             style={{ 
               backgroundColor: '#d5dee0',
-              height: '24px',
+              height: '32px',
+              marginLeft: '-15%',
+              marginRight: '-15%',
               width: 'calc(100% + 30%)',
             }}
           />
