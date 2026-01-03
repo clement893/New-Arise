@@ -33,9 +33,14 @@ function WellnessAssessmentContent() {
   const [showCompletion, setShowCompletion] = useState(false);
   const [isCheckingExisting, setIsCheckingExisting] = useState(true);
 
-  const currentQuestion = wellnessQuestions[currentQuestionIndex];
+  // Safety check: ensure wellnessQuestions is loaded and currentQuestionIndex is valid
+  const currentQuestion = wellnessQuestions && wellnessQuestions.length > 0 && currentQuestionIndex >= 0 && currentQuestionIndex < wellnessQuestions.length
+    ? wellnessQuestions[currentQuestionIndex]
+    : null;
   const progress = getProgress();
-  const isLastQuestion = currentQuestionIndex === wellnessQuestions.length - 1;
+  const isLastQuestion = wellnessQuestions && wellnessQuestions.length > 0 
+    ? currentQuestionIndex === wellnessQuestions.length - 1
+    : false;
   const currentAnswer = currentQuestion ? answers[currentQuestion.id] : undefined;
 
   // Check for existing assessment on mount
