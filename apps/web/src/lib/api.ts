@@ -495,6 +495,20 @@ export const subscriptionsAPI = {
   getPlan: (planId: number) => {
     return apiClient.get(`/v1/subscriptions/plans/${planId}`);
   },
+  createPlan: (data: {
+    name: string;
+    description?: string | null;
+    amount: number; // in cents
+    currency?: string;
+    interval?: string;
+    interval_count?: number;
+    is_popular?: boolean;
+    features?: string | null;
+    stripe_price_id?: string | null;
+    stripe_product_id?: string | null;
+  }) => {
+    return apiClient.post('/v1/subscriptions/plans', data);
+  },
   updatePlan: (planId: number, data: {
     name?: string;
     description?: string | null;

@@ -7,10 +7,10 @@
 
 import { useState, useEffect } from 'react';
 import { PageHeader, PageContainer } from '@/components/layout';
-import { Card, Button, Input, Textarea, Badge, Alert } from '@/components/ui';
+import { Card, Button, Input, Textarea, Badge, Alert, Modal } from '@/components/ui';
 import { subscriptionsAPI } from '@/lib/api';
 import ProtectedSuperAdminRoute from '@/components/auth/ProtectedSuperAdminRoute';
-import { Edit2, Save, X, Loader2 } from 'lucide-react';
+import { Edit2, Save, X, Loader2, Plus } from 'lucide-react';
 
 interface Plan {
   id: number;
@@ -34,6 +34,18 @@ function PlansPageContent() {
   const [editedPlans, setEditedPlans] = useState<Record<number, Partial<Plan>>>({});
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [creatingPlan, setCreatingPlan] = useState(false);
+  const [newPlan, setNewPlan] = useState({
+    name: '',
+    description: '',
+    amount: '',
+    currency: 'eur',
+    interval: 'MONTH',
+    interval_count: 1,
+    is_popular: false,
+    features: '',
+  });
 
   useEffect(() => {
     loadPlans();
@@ -121,6 +133,49 @@ function PlansPageContent() {
     }
   };
 
+  const handleCreatePlan = async () => {
+    try {
+      setCreatingPlan(true);
+      setError(null);
+      setSuccess(null);
+
+      // Convert amount from euros to cents
+      const amountInCents = Math.round(parseFloat(newPlan.amount) * 100);
+
+      await subscriptionsAPI.createPlan({
+        name: newPlan.name,
+        description: newPlan.description || null,
+        amount: amountInCents,
+        currency: newPlan.currency,
+        interval: newPlan.interval,
+        interval_count: newPlan.interval_count,
+        is_popular: newPlan.is_popular,
+        features: newPlan.features || null,
+      });
+
+      setSuccess(`Plan "${newPlan.name}" créé avec succès`);
+      setShowCreateModal(false);
+      setNewPlan({
+        name: '',
+        description: '',
+        amount: '',
+        currency: 'eur',
+        interval: 'MONTH',
+        interval_count: 1,
+        is_popular: false,
+        features: '',
+      });
+      
+      // Reload plans
+      await loadPlans();
+    } catch (err: any) {
+      console.error('Error creating plan:', err);
+      setError(err?.response?.data?.detail || err?.message || 'Erreur lors de la création du plan');
+    } finally {
+      setCreatingPlan(false);
+    }
+  };
+
   const formatPrice = (amount: number) => {
     if (amount === 0) return 'Sur devis';
     return `${(amount / 100).toFixed(2)}€`;
@@ -164,6 +219,16 @@ function PlansPageContent() {
           { label: 'Administration', href: '/admin' },
           { label: 'Plans' },
         ]}
+        actions={
+          <Button
+            variant="primary"
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Créer un plan
+          </Button>
+        }
       />
 
       {error && (
@@ -370,6 +435,163 @@ function PlansPageContent() {
         })}
         </div>
       )}
+
+      {/* Create Plan Modal */}
+      <Modal
+        isOpen={showCreateModal}
+        onClose={() => {
+          setShowCreateModal(false);
+          setNewPlan({
+            name: '',
+            description: '',
+            amount: '',
+            currency: 'eur',
+            interval: 'MONTH',
+            interval_count: 1,
+            is_popular: false,
+            features: '',
+          });
+          setError(null);
+        }}
+        title="Créer un nouveau plan"
+        size="lg"
+        footer={
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowCreateModal(false);
+                setNewPlan({
+                  name: '',
+                  description: '',
+                  amount: '',
+                  currency: 'eur',
+                  interval: 'MONTH',
+                  interval_count: 1,
+                  is_popular: false,
+                  features: '',
+                });
+                setError(null);
+              }}
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleCreatePlan}
+              disabled={creatingPlan || !newPlan.name || !newPlan.amount}
+            >
+              {creatingPlan ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Création...
+                </>
+              ) : (
+                'Créer le plan'
+              )}
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Nom du plan *</label>
+            <Input
+              value={newPlan.name}
+              onChange={(e) => setNewPlan({ ...newPlan, name: e.target.value })}
+              placeholder="Ex: Basic, Professional, Enterprise"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Description</label>
+            <Textarea
+              value={newPlan.description}
+              onChange={(e) => setNewPlan({ ...newPlan, description: e.target.value })}
+              placeholder="Description du plan"
+              rows={2}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Prix (€) *</label>
+              <Input
+                type="number"
+                step="0.01"
+                value={newPlan.amount}
+                onChange={(e) => setNewPlan({ ...newPlan, amount: e.target.value })}
+                placeholder="49.00"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Devise</label>
+              <select
+                value={newPlan.currency}
+                onChange={(e) => setNewPlan({ ...newPlan, currency: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600"
+              >
+                <option value="eur">EUR (€)</option>
+                <option value="usd">USD ($)</option>
+                <option value="gbp">GBP (£)</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Intervalle</label>
+              <select
+                value={newPlan.interval}
+                onChange={(e) => setNewPlan({ ...newPlan, interval: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600"
+              >
+                <option value="MONTH">Mensuel</option>
+                <option value="YEAR">Annuel</option>
+                <option value="WEEK">Hebdomadaire</option>
+                <option value="DAY">Quotidien</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Nombre d'intervalles</label>
+              <Input
+                type="number"
+                min="1"
+                value={newPlan.interval_count}
+                onChange={(e) => setNewPlan({ ...newPlan, interval_count: parseInt(e.target.value) || 1 })}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={newPlan.is_popular}
+                onChange={(e) => setNewPlan({ ...newPlan, is_popular: e.target.checked })}
+                className="w-4 h-4"
+              />
+              <span className="text-sm font-medium">Marquer comme populaire</span>
+            </label>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Fonctionnalités (JSON)</label>
+            <Textarea
+              value={newPlan.features}
+              onChange={(e) => setNewPlan({ ...newPlan, features: e.target.value })}
+              placeholder='{"feature1": true, "feature2": "value"}'
+              rows={4}
+              className="font-mono text-sm"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Format JSON optionnel pour les fonctionnalités du plan
+            </p>
+          </div>
+        </div>
+      </Modal>
     </PageContainer>
   );
 }

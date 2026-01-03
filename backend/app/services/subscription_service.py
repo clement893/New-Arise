@@ -69,6 +69,39 @@ class SubscriptionService:
         )
         return result.scalar_one_or_none()
 
+    async def create_plan(
+        self,
+        name: str,
+        description: Optional[str] = None,
+        amount: float = 0,
+        currency: str = "eur",
+        interval: PlanInterval = PlanInterval.MONTH,
+        interval_count: int = 1,
+        status: PlanStatus = PlanStatus.ACTIVE,
+        is_popular: bool = False,
+        features: Optional[str] = None,
+        stripe_price_id: Optional[str] = None,
+        stripe_product_id: Optional[str] = None,
+    ) -> Plan:
+        """Create a new plan"""
+        plan = Plan(
+            name=name,
+            description=description,
+            amount=Decimal(str(amount)),
+            currency=currency,
+            interval=interval,
+            interval_count=interval_count,
+            status=status,
+            is_popular=is_popular,
+            features=features,
+            stripe_price_id=stripe_price_id,
+            stripe_product_id=stripe_product_id,
+        )
+        self.db.add(plan)
+        await self.db.commit()
+        await self.db.refresh(plan)
+        return plan
+
     async def update_plan(
         self,
         plan_id: int,

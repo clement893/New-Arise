@@ -15,11 +15,13 @@ from app.dependencies import (
     get_stripe_service,
 )
 from app.models import User
+from app.models.plan import PlanStatus
 from app.services.subscription_service import SubscriptionService
 from app.services.stripe_service import StripeService
 from app.schemas.subscription import (
     PlanResponse,
     PlanListResponse,
+    PlanCreate,
     PlanUpdate,
     SubscriptionResponse,
     CheckoutSessionCreate,
@@ -50,6 +52,37 @@ async def list_plans(
         plans=[PlanResponse.model_validate(plan) for plan in plans],
         total=len(plans)
     )
+
+
+@router.post("/plans", response_model=PlanResponse, status_code=status.HTTP_201_CREATED)
+async def create_plan(
+    plan_create: PlanCreate,
+    current_user: User = Depends(get_current_user),
+    subscription_service: SubscriptionService = Depends(get_subscription_service),
+):
+    """Create a new plan (admin only)"""
+    # Check if user is admin
+    if not current_user.is_superuser:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only administrators can create plans"
+        )
+    
+    plan = await subscription_service.create_plan(
+        name=plan_create.name,
+        description=plan_create.description,
+        amount=float(plan_create.amount),
+        currency=plan_create.currency,
+        interval=plan_create.interval,
+        interval_count=plan_create.interval_count,
+        status=PlanStatus.ACTIVE,  # New plans are active by default
+        is_popular=plan_create.is_popular,
+        features=plan_create.features,
+        stripe_price_id=plan_create.stripe_price_id,
+        stripe_product_id=plan_create.stripe_product_id,
+    )
+    
+    return PlanResponse.model_validate(plan)
 
 
 @router.get("/plans/{plan_id}", response_model=PlanResponse)
