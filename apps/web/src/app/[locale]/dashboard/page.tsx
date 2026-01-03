@@ -470,7 +470,7 @@ function DashboardContent() {
                   Add assessment
                 </Button>
               </div>
-              <div className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {evaluations.map((evaluation, index) => {
                   const Icon = evaluation.icon;
                   return (
