@@ -9,6 +9,7 @@ import { useAuthStore } from '@/lib/store';
 import { Card, Button, LoadingSkeleton, Stack } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
+import Image from 'next/image';
 import { 
   Brain, 
   Target, 
@@ -724,9 +725,14 @@ function DashboardContent() {
                     <ArrowRight size={20} />
                   </Button>
                 </div>
-                {/* Image placeholder */}
-                <div className="hidden lg:block flex-shrink-0 w-64 h-64 bg-white/10 rounded-lg flex items-center justify-center">
-                  <span className="text-white/50 text-sm">Image placeholder</span>
+                {/* Image */}
+                <div className="hidden lg:block relative w-48 h-48 flex-shrink-0">
+                  <Image
+                    src="/images/leader-4.jpg"
+                    alt="Coaching session"
+                    fill
+                    className="object-cover rounded-lg"
+                  />
                 </div>
               </div>
             </Card>
