@@ -11,6 +11,7 @@ import { Brain, Target, Users, Heart, Upload, CheckCircle, Lock, type LucideIcon
 import { getMyAssessments, Assessment as ApiAssessment, AssessmentType, submitAssessment } from '@/lib/api/assessments';
 import { startAssessment } from '@/lib/api/assessments';
 import InviteAdditionalEvaluatorsModal from '@/components/360/InviteAdditionalEvaluatorsModal';
+import { determineAssessmentStatus } from '@/lib/utils/assessmentStatus';
 
 interface AssessmentDisplay {
   id: string;
