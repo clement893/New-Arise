@@ -673,54 +673,25 @@ function DashboardContent() {
 
           {/* Coaching Section */}
           <MotionDiv variant="slideUp" delay={400}>
-            <Card 
-              className="text-white border-0 relative overflow-hidden"
-              style={{ 
-                backgroundColor: '#2e2e2e',
-                marginLeft: 'calc(-14% - 0.5rem)',
-                marginRight: 'calc(-5% - 0.5rem)',
-                width: 'calc(100% + 19% + 1rem)',
-                borderRadius: '16px',
-              }}
-            >
-              {/* Background Pattern */}
-              <div 
-                className="absolute inset-0 opacity-5"
-                style={{
-                  backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 50px, rgba(255, 255, 255, 0.1) 50px, rgba(255, 255, 255, 0.1) 51px)'
-                }}
-              />
-
-              <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 px-6 sm:px-8 py-8">
-                <div className="flex-1 min-w-0 pr-0 lg:pr-8">
-                  <h2 className="text-3xl font-bold mb-4 text-white">
+            <Card className="text-white border-0 p-8 overflow-hidden" style={{ backgroundColor: '#2E2E2E' }}>
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-2xl font-bold mb-3">
                     Ready to accelerate your growth?
                   </h2>
-                  <p className="text-white/90 mb-6">
+                  <p className="text-white/90 mb-4 break-words">
                     Connect with expert ARISE coaches who specialize in leadership development. 
-                    Schedule your FREE coaching session to debrief your results and build a 
-                    personalized development plan.
+                    Schedule your FREE coaching session to debrief your results and build a personalized development plan.
                   </p>
                   <Button 
-                    variant="primary" 
-                    className="flex items-center gap-2 font-semibold"
-                    style={{ backgroundColor: '#d8b868', color: '#000000' }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#d8b868';
-                      e.currentTarget.style.opacity = '0.9';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#d8b868';
-                      e.currentTarget.style.opacity = '1';
-                    }}
+                    variant="secondary" 
+                    className="bg-arise-gold hover:bg-arise-gold/90 text-white"
                     onClick={() => router.push('/dashboard/coaching-options')}
                   >
-                    Explore coaching options
-                    <ArrowRight size={20} />
+                    Explore coaching options →
                   </Button>
                 </div>
-                {/* Image */}
-                <div className="hidden lg:block relative w-48 h-48 flex-shrink-0">
+                <div className="relative w-48 h-48 flex-shrink-0">
                   <Image
                     src="/images/leader-4.jpg"
                     alt="Coaching session"
