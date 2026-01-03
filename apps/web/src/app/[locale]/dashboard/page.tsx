@@ -326,13 +326,13 @@ function DashboardContent() {
                 <Button 
                   variant="primary" 
                   className="whitespace-nowrap font-semibold text-white"
-                  style={{ backgroundColor: '#0f4c56' }}
+                  style={{ backgroundColor: '#0F454D' }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#0f4c56';
+                    e.currentTarget.style.backgroundColor = '#0F454D';
                     e.currentTarget.style.opacity = '0.9';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#0f4c56';
+                    e.currentTarget.style.backgroundColor = '#0F454D';
                     e.currentTarget.style.opacity = '1';
                   }}
                   onClick={() => {
@@ -360,7 +360,7 @@ function DashboardContent() {
           <MotionDiv variant="slideUp" delay={200}>
             <Card 
               className="mb-8 text-white border-0"
-              style={{ backgroundColor: '#0f4c56' }}
+              style={{ backgroundColor: '#0F454D' }}
             >
               <div className="flex justify-between items-start mb-6 gap-8">
                 <div className="flex-1">
@@ -414,15 +414,15 @@ function DashboardContent() {
                   style={{ 
                     borderColor: '#799ba1', 
                     borderWidth: '2px',
-                    backgroundColor: '#0f4c56',
+                    backgroundColor: '#0F454D',
                     color: '#ffffff'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#0f4c56';
+                    e.currentTarget.style.backgroundColor = '#0F454D';
                     e.currentTarget.style.opacity = '0.9';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#0f4c56';
+                    e.currentTarget.style.backgroundColor = '#0F454D';
                     e.currentTarget.style.opacity = '1';
                   }}
                   onClick={() => router.push('/dashboard/results')}
@@ -441,13 +441,13 @@ function DashboardContent() {
                 <Button 
                   variant="primary" 
                   className="text-white font-semibold"
-                  style={{ backgroundColor: '#0f4c56', color: '#ffffff' }}
+                  style={{ backgroundColor: '#0F454D', color: '#ffffff' }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#0f4c56';
+                    e.currentTarget.style.backgroundColor = '#0F454D';
                     e.currentTarget.style.opacity = '0.9';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#0f4c56';
+                    e.currentTarget.style.backgroundColor = '#0F454D';
                     e.currentTarget.style.opacity = '1';
                   }}
                   onClick={() => router.push('/dashboard/assessments')}
@@ -529,13 +529,13 @@ function DashboardContent() {
 
           {/* Color block under all 3 sections - wider */}
           <div 
-            className="mb-8 absolute left-0 right-0"
+            className="mb-8"
             style={{ 
               backgroundColor: '#d5dee0',
               height: '32px',
-              width: '100vw',
-              marginLeft: 'calc(-15% - var(--content-padding, 0px))',
-              position: 'relative',
+              marginLeft: '-15%',
+              marginRight: '-15%',
+              width: 'calc(100% + 30%)',
             }}
           />
 
