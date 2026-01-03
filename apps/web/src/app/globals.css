@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide scrollbar for dashboard main content */
+main::-webkit-scrollbar {
+  display: none;
+}
+
 /* 
  * No default colors defined here - all colors come from API theme via GlobalThemeProvider
  * Theme system will set all CSS variables dynamically from the active theme

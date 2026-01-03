@@ -420,6 +420,8 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
               zIndex: 10,
               marginLeft: '15%',
               marginRight: '5%',
+              scrollbarWidth: 'none', // Firefox
+              msOverflowStyle: 'none', // IE and Edge
             }}
           >
             {children}
