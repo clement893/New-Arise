@@ -533,9 +533,13 @@ function AssessmentsContent() {
                       </div>
                       <div className="flex items-center gap-4">
                         {getStatusBadge(assessment.status)}
-                        {assessment.status === 'in-progress' && assessment.answerCount !== undefined && assessment.totalQuestions !== undefined && (
+                        {assessment.status === 'in-progress' && (
                           <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
-                            {assessment.answerCount}/{assessment.totalQuestions}
+                            {assessment.answerCount !== undefined && assessment.totalQuestions !== undefined
+                              ? `${assessment.answerCount}/${assessment.totalQuestions}`
+                              : assessment.answerCount !== undefined
+                              ? `${assessment.answerCount} réponses`
+                              : 'En cours'}
                           </span>
                         )}
                         {assessment.externalLink && assessment.status !== 'completed' && (
