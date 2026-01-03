@@ -19,7 +19,7 @@ import {
   CheckCircle,
   Lock
 } from 'lucide-react';
-import { getMyAssessments, Assessment as ApiAssessment, AssessmentType } from '@/lib/api/assessments';
+import { getMyAssessments, Assessment as ApiAssessment, AssessmentType, get360Evaluators, EvaluatorStatus } from '@/lib/api/assessments';
 import InviteAdditionalEvaluatorsModal from '@/components/360/InviteAdditionalEvaluatorsModal';
 
 // Mapping of assessment types to display info
@@ -54,10 +54,22 @@ function DashboardContent() {
   const [assessments, setAssessments] = useState<ApiAssessment[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [showEvaluatorModal, setShowEvaluatorModal] = useState(false);
+  const [evaluators, setEvaluators] = useState<EvaluatorStatus[]>([]);
+  const [evaluatorsLoading, setEvaluatorsLoading] = useState(false);
 
   useEffect(() => {
     loadAssessments();
   }, []);
+
+  useEffect(() => {
+    // Load evaluators if user has a 360 feedback assessment
+    const feedback360Assessment = assessments.find(
+      a => a.assessment_type === 'THREE_SIXTY_SELF'
+    );
+    if (feedback360Assessment?.id) {
+      loadEvaluators(feedback360Assessment.id);
+    }
+  }, [assessments]);
 
   const loadAssessments = async () => {
     try {
@@ -80,6 +92,20 @@ function DashboardContent() {
       setError(err instanceof Error ? err.message : 'Failed to load assessments');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadEvaluators = async (assessmentId: number) => {
+    try {
+      setEvaluatorsLoading(true);
+      const response = await get360Evaluators(assessmentId);
+      setEvaluators(response.evaluators || []);
+    } catch (err) {
+      console.error('Failed to load evaluators:', err);
+      // Don't show error, just set empty array
+      setEvaluators([]);
+    } finally {
+      setEvaluatorsLoading(false);
     }
   };
 
@@ -178,9 +204,24 @@ function DashboardContent() {
       
       let status: 'completed' | 'in-progress' | 'locked' | 'available' = 'available';
       if (assessment) {
-        if (assessment.status === 'COMPLETED') {
+        // First, check if assessment is actually completed by checking answer count
+        const hasAllAnswers = assessment.answer_count !== undefined && 
+                              assessment.total_questions !== undefined &&
+                              assessment.total_questions > 0 &&
+                              assessment.answer_count >= assessment.total_questions;
+        
+        if (hasAllAnswers || assessment.status === 'COMPLETED') {
           status = 'completed';
-        } else if (assessment.status === 'IN_PROGRESS' || assessment.status === 'NOT_STARTED') {
+        } else if (assessment.status === 'NOT_STARTED') {
+          // Assessment créé mais pas encore commencé
+          // Si answer_count est 0 ou undefined, c'est disponible (pas commencé)
+          // Si answer_count > 0, c'est en cours
+          if (assessment.answer_count === undefined || assessment.answer_count === 0) {
+            status = 'available'; // Pas encore commencé, affichera "Commencer"
+          } else {
+            status = 'in-progress'; // Commencé mais pas complété, affichera "Continuer"
+          }
+        } else if (assessment.status === 'IN_PROGRESS') {
           status = 'in-progress';
         }
       }
@@ -221,14 +262,14 @@ function DashboardContent() {
         return (
           <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
             <CheckCircle size={12} />
-            Completed
+            Terminé
           </span>
         );
       case 'in-progress':
         return (
           <div className="flex items-center gap-2">
             <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
-              In progress
+              En cours
             </span>
             {answerCount !== undefined && totalQuestions !== undefined && (
               <span className="inline-block px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full font-medium">
@@ -246,11 +287,12 @@ function DashboardContent() {
     if (evaluation.status === 'locked') {
       return (
         <Button variant="secondary" disabled className="w-full">
-          Locked
+          Verrouillé
         </Button>
       );
     }
 
+    // Cas: Complété → Voir les résultats
     if (evaluation.status === 'completed') {
       return (
         <Button 
@@ -268,11 +310,52 @@ function DashboardContent() {
             }
           }}
         >
-          View Results
+          Voir les résultats
         </Button>
       );
     }
 
+    // Cas: En cours avec toutes les réponses → Voir les résultats
+    if (evaluation.status === 'in-progress' && 
+        evaluation.answerCount !== undefined && 
+        evaluation.totalQuestions !== undefined && 
+        evaluation.answerCount >= evaluation.totalQuestions) {
+      return (
+        <Button 
+          variant="outline" 
+          className="w-full rounded-full"
+          onClick={() => {
+            if (evaluation.assessmentType === 'TKI' && evaluation.assessmentId) {
+              router.push(`/dashboard/assessments/tki/results?id=${evaluation.assessmentId}`);
+            } else if (evaluation.assessmentType === 'WELLNESS' && evaluation.assessmentId) {
+              router.push(`/dashboard/assessments/results?id=${evaluation.assessmentId}`);
+            } else if (evaluation.assessmentType === 'THREE_SIXTY_SELF' && evaluation.assessmentId) {
+              router.push(`/dashboard/assessments/360-feedback/results?id=${evaluation.assessmentId}`);
+            }
+          }}
+        >
+          Voir les résultats
+        </Button>
+      );
+    }
+
+    // Cas: En cours avec réponses partielles → Continuer
+    if (evaluation.status === 'in-progress') {
+      return (
+        <Button 
+          variant="primary" 
+          className="w-full !bg-arise-gold-alt !text-arise-deep-teal-alt hover:!bg-arise-gold-alt/90 font-semibold"
+          style={{ backgroundColor: 'var(--color-arise-gold-alt, #F4B860)', color: 'var(--color-arise-deep-teal-alt, #1B5E6B)' }}
+          onClick={() => {
+            router.push(`/dashboard/assessments/${getAssessmentRoute(evaluation.assessmentType)}`);
+          }}
+        >
+          Continuer
+        </Button>
+      );
+    }
+
+    // Cas: Disponible ou pas commencé → Commencer
     return (
       <Button 
         variant="primary" 
@@ -282,7 +365,7 @@ function DashboardContent() {
           router.push(`/dashboard/assessments/${getAssessmentRoute(evaluation.assessmentType)}`);
         }}
       >
-        {evaluation.status === 'in-progress' ? 'Continue' : 'Add the assessment'}
+        Commencer
       </Button>
     );
   };
@@ -302,7 +385,7 @@ function DashboardContent() {
     <div className="relative">
           {/* Welcome Header */}
           <MotionDiv variant="fade" duration="normal">
-            <div className="mb-8">
+            <div className="mb-8 pb-6">
               <h1 className="text-4xl font-bold mb-2">
                 <span className="text-white">Welcome</span> <span style={{ color: '#D5B667' }}>{user?.name?.split(' ')[0] || 'User'}</span>
               </h1>
@@ -336,18 +419,43 @@ function DashboardContent() {
                 <Card className="mb-8">
                   <div className="flex items-center justify-between">
                     <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 bg-arise-deep-teal/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <div 
+                        className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                        style={{ backgroundColor: '#e7eeef' }}
+                      >
                         <Info className="text-arise-deep-teal" size={20} />
                       </div>
-                      <div>
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
-                          Add Your 360° Feedback: Evaluators
-                        </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">
-                          Get comprehensive feedback by inviting colleagues to evaluate your leadership.
-                        </p>
-                      </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
+                        Add Your 360° Feedback: Evaluators
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        Get comprehensive feedback by inviting colleagues to evaluate your leadership.
+                      </p>
                     </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {evaluators.length > 0 && (
+                      <Button 
+                        variant="outline" 
+                        className="whitespace-nowrap font-semibold"
+                        style={{ 
+                          borderColor: '#0F454D',
+                          color: '#0F454D',
+                          backgroundColor: 'transparent'
+                        }}
+                        onClick={() => {
+                          const feedback360Assessment = assessments.find(
+                            a => a.assessment_type === 'THREE_SIXTY_SELF'
+                          );
+                          if (feedback360Assessment?.id) {
+                            router.push(`/dashboard/evaluators?id=${feedback360Assessment.id}`);
+                          }
+                        }}
+                      >
+                        View evaluators ({evaluators.length})
+                      </Button>
+                    )}
                     <Button 
                       variant="primary" 
                       className="!bg-[#0F454D] hover:!bg-[#0d4148] whitespace-nowrap font-semibold text-white"
@@ -377,6 +485,7 @@ function DashboardContent() {
                     >
                       Add evaluators
                     </Button>
+                  </div>
                   </div>
                 </Card>
               </MotionDiv>
@@ -486,11 +595,24 @@ function DashboardContent() {
                       return (
                         <Card 
                           key={index} 
-                          className={`group relative transition-colors duration-300 ${evaluation.status === 'locked' ? 'opacity-60' : 'hover:bg-[#6f949a]'}`}
+                          className={`group relative transition-all duration-300 ${evaluation.status === 'locked' ? 'opacity-60' : ''}`}
+                          onMouseEnter={evaluation.status !== 'locked' ? (e) => {
+                            const cardElement = e.currentTarget;
+                            cardElement.style.backgroundColor = '#6f949a';
+                            cardElement.style.setProperty('--glassmorphism-card-background', '#6f949a');
+                          } : undefined}
+                          onMouseLeave={evaluation.status !== 'locked' ? (e) => {
+                            const cardElement = e.currentTarget;
+                            cardElement.style.backgroundColor = '';
+                            cardElement.style.removeProperty('--glassmorphism-card-background');
+                          } : undefined}
                         >
                           <Stack gap="normal">
                             {/* Icon in upper left corner */}
-                            <div className="absolute top-4 left-4 w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center z-10">
+                            <div 
+                              className="absolute top-4 left-4 w-12 h-12 rounded-lg flex items-center justify-center z-10"
+                              style={{ backgroundColor: '#e7eeef' }}
+                            >
                               <Icon className="text-arise-deep-teal" size={24} />
                             </div>
                             {/* Status badges */}
@@ -574,12 +696,12 @@ function DashboardContent() {
                 }}
               />
 
-              <div className="relative z-10 flex items-center justify-between gap-8 px-8 py-8">
-                <div className="flex-1 min-w-0">
+              <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 px-8 py-8">
+                <div className="flex-1 min-w-0 pr-0 lg:pr-8">
                   <h2 className="text-3xl font-bold mb-4">
                     Ready to accelerate your growth?
                   </h2>
-                  <p className="text-white/90 mb-6 max-w-2xl">
+                  <p className="text-white/90 mb-6">
                     Connect with expert ARISE coaches who specialize in leadership development. 
                     Schedule your FREE coaching session to debrief your results and build a 
                     personalized development plan.

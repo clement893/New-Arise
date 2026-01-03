@@ -170,8 +170,17 @@ function AssessmentsContent() {
           } else if (statusNormalized === 'completed' || statusNormalized === 'complete') {
             // Status explicitly says completed
             status = 'completed';
-          } else if (statusNormalized === 'inprogress' || statusNormalized === 'in_progress' || statusNormalized === 'notstarted' || statusNormalized === 'not_started') {
-            // Status is in progress or not started, and not all answers are provided
+          } else if (statusNormalized === 'notstarted' || statusNormalized === 'not_started') {
+            // Assessment créé mais pas encore commencé
+            // Si answer_count est 0 ou undefined, c'est disponible (pas commencé)
+            // Si answer_count > 0, c'est en cours
+            if (apiAssessment.answer_count === undefined || apiAssessment.answer_count === 0) {
+              status = 'available'; // Pas encore commencé, affichera "Commencer"
+            } else {
+              status = 'in-progress'; // Commencé mais pas complété, affichera "Continuer"
+            }
+          } else if (statusNormalized === 'inprogress' || statusNormalized === 'in_progress') {
+            // Status is explicitly in progress
             status = 'in-progress';
           } else {
             // Unknown status - log for debugging but default to in-progress if there are some answers
@@ -326,7 +335,7 @@ function AssessmentsContent() {
         // If all questions are answered, show "Voir les résultats" button
         if (assessment.answerCount !== undefined && 
             assessment.totalQuestions !== undefined && 
-            assessment.answerCount === assessment.totalQuestions &&
+            assessment.answerCount >= assessment.totalQuestions &&
             assessment.assessmentId) {
           return (
             <Button 
