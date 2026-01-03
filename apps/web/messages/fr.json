@@ -1149,5 +1149,36 @@
       "subtitle": "Nous sommes toujours intéressés par des personnes talentueuses. Envoyez-nous votre CV et dites-nous comment vous aimeriez contribuer.",
       "submitApplication": "Soumettre une candidature générale"
     }
+  },
+  "news": {
+    "title": "Actualités & Insights",
+    "subtitle": "Restez informé des derniers insights sur le développement du leadership, les évaluations et la croissance organisationnelle",
+    "readMore": "Lire la suite",
+    "articles": {
+      "article1": {
+        "title": "L'avenir du développement du leadership : Intégrer la technologie et l'insight humain",
+        "excerpt": "Découvrez comment les plateformes modernes de développement du leadership combinent une technologie de pointe avec des insights psychologiques profonds pour créer des programmes de développement plus efficaces.",
+        "author": "Dr. Sarah Johnson",
+        "date": "15 janvier 2024",
+        "category": "Leadership",
+        "content": "Dans le paysage commercial en évolution rapide d'aujourd'hui, le développement du leadership est devenu plus critique que jamais. Les organisations recherchent des approches innovantes qui combinent la puissance de la technologie avec la profondeur de la compréhension psychologique humaine. Cet article explore comment des plateformes comme ARISE révolutionnent le développement du leadership grâce à des outils d'évaluation intégrés et des insights personnalisés."
+      },
+      "article2": {
+        "title": "Comprendre votre style de leadership : Guide de l'évaluation MBTI",
+        "excerpt": "Apprenez comment l'indicateur de type Myers-Briggs peut vous aider à comprendre vos préférences de leadership naturelles et comment les exploiter pour une meilleure collaboration d'équipe.",
+        "author": "Michael Chen",
+        "date": "10 janvier 2024",
+        "category": "Évaluation",
+        "content": "L'évaluation MBTI a été une pierre angulaire de la compréhension de la personnalité pendant des décennies. Dans les contextes de leadership, comprendre votre type MBTI peut fournir des insights précieux sur votre style de communication, votre approche de prise de décision et la façon dont vous interagissez avec les membres de l'équipe. Ce guide complet vous guide à travers les aspects clés du MBTI et comment appliquer ces insights dans votre parcours de leadership."
+      },
+      "article3": {
+        "title": "Construire des équipes résilientes : Le rôle de la gestion des conflits dans les organisations modernes",
+        "excerpt": "Explorez comment des stratégies efficaces de gestion des conflits peuvent transformer la dynamique du lieu de travail et créer des équipes plus résilientes et performantes.",
+        "author": "Dr. Emily Rodriguez",
+        "date": "5 janvier 2024",
+        "category": "Développement d'équipe",
+        "content": "Le conflit est inévitable dans toute organisation, mais la façon dont les leaders gèrent les conflits peut faire la différence entre une équipe en difficulté et une équipe prospère. Cet article approfondit l'instrument de mode de conflit Thomas-Kilmann (TKI) et comment comprendre les différents styles de gestion des conflits peut aider les leaders à naviguer dans des situations difficiles plus efficacement. Apprenez des stratégies pratiques pour construire des équipes résilientes aux conflits."
+      }
+    }
   }
 }

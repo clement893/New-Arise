@@ -1237,5 +1237,36 @@
       "subtitle": "We're always interested in connecting with talented individuals. Send us your resume and let us know how you'd like to contribute.",
       "submitApplication": "Submit General Application"
     }
+  },
+  "news": {
+    "title": "News & Insights",
+    "subtitle": "Stay updated with the latest insights on leadership development, assessments, and organizational growth",
+    "readMore": "Read More",
+    "articles": {
+      "article1": {
+        "title": "The Future of Leadership Development: Integrating Technology and Human Insight",
+        "excerpt": "Discover how modern leadership development platforms are combining cutting-edge technology with deep psychological insights to create more effective development programs.",
+        "author": "Dr. Sarah Johnson",
+        "date": "January 15, 2024",
+        "category": "Leadership",
+        "content": "In today's rapidly evolving business landscape, leadership development has become more critical than ever. Organizations are seeking innovative approaches that combine the power of technology with the depth of human psychological understanding. This article explores how platforms like ARISE are revolutionizing leadership development through integrated assessment tools and personalized insights."
+      },
+      "article2": {
+        "title": "Understanding Your Leadership Style: A Guide to the MBTI Assessment",
+        "excerpt": "Learn how the Myers-Briggs Type Indicator can help you understand your natural leadership preferences and how to leverage them for better team collaboration.",
+        "author": "Michael Chen",
+        "date": "January 10, 2024",
+        "category": "Assessment",
+        "content": "The MBTI assessment has been a cornerstone of personality understanding for decades. In leadership contexts, understanding your MBTI type can provide valuable insights into your communication style, decision-making approach, and how you interact with team members. This comprehensive guide walks you through the key aspects of MBTI and how to apply these insights in your leadership journey."
+      },
+      "article3": {
+        "title": "Building Resilient Teams: The Role of Conflict Management in Modern Organizations",
+        "excerpt": "Explore how effective conflict management strategies can transform workplace dynamics and create more resilient, high-performing teams.",
+        "author": "Dr. Emily Rodriguez",
+        "date": "January 5, 2024",
+        "category": "Team Development",
+        "content": "Conflict is inevitable in any organization, but how leaders handle conflict can make the difference between a struggling team and a thriving one. This article delves into the Thomas-Kilmann Conflict Mode Instrument (TKI) and how understanding different conflict-handling styles can help leaders navigate challenging situations more effectively. Learn practical strategies for building conflict-resilient teams."
+      }
+    }
   }
 }
