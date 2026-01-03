@@ -12,6 +12,7 @@ import { wellnessQuestions, wellnessPillars, scaleOptions } from '@/data/wellnes
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 import { getMyAssessments, submitAssessment as submitAssessmentApi, getAssessmentResults } from '@/lib/api/assessments';
 import { determineAssessmentStatus } from '@/lib/utils/assessmentStatus';
+import { wellnessQuestions } from '@/data/wellnessQuestionsReal';
 
 function WellnessAssessmentContent() {
   const router = useRouter();
@@ -101,10 +102,8 @@ function WellnessAssessmentContent() {
             }
           }
           
-          // Update store with existing assessment ID
-          useWellnessStore.setState({
-            assessmentId: wellnessAssessment.id,
-          });
+          // Load existing answers and navigate to last unanswered question
+          await loadExistingAnswers(wellnessAssessment.id);
         }
       } catch (err) {
         console.error('Failed to check existing assessments:', err);

@@ -22,6 +22,7 @@ export default function Feedback360Page() {
     isLoading,
     error,
     setAnswer,
+    loadExistingAnswers,
     nextQuestion,
     previousQuestion,
     submitAssessment,

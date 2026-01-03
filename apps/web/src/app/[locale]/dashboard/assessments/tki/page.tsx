@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTKIStore } from '@/stores/tkiStore';
 import { tkiQuestions, tkiModes } from '@/data/tkiQuestions';
+import { getMyAssessments } from '@/lib/api/assessments';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import MotionDiv from '@/components/motion/MotionDiv';
@@ -18,6 +19,7 @@ export default function TKIAssessmentPage() {
     error,
     isCompleted,
     startAssessment,
+    loadExistingAnswers,
     answerQuestion,
     nextQuestion,
     previousQuestion,
@@ -30,6 +32,36 @@ export default function TKIAssessmentPage() {
   const currentQuestionData = tkiQuestions[currentQuestion];
   const progress = ((currentQuestion + 1) / tkiQuestions.length) * 100;
   const isLastQuestion = currentQuestion === tkiQuestions.length - 1;
+
+  // Check for existing assessment and load answers on mount
+  useEffect(() => {
+    const checkExistingAssessment = async () => {
+      if (assessmentId) {
+        // Assessment ID exists, load existing answers
+        await loadExistingAnswers(assessmentId);
+        setShowIntro(false);
+      } else {
+        // Check if there's an existing assessment
+        try {
+          const assessments = await getMyAssessments();
+          const tkiAssessment = assessments.find(
+            a => a.assessment_type === 'TKI' && 
+            (a.status === 'IN_PROGRESS' || a.status === 'in_progress' || a.status === 'NOT_STARTED' || a.status === 'not_started')
+          );
+          
+          if (tkiAssessment && tkiAssessment.id) {
+            // Load existing answers and navigate to last question
+            await loadExistingAnswers(tkiAssessment.id);
+            setShowIntro(false);
+          }
+        } catch (err) {
+          console.error('Failed to check existing assessments:', err);
+        }
+      }
+    };
+
+    checkExistingAssessment();
+  }, []); // Only run on mount
 
   useEffect(() => {
     if (currentQuestionData && answers[currentQuestionData.id]) {

@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { startAssessment, submitAssessment, saveResponse } from '@/lib/api/assessments';
+import { startAssessment, submitAssessment, saveResponse, getAssessmentAnswers } from '@/lib/api/assessments';
 import axios from 'axios';
 
 // Helper function to extract error message from various error formats
@@ -106,6 +106,7 @@ interface TKIState {
 
   // Actions
   startAssessment: () => Promise<void>;
+  loadExistingAnswers: (assessmentId: number) => Promise<void>;
   answerQuestion: (questionId: string, answer: string) => Promise<void>;
   nextQuestion: () => void;
   previousQuestion: () => void;
@@ -140,6 +141,47 @@ export const useTKIStore = create<TKIState>()(
           });
         } catch (error: unknown) {
           const errorMessage = extractErrorMessage(error, 'Failed to start assessment');
+          set({
+            error: errorMessage,
+            isLoading: false,
+          });
+        }
+      },
+
+      // Load existing answers and navigate to last unanswered question
+      loadExistingAnswers: async (assessmentId: number) => {
+        set({ isLoading: true, error: null });
+        try {
+          const existingAnswers = await getAssessmentAnswers(assessmentId);
+          
+          // Convert answer values to strings (TKI uses "A" or "B")
+          const answers: Record<string, string> = {};
+          Object.entries(existingAnswers).forEach(([questionId, answerValue]) => {
+            answers[questionId] = String(answerValue);
+          });
+
+          // Find the first unanswered question
+          const { tkiQuestions } = await import('@/data/tkiQuestions');
+          let firstUnansweredIndex = 0;
+          for (let i = 0; i < tkiQuestions.length; i++) {
+            if (!answers[tkiQuestions[i].id]) {
+              firstUnansweredIndex = i;
+              break;
+            }
+            // If all questions are answered, stay at the last question
+            if (i === tkiQuestions.length - 1) {
+              firstUnansweredIndex = i;
+            }
+          }
+
+          set({
+            assessmentId,
+            answers,
+            currentQuestion: firstUnansweredIndex,
+            isLoading: false,
+          });
+        } catch (error: unknown) {
+          const errorMessage = extractErrorMessage(error, 'Failed to load existing answers');
           set({
             error: errorMessage,
             isLoading: false,

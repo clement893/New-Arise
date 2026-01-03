@@ -589,6 +589,54 @@ async def submit_assessment(
     )
 
 
+@router.get("/{assessment_id}/answers")
+async def get_assessment_answers(
+    assessment_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get all answers for a specific assessment
+    """
+    # Get assessment
+    result = await db.execute(
+        select(Assessment)
+        .where(
+            Assessment.id == assessment_id,
+            Assessment.user_id == current_user.id
+        )
+    )
+    assessment = result.scalar_one_or_none()
+
+    if not assessment:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Assessment not found"
+        )
+
+    # Get all answers using raw SQL
+    answers_result = await db.execute(
+        text("""
+            SELECT question_id, answer_value
+            FROM assessment_answers
+            WHERE assessment_id = :assessment_id
+            ORDER BY question_id
+        """),
+        {
+            "assessment_id": assessment_id
+        }
+    )
+    answers_rows = answers_result.fetchall()
+    
+    # Convert to dict format
+    answers = {row[0]: row[1] for row in answers_rows}
+    
+    return {
+        "assessment_id": assessment_id,
+        "answers": answers
+    }
+
+
 @router.get("/{assessment_id}/results", response_model=AssessmentResultResponse)
 async def get_assessment_results(
     assessment_id: int,

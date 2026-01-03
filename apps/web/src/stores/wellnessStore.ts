@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { assessmentsApi, AssessmentResult } from '@/lib/api/assessments';
+import { assessmentsApi, AssessmentResult, getAssessmentAnswers } from '@/lib/api/assessments';
 import axios from 'axios';
 
 export type WellnessStep = 'intro' | 'questions' | 'congratulations';
@@ -26,6 +26,7 @@ interface WellnessState {
 
   // Actions
   startAssessment: () => Promise<void>;
+  loadExistingAnswers: (assessmentId: number) => Promise<void>;
   setCurrentStep: (step: WellnessStep) => void;
   nextQuestion: () => void;
   previousQuestion: () => void;
@@ -74,6 +75,55 @@ export const useWellnessStore = create<WellnessState>()(
             axios.isAxiosError(error) && error.response?.data?.message
               ? error.response.data.message
               : 'Failed to start assessment';
+          set({
+            error: errorMessage,
+            isLoading: false,
+          });
+        }
+      },
+
+      // Load existing answers and navigate to last unanswered question
+      loadExistingAnswers: async (assessmentId: number) => {
+        set({ isLoading: true, error: null });
+        try {
+          const existingAnswers = await getAssessmentAnswers(assessmentId);
+          
+          // Convert answer values to numbers (wellness uses 1-5 scale)
+          const answers: Record<string, number> = {};
+          Object.entries(existingAnswers).forEach(([questionId, answerValue]) => {
+            const numValue = parseInt(answerValue, 10);
+            if (!isNaN(numValue)) {
+              answers[questionId] = numValue;
+            }
+          });
+
+          // Find the first unanswered question
+          // Import wellnessQuestions to check which questions exist
+          const { wellnessQuestions } = await import('@/data/wellnessQuestionsReal');
+          let firstUnansweredIndex = 0;
+          for (let i = 0; i < wellnessQuestions.length; i++) {
+            if (!answers[wellnessQuestions[i].id]) {
+              firstUnansweredIndex = i;
+              break;
+            }
+            // If all questions are answered, stay at the last question
+            if (i === wellnessQuestions.length - 1) {
+              firstUnansweredIndex = i;
+            }
+          }
+
+          set({
+            assessmentId,
+            answers,
+            currentQuestionIndex: firstUnansweredIndex,
+            currentStep: 'questions',
+            isLoading: false,
+          });
+        } catch (error: unknown) {
+          const errorMessage =
+            axios.isAxiosError(error) && error.response?.data?.message
+              ? error.response.data.message
+              : 'Failed to load existing answers';
           set({
             error: errorMessage,
             isLoading: false,

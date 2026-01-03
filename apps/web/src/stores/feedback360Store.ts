@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { saveAnswer, submitAssessment } from '@/lib/api/assessments';
+import { saveAnswer, submitAssessment, getAssessmentAnswers } from '@/lib/api/assessments';
 import axios from 'axios';
 
 interface Feedback360State {
@@ -12,6 +12,7 @@ interface Feedback360State {
 
   // Actions
   startAssessment: () => Promise<void>;
+  loadExistingAnswers: (assessmentId: number) => Promise<void>;
   setAnswer: (questionId: string, value: number) => Promise<void>;
   nextQuestion: () => void;
   previousQuestion: () => void;

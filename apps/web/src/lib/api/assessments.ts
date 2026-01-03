@@ -236,6 +236,17 @@ export const getAssessment = async (assessmentId: number): Promise<Assessment> =
 };
 
 /**
+ * Get all answers for a specific assessment
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
+ */
+export const getAssessmentAnswers = async (assessmentId: number): Promise<Record<string, string>> => {
+  const response = await apiClient.get(
+    `/v1/assessments/${assessmentId}/answers`
+  );
+  return response.data.answers || {};
+};
+
+/**
  * 360° Feedback specific types and functions
  */
 export interface Evaluator360Data {
