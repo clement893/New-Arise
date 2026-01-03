@@ -19,7 +19,6 @@ function WellnessAssessmentContent() {
     answers,
     currentQuestionIndex,
     isCompleted,
-    assessmentId,
     setAnswer,
     nextQuestion,
     previousQuestion,
