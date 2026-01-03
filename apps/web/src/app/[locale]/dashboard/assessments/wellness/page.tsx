@@ -103,7 +103,16 @@ function WellnessAssessmentContent() {
           }
           
           // Load existing answers and navigate to last unanswered question
-          await loadExistingAnswers(wellnessAssessment.id);
+          // Only if we don't already have an assessmentId set (to avoid overwriting)
+          const { assessmentId: currentAssessmentId } = useWellnessStore.getState();
+          if (!currentAssessmentId || currentAssessmentId !== wellnessAssessment.id) {
+            console.log(`[Wellness] Loading existing answers for assessment ${wellnessAssessment.id}`);
+            await loadExistingAnswers(wellnessAssessment.id);
+          } else {
+            console.log(`[Wellness] Assessment ID already set (${currentAssessmentId}), skipping loadExistingAnswers`);
+            // Just ensure we're on the questions step
+            useWellnessStore.setState({ currentStep: 'questions' });
+          }
         }
       } catch (err) {
         console.error('Failed to check existing assessments:', err);
@@ -229,8 +238,21 @@ function WellnessAssessmentContent() {
                     variant="primary" 
                     size="lg"
                     onClick={async () => {
-                      await startAssessment();
-                      setShowIntro(false);
+                      try {
+                        await startAssessment();
+                        // Verify assessmentId was set
+                        const { assessmentId: newAssessmentId } = useWellnessStore.getState();
+                        if (!newAssessmentId) {
+                          console.error('[Wellness] startAssessment did not set assessmentId');
+                          alert('Erreur: Impossible de démarrer l\'assessment. Veuillez réessayer.');
+                          return;
+                        }
+                        console.log(`[Wellness] Assessment started with ID: ${newAssessmentId}`);
+                        setShowIntro(false);
+                      } catch (error) {
+                        console.error('[Wellness] Failed to start assessment:', error);
+                        alert('Erreur: Impossible de démarrer l\'assessment. Veuillez réessayer.');
+                      }
                     }}
                     disabled={isLoading}
                     className="px-8"
