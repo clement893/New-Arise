@@ -10,7 +10,8 @@ import MotionDiv from '@/components/motion/MotionDiv';
 import { useWellnessStore } from '@/stores/wellnessStore';
 import { wellnessQuestions, wellnessPillars, scaleOptions } from '@/data/wellnessQuestionsReal';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
-import { getMyAssessments, submitAssessment as submitAssessmentApi } from '@/lib/api/assessments';
+import { getMyAssessments, submitAssessment as submitAssessmentApi, getAssessmentResults } from '@/lib/api/assessments';
+import { determineAssessmentStatus } from '@/lib/utils/assessmentStatus';
 
 function WellnessAssessmentContent() {
   const router = useRouter();
@@ -47,45 +48,63 @@ function WellnessAssessmentContent() {
         );
         
         if (wellnessAssessment && wellnessAssessment.id) {
-          // If assessment is already completed, redirect to results immediately
-          if (wellnessAssessment.status === 'COMPLETED') {
-            // Update store to reflect completed status
-            useWellnessStore.setState({
-              assessmentId: wellnessAssessment.id,
-              isCompleted: true,
-              currentStep: 'congratulations',
-            });
-            router.push(`/dashboard/assessments/results?id=${wellnessAssessment.id}`);
-            return;
-          }
+          // Use determineAssessmentStatus to check if assessment is truly completed
+          const status = determineAssessmentStatus(wellnessAssessment, 'WELLNESS');
           
-          // If assessment has all answers but is not submitted, submit it automatically
-          if (wellnessAssessment.status === 'IN_PROGRESS' && wellnessAssessment.answer_count === 30) {
+          // Only redirect to results if assessment is completed AND results exist
+          if (status === 'completed') {
             try {
-              await submitAssessmentApi(wellnessAssessment.id);
-              // Redirect to results
+              // Try to load results to verify they exist
+              await getAssessmentResults(wellnessAssessment.id);
+              // Results exist, safe to redirect
+              useWellnessStore.setState({
+                assessmentId: wellnessAssessment.id,
+                isCompleted: true,
+                currentStep: 'congratulations',
+              });
               router.push(`/dashboard/assessments/results?id=${wellnessAssessment.id}`);
               return;
             } catch (err: any) {
-              // If assessment is already completed (400 error), redirect to results
-              if (err?.response?.status === 400 && err?.response?.data?.detail?.includes('already been completed')) {
-                // Update store to reflect completed status
-                useWellnessStore.setState({
-                  assessmentId: wellnessAssessment.id,
-                  isCompleted: true,
-                  currentStep: 'congratulations',
-                });
-                router.push(`/dashboard/assessments/results?id=${wellnessAssessment.id}`);
-                return;
+              // Results don't exist yet, check if we need to submit
+              if (err?.response?.status === 404) {
+                // Assessment is completed but results don't exist
+                // Check if we need to submit it
+                const hasAllAnswers = wellnessAssessment.answer_count !== undefined && 
+                                     wellnessAssessment.total_questions !== undefined &&
+                                     wellnessAssessment.total_questions > 0 &&
+                                     wellnessAssessment.answer_count >= wellnessAssessment.total_questions;
+                
+                if (hasAllAnswers && wellnessAssessment.status !== 'COMPLETED') {
+                  // Try to submit the assessment
+                  try {
+                    await submitAssessmentApi(wellnessAssessment.id);
+                    // Wait a bit for results to be calculated, then redirect
+                    setTimeout(() => {
+                      router.push(`/dashboard/assessments/results?id=${wellnessAssessment.id}`);
+                    }, 1000);
+                    return;
+                  } catch (submitErr: any) {
+                    // If already completed, try to redirect anyway
+                    if (submitErr?.response?.status === 400 && submitErr?.response?.data?.detail?.includes('already been completed')) {
+                      setTimeout(() => {
+                        router.push(`/dashboard/assessments/results?id=${wellnessAssessment.id}`);
+                      }, 1000);
+                      return;
+                    }
+                    console.error('Failed to submit assessment:', submitErr);
+                  }
+                }
+                // Results don't exist and can't submit, continue with assessment
+              } else {
+                console.error('Failed to check results:', err);
               }
-              console.error('Failed to submit existing assessment:', err);
             }
-          } else {
-            // Update store with existing assessment ID if not completed
-            useWellnessStore.setState({
-              assessmentId: wellnessAssessment.id,
-            });
           }
+          
+          // Update store with existing assessment ID
+          useWellnessStore.setState({
+            assessmentId: wellnessAssessment.id,
+          });
         }
       } catch (err) {
         console.error('Failed to check existing assessments:', err);
@@ -99,11 +118,20 @@ function WellnessAssessmentContent() {
 
   useEffect(() => {
     if (isCompleted) {
-      // Get assessmentId from store and redirect to results
+      // Get assessmentId from store and verify results exist before redirecting
       const { assessmentId } = useWellnessStore.getState();
       if (assessmentId) {
-        // Redirect to results page automatically
-        router.push(`/dashboard/assessments/results?id=${assessmentId}`);
+        // Verify results exist before redirecting
+        getAssessmentResults(assessmentId)
+          .then(() => {
+            // Results exist, safe to redirect
+            router.push(`/dashboard/assessments/results?id=${assessmentId}`);
+          })
+          .catch((err) => {
+            // Results don't exist yet, show completion screen instead
+            console.log('Results not yet available, showing completion screen');
+            setShowCompletion(true);
+          });
       } else {
         // Fallback: show completion screen if no assessmentId
         setShowCompletion(true);
