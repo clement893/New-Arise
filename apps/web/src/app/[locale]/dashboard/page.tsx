@@ -673,13 +673,17 @@ function DashboardContent() {
           {/* Coaching Section */}
           <MotionDiv variant="slideUp" delay={400}>
             <Card 
-              className="text-white border-0 p-8 overflow-hidden" 
+              className="text-white border-0 overflow-hidden" 
               style={{ 
                 backgroundColor: '#2E2E2E',
                 marginLeft: '-15%',
                 marginRight: '-15%',
                 width: 'calc(100% + 30%)',
                 borderRadius: '16px',
+                paddingLeft: 'calc(15% + 2rem)',
+                paddingRight: 'calc(15% + 2rem)',
+                paddingTop: '2rem',
+                paddingBottom: '2rem',
               }}
             >
               <div className="flex flex-col md:flex-row items-center gap-6">
