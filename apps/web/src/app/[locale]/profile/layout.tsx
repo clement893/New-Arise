@@ -4,10 +4,7 @@
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-import { usePathname } from 'next/navigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import DashboardCustomLayout from '@/components/layout/DashboardCustomLayout';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 export default function ConditionalProfileLayout({
   children,
