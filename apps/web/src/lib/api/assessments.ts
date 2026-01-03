@@ -193,14 +193,35 @@ export const getAssessmentResults = async (assessmentId: number): Promise<Assess
 };
 
 /**
+ * Convert backend assessment type (lowercase) to frontend AssessmentType (uppercase)
+ */
+function convertAssessmentTypeFromBackend(backendType: string): AssessmentType {
+  const mapping: Record<string, AssessmentType> = {
+    'mbti': 'MBTI',
+    'tki': 'TKI',
+    'wellness': 'WELLNESS',
+    '360_self': 'THREE_SIXTY_SELF',
+  };
+  return mapping[backendType.toLowerCase()] || backendType.toUpperCase() as AssessmentType;
+}
+
+/**
  * Get all assessments for the current user
  * Uses apiClient to benefit from automatic token refresh on 401 errors
+ * Converts backend assessment_type (lowercase) to frontend format (uppercase)
  */
 export const getMyAssessments = async (): Promise<Assessment[]> => {
   const response = await apiClient.get(
     `/v1/assessments/my-assessments`
   );
-  return response.data;
+  
+  // Convert assessment_type from backend format (lowercase) to frontend format (uppercase)
+  const assessments = Array.isArray(response.data) ? response.data.map((assessment: any) => ({
+    ...assessment,
+    assessment_type: convertAssessmentTypeFromBackend(assessment.assessment_type)
+  })) : response.data;
+  
+  return assessments;
 };
 
 /**
