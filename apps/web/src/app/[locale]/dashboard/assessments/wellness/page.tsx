@@ -408,6 +408,32 @@ function WellnessAssessmentContent() {
 
   // Question Screen
   // Safety check: ensure we have valid question data before rendering
+  // Also check if assessment is completed - if so, don't show questions
+  const { isCompleted: storeIsCompleted } = useWellnessStore.getState();
+  if (storeIsCompleted) {
+    // Assessment is completed, redirect to results or show completion screen
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Card className="p-6 text-center">
+          <p className="text-gray-600 mb-4">This assessment has been completed.</p>
+          <div className="flex gap-3 justify-center">
+            <Button onClick={() => {
+              const { assessmentId } = useWellnessStore.getState();
+              if (assessmentId) {
+                router.push(`/dashboard/assessments/results?id=${assessmentId}`);
+              } else {
+                router.push('/dashboard/assessments');
+              }
+            }}>View Results</Button>
+            <Button variant="outline" onClick={() => router.push('/dashboard/assessments')}>
+              Back to Assessments
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+  
   if (!currentQuestion || !wellnessQuestions || wellnessQuestions.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
