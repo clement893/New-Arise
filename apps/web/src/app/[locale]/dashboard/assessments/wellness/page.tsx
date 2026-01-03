@@ -20,12 +20,14 @@ function WellnessAssessmentContent() {
     answers,
     currentQuestionIndex,
     isCompleted,
+    assessmentId,
     setAnswer,
     nextQuestion,
     previousQuestion,
     completeAssessment,
     getProgress,
     startAssessment,
+    loadExistingAnswers,
     isLoading,
   } = useWellnessStore();
 
