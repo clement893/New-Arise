@@ -79,8 +79,8 @@ export function Step3_CreateAccount() {
         authResponse.access_token
       );
 
-      // Step 5: Move to welcome screen (user is now authenticated)
-      setStep(7);
+      // Step 5: Move to review & confirm step (step 4), then payment (step 5)
+      setStep(4);
     } catch (err) {
       let errorMessage = 'Registration failed. Please try again.';
       
