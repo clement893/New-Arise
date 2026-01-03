@@ -220,7 +220,9 @@ function WellnessAssessmentContent() {
   const handleAnswerSelect = async (value: number) => {
     try {
       if (!currentQuestion || !currentQuestion.id) {
-        console.error('[Wellness] Cannot save answer: currentQuestion is invalid', { currentQuestion });
+        console.error('[Wellness] Cannot save answer: currentQuestion is invalid', 
+          currentQuestion ? `currentQuestion.id: ${currentQuestion.id}` : 'currentQuestion is null'
+        );
         alert('Erreur: Question invalide. Veuillez rafraîchir la page.');
         return;
       }
@@ -456,10 +458,9 @@ function WellnessAssessmentContent() {
   
   // Safety check: ensure currentQuestionIndex is valid
   if (currentQuestionIndex < 0 || currentQuestionIndex >= wellnessQuestions.length) {
-    console.error('[Wellness] Invalid currentQuestionIndex:', {
-      currentQuestionIndex,
-      questionsLength: wellnessQuestions.length,
-    });
+    console.error('[Wellness] Invalid currentQuestionIndex:', 
+      `currentQuestionIndex: ${currentQuestionIndex}, questionsLength: ${wellnessQuestions.length}`
+    );
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Card className="p-6">
