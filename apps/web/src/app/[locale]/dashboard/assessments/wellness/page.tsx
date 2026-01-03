@@ -12,7 +12,6 @@ import { wellnessQuestions, wellnessPillars, scaleOptions } from '@/data/wellnes
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 import { getMyAssessments, submitAssessment as submitAssessmentApi, getAssessmentResults } from '@/lib/api/assessments';
 import { determineAssessmentStatus } from '@/lib/utils/assessmentStatus';
-import { wellnessQuestions } from '@/data/wellnessQuestionsReal';
 
 function WellnessAssessmentContent() {
   const router = useRouter();
