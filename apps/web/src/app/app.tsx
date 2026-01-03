@@ -29,6 +29,15 @@ function AppContent({ children }: { children: React.ReactNode }) {
   // Check if it's the landing page (home page) - it has its own Header and Footer
   const isLandingPage = pathname === '/' || pathname === '/fr' || pathname === '/en' || 
                         (pathname?.match(/^\/[a-z]{2}$/) !== null);
+  
+  // Check if it's a page with its own ARISE Header and Footer (team, about, contact, privacy, terms, cookies, careers)
+  const isArisePage = pathname?.includes('/team') || 
+                      pathname?.includes('/about') || 
+                      pathname?.includes('/contact') || 
+                      pathname?.includes('/privacy') || 
+                      pathname?.includes('/terms') || 
+                      pathname?.includes('/cookies') || 
+                      pathname?.includes('/careers');
 
   useEffect(() => {
     // Track page views
@@ -128,6 +137,12 @@ function AppContent({ children }: { children: React.ReactNode }) {
 
   // For landing page, don't wrap with Header/Footer - it has its own ARISE Header and Footer
   if (isLandingPage) {
+    return <>{children}</>;
+  }
+
+  // For ARISE pages (team, about, contact, privacy, terms, cookies, careers), don't wrap with Header/Footer
+  // They have their own ARISE Header and Footer
+  if (isArisePage) {
     return <>{children}</>;
   }
 
