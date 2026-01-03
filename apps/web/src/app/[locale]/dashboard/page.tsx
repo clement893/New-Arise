@@ -56,7 +56,6 @@ function DashboardContent() {
   const [error, setError] = useState<string | null>(null);
   const [showEvaluatorModal, setShowEvaluatorModal] = useState(false);
   const [evaluators, setEvaluators] = useState<EvaluatorStatus[]>([]);
-  const [evaluatorsLoading, setEvaluatorsLoading] = useState(false);
 
   useEffect(() => {
     loadAssessments();
@@ -98,15 +97,12 @@ function DashboardContent() {
 
   const loadEvaluators = async (assessmentId: number) => {
     try {
-      setEvaluatorsLoading(true);
       const response = await get360Evaluators(assessmentId);
       setEvaluators(response.evaluators || []);
     } catch (err) {
       console.error('Failed to load evaluators:', err);
       // Don't show error, just set empty array
       setEvaluators([]);
-    } finally {
-      setEvaluatorsLoading(false);
     }
   };
 
