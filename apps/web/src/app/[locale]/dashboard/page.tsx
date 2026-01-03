@@ -276,7 +276,8 @@ function DashboardContent() {
     return (
       <Button 
         variant="primary" 
-        className="w-full bg-arise-gold-alt text-arise-deep-teal-alt hover:bg-arise-gold-alt/90 font-semibold"
+        className="w-full !bg-arise-gold-alt !text-arise-deep-teal-alt hover:!bg-arise-gold-alt/90 font-semibold"
+        style={{ backgroundColor: 'var(--color-arise-gold-alt, #F4B860)', color: 'var(--color-arise-deep-teal-alt, #1B5E6B)' }}
         onClick={() => {
           router.push(`/dashboard/assessments/${getAssessmentRoute(evaluation.assessmentType)}`);
         }}
