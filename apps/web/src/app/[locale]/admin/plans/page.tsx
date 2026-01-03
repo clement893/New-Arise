@@ -178,8 +178,37 @@ function PlansPageContent() {
         </Alert>
       )}
 
-      <div className="mt-6 grid grid-cols-1 gap-6">
-        {plans.map((plan) => {
+      {plans.length === 0 && !isLoading && (
+        <Card className="mt-6 p-8">
+          <div className="text-center">
+            <h3 className="text-xl font-semibold mb-4">Aucun plan disponible</h3>
+            <p className="text-muted-foreground mb-6">
+              Il n'y a actuellement aucun plan d'abonnement dans la base de données.
+            </p>
+            <div className="bg-muted p-6 rounded-lg text-left max-w-2xl mx-auto">
+              <h4 className="font-semibold mb-3">Pour créer des plans :</h4>
+              <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
+                <li>Connectez-vous à votre serveur backend (Railway, SSH, etc.)</li>
+                <li>Naviguez vers le dossier <code className="bg-background px-2 py-1 rounded">backend</code></li>
+                <li>Exécutez le script de seed : <code className="bg-background px-2 py-1 rounded">python scripts/seed_plans.py</code></li>
+                <li>Rechargez cette page</li>
+              </ol>
+              <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p className="text-sm font-medium mb-2">Le script créera 3 plans par défaut :</p>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  <li><strong>Basic</strong> : 49€/mois</li>
+                  <li><strong>Professional</strong> : 99€/mois (Le plus populaire)</li>
+                  <li><strong>Enterprise</strong> : Sur devis</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {plans.length > 0 && (
+        <div className="mt-6 grid grid-cols-1 gap-6">
+          {plans.map((plan) => {
           const isEditing = editingPlanId === plan.id;
           const editedPlan = editedPlans[plan.id] || plan;
           const features = parseFeatures(editedPlan.features || plan.features);
@@ -339,7 +368,8 @@ function PlansPageContent() {
             </Card>
           );
         })}
-      </div>
+        </div>
+      )}
     </PageContainer>
   );
 }
