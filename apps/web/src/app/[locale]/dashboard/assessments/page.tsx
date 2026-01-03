@@ -99,16 +99,15 @@ function AssessmentsContent() {
       // Get assessments from API
       const apiAssessments: ApiAssessment[] = await getMyAssessments();
       
-      // Debug: Log assessment statuses for troubleshooting
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[Assessments] Loaded assessments:', apiAssessments.map(a => ({
-          type: a.assessment_type,
-          status: a.status,
-          id: a.id,
-          answer_count: a.answer_count,
-          total_questions: a.total_questions
-        })));
-      }
+      // Always log assessment statuses for troubleshooting (even in production)
+      console.log('[Assessments] Loaded assessments from API:', apiAssessments.map(a => ({
+        type: a.assessment_type,
+        status: a.status,
+        id: a.id,
+        answer_count: a.answer_count,
+        total_questions: a.total_questions,
+        created_at: a.created_at
+      })));
       
       // Create a map of existing assessments by type
       const existingAssessmentsMap = new Map<AssessmentType, ApiAssessment>();
@@ -118,6 +117,12 @@ function AssessmentsContent() {
         if (!existing || new Date(assessment.created_at) > new Date(existing.created_at)) {
           existingAssessmentsMap.set(assessment.assessment_type, assessment);
         }
+      });
+      
+      // Debug: Log the map for Wellness
+      console.log('[Assessments] Assessment map after processing:', {
+        wellnessAssessment: existingAssessmentsMap.get('WELLNESS'),
+        allTypes: Array.from(existingAssessmentsMap.keys())
       });
       
       // Build display assessments list
@@ -133,6 +138,15 @@ function AssessmentsContent() {
           apiType = type.toUpperCase() as AssessmentType;
         }
         const apiAssessment = existingAssessmentsMap.get(apiType);
+        
+        // Debug: Log if Wellness assessment is not found
+        if (apiType === 'WELLNESS' && !apiAssessment) {
+          console.warn('[Assessments] Wellness assessment not found in map!', {
+            apiType,
+            mapKeys: Array.from(existingAssessmentsMap.keys()),
+            allAssessments: apiAssessments.filter(a => a.assessment_type === 'WELLNESS')
+          });
+        }
         
         // Use utility function for consistent status determination
         let status: 'completed' | 'in-progress' | 'locked' | 'available' = 'available';
