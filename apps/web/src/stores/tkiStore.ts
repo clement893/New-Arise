@@ -164,7 +164,9 @@ export const useTKIStore = create<TKIState>()(
           const { tkiQuestions } = await import('@/data/tkiQuestions');
           let firstUnansweredIndex = 0;
           for (let i = 0; i < tkiQuestions.length; i++) {
-            if (!answers[tkiQuestions[i].id]) {
+            const question = tkiQuestions[i];
+            if (!question) continue;
+            if (!answers[question.id]) {
               firstUnansweredIndex = i;
               break;
             }
