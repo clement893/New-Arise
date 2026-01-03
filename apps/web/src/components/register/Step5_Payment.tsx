@@ -229,12 +229,9 @@ function PaymentFormContent() {
 
       if (response.data) {
         // Payment successful - wait for all Stripe operations to complete
-        // Use requestAnimationFrame to ensure DOM updates are processed
-        await new Promise(resolve => {
-          requestAnimationFrame(() => {
-            setTimeout(resolve, 500); // Wait 500ms for all async operations
-          });
-        });
+        // Stripe may have async callbacks that need to finish
+        // Wait longer to ensure all operations are complete (1 second should be enough)
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
         // Final check before changing step - only proceed if still mounted
         if (!isMountedRef.current) {
@@ -245,14 +242,17 @@ function PaymentFormContent() {
         setIsProcessing(false);
         isProcessingRef.current = false;
         
-        // Use requestAnimationFrame + setTimeout to ensure all operations complete
-        // before unmounting the component
+        // Use multiple requestAnimationFrame calls to ensure all DOM updates are processed
+        // before unmounting the component. The parent component will keep Step5 mounted
+        // during transition to prevent Stripe element unmount errors.
         requestAnimationFrame(() => {
-          setTimeout(() => {
-            if (isMountedRef.current && !isProcessingRef.current) {
-              setStep(6);
-            }
-          }, 200);
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              if (isMountedRef.current && !isProcessingRef.current) {
+                setStep(6);
+              }
+            }, 100);
+          });
         });
       } else {
         if (isMountedRef.current) {

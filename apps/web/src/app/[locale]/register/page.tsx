@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useRegistrationStore } from '@/stores/registrationStore';
 import { Step1_RoleSelection } from '@/components/register/Step1_RoleSelection';
 import { Step2_PlanSelection } from '@/components/register/Step2_PlanSelection';
@@ -13,8 +14,27 @@ import { Footer } from '@/components/landing/Footer';
 
 export default function RegisterPage() {
   const step = useRegistrationStore((state) => state.step);
+  const [prevStep, setPrevStep] = useState(step);
+
+  // Track step changes to handle Stripe component unmounting
+  useEffect(() => {
+    setPrevStep(step);
+  }, [step]);
 
   const renderStep = () => {
+    // Keep Step5 mounted during transition from step 5 to 6 to prevent Stripe unmount errors
+    // This ensures the Stripe element stays mounted until all operations complete
+    if (prevStep === 5 && step === 6) {
+      return (
+        <>
+          <div style={{ position: 'absolute', visibility: 'hidden', pointerEvents: 'none' }}>
+            <Step5_Payment />
+          </div>
+          <Step6_CompleteProfile />
+        </>
+      );
+    }
+
     switch (step) {
       case 1:
         return <Step1_RoleSelection />;
