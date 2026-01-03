@@ -354,6 +354,14 @@ function DashboardContent() {
                 </Button>
               </div>
             </Card>
+            {/* Color block under section */}
+            <div 
+              className="h-4 -mt-4 mb-8"
+              style={{ 
+                backgroundColor: '#d1d9db',
+                zIndex: 1,
+              }}
+            />
           </MotionDiv>
 
           {/* Progress Section */}
@@ -430,6 +438,14 @@ function DashboardContent() {
                 </Button>
               </div>
             </Card>
+            {/* Color block under section */}
+            <div 
+              className="h-4 -mt-4 mb-8"
+              style={{ 
+                backgroundColor: '#d1d9db',
+                zIndex: 1,
+              }}
+            />
           </MotionDiv>
 
           {/* Evaluations Section */}
@@ -523,6 +539,15 @@ function DashboardContent() {
                   );
                 })}
               </div>
+              {/* Color block under section */}
+              <div 
+                className="relative -mt-8 mb-8 h-4"
+                style={{ 
+                  backgroundColor: '#d1d9db',
+                  zIndex: 5,
+                  marginTop: '-2rem',
+                }}
+              />
             </div>
           </MotionDiv>
 
