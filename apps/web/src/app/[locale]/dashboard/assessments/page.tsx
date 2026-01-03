@@ -392,7 +392,9 @@ function AssessmentsContent() {
         // Otherwise, show "Continuer" button
         return (
           <Button 
-            variant="primary"
+            variant="outline"
+            className="!border-[#0F454D] !text-[#0F454D] hover:!bg-[#0F454D] hover:!text-white"
+            style={{ borderColor: '#0F454D', color: '#0F454D' }}
             disabled={isStarting}
             onClick={() => {
               if (assessment.requiresEvaluators) {
@@ -405,6 +407,14 @@ function AssessmentsContent() {
                   router.push(`/dashboard/assessments/${getAssessmentRoute(assessment.assessmentType)}`);
                 }
               }
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#0F454D';
+              e.currentTarget.style.color = '#ffffff';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = '#0F454D';
             }}
           >
             {isStarting ? (

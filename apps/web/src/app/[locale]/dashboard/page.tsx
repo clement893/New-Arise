@@ -337,11 +337,19 @@ function DashboardContent() {
     if (evaluation.status === 'in-progress') {
       return (
         <Button 
-          variant="primary" 
-          className="w-full !bg-arise-gold-alt !text-arise-deep-teal-alt hover:!bg-arise-gold-alt/90 font-semibold"
-          style={{ backgroundColor: 'var(--color-arise-gold-alt, #F4B860)', color: 'var(--color-arise-deep-teal-alt, #1B5E6B)' }}
+          variant="outline"
+          className="w-full !border-[#0F454D] !text-[#0F454D] hover:!bg-[#0F454D] hover:!text-white font-semibold"
+          style={{ borderColor: '#0F454D', color: '#0F454D' }}
           onClick={() => {
             router.push(`/dashboard/assessments/${getAssessmentRoute(evaluation.assessmentType)}`);
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#0F454D';
+            e.currentTarget.style.color = '#ffffff';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+            e.currentTarget.style.color = '#0F454D';
           }}
         >
           Continuer
