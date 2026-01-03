@@ -110,14 +110,16 @@ export default function Sidebar({
     });
   };
 
+  // Improved active detection - check exact match or if path starts with href
+  const normalizePath = (path: string | undefined | null): string => {
+    if (!path) return '';
+    const withoutQuery = path.split('?')[0] || '';
+    return withoutQuery.split('#')[0] || '';
+  };
+
   const renderItem = (item: SidebarItem, level = 0) => {
     const hasChildren = item.children && item.children.length > 0;
     const isExpanded = expandedItems.has(item.label);
-    // Improved active detection - check exact match or if path starts with href
-    const normalizePath = (path: string | undefined | null): string => {
-      if (!path) return '';
-      return path.split('?')[0].split('#')[0];
-    };
     const normalizedActivePath = normalizePath(activePath);
     const normalizedHref = normalizePath(item.href);
     
@@ -226,10 +228,10 @@ export default function Sidebar({
         const hasActiveChild = item.children.some(
           (child) => {
             if (!child.href) return false;
-            return activePath === child.href || 
-                   (activePath && child.href && activePath.startsWith(child.href + '/')) ||
-                   (activePath?.includes('?') && activePath.split('?')[0] === child.href) ||
-                   (activePath?.includes('#') && activePath.split('#')[0] === child.href);
+            const normalizedActive = normalizePath(activePath);
+            const normalizedChild = normalizePath(child.href);
+            return normalizedActive === normalizedChild || 
+                   (normalizedActive && normalizedChild && normalizedActive.startsWith(normalizedChild + '/'));
           }
         );
         if (hasActiveChild && !expandedItems.has(item.label)) {
