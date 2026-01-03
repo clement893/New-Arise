@@ -558,7 +558,13 @@ function DashboardContent() {
           <MotionDiv variant="slideUp" delay={400}>
             <Card 
               className="text-white border-0 relative overflow-hidden"
-              style={{ backgroundColor: '#2e2e2e' }}
+              style={{ 
+                backgroundColor: '#2e2e2e',
+                marginLeft: '-15%',
+                marginRight: '-15%',
+                width: 'calc(100% + 30%)',
+                borderRadius: '16px',
+              }}
             >
               {/* Background Pattern */}
               <div 
