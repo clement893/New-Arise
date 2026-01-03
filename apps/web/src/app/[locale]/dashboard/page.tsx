@@ -414,7 +414,8 @@ function DashboardContent() {
                   style={{ 
                     borderColor: '#799ba1', 
                     borderWidth: '2px',
-                    backgroundColor: '#0f4c56'
+                    backgroundColor: '#0f4c56',
+                    color: '#ffffff'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = '#0f4c56';
