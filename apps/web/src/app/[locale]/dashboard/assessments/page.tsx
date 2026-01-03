@@ -118,14 +118,15 @@ function AssessmentsContent() {
       const apiAssessments: ApiAssessment[] = await getMyAssessments();
       
       // Always log assessment statuses for troubleshooting (even in production)
-      console.log('[Assessments] Loaded assessments from API:', apiAssessments.map(a => ({
+      // Convert to string to prevent React error #130 (objects not valid as React child)
+      console.log('[Assessments] Loaded assessments from API:', JSON.stringify(apiAssessments.map(a => ({
         type: a.assessment_type,
         status: a.status,
         id: a.id,
         answer_count: a.answer_count,
         total_questions: a.total_questions,
         created_at: a.created_at
-      })));
+      }))));
       
       // Create a map of existing assessments by type
       const existingAssessmentsMap = new Map<AssessmentType, ApiAssessment>();
@@ -138,10 +139,17 @@ function AssessmentsContent() {
       });
       
       // Debug: Log the map for Wellness
-      console.log('[Assessments] Assessment map after processing:', {
-        wellnessAssessment: existingAssessmentsMap.get('WELLNESS'),
+      // Convert to string to prevent React error #130
+      const wellnessAssessment = existingAssessmentsMap.get('WELLNESS');
+      console.log('[Assessments] Assessment map after processing:', JSON.stringify({
+        wellnessAssessment: wellnessAssessment ? {
+          id: wellnessAssessment.id,
+          status: wellnessAssessment.status,
+          answer_count: wellnessAssessment.answer_count,
+          total_questions: wellnessAssessment.total_questions
+        } : null,
         allTypes: Array.from(existingAssessmentsMap.keys())
-      });
+      }));
       
       // Build display assessments list
       const displayAssessments: AssessmentDisplay[] = Object.entries(ASSESSMENT_CONFIG)
@@ -171,7 +179,8 @@ function AssessmentsContent() {
         if (apiAssessment) {
           // Always log for Wellness assessments (even in production) for troubleshooting
           if (apiType === 'WELLNESS') {
-            console.log(`[Assessments] Wellness assessment status check:`, {
+            // Convert to string to prevent React error #130
+            console.log(`[Assessments] Wellness assessment status check:`, JSON.stringify({
               rawStatus: apiAssessment.status,
               assessmentId: apiAssessment.id,
               answerCount: apiAssessment.answer_count,
@@ -179,22 +188,22 @@ function AssessmentsContent() {
               hasAllAnswers: apiAssessment.answer_count !== undefined && 
                             apiAssessment.total_questions !== undefined &&
                             apiAssessment.total_questions > 0 &&
-                            apiAssessment.answer_count >= apiAssessment.total_questions,
-              fullAssessment: apiAssessment
-            });
+                            apiAssessment.answer_count >= apiAssessment.total_questions
+            }));
           }
           
           status = determineAssessmentStatus(apiAssessment, apiType);
           
           // Always log the determined status for Wellness
           if (apiType === 'WELLNESS') {
-            console.log(`[Assessments] Wellness assessment determined status:`, {
+            // Convert to string to prevent React error #130
+            console.log(`[Assessments] Wellness assessment determined status:`, JSON.stringify({
               assessmentId: apiAssessment.id,
               determinedStatus: status,
               rawStatus: apiAssessment.status,
               answerCount: apiAssessment.answer_count,
               totalQuestions: apiAssessment.total_questions
-            });
+            }));
           }
           
           // Log if status was determined as completed but backend status wasn't
@@ -326,7 +335,8 @@ function AssessmentsContent() {
     
     // Debug logging for Wellness button determination
     if (assessment.assessmentType === 'WELLNESS') {
-      console.log(`[Assessments] Wellness button determination:`, {
+      // Convert to string to prevent React error #130
+      console.log(`[Assessments] Wellness button determination:`, JSON.stringify({
         status: assessment.status,
         answerCount: assessment.answerCount,
         totalQuestions: assessment.totalQuestions,
@@ -334,7 +344,7 @@ function AssessmentsContent() {
         hasAllAnswers: assessment.answerCount !== undefined && 
                       assessment.totalQuestions !== undefined && 
                       assessment.answerCount >= assessment.totalQuestions
-      });
+      }));
     }
     
     switch (assessment.status) {
@@ -712,6 +722,7 @@ function AssessmentsContent() {
         }
         return (
           <InviteAdditionalEvaluatorsModal
+            key={`evaluator-modal-${feedback360Assessment.assessmentId}`}
             isOpen={showEvaluatorModal}
             onClose={() => setShowEvaluatorModal(false)}
             assessmentId={feedback360Assessment.assessmentId}

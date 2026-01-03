@@ -401,30 +401,36 @@ function AssessmentResultsContent() {
                 <div className="p-4 bg-green-50 rounded-lg">
                   <h3 className="font-bold text-green-900 mb-2">Strengths</h3>
                   <p className="text-green-800">
-                    Your strongest pillar is {wellnessPillars.find(p => {
-                      const data = pillar_scores?.[p.id];
-                      const isPillarScoreObject = (d: number | PillarScore | undefined): d is PillarScore => {
-                        return typeof d === 'object' && d !== null && 'score' in d;
-                      };
-                      const score = isPillarScoreObject(data) ? data.score : (typeof data === 'number' ? data : 0);
-                      const allScores = Object.values(pillar_scores || {}).map(d => isPillarScoreObject(d) ? d.score : (typeof d === 'number' ? d : 0));
-                      return score === Math.max(...allScores);
-                    })?.name || 'N/A'}.
+                    Your strongest pillar is {(() => {
+                      const strongestPillar = wellnessPillars.find(p => {
+                        const data = pillar_scores?.[p.id];
+                        const isPillarScoreObject = (d: number | PillarScore | undefined): d is PillarScore => {
+                          return typeof d === 'object' && d !== null && 'score' in d;
+                        };
+                        const score = isPillarScoreObject(data) ? data.score : (typeof data === 'number' ? data : 0);
+                        const allScores = Object.values(pillar_scores || {}).map(d => isPillarScoreObject(d) ? d.score : (typeof d === 'number' ? d : 0));
+                        return allScores.length > 0 && score === Math.max(...allScores);
+                      });
+                      return strongestPillar?.name || 'N/A';
+                    })()}.
                     Keep up the excellent work in this area!
                   </p>
                 </div>
                 <div className="p-4 bg-yellow-50 rounded-lg">
                   <h3 className="font-bold text-yellow-900 mb-2">Areas for Growth</h3>
                   <p className="text-yellow-800">
-                    Consider focusing on {wellnessPillars.find(p => {
-                      const data = pillar_scores?.[p.id];
-                      const isPillarScoreObject = (d: number | PillarScore | undefined): d is PillarScore => {
-                        return typeof d === 'object' && d !== null && 'score' in d;
-                      };
-                      const score = isPillarScoreObject(data) ? data.score : (typeof data === 'number' ? data : 0);
-                      const allScores = Object.values(pillar_scores || {}).map(d => isPillarScoreObject(d) ? d.score : (typeof d === 'number' ? d : 0));
-                      return score === Math.min(...allScores);
-                    })?.name || 'N/A'} 
+                    Consider focusing on {(() => {
+                      const weakestPillar = wellnessPillars.find(p => {
+                        const data = pillar_scores?.[p.id];
+                        const isPillarScoreObject = (d: number | PillarScore | undefined): d is PillarScore => {
+                          return typeof d === 'object' && d !== null && 'score' in d;
+                        };
+                        const score = isPillarScoreObject(data) ? data.score : (typeof data === 'number' ? data : 0);
+                        const allScores = Object.values(pillar_scores || {}).map(d => isPillarScoreObject(d) ? d.score : (typeof d === 'number' ? d : 0));
+                        return allScores.length > 0 && score === Math.min(...allScores);
+                      });
+                      return weakestPillar?.name || 'N/A';
+                    })()} 
                     to achieve a more balanced wellness profile.
                   </p>
                 </div>
