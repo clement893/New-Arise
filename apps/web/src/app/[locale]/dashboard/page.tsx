@@ -20,8 +20,9 @@ import {
   CheckCircle,
   Lock
 } from 'lucide-react';
-import { getMyAssessments, Assessment as ApiAssessment, AssessmentType, get360Evaluators, EvaluatorStatus } from '@/lib/api/assessments';
+import { getMyAssessments, Assessment as ApiAssessment, AssessmentType, get360Evaluators, EvaluatorStatus, submitAssessment } from '@/lib/api/assessments';
 import InviteAdditionalEvaluatorsModal from '@/components/360/InviteAdditionalEvaluatorsModal';
+import { determineAssessmentStatus } from '@/lib/utils/assessmentStatus';
 
 // Mapping of assessment types to display info
 const ASSESSMENT_CONFIG: Record<string, { title: string; description: string; icon: typeof Brain; externalLink?: string }> = {
