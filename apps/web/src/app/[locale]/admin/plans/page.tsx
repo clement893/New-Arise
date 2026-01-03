@@ -201,9 +201,9 @@ function PlansPageContent() {
                       <div className="flex items-center gap-3">
                         <h3 className="text-2xl font-bold text-foreground">{plan.name}</h3>
                         {plan.is_popular && (
-                          <Badge variant="primary">Le plus populaire</Badge>
+                          <Badge variant="info">Le plus populaire</Badge>
                         )}
-                        <Badge variant={plan.status === 'ACTIVE' ? 'success' : 'secondary'}>
+                        <Badge variant={plan.status === 'ACTIVE' ? 'success' : 'default'}>
                           {plan.status}
                         </Badge>
                       </div>
