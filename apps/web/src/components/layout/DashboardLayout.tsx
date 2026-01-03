@@ -267,7 +267,12 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
   // Also check superadmin status from API
   const isAdmin = user?.is_admin ?? false;
   const effectiveIsAdmin = isAdmin || isSuperAdmin === true;
-  const effectiveUserType = (userType === 'ADMIN' || effectiveIsAdmin) ? 'ADMIN' : userType;
+  
+  // For profile page, always show Individual menu regardless of admin status
+  const isProfilePage = pathname?.includes('/profile');
+  const effectiveUserType = isProfilePage 
+    ? 'INDIVIDUAL' 
+    : (userType === 'ADMIN' || effectiveIsAdmin) ? 'ADMIN' : userType;
   
   // Debug logging (remove in production if needed)
   if (typeof window !== 'undefined') {
@@ -286,9 +291,10 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
 
   // Memoize sidebar items - only recreate if admin status or user type changes
   // This prevents the sidebar from re-rendering on every navigation
+  // For profile page, don't pass admin status to force Individual menu only
   const sidebarItems = useMemo(
-    () => createSidebarItems(effectiveUserType, effectiveIsAdmin),
-    [effectiveUserType, effectiveIsAdmin]
+    () => createSidebarItems(effectiveUserType, isProfilePage ? false : effectiveIsAdmin),
+    [effectiveUserType, effectiveIsAdmin, isProfilePage]
   );
 
   // Memoize callbacks to prevent re-renders
