@@ -300,7 +300,7 @@ function DashboardContent() {
               <h1 className="text-4xl font-bold mb-2">
                 <span className="text-white">Welcome</span> <span style={{ color: '#D5B667' }}>{user?.name?.split(' ')[0] || 'User'}</span>
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 text-lg">
+              <p className="text-white text-lg">
                 Continue your journey to authentic leadership
               </p>
             </div>
