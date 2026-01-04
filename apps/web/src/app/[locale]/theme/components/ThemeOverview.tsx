@@ -79,7 +79,7 @@ export function ThemeOverview() {
               </Badge>
             )}
             {!theme && (
-              <Badge variant="outline" className="mb-2 ml-2">
+              <Badge variant="info" className="mb-2 ml-2">
                 Valeurs par défaut ARISE
               </Badge>
             )}
