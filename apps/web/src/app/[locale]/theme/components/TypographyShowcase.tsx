@@ -87,8 +87,8 @@ export function TypographyShowcase() {
   };
 
   const ExamplesSection = () => {
-    const fontSizes = typography.fontSize || {} as Record<string, string | number>;
-    const fontWeights = typography.fontWeight || {} as Record<string, string | number>;
+    const fontSizes = (typography.fontSize || {}) as Record<string, string | number>;
+    const fontWeights = (typography.fontWeight || {}) as Record<string, string | number>;
     const fontFamily = typography.fontFamilyHeading || typography.fontFamily || config.font_family || 'Inter';
 
     return (
