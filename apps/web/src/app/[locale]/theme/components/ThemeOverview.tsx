@@ -7,6 +7,7 @@
 
 import { useGlobalTheme } from '@/lib/theme';
 import { themeTokens } from '@/lib/theme';
+import { DEFAULT_THEME_CONFIG } from '@/lib/theme/default-theme-config';
 import { Card, Badge } from '@/components/ui';
 import { Copy, Download } from 'lucide-react';
 import { useState } from 'react';
@@ -15,19 +16,20 @@ export function ThemeOverview() {
   const { theme } = useGlobalTheme();
   const [copied, setCopied] = useState(false);
 
-  if (!theme) {
-    return (
-      <Card>
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">Aucun thème chargé</p>
-        </div>
-      </Card>
-    );
-  }
+  // Use default ARISE theme if no theme is loaded
+  const displayTheme = theme || {
+    id: 0,
+    name: 'arise-default',
+    display_name: 'ARISE Default Theme',
+    description: 'Thème par défaut ARISE avec les couleurs de la marque',
+    is_active: true,
+    config: DEFAULT_THEME_CONFIG,
+    updated_at: new Date().toISOString(),
+  };
 
   const handleCopyConfig = async () => {
     try {
-      await navigator.clipboard.writeText(JSON.stringify(theme.config, null, 2));
+      await navigator.clipboard.writeText(JSON.stringify(displayTheme.config, null, 2));
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -36,28 +38,50 @@ export function ThemeOverview() {
   };
 
   const handleDownloadConfig = () => {
-    const dataStr = JSON.stringify(theme.config, null, 2);
+    const dataStr = JSON.stringify(displayTheme.config, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `theme-${theme.name}-config.json`;
+    link.download = `theme-${displayTheme.name}-config.json`;
     link.click();
     URL.revokeObjectURL(url);
   };
 
-  const primaryColor = theme.config.primary_color || themeTokens.colors.primary.base;
-  const fontFamily = theme.config.font_family || theme.config.typography?.fontFamily || 'Inter';
+  // Use ARISE Deep Teal as primary color
+  const primaryColor = displayTheme.config.colors?.ariseDeepTeal || 
+                       displayTheme.config.primary_color || 
+                       displayTheme.config.colors?.primary || 
+                       '#0A3A40';
+  const fontFamily = displayTheme.config.font_family || displayTheme.config.typography?.fontFamily || 'Inter';
+  
+  // Helper to extract color value (remove var() wrapper if present)
+  const getColorValue = (color: string): string => {
+    if (color.startsWith('var(')) {
+      const varName = color.replace('var(--', '').replace(')', '').trim();
+      if (typeof window !== 'undefined') {
+        const computed = getComputedStyle(document.documentElement).getPropertyValue(`--${varName}`).trim();
+        return computed || color;
+      }
+      return color;
+    }
+    return color;
+  };
 
   return (
     <div className="space-y-6">
       <Card>
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-2xl font-bold mb-2">{theme.display_name || theme.name}</h2>
-            {theme.is_active && (
+            <h2 className="text-2xl font-bold mb-2">{displayTheme.display_name || displayTheme.name}</h2>
+            {displayTheme.is_active && (
               <Badge variant="success" className="mb-2">
                 Thème actif
+              </Badge>
+            )}
+            {!theme && (
+              <Badge variant="outline" className="mb-2 ml-2">
+                Valeurs par défaut ARISE
               </Badge>
             )}
           </div>
@@ -81,13 +105,13 @@ export function ThemeOverview() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-2">Couleur principale</h3>
+            <h3 className="text-sm font-medium text-muted-foreground mb-2">Couleur principale (ARISE Deep Teal)</h3>
             <div className="flex items-center gap-3">
               <div
                 className="w-12 h-12 rounded-lg border border-border"
-                style={{ backgroundColor: primaryColor.replace('var(--', '').replace(')', '') || '#2563eb' }}
+                style={{ backgroundColor: getColorValue(primaryColor) }}
               />
-              <code className="text-sm">{primaryColor}</code>
+              <code className="text-sm">{getColorValue(primaryColor)}</code>
             </div>
           </div>
 
@@ -100,14 +124,14 @@ export function ThemeOverview() {
 
           <div>
             <h3 className="text-sm font-medium text-muted-foreground mb-2">Mode</h3>
-            <Badge>{theme.config.mode || 'system'}</Badge>
+            <Badge>{displayTheme.config.mode || 'system'}</Badge>
           </div>
         </div>
 
-        {theme.description && (
+        {displayTheme.description && (
           <div className="mt-6 pt-6 border-t border-border">
             <h3 className="text-sm font-medium text-muted-foreground mb-2">Description</h3>
-            <p className="text-sm text-foreground">{theme.description}</p>
+            <p className="text-sm text-foreground">{displayTheme.description}</p>
           </div>
         )}
       </Card>
@@ -116,25 +140,25 @@ export function ThemeOverview() {
         <Card className="p-4">
           <div className="text-sm text-muted-foreground mb-1">Couleurs</div>
           <div className="text-2xl font-bold">
-            {Object.keys(theme.config.colors || {}).length}
+            {Object.keys(displayTheme.config.colors || {}).length}
           </div>
         </Card>
         <Card className="p-4">
           <div className="text-sm text-muted-foreground mb-1">Espacements</div>
           <div className="text-2xl font-bold">
-            {Object.keys(theme.config.spacing || {}).length}
+            {Object.keys(displayTheme.config.spacing || {}).length}
           </div>
         </Card>
         <Card className="p-4">
           <div className="text-sm text-muted-foreground mb-1">Composants</div>
           <div className="text-2xl font-bold">
-            {Object.keys(theme.config.components || {}).length}
+            {Object.keys(displayTheme.config.components || {}).length}
           </div>
         </Card>
         <Card className="p-4">
           <div className="text-sm text-muted-foreground mb-1">Effets</div>
           <div className="text-2xl font-bold">
-            {Object.keys(theme.config.effects || {}).length}
+            {Object.keys(displayTheme.config.effects || {}).length}
           </div>
         </Card>
       </div>
