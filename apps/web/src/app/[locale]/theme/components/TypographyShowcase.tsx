@@ -87,8 +87,8 @@ export function TypographyShowcase() {
   };
 
   const ExamplesSection = () => {
-    const fontSizes = typography.fontSize || {};
-    const fontWeights = typography.fontWeight || {};
+    const fontSizes = typography.fontSize || {} as Record<string, string | number>;
+    const fontWeights = typography.fontWeight || {} as Record<string, string | number>;
     const fontFamily = typography.fontFamilyHeading || typography.fontFamily || config.font_family || 'Inter';
 
     return (
@@ -96,27 +96,27 @@ export function TypographyShowcase() {
         <h3 className="text-lg font-semibold mb-4">Examples</h3>
         <div className="space-y-6">
           <div>
-            <h1 style={{ fontFamily, fontSize: fontSizes['4xl'], fontWeight: fontWeights.bold }}>
+            <h1 style={{ fontFamily, fontSize: fontSizes['4xl'], fontWeight: fontWeights['bold'] || '700' }}>
               Heading 1
             </h1>
           </div>
           <div>
-            <h2 style={{ fontFamily, fontSize: fontSizes['3xl'], fontWeight: fontWeights.semibold }}>
+            <h2 style={{ fontFamily, fontSize: fontSizes['3xl'], fontWeight: fontWeights['semibold'] || '600' }}>
               Heading 2
             </h2>
           </div>
           <div>
-            <h3 style={{ fontFamily, fontSize: fontSizes['2xl'], fontWeight: fontWeights.semibold }}>
+            <h3 style={{ fontFamily, fontSize: fontSizes['2xl'], fontWeight: fontWeights['semibold'] || '600' }}>
               Heading 3
             </h3>
           </div>
           <div>
-            <p style={{ fontFamily, fontSize: fontSizes.base, fontWeight: fontWeights.normal }}>
+            <p style={{ fontFamily, fontSize: fontSizes['base'], fontWeight: fontWeights['normal'] || '400' }}>
               Body text - Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
             </p>
           </div>
           <div>
-            <p style={{ fontFamily, fontSize: fontSizes.sm, fontWeight: fontWeights.normal }}>
+            <p style={{ fontFamily, fontSize: fontSizes['sm'], fontWeight: fontWeights['normal'] || '400' }}>
               Small text - Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
             </p>
           </div>
