@@ -224,40 +224,42 @@ function AssessmentsContent() {
         
         // Ensure answer_count is a number or undefined
         if (cleaned.answer_count !== undefined && cleaned.answer_count !== null) {
-          if (typeof cleaned.answer_count === 'object') {
+          const rawAnswerCount = cleaned.answer_count;
+          if (typeof rawAnswerCount === 'object' && rawAnswerCount !== null) {
             console.error('[Assessments] ⚠️ answer_count IS AN OBJECT from API!', {
               assessmentId: cleaned.id,
-              answer_count: cleaned.answer_count,
-              type: typeof cleaned.answer_count
+              answer_count: rawAnswerCount,
+              type: typeof rawAnswerCount
             });
             // Try to extract a number from the object
-            if ('value' in cleaned.answer_count && typeof cleaned.answer_count.value === 'number') {
-              cleaned.answer_count = cleaned.answer_count.value;
+            if ('value' in rawAnswerCount && typeof (rawAnswerCount as { value: unknown }).value === 'number') {
+              cleaned.answer_count = (rawAnswerCount as { value: number }).value;
             } else {
               cleaned.answer_count = undefined;
             }
-          } else if (typeof cleaned.answer_count !== 'number') {
-            const parsed = parseInt(String(cleaned.answer_count), 10);
+          } else if (typeof rawAnswerCount !== 'number') {
+            const parsed = parseInt(String(rawAnswerCount), 10);
             cleaned.answer_count = !isNaN(parsed) ? parsed : undefined;
           }
         }
         
         // Ensure total_questions is a number or undefined
         if (cleaned.total_questions !== undefined && cleaned.total_questions !== null) {
-          if (typeof cleaned.total_questions === 'object') {
+          const rawTotalQuestions = cleaned.total_questions;
+          if (typeof rawTotalQuestions === 'object' && rawTotalQuestions !== null) {
             console.error('[Assessments] ⚠️ total_questions IS AN OBJECT from API!', {
               assessmentId: cleaned.id,
-              total_questions: cleaned.total_questions,
-              type: typeof cleaned.total_questions
+              total_questions: rawTotalQuestions,
+              type: typeof rawTotalQuestions
             });
             // Try to extract a number from the object
-            if ('value' in cleaned.total_questions && typeof cleaned.total_questions.value === 'number') {
-              cleaned.total_questions = cleaned.total_questions.value;
+            if ('value' in rawTotalQuestions && typeof (rawTotalQuestions as { value: unknown }).value === 'number') {
+              cleaned.total_questions = (rawTotalQuestions as { value: number }).value;
             } else {
               cleaned.total_questions = undefined;
             }
-          } else if (typeof cleaned.total_questions !== 'number') {
-            const parsed = parseInt(String(cleaned.total_questions), 10);
+          } else if (typeof rawTotalQuestions !== 'number') {
+            const parsed = parseInt(String(rawTotalQuestions), 10);
             cleaned.total_questions = !isNaN(parsed) ? parsed : undefined;
           }
         }
