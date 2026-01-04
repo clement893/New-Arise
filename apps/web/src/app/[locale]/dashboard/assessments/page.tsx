@@ -1052,8 +1052,8 @@ function AssessmentsContent() {
                   // CRITICAL: Ensure icon is a valid React component before using it
                   // Lucide icons are React.forwardRef components, so they have $$typeof: Symbol(react.forward_ref)
                   // They are valid React components even though they're not simple functions
-                  const Icon = safeAssessment.icon;
-                  if (!Icon || (typeof Icon !== 'function' && !Icon.$$typeof && !Icon.render)) {
+                  const Icon = safeAssessment.icon as React.ComponentType<any> | undefined;
+                  if (!Icon || (typeof Icon !== 'function' && !(Icon as any).$$typeof && !(Icon as any).render)) {
                     console.error('[CRITICAL] Icon is not a valid React component!', Icon);
                     // Fallback to a default icon
                     return (
