@@ -242,13 +242,13 @@ export default function MBTIResultsPage() {
               <div className="grid md:grid-cols-2 gap-4">
                 {/* Strengths */}
                 {insights.strengths && (
-                  <Card className="bg-green-50 border-green-200">
+                  <Card className="bg-success-50 border-success-200">
                     <div className="p-6">
-                      <h3 className="font-semibold text-green-900 mb-3">💪 Your Strengths</h3>
+                      <h3 className="font-semibold text-success-900 mb-3">💪 Your Strengths</h3>
                       <ul className="space-y-2">
                         {insights.strengths.map((strength: string, index: number) => (
-                          <li key={index} className="text-sm text-green-800 flex items-start gap-2">
-                            <span className="text-green-600 mt-1">•</span>
+                          <li key={index} className="text-sm text-success-800 flex items-start gap-2">
+                            <span className="text-success-600 mt-1">•</span>
                             <span>{strength}</span>
                           </li>
                         ))}

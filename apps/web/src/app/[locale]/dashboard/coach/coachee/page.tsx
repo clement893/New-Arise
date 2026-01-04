@@ -91,7 +91,7 @@ export default function CoacheePage() {
 
   const getStatusBadge = (status: Coachee['status']) => {
     const styles = {
-      active: 'bg-green-100 text-green-700 border-green-200',
+      active: 'bg-success-100 text-success-700 border-success-200',
       inactive: 'bg-gray-100 text-gray-700 border-gray-200',
       pending: 'bg-yellow-100 text-yellow-700 border-yellow-200',
     };
@@ -137,10 +137,10 @@ export default function CoacheePage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Actifs</p>
-                <p className="text-3xl font-bold text-green-600">{stats.active}</p>
+                <p className="text-3xl font-bold text-success-600">{stats.active}</p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <TrendingUp className="text-green-600" size={24} />
+              <div className="w-12 h-12 bg-success-100 rounded-full flex items-center justify-center">
+                <TrendingUp className="text-success-600" size={24} />
               </div>
             </div>
           </Card>

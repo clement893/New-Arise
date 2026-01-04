@@ -164,17 +164,17 @@ function BecomeSuperAdminContent() {
         <Section title="Méthode Bootstrap (Premier Superadmin)">
           <Card>
             <div className="space-y-4">
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <div className="p-4 bg-primary-50 dark:bg-primary-900/20 rounded-lg border border-primary-200 dark:border-primary-800">
                 <div className="flex items-start gap-3">
-                  <Key className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                  <Key className="w-5 h-5 text-primary-600 dark:text-primary-400 flex-shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+                    <h4 className="font-semibold text-primary-900 dark:text-primary-100 mb-1">
                       Créer le premier Superadmin
                     </h4>
-                    <p className="text-sm text-blue-800 dark:text-blue-200">
+                    <p className="text-sm text-primary-800 dark:text-primary-200">
                       Utilisez cette méthode si aucun superadmin n'existe encore dans le système.
                       Vous devez définir la variable d'environnement{' '}
-                      <code className="bg-blue-100 dark:bg-blue-900/40 px-1 rounded">BOOTSTRAP_SUPERADMIN_KEY</code>{' '}
+                      <code className="bg-primary-100 dark:bg-primary-900/40 px-1 rounded">BOOTSTRAP_SUPERADMIN_KEY</code>{' '}
                       dans votre backend.
                     </p>
                   </div>
@@ -315,12 +315,12 @@ function BecomeSuperAdminContent() {
         )}
 
         {success && (
-          <Card className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20">
+          <Card className="border-success-200 dark:border-success-800 bg-success-50 dark:bg-success-900/20">
             <div className="flex items-start gap-3">
-              <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-green-600 dark:text-green-400" />
+              <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-success-600 dark:text-success-400" />
               <div>
-                <h4 className="font-semibold mb-1 text-green-900 dark:text-green-100">Succès</h4>
-                <p className="text-sm text-green-800 dark:text-green-200">{success}</p>
+                <h4 className="font-semibold mb-1 text-success-900 dark:text-success-100">Succès</h4>
+                <p className="text-sm text-success-800 dark:text-success-200">{success}</p>
               </div>
             </div>
           </Card>

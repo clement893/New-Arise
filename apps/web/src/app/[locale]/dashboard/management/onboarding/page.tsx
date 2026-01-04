@@ -294,7 +294,7 @@ export default function ManagementOnboardingPage() {
                 {users.filter(u => u.onboarding_status === 'completed').length}
               </p>
             </div>
-            <CheckCircle className="w-8 h-8 text-green-400" />
+            <CheckCircle className="w-8 h-8 text-success-400" />
           </div>
         </Card>
       </div>

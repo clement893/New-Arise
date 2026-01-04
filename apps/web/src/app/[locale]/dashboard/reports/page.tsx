@@ -376,8 +376,8 @@ function ResultsReportsContent() {
                 {/* TKI Section */}
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
-                    <div className="w-8 h-8 bg-blue-500/10 rounded flex items-center justify-center">
-                      <span className="text-blue-500 font-bold text-sm">T</span>
+                    <div className="w-8 h-8 bg-primary-500/10 rounded flex items-center justify-center">
+                      <span className="text-primary-500 font-bold text-sm">T</span>
                     </div>
                     TKI Conflict Management
                   </h3>
@@ -389,8 +389,8 @@ function ResultsReportsContent() {
                 {/* 360 Section */}
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
-                    <div className="w-8 h-8 bg-green-500/10 rounded flex items-center justify-center">
-                      <span className="text-green-500 font-bold text-sm">360</span>
+                    <div className="w-8 h-8 bg-success-500/10 rounded flex items-center justify-center">
+                      <span className="text-success-500 font-bold text-sm">360</span>
                     </div>
                     360° Feedback
                   </h3>

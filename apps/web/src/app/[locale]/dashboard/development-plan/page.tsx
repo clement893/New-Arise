@@ -228,7 +228,7 @@ function DevelopmentPlanContent() {
             <p className="text-gray-600 dark:text-gray-300">Average Progress</p>
           </div>
           <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 text-center">
-            <p className="text-3xl font-bold text-green-600 mb-2">8</p>
+            <p className="text-3xl font-bold text-success-600 mb-2">8</p>
             <p className="text-gray-600 dark:text-gray-300">Resources Completed</p>
           </div>
         </div>

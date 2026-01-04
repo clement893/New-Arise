@@ -213,18 +213,18 @@ function ResultsReportsContent() {
         </Card>
 
         <Card className="p-6 text-center bg-white">
-          <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center mx-auto mb-3">
-            <Target className="text-blue-500" size={24} />
+          <div className="w-12 h-12 bg-primary-500/10 rounded-lg flex items-center justify-center mx-auto mb-3">
+            <Target className="text-primary-500" size={24} />
           </div>
-          <p className="text-3xl font-bold text-blue-500 mb-1">12</p>
+          <p className="text-3xl font-bold text-primary-500 mb-1">12</p>
           <p className="text-gray-600 text-sm">Development Goals</p>
         </Card>
 
         <Card className="p-6 text-center bg-white">
-          <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center mx-auto mb-3">
-            <Users className="text-green-500" size={24} />
+          <div className="w-12 h-12 bg-success-500/10 rounded-lg flex items-center justify-center mx-auto mb-3">
+            <Users className="text-success-500" size={24} />
           </div>
-          <p className="text-3xl font-bold text-green-500 mb-1">8</p>
+          <p className="text-3xl font-bold text-success-500 mb-1">8</p>
           <p className="text-gray-600 text-sm">360° Evaluators</p>
         </Card>
       </div>
