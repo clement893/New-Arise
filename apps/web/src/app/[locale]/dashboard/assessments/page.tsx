@@ -549,14 +549,14 @@ function AssessmentsContent() {
     switch (status) {
       case 'completed':
         return (
-          <div className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+          <div className="flex items-center gap-2 px-3 py-1 bg-success-100 text-success-700 rounded-full text-sm font-medium">
             <CheckCircle size={16} />
             Terminé
           </div>
         );
       case 'in-progress':
         return (
-          <div className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+          <div className="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
             En cours
           </div>
         );
@@ -901,19 +901,19 @@ function AssessmentsContent() {
                             
                             if (answerCount !== undefined && totalQuestions !== undefined && !isNaN(answerCount) && !isNaN(totalQuestions)) {
                               return (
-                                <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                                <span className="px-3 py-1 bg-primary-50 text-primary-700 rounded-full text-sm font-medium">
                                   {answerCount}/{totalQuestions}
                                 </span>
                               );
                             } else if (answerCount !== undefined && !isNaN(answerCount)) {
                               return (
-                                <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                                <span className="px-3 py-1 bg-primary-50 text-primary-700 rounded-full text-sm font-medium">
                                   {answerCount} réponses
                                 </span>
                               );
                             } else {
                               return (
-                                <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                                <span className="px-3 py-1 bg-primary-50 text-primary-700 rounded-full text-sm font-medium">
                                   En cours
                                 </span>
                               );
@@ -1011,11 +1011,19 @@ function AssessmentsContent() {
                             </div>
                           </div>
                         );
+                      } catch (progressError: any) {
+                        console.error('[Assessments] Error rendering progress bar:', progressError);
+                        return (
+                          <div className="w-full">
+                            <p className="text-sm text-gray-500">Progression non disponible</p>
+                          </div>
+                        );
+                      }
                       })()}
                     </div>
                     
                     {/* 360 Feedback Evaluators Section - integrated in the same Card */}
-                    {is360Feedback && (
+                    {safeAssessment.assessmentType === 'THREE_SIXTY_SELF' && (
                       <div className="mt-6 pt-6 border-t border-gray-300">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4">
