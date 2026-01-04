@@ -727,8 +727,31 @@ function AssessmentsContent() {
               totalQuestions: totalQuestionsCheck,
               status: assessment.status
             });
-            // Fall through to show continue button
-            break;
+            // Return continue button instead of breaking
+            return (
+              <Button 
+                variant="outline"
+                disabled={isStarting}
+                onClick={() => {
+                  if (assessment.assessmentType === 'WELLNESS') {
+                    router.push('/dashboard/assessments/wellness');
+                  } else if (assessment.assessmentType === 'TKI') {
+                    router.push('/dashboard/assessments/tki');
+                  } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
+                    router.push('/dashboard/assessments/360-feedback');
+                  }
+                }}
+              >
+                {isStarting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Chargement...
+                  </>
+                ) : (
+                  'Continuer'
+                )}
+              </Button>
+            );
           }
         }
         
