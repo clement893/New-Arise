@@ -132,11 +132,14 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
   };
 
   const applyThemeConfig = (config: ThemeConfig) => {
+    if (typeof document === 'undefined') {
+      return; // Server-side rendering, skip
+    }
+    
     // Dark mode removed - always use light mode
     // Ensure dark class is never present
-    if (typeof document !== 'undefined') {
-      document.documentElement.classList.remove('dark');
-    }
+    const root = document.documentElement;
+    root.classList.remove('dark');
     
     // Apply CSS variables to document root
     // Always use light mode config
