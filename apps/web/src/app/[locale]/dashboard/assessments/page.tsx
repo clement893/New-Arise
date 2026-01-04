@@ -1046,6 +1046,9 @@ function AssessmentsContent() {
                   
                   console.log(`[DEBUG] Safe assessment ${index} created:`, safeAssessment);
                   
+                  // CRITICAL: Ensure key is a string, not an object (must be declared before use)
+                  const cardKey = typeof assessment.id === 'string' ? assessment.id : String(assessment.id || `assessment-${index}`);
+                  
                   // CRITICAL: Ensure icon is a valid React component before using it
                   const Icon = safeAssessment.icon;
                   if (!Icon || typeof Icon !== 'function') {
@@ -1060,8 +1063,6 @@ function AssessmentsContent() {
                     );
                   }
                   const is360Feedback = safeAssessment.assessmentType === 'THREE_SIXTY_SELF';
-                  // CRITICAL: Ensure key is a string, not an object
-                  const cardKey = typeof assessment.id === 'string' ? assessment.id : String(assessment.id || `assessment-${index}`);
                   
                   console.log(`[DEBUG] Rendering Card for assessment ${index} with key:`, cardKey);
                   
