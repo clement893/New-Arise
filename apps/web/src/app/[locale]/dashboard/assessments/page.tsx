@@ -1219,23 +1219,37 @@ function AssessmentsContent() {
                   );
                 } catch (renderError: any) {
                   // CRITICAL: Catch ANY rendering error to prevent React error #130
-                  console.error('[Assessments] ⚠️ ERROR RENDERING ASSESSMENT CARD!', {
-                    assessmentId: assessment.id,
-                    error: renderError,
-                    errorMessage: renderError?.message || String(renderError),
-                    assessment: {
-                      id: assessment.id,
-                      title: assessment.title,
-                      answerCount: assessment.answerCount,
-                      answerCountType: typeof assessment.answerCount,
-                      totalQuestions: assessment.totalQuestions,
-                      totalQuestionsType: typeof assessment.totalQuestions,
-                      assessmentId: assessment.assessmentId,
-                      assessmentIdType: typeof assessment.assessmentId,
-                      status: assessment.status,
-                      statusType: typeof assessment.status,
+                  console.error('[CRITICAL] ========== ERROR RENDERING ASSESSMENT CARD! ==========');
+                  console.error('[CRITICAL] Assessment index:', index);
+                  console.error('[CRITICAL] Error:', renderError);
+                  console.error('[CRITICAL] Error message:', renderError?.message || String(renderError));
+                  console.error('[CRITICAL] Error stack:', renderError?.stack);
+                  console.error('[CRITICAL] Original assessment:', assessment);
+                  console.error('[CRITICAL] Assessment keys:', Object.keys(assessment));
+                  
+                  // Check every property for objects
+                  Object.keys(assessment).forEach(key => {
+                    const value = (assessment as any)[key];
+                    if (value !== null && value !== undefined && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
+                      console.error(`[CRITICAL] ⚠️⚠️⚠️ PROPERTY "${key}" IN ORIGINAL ASSESSMENT IS AN OBJECT!`, value);
                     }
                   });
+                  
+                  console.error('[CRITICAL] Assessment details:', {
+                    id: assessment.id,
+                    idType: typeof assessment.id,
+                    title: assessment.title,
+                    titleType: typeof assessment.title,
+                    answerCount: assessment.answerCount,
+                    answerCountType: typeof assessment.answerCount,
+                    totalQuestions: assessment.totalQuestions,
+                    totalQuestionsType: typeof assessment.totalQuestions,
+                    assessmentId: assessment.assessmentId,
+                    assessmentIdType: typeof assessment.assessmentId,
+                    status: assessment.status,
+                    statusType: typeof assessment.status,
+                  });
+                  console.error('[CRITICAL] =====================================================');
                   
                   // Render a safe fallback card instead of crashing
                   return (
