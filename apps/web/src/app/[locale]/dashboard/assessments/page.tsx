@@ -926,15 +926,30 @@ function AssessmentsContent() {
           )}
           <MotionDiv variant="slideUp" delay={100}>
             <Stack gap="normal">
-              {safeAssessments.map((assessment) => {
+              {safeAssessments.map((assessment, index) => {
                 // CRITICAL: Wrap entire card rendering in try-catch to prevent React error #130
                 // This is the last line of defense - if ANY object gets rendered, catch it here
                 try {
                   // DEBUG: Log each assessment before rendering to catch objects
-                  console.log('[DEBUG] Rendering assessment:', {
+                  console.log(`[DEBUG] ========== RENDERING ASSESSMENT ${index} ==========`);
+                  console.log('[DEBUG] Assessment object:', assessment);
+                  console.log('[DEBUG] Assessment keys:', Object.keys(assessment));
+                  
+                  // CRITICAL: Check EVERY property for objects
+                  Object.keys(assessment).forEach(key => {
+                    const value = (assessment as any)[key];
+                    if (value !== null && value !== undefined && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
+                      console.error(`[CRITICAL] ⚠️⚠️⚠️ PROPERTY "${key}" IS AN OBJECT!`, value);
+                    }
+                  });
+                  
+                  console.log('[DEBUG] Assessment details:', {
                     id: assessment.id,
+                    idType: typeof assessment.id,
                     title: assessment.title,
+                    titleType: typeof assessment.title,
                     status: assessment.status,
+                    statusType: typeof assessment.status,
                     answerCount: assessment.answerCount,
                     answerCountType: typeof assessment.answerCount,
                     answerCountValue: assessment.answerCount,
@@ -943,6 +958,9 @@ function AssessmentsContent() {
                     totalQuestionsValue: assessment.totalQuestions,
                     assessmentId: assessment.assessmentId,
                     assessmentIdType: typeof assessment.assessmentId,
+                    assessmentIdValue: assessment.assessmentId,
+                    description: assessment.description,
+                    descriptionType: typeof assessment.description,
                   });
                   
                   // DEBUG: Check if any value is an object that might be rendered
@@ -960,21 +978,42 @@ function AssessmentsContent() {
                   }
                   
                   // CRITICAL: Force all values to be primitives before rendering
-                  const safeAssessment = {
-                    ...assessment,
-                    answerCount: typeof assessment.answerCount === 'number' ? assessment.answerCount : undefined,
-                    totalQuestions: typeof assessment.totalQuestions === 'number' ? assessment.totalQuestions : undefined,
-                    assessmentId: typeof assessment.assessmentId === 'number' ? assessment.assessmentId : undefined,
-                    status: typeof assessment.status === 'string' ? assessment.status : 'available',
+                  // Convert EVERY property to ensure no objects slip through
+                  const safeAssessment: AssessmentDisplay = {
+                    id: typeof assessment.id === 'string' ? assessment.id : String(assessment.id || ''),
                     title: typeof assessment.title === 'string' ? assessment.title : String(assessment.title || ''),
                     description: typeof assessment.description === 'string' ? assessment.description : String(assessment.description || ''),
+                    status: typeof assessment.status === 'string' ? assessment.status : 'available',
+                    icon: assessment.icon,
+                    assessmentType: assessment.assessmentType,
+                    answerCount: typeof assessment.answerCount === 'number' ? assessment.answerCount : (typeof assessment.answerCount === 'string' ? parseInt(assessment.answerCount, 10) : undefined),
+                    totalQuestions: typeof assessment.totalQuestions === 'number' ? assessment.totalQuestions : (typeof assessment.totalQuestions === 'string' ? parseInt(assessment.totalQuestions, 10) : undefined),
+                    assessmentId: typeof assessment.assessmentId === 'number' ? assessment.assessmentId : (typeof assessment.assessmentId === 'string' ? parseInt(assessment.assessmentId, 10) : undefined),
+                    externalLink: typeof assessment.externalLink === 'string' ? assessment.externalLink : undefined,
+                    requiresEvaluators: typeof assessment.requiresEvaluators === 'boolean' ? assessment.requiresEvaluators : undefined,
                   };
+                  
+                  // CRITICAL: Final validation - ensure NO objects in safeAssessment
+                  Object.keys(safeAssessment).forEach(key => {
+                    const value = (safeAssessment as any)[key];
+                    if (value !== null && value !== undefined && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
+                      console.error(`[CRITICAL] ⚠️⚠️⚠️ safeAssessment.${key} IS STILL AN OBJECT AFTER CLEANING!`, value);
+                      throw new Error(`safeAssessment.${key} is an object: ${JSON.stringify(value)}`);
+                    }
+                  });
+                  
+                  console.log(`[DEBUG] Safe assessment ${index} created:`, safeAssessment);
                   
                   const Icon = safeAssessment.icon;
                   const is360Feedback = safeAssessment.assessmentType === 'THREE_SIXTY_SELF';
+                  // CRITICAL: Ensure key is a string, not an object
+                  const cardKey = typeof assessment.id === 'string' ? assessment.id : String(assessment.id || `assessment-${index}`);
+                  
+                  console.log(`[DEBUG] Rendering Card for assessment ${index} with key:`, cardKey);
+                  
                   return (
                   <Card 
-                    key={assessment.id} 
+                    key={cardKey} 
                     className="hover:shadow-lg transition-shadow"
                     style={is360Feedback ? { backgroundColor: 'rgb(255, 255, 255)' } : undefined}
                   >
@@ -1200,7 +1239,7 @@ function AssessmentsContent() {
                   
                   // Render a safe fallback card instead of crashing
                   return (
-                    <Card key={assessment.id} className="border-red-300 bg-red-50">
+                    <Card key={`error-${index}`} className="border-red-300 bg-red-50">
                       <div className="p-4">
                         <h3 className="text-lg font-bold text-red-900 mb-2">
                           {typeof assessment.title === 'string' ? assessment.title : 'Assessment'}
