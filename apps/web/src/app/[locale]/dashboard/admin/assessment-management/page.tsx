@@ -239,33 +239,33 @@ export default function AdminAssessmentManagementPage() {
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <MotionDiv variant="slideUp" duration="normal" delay={0}>
-          <Card className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800">
+          <Card className="p-6 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 border-primary-200 dark:border-primary-800">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">Total des tests</p>
-                <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">{totalAssessments}</p>
+                <p className="text-sm font-medium text-primary-600 dark:text-primary-400 mb-1">Total des tests</p>
+                <p className="text-3xl font-bold text-primary-900 dark:text-primary-100">{totalAssessments}</p>
               </div>
-              <div className="p-3 bg-blue-200 dark:bg-blue-800 rounded-full">
-                <ClipboardList className="w-6 h-6 text-blue-700 dark:text-blue-300" />
+              <div className="p-3 bg-primary-200 dark:bg-primary-800 rounded-full">
+                <ClipboardList className="w-6 h-6 text-primary-700 dark:text-primary-300" />
               </div>
             </div>
           </Card>
         </MotionDiv>
 
         <MotionDiv variant="slideUp" duration="normal" delay={100}>
-          <Card className="p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-800">
+          <Card className="p-6 bg-gradient-to-br from-success-50 to-success-100 dark:from-success-900/20 dark:to-success-800/20 border-success-200 dark:border-success-800">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-green-600 dark:text-green-400 mb-1">Terminés</p>
-                <p className="text-3xl font-bold text-green-900 dark:text-green-100">{completedAssessments}</p>
+                <p className="text-sm font-medium text-success-600 dark:text-success-400 mb-1">Terminés</p>
+                <p className="text-3xl font-bold text-success-900 dark:text-success-100">{completedAssessments}</p>
                 {totalAssessments > 0 && (
-                  <p className="text-xs text-green-700 dark:text-green-300 mt-1">
+                  <p className="text-xs text-success-700 dark:text-success-300 mt-1">
                     {Math.round((completedAssessments / totalAssessments) * 100)}%
                   </p>
                 )}
               </div>
-              <div className="p-3 bg-green-200 dark:bg-green-800 rounded-full">
-                <CheckCircle className="w-6 h-6 text-green-700 dark:text-green-300" />
+              <div className="p-3 bg-success-200 dark:bg-success-800 rounded-full">
+                <CheckCircle className="w-6 h-6 text-success-700 dark:text-success-300" />
               </div>
             </div>
           </Card>
@@ -502,7 +502,7 @@ export default function AdminAssessmentManagementPage() {
                         )}
                         {assessment.completed_at && (
                           <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                            <CheckCircle className="w-3 h-3 text-green-600" />
+                            <CheckCircle className="w-3 h-3 text-success-600" />
                             <span>Terminé: {new Date(assessment.completed_at).toLocaleDateString('fr-FR', { 
                               day: '2-digit', 
                               month: 'short', 
@@ -609,7 +609,7 @@ export default function AdminAssessmentManagementPage() {
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-3">
-                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold text-sm">
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-semibold text-sm">
                             {index + 1}
                           </div>
                           <span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
@@ -627,7 +627,7 @@ export default function AdminAssessmentManagementPage() {
                           variant="outline"
                           onClick={() => handleEditQuestion({ ...question, text: question.question } as Question)}
                           title="Modifier"
-                          className="hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                          className="hover:bg-primary-50 dark:hover:bg-primary-900/20"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
@@ -666,8 +666,8 @@ export default function AdminAssessmentManagementPage() {
                           <Badge variant="default" className="capitalize">{question.modeB}</Badge>
                         </div>
                         <div className="space-y-3">
-                          <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                            <p className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-1">Option A</p>
+                          <div className="p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg border border-primary-200 dark:border-primary-800">
+                            <p className="text-sm font-semibold text-primary-700 dark:text-primary-300 mb-1">Option A</p>
                             <p className="text-gray-900 dark:text-gray-100">{question.optionA}</p>
                           </div>
                           <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
@@ -712,7 +712,7 @@ export default function AdminAssessmentManagementPage() {
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-3">
-                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 font-semibold text-sm">
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-semibold text-sm">
                               {question.number}
                             </div>
                             <span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
@@ -732,7 +732,7 @@ export default function AdminAssessmentManagementPage() {
                             variant="outline"
                             onClick={() => handleEditQuestion({ ...question, text: question.question } as Question)}
                             title="Modifier"
-                            className="hover:bg-teal-50 dark:hover:bg-teal-900/20"
+                            className="hover:bg-primary-50 dark:hover:bg-primary-900/20"
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
@@ -1084,7 +1084,7 @@ export default function AdminAssessmentManagementPage() {
                                   variant="outline"
                                   onClick={() => handleEditRule(capability)}
                                   title="Modifier"
-                                  className="hover:bg-teal-50 dark:hover:bg-teal-900/20"
+                                  className="hover:bg-primary-50 dark:hover:bg-primary-900/20"
                                 >
                                   <Edit className="w-4 h-4" />
                                 </Button>
