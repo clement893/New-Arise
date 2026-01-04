@@ -15,7 +15,8 @@ import { apiClient } from '@/lib/api';
 function AssessmentResultsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const assessmentId = searchParams.get('id');
+  // Ensure assessmentId is always a string or null, never an object
+  const assessmentId = searchParams ? searchParams.get('id') : null;
   
   const [results, setResults] = useState<AssessmentResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -123,18 +124,27 @@ function AssessmentResultsContent() {
     } catch (err: unknown) {
       let errorMessage = 'Failed to load results';
       
-      if (err && typeof err === 'object' && 'response' in err) {
-        const response = (err as { response?: { data?: { detail?: string; message?: string }; status?: number } }).response;
-        if (response?.status === 404) {
-          errorMessage = response.data?.detail || response.data?.message || 'Results not found. The assessment may not be completed yet.';
-        } else {
-          errorMessage = response?.data?.detail || response?.data?.message || errorMessage;
+      try {
+        if (err && typeof err === 'object' && 'response' in err) {
+          const response = (err as { response?: { data?: { detail?: string; message?: string }; status?: number } }).response;
+          if (response?.status === 404) {
+            errorMessage = response.data?.detail || response.data?.message || 'Results not found. The assessment may not be completed yet.';
+          } else {
+            errorMessage = response?.data?.detail || response?.data?.message || errorMessage;
+          }
+        } else if (err instanceof Error) {
+          errorMessage = err.message;
+        } else if (err !== null && err !== undefined) {
+          // Fallback: convert any other type to string
+          errorMessage = String(err);
         }
-      } else if (err instanceof Error) {
-        errorMessage = err.message;
+      } catch (parseError) {
+        // If parsing the error fails, use a safe default message
+        errorMessage = 'An unexpected error occurred while loading results.';
       }
       
-      setError(errorMessage);
+      // Ensure errorMessage is always a string
+      setError(typeof errorMessage === 'string' ? errorMessage : 'Failed to load results');
     } finally {
       setIsLoading(false);
     }
@@ -229,8 +239,11 @@ function AssessmentResultsContent() {
   }
 
   if (error || !results) {
-    const assessmentId = searchParams.get('id');
-    const isNotCompleted = error?.includes('not completed') || error?.includes('not found');
+    // Ensure assessmentId is always a string or null, never an object
+    const assessmentIdFromParams = searchParams ? searchParams.get('id') : null;
+    // Ensure error is always a string before using includes
+    const errorString = typeof error === 'string' ? error : String(error || '');
+    const isNotCompleted = errorString.includes('not completed') || errorString.includes('not found');
     
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -238,7 +251,7 @@ function AssessmentResultsContent() {
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
             {isNotCompleted ? 'Assessment Not Completed' : 'Error'}
           </h2>
-          <p className="text-gray-600 mb-6">{error || 'Results not found'}</p>
+          <p className="text-gray-600 mb-6">{errorString || 'Results not found'}</p>
           <div className="flex flex-col gap-3">
             {isNotCompleted && assessmentId && (
               <Button 
