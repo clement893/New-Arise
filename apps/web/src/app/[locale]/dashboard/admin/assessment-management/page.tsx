@@ -1071,9 +1071,9 @@ export default function AdminAssessmentManagementPage() {
                                         {capability.maxScore}
                                       </p>
                                     </div>
-                                    <div className="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                                      <p className="text-xs text-blue-600 dark:text-blue-400 mb-0.5">Questions</p>
-                                      <p className="text-lg font-bold text-blue-700 dark:text-blue-300">
+                                    <div className="px-3 py-1.5 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
+                                      <p className="text-xs text-primary-600 dark:text-primary-400 mb-0.5">Questions</p>
+                                      <p className="text-lg font-bold text-primary-700 dark:text-primary-300">
                                         {capability.questions?.length || 0}
                                       </p>
                                     </div>
