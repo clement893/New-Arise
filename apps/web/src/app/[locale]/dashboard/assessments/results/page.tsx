@@ -368,30 +368,32 @@ function AssessmentResultsContent() {
           {/* Pillar Scores */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {wellnessPillars.map((pillar, index) => {
-              const pillarData = pillar_scores?.[pillar.id];
+              const rawPillarData = pillar_scores?.[pillar.id];
               const isPillarScoreObject = (data: number | PillarScore | undefined): data is PillarScore => {
                 return typeof data === 'object' && data !== null && 'score' in data;
               };
               
               // CRITICAL: Ensure pillarScore is always a number, never an object
               let pillarScore: number = 0;
-              if (isPillarScoreObject(pillarData)) {
+              if (isPillarScoreObject(rawPillarData)) {
                 // It's a PillarScore object, extract the score
-                const scoreValue = pillarData.score;
+                const scoreValue = rawPillarData.score;
                 pillarScore = typeof scoreValue === 'number' ? scoreValue : (typeof scoreValue === 'string' ? parseFloat(scoreValue) : 0);
-              } else if (typeof pillarData === 'number') {
-                pillarScore = pillarData;
-              } else if (typeof pillarData === 'string') {
-                pillarScore = parseFloat(pillarData) || 0;
-              } else if (typeof pillarData === 'object' && pillarData !== null) {
+              } else if (typeof rawPillarData === 'number') {
+                pillarScore = rawPillarData;
+              } else if (typeof rawPillarData === 'string') {
+                pillarScore = parseFloat(rawPillarData) || 0;
+              } else if (typeof rawPillarData === 'object' && rawPillarData !== null) {
                 // Try to extract a number from the object
-                console.error('[Results] ⚠️ pillarData IS AN OBJECT!', { pillarId: pillar.id, pillarData });
-                if ('value' in pillarData && typeof pillarData.value === 'number') {
-                  pillarScore = pillarData.value;
-                } else if ('score' in pillarData && typeof pillarData.score === 'number') {
-                  pillarScore = pillarData.score;
+                console.error('[Results] ⚠️ pillarData IS AN OBJECT!', { pillarId: pillar.id, pillarData: rawPillarData });
+                if ('value' in rawPillarData && typeof (rawPillarData as { value: unknown }).value === 'number') {
+                  pillarScore = (rawPillarData as { value: number }).value;
+                } else if ('score' in rawPillarData && typeof (rawPillarData as { score: unknown }).score === 'number') {
+                  pillarScore = (rawPillarData as { score: number }).score;
                 }
               }
+              
+              const pillarData = rawPillarData;
               
               // Ensure pillarPercentage is always a number
               let pillarPercentage: number = 0;
