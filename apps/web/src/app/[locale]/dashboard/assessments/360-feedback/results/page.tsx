@@ -54,14 +54,30 @@ export default function Feedback360ResultsPage() {
   const loadResults = async () => {
     try {
       setIsLoading(true);
+      setError(null);
 
       // Get assessment ID from URL params, store, or find it from my assessments
       let id: number | null = searchParams?.get('id') ? parseInt(searchParams.get('id')!) : null;
       if (!id) {
         id = assessmentId || null;
       }
+      
+      // Get all assessments to find the one we're looking for and check its status
+      let assessments;
+      try {
+        assessments = await getMyAssessments();
+      } catch (assessmentListError: any) {
+        // If we get a 401, it's an authentication issue
+        if (assessmentListError?.response?.status === 401) {
+          setError('Your session has expired. Please log in again.');
+          setIsLoading(false);
+          return;
+        }
+        // Re-throw other errors
+        throw assessmentListError;
+      }
+      
       if (!id) {
-        const assessments = await getMyAssessments();
         const feedback360Assessment = assessments.find(
           (a) => a.assessment_type === 'THREE_SIXTY_SELF'
         );
@@ -73,12 +89,41 @@ export default function Feedback360ResultsPage() {
         id = feedback360Assessment.id;
       }
 
-      // Load results and evaluators in parallel
-      const [response, evaluatorsResponse] = await Promise.all([
-        getAssessmentResults(id),
-        get360Evaluators(id).catch(() => ({ evaluators: [] })), // Don't fail if evaluators endpoint fails
-      ]);
+      // Find the assessment to check its status
+      const assessment = assessments.find((a) => a.id === id);
+      
+      if (!assessment) {
+        setError('Assessment not found. You may not have access to this assessment.');
+        setIsLoading(false);
+        return;
+      }
 
+      // Check if assessment is completed
+      if (assessment.status !== 'completed' && assessment.status !== 'COMPLETED') {
+        setError(`This assessment is not completed yet. Please complete the assessment first. Status: ${assessment.status}`);
+        setIsLoading(false);
+        return;
+      }
+
+      // Load results and evaluators in parallel
+      // Catch 404 errors for results gracefully
+      let response;
+      try {
+        response = await getAssessmentResults(id);
+      } catch (resultsError: any) {
+        // Check if it's a 404 (results not found)
+        if (resultsError?.response?.status === 404 || 
+            (typeof resultsError === 'string' && resultsError.includes('not found')) ||
+            (resultsError?.message && resultsError.message.includes('not found'))) {
+          setError('Assessment results not found. The assessment may not be completed yet. Please complete and submit the assessment first.');
+          setIsLoading(false);
+          return;
+        }
+        // Re-throw other errors
+        throw resultsError;
+      }
+
+      const evaluatorsResponse = await get360Evaluators(id).catch(() => ({ evaluators: [] })); // Don't fail if evaluators endpoint fails
       setEvaluators(evaluatorsResponse.evaluators || []);
 
       const completedCount = evaluatorsResponse.evaluators?.filter(
@@ -134,13 +179,35 @@ export default function Feedback360ResultsPage() {
   if (error || !results) {
     // Ensure error is always a string before rendering
     const errorString = typeof error === 'string' ? error : formatError(error || 'No results found');
+    
+    // Check if the error indicates the assessment is not completed
+    const isNotCompletedError = errorString.toLowerCase().includes('not completed') || 
+                                 errorString.toLowerCase().includes('not found');
+    
     return (
       <div className="flex min-h-screen items-center justify-center bg-arise-teal p-8">
-        <div className="rounded-lg bg-white p-8 text-center shadow-lg">
-          <p className="mb-4 text-red-600">{errorString}</p>
-          <Button onClick={() => router.push('/dashboard/assessments')}>
-            Back to Assessments
-          </Button>
+        <div className="rounded-lg bg-white p-8 text-center shadow-lg max-w-2xl">
+          <h2 className="mb-4 text-2xl font-semibold text-gray-900">
+            {isNotCompletedError ? 'Assessment Not Completed' : 'Unable to Load Results'}
+          </h2>
+          <p className="mb-6 text-gray-600">{errorString}</p>
+          <div className="flex gap-4 justify-center">
+            <Button onClick={() => router.push('/dashboard/assessments')} variant="outline">
+              Back to Assessments
+            </Button>
+            {isNotCompletedError && (
+              <Button onClick={() => {
+                const id = searchParams?.get('id') || assessmentId;
+                if (id) {
+                  router.push(`/dashboard/assessments/360-feedback?assessmentId=${id}`);
+                } else {
+                  router.push('/dashboard/assessments/360-feedback');
+                }
+              }}>
+                Complete Assessment
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     );
