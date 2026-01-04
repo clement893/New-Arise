@@ -262,7 +262,7 @@ export default function Start360FeedbackPage() {
       <Container className="py-8">
         <div className="mx-auto max-w-2xl">
           <Card className="p-8 text-center">
-            <CheckCircle className="mx-auto mb-4 h-16 w-16 text-green-500" />
+            <CheckCircle className="mx-auto mb-4 h-16 w-16 text-success-500" />
             <h1 className="mb-4 text-3xl font-bold text-gray-900">
               Invitations envoyées !
             </h1>
@@ -317,12 +317,12 @@ export default function Start360FeedbackPage() {
                   const isCopied = copiedToken === evaluator.invitation_token;
                   const statusColors = {
                     'not_started': 'bg-gray-100 text-gray-700',
-                    'in_progress': 'bg-blue-100 text-blue-700',
-                    'completed': 'bg-green-100 text-green-700',
+                    'in_progress': 'bg-primary-100 text-primary-700',
+                    'completed': 'bg-success-100 text-success-700',
                     // Support for uppercase format (backward compatibility)
                     'NOT_STARTED': 'bg-gray-100 text-gray-700',
-                    'IN_PROGRESS': 'bg-blue-100 text-blue-700',
-                    'COMPLETED': 'bg-green-100 text-green-700',
+                    'IN_PROGRESS': 'bg-primary-100 text-primary-700',
+                    'COMPLETED': 'bg-success-100 text-success-700',
                   };
                   const statusLabels = {
                     'not_started': 'Invitation envoyée',

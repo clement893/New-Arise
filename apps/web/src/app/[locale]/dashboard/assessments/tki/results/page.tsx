@@ -72,7 +72,7 @@ export default function TKIResultsPage() {
   const getModeLevel = (count: number): { label: string; color: string; icon: LucideIcon } => {
     const percentage = getModePercentage(count);
     if (percentage >= 40) {
-      return { label: 'High', color: 'text-green-600', icon: TrendingUp };
+      return { label: 'High', color: 'text-success-600', icon: TrendingUp };
     } else if (percentage >= 20) {
       return { label: 'Moderate', color: 'text-yellow-600', icon: Minus };
     } else {

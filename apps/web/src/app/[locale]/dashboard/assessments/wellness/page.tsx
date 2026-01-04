@@ -388,8 +388,8 @@ function WellnessAssessmentContent() {
             <MotionDiv variant="fade" duration="normal">
               <Card className="max-w-2xl text-center">
                 <div className="mb-6">
-                  <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle className="text-green-600" size={48} />
+                  <div className="w-20 h-20 bg-success-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="text-success-600" size={48} />
                   </div>
                   <h1 className="text-4xl font-bold text-gray-900 mb-4">
                     Congratulations!

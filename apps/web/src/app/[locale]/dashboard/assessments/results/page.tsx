@@ -447,7 +447,7 @@ function AssessmentResultsContent() {
                     {/* Performance Level */}
                     <div className="text-center">
                       <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                        pillarPercentage >= 80 ? 'bg-green-100 text-green-800' :
+                        pillarPercentage >= 80 ? 'bg-success-100 text-success-800' :
                         pillarPercentage >= 60 ? 'bg-yellow-100 text-yellow-800' :
                         'bg-red-100 text-red-800'
                       }`}>
@@ -469,9 +469,9 @@ function AssessmentResultsContent() {
                 Key Insights
               </h2>
               <div className="space-y-4">
-                <div className="p-4 bg-green-50 rounded-lg">
-                  <h3 className="font-bold text-green-900 mb-2">Strengths</h3>
-                  <p className="text-green-800">
+                <div className="p-4 bg-success-50 rounded-lg">
+                  <h3 className="font-bold text-success-900 mb-2">Strengths</h3>
+                  <p className="text-success-800">
                     Your strongest pillar is {(() => {
                       // CRITICAL: Ensure all scores are numbers before comparison
                       const getPillarScore = (data: number | PillarScore | undefined): number => {

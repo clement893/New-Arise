@@ -136,11 +136,11 @@ export default function Feedback360Page() {
               external stakeholders.
             </p>
 
-            <div className="mb-8 rounded-lg bg-blue-50 p-6">
-              <h2 className="mb-3 text-xl font-semibold text-blue-900">
+            <div className="mb-8 rounded-lg bg-primary-50 p-6">
+              <h2 className="mb-3 text-xl font-semibold text-primary-900">
                 Self-Assessment Guidelines
               </h2>
-              <ul className="space-y-2 text-sm text-blue-800">
+              <ul className="space-y-2 text-sm text-primary-800">
                 <li>
                   <strong>Reflective:</strong> Take time to carefully consider your actions,
                   decisions, and the impact you have had on others in the last twelve months.
@@ -204,7 +204,7 @@ export default function Feedback360Page() {
             duration="normal"
             className="rounded-lg bg-white p-8 text-center shadow-lg"
           >
-            <CheckCircle className="mx-auto mb-4 h-16 w-16 text-green-500" />
+            <CheckCircle className="mx-auto mb-4 h-16 w-16 text-success-500" />
             <h1 className="mb-4 text-3xl font-bold text-gray-900">Self-Assessment Complete!</h1>
             <p className="mb-8 text-gray-600">
               Thank you for completing your self-assessment. Your responses have been saved.

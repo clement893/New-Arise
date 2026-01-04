@@ -173,12 +173,12 @@ export default function WellnessResultsPage() {
                       Overall Wellness Score
                     </h2>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-5xl font-bold text-teal-700">{totalScore}</span>
+                      <span className="text-5xl font-bold text-primary-700">{totalScore}</span>
                       <span className="text-2xl text-gray-600">/ {maxScore}</span>
-                      <span className="text-xl text-teal-600 ml-4">({percentage.toFixed(1)}%)</span>
+                      <span className="text-xl text-primary-600 ml-4">({percentage.toFixed(1)}%)</span>
                     </div>
                   </div>
-                  <Heart className="w-16 h-16 text-teal-600" />
+                  <Heart className="w-16 h-16 text-primary-600" />
                 </div>
                 <div className="mt-4 flex gap-4">
                   <div className="flex-1">
