@@ -161,9 +161,9 @@ export default function AgendaPage() {
   const getTypeIcon = (type: Session['type']) => {
     switch (type) {
       case 'video':
-        return <Video size={16} className="text-blue-600" />;
+        return <Video size={16} className="text-primary-600" />;
       case 'phone':
-        return <Phone size={16} className="text-green-600" />;
+        return <Phone size={16} className="text-success-600" />;
       case 'in-person':
         return <MapPin size={16} className="text-purple-600" />;
     }
@@ -171,8 +171,8 @@ export default function AgendaPage() {
 
   const getStatusBadge = (status: Session['status']) => {
     const styles = {
-      scheduled: 'bg-blue-100 text-blue-700 border-blue-200',
-      completed: 'bg-green-100 text-green-700 border-green-200',
+      scheduled: 'bg-primary-100 text-primary-700 border-primary-200',
+      completed: 'bg-success-100 text-success-700 border-success-200',
       cancelled: 'bg-red-100 text-red-700 border-red-200',
     };
     const icons = {
@@ -236,8 +236,8 @@ export default function AgendaPage() {
                 <p className="text-3xl font-bold text-gray-900">{todaySessions.length}</p>
                 <p className="text-xs text-gray-500 mt-1">sessions</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <CalendarIcon className="text-blue-600" size={24} />
+              <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
+                <CalendarIcon className="text-primary-600" size={24} />
               </div>
             </div>
           </Card>
@@ -272,11 +272,11 @@ export default function AgendaPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Terminées</p>
-                <p className="text-3xl font-bold text-green-600">{completedThisMonth}</p>
+                <p className="text-3xl font-bold text-success-600">{completedThisMonth}</p>
                 <p className="text-xs text-gray-500 mt-1">ce mois</p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="text-green-600" size={24} />
+              <div className="w-12 h-12 bg-success-100 rounded-full flex items-center justify-center">
+                <CheckCircle className="text-success-600" size={24} />
               </div>
             </div>
           </Card>

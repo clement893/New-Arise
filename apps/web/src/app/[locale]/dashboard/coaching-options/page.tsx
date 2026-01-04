@@ -63,7 +63,7 @@ const coachingPackages: CoachingPackage[] = [
       'Ressources et outils',
       'Email de suivi post-session'
     ],
-    color: 'bg-blue-500'
+    color: 'bg-primary-500'
   },
   {
     id: 'growth',
@@ -275,7 +275,7 @@ export default function CoachingOptionsPage() {
                       <ul className="space-y-3 mb-6">
                         {pkg.features.map((feature, idx) => (
                           <li key={idx} className="flex items-start gap-2">
-                            <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                            <Check className="h-5 w-5 text-success-500 flex-shrink-0 mt-0.5" />
                             <span className="text-gray-700">{feature}</span>
                           </li>
                         ))}

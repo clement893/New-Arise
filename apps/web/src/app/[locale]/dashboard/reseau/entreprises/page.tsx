@@ -397,7 +397,7 @@ function CompaniesContent() {
           return <span className="text-muted-foreground">-</span>;
         }
         return value ? (
-          <Badge variant="default" className="bg-green-500 text-white">Oui</Badge>
+          <Badge variant="default" className="bg-success-500 text-white">Oui</Badge>
         ) : (
           <Badge variant="default" className="border border-border">Non</Badge>
         );

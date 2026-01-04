@@ -434,8 +434,8 @@ function ContactsContent() {
         if (!value) return <span className="text-muted-foreground">-</span>;
         
         const circleColors: Record<string, string> = {
-          client: 'bg-green-500 hover:bg-green-600',
-          prospect: 'bg-blue-500 hover:bg-blue-600',
+          client: 'bg-success-500 hover:bg-success-600',
+          prospect: 'bg-primary-500 hover:bg-primary-600',
           partenaire: 'bg-purple-500 hover:bg-purple-600',
           fournisseur: 'bg-orange-500 hover:bg-orange-600',
           autre: 'bg-gray-500 hover:bg-gray-600',

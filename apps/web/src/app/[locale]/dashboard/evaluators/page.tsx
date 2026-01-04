@@ -147,14 +147,14 @@ function EvaluatorsContent() {
     
     if (statusLower === 'completed') {
       return (
-        <div className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+        <div className="flex items-center gap-2 px-3 py-1 bg-success-100 text-success-700 rounded-full text-sm font-medium">
           <CheckCircle size={16} />
           Terminé
         </div>
       );
     } else if (statusLower === 'in_progress' || statusLower === 'started') {
       return (
-        <div className="flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+        <div className="flex items-center gap-2 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
           <Clock size={16} />
           En cours
         </div>
@@ -302,8 +302,8 @@ function EvaluatorsContent() {
       {/* Success/Error Messages */}
       {successMessage && (
         <MotionDiv variant="fade" duration="fast">
-          <Card className="mb-4 p-4 bg-green-50 border-green-200">
-            <p className="text-green-800 text-sm">{successMessage}</p>
+          <Card className="mb-4 p-4 bg-success-50 border-success-200">
+            <p className="text-success-800 text-sm">{successMessage}</p>
           </Card>
         </MotionDiv>
       )}

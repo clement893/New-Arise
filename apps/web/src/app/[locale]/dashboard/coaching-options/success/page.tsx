@@ -25,7 +25,7 @@ export default function CoachingSessionSuccessPage() {
       <div className="max-w-2xl mx-auto">
         <Card className="p-8 text-center">
           <div className="mb-6">
-            <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+            <CheckCircle className="h-16 w-16 text-success-500 mx-auto mb-4" />
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
               Réservation confirmée !
             </h1>
