@@ -812,38 +812,52 @@ function AssessmentsContent() {
           <MotionDiv variant="slideUp" delay={100}>
             <Stack gap="normal">
               {assessments.map((assessment) => {
-                // DEBUG: Log each assessment before rendering to catch objects
-                console.log('[DEBUG] Rendering assessment:', {
-                  id: assessment.id,
-                  title: assessment.title,
-                  status: assessment.status,
-                  answerCount: assessment.answerCount,
-                  answerCountType: typeof assessment.answerCount,
-                  answerCountValue: assessment.answerCount,
-                  totalQuestions: assessment.totalQuestions,
-                  totalQuestionsType: typeof assessment.totalQuestions,
-                  totalQuestionsValue: assessment.totalQuestions,
-                  assessmentId: assessment.assessmentId,
-                  assessmentIdType: typeof assessment.assessmentId,
-                });
-                
-                // DEBUG: Check if any value is an object that might be rendered
-                if (typeof assessment.answerCount === 'object' && assessment.answerCount !== null) {
-                  console.error('[DEBUG] ⚠️ answerCount IS AN OBJECT!', assessment.answerCount);
-                }
-                if (typeof assessment.totalQuestions === 'object' && assessment.totalQuestions !== null) {
-                  console.error('[DEBUG] ⚠️ totalQuestions IS AN OBJECT!', assessment.totalQuestions);
-                }
-                if (typeof assessment.assessmentId === 'object' && assessment.assessmentId !== null) {
-                  console.error('[DEBUG] ⚠️ assessmentId IS AN OBJECT!', assessment.assessmentId);
-                }
-                if (typeof assessment.status === 'object' && assessment.status !== null) {
-                  console.error('[DEBUG] ⚠️ status IS AN OBJECT!', assessment.status);
-                }
-                
-                const Icon = assessment.icon;
-                const is360Feedback = assessment.assessmentType === 'THREE_SIXTY_SELF';
-                return (
+                // CRITICAL: Wrap entire card rendering in try-catch to prevent React error #130
+                // This is the last line of defense - if ANY object gets rendered, catch it here
+                try {
+                  // DEBUG: Log each assessment before rendering to catch objects
+                  console.log('[DEBUG] Rendering assessment:', {
+                    id: assessment.id,
+                    title: assessment.title,
+                    status: assessment.status,
+                    answerCount: assessment.answerCount,
+                    answerCountType: typeof assessment.answerCount,
+                    answerCountValue: assessment.answerCount,
+                    totalQuestions: assessment.totalQuestions,
+                    totalQuestionsType: typeof assessment.totalQuestions,
+                    totalQuestionsValue: assessment.totalQuestions,
+                    assessmentId: assessment.assessmentId,
+                    assessmentIdType: typeof assessment.assessmentId,
+                  });
+                  
+                  // DEBUG: Check if any value is an object that might be rendered
+                  if (typeof assessment.answerCount === 'object' && assessment.answerCount !== null) {
+                    console.error('[DEBUG] ⚠️ answerCount IS AN OBJECT!', assessment.answerCount);
+                  }
+                  if (typeof assessment.totalQuestions === 'object' && assessment.totalQuestions !== null) {
+                    console.error('[DEBUG] ⚠️ totalQuestions IS AN OBJECT!', assessment.totalQuestions);
+                  }
+                  if (typeof assessment.assessmentId === 'object' && assessment.assessmentId !== null) {
+                    console.error('[DEBUG] ⚠️ assessmentId IS AN OBJECT!', assessment.assessmentId);
+                  }
+                  if (typeof assessment.status === 'object' && assessment.status !== null) {
+                    console.error('[DEBUG] ⚠️ status IS AN OBJECT!', assessment.status);
+                  }
+                  
+                  // CRITICAL: Force all values to be primitives before rendering
+                  const safeAssessment = {
+                    ...assessment,
+                    answerCount: typeof assessment.answerCount === 'number' ? assessment.answerCount : undefined,
+                    totalQuestions: typeof assessment.totalQuestions === 'number' ? assessment.totalQuestions : undefined,
+                    assessmentId: typeof assessment.assessmentId === 'number' ? assessment.assessmentId : undefined,
+                    status: typeof assessment.status === 'string' ? assessment.status : 'available',
+                    title: typeof assessment.title === 'string' ? assessment.title : String(assessment.title || ''),
+                    description: typeof assessment.description === 'string' ? assessment.description : String(assessment.description || ''),
+                  };
+                  
+                  const Icon = safeAssessment.icon;
+                  const is360Feedback = safeAssessment.assessmentType === 'THREE_SIXTY_SELF';
+                  return (
                   <Card 
                     key={assessment.id} 
                     className="hover:shadow-lg transition-shadow"
@@ -859,133 +873,117 @@ function AssessmentsContent() {
                         </div>
                         <div className="flex-1">
                           <h3 className="text-xl font-bold text-gray-900 mb-1">
-                            {assessment.title}
+                            {safeAssessment.title}
                           </h3>
                           <p className="text-sm text-gray-600">
-                            {assessment.description}
+                            {safeAssessment.description}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
-                        {getStatusBadge(assessment.status)}
-                        {assessment.status === 'in-progress' && (
-                          <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
-                            {(() => {
-                              // DEBUG: Check types before rendering
-                              const answerCountType = typeof assessment.answerCount;
-                              const totalQuestionsType = typeof assessment.totalQuestions;
-                              
-                              if (answerCountType === 'object' || totalQuestionsType === 'object') {
-                                console.error('[DEBUG] ⚠️ OBJECT DETECTED IN PROGRESS DISPLAY!', {
-                                  answerCount: assessment.answerCount,
-                                  answerCountType,
-                                  totalQuestions: assessment.totalQuestions,
-                                  totalQuestionsType,
-                                  assessment: assessment.id
-                                });
-                              }
-                              
-                              // Safely convert to numbers/strings
-                              const answerCount = typeof assessment.answerCount === 'number' 
-                                ? assessment.answerCount 
-                                : typeof assessment.answerCount === 'string'
-                                ? parseInt(assessment.answerCount, 10)
-                                : undefined;
-                              const totalQuestions = typeof assessment.totalQuestions === 'number'
-                                ? assessment.totalQuestions
-                                : typeof assessment.totalQuestions === 'string'
-                                ? parseInt(assessment.totalQuestions, 10)
-                                : undefined;
-                              
-                              if (answerCount !== undefined && totalQuestions !== undefined) {
-                                return `${answerCount}/${totalQuestions}`;
-                              } else if (answerCount !== undefined) {
-                                return `${answerCount} réponses`;
-                              } else {
-                                return 'En cours';
-                              }
-                            })()}
-                          </span>
-                        )}
-                        {assessment.externalLink && assessment.status !== 'completed' && (
+                        {(() => {
+                          // CRITICAL: Wrap status badge in try-catch to prevent React error #130
+                          try {
+                            return getStatusBadge(safeAssessment.status);
+                          } catch (err) {
+                            console.error('[Assessments] Error rendering status badge:', err);
+                            return <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">-</span>;
+                          }
+                        })()}
+                        {(() => {
+                          // CRITICAL: Wrap progress display in try-catch to prevent React error #130
+                          try {
+                            if (safeAssessment.status !== 'in-progress') return null;
+                            
+                            // Use safe values
+                            const answerCount = safeAssessment.answerCount;
+                            const totalQuestions = safeAssessment.totalQuestions;
+                            
+                            if (answerCount !== undefined && totalQuestions !== undefined && !isNaN(answerCount) && !isNaN(totalQuestions)) {
+                              return (
+                                <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                                  {answerCount}/{totalQuestions}
+                                </span>
+                              );
+                            } else if (answerCount !== undefined && !isNaN(answerCount)) {
+                              return (
+                                <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                                  {answerCount} réponses
+                                </span>
+                              );
+                            } else {
+                              return (
+                                <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                                  En cours
+                                </span>
+                              );
+                            }
+                          } catch (err) {
+                            console.error('[Assessments] Error rendering progress:', err);
+                            return null;
+                          }
+                        })()}
+                        {safeAssessment.externalLink && safeAssessment.status !== 'completed' && (
                           <span className="px-3 py-1 border border-arise-deep-teal text-arise-deep-teal rounded-full text-xs font-medium">
                             Lien externe
                           </span>
                         )}
-                        {getActionButton(assessment)}
+                        {getActionButton(safeAssessment)}
                       </div>
                     </div>
                     {/* Progress bar - always visible */}
                     <div className="mt-4">
                       {(() => {
-                        // Calculate progress percentage
-                        let progressValue = 0;
-                        let progressMax = 100;
-                        let progressLabel = 'Progression';
-                        let progressPercentage = 0;
-                        
-                        if (assessment.status === 'completed') {
-                          progressValue = 100;
-                          progressMax = 100;
-                          progressPercentage = 100;
-                          progressLabel = 'Terminé';
-                        } else if (assessment.status === 'in-progress') {
-                          // DEBUG: Check types before using values
-                          const answerCountType = typeof assessment.answerCount;
-                          const totalQuestionsType = typeof assessment.totalQuestions;
+                        // CRITICAL: Use safeAssessment values to prevent React error #130
+                        try {
+                          // Calculate progress percentage
+                          let progressValue = 0;
+                          let progressMax = 100;
+                          let progressLabel = 'Progression';
+                          let progressPercentage = 0;
                           
-                          if (answerCountType === 'object' || totalQuestionsType === 'object') {
-                            console.error('[DEBUG] ⚠️ OBJECT DETECTED IN PROGRESS CALCULATION!', {
-                              answerCount: assessment.answerCount,
-                              answerCountType,
-                              totalQuestions: assessment.totalQuestions,
-                              totalQuestionsType,
-                              assessment: assessment.id
-                            });
-                          }
-                          
-                          // Safely convert to numbers
-                          const answerCount = typeof assessment.answerCount === 'number'
-                            ? assessment.answerCount
-                            : typeof assessment.answerCount === 'string'
-                            ? parseInt(assessment.answerCount, 10)
-                            : undefined;
-                          const totalQuestions = typeof assessment.totalQuestions === 'number'
-                            ? assessment.totalQuestions
-                            : typeof assessment.totalQuestions === 'string'
-                            ? parseInt(assessment.totalQuestions, 10)
-                            : undefined;
-                          
-                          if (answerCount !== undefined && 
-                              totalQuestions !== undefined && 
-                              totalQuestions > 0) {
-                            progressValue = answerCount;
-                            progressMax = totalQuestions;
-                            progressPercentage = Math.round((answerCount / totalQuestions) * 100);
-                            progressLabel = `Progression: ${answerCount}/${totalQuestions} questions`;
-                          } else if (answerCount !== undefined && answerCount > 0) {
-                            // Fallback: show answer count even if total_questions is missing
-                            progressValue = answerCount;
-                            progressMax = 100; // Unknown total, use 100 as max
-                            progressPercentage = Math.min(answerCount * 10, 99); // Estimate: assume ~10 questions per answer
-                            progressLabel = `Progression: ${answerCount} réponses`;
-                          } else {
+                          if (safeAssessment.status === 'completed') {
+                            progressValue = 100;
+                            progressMax = 100;
+                            progressPercentage = 100;
+                            progressLabel = 'Terminé';
+                          } else if (safeAssessment.status === 'in-progress') {
+                            // Use safe values (already validated as numbers or undefined)
+                            const answerCount = safeAssessment.answerCount;
+                            const totalQuestions = safeAssessment.totalQuestions;
+                            
+                            if (answerCount !== undefined && 
+                                totalQuestions !== undefined && 
+                                !isNaN(answerCount) &&
+                                !isNaN(totalQuestions) &&
+                                totalQuestions > 0) {
+                              progressValue = answerCount;
+                              progressMax = totalQuestions;
+                              progressPercentage = Math.round((answerCount / totalQuestions) * 100);
+                              progressLabel = `Progression: ${answerCount}/${totalQuestions} questions`;
+                            } else if (answerCount !== undefined && !isNaN(answerCount) && answerCount > 0) {
+                              // Fallback: show answer count even if total_questions is missing
+                              progressValue = answerCount;
+                              progressMax = 100; // Unknown total, use 100 as max
+                              progressPercentage = Math.min(answerCount * 10, 99); // Estimate: assume ~10 questions per answer
+                              progressLabel = `Progression: ${answerCount} réponses`;
+                            } else {
+                              progressValue = 0;
+                              progressMax = 100;
+                              progressPercentage = 0;
+                              progressLabel = 'En cours';
+                            }
+                          } else if (safeAssessment.status === 'available') {
                             progressValue = 0;
                             progressMax = 100;
                             progressPercentage = 0;
-                            progressLabel = 'En cours';
+                            progressLabel = 'Non commencé';
+                          } else if (safeAssessment.status === 'locked') {
+                            progressValue = 0;
+                            progressMax = 100;
+                            progressPercentage = 0;
+                            progressLabel = 'Verrouillé';
                           }
-                        } else if (assessment.status === 'available') {
-                          progressValue = 0;
-                          progressMax = 100;
-                          progressPercentage = 0;
-                          progressLabel = 'Non commencé';
-                        } else if (assessment.status === 'locked') {
-                          progressValue = 0;
-                          progressMax = 100;
-                          progressPercentage = 0;
-                          progressLabel = 'Verrouillé';
-                        }
                         
                         // Determine bar color: #d8b868 when there's progress, gray when 0
                         const barColor = progressPercentage > 0 ? '#d8b868' : '#9ca3af';
@@ -1048,7 +1046,53 @@ function AssessmentsContent() {
                       </div>
                     )}
                   </Card>
-                );
+                  );
+                } catch (renderError: any) {
+                  // CRITICAL: Catch ANY rendering error to prevent React error #130
+                  console.error('[Assessments] ⚠️ ERROR RENDERING ASSESSMENT CARD!', {
+                    assessmentId: assessment.id,
+                    error: renderError,
+                    errorMessage: renderError?.message || String(renderError),
+                    assessment: {
+                      id: assessment.id,
+                      title: assessment.title,
+                      answerCount: assessment.answerCount,
+                      answerCountType: typeof assessment.answerCount,
+                      totalQuestions: assessment.totalQuestions,
+                      totalQuestionsType: typeof assessment.totalQuestions,
+                      assessmentId: assessment.assessmentId,
+                      assessmentIdType: typeof assessment.assessmentId,
+                      status: assessment.status,
+                      statusType: typeof assessment.status,
+                    }
+                  });
+                  
+                  // Render a safe fallback card instead of crashing
+                  return (
+                    <Card key={assessment.id} className="border-red-300 bg-red-50">
+                      <div className="p-4">
+                        <h3 className="text-lg font-bold text-red-900 mb-2">
+                          {typeof assessment.title === 'string' ? assessment.title : 'Assessment'}
+                        </h3>
+                        <p className="text-sm text-red-700 mb-4">
+                          Erreur d'affichage. Veuillez rafraîchir la page.
+                        </p>
+                        <Button 
+                          variant="outline" 
+                          onClick={() => {
+                            // Clear cache and reload
+                            if (typeof window !== 'undefined') {
+                              sessionStorage.removeItem('assessments_cache');
+                              window.location.reload();
+                            }
+                          }}
+                        >
+                          Rafraîchir
+                        </Button>
+                      </div>
+                    </Card>
+                  );
+                }
               })}
             </Stack>
           </MotionDiv>
