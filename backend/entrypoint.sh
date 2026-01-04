@@ -43,7 +43,7 @@ if [ -n "$DATABASE_URL" ]; then
     fi
     
     echo "=========================================="
-    echo "Running database migrations..."
+    echo "Running database migrations (Alembic)..."
     echo "=========================================="
     
     # Note: Alembic env.py handles URL conversion automatically
@@ -129,7 +129,21 @@ if [ -n "$DATABASE_URL" ]; then
     fi
     
     if [ "$MIGRATION_STATUS" = "success" ]; then
-        echo "✅ Database migrations completed successfully"
+        echo "✅ Alembic migrations completed successfully"
+        
+        # Run SQL migrations from migrations/ directory
+        echo "=========================================="
+        echo "Running SQL migrations..."
+        echo "=========================================="
+        if [ -f "scripts/run_migrations.py" ]; then
+            echo "Executing SQL migration scripts..."
+            python scripts/run_migrations.py || {
+                echo "⚠️  Warning: SQL migrations failed, but continuing startup..."
+            }
+        else
+            echo "⚠️  Warning: run_migrations.py not found, skipping SQL migrations"
+        fi
+        echo "=========================================="
         
         # Verify avatar column migration was applied
         echo "=========================================="
