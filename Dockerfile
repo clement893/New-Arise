@@ -138,6 +138,11 @@ COPY --from=builder /app/apps/web/.next/static ./.next/static
 RUN mkdir -p /app/apps/web/.next/browser && \
     echo '/* Empty stylesheet - created by Dockerfile */' > /app/apps/web/.next/browser/default-stylesheet.css
 
+# Create cache directory with proper permissions before switching user
+# Next.js needs write access to .next/cache at runtime
+RUN mkdir -p /app/apps/web/.next/cache && \
+    chown -R nextjs:nodejs /app/apps/web/.next
+
 # Set working directory to where server.js is located BEFORE switching user
 # This ensures Next.js can find static files and other resources correctly
 WORKDIR /app/apps/web

@@ -399,20 +399,21 @@ function PaymentFormContent() {
                 </div>
 
                 {!isProcessing && (
-                  <>
+                  <form onSubmit={handleSubmit} className="space-y-4">
                     <StripeCardElement
+                      key={`stripe-element-${selectedPlan.id}`}
                       onError={setCardError}
                       cardError={cardError}
                     />
                     <Button
-                      onClick={handleSubmit}
-                      disabled={!stripe || !selectedPlan}
+                      type="submit"
+                      disabled={!stripe || !selectedPlan || isProcessing}
                       className="w-full bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       <CreditCard className="w-5 h-5" />
                       Complete Payment
                     </Button>
-                  </>
+                  </form>
                 )}
 
                 {isProcessing && (

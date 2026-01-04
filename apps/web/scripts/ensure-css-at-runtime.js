@@ -1,6 +1,6 @@
 /**
- * Runtime script to ensure default-stylesheet.css exists
- * This is called at server startup to ensure the file exists even if it wasn't copied during build
+ * Runtime script to ensure default-stylesheet.css exists and cache directory exists
+ * This is called at server startup to ensure required directories exist
  */
 const fs = require('fs');
 const path = require('path');
@@ -34,6 +34,27 @@ possiblePaths.forEach((cssPath) => {
     // Silently ignore errors for paths that don't exist
     if (process.env.NODE_ENV === 'development') {
       console.warn(`[Runtime CSS] Could not create CSS file at ${cssPath}:`, error.message);
+    }
+  }
+});
+
+// Ensure cache directory exists (Next.js needs this for image optimization)
+const possibleCachePaths = [
+  path.join(__dirname, '..', '.next', 'cache'),
+  path.join(process.cwd(), '.next', 'cache'),
+  path.join(process.cwd(), 'apps', 'web', '.next', 'cache'),
+];
+
+possibleCachePaths.forEach((cachePath) => {
+  try {
+    if (!fs.existsSync(cachePath)) {
+      fs.mkdirSync(cachePath, { recursive: true });
+      console.log(`[Runtime Cache] Created cache directory: ${cachePath}`);
+    }
+  } catch (error) {
+    // Log warning but don't fail - cache directory creation is optional
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(`[Runtime Cache] Could not create cache directory at ${cachePath}:`, error.message);
     }
   }
 });
