@@ -457,10 +457,10 @@ function AssessmentsContent() {
         // Use utility function for consistent status determination
         let status: 'completed' | 'in-progress' | 'locked' | 'available' = 'available';
         if (apiAssessment) {
-          // Always log for Wellness assessments (even in production) for troubleshooting
-          if (apiType === 'WELLNESS') {
+          // Always log for Wellness and 360 feedback assessments (even in production) for troubleshooting
+          if (apiType === 'WELLNESS' || apiType === 'THREE_SIXTY_SELF') {
             // Convert to string to prevent React error #130
-            console.log(`[Assessments] Wellness assessment status check:`, JSON.stringify({
+            console.log(`[Assessments] ${apiType} assessment status check:`, JSON.stringify({
               rawStatus: apiAssessment.status,
               assessmentId: apiAssessment.id,
               answerCount: apiAssessment.answer_count,
@@ -468,21 +468,25 @@ function AssessmentsContent() {
               hasAllAnswers: apiAssessment.answer_count !== undefined && 
                             apiAssessment.total_questions !== undefined &&
                             apiAssessment.total_questions > 0 &&
-                            apiAssessment.answer_count >= apiAssessment.total_questions
+                            apiAssessment.answer_count === apiAssessment.total_questions, // Using === strict
+              answerCountType: typeof apiAssessment.answer_count,
+              totalQuestionsType: typeof apiAssessment.total_questions
             }));
           }
           
           status = determineAssessmentStatus(apiAssessment, apiType);
           
-          // Always log the determined status for Wellness
-          if (apiType === 'WELLNESS') {
+          // Always log the determined status for Wellness and 360 feedback
+          if (apiType === 'WELLNESS' || apiType === 'THREE_SIXTY_SELF') {
             // Convert to string to prevent React error #130
-            console.log(`[Assessments] Wellness assessment determined status:`, JSON.stringify({
+            console.log(`[Assessments] ${apiType} assessment determined status:`, JSON.stringify({
               assessmentId: apiAssessment.id,
               determinedStatus: status,
               rawStatus: apiAssessment.status,
               answerCount: apiAssessment.answer_count,
-              totalQuestions: apiAssessment.total_questions
+              totalQuestions: apiAssessment.total_questions,
+              answerCountType: typeof apiAssessment.answer_count,
+              totalQuestionsType: typeof apiAssessment.total_questions
             }));
           }
           
@@ -680,17 +684,21 @@ function AssessmentsContent() {
     
     const isStarting = startingAssessment === assessment.assessmentType;
     
-    // Debug logging for Wellness button determination
-    if (assessment.assessmentType === 'WELLNESS') {
+    // Debug logging for Wellness and 360 feedback button determination
+    if (assessment.assessmentType === 'WELLNESS' || assessment.assessmentType === 'THREE_SIXTY_SELF') {
       // Convert to string to prevent React error #130
-      console.log(`[Assessments] Wellness button determination:`, JSON.stringify({
+      const answerCountNum = typeof assessment.answerCount === 'number' ? assessment.answerCount : (typeof assessment.answerCount === 'string' ? parseInt(assessment.answerCount, 10) : 0);
+      const totalQuestionsNum = typeof assessment.totalQuestions === 'number' ? assessment.totalQuestions : (typeof assessment.totalQuestions === 'string' ? parseInt(assessment.totalQuestions, 10) : 0);
+      console.log(`[Assessments] ${assessment.assessmentType} button determination:`, JSON.stringify({
         status: assessment.status,
         answerCount: assessment.answerCount,
+        answerCountNum: answerCountNum,
         totalQuestions: assessment.totalQuestions,
+        totalQuestionsNum: totalQuestionsNum,
         assessmentId: safeAssessmentId,
-        hasAllAnswers: assessment.answerCount !== undefined && 
-                      assessment.totalQuestions !== undefined && 
-                      assessment.answerCount >= assessment.totalQuestions
+        hasAllAnswers: answerCountNum > 0 && totalQuestionsNum > 0 && answerCountNum === totalQuestionsNum,
+        answerCountType: typeof assessment.answerCount,
+        totalQuestionsType: typeof assessment.totalQuestions
       }));
     }
     
