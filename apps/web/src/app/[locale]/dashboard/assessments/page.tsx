@@ -551,10 +551,17 @@ function AssessmentsContent() {
       
       // Cache assessments in sessionStorage for instant display on next visit
       // Only cache validated data to prevent corruption
+      // CRITICAL: Remove icon from cached data (React components cannot be serialized)
+      // Icons will be restored from ASSESSMENT_CONFIG when loading from cache
       if (typeof window !== 'undefined') {
         try {
+          const cacheSafeAssessments = finalValidatedAssessments.map(assessment => {
+            const { icon, ...assessmentWithoutIcon } = assessment;
+            return assessmentWithoutIcon;
+          });
+          
           sessionStorage.setItem('assessments_cache', JSON.stringify({
-            data: finalValidatedAssessments,
+            data: cacheSafeAssessments,
             timestamp: Date.now()
           }));
         } catch (e) {
