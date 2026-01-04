@@ -997,15 +997,18 @@ function AssessmentsContent() {
                             const totalQuestions = safeAssessment.totalQuestions;
                             
                             if (answerCount !== undefined && totalQuestions !== undefined && !isNaN(answerCount) && !isNaN(totalQuestions)) {
+                              const safeAnswerCount = typeof answerCount === 'number' ? answerCount : (typeof answerCount === 'string' ? parseInt(answerCount, 10) : 0);
+                              const safeTotalQuestions = typeof totalQuestions === 'number' ? totalQuestions : (typeof totalQuestions === 'string' ? parseInt(totalQuestions, 10) : 0);
                               return (
                                 <span className="px-3 py-1 bg-primary-50 text-primary-700 rounded-full text-sm font-medium">
-                                  {answerCount}/{totalQuestions}
+                                  {safeAnswerCount}/{safeTotalQuestions}
                                 </span>
                               );
                             } else if (answerCount !== undefined && !isNaN(answerCount)) {
+                              const safeAnswerCount = typeof answerCount === 'number' ? answerCount : (typeof answerCount === 'string' ? parseInt(answerCount, 10) : 0);
                               return (
                                 <span className="px-3 py-1 bg-primary-50 text-primary-700 rounded-full text-sm font-medium">
-                                  {answerCount} réponses
+                                  {safeAnswerCount} réponses
                                 </span>
                               );
                             } else {
@@ -1056,14 +1059,17 @@ function AssessmentsContent() {
                                 totalQuestions > 0) {
                               progressValue = answerCount;
                               progressMax = totalQuestions;
-                              progressPercentage = Math.round((answerCount / totalQuestions) * 100);
-                              progressLabel = `Progression: ${answerCount}/${totalQuestions} questions`;
+                              const safeAnswerCount = typeof answerCount === 'number' ? answerCount : (typeof answerCount === 'string' ? parseInt(answerCount, 10) : 0);
+                              const safeTotalQuestions = typeof totalQuestions === 'number' ? totalQuestions : (typeof totalQuestions === 'string' ? parseInt(totalQuestions, 10) : 0);
+                              progressPercentage = Math.round((safeAnswerCount / safeTotalQuestions) * 100);
+                              progressLabel = `Progression: ${safeAnswerCount}/${safeTotalQuestions} questions`;
                             } else if (answerCount !== undefined && !isNaN(answerCount) && answerCount > 0) {
                               // Fallback: show answer count even if total_questions is missing
-                              progressValue = answerCount;
+                              const safeAnswerCount = typeof answerCount === 'number' ? answerCount : (typeof answerCount === 'string' ? parseInt(answerCount, 10) : 0);
+                              progressValue = safeAnswerCount;
                               progressMax = 100; // Unknown total, use 100 as max
-                              progressPercentage = Math.min(answerCount * 10, 99); // Estimate: assume ~10 questions per answer
-                              progressLabel = `Progression: ${answerCount} réponses`;
+                              progressPercentage = Math.min(safeAnswerCount * 10, 99); // Estimate: assume ~10 questions per answer
+                              progressLabel = `Progression: ${safeAnswerCount} réponses`;
                             } else {
                               progressValue = 0;
                               progressMax = 100;
@@ -1089,9 +1095,11 @@ function AssessmentsContent() {
                           <div className="w-full">
                             <div className="flex justify-between items-center mb-1">
                               <span className="text-sm font-medium text-gray-700">
-                                {progressLabel}
+                                {typeof progressLabel === 'string' ? progressLabel : String(progressLabel || 'Progression')}
                               </span>
-                              <span className="text-sm text-gray-600">{progressPercentage}%</span>
+                              <span className="text-sm text-gray-600">
+                                {typeof progressPercentage === 'number' ? `${progressPercentage}%` : '0%'}
+                              </span>
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                               <div
