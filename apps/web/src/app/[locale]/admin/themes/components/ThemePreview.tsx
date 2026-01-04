@@ -18,7 +18,6 @@ export function ThemePreview({ config }: ThemePreviewProps) {
   // Apply theme config directly for preview
   useEffect(() => {
     applyThemeConfigDirectly(config, {
-      bypassDarkModeProtection: true,
       validateContrast: false,
       logWarnings: false,
     });
