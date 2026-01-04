@@ -387,14 +387,14 @@ export default function Start360FeedbackPage() {
 
           <Card className="p-8">
             <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="mb-6 rounded-lg bg-blue-50 p-4">
+              <div className="mb-6 rounded-lg bg-primary-50 p-4">
                 <div className="flex items-start gap-3">
-                  <Users className="mt-0.5 h-5 w-5 text-blue-600" />
+                  <Users className="mt-0.5 h-5 w-5 text-primary-600" />
                   <div>
-                    <h3 className="font-semibold text-blue-900">
+                    <h3 className="font-semibold text-primary-900">
                       Instructions
                     </h3>
-                    <p className="mt-1 text-sm text-blue-800">
+                    <p className="mt-1 text-sm text-primary-800">
                       Invitez des personnes qui vous connaissent bien dans votre contexte professionnel (optionnel). 
                       Choisissez des personnes ayant des relations différentes avec vous (collègue, manager, collaborateur, client, etc.).
                       Vous pouvez ajouter des évaluateurs maintenant ou plus tard depuis votre dashboard.
