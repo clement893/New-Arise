@@ -35,13 +35,28 @@ function PaymentFormContent() {
   const [cardError, setCardError] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [loadingPlan, setLoadingPlan] = useState(true);
+  const [stripeReady, setStripeReady] = useState(false);
   const isMountedRef = useRef(true);
   const isProcessingRef = useRef(false);
+  const cardElementRef = useRef<any>(null);
 
-  // Track component mount status
+  // Track component mount status and Stripe readiness
   useEffect(() => {
     isMountedRef.current = true;
     isProcessingRef.current = false;
+    
+    // Check if Stripe is ready
+    if (stripe && elements) {
+      setStripeReady(true);
+      // Cache the card element reference
+      const cardElement = elements.getElement(CardElement);
+      if (cardElement) {
+        cardElementRef.current = cardElement;
+      }
+    } else {
+      setStripeReady(false);
+      cardElementRef.current = null;
+    }
     
     // Add global error handler for unhandled promise rejections
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
@@ -65,9 +80,10 @@ function PaymentFormContent() {
     return () => {
       isMountedRef.current = false;
       isProcessingRef.current = false;
+      cardElementRef.current = null;
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     };
-  }, []);
+  }, [stripe, elements]);
 
   // Load plan details
   useEffect(() => {
@@ -115,12 +131,18 @@ function PaymentFormContent() {
     e.preventDefault();
 
     // Prevent double submission
-    if (isProcessing) {
+    if (isProcessing || isProcessingRef.current) {
       return;
     }
 
-    if (!stripe || !elements || !selectedPlan || !planId) {
-      setError('Please wait for Stripe to load and select a plan.');
+    // Check Stripe readiness
+    if (!stripe || !elements || !stripeReady) {
+      setError('Please wait for Stripe to load.');
+      return;
+    }
+
+    if (!selectedPlan || !planId) {
+      setError('Please select a plan.');
       return;
     }
 
@@ -129,10 +151,19 @@ function PaymentFormContent() {
     setError(null);
     setCardError(null);
 
-    const cardElement = elements.getElement(CardElement);
+    // Use cached element ref or get fresh one
+    let cardElement = cardElementRef.current;
+    if (!cardElement) {
+      cardElement = elements.getElement(CardElement);
+      if (cardElement) {
+        cardElementRef.current = cardElement;
+      }
+    }
+
     if (!cardElement) {
       setError('Card element not found. Please refresh the page.');
       setIsProcessing(false);
+      isProcessingRef.current = false;
       return;
     }
 
@@ -142,35 +173,37 @@ function PaymentFormContent() {
         return;
       }
 
-      // Verify element is still available before using it
-      const currentElement = elements.getElement(CardElement);
-      if (!currentElement) {
-        if (isMountedRef.current) {
-          setError('Card element is no longer available. Please refresh the page.');
-          setIsProcessing(false);
-          isProcessingRef.current = false;
-        }
-        return;
-      }
-
       // Create payment method - this is the critical operation that needs the element
-      // Wrap in try-catch to handle potential unmount errors
-      let pmError: any = null;
       let paymentMethod: any = null;
       
       try {
         const result = await stripe.createPaymentMethod({
           type: 'card',
-          card: currentElement,
+          card: cardElement,
         });
-        pmError = result.error;
+        
+        // Check result.error first - this is a validation error, not an unmount error
+        if (result.error) {
+          if (isMountedRef.current) {
+            setCardError(result.error.message || 'An error occurred while processing your card.');
+            setIsProcessing(false);
+            isProcessingRef.current = false;
+          }
+          return;
+        }
+        
         paymentMethod = result.paymentMethod;
       } catch (stripeError: any) {
-        // Handle Stripe errors, especially unmount errors
-        const errorMessage = stripeError?.message || '';
-        const isUnmountError = errorMessage.includes('Element') && 
-                              (errorMessage.includes('mounted') || 
-                               errorMessage.includes('retrieve data'));
+        // Handle Stripe errors - check for unmount errors specifically
+        const errorMessage = String(stripeError?.message || '');
+        const errorCode = String(stripeError?.code || '');
+        
+        // Check for unmount errors - these are specific Stripe error codes/messages
+        const isUnmountError = 
+          errorCode === 'element_unmounted' ||
+          (errorMessage.includes('Element') && 
+           (errorMessage.includes('mounted') || errorMessage.includes('retrieve data')) &&
+           errorMessage.includes('still'));
         
         if (isUnmountError) {
           // Element was unmounted during operation
@@ -186,21 +219,13 @@ function PaymentFormContent() {
           }
           return;
         }
-        // Re-throw other errors
+        
+        // Other Stripe errors - re-throw to be handled by outer catch
         throw stripeError;
       }
 
       // Check if component is still mounted after async operation
       if (!isMountedRef.current) {
-        return;
-      }
-
-      if (pmError) {
-        if (isMountedRef.current) {
-          setCardError(pmError.message || 'An error occurred while processing your card.');
-          setIsProcessing(false);
-          isProcessingRef.current = false;
-        }
         return;
       }
 
@@ -399,15 +424,15 @@ function PaymentFormContent() {
                 </div>
 
                 {!isProcessing && (
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-4">
                     <StripeCardElement
-                      key={`stripe-element-${selectedPlan.id}`}
+                      key="payment-card-element"
                       onError={setCardError}
                       cardError={cardError}
                     />
                     <Button
                       type="submit"
-                      disabled={!stripe || !selectedPlan || isProcessing}
+                      disabled={!stripeReady || !selectedPlan || isProcessing}
                       className="w-full bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       <CreditCard className="w-5 h-5" />
@@ -480,7 +505,15 @@ function PaymentFormContent() {
 
 export function Step5_Payment() {
   return (
-    <Elements stripe={stripePromise}>
+    <Elements 
+      stripe={stripePromise}
+      key="payment-elements-provider"
+      options={{
+        appearance: {
+          theme: 'stripe',
+        },
+      }}
+    >
       <PaymentFormContent />
     </Elements>
   );
