@@ -178,6 +178,34 @@ export const useFeedback360Store = create<Feedback360State>()(
         currentQuestion: state.currentQuestion,
         answers: state.answers,
       }),
+      // Ensure error is always a string when restoring from localStorage
+      // This prevents React error #130 if corrupted data is restored
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          // Ensure error is always a string, never an object
+          if (state.error && typeof state.error !== 'string') {
+            console.warn('[Feedback360 Store] Invalid error type restored from localStorage, converting to string:', state.error);
+            state.error = formatError(state.error);
+          }
+          // Ensure answers values are numbers, not objects
+          if (state.answers) {
+            const cleanedAnswers: Record<string, number> = {};
+            Object.entries(state.answers).forEach(([key, value]) => {
+              if (typeof value === 'number') {
+                cleanedAnswers[key] = value;
+              } else if (typeof value === 'string') {
+                const numValue = parseInt(value, 10);
+                if (!isNaN(numValue)) {
+                  cleanedAnswers[key] = numValue;
+                }
+              } else {
+                console.warn('[Feedback360 Store] Invalid answer value type:', { key, value, type: typeof value });
+              }
+            });
+            state.answers = cleanedAnswers;
+          }
+        }
+      },
     }
   )
 );

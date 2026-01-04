@@ -9,10 +9,10 @@ export const DEFAULT_THEME_CONFIG = {
   mode: "system",
   
   // Basic color fields (for backward compatibility and simple usage)
-  // Professional color palette - harmonious and accessible
+  // ARISE Brand Colors - Using ARISE brand colors as primary colors
   // All colors adjusted to meet WCAG AA contrast requirements (4.5:1 for text, 3:1 for UI)
-  primary_color: "#2563eb",  // Deep professional blue (4.5:1 on white)
-  secondary_color: "#6366f1",  // Elegant indigo (4.5:1 on white)
+  primary_color: "#0A3A40",  // ARISE deep teal (exact design color)
+  secondary_color: "#D4AF37",  // ARISE gold (exact design color)
   danger_color: "#dc2626",  // Refined red (5.1:1 on white)
   warning_color: "#b45309",  // Warm amber 700 (4.5:1 on white, improved from #d97706)
   info_color: "#0891b2",  // Professional cyan (4.5:1 on white)
@@ -51,15 +51,15 @@ export const DEFAULT_THEME_CONFIG = {
     textSubheading: "#334155",  // Slate 700
     textBody: "#1e293b",  // Slate 800
     textSecondary: "#64748b",  // Slate 500
-    textLink: "#2563eb",  // Matches primary
+    textLink: "#0A3A40",  // ARISE deep teal (matches primary)
     fontUrl: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
   },
   
-  // Colors configuration (comprehensive) - Professional and harmonious
+  // Colors configuration (comprehensive) - ARISE Brand Colors
   // All colors adjusted to meet WCAG AA contrast requirements
   colors: {
-    primary: "#2563eb",  // Deep professional blue (4.5:1 on white)
-    secondary: "#6366f1",  // Elegant indigo (4.5:1 on white)
+    primary: "#0A3A40",  // ARISE deep teal (exact design color)
+    secondary: "#D4AF37",  // ARISE gold (exact design color)
     danger: "#dc2626",  // Refined red (5.1:1 on white)
     warning: "#b45309",  // Warm amber 700 (4.5:1 on white, improved from #d97706)
     info: "#0891b2",  // Professional cyan (4.5:1 on white)

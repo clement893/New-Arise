@@ -175,6 +175,34 @@ export const useTKIStore = create<TKIState>()(
     }),
     {
       name: 'tki-assessment-storage',
+      // Ensure error is always a string when restoring from localStorage
+      // This prevents React error #130 if corrupted data is restored
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          // Ensure error is always a string, never an object
+          if (state.error && typeof state.error !== 'string') {
+            console.warn('[TKI Store] Invalid error type restored from localStorage, converting to string:', state.error);
+            state.error = extractErrorMessage(state.error, 'An error occurred');
+          }
+          // Ensure answers values are strings ("A" or "B"), not objects
+          if (state.answers) {
+            const cleanedAnswers: Record<string, string> = {};
+            Object.entries(state.answers).forEach(([key, value]) => {
+              if (typeof value === 'string') {
+                cleanedAnswers[key] = value;
+              } else {
+                const strValue = String(value);
+                if (strValue === 'A' || strValue === 'B') {
+                  cleanedAnswers[key] = strValue;
+                } else {
+                  console.warn('[TKI Store] Invalid answer value type:', { key, value, type: typeof value });
+                }
+              }
+            });
+            state.answers = cleanedAnswers;
+          }
+        }
+      },
     }
   )
 );

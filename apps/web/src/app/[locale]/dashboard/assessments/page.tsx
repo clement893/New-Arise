@@ -72,25 +72,104 @@ function AssessmentsContent() {
         // Check if cache is recent (less than 5 minutes old)
         if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) {
           const cachedData = parsed.data || [];
-          // DEBUG: Log cached data to check for objects
-          console.log('[DEBUG] Loading cached assessments:', cachedData.length, 'items');
-          cachedData.forEach((assessment: any, index: number) => {
-            console.log(`[DEBUG] Cached assessment ${index}:`, {
+          
+          // CRITICAL: Validate and clean cached data to prevent React error #130
+          // Ensure all primitive values are actually primitives, not objects
+          const cleanedData: AssessmentDisplay[] = cachedData.map((assessment: any, index: number) => {
+            // Ensure answerCount is a number or string, never an object
+            let answerCount: number | undefined = undefined;
+            if (assessment.answerCount !== undefined && assessment.answerCount !== null) {
+              if (typeof assessment.answerCount === 'number') {
+                answerCount = assessment.answerCount;
+              } else if (typeof assessment.answerCount === 'string') {
+                const parsed = parseInt(assessment.answerCount, 10);
+                answerCount = !isNaN(parsed) ? parsed : undefined;
+              } else {
+                console.error('[DEBUG] ⚠️ answerCount IS AN OBJECT in cache!', assessment.answerCount);
+                // Try to extract a number from the object
+                if (typeof assessment.answerCount === 'object' && 'value' in assessment.answerCount) {
+                  answerCount = typeof assessment.answerCount.value === 'number' ? assessment.answerCount.value : undefined;
+                }
+              }
+            }
+            
+            // Ensure totalQuestions is a number or string, never an object
+            let totalQuestions: number | undefined = undefined;
+            if (assessment.totalQuestions !== undefined && assessment.totalQuestions !== null) {
+              if (typeof assessment.totalQuestions === 'number') {
+                totalQuestions = assessment.totalQuestions;
+              } else if (typeof assessment.totalQuestions === 'string') {
+                const parsed = parseInt(assessment.totalQuestions, 10);
+                totalQuestions = !isNaN(parsed) ? parsed : undefined;
+              } else {
+                console.error('[DEBUG] ⚠️ totalQuestions IS AN OBJECT in cache!', assessment.totalQuestions);
+                // Try to extract a number from the object
+                if (typeof assessment.totalQuestions === 'object' && 'value' in assessment.totalQuestions) {
+                  totalQuestions = typeof assessment.totalQuestions.value === 'number' ? assessment.totalQuestions.value : undefined;
+                }
+              }
+            }
+            
+            // Ensure assessmentId is a string or number, never an object
+            let assessmentId: string | undefined = undefined;
+            if (assessment.assessmentId !== undefined && assessment.assessmentId !== null) {
+              if (typeof assessment.assessmentId === 'string' || typeof assessment.assessmentId === 'number') {
+                assessmentId = String(assessment.assessmentId);
+              } else {
+                console.error('[DEBUG] ⚠️ assessmentId IS AN OBJECT in cache!', assessment.assessmentId);
+                // Try to extract a string from the object
+                if (typeof assessment.assessmentId === 'object' && 'id' in assessment.assessmentId) {
+                  assessmentId = String(assessment.assessmentId.id);
+                } else if (typeof assessment.assessmentId === 'object' && 'value' in assessment.assessmentId) {
+                  assessmentId = String(assessment.assessmentId.value);
+                }
+              }
+            }
+            
+            // Ensure status is a string, never an object
+            let status: string = assessment.status || 'not-started';
+            if (typeof status !== 'string') {
+              console.error('[DEBUG] ⚠️ status IS AN OBJECT in cache!', status);
+              status = typeof status === 'object' && 'value' in status ? String(status.value) : 'not-started';
+            }
+            
+            // Return cleaned assessment
+            return {
+              ...assessment,
+              answerCount,
+              totalQuestions,
+              assessmentId,
+              status,
+            };
+          });
+          
+          // DEBUG: Log cleaned data
+          console.log('[DEBUG] Loaded and cleaned cached assessments:', cleanedData.length, 'items');
+          cleanedData.forEach((assessment: any, index: number) => {
+            console.log(`[DEBUG] Cleaned assessment ${index}:`, {
               id: assessment.id,
               answerCount: assessment.answerCount,
               answerCountType: typeof assessment.answerCount,
-              answerCountIsObject: typeof assessment.answerCount === 'object',
               totalQuestions: assessment.totalQuestions,
               totalQuestionsType: typeof assessment.totalQuestions,
-              totalQuestionsIsObject: typeof assessment.totalQuestions === 'object',
+              assessmentId: assessment.assessmentId,
+              assessmentIdType: typeof assessment.assessmentId,
+              status: assessment.status,
+              statusType: typeof assessment.status,
             });
           });
-          return cachedData;
+          
+          return cleanedData;
         }
       }
     } catch (e) {
       console.error('[DEBUG] Error loading cache:', e);
-      // Ignore cache errors
+      // Clear corrupted cache
+      try {
+        sessionStorage.removeItem('assessments_cache');
+      } catch (clearError) {
+        // Ignore clear errors
+      }
     }
     return [];
   };
@@ -243,10 +322,15 @@ function AssessmentsContent() {
           icon: config.icon,
           externalLink: config.externalLink,
           requiresEvaluators: config.requiresEvaluators,
-          assessmentId: apiAssessment?.id,
+          assessmentId: apiAssessment?.id ? String(apiAssessment.id) : undefined,
           assessmentType: apiType,
-          answerCount: apiAssessment?.answer_count ?? undefined,
-          totalQuestions: apiAssessment?.total_questions ?? undefined,
+          // CRITICAL: Ensure answerCount and totalQuestions are numbers or undefined, never objects
+          answerCount: apiAssessment?.answer_count !== undefined && apiAssessment?.answer_count !== null
+            ? (typeof apiAssessment.answer_count === 'number' ? apiAssessment.answer_count : parseInt(String(apiAssessment.answer_count), 10))
+            : undefined,
+          totalQuestions: apiAssessment?.total_questions !== undefined && apiAssessment?.total_questions !== null
+            ? (typeof apiAssessment.total_questions === 'number' ? apiAssessment.total_questions : parseInt(String(apiAssessment.total_questions), 10))
+            : undefined,
         };
       });
       

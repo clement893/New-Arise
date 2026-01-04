@@ -9,9 +9,9 @@ DEFAULT_THEME_CONFIG = {
     "mode": "system",
     
     # Basic color fields (for backward compatibility and simple usage)
-    # Professional color palette - harmonious and accessible
-    "primary_color": "#2563eb",  # Deep professional blue
-    "secondary_color": "#6366f1",  # Elegant indigo (more subtle than purple)
+    # ARISE Brand Colors - Using ARISE brand colors as primary colors
+    "primary_color": "#0A3A40",  # ARISE deep teal (exact design color)
+    "secondary_color": "#D4AF37",  # ARISE gold (exact design color)
     "danger_color": "#dc2626",  # Refined red
     "warning_color": "#d97706",  # Warm amber
     "info_color": "#0891b2",  # Professional cyan
@@ -50,7 +50,7 @@ DEFAULT_THEME_CONFIG = {
         "textSubheading": "#334155",  # Slate 700
         "textBody": "#1e293b",  # Slate 800
         "textSecondary": "#64748b",  # Slate 500
-        "textLink": "#2563eb"  # Matches primary
+        "textLink": "#0A3A40"  # ARISE deep teal (matches primary)
     },
     
     # Color palette (expanded) - Professional and harmonious
@@ -67,7 +67,7 @@ DEFAULT_THEME_CONFIG = {
         "mutedForeground": "#64748b",  # Slate 500
         "border": "#e2e8f0",  # Slate 200 - softer borders
         "input": "#ffffff",
-        "ring": "#2563eb",  # Matches primary
+        "ring": "#0A3A40",  # ARISE deep teal (matches primary)
         "destructive": "#dc2626",  # Refined red
         "destructiveForeground": "#ffffff",
         "success": "#059669",  # Professional green
