@@ -214,7 +214,7 @@ export default function Feedback360ResultsPage() {
   }
 
   const getGapIcon = (gap: number) => {
-    if (gap > 0.5) return <TrendingUp className="h-5 w-5 text-green-500" />;
+    if (gap > 0.5) return <TrendingUp className="h-5 w-5 text-success-500" />;
     if (gap < -0.5) return <TrendingDown className="h-5 w-5 text-red-500" />;
     return <Minus className="h-5 w-5 text-gray-400" />;
   };
@@ -227,7 +227,7 @@ export default function Feedback360ResultsPage() {
 
   const getGapColor = (gap: number) => {
     if (gap > 0.5) return 'text-orange-600';
-    if (gap < -0.5) return 'text-blue-600';
+    if (gap < -0.5) return 'text-primary-600';
     return 'text-gray-600';
   };
 
@@ -285,8 +285,8 @@ export default function Feedback360ResultsPage() {
                 </span>
               </div>
             ) : (
-              <div className="rounded-lg bg-blue-50 p-4">
-                <p className="text-sm text-blue-800">
+              <div className="rounded-lg bg-primary-50 p-4">
+                <p className="text-sm text-primary-800">
                   <strong>Note:</strong> Ces résultats sont basés uniquement sur votre auto-évaluation. Invitez des collègues pour obtenir une vue 360° complète.
                 </p>
               </div>
@@ -317,11 +317,11 @@ export default function Feedback360ResultsPage() {
                       </div>
                       <div className="ml-3 flex-shrink-0">
                         {evaluator.status === 'completed' || evaluator.status === 'COMPLETED' ? (
-                          <div className="flex items-center gap-1 text-green-600" title="Complété">
+                          <div className="flex items-center gap-1 text-success-600" title="Complété">
                             <CheckCircle className="h-5 w-5" />
                           </div>
                         ) : evaluator.status === 'in_progress' || evaluator.status === 'IN_PROGRESS' ? (
-                          <div className="flex items-center gap-1 text-blue-600" title="En cours">
+                          <div className="flex items-center gap-1 text-primary-600" title="En cours">
                             <Clock className="h-5 w-5" />
                           </div>
                         ) : evaluator.invitation_opened_at ? (
@@ -343,11 +343,11 @@ export default function Feedback360ResultsPage() {
                 </div>
                 <div className="mt-4 flex items-center gap-4 text-xs text-gray-500">
                   <div className="flex items-center gap-1">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <CheckCircle className="h-4 w-4 text-success-600" />
                     <span>Complété ({evaluators.filter((e) => e.status === 'completed' || e.status === 'COMPLETED').length})</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4 text-blue-600" />
+                    <Clock className="h-4 w-4 text-primary-600" />
                     <span>En cours ({evaluators.filter((e) => e.status === 'in_progress' || e.status === 'IN_PROGRESS').length})</span>
                   </div>
                   <div className="flex items-center gap-1">
@@ -459,7 +459,7 @@ export default function Feedback360ResultsPage() {
                         </div>
                         <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
                           <div
-                            className="h-full bg-blue-500"
+                            className="h-full bg-primary-500"
                             style={{
                               width: `${(capScore.others_avg_score / 5) * 100}%`,
                             }}
@@ -492,11 +492,11 @@ export default function Feedback360ResultsPage() {
 
           <div className="space-y-4">
             {!results.has_evaluator_responses && evaluators.length === 0 && (
-              <div className="rounded-lg bg-blue-50 p-6">
-                <h3 className="mb-2 font-semibold text-blue-900">
+              <div className="rounded-lg bg-primary-50 p-6">
+                <h3 className="mb-2 font-semibold text-primary-900">
                   Complétez votre vue 360°
                 </h3>
-                <p className="mb-4 text-sm text-blue-800">
+                <p className="mb-4 text-sm text-primary-800">
                   Invitez des collègues, managers et collaborateurs à partager leur perspective sur votre leadership. Cela vous donnera une vue complète de la façon dont les autres perçoivent vos capacités.
                 </p>
                 <Button
@@ -508,11 +508,11 @@ export default function Feedback360ResultsPage() {
               </div>
             )}
 
-            <div className="rounded-lg bg-green-50 p-6">
-              <h3 className="mb-2 font-semibold text-green-900">
+            <div className="rounded-lg bg-success-50 p-6">
+              <h3 className="mb-2 font-semibold text-success-900">
                 Create Your Development Plan
               </h3>
-              <p className="text-sm text-green-800">
+              <p className="text-sm text-success-800">
                 Use these insights to create a personalized development plan focusing on your growth areas while leveraging your strengths.
               </p>
             </div>

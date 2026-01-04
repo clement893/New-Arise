@@ -150,7 +150,7 @@ function DashboardContent() {
     if (assessment) {
       if (assessment.status === 'COMPLETED') {
         percentage = 100;
-        color = 'teal';
+        color = 'primary';
       } else if (assessment.status === 'IN_PROGRESS' || assessment.status === 'NOT_STARTED') {
         // Calculate percentage based on answers
         const answerCount = assessment.answer_count || 0;
@@ -234,7 +234,7 @@ function DashboardContent() {
     switch (status) {
       case 'completed':
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
+          <span className="inline-flex items-center gap-1 px-3 py-1 bg-success-100 text-success-700 text-xs rounded-full font-medium">
             <CheckCircle size={12} />
             Terminé
           </span>
@@ -242,11 +242,11 @@ function DashboardContent() {
       case 'in-progress':
         return (
           <div className="flex items-center gap-2">
-            <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
+            <span className="inline-block px-3 py-1 bg-primary-100 text-primary-700 text-xs rounded-full font-medium">
               En cours
             </span>
             {answerCount !== undefined && totalQuestions !== undefined && (
-              <span className="inline-block px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full font-medium">
+              <span className="inline-block px-2 py-1 bg-primary-50 text-primary-700 text-xs rounded-full font-medium">
                 {answerCount}/{totalQuestions}
               </span>
             )}
