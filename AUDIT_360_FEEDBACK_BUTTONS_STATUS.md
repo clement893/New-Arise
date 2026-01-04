@@ -10,22 +10,37 @@ Le bouton "Voir les résultats" s'affiche même quand toutes les questions ne so
 - **Attendu**: 30 questions (confirmé dans `feedback360Questions.ts`)
 - **Vérifié**: Le fichier de données contient 30 questions (360_1 à 360_30)
 
-### 2. Fonction `determineAssessmentStatus` (ligne 45-49)
+### 2. Fonction `determineAssessmentStatus` (ligne 45-49 et 58-73)
 **Fichier**: `apps/web/src/lib/utils/assessmentStatus.ts`
 
-**Problème**: Utilise `>=` au lieu de `===` strict
+**Problème 1 (PRIMARY CHECK)**: Utilisait `>=` au lieu de `===` strict ✅ **CORRIGÉ**
+**Problème 2 (SECONDARY CHECK)**: Vérifiait seulement `answer_count > 0` au lieu de `answer_count === total_questions` ✅ **CORRIGÉ**
 
+**Avant**:
 ```typescript
-const hasAllAnswers = 
-  apiAssessment.answer_count !== undefined && 
-  apiAssessment.total_questions !== undefined &&
-  apiAssessment.total_questions > 0 &&
-  apiAssessment.answer_count >= apiAssessment.total_questions; // ⚠️ PROBLÈME: >= au lieu de ===
+// PRIMARY CHECK
+apiAssessment.answer_count >= apiAssessment.total_questions; // ⚠️ >= au lieu de ===
+
+// SECONDARY CHECK  
+if (apiAssessment.answer_count > 0) { // ⚠️ > 0 au lieu de === total_questions
+  return 'completed';
+}
 ```
 
-**Impact**: Si `answer_count` est supérieur à `total_questions` (dû à une erreur de données), l'assessment est marqué comme "completed" incorrectement.
+**Après**:
+```typescript
+// PRIMARY CHECK
+apiAssessment.answer_count === apiAssessment.total_questions; // ✅ === strict
 
-**Solution recommandée**: Utiliser `===` strict pour s'assurer que le nombre exact de questions est répondu.
+// SECONDARY CHECK
+if (apiAssessment.answer_count === apiAssessment.total_questions) { // ✅ === strict
+  return 'completed';
+}
+```
+
+**Impact**: Si le statut backend était "completed" mais qu'il n'y avait que 26/30 réponses, le SECONDARY CHECK retournait quand même "completed" incorrectement.
+
+**Solution**: Utiliser `===` strict dans les deux checks pour s'assurer que le nombre exact de questions est répondu.
 
 ### 3. Fonction `getActionButton` (ligne 781-788)
 **Fichier**: `apps/web/src/app/[locale]/dashboard/assessments/page.tsx`
@@ -64,8 +79,9 @@ Les valeurs viennent directement de l'API:
 ## Corrections nécessaires
 
 1. ✅ **FAIT**: `getActionButton` utilise `===` strict (corrigé)
-2. ❌ **À FAIRE**: Corriger `determineAssessmentStatus` pour utiliser `===` strict au lieu de `>=`
-3. ❌ **À FAIRE**: Ajouter une vérification supplémentaire dans le case 'completed' de `getActionButton` pour le 360 feedback
+2. ✅ **FAIT**: Corriger `determineAssessmentStatus` PRIMARY CHECK pour utiliser `===` strict au lieu de `>=` (corrigé)
+3. ✅ **FAIT**: Corriger `determineAssessmentStatus` SECONDARY CHECK pour vérifier `answer_count === total_questions` au lieu de `answer_count > 0` (corrigé)
+4. ✅ **FAIT**: Ajouter une vérification supplémentaire dans le case 'completed' de `getActionButton` pour le 360 feedback (corrigé)
 
 ## Tests recommandés
 
