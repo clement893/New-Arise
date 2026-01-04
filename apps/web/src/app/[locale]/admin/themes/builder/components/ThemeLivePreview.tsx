@@ -19,7 +19,7 @@ export function ThemeLivePreview({ config }: ThemeLivePreviewProps) {
   useEffect(() => {
     // Apply the preview config temporarily
     if (typeof window !== 'undefined') {
-      applyThemeConfigDirectly(config, { bypassDarkModeProtection: true });
+      applyThemeConfigDirectly(config);
     }
   }, [config]);
 
