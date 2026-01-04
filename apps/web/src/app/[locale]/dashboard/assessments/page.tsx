@@ -52,7 +52,6 @@ import { Brain, Target, Users, Heart, Upload, CheckCircle, Lock, type LucideIcon
 import { getMyAssessments, Assessment as ApiAssessment, AssessmentType, submitAssessment } from '@/lib/api/assessments';
 import { startAssessment } from '@/lib/api/assessments';
 import InviteAdditionalEvaluatorsModal from '@/components/360/InviteAdditionalEvaluatorsModal';
-import { determineAssessmentStatus } from '@/lib/utils/assessmentStatus';
 import { formatError } from '@/lib/utils/formatError';
 
 interface AssessmentDisplay {
@@ -490,47 +489,34 @@ function AssessmentsContent() {
           }));
         }
         
-        // Use utility function for consistent status determination
+        // SIMPLIFIED STATUS DETERMINATION: Use ONLY answerCount and totalQuestions from backend
+        // This ensures buttons and progress bars always reflect actual data, not backend status
         let status: 'completed' | 'in-progress' | 'locked' | 'available' = 'available';
         if (apiAssessment) {
-          // Always log for Wellness and 360 feedback assessments (even in production) for troubleshooting
-          if (apiType === 'WELLNESS' || apiType === 'THREE_SIXTY_SELF') {
-            // Convert to string to prevent React error #130
-            console.log(`[Assessments] ${apiType} assessment status check:`, JSON.stringify({
-              rawStatus: apiAssessment.status,
-              assessmentId: apiAssessment.id,
-              answerCount: apiAssessment.answer_count,
-              totalQuestions: apiAssessment.total_questions,
-              hasAllAnswers: apiAssessment.answer_count !== undefined && 
-                            apiAssessment.total_questions !== undefined &&
-                            apiAssessment.total_questions > 0 &&
-                            apiAssessment.answer_count === apiAssessment.total_questions, // Using === strict
-              answerCountType: typeof apiAssessment.answer_count,
-              totalQuestionsType: typeof apiAssessment.total_questions
-            }));
-          }
-          
-          status = determineAssessmentStatus(apiAssessment, apiType);
-          
-          // Always log the determined status for Wellness and 360 feedback
-          if (apiType === 'WELLNESS' || apiType === 'THREE_SIXTY_SELF') {
-            // Convert to string to prevent React error #130
-            console.log(`[Assessments] ${apiType} assessment determined status:`, JSON.stringify({
-              assessmentId: apiAssessment.id,
-              determinedStatus: status,
-              rawStatus: apiAssessment.status,
-              answerCount: apiAssessment.answer_count,
-              totalQuestions: apiAssessment.total_questions,
-              answerCountType: typeof apiAssessment.answer_count,
-              totalQuestionsType: typeof apiAssessment.total_questions
-            }));
-          }
-          
-          // Log if status was determined as completed but backend status wasn't
-          if (status === 'completed' && 
-              apiAssessment.status !== 'completed' && 
-              apiAssessment.status !== 'COMPLETED') {
-            console.log(`[Assessments] Assessment ${apiAssessment.id} (${apiType}) has all answers (${apiAssessment.answer_count}/${apiAssessment.total_questions}) but status is "${apiAssessment.status}", treating as completed`);
+          // For MBTI (external assessment, no internal questions), use backend status
+          if (apiType === 'MBTI') {
+            const rawStatus = String(apiAssessment.status).toLowerCase().trim();
+            if (rawStatus === 'completed' || rawStatus === 'complete') {
+              status = 'completed';
+            } else {
+              status = 'available';
+            }
+          } else {
+            // For all other assessments (TKI, WELLNESS, THREE_SIXTY_SELF):
+            // Status is determined SOLELY by answerCount vs totalQuestions
+            const answerCount = apiAssessment.answer_count ?? 0;
+            const totalQuestions = apiAssessment.total_questions ?? 0;
+            
+            if (totalQuestions > 0 && answerCount === totalQuestions) {
+              // All questions answered = completed
+              status = 'completed';
+            } else if (answerCount > 0) {
+              // Some questions answered = in-progress
+              status = 'in-progress';
+            } else {
+              // No questions answered = available (not started)
+              status = 'available';
+            }
           }
         }
         
@@ -720,257 +706,120 @@ function AssessmentsContent() {
     
     const isStarting = startingAssessment === assessment.assessmentType;
     
-    // Debug logging for Wellness and 360 feedback button determination
-    if (assessment.assessmentType === 'WELLNESS' || assessment.assessmentType === 'THREE_SIXTY_SELF') {
-      // Convert to string to prevent React error #130
-      const answerCountNum = typeof assessment.answerCount === 'number' ? assessment.answerCount : (typeof assessment.answerCount === 'string' ? parseInt(assessment.answerCount, 10) : 0);
-      const totalQuestionsNum = typeof assessment.totalQuestions === 'number' ? assessment.totalQuestions : (typeof assessment.totalQuestions === 'string' ? parseInt(assessment.totalQuestions, 10) : 0);
-      console.log(`[Assessments] ${assessment.assessmentType} button determination:`, JSON.stringify({
-        status: assessment.status,
-        answerCount: assessment.answerCount,
-        answerCountNum: answerCountNum,
-        totalQuestions: assessment.totalQuestions,
-        totalQuestionsNum: totalQuestionsNum,
-        assessmentId: safeAssessmentId,
-        hasAllAnswers: answerCountNum > 0 && totalQuestionsNum > 0 && answerCountNum === totalQuestionsNum,
-        answerCountType: typeof assessment.answerCount,
-        totalQuestionsType: typeof assessment.totalQuestions
-      }));
+    // SIMPLIFIED BUTTON LOGIC: Use answerCount and totalQuestions directly from backend
+    // Get safe numeric values
+    const answerCount = typeof assessment.answerCount === 'number' ? assessment.answerCount : (typeof assessment.answerCount === 'string' ? parseInt(assessment.answerCount, 10) : 0);
+    const totalQuestions = typeof assessment.totalQuestions === 'number' ? assessment.totalQuestions : (typeof assessment.totalQuestions === 'string' ? parseInt(assessment.totalQuestions, 10) : 0);
+    const hasAllAnswers = totalQuestions > 0 && answerCount > 0 && answerCount === totalQuestions;
+    const hasSomeAnswers = answerCount > 0;
+    
+    // Determine button based on actual data, not status
+    if (assessment.assessmentType === 'MBTI' && assessment.externalLink && assessment.status === 'completed') {
+      // MBTI: Show download link if completed
+      return (
+        <Button
+          variant="outline"
+          className="flex items-center gap-2"
+          onClick={() => window.open(assessment.externalLink, '_blank')}
+        >
+          <Upload size={16} />
+          Télécharger mon score
+        </Button>
+      );
     }
     
-    switch (assessment.status) {
-      case 'completed':
-        if (assessment.externalLink && assessment.assessmentType === 'MBTI') {
-          return (
-            <Button
-              variant="outline"
-              className="flex items-center gap-2"
-              onClick={() => window.open(assessment.externalLink, '_blank')}
-            >
-              <Upload size={16} />
-              Télécharger mon score
-            </Button>
-          );
-        }
-        // For other assessments, show "Voir les résultats"
-        // CRITICAL: Only navigate if we have a valid assessmentId
-        // CRITICAL: For assessments with questions, verify that all questions are truly answered
-        // This is a safety check in case determineAssessmentStatus incorrectly marked as completed
-        if (assessment.assessmentType === 'THREE_SIXTY_SELF' || 
-            assessment.assessmentType === 'TKI' || 
-            assessment.assessmentType === 'WELLNESS') {
-          // CRITICAL: Double-check that all questions are answered before showing "Voir les résultats"
-          const answerCountCheck = typeof assessment.answerCount === 'number' ? assessment.answerCount : (typeof assessment.answerCount === 'string' ? parseInt(assessment.answerCount, 10) : 0);
-          const totalQuestionsCheck = typeof assessment.totalQuestions === 'number' ? assessment.totalQuestions : (typeof assessment.totalQuestions === 'string' ? parseInt(assessment.totalQuestions, 10) : 0);
-          
-          if (totalQuestionsCheck > 0 && answerCountCheck !== totalQuestionsCheck) {
-            // Status says completed but not all questions are answered - show continue button instead
-            console.warn('[Assessments] Status is completed but not all questions answered:', {
-              assessmentType: assessment.assessmentType,
-              answerCount: answerCountCheck,
-              totalQuestions: totalQuestionsCheck,
-              status: assessment.status
-            });
-            // Return continue button instead of breaking
-            return (
-              <Button 
-                variant="outline"
-                disabled={isStarting}
-                onClick={() => {
-                  if (assessment.assessmentType === 'WELLNESS') {
-                    router.push('/dashboard/assessments/wellness');
-                  } else if (assessment.assessmentType === 'TKI') {
-                    router.push('/dashboard/assessments/tki');
-                  } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
-                    router.push('/dashboard/assessments/360-feedback');
-                  }
-                }}
-              >
-                {isStarting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Chargement...
-                  </>
-                ) : (
-                  'Continuer'
-                )}
-              </Button>
-            );
-          }
-        }
-        
-        if (!safeAssessmentId || isNaN(safeAssessmentId)) {
-          console.error('[Assessments] Cannot navigate to results: invalid assessmentId', {
-            assessmentId: assessment.assessmentId,
-            safeAssessmentId,
-            assessmentType: assessment.assessmentType
-          });
-          return null;
-        }
-        return (
-          <Button 
-            variant="outline" 
-            onClick={() => {
-              if (assessment.assessmentType === 'TKI') {
-                router.push(`/dashboard/assessments/tki/results?id=${safeAssessmentId}`);
-              } else if (assessment.assessmentType === 'WELLNESS') {
-                router.push(`/dashboard/assessments/results?id=${safeAssessmentId}`);
-              } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
-                router.push(`/dashboard/assessments/360-feedback/results?id=${safeAssessmentId}`);
-              }
-            }}
-          >
-            Voir les résultats
-          </Button>
-        );
-      case 'in-progress':
-        // CRITICAL: Only proceed if we have a valid assessmentId
-        if (!safeAssessmentId || isNaN(safeAssessmentId)) {
-          // If all questions are answered but no valid ID, show continue button
-          // CRITICAL: Use strict equality and ensure both are numbers
-          const answerCountCheck = typeof assessment.answerCount === 'number' ? assessment.answerCount : (typeof assessment.answerCount === 'string' ? parseInt(assessment.answerCount, 10) : 0);
-          const totalQuestionsCheck = typeof assessment.totalQuestions === 'number' ? assessment.totalQuestions : (typeof assessment.totalQuestions === 'string' ? parseInt(assessment.totalQuestions, 10) : 0);
-          
-          if (answerCountCheck > 0 && 
-              totalQuestionsCheck > 0 && 
-              answerCountCheck === totalQuestionsCheck) {
-            return (
-              <Button variant="outline" disabled>
-                ID invalide
-              </Button>
-            );
-          }
-          // Otherwise show continue button
-          return (
-            <Button 
-              variant="outline"
-              disabled={isStarting}
-              onClick={() => {
-                if (assessment.assessmentType === 'WELLNESS') {
-                  router.push('/dashboard/assessments/wellness');
-                } else if (assessment.assessmentType === 'TKI') {
-                  router.push('/dashboard/assessments/tki');
-                } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
-                  router.push('/dashboard/assessments/360-feedback');
-                }
-              }}
-            >
-              {isStarting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Chargement...
-                </>
-              ) : (
-                'Continuer'
-              )}
-            </Button>
-          );
-        }
-        
-        // If all questions are answered, show "Voir les résultats" button
-        // CRITICAL: Use strict equality and ensure both are numbers
-        const answerCountNum = typeof assessment.answerCount === 'number' ? assessment.answerCount : (typeof assessment.answerCount === 'string' ? parseInt(assessment.answerCount, 10) : 0);
-        const totalQuestionsNum = typeof assessment.totalQuestions === 'number' ? assessment.totalQuestions : (typeof assessment.totalQuestions === 'string' ? parseInt(assessment.totalQuestions, 10) : 0);
-        
-        if (answerCountNum > 0 && 
-            totalQuestionsNum > 0 && 
-            answerCountNum === totalQuestionsNum) {
-          return (
-            <Button 
-              variant="outline"
-              disabled={isStarting}
-              onClick={async () => {
-                try {
-                  setStartingAssessment(assessment.assessmentType);
-                  // Submit the assessment first if not already submitted
-                  await submitAssessment(safeAssessmentId);
-                  // Then redirect to results
-                  if (assessment.assessmentType === 'TKI') {
-                    router.push(`/dashboard/assessments/tki/results?id=${safeAssessmentId}`);
-                  } else if (assessment.assessmentType === 'WELLNESS') {
-                    router.push(`/dashboard/assessments/results?id=${safeAssessmentId}`);
-                  } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
-                    router.push(`/dashboard/assessments/360-feedback/results?id=${safeAssessmentId}`);
-                  }
-                } catch (err) {
-                  console.error('Failed to submit assessment:', err);
-                  // If submission fails, try to go to results anyway (might already be submitted)
-                  if (assessment.assessmentType === 'TKI') {
-                    router.push(`/dashboard/assessments/tki/results?id=${safeAssessmentId}`);
-                  } else if (assessment.assessmentType === 'WELLNESS') {
-                    router.push(`/dashboard/assessments/results?id=${safeAssessmentId}`);
-                  } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
-                    router.push(`/dashboard/assessments/360-feedback/results?id=${safeAssessmentId}`);
-                  }
-                } finally {
-                  setStartingAssessment(null);
-                }
-              }}
-            >
-              {isStarting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Chargement...
-                </>
-              ) : (
-                'Voir les résultats'
-              )}
-            </Button>
-          );
-        }
-        // Otherwise, show "Continuer" button
-        return (
-          <Button 
-            variant="outline"
-            className="border-arise-button-primary text-white hover:bg-arise-button-primary hover:text-white"
-            disabled={isStarting}
-            onClick={() => {
-              if (assessment.requiresEvaluators) {
-                setShowEvaluatorModal(true);
-              } else {
-                // For 360 feedback, include assessmentId in URL (only if valid)
-                if (assessment.assessmentType === 'THREE_SIXTY_SELF' && safeAssessmentId && !isNaN(safeAssessmentId)) {
-                  router.push(`/dashboard/assessments/360-feedback?assessmentId=${safeAssessmentId}`);
-                } else {
-                  router.push(`/dashboard/assessments/${getAssessmentRoute(assessment.assessmentType)}`);
-                }
-              }
-            }}
-          >
-            {isStarting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Chargement...
-              </>
-            ) : (
-              'Continuer'
-            )}
-          </Button>
-        );
-      case 'available':
-        return (
-          <Button 
-            variant="arise-primary"
-            disabled={isStarting}
-            onClick={() => handleStartAssessment(assessment.assessmentType, safeAssessmentId && !isNaN(safeAssessmentId) ? safeAssessmentId : undefined)}
-          >
-            {isStarting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Chargement...
-              </>
-            ) : (
-              'Commencer'
-            )}
-          </Button>
-        );
-      default:
-        return (
-          <Button variant="secondary" disabled>
-            Verrouillé
-          </Button>
-        );
+    if (hasAllAnswers && safeAssessmentId && !isNaN(safeAssessmentId)) {
+      // All questions answered: Show "Voir les résultats" button
+      return (
+        <Button 
+          variant="outline" 
+          onClick={() => {
+            if (assessment.assessmentType === 'TKI') {
+              router.push(`/dashboard/assessments/tki/results?id=${safeAssessmentId}`);
+            } else if (assessment.assessmentType === 'WELLNESS') {
+              router.push(`/dashboard/assessments/results?id=${safeAssessmentId}`);
+            } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
+              router.push(`/dashboard/assessments/360-feedback/results?id=${safeAssessmentId}`);
+            }
+          }}
+        >
+          Voir les résultats
+        </Button>
+      );
     }
+    
+    if (hasSomeAnswers && safeAssessmentId && !isNaN(safeAssessmentId)) {
+      // Some questions answered: Show "Continuer" button
+      return (
+        <Button 
+          variant="outline"
+          className="border-arise-button-primary text-white hover:bg-arise-button-primary hover:text-white"
+          disabled={isStarting}
+          onClick={() => {
+            if (assessment.requiresEvaluators) {
+              setShowEvaluatorModal(true);
+            } else {
+              if (assessment.assessmentType === 'THREE_SIXTY_SELF' && safeAssessmentId) {
+                router.push(`/dashboard/assessments/360-feedback?assessmentId=${safeAssessmentId}`);
+              } else if (assessment.assessmentType === 'WELLNESS') {
+                router.push('/dashboard/assessments/wellness');
+              } else if (assessment.assessmentType === 'TKI') {
+                router.push('/dashboard/assessments/tki');
+              } else {
+                router.push(`/dashboard/assessments/${getAssessmentRoute(assessment.assessmentType)}`);
+              }
+            }
+          }}
+        >
+          {isStarting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Chargement...
+            </>
+          ) : (
+            'Continuer'
+          )}
+        </Button>
+      );
+    }
+    
+    // No answers yet: Show "Commencer" button
+    return (
+      <Button 
+        variant="outline"
+        className="border-arise-button-primary text-white hover:bg-arise-button-primary hover:text-white"
+        disabled={isStarting}
+        onClick={async () => {
+          try {
+            setStartingAssessment(assessment.assessmentType);
+            if (assessment.requiresEvaluators) {
+              setShowEvaluatorModal(true);
+            } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
+              router.push('/dashboard/assessments/360-feedback/start');
+            } else {
+              await handleStartAssessment(assessment.assessmentType, safeAssessmentId);
+            }
+          } catch (err) {
+            const errorMessage = formatError(err);
+            console.error('Failed to start assessment:', errorMessage);
+            setError(errorMessage);
+          } finally {
+            if (!assessment.requiresEvaluators && assessment.assessmentType !== 'THREE_SIXTY_SELF') {
+              setStartingAssessment(null);
+            }
+          }
+        }}
+      >
+        {isStarting ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Chargement...
+          </>
+        ) : (
+          'Commencer'
+        )}
+      </Button>
+    );
   };
 
   // CRITICAL: Ensure assessments is always an array before using it
@@ -1247,36 +1096,20 @@ function AssessmentsContent() {
                           }
                         })()}
                         {(() => {
-                          // CRITICAL: Wrap progress display in try-catch to prevent React error #130
+                          // SIMPLIFIED PROGRESS DISPLAY: Show answerCount/totalQuestions if available
                           try {
-                            if (safeAssessment.status !== 'in-progress') return null;
+                            const answerCount = typeof safeAssessment.answerCount === 'number' ? safeAssessment.answerCount : (typeof safeAssessment.answerCount === 'string' ? parseInt(safeAssessment.answerCount, 10) : 0);
+                            const totalQuestions = typeof safeAssessment.totalQuestions === 'number' ? safeAssessment.totalQuestions : (typeof safeAssessment.totalQuestions === 'string' ? parseInt(safeAssessment.totalQuestions, 10) : 0);
                             
-                            // Use safe values
-                            const answerCount = safeAssessment.answerCount;
-                            const totalQuestions = safeAssessment.totalQuestions;
-                            
-                            if (answerCount !== undefined && totalQuestions !== undefined && !isNaN(answerCount) && !isNaN(totalQuestions)) {
-                              const safeAnswerCount = typeof answerCount === 'number' ? answerCount : (typeof answerCount === 'string' ? parseInt(answerCount, 10) : 0);
-                              const safeTotalQuestions = typeof totalQuestions === 'number' ? totalQuestions : (typeof totalQuestions === 'string' ? parseInt(totalQuestions, 10) : 0);
+                            // Only show progress badge if assessment is in progress and we have data
+                            if (answerCount > 0 && totalQuestions > 0) {
                               return (
                                 <span className="px-3 py-1 bg-primary-50 text-primary-700 rounded-full text-sm font-medium">
-                                  {safeAnswerCount}/{safeTotalQuestions}
-                                </span>
-                              );
-                            } else if (answerCount !== undefined && !isNaN(answerCount)) {
-                              const safeAnswerCount = typeof answerCount === 'number' ? answerCount : (typeof answerCount === 'string' ? parseInt(answerCount, 10) : 0);
-                              return (
-                                <span className="px-3 py-1 bg-primary-50 text-primary-700 rounded-full text-sm font-medium">
-                                  {safeAnswerCount} réponses
-                                </span>
-                              );
-                            } else {
-                              return (
-                                <span className="px-3 py-1 bg-primary-50 text-primary-700 rounded-full text-sm font-medium">
-                                  En cours
+                                  {answerCount}/{totalQuestions}
                                 </span>
                               );
                             }
+                            return null;
                           } catch (err) {
                             console.error('[Assessments] Error rendering progress:', err);
                             return null;
@@ -1293,62 +1126,32 @@ function AssessmentsContent() {
                     {/* Progress bar - always visible */}
                     <div className="mt-4">
                       {(() => {
-                        // CRITICAL: Use safeAssessment values to prevent React error #130
+                        // SIMPLIFIED PROGRESS BAR: Use answerCount and totalQuestions directly from backend
                         try {
-                          // Calculate progress percentage
-                          let progressValue = 0;
-                          let progressMax = 100;
-                          let progressLabel = 'Progression';
-                          let progressPercentage = 0;
+                          // Get safe numeric values
+                          const answerCount = typeof safeAssessment.answerCount === 'number' ? safeAssessment.answerCount : (typeof safeAssessment.answerCount === 'string' ? parseInt(safeAssessment.answerCount, 10) : 0);
+                          const totalQuestions = typeof safeAssessment.totalQuestions === 'number' ? safeAssessment.totalQuestions : (typeof safeAssessment.totalQuestions === 'string' ? parseInt(safeAssessment.totalQuestions, 10) : 0);
                           
-                          if (safeAssessment.status === 'completed') {
-                            progressValue = 100;
-                            progressMax = 100;
-                            progressPercentage = 100;
-                            progressLabel = 'Terminé';
-                          } else if (safeAssessment.status === 'in-progress') {
-                            // Use safe values (already validated as numbers or undefined)
-                            const answerCount = safeAssessment.answerCount;
-                            const totalQuestions = safeAssessment.totalQuestions;
-                            
-                            if (answerCount !== undefined && 
-                                totalQuestions !== undefined && 
-                                !isNaN(answerCount) &&
-                                !isNaN(totalQuestions) &&
-                                totalQuestions > 0) {
-                              progressValue = answerCount;
-                              progressMax = totalQuestions;
-                              const safeAnswerCount = typeof answerCount === 'number' ? answerCount : (typeof answerCount === 'string' ? parseInt(answerCount, 10) : 0);
-                              const safeTotalQuestions = typeof totalQuestions === 'number' ? totalQuestions : (typeof totalQuestions === 'string' ? parseInt(totalQuestions, 10) : 0);
-                              progressPercentage = Math.round((safeAnswerCount / safeTotalQuestions) * 100);
-                              progressLabel = `Progression: ${safeAnswerCount}/${safeTotalQuestions} questions`;
-                            } else if (answerCount !== undefined && !isNaN(answerCount) && answerCount > 0) {
-                              // Fallback: show answer count even if total_questions is missing
-                              const safeAnswerCount = typeof answerCount === 'number' ? answerCount : (typeof answerCount === 'string' ? parseInt(answerCount, 10) : 0);
-                              progressValue = safeAnswerCount;
-                              progressMax = 100; // Unknown total, use 100 as max
-                              progressPercentage = Math.min(safeAnswerCount * 10, 99); // Estimate: assume ~10 questions per answer
-                              progressLabel = `Progression: ${safeAnswerCount} réponses`;
-                            } else {
-                              progressValue = 0;
-                              progressMax = 100;
-                              progressPercentage = 0;
-                              progressLabel = 'En cours';
-                            }
-                          } else if (safeAssessment.status === 'available') {
-                            progressValue = 0;
-                            progressMax = 100;
-                            progressPercentage = 0;
-                            progressLabel = 'Non commencé';
-                          } else if (safeAssessment.status === 'locked') {
-                            progressValue = 0;
-                            progressMax = 100;
-                            progressPercentage = 0;
-                            progressLabel = 'Verrouillé';
+                          let progressValue = answerCount;
+                          let progressMax = totalQuestions > 0 ? totalQuestions : 100;
+                          let progressPercentage = 0;
+                          let progressLabel = 'Non commencé';
+                          let barColor = '#9ca3af';
+                          
+                          if (totalQuestions > 0) {
+                            // Calculate percentage based on actual data
+                            progressPercentage = Math.round((answerCount / totalQuestions) * 100);
+                            progressLabel = answerCount === totalQuestions 
+                              ? 'Terminé' 
+                              : `Progression: ${answerCount}/${totalQuestions} questions`;
+                          } else if (answerCount > 0) {
+                            // Fallback: show answer count if total is unknown
+                            progressPercentage = Math.min(answerCount * 3, 99); // Estimate ~3% per answer
+                            progressLabel = `Progression: ${answerCount} réponses`;
                           }
-                        
-                        // Determine bar color: #d8b868 when there's progress, gray when 0
-                        const barColor = progressPercentage > 0 ? '#d8b868' : '#9ca3af';
+                          
+                          // Set bar color: gold when there's progress, gray when 0
+                          barColor = answerCount > 0 ? '#d8b868' : '#9ca3af';
                         
                         return (
                           <div className="w-full">
