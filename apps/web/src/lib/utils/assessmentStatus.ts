@@ -55,18 +55,20 @@ export function determineAssessmentStatus(
   }
 
   // SECONDARY CHECK: Check normalized status
-  // But only trust "completed" status if there are some answers OR total_questions is 0
-  // This prevents false positives where status is "completed" but no answers exist
+  // CRITICAL: Only trust "completed" status if ALL questions are answered (answer_count === total_questions)
+  // This prevents false positives where status is "completed" but not all questions are answered
   if (statusNormalized === 'completed' || statusNormalized === 'complete') {
-    // For assessments with questions, verify there are answers
+    // For assessments with questions, verify ALL questions are answered
     if (apiAssessment.total_questions !== undefined && apiAssessment.total_questions > 0) {
-      // If total_questions > 0, we need answers to trust "completed" status
-      if (apiAssessment.answer_count !== undefined && apiAssessment.answer_count > 0) {
+      // CRITICAL: Use strict equality (===) to ensure ALL questions are answered
+      // If total_questions > 0, we need ALL answers to trust "completed" status
+      if (apiAssessment.answer_count !== undefined && 
+          apiAssessment.answer_count === apiAssessment.total_questions) {
         return 'completed';
       }
-      // Status says completed but no answers - might be a data inconsistency
-      // Check if we have all answers (already checked above, so this won't trigger)
-      // Fall through to check answer count
+      // Status says completed but not all questions are answered - might be a data inconsistency
+      // Fall through to check other conditions (might be in-progress instead)
+      // Don't return 'completed' if answer_count < total_questions
     } else {
       // For assessments without questions (like MBTI, already handled above)
       // Trust the status
