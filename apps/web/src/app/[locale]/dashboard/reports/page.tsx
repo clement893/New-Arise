@@ -225,7 +225,7 @@ function ResultsReportsContent() {
           </div>
 
           {/* Assessment Results */}
-          <Card className="p-6 text-white border-0 bg-arise-button-primary">
+          <Card className="p-6 text-white border-0" style={{ backgroundColor: '#10454D' }}>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
