@@ -62,13 +62,20 @@ export function determineAssessmentStatus(
     if (apiAssessment.total_questions !== undefined && apiAssessment.total_questions > 0) {
       // CRITICAL: Use strict equality (===) to ensure ALL questions are answered
       // If total_questions > 0, we need ALL answers to trust "completed" status
-      if (apiAssessment.answer_count !== undefined && 
-          apiAssessment.answer_count === apiAssessment.total_questions) {
+      // Also check that answer_count is not 0 or undefined (assessment not started)
+      const answerCount = apiAssessment.answer_count ?? 0; // Default to 0 if undefined
+      if (answerCount === apiAssessment.total_questions && answerCount > 0) {
         return 'completed';
       }
-      // Status says completed but not all questions are answered - might be a data inconsistency
-      // Fall through to check other conditions (might be in-progress instead)
-      // Don't return 'completed' if answer_count < total_questions
+      // Status says completed but not all questions are answered OR answer_count is 0
+      // This is a data inconsistency - treat as available if not started (answer_count === 0)
+      // or in-progress if partially started (answer_count > 0)
+      if (answerCount === 0) {
+        // Assessment marked as completed but has 0 answers - treat as available (not started)
+        return 'available';
+      }
+      // Status says completed but answer_count < total_questions - might be in-progress
+      // Fall through to check other conditions
     } else {
       // For assessments without questions (like MBTI, already handled above)
       // Trust the status
