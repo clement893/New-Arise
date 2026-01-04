@@ -222,15 +222,15 @@ export default function Sidebar({
           {!collapsed && (
             <div className="flex items-center space-x-2 flex-shrink-0">
               {item.badge && (
-                <span className="px-2 py-0.5 text-xs font-medium bg-primary-100 dark:bg-primary-900/40 text-primary-800 dark:text-primary-200 rounded-full">
+                <span className="px-2 py-0.5 text-xs font-medium bg-primary-100 text-primary-800 rounded-full">
                   {item.badge}
                 </span>
               )}
               {hasChildren && (
                 isExpanded ? (
-                  <ChevronDown className={clsx("w-4 h-4 transition-transform", isActive ? "text-white" : "text-gray-500 dark:text-gray-400")} />
+                  <ChevronDown className={clsx("w-4 h-4 transition-transform", isActive ? "text-white" : "text-gray-500")} />
                 ) : (
-                  <ChevronRight className={clsx("w-4 h-4 transition-transform", isActive ? "text-white" : "text-gray-500 dark:text-gray-400")} />
+                  <ChevronRight className={clsx("w-4 h-4 transition-transform", isActive ? "text-white" : "text-gray-500")} />
                 )
               )}
             </div>
@@ -268,13 +268,13 @@ export default function Sidebar({
   return (
     <aside
       className={clsx(
-        'bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 h-full transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col',
+        'bg-white border-r border-gray-200 h-full transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col',
         collapsed ? 'w-16' : 'w-64 md:w-72 lg:w-80',
         className
       )}
     >
       {/* Header: ARISE Logo */}
-      <div className="p-lg border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+      <div className="p-lg border-b border-gray-200 flex-shrink-0">
         <div className={clsx(
           'flex items-center justify-center',
           collapsed && 'justify-center'
@@ -290,7 +290,7 @@ export default function Sidebar({
 
       {/* User info */}
       {user && (
-        <div className="p-lg border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className="p-lg border-b border-gray-200 flex-shrink-0">
           <div className={clsx(
             'flex items-center gap-3',
             collapsed && 'justify-center'
@@ -303,10 +303,10 @@ export default function Sidebar({
             {!collapsed && (
               <div className="flex-1 min-w-0 flex items-center gap-2">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                  <p className="text-sm font-medium text-gray-900 truncate">
                     {user.name || 'Utilisateur'}
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
+                  <p className="text-xs text-gray-600 truncate">
                     {user.email}
                   </p>
                 </div>

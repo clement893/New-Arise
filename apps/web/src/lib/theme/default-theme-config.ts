@@ -5,8 +5,8 @@
  */
 
 export const DEFAULT_THEME_CONFIG = {
-  // Mode: system, light, or dark
-  mode: "system",
+  // Mode: light only (dark mode disabled)
+  mode: "light",
   
   // Basic color fields (for backward compatibility and simple usage)
   // ARISE Brand Colors - Using ARISE brand colors as primary colors

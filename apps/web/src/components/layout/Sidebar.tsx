@@ -98,14 +98,14 @@ export default function Sidebar({ isOpen: controlledIsOpen, onClose }: SidebarPr
         className={clsx(
           'flex items-center gap-3 px-lg py-md rounded-lg text-sm font-medium transition-colors',
           active
-            ? 'bg-primary-50 dark:bg-primary-900/20 text-primary font-semibold'
+            ? 'bg-primary-50 text-primary font-semibold'
             : 'text-foreground hover:bg-muted'
         )}
       >
         {item.icon}
         <span>{item.name}</span>
         {item.badge && (
-          <span className="ml-auto px-2 py-0.5 text-xs font-semibold rounded-full bg-primary-100 dark:bg-primary-900 text-primary">
+          <span className="ml-auto px-2 py-0.5 text-xs font-semibold rounded-full bg-primary-100 text-primary">
             {item.badge}
           </span>
         )}
@@ -131,7 +131,7 @@ export default function Sidebar({ isOpen: controlledIsOpen, onClose }: SidebarPr
             className={clsx(
               'w-full flex items-center justify-between gap-3 px-lg py-md rounded-lg text-sm font-medium transition-colors',
               hasActiveItem
-                ? 'bg-primary-50 dark:bg-primary-900/20 text-primary font-semibold'
+                ? 'bg-primary-50 text-primary font-semibold'
                 : 'text-foreground hover:bg-muted'
             )}
             aria-expanded={isOpen}
@@ -162,14 +162,14 @@ export default function Sidebar({ isOpen: controlledIsOpen, onClose }: SidebarPr
                 className={clsx(
                   'flex items-center gap-3 px-lg py-md rounded-lg text-sm font-medium transition-colors',
                   isActive(item.href)
-                    ? 'bg-primary-50 dark:bg-primary-900/20 text-primary font-semibold'
+                    ? 'bg-primary-50 text-primary font-semibold'
                     : 'text-foreground hover:bg-muted'
                 )}
               >
                 {item.icon}
                 <span>{item.name}</span>
                 {item.badge && (
-                  <span className="ml-auto px-2 py-0.5 text-xs font-semibold rounded-full bg-primary-100 dark:bg-primary-900 text-primary">
+                  <span className="ml-auto px-2 py-0.5 text-xs font-semibold rounded-full bg-primary-100 text-primary">
                     {item.badge}
                   </span>
                 )}
@@ -186,7 +186,7 @@ export default function Sidebar({ isOpen: controlledIsOpen, onClose }: SidebarPr
       {/* Mobile Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/50 dark:bg-black/70 md:hidden animate-fade-in"
+          className="fixed inset-0 z-30 bg-black/50 md:hidden animate-fade-in"
           onClick={handleClose}
           aria-hidden="true"
         />
