@@ -935,8 +935,11 @@ function AssessmentsContent() {
                   console.log('[DEBUG] Assessment object:', assessment);
                   console.log('[DEBUG] Assessment keys:', Object.keys(assessment));
                   
-                  // CRITICAL: Check EVERY property for objects
+                  // CRITICAL: Check EVERY property for objects (except icon which is a React component)
                   Object.keys(assessment).forEach(key => {
+                    // Skip icon - it's a React component and SHOULD be an object/function
+                    if (key === 'icon') return;
+                    
                     const value = (assessment as any)[key];
                     if (value !== null && value !== undefined && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
                       console.error(`[CRITICAL] ⚠️⚠️⚠️ PROPERTY "${key}" IS AN OBJECT!`, value);
@@ -963,7 +966,7 @@ function AssessmentsContent() {
                     descriptionType: typeof assessment.description,
                   });
                   
-                  // DEBUG: Check if any value is an object that might be rendered
+                  // DEBUG: Check if any value is an object that might be rendered (except icon which is a React component)
                   if (typeof assessment.answerCount === 'object' && assessment.answerCount !== null) {
                     console.error('[DEBUG] ⚠️ answerCount IS AN OBJECT!', assessment.answerCount);
                   }
@@ -976,6 +979,7 @@ function AssessmentsContent() {
                   if (typeof assessment.status === 'object' && assessment.status !== null) {
                     console.error('[DEBUG] ⚠️ status IS AN OBJECT!', assessment.status);
                   }
+                  // Note: icon is a React component, so it's normal for it to be an object/function
                   
                   // CRITICAL: Force all values to be primitives before rendering
                   // Convert EVERY property to ensure no objects slip through
@@ -993,8 +997,11 @@ function AssessmentsContent() {
                     requiresEvaluators: typeof assessment.requiresEvaluators === 'boolean' ? assessment.requiresEvaluators : undefined,
                   };
                   
-                  // CRITICAL: Final validation - ensure NO objects in safeAssessment
+                  // CRITICAL: Final validation - ensure NO objects in safeAssessment (except icon which is a React component)
                   Object.keys(safeAssessment).forEach(key => {
+                    // Skip icon - it's a React component and SHOULD be an object/function
+                    if (key === 'icon') return;
+                    
                     const value = (safeAssessment as any)[key];
                     if (value !== null && value !== undefined && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
                       console.error(`[CRITICAL] ⚠️⚠️⚠️ safeAssessment.${key} IS STILL AN OBJECT AFTER CLEANING!`, value);
@@ -1227,8 +1234,11 @@ function AssessmentsContent() {
                   console.error('[CRITICAL] Original assessment:', assessment);
                   console.error('[CRITICAL] Assessment keys:', Object.keys(assessment));
                   
-                  // Check every property for objects
+                  // Check every property for objects (except icon which is a React component)
                   Object.keys(assessment).forEach(key => {
+                    // Skip icon - it's a React component and SHOULD be an object/function
+                    if (key === 'icon') return;
+                    
                     const value = (assessment as any)[key];
                     if (value !== null && value !== undefined && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
                       console.error(`[CRITICAL] ⚠️⚠️⚠️ PROPERTY "${key}" IN ORIGINAL ASSESSMENT IS AN OBJECT!`, value);
