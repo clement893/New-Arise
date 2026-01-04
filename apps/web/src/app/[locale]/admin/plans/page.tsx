@@ -115,15 +115,31 @@ function PlansPageContent() {
         ? Math.round(editedPlan.amount * 100) 
         : editedPlan.amount;
 
-      await subscriptionsAPI.updatePlan(planId, {
+      // Prepare update data - convert empty strings to null
+      const updateData: {
+        name?: string;
+        description?: string | null;
+        amount?: number;
+        is_popular?: boolean;
+        features?: string | null;
+        stripe_price_id?: string | null;
+        stripe_product_id?: string | null;
+      } = {
         name: editedPlan.name,
         description: editedPlan.description || null,
         amount: amountInCents,
         is_popular: editedPlan.is_popular,
         features: editedPlan.features || null,
-        stripe_price_id: (editedPlan.stripe_price_id as string) || null,
-        stripe_product_id: (editedPlan.stripe_product_id as string) || null,
-      });
+      };
+
+      // Handle Stripe IDs - convert empty strings to null, preserve non-empty strings
+      const stripePriceId = editedPlan.stripe_price_id as string | undefined;
+      const stripeProductId = editedPlan.stripe_product_id as string | undefined;
+      
+      updateData.stripe_price_id = stripePriceId && stripePriceId.trim() ? stripePriceId.trim() : null;
+      updateData.stripe_product_id = stripeProductId && stripeProductId.trim() ? stripeProductId.trim() : null;
+
+      await subscriptionsAPI.updatePlan(planId, updateData);
 
       setSuccess(`Plan "${editedPlan.name}" mis à jour avec succès`);
       setEditingPlanId(null);
