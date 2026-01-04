@@ -801,8 +801,12 @@ function AssessmentsContent() {
     }
   };
 
+  // CRITICAL: Ensure assessments is always an array before using it
+  // This prevents React error #130 if assessments is somehow corrupted
+  const safeAssessments = Array.isArray(assessments) ? assessments : [];
+  
   // Show loading indicator only if we have no cached data
-  if (isLoading && assessments.length === 0) {
+  if (isLoading && safeAssessments.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
@@ -872,7 +876,7 @@ function AssessmentsContent() {
         {/* Content sections with relative positioning */}
         <div className="relative z-10">
           {/* Show subtle loading indicator if refreshing in background */}
-          {isLoading && assessments.length > 0 && (
+          {isLoading && safeAssessments.length > 0 && (
             <div className="mb-4 flex items-center justify-end">
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -882,7 +886,7 @@ function AssessmentsContent() {
           )}
           <MotionDiv variant="slideUp" delay={100}>
             <Stack gap="normal">
-              {assessments.map((assessment) => {
+              {safeAssessments.map((assessment) => {
                 // CRITICAL: Wrap entire card rendering in try-catch to prevent React error #130
                 // This is the last line of defense - if ANY object gets rendered, catch it here
                 try {
@@ -1180,7 +1184,7 @@ function AssessmentsContent() {
 
       {/* Evaluator Modal */}
       {showEvaluatorModal && (() => {
-        const feedback360Assessment = assessments.find(a => a.assessmentType === 'THREE_SIXTY_SELF');
+        const feedback360Assessment = safeAssessments.find(a => a.assessmentType === 'THREE_SIXTY_SELF');
         // CRITICAL: Ensure assessmentId is a number, not an object
         const safeModalAssessmentId = feedback360Assessment?.assessmentId !== undefined && feedback360Assessment?.assessmentId !== null
           ? (typeof feedback360Assessment.assessmentId === 'number' 
