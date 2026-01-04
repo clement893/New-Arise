@@ -107,6 +107,20 @@ export function getNavigationConfig(isAdmin: boolean): NavigationConfig {
         collapsible: true,
         defaultOpen: false,
       },
+      // Individual (collapsible group)
+      {
+        name: 'Individual',
+        icon: <User className="w-5 h-5" />,
+        items: [
+          {
+            name: 'Dashboard 2',
+            href: '/individual/dashboard-2',
+            icon: <LayoutDashboard className="w-5 h-5" />,
+          },
+        ],
+        collapsible: true,
+        defaultOpen: true,
+      },
       // Réseau (collapsible group)
       {
         name: 'Réseau',
