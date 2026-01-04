@@ -137,14 +137,19 @@ function AssessmentResultsContent() {
       setIsDownloading(true);
       
       const { scores } = results;
-      const { total_score, max_score, percentage, pillar_scores } = scores;
+      
+      // CRITICAL: Ensure all numeric values are actually numbers for PDF export
+      const safeTotalScore = typeof scores?.total_score === 'number' ? scores.total_score : (typeof scores?.total_score === 'string' ? parseInt(scores.total_score, 10) : 0);
+      const safeMaxScore = typeof scores?.max_score === 'number' ? scores.max_score : (typeof scores?.max_score === 'string' ? parseInt(scores.max_score, 10) : 150);
+      const safePercentage = typeof scores?.percentage === 'number' ? scores.percentage : (typeof scores?.percentage === 'string' ? parseFloat(scores.percentage) : 0);
+      const pillar_scores = scores?.pillar_scores || {};
 
       // Prepare data for PDF export
       const exportData = [
         {
           'Assessment Type': 'Wellness Assessment',
-          'Overall Score': `${total_score} / ${max_score}`,
-          'Percentage': `${percentage.toFixed(1)}%`,
+          'Overall Score': `${isNaN(safeTotalScore) ? 0 : safeTotalScore} / ${isNaN(safeMaxScore) ? 150 : safeMaxScore}`,
+          'Percentage': `${isNaN(safePercentage) ? 0 : safePercentage.toFixed(1)}%`,
           'Date': new Date().toLocaleDateString('fr-FR'),
         },
         ...(pillar_scores ? Object.entries(pillar_scores).map(([pillarId, pillarData]) => {
@@ -249,7 +254,46 @@ function AssessmentResultsContent() {
   }
 
   const { scores } = results;
-  const { total_score, max_score, percentage, pillar_scores } = scores;
+  
+  // CRITICAL: Ensure all numeric values are actually numbers, not objects
+  // This prevents React error #130 (objects not valid as React child)
+  const safePercentage = typeof scores?.percentage === 'number' 
+    ? scores.percentage 
+    : typeof scores?.percentage === 'string' 
+    ? parseFloat(scores.percentage) 
+    : typeof scores?.percentage === 'object' && scores?.percentage !== null && 'value' in scores.percentage
+    ? (typeof scores.percentage.value === 'number' ? scores.percentage.value : 0)
+    : 0;
+  
+  const safeTotalScore = typeof scores?.total_score === 'number'
+    ? scores.total_score
+    : typeof scores?.total_score === 'string'
+    ? parseInt(scores.total_score, 10)
+    : typeof scores?.total_score === 'object' && scores?.total_score !== null && 'value' in scores.total_score
+    ? (typeof scores.total_score.value === 'number' ? scores.total_score.value : 0)
+    : 0;
+  
+  const safeMaxScore = typeof scores?.max_score === 'number'
+    ? scores.max_score
+    : typeof scores?.max_score === 'string'
+    ? parseInt(scores.max_score, 10)
+    : typeof scores?.max_score === 'object' && scores?.max_score !== null && 'value' in scores.max_score
+    ? (typeof scores.max_score.value === 'number' ? scores.max_score.value : 150)
+    : 150;
+  
+  const pillar_scores = scores?.pillar_scores || {};
+
+  // Debug: Log if we detect objects
+  if (typeof scores?.percentage === 'object' || typeof scores?.total_score === 'object' || typeof scores?.max_score === 'object') {
+    console.error('[Results] ⚠️ OBJECT DETECTED in scores!', {
+      percentage: scores?.percentage,
+      percentageType: typeof scores?.percentage,
+      total_score: scores?.total_score,
+      total_scoreType: typeof scores?.total_score,
+      max_score: scores?.max_score,
+      max_scoreType: typeof scores?.max_score,
+    });
+  }
 
   return (
     <div className="relative">
@@ -284,11 +328,11 @@ function AssessmentResultsContent() {
               <div className="text-center py-8">
                 <div className="flex items-center justify-center mb-4">
                   <TrendingUp size={48} className="mr-4" />
-                  <div className="text-7xl font-bold">{percentage.toFixed(0)}%</div>
+                  <div className="text-7xl font-bold">{isNaN(safePercentage) ? 0 : safePercentage.toFixed(0)}%</div>
                 </div>
                 <h2 className="text-2xl font-bold mb-2">Overall Wellness Score</h2>
                 <p className="text-white/90 text-lg">
-                  {total_score} out of {max_score} points
+                  {isNaN(safeTotalScore) ? 0 : safeTotalScore} out of {isNaN(safeMaxScore) ? 150 : safeMaxScore} points
                 </p>
                 <div className="mt-6 flex justify-center gap-4">
                   <Button 
@@ -325,8 +369,39 @@ function AssessmentResultsContent() {
               const isPillarScoreObject = (data: number | PillarScore | undefined): data is PillarScore => {
                 return typeof data === 'object' && data !== null && 'score' in data;
               };
-              const pillarScore = isPillarScoreObject(pillarData) ? pillarData.score : (typeof pillarData === 'number' ? pillarData : 0);
-              const pillarPercentage = isPillarScoreObject(pillarData) ? pillarData.percentage : (pillarScore / 25) * 100; // Each pillar max is 25
+              
+              // CRITICAL: Ensure pillarScore is always a number, never an object
+              let pillarScore: number = 0;
+              if (isPillarScoreObject(pillarData)) {
+                // It's a PillarScore object, extract the score
+                const scoreValue = pillarData.score;
+                pillarScore = typeof scoreValue === 'number' ? scoreValue : (typeof scoreValue === 'string' ? parseFloat(scoreValue) : 0);
+              } else if (typeof pillarData === 'number') {
+                pillarScore = pillarData;
+              } else if (typeof pillarData === 'string') {
+                pillarScore = parseFloat(pillarData) || 0;
+              } else if (typeof pillarData === 'object' && pillarData !== null) {
+                // Try to extract a number from the object
+                console.error('[Results] ⚠️ pillarData IS AN OBJECT!', { pillarId: pillar.id, pillarData });
+                if ('value' in pillarData && typeof pillarData.value === 'number') {
+                  pillarScore = pillarData.value;
+                } else if ('score' in pillarData && typeof pillarData.score === 'number') {
+                  pillarScore = pillarData.score;
+                }
+              }
+              
+              // Ensure pillarPercentage is always a number
+              let pillarPercentage: number = 0;
+              if (isPillarScoreObject(pillarData)) {
+                const percentageValue = pillarData.percentage;
+                pillarPercentage = typeof percentageValue === 'number' ? percentageValue : (typeof percentageValue === 'string' ? parseFloat(percentageValue) : (pillarScore / 25) * 100);
+              } else {
+                pillarPercentage = (pillarScore / 25) * 100; // Each pillar max is 25
+              }
+              
+              // Ensure values are valid numbers
+              pillarScore = isNaN(pillarScore) ? 0 : pillarScore;
+              pillarPercentage = isNaN(pillarPercentage) ? 0 : Math.max(0, Math.min(100, pillarPercentage));
               
               return (
                 <MotionDiv 
@@ -393,14 +468,21 @@ function AssessmentResultsContent() {
                   <h3 className="font-bold text-green-900 mb-2">Strengths</h3>
                   <p className="text-green-800">
                     Your strongest pillar is {(() => {
+                      // CRITICAL: Ensure all scores are numbers before comparison
+                      const getPillarScore = (data: number | PillarScore | undefined): number => {
+                        if (typeof data === 'number') return data;
+                        if (typeof data === 'object' && data !== null && 'score' in data) {
+                          const scoreValue = data.score;
+                          return typeof scoreValue === 'number' ? scoreValue : (typeof scoreValue === 'string' ? parseFloat(scoreValue) : 0);
+                        }
+                        return 0;
+                      };
+                      
                       const strongestPillar = wellnessPillars.find(p => {
                         const data = pillar_scores?.[p.id];
-                        const isPillarScoreObject = (d: number | PillarScore | undefined): d is PillarScore => {
-                          return typeof d === 'object' && d !== null && 'score' in d;
-                        };
-                        const score = isPillarScoreObject(data) ? data.score : (typeof data === 'number' ? data : 0);
-                        const allScores = Object.values(pillar_scores || {}).map(d => isPillarScoreObject(d) ? d.score : (typeof d === 'number' ? d : 0));
-                        return allScores.length > 0 && score === Math.max(...allScores);
+                        const score = getPillarScore(data);
+                        const allScores = Object.values(pillar_scores || {}).map(d => getPillarScore(d));
+                        return allScores.length > 0 && !isNaN(score) && score === Math.max(...allScores.filter(s => !isNaN(s)));
                       });
                       return strongestPillar?.name || 'N/A';
                     })()}.
@@ -411,14 +493,21 @@ function AssessmentResultsContent() {
                   <h3 className="font-bold text-yellow-900 mb-2">Areas for Growth</h3>
                   <p className="text-yellow-800">
                     Consider focusing on {(() => {
+                      // CRITICAL: Ensure all scores are numbers before comparison
+                      const getPillarScore = (data: number | PillarScore | undefined): number => {
+                        if (typeof data === 'number') return data;
+                        if (typeof data === 'object' && data !== null && 'score' in data) {
+                          const scoreValue = data.score;
+                          return typeof scoreValue === 'number' ? scoreValue : (typeof scoreValue === 'string' ? parseFloat(scoreValue) : 0);
+                        }
+                        return 0;
+                      };
+                      
                       const weakestPillar = wellnessPillars.find(p => {
                         const data = pillar_scores?.[p.id];
-                        const isPillarScoreObject = (d: number | PillarScore | undefined): d is PillarScore => {
-                          return typeof d === 'object' && d !== null && 'score' in d;
-                        };
-                        const score = isPillarScoreObject(data) ? data.score : (typeof data === 'number' ? data : 0);
-                        const allScores = Object.values(pillar_scores || {}).map(d => isPillarScoreObject(d) ? d.score : (typeof d === 'number' ? d : 0));
-                        return allScores.length > 0 && score === Math.min(...allScores);
+                        const score = getPillarScore(data);
+                        const allScores = Object.values(pillar_scores || {}).map(d => getPillarScore(d));
+                        return allScores.length > 0 && !isNaN(score) && score === Math.min(...allScores.filter(s => !isNaN(s)));
                       });
                       return weakestPillar?.name || 'N/A';
                     })()} 

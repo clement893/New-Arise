@@ -75,7 +75,7 @@ function AssessmentsContent() {
           
           // CRITICAL: Validate and clean cached data to prevent React error #130
           // Ensure all primitive values are actually primitives, not objects
-          const cleanedData: AssessmentDisplay[] = cachedData.map((assessment: any, index: number) => {
+          const cleanedData: AssessmentDisplay[] = cachedData.map((assessment: any) => {
             // Ensure answerCount is a number or string, never an object
             let answerCount: number | undefined = undefined;
             if (assessment.answerCount !== undefined && assessment.answerCount !== null) {
