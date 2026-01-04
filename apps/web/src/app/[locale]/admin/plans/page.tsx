@@ -23,6 +23,8 @@ interface Plan {
   status: string;
   is_popular: boolean;
   features: string | null;
+  stripe_price_id: string | null;
+  stripe_product_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -117,6 +119,8 @@ function PlansPageContent() {
         amount: amountInCents,
         is_popular: editedPlan.is_popular,
         features: editedPlan.features || null,
+        stripe_price_id: (editedPlan.stripe_price_id as string) || null,
+        stripe_product_id: (editedPlan.stripe_product_id as string) || null,
       });
 
       setSuccess(`Plan "${editedPlan.name}" mis à jour avec succès`);
@@ -423,6 +427,51 @@ function PlansPageContent() {
                       </pre>
                     </div>
                   )}
+                </div>
+
+                {/* Stripe Configuration */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground mb-2 block">
+                      Stripe Price ID
+                    </label>
+                    {isEditing ? (
+                      <Input
+                        value={editedPlan.stripe_price_id || ''}
+                        onChange={(e) => handleChange(plan.id, 'stripe_price_id', e.target.value)}
+                        placeholder="price_xxxxxxxxxxxxx"
+                        className="font-mono text-sm"
+                      />
+                    ) : (
+                      <p className="text-foreground font-mono text-sm">
+                        {plan.stripe_price_id || <span className="text-muted-foreground italic">Non configuré</span>}
+                      </p>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">
+                      ID du prix Stripe (commence par price_)
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground mb-2 block">
+                      Stripe Product ID
+                    </label>
+                    {isEditing ? (
+                      <Input
+                        value={editedPlan.stripe_product_id || ''}
+                        onChange={(e) => handleChange(plan.id, 'stripe_product_id', e.target.value)}
+                        placeholder="prod_xxxxxxxxxxxxx"
+                        className="font-mono text-sm"
+                      />
+                    ) : (
+                      <p className="text-foreground font-mono text-sm">
+                        {plan.stripe_product_id || <span className="text-muted-foreground italic">Non configuré</span>}
+                      </p>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">
+                      ID du produit Stripe (commence par prod_)
+                    </p>
+                  </div>
                 </div>
 
                 {/* Metadata */}

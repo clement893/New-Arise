@@ -515,6 +515,8 @@ export const subscriptionsAPI = {
     amount?: number;
     is_popular?: boolean;
     features?: string | null;
+    stripe_price_id?: string | null;
+    stripe_product_id?: string | null;
   }) => {
     return apiClient.put(`/v1/subscriptions/plans/${planId}`, data);
   },
