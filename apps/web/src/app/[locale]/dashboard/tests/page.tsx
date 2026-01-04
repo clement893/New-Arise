@@ -3,13 +3,14 @@
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
+import Container from '@/components/ui/Container';
 import { Card, Stack } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
 
 function TestsContent() {
   return (
-    <>
+    <Container>
       <MotionDiv variant="fade" duration="normal">
         <div className="mb-8 pb-6">
           <h1 className="text-4xl font-bold mb-2">
@@ -71,7 +72,7 @@ function TestsContent() {
           </MotionDiv>
         </div>
       </div>
-    </>
+    </Container>
   );
 }
 
