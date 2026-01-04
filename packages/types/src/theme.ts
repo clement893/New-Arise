@@ -261,5 +261,5 @@ export interface ThemeConfigResponse {
   display_name: string;
   config: ThemeConfig;
   is_active?: boolean;
-  description?: string;
+  description?: string; // Optional description field for theme
 }
