@@ -80,7 +80,9 @@ export default function DashboardInsightsPage() {
     } catch (error: unknown) {
       logger.error('Failed to load insights', error instanceof Error ? error : new Error(String(error)));
       const appError = handleApiError(error);
-      setError(appError.message || t('errors.loadFailed') || 'Failed to load insights. Please try again.');
+      // Ensure error message is always a string to prevent React error #130
+      const errorMessage = typeof appError.message === 'string' ? appError.message : String(appError.message || t('errors.loadFailed') || 'Failed to load insights. Please try again.');
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -113,7 +115,7 @@ export default function DashboardInsightsPage() {
         {error && (
           <div className="mt-6">
             <Alert variant="error" onClose={() => setError(null)}>
-              {error}
+              {typeof error === 'string' ? error : String(error || 'An error occurred')}
             </Alert>
           </div>
         )}

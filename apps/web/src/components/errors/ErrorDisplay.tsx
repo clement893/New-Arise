@@ -45,8 +45,21 @@ export function ErrorDisplay({
 }: ErrorDisplayProps) {
   // Extract error information
   const errorTitle = title ?? (error instanceof AppError ? getErrorTitle(error.code) : 'Error');
-  const errorMessage =
-    message ?? error?.message ?? 'An unexpected error occurred';
+  // Ensure errorMessage is always a string to prevent React error #130
+  let errorMessage: string;
+  if (message) {
+    errorMessage = typeof message === 'string' ? message : String(message);
+  } else if (error) {
+    if (error instanceof AppError || error instanceof Error) {
+      errorMessage = error.message || 'An unexpected error occurred';
+    } else if (typeof error === 'object' && 'message' in error) {
+      errorMessage = typeof error.message === 'string' ? error.message : String(error.message || 'An unexpected error occurred');
+    } else {
+      errorMessage = String(error || 'An unexpected error occurred');
+    }
+  } else {
+    errorMessage = 'An unexpected error occurred';
+  }
   const errorCode = code ?? (error instanceof AppError ? error.code : undefined);
   const errorStatusCode =
     statusCode ?? (error instanceof AppError ? error.statusCode : undefined);

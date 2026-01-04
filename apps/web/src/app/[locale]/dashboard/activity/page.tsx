@@ -96,7 +96,9 @@ export default function DashboardActivityPage() {
       }
     } catch (error: unknown) {
       logger.error('Failed to load dashboard activities', error instanceof Error ? error : new Error(String(error)));
-      setError(t('errors.loadFailed') || 'Failed to load activity feed. Please try again.');
+      // Ensure error message is always a string to prevent React error #130
+      const errorMessage = t('errors.loadFailed') || 'Failed to load activity feed. Please try again.';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -129,7 +131,7 @@ export default function DashboardActivityPage() {
         {error && (
           <div className="mt-6">
             <Alert variant="error" onClose={() => setError(null)}>
-              {error}
+              {typeof error === 'string' ? error : String(error || 'An error occurred')}
             </Alert>
           </div>
         )}

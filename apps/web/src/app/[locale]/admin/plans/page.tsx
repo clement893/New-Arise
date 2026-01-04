@@ -139,7 +139,6 @@ function PlansPageContent() {
       updateData.stripe_price_id = stripePriceId && stripePriceId.trim() ? stripePriceId.trim() : null;
       updateData.stripe_product_id = stripeProductId && stripeProductId.trim() ? stripeProductId.trim() : null;
 
-      console.log('Updating plan with data:', updateData); // Debug log
       await subscriptionsAPI.updatePlan(planId, updateData);
 
       setSuccess(`Plan "${editedPlan.name}" mis à jour avec succès`);

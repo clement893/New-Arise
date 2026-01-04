@@ -220,7 +220,7 @@ function AssessmentResultsContent() {
 
   if (error || !results) {
     // Ensure error is always a string before using includes
-    const errorString = typeof error === 'string' ? error : String(error || '');
+    const errorString = typeof error === 'string' ? error : formatError(error || 'Results not found');
     const isNotCompleted = errorString.includes('not completed') || errorString.includes('not found');
     
     return (
