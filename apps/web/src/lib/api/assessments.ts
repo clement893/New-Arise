@@ -189,7 +189,62 @@ export const getAssessmentResults = async (assessmentId: number): Promise<Assess
   const response = await apiClient.get(
     `/v1/assessments/${assessmentId}/results`
   );
-  return response.data;
+  
+  // CRITICAL: Ensure all numeric values in scores are actually numbers, not objects
+  // This prevents React error #130 (objects not valid as React child)
+  const data = response.data;
+  if (data?.scores) {
+    // Ensure percentage, total_score, max_score are numbers
+    if (data.scores.percentage !== undefined && typeof data.scores.percentage !== 'number') {
+      data.scores.percentage = typeof data.scores.percentage === 'string' 
+        ? parseFloat(data.scores.percentage) 
+        : (typeof data.scores.percentage === 'object' && data.scores.percentage !== null && 'value' in data.scores.percentage)
+        ? (typeof data.scores.percentage.value === 'number' ? data.scores.percentage.value : 0)
+        : 0;
+    }
+    if (data.scores.total_score !== undefined && typeof data.scores.total_score !== 'number') {
+      data.scores.total_score = typeof data.scores.total_score === 'string'
+        ? parseInt(data.scores.total_score, 10)
+        : (typeof data.scores.total_score === 'object' && data.scores.total_score !== null && 'value' in data.scores.total_score)
+        ? (typeof data.scores.total_score.value === 'number' ? data.scores.total_score.value : 0)
+        : 0;
+    }
+    if (data.scores.max_score !== undefined && typeof data.scores.max_score !== 'number') {
+      data.scores.max_score = typeof data.scores.max_score === 'string'
+        ? parseInt(data.scores.max_score, 10)
+        : (typeof data.scores.max_score === 'object' && data.scores.max_score !== null && 'value' in data.scores.max_score)
+        ? (typeof data.scores.max_score.value === 'number' ? data.scores.max_score.value : 150)
+        : 150;
+    }
+    
+    // Ensure pillar_scores values are numbers or PillarScore objects, not other objects
+    if (data.scores.pillar_scores && typeof data.scores.pillar_scores === 'object') {
+      const cleanedPillarScores: Record<string, number | PillarScore> = {};
+      Object.entries(data.scores.pillar_scores).forEach(([key, value]) => {
+        if (typeof value === 'number') {
+          cleanedPillarScores[key] = value;
+        } else if (typeof value === 'object' && value !== null && 'score' in value) {
+          // It's a PillarScore object, ensure score and percentage are numbers
+          const pillarScore = value as PillarScore;
+          if (typeof pillarScore.score !== 'number') {
+            pillarScore.score = typeof pillarScore.score === 'string' ? parseFloat(pillarScore.score) : 0;
+          }
+          if (typeof pillarScore.percentage !== 'number') {
+            pillarScore.percentage = typeof pillarScore.percentage === 'string' ? parseFloat(pillarScore.percentage) : 0;
+          }
+          cleanedPillarScores[key] = pillarScore;
+        } else if (typeof value === 'string') {
+          cleanedPillarScores[key] = parseFloat(value) || 0;
+        } else {
+          console.warn('[API] Invalid pillar_score value type:', { key, value, type: typeof value });
+          cleanedPillarScores[key] = 0;
+        }
+      });
+      data.scores.pillar_scores = cleanedPillarScores;
+    }
+  }
+  
+  return data;
 };
 
 /**

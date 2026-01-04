@@ -127,10 +127,15 @@ function AssessmentsContent() {
             }
             
             // Ensure status is a string, never an object
-            let status: string = assessment.status || 'not-started';
-            if (typeof status !== 'string') {
-              console.error('[DEBUG] ⚠️ status IS AN OBJECT in cache!', status);
-              status = typeof status === 'object' && 'value' in status ? String(status.value) : 'not-started';
+            let status: string = 'not-started';
+            const rawStatus = assessment.status || 'not-started';
+            if (typeof rawStatus === 'string') {
+              status = rawStatus;
+            } else {
+              console.error('[DEBUG] ⚠️ status IS AN OBJECT in cache!', rawStatus);
+              if (typeof rawStatus === 'object' && rawStatus !== null && 'value' in rawStatus) {
+                status = String((rawStatus as { value: unknown }).value);
+              }
             }
             
             // Return cleaned assessment
@@ -212,9 +217,57 @@ function AssessmentsContent() {
       // Get assessments from API
       const apiAssessments: ApiAssessment[] = await getMyAssessments();
       
+      // CRITICAL: Clean API data to ensure answer_count and total_questions are numbers, not objects
+      // This prevents React error #130 when data is corrupted
+      const cleanedApiAssessments = apiAssessments.map((assessment: any) => {
+        const cleaned: ApiAssessment = { ...assessment };
+        
+        // Ensure answer_count is a number or undefined
+        if (cleaned.answer_count !== undefined && cleaned.answer_count !== null) {
+          if (typeof cleaned.answer_count === 'object') {
+            console.error('[Assessments] ⚠️ answer_count IS AN OBJECT from API!', {
+              assessmentId: cleaned.id,
+              answer_count: cleaned.answer_count,
+              type: typeof cleaned.answer_count
+            });
+            // Try to extract a number from the object
+            if ('value' in cleaned.answer_count && typeof cleaned.answer_count.value === 'number') {
+              cleaned.answer_count = cleaned.answer_count.value;
+            } else {
+              cleaned.answer_count = undefined;
+            }
+          } else if (typeof cleaned.answer_count !== 'number') {
+            const parsed = parseInt(String(cleaned.answer_count), 10);
+            cleaned.answer_count = !isNaN(parsed) ? parsed : undefined;
+          }
+        }
+        
+        // Ensure total_questions is a number or undefined
+        if (cleaned.total_questions !== undefined && cleaned.total_questions !== null) {
+          if (typeof cleaned.total_questions === 'object') {
+            console.error('[Assessments] ⚠️ total_questions IS AN OBJECT from API!', {
+              assessmentId: cleaned.id,
+              total_questions: cleaned.total_questions,
+              type: typeof cleaned.total_questions
+            });
+            // Try to extract a number from the object
+            if ('value' in cleaned.total_questions && typeof cleaned.total_questions.value === 'number') {
+              cleaned.total_questions = cleaned.total_questions.value;
+            } else {
+              cleaned.total_questions = undefined;
+            }
+          } else if (typeof cleaned.total_questions !== 'number') {
+            const parsed = parseInt(String(cleaned.total_questions), 10);
+            cleaned.total_questions = !isNaN(parsed) ? parsed : undefined;
+          }
+        }
+        
+        return cleaned;
+      });
+      
       // Always log assessment statuses for troubleshooting (even in production)
       // Convert to string to prevent React error #130 (objects not valid as React child)
-      console.log('[Assessments] Loaded assessments from API:', JSON.stringify(apiAssessments.map(a => ({
+      console.log('[Assessments] Loaded assessments from API:', JSON.stringify(cleanedApiAssessments.map(a => ({
         type: a.assessment_type,
         status: a.status,
         id: a.id,
@@ -225,7 +278,7 @@ function AssessmentsContent() {
       
       // Create a map of existing assessments by type
       const existingAssessmentsMap = new Map<AssessmentType, ApiAssessment>();
-      apiAssessments.forEach(assessment => {
+      cleanedApiAssessments.forEach(assessment => {
         const existing = existingAssessmentsMap.get(assessment.assessment_type);
         // Keep the most recent assessment of each type
         if (!existing || new Date(assessment.created_at) > new Date(existing.created_at)) {
@@ -266,7 +319,7 @@ function AssessmentsContent() {
           console.warn('[Assessments] Wellness assessment not found in map!', JSON.stringify({
             apiType,
             mapKeys: Array.from(existingAssessmentsMap.keys()),
-            allAssessments: apiAssessments.filter(a => a.assessment_type === 'WELLNESS').map(a => ({
+            allAssessments: cleanedApiAssessments.filter(a => a.assessment_type === 'WELLNESS').map(a => ({
               id: a.id,
               type: a.assessment_type,
               status: a.status
@@ -354,13 +407,27 @@ function AssessmentsContent() {
         });
       });
       
-      setAssessments(displayAssessments);
+      // CRITICAL: Final validation before setting state - ensure no objects are present
+      // This is a last line of defense against React error #130
+      const finalValidatedAssessments = displayAssessments.map(assessment => {
+        // Double-check all values are primitives
+        return {
+          ...assessment,
+          answerCount: typeof assessment.answerCount === 'number' ? assessment.answerCount : undefined,
+          totalQuestions: typeof assessment.totalQuestions === 'number' ? assessment.totalQuestions : undefined,
+          assessmentId: typeof assessment.assessmentId === 'string' ? assessment.assessmentId : undefined,
+          status: typeof assessment.status === 'string' ? assessment.status : 'available',
+        };
+      });
+      
+      setAssessments(finalValidatedAssessments);
       
       // Cache assessments in sessionStorage for instant display on next visit
+      // Only cache validated data to prevent corruption
       if (typeof window !== 'undefined') {
         try {
           sessionStorage.setItem('assessments_cache', JSON.stringify({
-            data: displayAssessments,
+            data: finalValidatedAssessments,
             timestamp: Date.now()
           }));
         } catch (e) {
