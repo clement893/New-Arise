@@ -129,10 +129,10 @@ export function getThemeTokens() {
         '4xl': `var(--typography-font-size-4xl, ${config.typography?.fontSize?.['4xl'] || '36px'})`,
       },
       fontWeight: {
-        normal: `var(--typography-font-weight-normal, ${config.typography?.fontWeight?.normal || '400'})`,
-        medium: `var(--typography-font-weight-medium, ${config.typography?.fontWeight?.medium || '500'})`,
-        semibold: `var(--typography-font-weight-semibold, ${config.typography?.fontWeight?.semibold || '600'})`,
-        bold: `var(--typography-font-weight-bold, ${config.typography?.fontWeight?.bold || '700'})`,
+        normal: `var(--typography-font-weight-normal, ${(config.typography?.fontWeight as Record<string, string | number> | undefined)?.['normal'] || '400'})`,
+        medium: `var(--typography-font-weight-medium, ${(config.typography?.fontWeight as Record<string, string | number> | undefined)?.['medium'] || '500'})`,
+        semibold: `var(--typography-font-weight-semibold, ${(config.typography?.fontWeight as Record<string, string | number> | undefined)?.['semibold'] || '600'})`,
+        bold: `var(--typography-font-weight-bold, ${(config.typography?.fontWeight as Record<string, string | number> | undefined)?.['bold'] || '700'})`,
       },
       lineHeight: {
         tight: `var(--typography-line-height-tight, ${config.typography?.lineHeight?.tight || '1.25'})`,
