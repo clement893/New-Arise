@@ -11,6 +11,7 @@ import {
 } from '@/data/feedback360Questions';
 import Button from '@/components/ui/Button';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
+import { formatError } from '@/lib/utils/formatError';
 
 export default function Feedback360Page() {
   const router = useRouter();
@@ -260,10 +261,9 @@ export default function Feedback360Page() {
   
   // Safety check: ensure currentQuestion is valid
   if (currentQuestion < 0 || currentQuestion >= feedback360Questions.length) {
-    console.error('[360°] Invalid currentQuestion:', {
-      currentQuestion,
-      questionsLength: feedback360Questions.length,
-    });
+    // Convert to string to prevent React error #130
+    const errorDetails = `currentQuestion: ${currentQuestion}, questionsLength: ${feedback360Questions.length}`;
+    console.error('[360°] Invalid currentQuestion:', errorDetails);
     return (
       <div className="min-h-screen bg-arise-teal p-8">
         <div className="mx-auto max-w-4xl">
