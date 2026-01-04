@@ -8,6 +8,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMBTIStore } from '@/stores/mbtiStore';
+import { formatError } from '@/lib/utils/formatError';
 import { mbtiQuestions } from '@/data/mbtiQuestions';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -275,7 +276,7 @@ export default function MBTIAssessmentPage() {
             <MotionDiv variant="slideUp" duration="normal" className="mb-8">
               <Card className="bg-red-50 border-red-200">
                 <div className="p-4">
-                  <p className="text-red-800">{typeof error === 'string' ? error : formatError(error || 'An error occurred')}</p>
+                  <p className="text-red-800">{typeof error === 'string' ? error : formatError(error)}</p>
                 </div>
               </Card>
             </MotionDiv>
