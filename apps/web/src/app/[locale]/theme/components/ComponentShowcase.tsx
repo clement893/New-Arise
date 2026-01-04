@@ -6,7 +6,6 @@
 'use client';
 
 import { Button, Card, Input, Badge, Alert } from '@/components/ui';
-import { themeTokens } from '@/lib/theme';
 
 export function ComponentShowcase() {
   return (
@@ -56,7 +55,7 @@ export function ComponentShowcase() {
           <Badge variant="primary">Primary</Badge>
           <Badge variant="success">Success</Badge>
           <Badge variant="warning">Warning</Badge>
-          <Badge variant="danger">Danger</Badge>
+          <Badge variant="error">Error</Badge>
         </div>
       </Card>
 
