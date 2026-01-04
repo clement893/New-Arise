@@ -738,9 +738,13 @@ function AssessmentsContent() {
         // CRITICAL: Only proceed if we have a valid assessmentId
         if (!safeAssessmentId || isNaN(safeAssessmentId)) {
           // If all questions are answered but no valid ID, show continue button
-          if (assessment.answerCount !== undefined && 
-              assessment.totalQuestions !== undefined && 
-              assessment.answerCount >= assessment.totalQuestions) {
+          // CRITICAL: Use strict equality and ensure both are numbers
+          const answerCountCheck = typeof assessment.answerCount === 'number' ? assessment.answerCount : (typeof assessment.answerCount === 'string' ? parseInt(assessment.answerCount, 10) : 0);
+          const totalQuestionsCheck = typeof assessment.totalQuestions === 'number' ? assessment.totalQuestions : (typeof assessment.totalQuestions === 'string' ? parseInt(assessment.totalQuestions, 10) : 0);
+          
+          if (answerCountCheck > 0 && 
+              totalQuestionsCheck > 0 && 
+              answerCountCheck === totalQuestionsCheck) {
             return (
               <Button variant="outline" disabled>
                 ID invalide
@@ -775,9 +779,13 @@ function AssessmentsContent() {
         }
         
         // If all questions are answered, show "Voir les résultats" button
-        if (assessment.answerCount !== undefined && 
-            assessment.totalQuestions !== undefined && 
-            assessment.answerCount >= assessment.totalQuestions) {
+        // CRITICAL: Use strict equality and ensure both are numbers
+        const answerCountNum = typeof assessment.answerCount === 'number' ? assessment.answerCount : (typeof assessment.answerCount === 'string' ? parseInt(assessment.answerCount, 10) : 0);
+        const totalQuestionsNum = typeof assessment.totalQuestions === 'number' ? assessment.totalQuestions : (typeof assessment.totalQuestions === 'string' ? parseInt(assessment.totalQuestions, 10) : 0);
+        
+        if (answerCountNum > 0 && 
+            totalQuestionsNum > 0 && 
+            answerCountNum === totalQuestionsNum) {
           return (
             <Button 
               variant="outline"
