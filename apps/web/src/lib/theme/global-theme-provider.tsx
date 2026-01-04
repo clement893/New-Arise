@@ -693,10 +693,9 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
     
     return () => {
       clearInterval(interval);
-      observer.disconnect();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [theme]); // Re-run when theme changes to update observer
+  }, [theme]); // Re-run when theme changes
 
   const refreshTheme = async () => {
     // Force apply when refreshing (e.g., after theme activation)
