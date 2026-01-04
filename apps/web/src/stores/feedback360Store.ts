@@ -150,16 +150,15 @@ export const useFeedback360Store = create<Feedback360State>()(
           set({ isLoading: false });
           // Don't reset - keep data for results page
         } catch (error: unknown) {
-          const errorMessage = error instanceof Error
-            ? error.message
-            : axios.isAxiosError(error) && error.response?.data?.detail
-            ? error.response.data.detail
-            : 'Failed to submit assessment';
+          // Convert error to string to prevent React error #130
+          const errorMessage = formatError(error);
+          console.error('[360-Feedback] Failed to submit assessment:', errorMessage);
           set({
             error: errorMessage,
             isLoading: false,
           });
-          throw error;
+          // Re-throw as a new Error with the formatted message
+          throw new Error(errorMessage);
         }
       },
 
