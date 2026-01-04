@@ -210,8 +210,8 @@ export default function Feedback360Page() {
               Thank you for completing your self-assessment. Your responses have been saved.
             </p>
 
-            <div className="mb-8 rounded-lg bg-blue-50 p-6">
-              <p className="text-sm text-blue-800">
+            <div className="mb-8 rounded-lg bg-primary-50 p-6">
+              <p className="text-sm text-primary-800">
                 <strong>Next Step:</strong> Invite colleagues to provide their feedback on your
                 leadership. Their perspectives will be combined with your self-assessment to create
                 a comprehensive 360° view.
