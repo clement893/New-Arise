@@ -110,18 +110,33 @@ function AssessmentsContent() {
               }
             }
             
-            // Ensure assessmentId is a string or number, never an object
-            let assessmentId: string | undefined = undefined;
+            // Ensure assessmentId is a number, never an object
+            let assessmentId: number | undefined = undefined;
             if (assessment.assessmentId !== undefined && assessment.assessmentId !== null) {
-              if (typeof assessment.assessmentId === 'string' || typeof assessment.assessmentId === 'number') {
-                assessmentId = String(assessment.assessmentId);
+              if (typeof assessment.assessmentId === 'number') {
+                assessmentId = assessment.assessmentId;
+              } else if (typeof assessment.assessmentId === 'string') {
+                const parsed = parseInt(assessment.assessmentId, 10);
+                assessmentId = !isNaN(parsed) ? parsed : undefined;
               } else {
                 console.error('[DEBUG] ⚠️ assessmentId IS AN OBJECT in cache!', assessment.assessmentId);
-                // Try to extract a string from the object
+                // Try to extract a number from the object
                 if (typeof assessment.assessmentId === 'object' && 'id' in assessment.assessmentId) {
-                  assessmentId = String(assessment.assessmentId.id);
+                  const idValue = (assessment.assessmentId as { id: unknown }).id;
+                  if (typeof idValue === 'number') {
+                    assessmentId = idValue;
+                  } else if (typeof idValue === 'string') {
+                    const parsed = parseInt(idValue, 10);
+                    assessmentId = !isNaN(parsed) ? parsed : undefined;
+                  }
                 } else if (typeof assessment.assessmentId === 'object' && 'value' in assessment.assessmentId) {
-                  assessmentId = String(assessment.assessmentId.value);
+                  const value = (assessment.assessmentId as { value: unknown }).value;
+                  if (typeof value === 'number') {
+                    assessmentId = value;
+                  } else if (typeof value === 'string') {
+                    const parsed = parseInt(value, 10);
+                    assessmentId = !isNaN(parsed) ? parsed : undefined;
+                  }
                 }
               }
             }
@@ -377,7 +392,7 @@ function AssessmentsContent() {
           icon: config.icon,
           externalLink: config.externalLink,
           requiresEvaluators: config.requiresEvaluators,
-          assessmentId: apiAssessment?.id ? String(apiAssessment.id) : undefined,
+          assessmentId: apiAssessment?.id ? (typeof apiAssessment.id === 'number' ? apiAssessment.id : parseInt(String(apiAssessment.id), 10)) : undefined,
           assessmentType: apiType,
           // CRITICAL: Ensure answerCount and totalQuestions are numbers or undefined, never objects
           answerCount: apiAssessment?.answer_count !== undefined && apiAssessment?.answer_count !== null
@@ -417,7 +432,7 @@ function AssessmentsContent() {
           ...assessment,
           answerCount: typeof assessment.answerCount === 'number' ? assessment.answerCount : undefined,
           totalQuestions: typeof assessment.totalQuestions === 'number' ? assessment.totalQuestions : undefined,
-          assessmentId: typeof assessment.assessmentId === 'string' ? assessment.assessmentId : undefined,
+          assessmentId: typeof assessment.assessmentId === 'number' ? assessment.assessmentId : undefined,
           status: typeof assessment.status === 'string' ? assessment.status : 'available',
         };
       });
