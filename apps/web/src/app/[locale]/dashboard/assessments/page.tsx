@@ -243,8 +243,28 @@ function AssessmentsContent() {
         }
       }
     } catch (err) {
-      console.error('Failed to load assessments:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load assessments');
+      // Convert error to string to prevent React error #130
+      let errorMessage = 'Failed to load assessments';
+      try {
+        if (err && typeof err === 'object' && 'response' in err) {
+          const response = (err as { response?: { data?: { detail?: string; message?: string }; status?: number } }).response;
+          if (response?.status === 401) {
+            errorMessage = 'Your session has expired. Please refresh the page to log in again.';
+          } else {
+            errorMessage = response?.data?.detail || response?.data?.message || errorMessage;
+          }
+        } else if (err instanceof Error) {
+          errorMessage = err.message;
+        } else if (err !== null && err !== undefined) {
+          errorMessage = String(err);
+        }
+      } catch (parseError) {
+        // If parsing the error fails, use a safe default message
+        errorMessage = 'An unexpected error occurred while loading assessments.';
+      }
+      console.error('Failed to load assessments:', errorMessage);
+      // Ensure errorMessage is always a string
+      setError(typeof errorMessage === 'string' ? errorMessage : 'Failed to load assessments');
     } finally {
       setIsLoading(false);
     }
@@ -739,7 +759,7 @@ function AssessmentsContent() {
 
 export default function AssessmentsPage() {
   return (
-    <ErrorBoundary showDetails={process.env.NODE_ENV === 'development'}>
+    <ErrorBoundary showDetails={false}>
       <AssessmentsContent />
     </ErrorBoundary>
   );
