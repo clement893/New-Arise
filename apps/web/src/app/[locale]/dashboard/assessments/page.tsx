@@ -577,6 +577,23 @@ function AssessmentsContent() {
   };
 
   const getActionButton = (assessment: AssessmentDisplay) => {
+    // CRITICAL: Ensure assessmentId is always a number before using it
+    const safeAssessmentId = typeof assessment.assessmentId === 'number' 
+      ? assessment.assessmentId 
+      : typeof assessment.assessmentId === 'string'
+      ? parseInt(assessment.assessmentId, 10)
+      : undefined;
+    
+    // If assessmentId is an object, log error and return null
+    if (assessment.assessmentId !== undefined && assessment.assessmentId !== null && typeof assessment.assessmentId === 'object') {
+      console.error('[Assessments] ⚠️ assessmentId IS AN OBJECT in getActionButton!', {
+        assessmentId: assessment.assessmentId,
+        assessmentType: assessment.assessmentType,
+        status: assessment.status
+      });
+      return null;
+    }
+    
     const isStarting = startingAssessment === assessment.assessmentType;
     
     // Debug logging for Wellness button determination
@@ -586,7 +603,7 @@ function AssessmentsContent() {
         status: assessment.status,
         answerCount: assessment.answerCount,
         totalQuestions: assessment.totalQuestions,
-        assessmentId: assessment.assessmentId,
+        assessmentId: safeAssessmentId,
         hasAllAnswers: assessment.answerCount !== undefined && 
                       assessment.totalQuestions !== undefined && 
                       assessment.answerCount >= assessment.totalQuestions
@@ -608,16 +625,25 @@ function AssessmentsContent() {
           );
         }
         // For other assessments, show "Voir les résultats"
+        // CRITICAL: Only navigate if we have a valid assessmentId
+        if (!safeAssessmentId || isNaN(safeAssessmentId)) {
+          console.error('[Assessments] Cannot navigate to results: invalid assessmentId', {
+            assessmentId: assessment.assessmentId,
+            safeAssessmentId,
+            assessmentType: assessment.assessmentType
+          });
+          return null;
+        }
         return (
           <Button 
             variant="outline" 
             onClick={() => {
               if (assessment.assessmentType === 'TKI') {
-                router.push(`/dashboard/assessments/tki/results?id=${assessment.assessmentId}`);
+                router.push(`/dashboard/assessments/tki/results?id=${safeAssessmentId}`);
               } else if (assessment.assessmentType === 'WELLNESS') {
-                router.push(`/dashboard/assessments/results?id=${assessment.assessmentId}`);
+                router.push(`/dashboard/assessments/results?id=${safeAssessmentId}`);
               } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
-                router.push(`/dashboard/assessments/360-feedback/results?id=${assessment.assessmentId}`);
+                router.push(`/dashboard/assessments/360-feedback/results?id=${safeAssessmentId}`);
               }
             }}
           >
@@ -625,42 +651,78 @@ function AssessmentsContent() {
           </Button>
         );
       case 'in-progress':
+        // CRITICAL: Only proceed if we have a valid assessmentId
+        if (!safeAssessmentId || isNaN(safeAssessmentId)) {
+          // If all questions are answered but no valid ID, show continue button
+          if (assessment.answerCount !== undefined && 
+              assessment.totalQuestions !== undefined && 
+              assessment.answerCount >= assessment.totalQuestions) {
+            return (
+              <Button variant="outline" disabled>
+                ID invalide
+              </Button>
+            );
+          }
+          // Otherwise show continue button
+          return (
+            <Button 
+              variant="outline"
+              disabled={isStarting}
+              onClick={() => {
+                if (assessment.assessmentType === 'WELLNESS') {
+                  router.push('/dashboard/assessments/wellness');
+                } else if (assessment.assessmentType === 'TKI') {
+                  router.push('/dashboard/assessments/tki');
+                } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
+                  router.push('/dashboard/assessments/360-feedback');
+                }
+              }}
+            >
+              {isStarting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Chargement...
+                </>
+              ) : (
+                'Continuer'
+              )}
+            </Button>
+          );
+        }
+        
         // If all questions are answered, show "Voir les résultats" button
         if (assessment.answerCount !== undefined && 
             assessment.totalQuestions !== undefined && 
-            assessment.answerCount >= assessment.totalQuestions &&
-            assessment.assessmentId) {
+            assessment.answerCount >= assessment.totalQuestions) {
           return (
             <Button 
               variant="outline"
               disabled={isStarting}
               onClick={async () => {
-                if (assessment.assessmentId) {
-                  try {
-                    setStartingAssessment(assessment.assessmentType);
-                    // Submit the assessment first if not already submitted
-                    await submitAssessment(assessment.assessmentId);
-                    // Then redirect to results
-                    if (assessment.assessmentType === 'TKI') {
-                      router.push(`/dashboard/assessments/tki/results?id=${assessment.assessmentId}`);
-                    } else if (assessment.assessmentType === 'WELLNESS') {
-                      router.push(`/dashboard/assessments/results?id=${assessment.assessmentId}`);
-                    } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
-                      router.push(`/dashboard/assessments/360-feedback/results?id=${assessment.assessmentId}`);
-                    }
-                  } catch (err) {
-                    console.error('Failed to submit assessment:', err);
-                    // If submission fails, try to go to results anyway (might already be submitted)
-                    if (assessment.assessmentType === 'TKI') {
-                      router.push(`/dashboard/assessments/tki/results?id=${assessment.assessmentId}`);
-                    } else if (assessment.assessmentType === 'WELLNESS') {
-                      router.push(`/dashboard/assessments/results?id=${assessment.assessmentId}`);
-                    } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
-                      router.push(`/dashboard/assessments/360-feedback/results?id=${assessment.assessmentId}`);
-                    }
-                  } finally {
-                    setStartingAssessment(null);
+                try {
+                  setStartingAssessment(assessment.assessmentType);
+                  // Submit the assessment first if not already submitted
+                  await submitAssessment(safeAssessmentId);
+                  // Then redirect to results
+                  if (assessment.assessmentType === 'TKI') {
+                    router.push(`/dashboard/assessments/tki/results?id=${safeAssessmentId}`);
+                  } else if (assessment.assessmentType === 'WELLNESS') {
+                    router.push(`/dashboard/assessments/results?id=${safeAssessmentId}`);
+                  } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
+                    router.push(`/dashboard/assessments/360-feedback/results?id=${safeAssessmentId}`);
                   }
+                } catch (err) {
+                  console.error('Failed to submit assessment:', err);
+                  // If submission fails, try to go to results anyway (might already be submitted)
+                  if (assessment.assessmentType === 'TKI') {
+                    router.push(`/dashboard/assessments/tki/results?id=${safeAssessmentId}`);
+                  } else if (assessment.assessmentType === 'WELLNESS') {
+                    router.push(`/dashboard/assessments/results?id=${safeAssessmentId}`);
+                  } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
+                    router.push(`/dashboard/assessments/360-feedback/results?id=${safeAssessmentId}`);
+                  }
+                } finally {
+                  setStartingAssessment(null);
                 }
               }}
             >

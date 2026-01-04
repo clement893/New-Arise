@@ -267,14 +267,14 @@ export default function BookCoachingSessionPage() {
               <div key={s} className="flex items-center flex-1">
                 <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
                   isActive ? 'bg-arise-teal text-white' : 
-                  isCompleted ? 'bg-green-500 text-white' : 
+                  isCompleted ? 'bg-success-500 text-white' : 
                   'bg-gray-200 text-gray-600'
                 }`}>
                   {isCompleted ? '✓' : idx + 1}
                 </div>
                 {idx < 4 && (
                   <div className={`flex-1 h-1 mx-2 ${
-                    isCompleted ? 'bg-green-500' : 'bg-gray-200'
+                    isCompleted ? 'bg-success-500' : 'bg-gray-200'
                   }`} />
                 )}
               </div>
