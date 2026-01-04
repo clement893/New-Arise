@@ -77,6 +77,8 @@ function PlansPageContent() {
         amount: plan.amount,
         is_popular: plan.is_popular,
         features: plan.features || '',
+        stripe_price_id: plan.stripe_price_id || '',
+        stripe_product_id: plan.stripe_product_id || '',
       },
     });
     setError(null);
