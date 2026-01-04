@@ -200,6 +200,39 @@ function AssessmentsContent() {
   const [startingAssessment, setStartingAssessment] = useState<string | null>(null);
 
   useEffect(() => {
+    // CRITICAL: Clear corrupted cache before loading to prevent React error #130
+    // This ensures we always start fresh when the component mounts
+    // This is especially important when returning from results page
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = sessionStorage.getItem('assessments_cache');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          const cachedData = parsed.data || [];
+          // Check if cache contains objects (corrupted data)
+          const hasCorruptedData = cachedData.some((assessment: any) => 
+            (typeof assessment.answerCount === 'object' && assessment.answerCount !== null) ||
+            (typeof assessment.totalQuestions === 'object' && assessment.totalQuestions !== null) ||
+            (typeof assessment.assessmentId === 'object' && assessment.assessmentId !== null) ||
+            (typeof assessment.status === 'object' && assessment.status !== null)
+          );
+          
+          if (hasCorruptedData) {
+            console.warn('[Assessments] Corrupted cache detected, clearing it before reload');
+            sessionStorage.removeItem('assessments_cache');
+          }
+        }
+      } catch (e) {
+        // If we can't parse the cache, clear it to be safe
+        console.warn('[Assessments] Error checking cache, clearing it:', e);
+        try {
+          sessionStorage.removeItem('assessments_cache');
+        } catch (clearError) {
+          // Ignore clear errors
+        }
+      }
+    }
+    
     loadAssessments();
   }, []);
 
