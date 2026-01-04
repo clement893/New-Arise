@@ -182,15 +182,15 @@ function ResultsReportsContent() {
         <div className="relative z-10 space-y-8">
           {/* Overview Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card className="p-6 text-center bg-white dark:bg-gray-800">
+            <Card className="p-6 text-center bg-white">
               <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center mx-auto mb-3">
                 <FileText className="text-arise-deep-teal" size={24} />
               </div>
               <p className="text-3xl font-bold text-arise-deep-teal mb-1">{assessments.length}</p>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">Assessments Completed</p>
+              <p className="text-gray-700 text-sm">Assessments Completed</p>
             </Card>
 
-            <Card className="p-6 text-center bg-white dark:bg-gray-800">
+            <Card className="p-6 text-center bg-white">
               <div className="w-12 h-12 bg-arise-gold/10 rounded-lg flex items-center justify-center mx-auto mb-3">
                 <TrendingUp className="text-arise-gold" size={24} />
               </div>
@@ -204,23 +204,23 @@ function ResultsReportsContent() {
                     )
                   : 0}%
               </p>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">Average Score</p>
+              <p className="text-gray-700 text-sm">Average Score</p>
             </Card>
 
-            <Card className="p-6 text-center bg-white dark:bg-gray-800">
+            <Card className="p-6 text-center bg-white">
               <div className="w-12 h-12 bg-primary-500/10 rounded-lg flex items-center justify-center mx-auto mb-3">
                 <Target className="text-primary-500" size={24} />
               </div>
               <p className="text-3xl font-bold text-primary-500 mb-1">12</p>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">Development Goals</p>
+              <p className="text-gray-700 text-sm">Development Goals</p>
             </Card>
 
-            <Card className="p-6 text-center bg-white dark:bg-gray-800">
+            <Card className="p-6 text-center bg-white">
               <div className="w-12 h-12 bg-success-500/10 rounded-lg flex items-center justify-center mx-auto mb-3">
                 <Users className="text-success-500" size={24} />
               </div>
               <p className="text-3xl font-bold text-success-500 mb-1">8</p>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">360° Evaluators</p>
+              <p className="text-gray-700 text-sm">360° Evaluators</p>
             </Card>
           </div>
 
@@ -255,26 +255,26 @@ function ResultsReportsContent() {
               </div>
             ) : error ? (
               <div className="text-center py-12">
-                <p className="text-red-600 dark:text-red-400">{error}</p>
+                <p className="text-red-600">{error}</p>
               </div>
             ) : assessments.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-gray-600 dark:text-gray-300">No completed assessments yet.</p>
+                <p className="text-gray-700">No completed assessments yet.</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {assessments.map((assessment) => (
-                  <Card key={assessment.id} className="p-4 border border-gray-200 dark:border-gray-700 hover:border-arise-deep-teal/30 transition-colors">
+                  <Card key={assessment.id} className="p-4 border border-gray-200 hover:border-arise-deep-teal/30 transition-colors bg-white">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4 flex-1">
                         <div className="w-16 h-16 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
                           <Brain className="text-arise-deep-teal" size={24} />
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-1">
                             {assessment.name}
                           </h3>
-                          <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
+                          <div className="flex items-center gap-4 text-sm text-gray-700">
                             <span>Completed: {assessment.completedDate}</span>
                             <span>•</span>
                             <span>Score: {assessment.score}</span>
@@ -303,16 +303,16 @@ function ResultsReportsContent() {
           </Card>
 
           {/* Key Insights */}
-          <Card className="p-6">
+          <Card className="p-6 bg-white">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
                 <Brain className="text-arise-deep-teal" size={24} />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <h2 className="text-2xl font-bold text-gray-900">
                   Key Insights
                 </h2>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-gray-700">
                   Important findings from your assessments
                 </p>
               </div>
@@ -320,19 +320,19 @@ function ResultsReportsContent() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {insights.map((insight) => (
-                <Card key={insight.id} className="p-4 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                <Card key={insight.id} className="p-4 border border-gray-200 bg-gray-50">
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-arise-gold rounded-full mt-2 flex-shrink-0" />
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                        <h3 className="text-base font-semibold text-gray-900">
                           {insight.title}
                         </h3>
-                        <span className="text-xs text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-700 px-2 py-1 rounded">
+                        <span className="text-xs text-gray-600 bg-white px-2 py-1 rounded border border-gray-200">
                           {insight.category}
                         </span>
                       </div>
-                      <p className="text-gray-600 dark:text-gray-300 text-sm">
+                      <p className="text-gray-700 text-sm">
                         {insight.description}
                       </p>
                     </div>
@@ -343,77 +343,77 @@ function ResultsReportsContent() {
           </Card>
 
           {/* Comprehensive Leadership Profile */}
-          <Card className="p-6">
+          <Card className="p-6 bg-white">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
                 <Target className="text-arise-deep-teal" size={24} />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <h2 className="text-2xl font-bold text-gray-900">
                   Your Comprehensive Leadership Profile
                 </h2>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-gray-700">
                   All four assessments integrate seamlessly to create your comprehensive leadership profile
                 </p>
               </div>
             </div>
 
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
+            <div className="bg-gray-50 rounded-lg p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* MBTI Section */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
                     <div className="w-8 h-8 bg-purple-500/10 rounded flex items-center justify-center">
                       <span className="text-purple-500 font-bold text-sm">M</span>
                     </div>
                     MBTI Personality
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-300 text-sm">
+                  <p className="text-gray-700 text-sm">
                     Understanding your natural preferences and how you interact with the world
                   </p>
                 </div>
 
                 {/* TKI Section */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
                     <div className="w-8 h-8 bg-primary-500/10 rounded flex items-center justify-center">
                       <span className="text-primary-500 font-bold text-sm">T</span>
                     </div>
                     TKI Conflict Management
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-300 text-sm">
+                  <p className="text-gray-700 text-sm">
                     Explore your conflict management approach and how you handle disagreements
                   </p>
                 </div>
 
                 {/* 360 Section */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
                     <div className="w-8 h-8 bg-success-500/10 rounded flex items-center justify-center">
                       <span className="text-success-500 font-bold text-sm">360</span>
                     </div>
                     360° Feedback
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-300 text-sm">
+                  <p className="text-gray-700 text-sm">
                     Multi-faceted leadership perspectives from colleagues and team members
                   </p>
                 </div>
 
                 {/* Wellness Section */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
                     <div className="w-8 h-8 bg-arise-gold/10 rounded flex items-center justify-center">
                       <span className="text-arise-gold font-bold text-sm">W</span>
                     </div>
                     Wellness Assessment
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-300 text-sm">
+                  <p className="text-gray-700 text-sm">
                     Holistic view of your health and well-being across six key pillars
                   </p>
                 </div>
               </div>
 
-              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+              <div className="mt-6 pt-6 border-t border-gray-200">
                 <Button 
                   variant="arise-primary"
                   className="w-full"
