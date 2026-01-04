@@ -7,6 +7,7 @@ import { Card, Container } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { start360Feedback, get360Evaluators, getMyAssessments, type Evaluator360Data, type EvaluatorStatus } from '@/lib/api/assessments';
+import { formatError } from '@/lib/utils/formatError';
 import { Users, UserPlus, CheckCircle, Plus, Trash2, Copy, Check } from 'lucide-react';
 import { Alert } from '@/components/ui';
 
@@ -404,7 +405,7 @@ export default function Start360FeedbackPage() {
 
               {error && (
                 <Alert variant="error" onClose={() => setError(null)}>
-                  {error}
+                  {typeof error === 'string' ? error : formatError(error || 'An error occurred')}
                 </Alert>
               )}
 

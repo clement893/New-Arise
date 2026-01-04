@@ -275,7 +275,7 @@ export default function MBTIAssessmentPage() {
             <MotionDiv variant="slideUp" duration="normal" className="mb-8">
               <Card className="bg-red-50 border-red-200">
                 <div className="p-4">
-                  <p className="text-red-800">{error}</p>
+                  <p className="text-red-800">{typeof error === 'string' ? error : formatError(error || 'An error occurred')}</p>
                 </div>
               </Card>
             </MotionDiv>

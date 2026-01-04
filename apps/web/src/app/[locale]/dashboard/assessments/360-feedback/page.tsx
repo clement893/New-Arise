@@ -187,7 +187,7 @@ export default function Feedback360Page() {
               {isLoading ? 'Starting...' : 'Start Self-Assessment'}
             </Button>
 
-            {error && <p className="mt-4 text-center text-sm text-red-600">{error}</p>}
+            {error && <p className="mt-4 text-center text-sm text-red-600">{typeof error === 'string' ? error : formatError(error)}</p>}
           </MotionDiv>
         </div>
       </div>
@@ -234,7 +234,7 @@ export default function Feedback360Page() {
               </Button>
             </div>
 
-            {error && <p className="mt-4 text-center text-sm text-red-600">{error}</p>}
+            {error && <p className="mt-4 text-center text-sm text-red-600">{typeof error === 'string' ? error : formatError(error)}</p>}
           </MotionDiv>
         </div>
       </div>

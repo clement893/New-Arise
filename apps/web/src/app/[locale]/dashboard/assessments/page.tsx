@@ -503,7 +503,7 @@ function AssessmentsContent() {
 
   if (error) {
     // Ensure error is always a string before rendering
-    const errorString = typeof error === 'string' ? error : String(error || 'Failed to load assessments');
+    const errorString = typeof error === 'string' ? error : formatError(error || 'Failed to load assessments');
     const isUnauthorized = errorString.includes('401') || errorString.includes('expired') || errorString.includes('Unauthorized');
     
     return (
