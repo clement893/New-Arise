@@ -251,9 +251,9 @@ function AssessmentResultsContent() {
           </h2>
           <p className="text-gray-600 mb-6">{errorString || 'Results not found'}</p>
           <div className="flex flex-col gap-3">
-            {isNotCompleted && assessmentIdFromParams && (
+            {isNotCompleted && assessmentId && (
               <Button 
-                onClick={() => router.push(`/dashboard/assessments/wellness?id=${assessmentIdFromParams}`)}
+                onClick={() => router.push(`/dashboard/assessments/wellness?id=${assessmentId}`)}
                 variant="primary"
               >
                 Continue Assessment
