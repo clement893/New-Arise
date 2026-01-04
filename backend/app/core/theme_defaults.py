@@ -75,7 +75,19 @@ DEFAULT_THEME_CONFIG = {
         "warning": "#d97706",  # Warm amber
         "warningForeground": "#ffffff",  # White for better contrast on amber
         "info": "#0891b2",  # Professional cyan
-        "infoForeground": "#ffffff"
+        "infoForeground": "#ffffff",
+        # ARISE Brand Colors - Design system colors
+        "ariseDeepTeal": "#0A3A40",  # ARISE deep teal (exact design color)
+        "ariseDeepTealAlt": "#1B5E6B",  # ARISE deep teal alternative (used in dashboard)
+        "ariseButtonPrimary": "#0F454D",  # ARISE primary button color
+        "ariseButtonPrimaryHover": "#0d4148",  # ARISE primary button hover color
+        "ariseGold": "#D4AF37",  # ARISE gold (exact design color)
+        "ariseGoldAlt": "#F4B860",  # ARISE gold alternative (used in buttons)
+        "ariseDarkGray": "#2e2e2e",  # ARISE dark gray (used for backgrounds)
+        "ariseLightBeige": "#F5F5DC",  # ARISE light beige
+        "ariseBeige": "#E9E4D4",  # ARISE beige
+        "ariseTextDark": "#1a202c",  # ARISE text dark
+        "ariseTextLight": "#ffffff"  # ARISE text light
     },
     
     # Spacing system
