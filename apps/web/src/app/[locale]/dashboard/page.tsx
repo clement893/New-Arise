@@ -429,7 +429,7 @@ function DashboardContent() {
                     {evaluators.length > 0 && (
                       <Button 
                         variant="outline" 
-                        className="whitespace-nowrap font-semibold border-arise-button-primary text-arise-button-primary"
+                        className="whitespace-nowrap font-semibold border-arise-button-primary text-white"
                         onClick={() => {
                           const feedback360Assessment = assessments.find(
                             a => a.assessment_type === 'THREE_SIXTY_SELF'

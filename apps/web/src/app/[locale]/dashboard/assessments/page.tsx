@@ -443,7 +443,7 @@ function AssessmentsContent() {
         return (
           <Button 
             variant="outline"
-            className="border-arise-button-primary text-arise-button-primary hover:bg-arise-button-primary hover:text-white"
+            className="border-arise-button-primary text-white hover:bg-arise-button-primary hover:text-white"
             disabled={isStarting}
             onClick={() => {
               if (assessment.requiresEvaluators) {
