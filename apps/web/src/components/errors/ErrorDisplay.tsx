@@ -13,6 +13,7 @@ import Badge from '@/components/ui/Badge';
 import { AppError } from '@/lib/errors/AppError';
 import { type ErrorCode } from '@/lib/errors';
 import { logger } from '@/lib/logger';
+import { formatError } from '@/lib/utils/formatError';
 
 interface ErrorDisplayProps {
   error?: AppError | Error;
@@ -50,13 +51,7 @@ export function ErrorDisplay({
   if (message) {
     errorMessage = typeof message === 'string' ? message : String(message);
   } else if (error) {
-    if (error instanceof AppError || error instanceof Error) {
-      errorMessage = error.message || 'An unexpected error occurred';
-    } else if (typeof error === 'object' && 'message' in error) {
-      errorMessage = typeof error.message === 'string' ? error.message : String(error.message || 'An unexpected error occurred');
-    } else {
-      errorMessage = String(error || 'An unexpected error occurred');
-    }
+    errorMessage = formatError(error);
   } else {
     errorMessage = 'An unexpected error occurred';
   }
