@@ -42,11 +42,13 @@ export function determineAssessmentStatus(
   // PRIMARY CHECK: If all answers are provided, it's completed (regardless of status)
   // This handles cases where status might not be updated correctly
   // Only check if total_questions > 0 (excludes MBTI and other external assessments)
+  // CRITICAL: Use strict equality (===) instead of >= to ensure exact match
+  // This prevents marking as completed if answer_count is greater than total_questions (data corruption)
   const hasAllAnswers = 
     apiAssessment.answer_count !== undefined && 
     apiAssessment.total_questions !== undefined &&
     apiAssessment.total_questions > 0 &&
-    apiAssessment.answer_count >= apiAssessment.total_questions;
+    apiAssessment.answer_count === apiAssessment.total_questions;
 
   if (hasAllAnswers) {
     return 'completed';

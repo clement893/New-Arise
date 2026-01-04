@@ -710,6 +710,28 @@ function AssessmentsContent() {
         }
         // For other assessments, show "Voir les résultats"
         // CRITICAL: Only navigate if we have a valid assessmentId
+        // CRITICAL: For assessments with questions, verify that all questions are truly answered
+        // This is a safety check in case determineAssessmentStatus incorrectly marked as completed
+        if (assessment.assessmentType === 'THREE_SIXTY_SELF' || 
+            assessment.assessmentType === 'TKI' || 
+            assessment.assessmentType === 'WELLNESS') {
+          // CRITICAL: Double-check that all questions are answered before showing "Voir les résultats"
+          const answerCountCheck = typeof assessment.answerCount === 'number' ? assessment.answerCount : (typeof assessment.answerCount === 'string' ? parseInt(assessment.answerCount, 10) : 0);
+          const totalQuestionsCheck = typeof assessment.totalQuestions === 'number' ? assessment.totalQuestions : (typeof assessment.totalQuestions === 'string' ? parseInt(assessment.totalQuestions, 10) : 0);
+          
+          if (totalQuestionsCheck > 0 && answerCountCheck !== totalQuestionsCheck) {
+            // Status says completed but not all questions are answered - show continue button instead
+            console.warn('[Assessments] Status is completed but not all questions answered:', {
+              assessmentType: assessment.assessmentType,
+              answerCount: answerCountCheck,
+              totalQuestions: totalQuestionsCheck,
+              status: assessment.status
+            });
+            // Fall through to show continue button
+            break;
+          }
+        }
+        
         if (!safeAssessmentId || isNaN(safeAssessmentId)) {
           console.error('[Assessments] Cannot navigate to results: invalid assessmentId', {
             assessmentId: assessment.assessmentId,
