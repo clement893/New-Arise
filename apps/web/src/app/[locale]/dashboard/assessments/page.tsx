@@ -113,6 +113,18 @@ function AssessmentsContent() {
         if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) {
           const cachedData = parsed.data || [];
           
+          // CRITICAL: If cache contains assessments without icons (corrupted), clear it
+          const hasCorruptedIcons = cachedData.some((assessment: any) => {
+            // Icons cannot be serialized in JSON, so if cache has icon data, it's corrupted
+            return assessment.icon && typeof assessment.icon !== 'function' && typeof assessment.icon === 'object';
+          });
+          
+          if (hasCorruptedIcons) {
+            console.error('[CRITICAL] Cache contains corrupted icon data! Clearing cache...');
+            sessionStorage.removeItem('assessments_cache');
+            return [];
+          }
+          
           // CRITICAL: Validate and clean cached data to prevent React error #130
           // Ensure all primitive values are actually primitives, not objects
           const cleanedData: AssessmentDisplay[] = cachedData.map((assessment: any) => {
@@ -193,9 +205,25 @@ function AssessmentsContent() {
               }
             }
             
+            // CRITICAL: Ensure icon is preserved from original assessment (it's a React component)
+            // If icon is missing or corrupted, we'll need to restore it from ASSESSMENT_CONFIG
+            let icon = assessment.icon;
+            if (!icon || typeof icon !== 'function') {
+              // Try to restore icon from ASSESSMENT_CONFIG based on assessment type
+              const assessmentTypeKey = assessment.assessmentType?.toLowerCase() || '';
+              const config = ASSESSMENT_CONFIG[assessmentTypeKey];
+              if (config && config.icon) {
+                icon = config.icon;
+              } else {
+                // Fallback to Brain icon
+                icon = Brain;
+              }
+            }
+            
             // Return cleaned assessment
             return {
               ...assessment,
+              icon, // Preserve or restore icon
               answerCount,
               totalQuestions,
               assessmentId,
