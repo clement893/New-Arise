@@ -20,7 +20,7 @@ import { useAuth } from '@/hooks/useAuth';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Sidebar from '@/components/ui/Sidebar';
 import { checkMySuperAdminStatus } from '@/lib/api/admin';
-import { ThemeToggleWithIcon } from '@/components/ui/ThemeToggle';
+// ThemeToggle removed - dark mode is no longer supported
 import { 
   LayoutDashboard, 
   User,
@@ -375,7 +375,7 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
           isMobile={true}
           onClose={handleMobileMenuClose}
           onHomeClick={handleHomeClick}
-          themeToggleComponent={<ThemeToggleWithIcon />}
+          themeToggleComponent={null}
           onLogoutClick={handleLogoutClick}
         />
       </aside>
@@ -393,7 +393,7 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
             user={user}
             showSearch={true}
             onHomeClick={handleDesktopHomeClick}
-            themeToggleComponent={<ThemeToggleWithIcon />}
+            themeToggleComponent={null}
             onLogoutClick={handleDesktopLogoutClick}
           />
         </aside>

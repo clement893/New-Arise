@@ -5,7 +5,7 @@
 import type { ThemeConfig, ThemeConfigAccessor, TypographyConfig } from '@modele/types';
 import { generateColorShades, generateRgb } from './color-utils';
 import { validateThemeConfig } from './theme-validator';
-import { getThemeConfigForMode, applyDarkModeClass } from './dark-mode-utils';
+// Dark mode removed - only light mode is supported
 import { loadThemeFonts } from './font-loader';
 import { checkFonts } from '@/lib/api/theme-font';
 import { logger } from '@/lib/logger';
@@ -52,40 +52,26 @@ export function isManualThemeActive(): boolean {
 export function applyThemeConfigDirectly(config: ThemeConfig, options?: {
   validateContrast?: boolean;
   logWarnings?: boolean;
-  /**
-   * If true, bypass dark mode protection and apply colors directly from config
-   * Useful for manual theme editing/preview where user wants full control
-   */
-  bypassDarkModeProtection?: boolean;
+  // bypassDarkModeProtection removed - dark mode is no longer supported
 }) {
   if (typeof document === 'undefined') {
     return; // Server-side rendering, skip
   }
   
-  const { validateContrast = true, logWarnings = true, bypassDarkModeProtection = false } = options || {};
+  const { validateContrast = true, logWarnings = true } = options || {};
   
   logger.info('[applyThemeConfigDirectly] Début de l\'application du thème', {
-    bypassDarkModeProtection,
     hasColors: !!config.colors,
   });
   
-  // If bypassDarkModeProtection is true, mark manual theme as active to prevent GlobalThemeProvider from overriding
-  if (bypassDarkModeProtection) {
-    setManualThemeActive(30000); // Prevent override for 30 seconds
-    logger.info('[applyThemeConfigDirectly] Flag manuel activé pour 30 secondes');
+  // Dark mode removed - always use light mode
+  // Ensure dark class is never present
+  if (typeof document !== 'undefined') {
+    document.documentElement.classList.remove('dark');
   }
   
-  // Get theme config for current mode (light/dark/system)
-  // If bypassDarkModeProtection is true, use config directly (for manual editing/preview)
-  const modeConfig = bypassDarkModeProtection ? config : getThemeConfigForMode(config);
-  
-  // Apply dark mode class if needed
-  const mode = config.mode || 'system';
-  if (mode === 'dark' || (mode === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-    applyDarkModeClass(true);
-  } else {
-    applyDarkModeClass(false);
-  }
+  // Always use light mode config
+  const modeConfig = config;
   
   // Validate theme configuration if requested
   if (validateContrast) {
@@ -135,8 +121,8 @@ export function applyThemeConfigDirectly(config: ThemeConfig, options?: {
   // 2. Short format: primary, secondary, etc. (directly in config)
   // 3. Nested format: colors.primary, colors.secondary, etc.
   const configAccessor = configToApply as ThemeConfigAccessor;
-  // If bypassDarkModeProtection, also check original config for theme colors
-  const originalConfig = bypassDarkModeProtection ? config : configToApply;
+  // Always use config directly (dark mode removed)
+  const originalConfig = config;
   const originalConfigAccessor = originalConfig as ThemeConfigAccessor;
   const colorsConfig = configAccessor.colors || {};
   const originalColorsConfig = originalConfigAccessor.colors || {};
@@ -214,12 +200,12 @@ export function applyThemeConfigDirectly(config: ThemeConfig, options?: {
   }
   
   // Apply colors from nested colors object
-  // If bypassDarkModeProtection is true, also check original config for base colors
-  const originalBaseColorsConfig = bypassDarkModeProtection ? (configAccessor.colors || {}) : colorsConfig;
+  // Always use colors from config (dark mode removed)
+  const originalBaseColorsConfig = configAccessor.colors || {};
   
   const appliedColors: string[] = [];
   
-  // Apply base colors (always apply if bypassDarkModeProtection is true, otherwise only if in modeConfig)
+  // Apply base colors
   if (originalBaseColorsConfig.background || colorsConfig.background) {
     const bgColor = originalBaseColorsConfig.background || colorsConfig.background;
     root.style.setProperty('--color-background', bgColor ?? null);

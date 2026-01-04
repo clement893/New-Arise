@@ -1,21 +1,14 @@
 'use client';
 
-import { Card, Input, Badge, Button, ThemeToggle, ThemeToggleWithIcon, ClientOnly } from '@/components/ui';
+import { Card, Input, Badge, Button, ClientOnly } from '@/components/ui';
 import { PageHeader, PageContainer, Section, ExampleCard } from '@/components/layout';
-import { useDarkMode } from '@/hooks/useDarkMode';
-
-// Note: Client Components are already dynamic by nature.
-// Route segment config (export const dynamic) only works in Server Components.
-// Client Components run on the client side, so they don't need this export.
 
 function ThemePageContent() {
-  const { isDark, mode } = useDarkMode();
-
   return (
     <PageContainer>
       <PageHeader 
-        title="Mode Sombre / Mode Clair" 
-        description="Découvrez le système de thème avec support du dark mode"
+        title="Thème" 
+        description="Découvrez le système de thème (light mode uniquement)"
         breadcrumbs={[
           { label: 'Accueil', href: '/' },
           { label: 'Composants', href: '/components' },
@@ -24,43 +17,15 @@ function ThemePageContent() {
       />
 
       <div className="space-y-8">
-        <Section title="Switcher de Thème">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <ExampleCard title="Toggle Simple">
-              <div className="flex items-center gap-4">
-                <ThemeToggle />
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  Toggle avec icône animée
-                </span>
-              </div>
-            </ExampleCard>
-
-            <ExampleCard title="Toggle avec Icône">
-              <div className="flex items-center gap-4">
-                <ThemeToggleWithIcon />
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  Toggle avec icône soleil/lune
-                </span>
-              </div>
-            </ExampleCard>
-          </div>
-        </Section>
-
         <Section title="État du Thème">
           <Card>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-gray-700 dark:text-gray-300 font-medium">Thème sélectionné:</span>
-                <Badge variant="info">{mode}</Badge>
+                <span className="text-foreground font-medium">Thème actif:</span>
+                <Badge variant="info">light</Badge>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-700 dark:text-gray-300 font-medium">Thème actif:</span>
-                <Badge variant={isDark ? 'default' : 'info'}>
-                  {isDark ? 'dark' : 'light'}
-                </Badge>
-              </div>
-              <div className="pt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                <p className="text-sm text-blue-800 dark:text-blue-200">
+              <div className="pt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-sm text-blue-800">
                   <strong>Note :</strong> Pour modifier votre thème, veuillez utiliser la page{' '}
                   <a href="/dashboard/theme" className="underline font-semibold">
                     Paramètres de Thème
@@ -72,15 +37,15 @@ function ThemePageContent() {
           </Card>
         </Section>
 
-        <Section title="Composants Adaptés au Dark Mode">
+        <Section title="Composants du Thème">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <ExampleCard title="Card">
               <Card>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                <h3 className="text-lg font-semibold text-foreground mb-2">
                   Exemple de Card
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Cette card s'adapte automatiquement au thème actif.
+                <p className="text-muted-foreground">
+                  Cette card utilise le thème light mode.
                 </p>
               </Card>
             </ExampleCard>
@@ -116,43 +81,27 @@ function ThemePageContent() {
 
         <Section title="Informations">
           <Card>
-            <div className="space-y-4 text-gray-700 dark:text-gray-300">
+            <div className="space-y-4 text-foreground">
               <div>
-                <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Fonctionnalités:</h4>
+                <h4 className="font-semibold mb-2">Fonctionnalités:</h4>
                 <ul className="list-disc list-inside space-y-1 text-sm">
-                  <li>Support de trois modes : Light, Dark, et System (suit les préférences système)</li>
-                  <li>Persistance du choix dans localStorage</li>
-                  <li>Transition fluide entre les thèmes</li>
-                  <li>Tous les composants UI adaptés automatiquement</li>
-                  <li>Respect des préférences système par défaut</li>
+                  <li>Thème light mode uniquement</li>
+                  <li>Tous les composants UI adaptés au thème light</li>
+                  <li>Couleurs ARISE intégrées</li>
                 </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Utilisation:</h4>
-                <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg text-sm overflow-x-auto">
-{`import { useDarkMode } from '@/hooks/useDarkMode';
-import { ThemeToggle } from '@/components/ui';
-
-function MyComponent() {
-  const { isDark, toggle, setMode, mode } = useDarkMode();
-  
-  return <ThemeToggle />;
-}`}
-                </pre>
               </div>
             </div>
           </Card>
         </Section>
 
-        {/* Information about Theme Management */}
         <Section title="Gestion du Thème">
           <Card>
-            <div className="space-y-4 text-gray-700 dark:text-gray-300">
+            <div className="space-y-4 text-foreground">
               <div>
-                <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Gestion du Thème:</h4>
+                <h4 className="font-semibold mb-2">Gestion du Thème:</h4>
                 <p className="text-sm mb-4">
-                  Pour personnaliser votre thème (mode clair/sombre) et vos préférences, veuillez vous rendre sur la page{' '}
-                  <a href="/dashboard/theme" className="text-primary-600 dark:text-primary-400 underline font-semibold">
+                  Pour personnaliser votre thème et vos préférences, veuillez vous rendre sur la page{' '}
+                  <a href="/dashboard/theme" className="text-primary-600 underline font-semibold">
                     Paramètres de Thème
                   </a>{' '}
                   dans le dashboard.
@@ -176,4 +125,3 @@ export default function ThemeContent() {
     </ClientOnly>
   );
 }
-

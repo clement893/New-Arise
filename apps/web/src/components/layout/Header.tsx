@@ -5,7 +5,7 @@ import { Link } from '@/i18n/routing';
 import { useAuthStore } from '@/lib/store';
 import { useAuth } from '@/hooks/useAuth';
 import Button from '../ui/Button';
-import { ThemeToggleWithIcon } from '../ui/ThemeToggle';
+// ThemeToggle removed - dark mode is no longer supported
 import LanguageSwitcher from '../i18n/LanguageSwitcher';
 import NotificationBellConnected from '../notifications/NotificationBellConnected';
 import { Menu, X } from 'lucide-react';
@@ -56,7 +56,7 @@ export default function Header() {
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-4">
             <LanguageSwitcher />
-            <ThemeToggleWithIcon />
+            {/* Dark mode toggle removed */}
             {isAuthenticated() ? (
               <>
                 <NotificationBellConnected />
@@ -90,7 +90,7 @@ export default function Header() {
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center gap-2">
-            <ThemeToggleWithIcon />
+            {/* Dark mode toggle removed */}
             <button
               ref={menuButtonRef}
               type="button"

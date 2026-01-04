@@ -101,7 +101,7 @@ export type { AdvancedChartProps, ScatterDataPoint, RadarDataPoint } from './Adv
 export { default as Avatar, AvatarImage, AvatarFallback } from './Avatar';
 
 // Theme Components
-export { default as ThemeToggle, ThemeToggleWithIcon } from './ThemeToggle';
+// ThemeToggle removed - dark mode is no longer supported
 
 // Utility Components
 export { default as ClientOnly } from './ClientOnly';

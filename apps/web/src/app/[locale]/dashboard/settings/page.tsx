@@ -9,7 +9,6 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState({
     emailNotifications: true,
     weeklyProgressReport: true,
-    darkMode: false,
     language: 'en',
     dataSharing: true,
     analyticsTracking: true,
@@ -105,24 +104,7 @@ export default function SettingsPage() {
             </h2>
             
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-medium text-gray-900">Dark Mode</h3>
-                  <p className="text-sm text-gray-600">Enable dark theme across the platform</p>
-                </div>
-                <button
-                  onClick={() => handleToggle('darkMode')}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    settings.darkMode ? 'bg-arise-teal' : 'bg-gray-300'
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      settings.darkMode ? 'translate-x-6' : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </div>
+              {/* Dark mode removed - only light mode is supported */}
 
               <div className="flex items-center justify-between">
                 <div>

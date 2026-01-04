@@ -8,7 +8,6 @@ import { getActiveTheme } from '@/lib/api/theme';
 import { logger } from '@/lib/logger';
 import type { ThemeConfigResponse, ThemeConfig, ThemeConfigAccessor, TypographyConfig } from '@modele/types';
 import { generateColorShades, generateRgb } from './color-utils';
-import { getThemeConfigForMode } from './dark-mode-utils';
 import { getThemeFromCache, saveThemeToCache, clearThemeCache } from './theme-cache';
 import { checkFonts } from '@/lib/api/theme-font';
 import { TokenStorage } from '@/lib/auth/tokenStorage';
@@ -133,24 +132,15 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
   };
 
   const applyThemeConfig = (config: ThemeConfig) => {
-    // Check actual dark class on document root (set by ThemeContext)
-    // This ensures we use the correct mode even if theme config mode doesn't match
-    const root = document.documentElement;
-    const isDarkMode = root.classList.contains('dark');
-    
-    // Get theme config for current mode (light/dark/system)
-    // But override mode based on actual dark class if present
-    const actualMode = isDarkMode ? 'dark' : 'light';
-    const configWithActualMode = { ...config, mode: actualMode } as ThemeConfig;
-    const modeConfig = getThemeConfigForMode(configWithActualMode);
-    
-    // Note: We do NOT manage light/dark classes here - that's ThemeProvider's responsibility
-    // ThemeProvider is the single source of truth for light/dark mode classes
-    // We only manage CSS variables (colors, fonts, effects, etc.)
+    // Dark mode removed - always use light mode
+    // Ensure dark class is never present
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.remove('dark');
+    }
     
     // Apply CSS variables to document root
-    // Use mode-specific config
-    const configToApply = modeConfig;
+    // Always use light mode config
+    const configToApply = config;
     
     // Support multiple formats:
     // 1. Flat format: primary_color, secondary_color, etc.
@@ -686,28 +676,10 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
       fetchTheme();
     });
     
-    // Watch for dark class changes on document root (set by ThemeToggle manually)
-    // This ensures theme CSS variables update when user manually toggles dark mode
-    // BUT: Don't override if manual theme is active (for preview mode)
-    const observer = new MutationObserver(() => {
-      // Check if manual theme is active (data-manual-theme attribute)
-      const isManualTheme = document.documentElement.hasAttribute('data-manual-theme');
-      if (theme && !isManualTheme) {
-        // Re-apply theme config when dark class changes (only if not manual)
-        applyThemeConfig(theme.config);
-      }
-    });
-    
-    // Observe class changes on document root
+    // Dark mode removed - ensure dark class is never present
     if (typeof document !== 'undefined') {
-      observer.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ['class'],
-      });
+      document.documentElement.classList.remove('dark');
     }
-    
-    // NO automatic dark mode - only manual toggle via ThemeToggle
-    // Removed watchDarkModePreference - dark mode is ONLY manual
     
     // Refresh theme every 5 minutes to catch updates
     const interval = setInterval(() => {

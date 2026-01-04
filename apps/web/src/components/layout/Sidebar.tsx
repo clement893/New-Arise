@@ -7,7 +7,7 @@ import { useAuthStore } from '@/lib/store';
 import { useAuth } from '@/hooks/useAuth';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { ThemeToggleWithIcon } from '@/components/ui/ThemeToggle';
+// ThemeToggle removed - dark mode is no longer supported
 import { getNavigationConfig, type NavigationItem, type NavigationGroup } from '@/lib/navigation';
 import { clsx } from 'clsx';
 import { ChevronDown, ChevronRight, Search, X } from 'lucide-react';
@@ -274,7 +274,7 @@ export default function Sidebar({ isOpen: controlledIsOpen, onClose }: SidebarPr
           </div>
         </div>
         <div className="flex items-center justify-between gap-2">
-          <ThemeToggleWithIcon />
+          {/* Dark mode toggle removed */}
           <Button
             size="sm"
             variant="ghost"

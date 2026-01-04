@@ -11,7 +11,7 @@ import { useAuthStore } from '@/lib/store';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Sidebar from '@/components/ui/Sidebar';
 import Button from '@/components/ui/Button';
-import { ThemeToggleWithIcon } from '@/components/ui/ThemeToggle';
+// ThemeToggle removed - dark mode is no longer supported
 import NotificationBellConnected from '@/components/notifications/NotificationBellConnected';
 import { 
   LayoutDashboard, 
@@ -119,7 +119,7 @@ function DashboardLayoutContent({
             router.push('/');
             setMobileMenuOpen(false);
           }}
-          themeToggleComponent={<ThemeToggleWithIcon />}
+          themeToggleComponent={null}
           onLogoutClick={() => {
             handleLogout();
             setMobileMenuOpen(false);
@@ -162,7 +162,7 @@ function DashboardLayoutContent({
                   Accueil
                 </Button>
                 <NotificationBellConnected />
-                <ThemeToggleWithIcon />
+                {/* Dark mode toggle removed */}
                 <Button variant="danger" onClick={handleLogout}>
                   <LogOut className="w-4 h-4 mr-2" />
                   Logout
