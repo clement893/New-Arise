@@ -48,14 +48,18 @@ export function ThemeOverview() {
   };
 
   // Use ARISE Deep Teal as primary color
-  const primaryColor = displayTheme.config.colors?.ariseDeepTeal || 
-                       displayTheme.config.primary_color || 
-                       displayTheme.config.colors?.primary || 
-                       '#0A3A40';
+  const primaryColorRaw = displayTheme.config.colors?.ariseDeepTeal || 
+                          displayTheme.config.primary_color || 
+                          displayTheme.config.colors?.primary || 
+                          '#0A3A40';
+  const primaryColor = typeof primaryColorRaw === 'string' ? primaryColorRaw : String(primaryColorRaw || '#0A3A40');
   const fontFamily = displayTheme.config.font_family || displayTheme.config.typography?.fontFamily || 'Inter';
   
   // Helper to extract color value (remove var() wrapper if present)
   const getColorValue = (color: string): string => {
+    if (!color || typeof color !== 'string') {
+      return '#0A3A40'; // Fallback to ARISE Deep Teal
+    }
     if (color.startsWith('var(')) {
       const varName = color.replace('var(--', '').replace(')', '').trim();
       if (typeof window !== 'undefined') {
