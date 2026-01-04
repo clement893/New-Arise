@@ -25,6 +25,7 @@ from app.models.assessment import (
     AssessmentStatus,
     EvaluatorRole,
 )
+from app.config.assessment_config import get_total_questions
 
 router = APIRouter()
 
@@ -157,10 +158,8 @@ async def list_assessments(
         )
         answer_count = answer_count_result.scalar() or 0
 
-        # Determine total questions based on assessment type
-        total_questions = 30  # Default for TKI, WELLNESS, THREE_SIXTY_SELF
-        if assessment.assessment_type == AssessmentType.MBTI:
-            total_questions = 0  # MBTI is external upload
+        # Get total questions from configuration (replaces hardcoded value)
+        total_questions = get_total_questions(assessment.assessment_type)
 
         response.append(AssessmentListItem(
             id=assessment.id,

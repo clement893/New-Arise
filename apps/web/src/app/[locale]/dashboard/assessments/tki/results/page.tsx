@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getAssessmentResults } from '@/lib/api/assessments';
-import { tkiModes } from '@/data/tkiQuestions';
+import { tkiModes, tkiQuestions } from '@/data/tkiQuestions';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import MotionDiv from '@/components/motion/MotionDiv';
@@ -66,7 +66,9 @@ export default function TKIResultsPage() {
   };
 
   const getModePercentage = (count: number) => {
-    return Math.round((count / 30) * 100);
+    // Use actual question count from tkiQuestions array instead of hardcoded value
+    const totalQuestions = tkiQuestions?.length || 30;
+    return Math.round((count / totalQuestions) * 100);
   };
 
   const getModeLevel = (count: number): { label: string; color: string; icon: LucideIcon } => {

@@ -42,12 +42,13 @@ if (typeof window !== 'undefined') {
   });
 }
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useRef } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { Card, Button, Stack } from '@/components/ui';
+import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { Brain, Target, Users, Heart, Upload, CheckCircle, Lock, type LucideIcon, Loader2 } from 'lucide-react';
+import { Brain, Target, Users, Heart, Upload, CheckCircle, Lock, type LucideIcon, Loader2, RefreshCw } from 'lucide-react';
 import { getMyAssessments, Assessment as ApiAssessment, AssessmentType, submitAssessment } from '@/lib/api/assessments';
 import { startAssessment } from '@/lib/api/assessments';
 import InviteAdditionalEvaluatorsModal from '@/components/360/InviteAdditionalEvaluatorsModal';
@@ -101,7 +102,11 @@ const ASSESSMENT_CONFIG: Record<string, { title: string; description: string; ic
 
 function AssessmentsContent() {
   const router = useRouter();
+  const pathname = usePathname();
   const [showEvaluatorModal, setShowEvaluatorModal] = useState(false);
+  const isInitialMount = useRef(true);
+  const previousPathnameRef = useRef<string | null>(null);
+  
   // Try to load cached assessments from sessionStorage for instant display
   const getCachedAssessments = (): AssessmentDisplay[] => {
     if (typeof window === 'undefined') return [];
@@ -270,48 +275,79 @@ function AssessmentsContent() {
   const [startingAssessment, setStartingAssessment] = useState<string | null>(null);
 
   useEffect(() => {
-    // CRITICAL: Clear corrupted cache before loading to prevent React error #130
-    // This ensures we always start fresh when the component mounts
-    // This is especially important when returning from results page
-    if (typeof window !== 'undefined') {
+    if (typeof window === 'undefined') return;
+    
+    // Smart cache strategy: Use cache for instant display on initial load,
+    // but invalidate when navigating back from results/assessment pages
+    const shouldInvalidateCache = (() => {
+      // Check if we're navigating back from an assessment-related page
+      const referrer = document.referrer;
+      const isNavigatingFromAssessment = referrer && (
+        referrer.includes('/assessments/') && 
+        !referrer.endsWith('/assessments') &&
+        !referrer.endsWith('/assessments/')
+      );
+      
+      // Check previous pathname from sessionStorage
+      const previousPath = sessionStorage.getItem('assessments_previous_path');
+      const isFromAssessmentPage = previousPath && previousPath.includes('/assessments/') && 
+                                    !previousPath.endsWith('/assessments');
+      
+      // Invalidate if coming from assessment/results pages (not initial load)
+      return (isNavigatingFromAssessment || isFromAssessmentPage) && !isInitialMount.current;
+    })();
+    
+    if (shouldInvalidateCache) {
+      // Clear cache when navigating back from assessment/results pages
+      try {
+        sessionStorage.removeItem('assessments_cache');
+        console.log('[Assessments] Cache invalidated - navigating back from assessment page');
+      } catch (e) {
+        // Ignore errors
+      }
+    } else {
+      // On initial load, try to use cache for instant display
       try {
         const cached = sessionStorage.getItem('assessments_cache');
         if (cached) {
           const parsed = JSON.parse(cached);
           const cachedData = parsed.data || [];
-          // Check if cache contains objects (corrupted data)
-          const hasCorruptedData = cachedData.some((assessment: any) => 
-            (typeof assessment.answerCount === 'object' && assessment.answerCount !== null) ||
-            (typeof assessment.totalQuestions === 'object' && assessment.totalQuestions !== null) ||
-            (typeof assessment.assessmentId === 'object' && assessment.assessmentId !== null) ||
-            (typeof assessment.status === 'object' && assessment.status !== null)
-          );
-          
-          if (hasCorruptedData) {
-            console.warn('[Assessments] Corrupted cache detected, clearing it before reload');
-            sessionStorage.removeItem('assessments_cache');
-          } else {
-            // Cache is clean, use it for instant display
-            const cleanedCachedData = getCachedAssessments();
-            if (cleanedCachedData.length > 0) {
-              setAssessments(cleanedCachedData);
-              setIsLoading(false);
+          if (cachedData.length > 0) {
+            // Check if cache is recent (less than 2 minutes old for instant display)
+            if (parsed.timestamp && Date.now() - parsed.timestamp < 2 * 60 * 1000) {
+              const cleanedCachedData = getCachedAssessments();
+              if (cleanedCachedData.length > 0) {
+                setAssessments(cleanedCachedData);
+                setIsLoading(false);
+                // Still load fresh data in background
+              }
             }
           }
         }
       } catch (e) {
-        // If we can't parse the cache, clear it to be safe
-        console.warn('[Assessments] Error checking cache, clearing it:', e);
+        // If cache is corrupted, clear it
         try {
           sessionStorage.removeItem('assessments_cache');
         } catch (clearError) {
-          // Ignore clear errors
+          // Ignore
         }
       }
     }
     
+    // Store current pathname for next navigation
+    if (pathname) {
+      previousPathnameRef.current = pathname;
+      try {
+        sessionStorage.setItem('assessments_previous_path', pathname);
+      } catch (e) {
+        // Ignore
+      }
+    }
+    
+    isInitialMount.current = false;
     loadAssessments();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]); // pathname dependency is intentional - we want to react to navigation
 
   // Refresh assessments when page becomes visible (user returns to tab)
   useEffect(() => {
@@ -941,15 +977,43 @@ function AssessmentsContent() {
   // This prevents React error #130 if assessments is somehow corrupted
   const safeAssessments = Array.isArray(assessments) ? assessments : [];
   
-  // Show loading indicator only if we have no cached data
+  // Show loading skeleton on initial load (better UX than spinner)
   if (isLoading && safeAssessments.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-arise-deep-teal" />
-          <p className="text-gray-600">Chargement des assessments...</p>
+      <>
+        <MotionDiv variant="fade" duration="normal">
+          <div className="mb-8 pb-6">
+            <h1 className="text-4xl font-bold mb-2">
+              <span className="text-white">Vos </span>
+              <span style={{ color: '#D5B667' }}>assessments</span>
+            </h1>
+            <p className="text-white">
+              Suivez et gérez vos assessments de leadership
+            </p>
+          </div>
+        </MotionDiv>
+        
+        <div className="relative mb-8" style={{ paddingBottom: '32px' }}>
+          <div 
+            className="absolute"
+            style={{ 
+              backgroundColor: '#D5DEE0',
+              top: '-20px',
+              bottom: 0,
+              left: '-15%',
+              right: '-15%',
+              width: 'calc(100% + 30%)',
+              zIndex: 0,
+              borderRadius: '16px',
+            }}
+          />
+          <div className="relative z-10">
+            <Stack gap="normal">
+              <LoadingSkeleton variant="card" count={4} />
+            </Stack>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -1011,15 +1075,35 @@ function AssessmentsContent() {
         
         {/* Content sections with relative positioning */}
         <div className="relative z-10">
-          {/* Show subtle loading indicator if refreshing in background */}
-          {isLoading && safeAssessments.length > 0 && (
-            <div className="mb-4 flex items-center justify-end">
+          {/* Show refresh button and loading indicator */}
+          <div className="mb-4 flex items-center justify-end gap-3">
+            {isLoading && safeAssessments.length > 0 && (
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 <span>Actualisation...</span>
               </div>
-            </div>
-          )}
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                // Clear cache and reload
+                if (typeof window !== 'undefined') {
+                  try {
+                    sessionStorage.removeItem('assessments_cache');
+                  } catch (e) {
+                    // Ignore
+                  }
+                }
+                loadAssessments();
+              }}
+              disabled={isLoading}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              <span>Actualiser</span>
+            </Button>
+          </div>
           <MotionDiv variant="slideUp" delay={100}>
             <Stack gap="normal">
               {safeAssessments.map((assessment, index) => {
