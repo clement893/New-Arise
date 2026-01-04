@@ -4,22 +4,40 @@ export const dynamic = 'force-dynamic';
 
 // CRITICAL: Global error handlers to catch React error #130 before it crashes
 if (typeof window !== 'undefined') {
+  // Override console.error to catch React errors
+  const originalConsoleError = console.error;
+  console.error = (...args: any[]) => {
+    const errorString = args.map(arg => String(arg)).join(' ');
+    if (errorString.includes('130') || errorString.includes('Objects are not valid')) {
+      console.error('[CRITICAL] ========== REACT ERROR #130 DETECTED ==========');
+      console.error('[CRITICAL] Full error:', ...args);
+      console.error('[CRITICAL] Stack trace:', new Error().stack);
+      console.error('[CRITICAL] ===============================================');
+    }
+    originalConsoleError.apply(console, args);
+  };
+  
   window.addEventListener('error', (event) => {
-    if (event.message && event.message.includes('130')) {
+    if (event.message && (event.message.includes('130') || event.message.includes('Objects are not valid'))) {
+      console.error('[CRITICAL] ========== WINDOW ERROR EVENT ==========');
       console.error('[CRITICAL] React error #130 detected:', event.error);
       console.error('[CRITICAL] Error details:', {
         message: event.message,
         filename: event.filename,
         lineno: event.lineno,
         colno: event.colno,
-        error: event.error
+        error: event.error,
+        stack: event.error?.stack
       });
+      console.error('[CRITICAL] ===============================================');
     }
   });
   
   window.addEventListener('unhandledrejection', (event) => {
-    if (event.reason && String(event.reason).includes('130')) {
+    if (event.reason && (String(event.reason).includes('130') || String(event.reason).includes('Objects are not valid'))) {
+      console.error('[CRITICAL] ========== UNHANDLED REJECTION ==========');
       console.error('[CRITICAL] Unhandled promise rejection with React error #130:', event.reason);
+      console.error('[CRITICAL] ===============================================');
     }
   });
 }
