@@ -417,10 +417,10 @@ function DashboardContent() {
                         <Info className="text-arise-deep-teal" size={20} />
                       </div>
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
+                      <h3 className="text-lg font-bold text-gray-900 mb-1">
                         Add Your 360° Feedback: Evaluators
                       </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                      <p className="text-sm text-gray-900">
                         Get comprehensive feedback by inviting colleagues to evaluate your leadership.
                       </p>
                     </div>
@@ -600,10 +600,10 @@ function DashboardContent() {
                             <div className="pt-12">
                               {/* Title and Description */}
                               <div>
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-white transition-colors">
+                                <h3 className="text-lg font-bold text-gray-900 mb-2">
                                   {evaluation.title}
                                 </h3>
-                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 group-hover:text-white/90 transition-colors">
+                                <p className="text-sm text-gray-900 mb-4">
                                   {evaluation.description}
                                 </p>
                               </div>
