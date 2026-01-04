@@ -328,9 +328,9 @@ export default function Sidebar({
 
       {/* Search Bar (UX/UI improvements - Batch 8) */}
       {showSearch && !collapsed && (
-        <div className="px-lg py-md border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className="px-lg py-md border-b border-gray-200 flex-shrink-0">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
             <Input
               type="text"
               placeholder="Rechercher..."
@@ -364,7 +364,7 @@ export default function Sidebar({
       
       {/* Footer: Collapse, Close button (mobile), Home, Theme Toggle, Logout (bottom) */}
       {(onToggleCollapse || onClose || onHomeClick || themeToggleComponent || onLogoutClick) && (
-        <div className="p-lg border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className="p-lg border-t border-gray-200 flex-shrink-0">
           <div className={clsx(
             'flex items-center gap-2',
             collapsed || isMobile ? 'justify-center flex-wrap' : 'justify-start'
@@ -372,7 +372,7 @@ export default function Sidebar({
             {onToggleCollapse && (
               <button
                 onClick={onToggleCollapse}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] min-h-[44px] min-w-[44px] flex items-center justify-center"
+                className="p-2 rounded-lg hover:bg-gray-100 text-gray-700 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] min-h-[44px] min-w-[44px] flex items-center justify-center"
                 aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
                 title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
               >
@@ -387,7 +387,7 @@ export default function Sidebar({
             {onClose && (
               <button
                 onClick={onClose}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] min-h-[44px] min-w-[44px] flex items-center justify-center"
+                className="p-2 rounded-lg hover:bg-gray-100 text-gray-700 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] min-h-[44px] min-w-[44px] flex items-center justify-center"
                 aria-label="Fermer le menu"
                 title="Fermer le menu"
               >
@@ -397,7 +397,7 @@ export default function Sidebar({
             {onHomeClick && (
               <button
                 onClick={onHomeClick}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] min-h-[44px] min-w-[44px] flex items-center justify-center"
+                className="p-2 rounded-lg hover:bg-gray-100 text-gray-700 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] min-h-[44px] min-w-[44px] flex items-center justify-center"
                 aria-label="Retour à l'accueil"
                 title="Retour à l'accueil"
               >

@@ -259,7 +259,7 @@ export default function Sidebar({ isOpen: controlledIsOpen, onClose }: SidebarPr
       {/* Footer */}
       <div className="border-t border-border p-lg flex-shrink-0">
         <div className="flex items-center gap-3 mb-md">
-          <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
             <span className="text-primary font-semibold">
               {user?.name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U'}
             </span>
