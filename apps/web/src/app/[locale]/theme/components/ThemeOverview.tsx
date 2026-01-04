@@ -12,7 +12,6 @@ import { Copy, Download } from 'lucide-react';
 import { useState } from 'react';
 
 export function ThemeOverview() {
-  const { theme } = useGlobalTheme();
   const [copied, setCopied] = useState(false);
 
   // Always use default ARISE theme for display on this page
