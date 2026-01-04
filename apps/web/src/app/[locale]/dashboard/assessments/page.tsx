@@ -1011,7 +1011,20 @@ function AssessmentsContent() {
                   
                   console.log(`[DEBUG] Safe assessment ${index} created:`, safeAssessment);
                   
+                  // CRITICAL: Ensure icon is a valid React component before using it
                   const Icon = safeAssessment.icon;
+                  if (!Icon || typeof Icon !== 'function') {
+                    console.error('[CRITICAL] Icon is not a valid React component!', Icon);
+                    // Fallback to a default icon
+                    const DefaultIcon = Brain;
+                    return (
+                      <Card key={cardKey} className="border-red-300 bg-red-50">
+                        <div className="p-4">
+                          <p className="text-red-700">Erreur: Icône invalide pour {safeAssessment.title}</p>
+                        </div>
+                      </Card>
+                    );
+                  }
                   const is360Feedback = safeAssessment.assessmentType === 'THREE_SIXTY_SELF';
                   // CRITICAL: Ensure key is a string, not an object
                   const cardKey = typeof assessment.id === 'string' ? assessment.id : String(assessment.id || `assessment-${index}`);
