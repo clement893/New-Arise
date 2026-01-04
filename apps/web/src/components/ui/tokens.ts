@@ -2,199 +2,84 @@
  * Design Tokens
  * Centralized design values using CSS variables from global theme
  * 
- * This file provides a single source of truth for design values,
- * making it easy to maintain consistency and update the design system.
+ * @deprecated This file is maintained for backward compatibility.
+ * Use the centralized theme system instead:
+ * ```ts
+ * import { themeTokens } from '@/lib/theme';
+ * const colors = themeTokens.colors;
+ * ```
+ * 
+ * This file re-exports tokens from the centralized theme system.
  */
+
+import { themeTokens } from '@/lib/theme';
 
 /**
  * Color tokens using CSS variables from global theme
+ * @deprecated Use themeTokens.colors from '@/lib/theme' instead
  */
-export const colors = {
-  primary: {
-    base: 'var(--color-primary, #0070f3)',
-    hover: 'var(--color-primary-hover, var(--color-primary))',
-    focus: 'var(--color-primary-focus, var(--color-primary))',
-    foreground: 'var(--color-primary-foreground, #ffffff)',
-  },
-  secondary: {
-    base: 'var(--color-secondary, #6b7280)',
-    hover: 'var(--color-secondary-hover, var(--color-secondary))',
-    foreground: 'var(--color-secondary-foreground, #ffffff)',
-  },
-  accent: {
-    base: 'var(--color-accent, #f59e0b)',
-    hover: 'var(--color-accent-hover, var(--color-accent))',
-    foreground: 'var(--color-accent-foreground, #000000)',
-  },
-  background: {
-    base: 'var(--color-background, #ffffff)',
-    muted: 'var(--color-muted, #f3f4f6)',
-  },
-  foreground: {
-    base: 'var(--color-foreground, #000000)',
-    muted: 'var(--color-muted-foreground, #6b7280)',
-  },
-  border: 'var(--color-border, #e5e7eb)',
-  input: 'var(--color-input, #ffffff)',
-  ring: 'var(--color-ring, #0070f3)',
-  destructive: {
-    base: 'var(--color-destructive, #ef4444)',
-    foreground: 'var(--color-destructive-foreground, #ffffff)',
-  },
-  success: {
-    base: 'var(--color-success, #10b981)',
-    foreground: 'var(--color-success-foreground, #ffffff)',
-  },
-  warning: {
-    base: 'var(--color-warning, #f59e0b)',
-    foreground: 'var(--color-warning-foreground, #000000)',
-  },
-  // ARISE Brand Colors
-  arise: {
-    deepTeal: 'var(--color-arise-deep-teal, #0A3A40)',
-    deepTealAlt: 'var(--color-arise-deep-teal-alt, #1B5E6B)',
-    gold: 'var(--color-arise-gold, #D4AF37)',
-    goldAlt: 'var(--color-arise-gold-alt, #F4B860)',
-    darkGray: 'var(--color-arise-dark-gray, #2e2e2e)',
-    lightBeige: 'var(--color-arise-light-beige, #F5F5DC)',
-    beige: 'var(--color-arise-beige, #E9E4D4)',
-    textDark: 'var(--color-arise-text-dark, #1a202c)',
-    textLight: 'var(--color-arise-text-light, #ffffff)',
-  },
-} as const;
+export const colors = themeTokens.colors;
+
+// Maintain backward compatibility but show deprecation warning in development
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  console.warn(
+    '[DEPRECATED] Importing from "@/components/ui/tokens" is deprecated. ' +
+    'Use "@/lib/theme" instead: import { themeTokens } from "@/lib/theme";'
+  );
+}
 
 /**
  * Spacing tokens using CSS variables from global theme
+ * @deprecated Use themeTokens.spacing from '@/lib/theme' instead
  */
-export const spacing = {
-  xs: 'var(--spacing-xs, 4px)',
-  sm: 'var(--spacing-sm, 8px)',
-  md: 'var(--spacing-md, 16px)',
-  lg: 'var(--spacing-lg, 24px)',
-  xl: 'var(--spacing-xl, 32px)',
-  '2xl': 'var(--spacing-2xl, 48px)',
-  '3xl': 'var(--spacing-3xl, 64px)',
-  unit: 'var(--spacing-unit, 8px)',
-} as const;
+export const spacing = themeTokens.spacing;
 
 /**
  * Border radius tokens using CSS variables from global theme
+ * @deprecated Use themeTokens.borderRadius from '@/lib/theme' instead
  */
-export const borderRadius = {
-  none: 'var(--border-radius-none, 0)',
-  sm: 'var(--border-radius-sm, 2px)',
-  base: 'var(--border-radius-base, 4px)',
-  md: 'var(--border-radius-md, 6px)',
-  lg: 'var(--border-radius-lg, 8px)',
-  xl: 'var(--border-radius-xl, 12px)',
-  '2xl': 'var(--border-radius-2xl, 16px)',
-  full: 'var(--border-radius-full, 9999px)',
-} as const;
+export const borderRadius = themeTokens.borderRadius;
 
 /**
  * Typography tokens using CSS variables from global theme
+ * @deprecated Use themeTokens.typography from '@/lib/theme' instead
  */
-export const typography = {
-  fontFamily: {
-    sans: 'var(--typography-font-family-sans, Inter, system-ui, -apple-system, sans-serif)',
-    mono: 'var(--typography-font-family-mono, Fira Code, monospace)',
-  },
-  fontSize: {
-    xs: 'var(--typography-font-size-xs, 12px)',
-    sm: 'var(--typography-font-size-sm, 14px)',
-    base: 'var(--typography-font-size-base, 16px)',
-    lg: 'var(--typography-font-size-lg, 18px)',
-    xl: 'var(--typography-font-size-xl, 20px)',
-    '2xl': 'var(--typography-font-size-2xl, 24px)',
-    '3xl': 'var(--typography-font-size-3xl, 30px)',
-    '4xl': 'var(--typography-font-size-4xl, 36px)',
-  },
-  fontWeight: {
-    normal: 'var(--typography-font-weight-normal, 400)',
-    medium: 'var(--typography-font-weight-medium, 500)',
-    semibold: 'var(--typography-font-weight-semibold, 600)',
-    bold: 'var(--typography-font-weight-bold, 700)',
-  },
-  lineHeight: {
-    tight: 'var(--typography-line-height-tight, 1.25)',
-    normal: 'var(--typography-line-height-normal, 1.5)',
-    relaxed: 'var(--typography-line-height-relaxed, 1.75)',
-  },
-} as const;
+export const typography = themeTokens.typography;
 
 /**
  * Shadow tokens using CSS variables from global theme
+ * @deprecated Use themeTokens.shadows from '@/lib/theme' instead
  */
-export const shadows = {
-  sm: 'var(--shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05))',
-  base: 'var(--shadow-base, 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06))',
-  md: 'var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06))',
-  lg: 'var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05))',
-  xl: 'var(--shadow-xl, 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04))',
-} as const;
+export const shadows = themeTokens.shadows;
 
 /**
  * Breakpoint tokens (for reference, actual breakpoints are in Tailwind config)
+ * @deprecated Use themeTokens.breakpoints from '@/lib/theme' instead
  */
-export const breakpoints = {
-  sm: 'var(--breakpoint-sm, 640px)',
-  md: 'var(--breakpoint-md, 768px)',
-  lg: 'var(--breakpoint-lg, 1024px)',
-  xl: 'var(--breakpoint-xl, 1280px)',
-  '2xl': 'var(--breakpoint-2xl, 1536px)',
-} as const;
+export const breakpoints = themeTokens.breakpoints;
 
 /**
  * Z-index tokens for layering
+ * @deprecated Use themeTokens.zIndex from '@/lib/theme' instead
  */
-export const zIndex = {
-  dropdown: 1000,
-  sticky: 1020,
-  fixed: 1030,
-  modalBackdrop: 1040,
-  modal: 1050,
-  popover: 1060,
-  tooltip: 1070,
-} as const;
+export const zIndex = themeTokens.zIndex;
 
 /**
  * Transition tokens
+ * @deprecated Use themeTokens.transitions from '@/lib/theme' instead
  */
-export const transitions = {
-  fast: '150ms',
-  base: '200ms',
-  slow: '300ms',
-  slower: '500ms',
-  easing: {
-    default: 'cubic-bezier(0.4, 0, 0.2, 1)',
-    in: 'cubic-bezier(0.4, 0, 1, 1)',
-    out: 'cubic-bezier(0, 0, 0.2, 1)',
-    inOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
-  },
-} as const;
+export const transitions = themeTokens.transitions;
 
 /**
  * Helper function to get CSS variable value
+ * @deprecated Use getTokenValue from '@/lib/theme' instead
  */
-export function getTokenValue(token: string): string {
-  if (typeof window === 'undefined') {
-    return token;
-  }
-  const root = document.documentElement;
-  const value = getComputedStyle(root).getPropertyValue(token.replace('var(--', '').replace(')', ''));
-  return value.trim() || token;
-}
+export { getTokenValue } from '@/lib/theme';
 
 /**
  * Helper function to set CSS variable value
+ * @deprecated Use setTokenValue from '@/lib/theme' instead
  */
-export function setTokenValue(token: string, value: string): void {
-  if (typeof window === 'undefined') {
-    return;
-  }
-  const root = document.documentElement;
-  const varName = token.replace('var(--', '').replace(')', '');
-  root.style.setProperty(`--${varName}`, value);
-}
+export { setTokenValue } from '@/lib/theme';
 
 
