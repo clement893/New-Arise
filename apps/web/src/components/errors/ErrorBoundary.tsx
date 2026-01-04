@@ -133,7 +133,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 </p>
               </div>
 
-              {this.state.eventId && (
+              {this.state.eventId && typeof this.state.eventId === 'string' && (
                 <Alert variant="info">
                   Error ID: {this.state.eventId}
                 </Alert>
@@ -145,8 +145,16 @@ export class ErrorBoundary extends Component<Props, State> {
                     Error Details
                   </h3>
                   <pre className="text-xs text-red-800 dark:text-red-200 overflow-auto">
-                    {this.state.error?.message || this.state.error?.toString() || 'Unknown error'}
-                    {this.state.errorInfo?.componentStack && (
+                    {(() => {
+                      // CRITICAL: Ensure error message is always a string to prevent React error #130
+                      try {
+                        const errorMsg = this.state.error?.message || this.state.error?.toString() || 'Unknown error';
+                        return typeof errorMsg === 'string' ? errorMsg : String(errorMsg || 'Unknown error');
+                      } catch (e) {
+                        return 'Unknown error';
+                      }
+                    })()}
+                    {this.state.errorInfo?.componentStack && typeof this.state.errorInfo.componentStack === 'string' && (
                       <div className="mt-2 pt-2 border-t border-red-200 dark:border-red-800">
                         {this.state.errorInfo.componentStack}
                       </div>
