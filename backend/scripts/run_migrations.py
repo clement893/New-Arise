@@ -22,8 +22,15 @@ def run_migrations():
         # Get database URL from environment
         database_url = os.getenv("DATABASE_URL")
         if not database_url:
-            print("❌ DATABASE_URL environment variable not set")
+            print("❌ DATABASE_URL environment variable not set", file=sys.stderr)
             return 1
+        
+        # Convert asyncpg URL to psycopg2 for sync SQLAlchemy
+        if "postgresql+asyncpg://" in database_url:
+            database_url = database_url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
+        elif "postgresql://" in database_url and "+" not in database_url:
+            # If it's plain postgresql://, add psycopg2 driver
+            database_url = database_url.replace("postgresql://", "postgresql+psycopg2://")
         
         # Create database engine
         engine = create_engine(database_url)
@@ -54,7 +61,7 @@ def run_migrations():
                     print(f"✅ Successfully executed {migration_file.name}")
                     
                 except Exception as e:
-                    print(f"❌ Error executing {migration_file.name}: {e}")
+                    print(f"❌ Error executing {migration_file.name}: {e}", file=sys.stderr)
                     session.rollback()
                     # Continue with other migrations
                     continue
