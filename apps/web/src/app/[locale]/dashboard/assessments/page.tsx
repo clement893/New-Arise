@@ -71,10 +71,25 @@ function AssessmentsContent() {
         const parsed = JSON.parse(cached);
         // Check if cache is recent (less than 5 minutes old)
         if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) {
-          return parsed.data || [];
+          const cachedData = parsed.data || [];
+          // DEBUG: Log cached data to check for objects
+          console.log('[DEBUG] Loading cached assessments:', cachedData.length, 'items');
+          cachedData.forEach((assessment: any, index: number) => {
+            console.log(`[DEBUG] Cached assessment ${index}:`, {
+              id: assessment.id,
+              answerCount: assessment.answerCount,
+              answerCountType: typeof assessment.answerCount,
+              answerCountIsObject: typeof assessment.answerCount === 'object',
+              totalQuestions: assessment.totalQuestions,
+              totalQuestionsType: typeof assessment.totalQuestions,
+              totalQuestionsIsObject: typeof assessment.totalQuestions === 'object',
+            });
+          });
+          return cachedData;
         }
       }
     } catch (e) {
+      console.error('[DEBUG] Error loading cache:', e);
       // Ignore cache errors
     }
     return [];
@@ -233,6 +248,26 @@ function AssessmentsContent() {
           answerCount: apiAssessment?.answer_count ?? undefined,
           totalQuestions: apiAssessment?.total_questions ?? undefined,
         };
+      });
+      
+      // DEBUG: Log each assessment object to check for nested objects
+      displayAssessments.forEach((assessment, index) => {
+        console.log(`[DEBUG] Assessment ${index} (${assessment.id}):`, {
+          id: assessment.id,
+          title: assessment.title,
+          status: assessment.status,
+          answerCount: assessment.answerCount,
+          answerCountType: typeof assessment.answerCount,
+          answerCountIsObject: typeof assessment.answerCount === 'object',
+          totalQuestions: assessment.totalQuestions,
+          totalQuestionsType: typeof assessment.totalQuestions,
+          totalQuestionsIsObject: typeof assessment.totalQuestions === 'object',
+          assessmentId: assessment.assessmentId,
+          assessmentIdType: typeof assessment.assessmentId,
+          assessmentIdIsObject: typeof assessment.assessmentId === 'object',
+          assessmentType: assessment.assessmentType,
+          fullObject: JSON.parse(JSON.stringify(assessment)) // Deep clone to see structure
+        });
       });
       
       setAssessments(displayAssessments);
@@ -576,6 +611,35 @@ function AssessmentsContent() {
           <MotionDiv variant="slideUp" delay={100}>
             <Stack gap="normal">
               {assessments.map((assessment) => {
+                // DEBUG: Log each assessment before rendering to catch objects
+                console.log('[DEBUG] Rendering assessment:', {
+                  id: assessment.id,
+                  title: assessment.title,
+                  status: assessment.status,
+                  answerCount: assessment.answerCount,
+                  answerCountType: typeof assessment.answerCount,
+                  answerCountValue: assessment.answerCount,
+                  totalQuestions: assessment.totalQuestions,
+                  totalQuestionsType: typeof assessment.totalQuestions,
+                  totalQuestionsValue: assessment.totalQuestions,
+                  assessmentId: assessment.assessmentId,
+                  assessmentIdType: typeof assessment.assessmentId,
+                });
+                
+                // DEBUG: Check if any value is an object that might be rendered
+                if (typeof assessment.answerCount === 'object' && assessment.answerCount !== null) {
+                  console.error('[DEBUG] ⚠️ answerCount IS AN OBJECT!', assessment.answerCount);
+                }
+                if (typeof assessment.totalQuestions === 'object' && assessment.totalQuestions !== null) {
+                  console.error('[DEBUG] ⚠️ totalQuestions IS AN OBJECT!', assessment.totalQuestions);
+                }
+                if (typeof assessment.assessmentId === 'object' && assessment.assessmentId !== null) {
+                  console.error('[DEBUG] ⚠️ assessmentId IS AN OBJECT!', assessment.assessmentId);
+                }
+                if (typeof assessment.status === 'object' && assessment.status !== null) {
+                  console.error('[DEBUG] ⚠️ status IS AN OBJECT!', assessment.status);
+                }
+                
                 const Icon = assessment.icon;
                 const is360Feedback = assessment.assessmentType === 'THREE_SIXTY_SELF';
                 return (
@@ -605,11 +669,41 @@ function AssessmentsContent() {
                         {getStatusBadge(assessment.status)}
                         {assessment.status === 'in-progress' && (
                           <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
-                            {assessment.answerCount !== undefined && assessment.totalQuestions !== undefined
-                              ? `${assessment.answerCount}/${assessment.totalQuestions}`
-                              : assessment.answerCount !== undefined
-                              ? `${assessment.answerCount} réponses`
-                              : 'En cours'}
+                            {(() => {
+                              // DEBUG: Check types before rendering
+                              const answerCountType = typeof assessment.answerCount;
+                              const totalQuestionsType = typeof assessment.totalQuestions;
+                              
+                              if (answerCountType === 'object' || totalQuestionsType === 'object') {
+                                console.error('[DEBUG] ⚠️ OBJECT DETECTED IN PROGRESS DISPLAY!', {
+                                  answerCount: assessment.answerCount,
+                                  answerCountType,
+                                  totalQuestions: assessment.totalQuestions,
+                                  totalQuestionsType,
+                                  assessment: assessment.id
+                                });
+                              }
+                              
+                              // Safely convert to numbers/strings
+                              const answerCount = typeof assessment.answerCount === 'number' 
+                                ? assessment.answerCount 
+                                : typeof assessment.answerCount === 'string'
+                                ? parseInt(assessment.answerCount, 10)
+                                : undefined;
+                              const totalQuestions = typeof assessment.totalQuestions === 'number'
+                                ? assessment.totalQuestions
+                                : typeof assessment.totalQuestions === 'string'
+                                ? parseInt(assessment.totalQuestions, 10)
+                                : undefined;
+                              
+                              if (answerCount !== undefined && totalQuestions !== undefined) {
+                                return `${answerCount}/${totalQuestions}`;
+                              } else if (answerCount !== undefined) {
+                                return `${answerCount} réponses`;
+                              } else {
+                                return 'En cours';
+                              }
+                            })()}
                           </span>
                         )}
                         {assessment.externalLink && assessment.status !== 'completed' && (
@@ -635,19 +729,45 @@ function AssessmentsContent() {
                           progressPercentage = 100;
                           progressLabel = 'Terminé';
                         } else if (assessment.status === 'in-progress') {
-                          if (assessment.answerCount !== undefined && 
-                              assessment.totalQuestions !== undefined && 
-                              assessment.totalQuestions > 0) {
-                            progressValue = assessment.answerCount;
-                            progressMax = assessment.totalQuestions;
-                            progressPercentage = Math.round((assessment.answerCount / assessment.totalQuestions) * 100);
-                            progressLabel = `Progression: ${assessment.answerCount}/${assessment.totalQuestions} questions`;
-                          } else if (assessment.answerCount !== undefined && assessment.answerCount > 0) {
+                          // DEBUG: Check types before using values
+                          const answerCountType = typeof assessment.answerCount;
+                          const totalQuestionsType = typeof assessment.totalQuestions;
+                          
+                          if (answerCountType === 'object' || totalQuestionsType === 'object') {
+                            console.error('[DEBUG] ⚠️ OBJECT DETECTED IN PROGRESS CALCULATION!', {
+                              answerCount: assessment.answerCount,
+                              answerCountType,
+                              totalQuestions: assessment.totalQuestions,
+                              totalQuestionsType,
+                              assessment: assessment.id
+                            });
+                          }
+                          
+                          // Safely convert to numbers
+                          const answerCount = typeof assessment.answerCount === 'number'
+                            ? assessment.answerCount
+                            : typeof assessment.answerCount === 'string'
+                            ? parseInt(assessment.answerCount, 10)
+                            : undefined;
+                          const totalQuestions = typeof assessment.totalQuestions === 'number'
+                            ? assessment.totalQuestions
+                            : typeof assessment.totalQuestions === 'string'
+                            ? parseInt(assessment.totalQuestions, 10)
+                            : undefined;
+                          
+                          if (answerCount !== undefined && 
+                              totalQuestions !== undefined && 
+                              totalQuestions > 0) {
+                            progressValue = answerCount;
+                            progressMax = totalQuestions;
+                            progressPercentage = Math.round((answerCount / totalQuestions) * 100);
+                            progressLabel = `Progression: ${answerCount}/${totalQuestions} questions`;
+                          } else if (answerCount !== undefined && answerCount > 0) {
                             // Fallback: show answer count even if total_questions is missing
-                            progressValue = assessment.answerCount;
+                            progressValue = answerCount;
                             progressMax = 100; // Unknown total, use 100 as max
-                            progressPercentage = Math.min(assessment.answerCount * 10, 99); // Estimate: assume ~10 questions per answer
-                            progressLabel = `Progression: ${assessment.answerCount} réponses`;
+                            progressPercentage = Math.min(answerCount * 10, 99); // Estimate: assume ~10 questions per answer
+                            progressLabel = `Progression: ${answerCount} réponses`;
                           } else {
                             progressValue = 0;
                             progressMax = 100;
