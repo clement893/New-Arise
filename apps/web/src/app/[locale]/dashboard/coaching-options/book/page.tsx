@@ -164,7 +164,9 @@ export default function BookCoachingSessionPage() {
       setSessionId(session.id);
       setStep('payment');
     } catch (err: any) {
-      setError(err.message || 'Erreur lors de la création de la session');
+      // Ensure error is always a string to prevent React error #130
+      const errorMessage = typeof err?.message === 'string' ? err.message : String(err?.message || 'Erreur lors de la création de la session');
+      setError(errorMessage);
       logger.error('Failed to create session', err);
     } finally {
       setLoading(false);
@@ -197,7 +199,9 @@ export default function BookCoachingSessionPage() {
         throw new Error('No checkout URL received');
       }
     } catch (err: any) {
-      setError(err.message || 'Erreur lors de la création de la session de paiement');
+      // Ensure error is always a string to prevent React error #130
+      const errorMessage = typeof err?.message === 'string' ? err.message : String(err?.message || 'Erreur lors de la création de la session de paiement');
+      setError(errorMessage);
       logger.error('Failed to create checkout session', err);
       setLoading(false);
     }
@@ -248,7 +252,7 @@ export default function BookCoachingSessionPage() {
 
         {error && (
           <Alert variant="error" className="mb-6">
-            {error}
+            {typeof error === 'string' ? error : String(error || 'An error occurred')}
           </Alert>
         )}
 

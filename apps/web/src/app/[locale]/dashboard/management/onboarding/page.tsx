@@ -97,7 +97,7 @@ export default function ManagementOnboardingPage() {
 
       {error && (
         <Alert variant="error" className="mb-6" onClose={() => setError(null)}>
-          {error}
+          {typeof error === 'string' ? error : String(error || 'An error occurred')}
         </Alert>
       )}
 

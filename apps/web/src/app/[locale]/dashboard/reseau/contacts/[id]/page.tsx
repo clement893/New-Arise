@@ -108,7 +108,7 @@ export default function ContactDetailPage() {
             { label: 'Détail' },
           ]}
         />
-        <Alert variant="error">{error}</Alert>
+        <Alert variant="error">{typeof error === 'string' ? error : String(error || 'An error occurred')}</Alert>
         <div className="mt-4">
           <Button variant="outline" onClick={() => {
             const locale = params?.locale as string || 'fr';
@@ -173,7 +173,7 @@ export default function ContactDetailPage() {
 
       {error && (
         <div className="mb-4">
-          <Alert variant="error">{error}</Alert>
+          <Alert variant="error">{typeof error === 'string' ? error : String(error || 'An error occurred')}</Alert>
         </div>
       )}
 

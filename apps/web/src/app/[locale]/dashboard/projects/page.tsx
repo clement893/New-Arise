@@ -260,7 +260,7 @@ function ProjectsContent() {
 
         {error && (
           <Alert variant="error" className="mb-4">
-            {error}
+            {typeof error === 'string' ? error : String(error || 'An error occurred')}
           </Alert>
         )}
 

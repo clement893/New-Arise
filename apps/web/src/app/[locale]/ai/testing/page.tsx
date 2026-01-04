@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { aiAPI } from '@/lib/api';
@@ -47,7 +47,9 @@ function AITestContent() {
       setError('');
     } catch (err) {
       const axiosError = err as AxiosError<ApiErrorResponse>;
-      setError(axiosError.response?.data?.detail || 'Failed to check health');
+      // Ensure error is always a string to prevent React error #130
+      const errorDetail = axiosError.response?.data?.detail;
+      setError(typeof errorDetail === 'string' ? errorDetail : String(errorDetail || 'Failed to check health'));
       setHealthStatus(null);
     }
   };
@@ -67,7 +69,9 @@ function AITestContent() {
       setResponse(res.data.response);
     } catch (err) {
       const axiosError = err as AxiosError<ApiErrorResponse>;
-      setError(axiosError.response?.data?.detail || 'Failed to get response');
+      // Ensure error is always a string to prevent React error #130
+      const errorDetail = axiosError.response?.data?.detail;
+      setError(typeof errorDetail === 'string' ? errorDetail : String(errorDetail || 'Failed to get response'));
     } finally {
       setIsLoading(false);
     }
@@ -96,7 +100,9 @@ function AITestContent() {
       setMessages([...validMessages, { role: 'assistant', content: res.data.content }]);
     } catch (err) {
       const axiosError = err as AxiosError<ApiErrorResponse>;
-      setError(axiosError.response?.data?.detail || 'Failed to get response');
+      // Ensure error is always a string to prevent React error #130
+      const errorDetail = axiosError.response?.data?.detail;
+      setError(typeof errorDetail === 'string' ? errorDetail : String(errorDetail || 'Failed to get response'));
     } finally {
       setIsLoading(false);
     }
@@ -305,7 +311,7 @@ function AITestContent() {
           {/* Error Display */}
           {error && (
             <Alert variant="error" title="Error" className="mt-4">
-              {error}
+              {typeof error === 'string' ? error : String(error || 'An error occurred')}
             </Alert>
           )}
 

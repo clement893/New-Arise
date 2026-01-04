@@ -105,7 +105,7 @@ export default function CompanyDetailPage() {
       <PageContainer>
         <PageHeader
           title="Erreur"
-          description={error}
+          description={typeof error === 'string' ? error : String(error || 'An error occurred')}
           breadcrumbs={[
             { label: 'Dashboard', href: '/dashboard' },
             { label: 'Module Réseau', href: '/dashboard/reseau' },
@@ -119,7 +119,7 @@ export default function CompanyDetailPage() {
             </Button>
           }
         />
-        <Alert variant="error">{error}</Alert>
+        <Alert variant="error">{typeof error === 'string' ? error : String(error || 'An error occurred')}</Alert>
       </PageContainer>
     );
   }
@@ -149,7 +149,7 @@ export default function CompanyDetailPage() {
 
       {error && (
         <Alert variant="error" className="mb-4">
-          {error}
+          {typeof error === 'string' ? error : String(error || 'An error occurred')}
         </Alert>
       )}
 

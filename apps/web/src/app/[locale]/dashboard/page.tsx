@@ -336,7 +336,7 @@ function DashboardContent() {
       return (
         <Button 
           variant="outline"
-          className="w-full border-arise-button-primary text-arise-button-primary hover:bg-arise-button-primary hover:text-white font-semibold"
+          className="w-full border-arise-button-primary text-white hover:bg-arise-button-primary hover:text-white font-semibold"
           onClick={() => {
             router.push(`/dashboard/assessments/${getAssessmentRoute(evaluation.assessmentType)}`);
           }}

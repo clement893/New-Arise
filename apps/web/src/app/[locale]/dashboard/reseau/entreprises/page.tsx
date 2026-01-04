@@ -641,7 +641,7 @@ function CompaniesContent() {
       {/* Error */}
       {error && (
         <Alert variant="error">
-          {error}
+          {typeof error === 'string' ? error : String(error || 'An error occurred')}
         </Alert>
       )}
 
