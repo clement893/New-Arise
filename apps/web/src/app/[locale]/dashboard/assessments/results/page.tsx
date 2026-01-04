@@ -493,7 +493,7 @@ function AssessmentResultsContent() {
 
 export default function AssessmentResultsPage() {
   return (
-    <ErrorBoundary showDetails={process.env.NODE_ENV === 'development'}>
+    <ErrorBoundary showDetails={false}>
       <AssessmentResultsContent />
     </ErrorBoundary>
   );
