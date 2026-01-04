@@ -366,7 +366,7 @@ export default function AgendaPage() {
                           {daySessions.slice(0, 2).map(session => (
                             <div
                               key={session.id}
-                              className="text-xs bg-blue-100 text-blue-700 rounded px-1 py-0.5 truncate"
+                              className="text-xs bg-primary-100 text-primary-700 rounded px-1 py-0.5 truncate"
                               title={`${session.startTime} - ${session.coacheeName}`}
                             >
                               {session.startTime} {session.coacheeName.split(' ')[0]}

@@ -747,9 +747,9 @@ function AssessmentsContent() {
               if (assessment.requiresEvaluators) {
                 setShowEvaluatorModal(true);
               } else {
-                // For 360 feedback, include assessmentId in URL
-                if (assessment.assessmentType === 'THREE_SIXTY_SELF' && assessment.assessmentId) {
-                  router.push(`/dashboard/assessments/360-feedback?assessmentId=${assessment.assessmentId}`);
+                // For 360 feedback, include assessmentId in URL (only if valid)
+                if (assessment.assessmentType === 'THREE_SIXTY_SELF' && safeAssessmentId && !isNaN(safeAssessmentId)) {
+                  router.push(`/dashboard/assessments/360-feedback?assessmentId=${safeAssessmentId}`);
                 } else {
                   router.push(`/dashboard/assessments/${getAssessmentRoute(assessment.assessmentType)}`);
                 }
@@ -771,7 +771,7 @@ function AssessmentsContent() {
           <Button 
             variant="arise-primary"
             disabled={isStarting}
-            onClick={() => handleStartAssessment(assessment.assessmentType, assessment.assessmentId)}
+            onClick={() => handleStartAssessment(assessment.assessmentType, safeAssessmentId && !isNaN(safeAssessmentId) ? safeAssessmentId : undefined)}
           >
             {isStarting ? (
               <>
