@@ -1051,7 +1051,6 @@ function AssessmentsContent() {
                   if (!Icon || typeof Icon !== 'function') {
                     console.error('[CRITICAL] Icon is not a valid React component!', Icon);
                     // Fallback to a default icon
-                    const DefaultIcon = Brain;
                     return (
                       <Card key={cardKey} className="border-red-300 bg-red-50">
                         <div className="p-4">
