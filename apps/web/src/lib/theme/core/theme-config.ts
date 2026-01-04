@@ -135,9 +135,9 @@ export function getThemeTokens() {
         bold: `var(--typography-font-weight-bold, ${(config.typography?.fontWeight as Record<string, string | number> | undefined)?.['bold'] || '700'})`,
       },
       lineHeight: {
-        tight: `var(--typography-line-height-tight, ${config.typography?.lineHeight?.tight || '1.25'})`,
-        normal: `var(--typography-line-height-normal, ${config.typography?.lineHeight?.normal || '1.5'})`,
-        relaxed: `var(--typography-line-height-relaxed, ${config.typography?.lineHeight?.relaxed || '1.75'})`,
+        tight: `var(--typography-line-height-tight, ${(config.typography?.lineHeight as Record<string, string | number> | undefined)?.['tight'] || '1.25'})`,
+        normal: `var(--typography-line-height-normal, ${(config.typography?.lineHeight as Record<string, string | number> | undefined)?.['normal'] || '1.5'})`,
+        relaxed: `var(--typography-line-height-relaxed, ${(config.typography?.lineHeight as Record<string, string | number> | undefined)?.['relaxed'] || '1.75'})`,
       },
     },
     shadows: {
