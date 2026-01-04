@@ -6,7 +6,6 @@
 'use client';
 
 import { useGlobalTheme } from '@/lib/theme';
-import { themeTokens } from '@/lib/theme';
 import { DEFAULT_THEME_CONFIG } from '@/lib/theme/default-theme-config';
 import { Card, Badge } from '@/components/ui';
 import { Copy, Download } from 'lucide-react';
