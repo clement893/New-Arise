@@ -111,6 +111,8 @@ class SubscriptionService:
         status: Optional[PlanStatus] = None,
         is_popular: Optional[bool] = None,
         features: Optional[str] = None,
+        stripe_price_id: Optional[str] = None,
+        stripe_product_id: Optional[str] = None,
     ) -> Optional[Plan]:
         """Update plan"""
         plan = await self.get_plan(plan_id)
@@ -130,6 +132,10 @@ class SubscriptionService:
             plan.is_popular = is_popular
         if features is not None:
             plan.features = features
+        if stripe_price_id is not None:
+            plan.stripe_price_id = stripe_price_id
+        if stripe_product_id is not None:
+            plan.stripe_product_id = stripe_product_id
         
         plan.updated_at = datetime.now(timezone.utc)
         await self.db.commit()

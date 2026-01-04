@@ -36,6 +36,8 @@ class PlanUpdate(BaseModel):
     status: Optional[PlanStatus] = None
     is_popular: Optional[bool] = None
     features: Optional[str] = None
+    stripe_price_id: Optional[str] = None
+    stripe_product_id: Optional[str] = None
 
 
 class PlanResponse(PlanBase):

@@ -128,6 +128,8 @@ async def update_plan(
         status=plan_update.status,
         is_popular=plan_update.is_popular,
         features=plan_update.features,
+        stripe_price_id=plan_update.stripe_price_id,
+        stripe_product_id=plan_update.stripe_product_id,
     )
     
     if not plan:
