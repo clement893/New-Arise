@@ -295,8 +295,8 @@ export default function Sidebar({
             'flex items-center gap-3',
             collapsed && 'justify-center'
           )}>
-            <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center flex-shrink-0 min-w-[44px] min-h-[44px]">
-              <span className="text-sm font-medium text-primary-700 dark:text-primary-300">
+            <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0 min-w-[44px] min-h-[44px]">
+              <span className="text-sm font-medium text-primary-700">
                 {user.name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || 'U'}
               </span>
             </div>
@@ -354,7 +354,7 @@ export default function Sidebar({
       
       <nav className="p-lg space-y-1 flex-1 overflow-y-auto">
         {filteredItems.length === 0 ? (
-          <div className="px-lg py-md text-sm text-gray-500 dark:text-gray-400 text-center">
+          <div className="px-lg py-md text-sm text-gray-500 text-center">
             Aucun résultat trouvé
           </div>
         ) : (
