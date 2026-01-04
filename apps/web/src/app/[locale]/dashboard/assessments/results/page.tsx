@@ -239,8 +239,6 @@ function AssessmentResultsContent() {
   }
 
   if (error || !results) {
-    // Ensure assessmentId is always a string or null, never an object
-    const assessmentIdFromParams = searchParams ? searchParams.get('id') : null;
     // Ensure error is always a string before using includes
     const errorString = typeof error === 'string' ? error : String(error || '');
     const isNotCompleted = errorString.includes('not completed') || errorString.includes('not found');
@@ -253,9 +251,9 @@ function AssessmentResultsContent() {
           </h2>
           <p className="text-gray-600 mb-6">{errorString || 'Results not found'}</p>
           <div className="flex flex-col gap-3">
-            {isNotCompleted && assessmentId && (
+            {isNotCompleted && assessmentIdFromParams && (
               <Button 
-                onClick={() => router.push(`/dashboard/assessments/wellness?id=${assessmentId}`)}
+                onClick={() => router.push(`/dashboard/assessments/wellness?id=${assessmentIdFromParams}`)}
                 variant="primary"
               >
                 Continue Assessment
