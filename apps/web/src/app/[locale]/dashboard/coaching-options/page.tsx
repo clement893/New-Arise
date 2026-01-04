@@ -309,8 +309,8 @@ export default function CoachingOptionsPage() {
               </p>
               {selectedPackage && (
                 <div className="mt-4 inline-block">
-                  <Card className="bg-blue-50 border-blue-200 p-4">
-                    <p className="text-blue-800">
+                  <Card className="bg-primary-50 border-primary-200 p-4">
+                    <p className="text-primary-800">
                       <strong>Forfait sélectionné:</strong> {coachingPackages.find(p => p.id === selectedPackage)?.name}
                     </p>
                   </Card>
@@ -389,7 +389,7 @@ export default function CoachingOptionsPage() {
                               href={coach.linkedin}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-gray-400 hover:text-blue-600 transition-colors"
+                              className="text-gray-400 hover:text-primary-600 transition-colors"
                               title="LinkedIn"
                             >
                               <Linkedin className="h-5 w-5" />

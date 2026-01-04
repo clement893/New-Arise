@@ -194,8 +194,10 @@ function AssessmentsContent() {
     return [];
   };
 
-  const [assessments, setAssessments] = useState<AssessmentDisplay[]>(getCachedAssessments());
-  const [isLoading, setIsLoading] = useState(false); // Start with false to show cached data immediately
+  // CRITICAL: Start with empty array to prevent rendering corrupted cached data
+  // This prevents React error #130 from corrupted cache being rendered on first mount
+  const [assessments, setAssessments] = useState<AssessmentDisplay[]>([]);
+  const [isLoading, setIsLoading] = useState(true); // Start with true to show loading state
   const [error, setError] = useState<string | null>(null);
   const [startingAssessment, setStartingAssessment] = useState<string | null>(null);
 
@@ -220,6 +222,13 @@ function AssessmentsContent() {
           if (hasCorruptedData) {
             console.warn('[Assessments] Corrupted cache detected, clearing it before reload');
             sessionStorage.removeItem('assessments_cache');
+          } else {
+            // Cache is clean, use it for instant display
+            const cleanedCachedData = getCachedAssessments();
+            if (cleanedCachedData.length > 0) {
+              setAssessments(cleanedCachedData);
+              setIsLoading(false);
+            }
           }
         }
       } catch (e) {
@@ -1172,15 +1181,28 @@ function AssessmentsContent() {
       {/* Evaluator Modal */}
       {showEvaluatorModal && (() => {
         const feedback360Assessment = assessments.find(a => a.assessmentType === 'THREE_SIXTY_SELF');
-        if (!feedback360Assessment?.assessmentId) {
+        // CRITICAL: Ensure assessmentId is a number, not an object
+        const safeModalAssessmentId = feedback360Assessment?.assessmentId !== undefined && feedback360Assessment?.assessmentId !== null
+          ? (typeof feedback360Assessment.assessmentId === 'number' 
+              ? feedback360Assessment.assessmentId 
+              : typeof feedback360Assessment.assessmentId === 'string'
+              ? parseInt(feedback360Assessment.assessmentId, 10)
+              : undefined)
+          : undefined;
+        
+        if (!safeModalAssessmentId || isNaN(safeModalAssessmentId)) {
+          console.error('[Assessments] Cannot show evaluator modal: invalid assessmentId', {
+            assessmentId: feedback360Assessment?.assessmentId,
+            type: typeof feedback360Assessment?.assessmentId
+          });
           return null;
         }
         return (
           <InviteAdditionalEvaluatorsModal
-            key={`evaluator-modal-${feedback360Assessment.assessmentId}`}
+            key={`evaluator-modal-${safeModalAssessmentId}`}
             isOpen={showEvaluatorModal}
             onClose={() => setShowEvaluatorModal(false)}
-            assessmentId={feedback360Assessment.assessmentId}
+            assessmentId={safeModalAssessmentId}
             onSuccess={() => {
               setShowEvaluatorModal(false);
               loadAssessments(); // Reload to refresh evaluator status
