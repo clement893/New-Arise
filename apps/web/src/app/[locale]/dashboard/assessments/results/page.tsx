@@ -257,28 +257,31 @@ function AssessmentResultsContent() {
   
   // CRITICAL: Ensure all numeric values are actually numbers, not objects
   // This prevents React error #130 (objects not valid as React child)
-  const safePercentage = typeof scores?.percentage === 'number' 
-    ? scores.percentage 
-    : typeof scores?.percentage === 'string' 
-    ? parseFloat(scores.percentage) 
-    : typeof scores?.percentage === 'object' && scores?.percentage !== null && 'value' in scores.percentage
-    ? (typeof scores.percentage.value === 'number' ? scores.percentage.value : 0)
+  const rawPercentage = scores?.percentage;
+  const safePercentage = typeof rawPercentage === 'number' 
+    ? rawPercentage 
+    : typeof rawPercentage === 'string' 
+    ? parseFloat(rawPercentage) 
+    : typeof rawPercentage === 'object' && rawPercentage !== null && 'value' in rawPercentage
+    ? (typeof (rawPercentage as { value: unknown }).value === 'number' ? (rawPercentage as { value: number }).value : 0)
     : 0;
   
-  const safeTotalScore = typeof scores?.total_score === 'number'
-    ? scores.total_score
-    : typeof scores?.total_score === 'string'
-    ? parseInt(scores.total_score, 10)
-    : typeof scores?.total_score === 'object' && scores?.total_score !== null && 'value' in scores.total_score
-    ? (typeof scores.total_score.value === 'number' ? scores.total_score.value : 0)
+  const rawTotalScore = scores?.total_score;
+  const safeTotalScore = typeof rawTotalScore === 'number'
+    ? rawTotalScore
+    : typeof rawTotalScore === 'string'
+    ? parseInt(rawTotalScore, 10)
+    : typeof rawTotalScore === 'object' && rawTotalScore !== null && 'value' in rawTotalScore
+    ? (typeof (rawTotalScore as { value: unknown }).value === 'number' ? (rawTotalScore as { value: number }).value : 0)
     : 0;
   
-  const safeMaxScore = typeof scores?.max_score === 'number'
-    ? scores.max_score
-    : typeof scores?.max_score === 'string'
-    ? parseInt(scores.max_score, 10)
-    : typeof scores?.max_score === 'object' && scores?.max_score !== null && 'value' in scores.max_score
-    ? (typeof scores.max_score.value === 'number' ? scores.max_score.value : 150)
+  const rawMaxScore = scores?.max_score;
+  const safeMaxScore = typeof rawMaxScore === 'number'
+    ? rawMaxScore
+    : typeof rawMaxScore === 'string'
+    ? parseInt(rawMaxScore, 10)
+    : typeof rawMaxScore === 'object' && rawMaxScore !== null && 'value' in rawMaxScore
+    ? (typeof (rawMaxScore as { value: unknown }).value === 'number' ? (rawMaxScore as { value: number }).value : 150)
     : 150;
   
   const pillar_scores = scores?.pillar_scores || {};
