@@ -38,7 +38,6 @@ function PaymentFormContent() {
   const [stripeReady, setStripeReady] = useState(false);
   const isMountedRef = useRef(true);
   const isProcessingRef = useRef(false);
-  const cardElementRef = useRef<any>(null);
 
   // Track component mount status and Stripe readiness
   useEffect(() => {
@@ -48,14 +47,8 @@ function PaymentFormContent() {
     // Check if Stripe is ready
     if (stripe && elements) {
       setStripeReady(true);
-      // Cache the card element reference
-      const cardElement = elements.getElement(CardElement);
-      if (cardElement) {
-        cardElementRef.current = cardElement;
-      }
     } else {
       setStripeReady(false);
-      cardElementRef.current = null;
     }
     
     // Add global error handler for unhandled promise rejections
@@ -80,7 +73,6 @@ function PaymentFormContent() {
     return () => {
       isMountedRef.current = false;
       isProcessingRef.current = false;
-      cardElementRef.current = null;
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     };
   }, [stripe, elements]);
@@ -146,26 +138,20 @@ function PaymentFormContent() {
       return;
     }
 
+    // Get the card element BEFORE setting isProcessing to true
+    // This ensures the element is still mounted when we retrieve it
+    const cardElement = elements.getElement(CardElement);
+    
+    if (!cardElement) {
+      setError('Card element not found. Please refresh the page.');
+      return;
+    }
+
+    // Now set processing state - but keep the element mounted
     setIsProcessing(true);
     isProcessingRef.current = true;
     setError(null);
     setCardError(null);
-
-    // Use cached element ref or get fresh one
-    let cardElement = cardElementRef.current;
-    if (!cardElement) {
-      cardElement = elements.getElement(CardElement);
-      if (cardElement) {
-        cardElementRef.current = cardElement;
-      }
-    }
-
-    if (!cardElement) {
-      setError('Card element not found. Please refresh the page.');
-      setIsProcessing(false);
-      isProcessingRef.current = false;
-      return;
-    }
 
     try {
       // Check if component is still mounted before proceeding
@@ -423,30 +409,43 @@ function PaymentFormContent() {
                   </div>
                 </div>
 
-                {!isProcessing && (
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                    <StripeCardElement
-                      key="payment-card-element"
-                      onError={setCardError}
-                      cardError={cardError}
-                    />
+                <div className="relative">
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div style={{ pointerEvents: isProcessing ? 'none' : 'auto', opacity: isProcessing ? 0.6 : 1 }}>
+                      <StripeCardElement
+                        key="payment-card-element"
+                        onError={setCardError}
+                        cardError={cardError}
+                      />
+                    </div>
                     <Button
                       type="submit"
                       disabled={!stripeReady || !selectedPlan || isProcessing}
                       className="w-full bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                      <CreditCard className="w-5 h-5" />
-                      Complete Payment
+                      {isProcessing ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard className="w-5 h-5" />
+                          Complete Payment
+                        </>
+                      )}
                     </Button>
                   </form>
-                )}
-
-                {isProcessing && (
-                  <div className="border-2 border-gray-200 rounded-lg p-8 text-center">
-                    <Loader2 className="w-12 h-12 text-arise-gold mx-auto mb-4 animate-spin" />
-                    <p className="text-gray-600">Processing your payment...</p>
-                  </div>
-                )}
+                  
+                  {isProcessing && (
+                    <div className="absolute inset-0 bg-white/80 rounded-lg flex items-center justify-center z-10">
+                      <div className="text-center">
+                        <Loader2 className="w-12 h-12 text-arise-gold mx-auto mb-4 animate-spin" />
+                        <p className="text-gray-600 font-medium">Processing your payment...</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 <p className="text-xs text-gray-500 text-center">
                   Your payment information is processed securely by Stripe and never stored on our servers.
