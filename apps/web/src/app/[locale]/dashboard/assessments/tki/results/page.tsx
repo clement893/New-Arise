@@ -8,6 +8,7 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { TrendingUp, TrendingDown, Minus, ArrowLeft, LucideIcon } from 'lucide-react';
+import { formatError } from '@/lib/utils/formatError';
 
 interface TKIResults {
   mode_counts: Record<string, number>;
@@ -129,7 +130,8 @@ export default function TKIResultsPage() {
       <div className="flex items-center justify-center min-h-screen">
         <Card className="max-w-md">
           <div className="text-center">
-            <p className="text-red-600 mb-4">{error || 'No results found'}</p>
+            {/* Ensure error is always a string before rendering */}
+            <p className="text-red-600 mb-4">{typeof error === 'string' ? error : formatError(error || 'No results found')}</p>
             <Button onClick={() => router.push('/dashboard/assessments')}>
               Back to Assessments
             </Button>

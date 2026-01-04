@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { saveAnswer, submitAssessment, getAssessmentAnswers } from '@/lib/api/assessments';
 import axios from 'axios';
+import { formatError } from '@/lib/utils/formatError';
 
 interface Feedback360State {
   assessmentId: number | null;
@@ -84,7 +85,8 @@ export const useFeedback360Store = create<Feedback360State>()(
           // Don't throw - allow user to continue even if load fails
           // Only log in development for debugging
           if (process.env.NODE_ENV === 'development') {
-            console.error('Failed to load existing answers:', error);
+            const errorMessage = formatError(error);
+            console.error('Failed to load existing answers:', errorMessage);
           }
           set({
             isLoading: false,
@@ -114,7 +116,8 @@ export const useFeedback360Store = create<Feedback360State>()(
           // Don't throw - allow user to continue even if save fails
           // Only log in development for debugging
           if (process.env.NODE_ENV === 'development') {
-            console.error('Failed to save answer:', error);
+            const errorMessage = formatError(error);
+            console.error('Failed to save answer:', errorMessage);
           }
         }
       },

@@ -7,17 +7,16 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { startAssessment, submitAssessment, saveResponse, getAssessmentAnswers } from '@/lib/api/assessments';
 import axios from 'axios';
+import { formatError } from '@/lib/utils/formatError';
 
 // Helper function to extract error message from various error formats
-// Always returns a string to prevent React error #31 (objects as children)
+// Always returns a string to prevent React error #130 (objects as children)
+// NOTE: This function now uses formatError() for consistent error handling
 function extractErrorMessage(error: unknown, defaultMessage: string): string {
-  if (axios.isAxiosError(error) && error.response?.data) {
-    const data = error.response.data;
-
-    // Handle string detail
-    if (typeof data.detail === 'string') {
-      return data.detail;
-    }
+  // Use formatError for consistent error handling
+  const formatted = formatError(error);
+  // If formatError returns the default "unexpected error" message, use the provided defaultMessage
+  return formatted !== 'An unexpected error occurred.' ? formatted : defaultMessage;
 
     // Handle array of validation errors (FastAPI format: [{type, loc, msg, input, ctx}])
     if (Array.isArray(data.detail)) {
