@@ -876,19 +876,19 @@ export default function AdminAssessmentManagementPage() {
               {/* Wellness Rules */}
               {selectedRuleType === 'WELLNESS' && rules.pillars && (
                 <>
-                  <Card className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800 mb-6">
+                  <Card className="p-6 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 border-primary-200 dark:border-primary-800 mb-6">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-                      <Calculator className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      <Calculator className="w-5 h-5 text-primary-600 dark:text-primary-400" />
                       Configuration générale
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-700">
+                      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-primary-200 dark:border-primary-700">
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Score maximum total</p>
-                        <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{rules.maxTotalScore}</p>
+                        <p className="text-2xl font-bold text-primary-900 dark:text-primary-100">{rules.maxTotalScore}</p>
                       </div>
-                      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-700">
+                      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-primary-200 dark:border-primary-700">
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Échelle de réponse</p>
-                        <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                        <p className="text-2xl font-bold text-primary-900 dark:text-primary-100">
                           {rules.scale.min} - {rules.scale.max}
                         </p>
                       </div>
@@ -911,23 +911,23 @@ export default function AdminAssessmentManagementPage() {
                             <div className="flex items-start justify-between mb-4">
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-2">
-                                  <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                                    <Calculator className="w-5 h-5 text-green-700 dark:text-green-300" />
+                                  <div className="p-2 bg-success-100 dark:bg-success-900/30 rounded-lg">
+                                    <Calculator className="w-5 h-5 text-success-700 dark:text-success-300" />
                                   </div>
                                   <h4 className="font-semibold text-gray-900 dark:text-gray-100 capitalize text-lg">
                                     {pillar.name.replace(/_/g, ' ')}
                                   </h4>
                                 </div>
                                 <div className="flex items-center gap-4 mt-3">
-                                  <div className="px-3 py-1.5 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                                    <p className="text-xs text-green-600 dark:text-green-400 mb-0.5">Score max</p>
-                                    <p className="text-lg font-bold text-green-700 dark:text-green-300">
+                                  <div className="px-3 py-1.5 bg-success-50 dark:bg-success-900/20 rounded-lg">
+                                    <p className="text-xs text-success-600 dark:text-success-400 mb-0.5">Score max</p>
+                                    <p className="text-lg font-bold text-success-700 dark:text-success-300">
                                       {pillar.maxScore}
                                     </p>
                                   </div>
-                                  <div className="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                                    <p className="text-xs text-blue-600 dark:text-blue-400 mb-0.5">Questions</p>
-                                    <p className="text-lg font-bold text-blue-700 dark:text-blue-300">
+                                  <div className="px-3 py-1.5 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
+                                    <p className="text-xs text-primary-600 dark:text-primary-400 mb-0.5">Questions</p>
+                                    <p className="text-lg font-bold text-primary-700 dark:text-primary-300">
                                       {pillar.questions?.length || 0}
                                     </p>
                                   </div>
@@ -938,7 +938,7 @@ export default function AdminAssessmentManagementPage() {
                                 variant="outline"
                                 onClick={() => handleEditRule(pillar)}
                                 title="Modifier"
-                                className="hover:bg-green-50 dark:hover:bg-green-900/20"
+                                className="hover:bg-success-50 dark:hover:bg-success-900/20"
                               >
                                 <Edit className="w-4 h-4" />
                               </Button>
@@ -1019,17 +1019,17 @@ export default function AdminAssessmentManagementPage() {
                 <div className="space-y-6">
                   <Card className="p-6 bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20 border-teal-200 dark:border-teal-800 mb-6">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-                      <Calculator className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                      <Calculator className="w-5 h-5 text-primary-600 dark:text-primary-400" />
                       Configuration générale
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-teal-200 dark:border-teal-700">
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Score maximum total</p>
-                        <p className="text-2xl font-bold text-teal-900 dark:text-teal-100">{rules.maxTotalScore}</p>
+                        <p className="text-2xl font-bold text-primary-900 dark:text-primary-100">{rules.maxTotalScore}</p>
                       </div>
                       <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-teal-200 dark:border-teal-700">
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Échelle de réponse</p>
-                        <p className="text-2xl font-bold text-teal-900 dark:text-teal-100">
+                        <p className="text-2xl font-bold text-primary-900 dark:text-primary-100">
                           {rules.scale.min} - {rules.scale.max}
                         </p>
                       </div>
@@ -1055,8 +1055,8 @@ export default function AdminAssessmentManagementPage() {
                               <div className="flex items-start justify-between mb-4">
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-2">
-                                    <div className="p-2 bg-teal-100 dark:bg-teal-900/30 rounded-lg">
-                                      <span className="text-teal-700 dark:text-teal-300 text-lg">
+                                    <div className="p-2 bg-primary-100 dark:bg-primary-900/30 rounded-lg">
+                                      <span className="text-primary-700 dark:text-primary-300 text-lg">
                                         {capInfo?.icon || '📊'}
                                       </span>
                                     </div>
@@ -1065,9 +1065,9 @@ export default function AdminAssessmentManagementPage() {
                                     </h4>
                                   </div>
                                   <div className="flex items-center gap-4 mt-3">
-                                    <div className="px-3 py-1.5 bg-teal-50 dark:bg-teal-900/20 rounded-lg">
-                                      <p className="text-xs text-teal-600 dark:text-teal-400 mb-0.5">Score max</p>
-                                      <p className="text-lg font-bold text-teal-700 dark:text-teal-300">
+                                    <div className="px-3 py-1.5 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
+                                      <p className="text-xs text-primary-600 dark:text-primary-400 mb-0.5">Score max</p>
+                                      <p className="text-lg font-bold text-primary-700 dark:text-primary-300">
                                         {capability.maxScore}
                                       </p>
                                     </div>
