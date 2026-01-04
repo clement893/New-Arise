@@ -99,7 +99,7 @@ export default function ProfilePage() {
                 </span>
               </div>
             </div>
-            <Button className="!bg-[#0F454D] hover:!bg-[#0d4148] !text-white">
+            <Button variant="arise-primary">
               Follow me
             </Button>
           </div>
@@ -352,7 +352,7 @@ export default function ProfilePage() {
                 <p className="text-3xl font-bold text-gray-900">$999</p>
               </div>
             </div>
-            <Button className="!bg-[#0F454D] hover:!bg-[#0d4148] !text-white flex items-center gap-2">
+            <Button variant="arise-primary" className="flex items-center gap-2">
               <Plus className="w-4 h-4" />
               ADD
             </Button>

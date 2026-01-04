@@ -168,11 +168,16 @@ function AssessmentsContent() {
         
         // Debug: Log if Wellness assessment is not found
         if (apiType === 'WELLNESS' && !apiAssessment) {
-          console.warn('[Assessments] Wellness assessment not found in map!', {
+          // Convert to string to prevent React error #130
+          console.warn('[Assessments] Wellness assessment not found in map!', JSON.stringify({
             apiType,
             mapKeys: Array.from(existingAssessmentsMap.keys()),
-            allAssessments: apiAssessments.filter(a => a.assessment_type === 'WELLNESS')
-          });
+            allAssessments: apiAssessments.filter(a => a.assessment_type === 'WELLNESS').map(a => ({
+              id: a.id,
+              type: a.assessment_type,
+              status: a.status
+            }))
+          }));
         }
         
         // Use utility function for consistent status determination

@@ -150,6 +150,38 @@ Error: EACCES: permission denied, mkdir '/app/apps/web/.next/cache'
 6. `apps/web/src/lib/api/client.ts`
 7. `apps/web/src/lib/api/assessments.ts`
 
+## Problèmes supplémentaires identifiés
+
+### 1. Page 360-Feedback Results (`apps/web/src/app/[locale]/dashboard/assessments/360-feedback/results/page.tsx`)
+
+#### Problèmes identifiés:
+- **Ligne 115-119**: Gestion d'erreur dans `loadResults()`
+  - ⚠️ **PROBLÈME**: Parsing d'erreur incomplet - ne gère que `err.message`, pas les erreurs axios complètes
+  - ⚠️ **PROBLÈME**: Pas de try-catch autour du parsing d'erreur
+  - ⚠️ **PROBLÈME**: Pas de vérification que `errorMessage` est une chaîne avant `setError()`
+
+- **Ligne 137**: Rendu de `error` dans le JSX
+  - ⚠️ **PROBLÈME**: Pas de vérification que `error` est une chaîne avant le rendu
+  - ⚠️ **PROBLÈME**: Si `error` est un objet, il sera rendu directement
+
+### 2. Page TKI Results (`apps/web/src/app/[locale]/dashboard/assessments/tki/results/page.tsx`)
+
+#### Problèmes identifiés:
+- **Ligne 53-57**: Gestion d'erreur dans `loadResults()`
+  - ⚠️ **PROBLÈME**: Parsing d'erreur incomplet - ne gère que `response.data.detail`, pas tous les cas
+  - ⚠️ **PROBLÈME**: Pas de try-catch autour du parsing d'erreur
+  - ⚠️ **PROBLÈME**: Pas de vérification que `errorMessage` est une chaîne avant `setError()`
+
+- **Ligne 57**: `setError(errorMessage || 'Failed to load results')`
+  - ⚠️ **PROBLÈME**: Si `errorMessage` est `undefined`, une chaîne par défaut est utilisée, mais si c'est un objet, il sera stocké
+
 ## Conclusion
 
-Bien que plusieurs corrections aient été appliquées, l'erreur React #130 persiste, particulièrement lors de la navigation arrière. Il est probable que le problème vienne d'un composant parent ou d'un store Zustand qui n'a pas encore été audité. Un audit complet de tous les composants et stores est nécessaire pour identifier la source exacte du problème.
+Bien que plusieurs corrections aient été appliquées, l'erreur React #130 persiste, particulièrement lors de la navigation arrière. Il est probable que le problème vienne de:
+
+1. **Pages de résultats non corrigées**: Les pages `360-feedback/results` et `tki/results` ont des problèmes similaires non corrigés
+2. **Composant parent**: Un composant parent (DashboardLayout, Sidebar) pourrait rendre des objets
+3. **Stores Zustand**: Les stores pourraient contenir des objets qui sont rendus directement
+4. **API Client**: Les erreurs axios pourraient être passées directement sans conversion en chaînes
+
+Un audit complet de tous les composants et stores est nécessaire pour identifier la source exacte du problème.

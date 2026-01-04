@@ -145,7 +145,7 @@ export class ErrorBoundary extends Component<Props, State> {
                     Error Details
                   </h3>
                   <pre className="text-xs text-red-800 dark:text-red-200 overflow-auto">
-                    {this.state.error.toString()}
+                    {this.state.error?.message || this.state.error?.toString() || 'Unknown error'}
                     {this.state.errorInfo?.componentStack && (
                       <div className="mt-2 pt-2 border-t border-red-200 dark:border-red-800">
                         {this.state.errorInfo.componentStack}

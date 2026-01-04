@@ -16,6 +16,7 @@ import WellnessBarChart from '@/components/assessments/charts/WellnessBarChart';
 import InsightCard from '@/components/assessments/InsightCard';
 import RecommendationCard from '@/components/assessments/RecommendationCard';
 import { ArrowLeft, Download, Heart } from 'lucide-react';
+import { formatError } from '@/lib/utils/formatError';
 
 export default function WellnessResultsPage() {
   const router = useRouter();
@@ -38,11 +39,9 @@ export default function WellnessResultsPage() {
       const data = await getAssessmentResults(Number(assessmentId));
       setResults(data);
     } catch (err: unknown) {
-      const errorMessage =
-        err && typeof err === 'object' && 'response' in err
-          ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
-          : undefined;
-      setError(errorMessage || 'Failed to load results');
+      // Convert error to string to prevent React error #130
+      const errorMessage = formatError(err);
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -89,13 +88,15 @@ export default function WellnessResultsPage() {
   }
 
   if (error || !results) {
+    // Ensure error is always a string before rendering
+    const errorString = typeof error === 'string' ? error : formatError(error || 'Results not found');
     return (
       <div className="min-h-screen bg-gray-50 flex">
         <Sidebar />
         <div className="flex-1 flex items-center justify-center">
           <Card className="max-w-md">
             <div className="p-6 text-center">
-              <p className="text-red-600 mb-4">{error || 'Results not found'}</p>
+              <p className="text-red-600 mb-4">{errorString}</p>
               <Button onClick={() => router.push('/dashboard/assessments')}>
                 Back to Assessments
               </Button>

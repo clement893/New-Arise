@@ -8,6 +8,7 @@ import { getMyAssessments } from '@/lib/api/assessments';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import MotionDiv from '@/components/motion/MotionDiv';
+import { formatError } from '@/lib/utils/formatError';
 
 export default function TKIAssessmentPage() {
   const router = useRouter();
@@ -62,7 +63,9 @@ export default function TKIAssessmentPage() {
             setShowIntro(false);
           }
         } catch (err) {
-          console.error('Failed to check existing assessments:', err);
+          // Convert error to string to prevent React error #130
+          const errorMessage = formatError(err);
+          console.error('Failed to check existing assessments:', errorMessage);
         }
       }
     };
@@ -200,7 +203,7 @@ export default function TKIAssessmentPage() {
 
             {error && (
               <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm text-center">
-                {typeof error === 'string' ? error : String(error)}
+                {typeof error === 'string' ? error : formatError(error)}
               </div>
             )}
           </Card>
@@ -228,10 +231,9 @@ export default function TKIAssessmentPage() {
   
   // Safety check: ensure currentQuestion is valid
   if (currentQuestion < 0 || currentQuestion >= tkiQuestions.length) {
-    console.error('[TKI] Invalid currentQuestion:', {
-      currentQuestion,
-      questionsLength: tkiQuestions.length,
-    });
+    // Convert to string to prevent React error #130
+    const errorDetails = `currentQuestion: ${currentQuestion}, questionsLength: ${tkiQuestions.length}`;
+    console.error('[TKI] Invalid currentQuestion:', errorDetails);
     return (
       <div className="min-h-screen bg-gradient-to-br from-arise-teal via-arise-teal-dark to-arise-teal flex items-center justify-center p-4">
         <Card className="bg-white p-8 text-center">
@@ -350,7 +352,7 @@ export default function TKIAssessmentPage() {
 
             {error && (
               <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
-                {typeof error === 'string' ? error : String(error)}
+                {typeof error === 'string' ? error : formatError(error)}
               </div>
             )}
 
