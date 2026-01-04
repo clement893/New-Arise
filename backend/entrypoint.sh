@@ -29,20 +29,6 @@ fi
 # Use timeout to prevent migrations from blocking startup indefinitely
 if [ -n "$DATABASE_URL" ]; then
     echo "=========================================="
-    echo "Running SQL migrations..."
-    echo "=========================================="
-    
-    # Run SQL migrations from migrations/ directory
-    if [ -f "scripts/run_migrations.py" ]; then
-        echo "Executing SQL migration scripts..."
-        python scripts/run_migrations.py || {
-            echo "⚠️  Warning: SQL migrations failed, but continuing startup..."
-        }
-    else
-        echo "⚠️  Warning: run_migrations.py not found, skipping SQL migrations"
-    fi
-    
-    echo "=========================================="
     echo "Running database migrations (Alembic)..."
     echo "=========================================="
     
