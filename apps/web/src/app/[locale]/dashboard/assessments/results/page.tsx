@@ -11,6 +11,7 @@ import { assessmentsApi, AssessmentResult, PillarScore } from '@/lib/api/assessm
 import { wellnessPillars } from '@/data/wellnessQuestionsReal';
 import { ArrowLeft, Download, Share2, TrendingUp, Loader2 } from 'lucide-react';
 import { apiClient } from '@/lib/api';
+import { formatError } from '@/lib/utils/formatError';
 
 function AssessmentResultsContent() {
   const router = useRouter();
@@ -96,9 +97,7 @@ function AssessmentResultsContent() {
           }
         } catch (submitError: unknown) {
           // Convert error to string to prevent React error #130
-          const errorMessage = submitError && typeof submitError === 'object' && 'response' in submitError
-            ? (submitError as { response?: { data?: { detail?: string; message?: string } } }).response?.data?.detail || 'Unknown error'
-            : submitError instanceof Error ? submitError.message : 'Unknown error';
+          const errorMessage = formatError(submitError);
           console.error(`[Results] Failed to submit assessment ${id}:`, errorMessage);
           const errorDetail = errorMessage;
           
@@ -122,29 +121,10 @@ function AssessmentResultsContent() {
       const data = await assessmentsApi.getResults(id);
       setResults(data);
     } catch (err: unknown) {
-      let errorMessage = 'Failed to load results';
-      
-      try {
-        if (err && typeof err === 'object' && 'response' in err) {
-          const response = (err as { response?: { data?: { detail?: string; message?: string }; status?: number } }).response;
-          if (response?.status === 404) {
-            errorMessage = response.data?.detail || response.data?.message || 'Results not found. The assessment may not be completed yet.';
-          } else {
-            errorMessage = response?.data?.detail || response?.data?.message || errorMessage;
-          }
-        } else if (err instanceof Error) {
-          errorMessage = err.message;
-        } else if (err !== null && err !== undefined) {
-          // Fallback: convert any other type to string
-          errorMessage = String(err);
-        }
-      } catch (parseError) {
-        // If parsing the error fails, use a safe default message
-        errorMessage = 'An unexpected error occurred while loading results.';
-      }
-      
-      // Ensure errorMessage is always a string
-      setError(typeof errorMessage === 'string' ? errorMessage : 'Failed to load results');
+      // Convert error to string to prevent React error #130
+      const errorMessage = formatError(err);
+      console.error('[Results] Failed to load results:', errorMessage);
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -219,7 +199,7 @@ function AssessmentResultsContent() {
       window.URL.revokeObjectURL(url);
     } catch (err: unknown) {
       // Convert error to string to prevent React error #130
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      const errorMessage = formatError(err);
       console.error('Error downloading PDF:', errorMessage);
       setError('Failed to download PDF report. Please try again.');
     } finally {

@@ -51,10 +51,10 @@ export default function TKIResultsPage() {
 
       setResults(transformedResults);
     } catch (err: unknown) {
-      const errorMessage = err && typeof err === 'object' && 'response' in err
-        ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
-        : undefined;
-      setError(errorMessage || 'Failed to load results');
+      // Convert error to string to prevent React error #130
+      const errorMessage = formatError(err);
+      console.error('[TKI Results] Failed to load results:', errorMessage);
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

@@ -12,6 +12,7 @@ import { getMyAssessments, Assessment as ApiAssessment, AssessmentType, submitAs
 import { startAssessment } from '@/lib/api/assessments';
 import InviteAdditionalEvaluatorsModal from '@/components/360/InviteAdditionalEvaluatorsModal';
 import { determineAssessmentStatus } from '@/lib/utils/assessmentStatus';
+import { formatError } from '@/lib/utils/formatError';
 
 interface AssessmentDisplay {
   id: string;
@@ -244,27 +245,9 @@ function AssessmentsContent() {
       }
     } catch (err) {
       // Convert error to string to prevent React error #130
-      let errorMessage = 'Failed to load assessments';
-      try {
-        if (err && typeof err === 'object' && 'response' in err) {
-          const response = (err as { response?: { data?: { detail?: string; message?: string }; status?: number } }).response;
-          if (response?.status === 401) {
-            errorMessage = 'Your session has expired. Please refresh the page to log in again.';
-          } else {
-            errorMessage = response?.data?.detail || response?.data?.message || errorMessage;
-          }
-        } else if (err instanceof Error) {
-          errorMessage = err.message;
-        } else if (err !== null && err !== undefined) {
-          errorMessage = String(err);
-        }
-      } catch (parseError) {
-        // If parsing the error fails, use a safe default message
-        errorMessage = 'An unexpected error occurred while loading assessments.';
-      }
+      const errorMessage = formatError(err);
       console.error('Failed to load assessments:', errorMessage);
-      // Ensure errorMessage is always a string
-      setError(typeof errorMessage === 'string' ? errorMessage : 'Failed to load assessments');
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -296,8 +279,10 @@ function AssessmentsContent() {
         router.push(`/dashboard/assessments/${getAssessmentRoute(assessmentType)}`);
       }
     } catch (err) {
-      console.error('Failed to start assessment:', err);
-      setError(err instanceof Error ? err.message : 'Failed to start assessment');
+      // Convert error to string to prevent React error #130
+      const errorMessage = formatError(err);
+      console.error('Failed to start assessment:', errorMessage);
+      setError(errorMessage);
     } finally {
       setStartingAssessment(null);
     }
@@ -517,14 +502,24 @@ function AssessmentsContent() {
   }
 
   if (error) {
+    // Ensure error is always a string before rendering
+    const errorString = typeof error === 'string' ? error : String(error || 'Failed to load assessments');
+    const isUnauthorized = errorString.includes('401') || errorString.includes('expired') || errorString.includes('Unauthorized');
+    
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Card className="max-w-md w-full mx-4">
           <div className="text-center">
-            <p className="text-red-600 mb-4">{error}</p>
-            <Button variant="primary" onClick={loadAssessments}>
-              Réessayer
-            </Button>
+            <p className="text-red-600 mb-4">{errorString}</p>
+            {isUnauthorized ? (
+              <Button variant="primary" onClick={() => window.location.reload()}>
+                Refresh Page
+              </Button>
+            ) : (
+              <Button variant="primary" onClick={loadAssessments}>
+                Réessayer
+              </Button>
+            )}
           </div>
         </Card>
       </div>

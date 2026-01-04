@@ -14,6 +14,7 @@ import { useFeedback360Store } from '@/stores/feedback360Store';
 import { feedback360Capabilities } from '@/data/feedback360Questions';
 import Button from '@/components/ui/Button';
 import { ArrowLeft, TrendingUp, TrendingDown, Minus, Users, CheckCircle, Clock, Mail, XCircle } from 'lucide-react';
+import { formatError } from '@/lib/utils/formatError';
 
 // Type guard to check if a value is a PillarScore object
 function isPillarScore(value: number | PillarScore): value is PillarScore {
@@ -113,10 +114,10 @@ export default function Feedback360ResultsPage() {
 
       setResults(transformedResults);
     } catch (err: unknown) {
-      const errorMessage = err && typeof err === 'object' && 'message' in err
-        ? (err as { message?: string }).message
-        : undefined;
-      setError(errorMessage || 'Failed to load results');
+      // Convert error to string to prevent React error #130
+      const errorMessage = formatError(err);
+      console.error('[360-Feedback Results] Failed to load results:', errorMessage);
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -131,10 +132,12 @@ export default function Feedback360ResultsPage() {
   }
 
   if (error || !results) {
+    // Ensure error is always a string before rendering
+    const errorString = typeof error === 'string' ? error : formatError(error || 'No results found');
     return (
       <div className="flex min-h-screen items-center justify-center bg-arise-teal p-8">
         <div className="rounded-lg bg-white p-8 text-center shadow-lg">
-          <p className="mb-4 text-red-600">{error || 'No results found'}</p>
+          <p className="mb-4 text-red-600">{errorString}</p>
           <Button onClick={() => router.push('/dashboard/assessments')}>
             Back to Assessments
           </Button>

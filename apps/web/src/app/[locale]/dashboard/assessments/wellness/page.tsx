@@ -12,6 +12,7 @@ import { wellnessQuestions, wellnessPillars, scaleOptions } from '@/data/wellnes
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 import { getMyAssessments, submitAssessment as submitAssessmentApi, getAssessmentResults } from '@/lib/api/assessments';
 import { determineAssessmentStatus } from '@/lib/utils/assessmentStatus';
+import { formatError } from '@/lib/utils/formatError';
 
 function WellnessAssessmentContent() {
   const router = useRouter();
@@ -61,7 +62,9 @@ function WellnessAssessmentContent() {
       }
     }
   } catch (error) {
-    console.error('[Wellness] Error accessing question data:', error);
+    // Convert error to string to prevent React error #130
+    const errorMessage = formatError(error);
+    console.error('[Wellness] Error accessing question data:', errorMessage);
     // Fallback values - component will show error state
   }
 
@@ -131,12 +134,14 @@ function WellnessAssessmentContent() {
                       }, 1000);
                       return;
                     }
-                    console.error('Failed to submit assessment:', submitErr);
+                    const submitErrMessage = formatError(submitErr);
+                    console.error('Failed to submit assessment:', submitErrMessage);
                   }
                 }
                 // Results don't exist and can't submit, continue with assessment
               } else {
-                console.error('Failed to check results:', err);
+                const checkErrMessage = formatError(err);
+                console.error('Failed to check results:', checkErrMessage);
               }
             }
           }
@@ -161,7 +166,8 @@ function WellnessAssessmentContent() {
                 setShowIntro(false);
               }
             } catch (loadErr) {
-              console.error('[Wellness] Failed to load existing answers:', loadErr);
+              const loadErrMessage = formatError(loadErr);
+              console.error('[Wellness] Failed to load existing answers:', loadErrMessage);
               // If loading fails, show intro as fallback
               setShowIntro(true);
             }
@@ -174,7 +180,8 @@ function WellnessAssessmentContent() {
           setShowIntro(true);
         }
       } catch (err) {
-        console.error('Failed to check existing assessments:', err);
+        const checkErrMessage = formatError(err);
+        console.error('Failed to check existing assessments:', checkErrMessage);
         // On error, show intro as safe fallback
         setShowIntro(true);
       } finally {
@@ -196,9 +203,15 @@ function WellnessAssessmentContent() {
             // Results exist, safe to redirect
             router.push(`/dashboard/assessments/results?id=${assessmentId}`);
           })
-          .catch((err) => {
-            // Results don't exist yet, show completion screen instead
-            console.log('Results not yet available, showing completion screen', err);
+          .catch((err: unknown) => {
+            // Results don't exist yet (404 or other error), show completion screen instead
+            // Don't log the full error object to prevent React error #130
+            const errorMessage = err && typeof err === 'object' && 'response' in err
+              ? (err as { response?: { status?: number } }).response?.status === 404
+                ? 'Results not yet available (404)'
+                : 'Results not yet available'
+              : err instanceof Error ? err.message : 'Results not yet available';
+            console.log('Results not yet available, showing completion screen:', errorMessage);
             setShowCompletion(true);
           });
       } else {
@@ -234,7 +247,8 @@ function WellnessAssessmentContent() {
       }
       await setAnswer(currentQuestion.id, value);
     } catch (error) {
-      console.error('[Wellness] Error in handleAnswerSelect:', error);
+      const errorMessage = formatError(error);
+      console.error('[Wellness] Error in handleAnswerSelect:', errorMessage);
       alert('Erreur lors de la sauvegarde de la réponse. Veuillez réessayer.');
     }
   };
@@ -248,7 +262,8 @@ function WellnessAssessmentContent() {
         nextQuestion();
       }
     } catch (error) {
-      console.error('[Wellness] Error in handleNext:', error);
+      const errorMessage = formatError(error);
+      console.error('[Wellness] Error in handleNext:', errorMessage);
       alert('Erreur lors de la navigation. Veuillez réessayer.');
     }
   };
@@ -261,7 +276,8 @@ function WellnessAssessmentContent() {
         previousQuestion();
       }
     } catch (error) {
-      console.error('[Wellness] Error in handleBack:', error);
+      const errorMessage = formatError(error);
+      console.error('[Wellness] Error in handleBack:', errorMessage);
       // Fallback: just show intro
       setShowIntro(true);
     }
@@ -340,7 +356,8 @@ function WellnessAssessmentContent() {
                         console.log(`[Wellness] Assessment started with ID: ${newAssessmentId}`);
                         setShowIntro(false);
                       } catch (error) {
-                        console.error('[Wellness] Failed to start assessment:', error);
+                        const errorMessage = formatError(error);
+                        console.error('[Wellness] Failed to start assessment:', errorMessage);
                         alert('Erreur: Impossible de démarrer l\'assessment. Veuillez réessayer.');
                       }
                     }}
@@ -458,9 +475,9 @@ function WellnessAssessmentContent() {
   
   // Safety check: ensure currentQuestionIndex is valid
   if (currentQuestionIndex < 0 || currentQuestionIndex >= wellnessQuestions.length) {
-    console.error('[Wellness] Invalid currentQuestionIndex:', 
-      `currentQuestionIndex: ${currentQuestionIndex}, questionsLength: ${wellnessQuestions.length}`
-    );
+    // Convert to string to prevent React error #130
+    const errorDetails = `currentQuestionIndex: ${currentQuestionIndex}, questionsLength: ${wellnessQuestions.length}`;
+    console.error('[Wellness] Invalid currentQuestionIndex:', errorDetails);
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Card className="p-6">

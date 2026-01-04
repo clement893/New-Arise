@@ -7,6 +7,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { assessmentsApi, AssessmentResult, getAssessmentAnswers } from '@/lib/api/assessments';
 import axios from 'axios';
+import { formatError } from '@/lib/utils/formatError';
 
 export type WellnessStep = 'intro' | 'questions' | 'congratulations';
 
@@ -71,10 +72,9 @@ export const useWellnessStore = create<WellnessState>()(
             isCompleted: false,
           });
         } catch (error: unknown) {
-          const errorMessage =
-            axios.isAxiosError(error) && error.response?.data?.message
-              ? error.response.data.message
-              : 'Failed to start assessment';
+          // Convert error to string to prevent React error #130
+          const errorMessage = formatError(error);
+          console.error('[Wellness] Failed to start assessment:', errorMessage);
           set({
             error: errorMessage,
             isLoading: false,
@@ -147,11 +147,9 @@ export const useWellnessStore = create<WellnessState>()(
 
           console.log(`[Wellness] Updated currentQuestionIndex to: ${firstUnansweredIndex}`);
         } catch (error: unknown) {
-          console.error('[Wellness] Failed to load existing answers:', error);
-          const errorMessage =
-            axios.isAxiosError(error) && error.response?.data?.message
-              ? error.response.data.message
-              : 'Failed to load existing answers';
+          // Convert error to string to prevent React error #130
+          const errorMessage = formatError(error);
+          console.error('[Wellness] Failed to load existing answers:', errorMessage);
           set({
             error: errorMessage,
             isLoading: false,
@@ -205,26 +203,25 @@ export const useWellnessStore = create<WellnessState>()(
               console.log(`[Wellness] Answer saved successfully: ${questionId} = ${value}`);
             }
           } catch (error: unknown) {
+            // Convert error to string to prevent React error #130
+            const errorMessage = formatError(error);
             // ALWAYS log errors, even in production, for debugging
-            console.error('[Wellness] Failed to save answer:', {
+            // Use JSON.stringify to prevent React error #130 from console.error
+            console.error('[Wellness] Failed to save answer:', JSON.stringify({
               questionId,
               value,
               assessmentId,
-              error: error instanceof Error ? error.message : String(error),
+              error: errorMessage,
               axiosError: axios.isAxiosError(error) ? {
                 status: error.response?.status,
                 data: error.response?.data,
               } : null,
-            });
-            const errorMessage =
-              axios.isAxiosError(error) && error.response?.data?.message
-                ? error.response.data.message
-                : 'Failed to save answer';
+            }));
             set({
               error: errorMessage,
             });
-            // Re-throw to allow caller to handle
-            throw error;
+            // Re-throw to allow caller to handle (but as a new Error with the formatted message)
+            throw new Error(errorMessage);
           }
         } else {
           // Log warning if assessmentId is missing
@@ -310,12 +307,9 @@ export const useWellnessStore = create<WellnessState>()(
             }
           }
           
-          const errorMessage =
-            axios.isAxiosError(error) && error.response?.data?.detail
-              ? error.response.data.detail
-              : axios.isAxiosError(error) && error.response?.data?.message
-              ? error.response.data.message
-              : 'Failed to submit assessment';
+          // Convert error to string to prevent React error #130
+          const errorMessage = formatError(error);
+          console.error('[Wellness] Failed to submit assessment:', errorMessage);
           set({
             error: errorMessage,
             isLoading: false,
@@ -359,7 +353,9 @@ export const useWellnessStore = create<WellnessState>()(
           }
         } catch (err) {
           // If we can't check status, proceed with submission
-          console.warn('Failed to check assessment status:', err);
+          // Convert error to string to prevent React error #130
+          const errMessage = formatError(err);
+          console.warn('Failed to check assessment status:', errMessage);
         }
 
         // If not completed, proceed with submission
