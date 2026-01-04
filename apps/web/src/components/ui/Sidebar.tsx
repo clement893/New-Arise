@@ -160,7 +160,7 @@ export default function Sidebar({
             'flex items-center justify-between px-lg py-md rounded-lg transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] min-h-[44px] relative', // Improved spacing and touch target (UX/UI improvements - Batch 8, 17)
             isActive
               ? 'bg-arise-button-primary text-white font-medium'
-              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800',
+              : 'text-gray-700 hover:bg-gray-100',
             level > 0 && 'ml-lg' // Increased indentation for nested items
           )}
         >
