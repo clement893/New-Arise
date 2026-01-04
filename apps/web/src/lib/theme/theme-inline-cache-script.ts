@@ -25,26 +25,73 @@ export const themeCacheInlineScript = `
     const cacheExpiryMs = 5 * 60 * 1000; // 5 minutes
     
     const cachedStr = localStorage.getItem(cacheKey);
-    if (!cachedStr) {
-      // No cache - GlobalThemeProvider will fetch theme from API
-      return;
+    let config = null;
+    
+    if (cachedStr) {
+      try {
+        const cached = JSON.parse(cachedStr);
+        
+        // Check version and expiry
+        if (cached.version === cacheVersion) {
+          const age = Date.now() - cached.timestamp;
+          if (age <= cacheExpiryMs && cached.config) {
+            config = cached.config;
+          }
+        }
+      } catch (e) {
+        // Cache corrupted, will use defaults below
+      }
     }
     
-    const cached = JSON.parse(cachedStr);
-    
-    // Check version and expiry
-    if (cached.version !== cacheVersion) {
-      return;
-    }
-    
-    const age = Date.now() - cached.timestamp;
-    if (age > cacheExpiryMs) {
-      return;
-    }
-    
-    const config = cached.config;
+    // If no valid cache, use ARISE default theme config
+    // This prevents flash of old values
     if (!config) {
-      return;
+      config = {
+        mode: "light",
+        primary_color: "#0A3A40",
+        secondary_color: "#D4AF37",
+        danger_color: "#dc2626",
+        warning_color: "#b45309",
+        info_color: "#0891b2",
+        success_color: "#047857",
+        font_family: "Inter",
+        border_radius: "8px",
+        colors: {
+          primary: "#0A3A40",
+          secondary: "#D4AF37",
+          danger: "#dc2626",
+          warning: "#b45309",
+          info: "#0891b2",
+          success: "#047857",
+          background: "#ffffff",
+          foreground: "#0f172a",
+          muted: "#f1f5f9",
+          mutedForeground: "#64748b",
+          border: "#e2e8f0",
+          input: "#ffffff",
+          ring: "#2563eb",
+          destructive: "#dc2626",
+          destructiveForeground: "#ffffff",
+          successForeground: "#ffffff",
+          warningForeground: "#ffffff",
+          ariseDeepTeal: "#0A3A40",
+          ariseDeepTealAlt: "#1B5E6B",
+          ariseButtonPrimary: "#0F454D",
+          ariseButtonPrimaryHover: "#0d4148",
+          ariseGold: "#D4AF37",
+          ariseGoldAlt: "#F4B860",
+          ariseDarkGray: "#2e2e2e",
+          ariseLightBeige: "#F5F5DC",
+          ariseBeige: "#E9E4D4",
+          ariseTextDark: "#1a202c",
+          ariseTextLight: "#ffffff"
+        },
+        typography: {
+          fontFamily: "Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          fontFamilyHeading: "Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          fontFamilySubheading: "Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+        }
+      };
     }
     
     // Color generation functions (simplified inline version)

@@ -15,8 +15,9 @@ export function ThemeOverview() {
   const { theme } = useGlobalTheme();
   const [copied, setCopied] = useState(false);
 
-  // Use default ARISE theme if no theme is loaded
-  const displayTheme = theme || {
+  // Always use default ARISE theme for display on this page
+  // This ensures we always show ARISE colors, even if API returns old values
+  const displayTheme = {
     id: 0,
     name: 'arise-default',
     display_name: 'ARISE Default Theme',
@@ -77,16 +78,12 @@ export function ThemeOverview() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl font-bold mb-2">{displayTheme.display_name || displayTheme.name}</h2>
-            {displayTheme.is_active && (
-              <Badge variant="success" className="mb-2">
-                Thème actif
-              </Badge>
-            )}
-            {!theme && (
-              <Badge variant="info" className="mb-2 ml-2">
-                Valeurs par défaut ARISE
-              </Badge>
-            )}
+            <Badge variant="success" className="mb-2">
+              Thème actif
+            </Badge>
+            <Badge variant="info" className="mb-2 ml-2">
+              Valeurs par défaut ARISE
+            </Badge>
           </div>
           <div className="flex gap-2">
             <button
