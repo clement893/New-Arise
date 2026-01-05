@@ -49,7 +49,7 @@ import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { Brain, Target, Users, Heart, Upload, CheckCircle, Lock, type LucideIcon, Loader2, RefreshCw } from 'lucide-react';
-import { getMyAssessments, Assessment as ApiAssessment, AssessmentType, submitAssessment } from '@/lib/api/assessments';
+import { getMyAssessments, Assessment as ApiAssessment, AssessmentType } from '@/lib/api/assessments';
 import { startAssessment } from '@/lib/api/assessments';
 import InviteAdditionalEvaluatorsModal from '@/components/360/InviteAdditionalEvaluatorsModal';
 import { formatError } from '@/lib/utils/formatError';
