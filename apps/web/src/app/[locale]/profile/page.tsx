@@ -1,18 +1,51 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
 import { Card } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import SubscriptionManagement from '@/components/profile/SubscriptionManagement';
 import { ArrowRight, Plus } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export default function ProfilePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuthStore();
-  const [activeTab, setActiveTab] = useState<'profile' | 'subscription'>('profile');
+  
+  // Initialize activeTab from URL parameter or default to 'profile'
+  const [activeTab, setActiveTab] = useState<'profile' | 'subscription'>(() => {
+    const tab = searchParams?.get('tab');
+    return (tab === 'subscription' ? 'subscription' : 'profile') as 'profile' | 'subscription';
+  });
+
+  // Update activeTab when URL parameter changes
+  useEffect(() => {
+    const tab = searchParams?.get('tab');
+    if (tab === 'subscription') {
+      setActiveTab('subscription');
+    } else if (tab === 'profile' || !tab) {
+      setActiveTab('profile');
+    }
+  }, [searchParams]);
+
+  // Update URL when tab changes
+  const handleTabChange = (tab: 'profile' | 'subscription') => {
+    setActiveTab(tab);
+    const params = new URLSearchParams(window.location.search);
+    if (tab === 'profile') {
+      params.delete('tab');
+    } else {
+      params.set('tab', tab);
+    }
+    const queryString = params.toString();
+    const newUrl = queryString 
+      ? `${window.location.pathname}?${queryString}` 
+      : window.location.pathname;
+    router.replace(newUrl, { scroll: false });
+  };
   
   const [formData, setFormData] = useState({
     firstName: 'John',
@@ -53,7 +86,7 @@ export default function ProfilePage() {
         {/* Tabs */}
         <div className="flex gap-2">
           <button
-            onClick={() => setActiveTab('profile')}
+            onClick={() => handleTabChange('profile')}
             className={clsx(
               'px-6 py-3 rounded-t-lg font-semibold transition-colors',
               activeTab === 'profile'
@@ -64,7 +97,7 @@ export default function ProfilePage() {
             Profile
           </button>
           <button
-            onClick={() => setActiveTab('subscription')}
+            onClick={() => handleTabChange('subscription')}
             className={clsx(
               'px-6 py-3 rounded-t-lg font-semibold transition-colors',
               activeTab === 'subscription'
@@ -308,84 +341,7 @@ export default function ProfilePage() {
 
       {/* Subscription Tab Content */}
       {activeTab === 'subscription' && (
-        <div className="space-y-6">
-          {/* Current plan Card */}
-          <Card className="p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex-1">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Current plan</h3>
-                <p className="text-gray-600 mb-4">
-                  REVELATION: Complete profile assessment - Expires on 11/19/2024
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <span className="px-3 py-1 bg-arise-gold-alt/30 text-arise-deep-teal-alt rounded-full text-xs font-medium">
-                    Professional
-                  </span>
-                  <span className="px-3 py-1 bg-arise-gold-alt/30 text-arise-deep-teal-alt rounded-full text-xs font-medium">
-                    360 feedback
-                  </span>
-                  <span className="px-3 py-1 bg-arise-gold-alt/30 text-arise-deep-teal-alt rounded-full text-xs font-medium">
-                    Wellness Pulse
-                  </span>
-                  <span className="px-3 py-1 bg-arise-gold-alt/30 text-arise-deep-teal-alt rounded-full text-xs font-medium">
-                    Executive summary
-                  </span>
-                </div>
-              </div>
-              <div className="text-right ml-6">
-                <p className="text-3xl font-bold text-gray-900">$299</p>
-                <p className="text-gray-600">/ month</p>
-              </div>
-            </div>
-          </Card>
-
-          {/* Upgrade Your Plan Card */}
-          <Card className="p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex-1">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Upgrade Your Plan</h3>
-                <p className="text-gray-600">
-                  COACHING: 4x60 coaching sessions with a certified coach
-                </p>
-              </div>
-              <div className="text-right ml-6">
-                <p className="text-3xl font-bold text-gray-900">$999</p>
-              </div>
-            </div>
-            <Button variant="arise-primary" className="flex items-center gap-2">
-              <Plus className="w-4 h-4" />
-              ADD
-            </Button>
-          </Card>
-
-          {/* Ready to accelerate your growth? Card */}
-          <Card 
-            className="p-8 text-white border-0 relative overflow-hidden bg-arise-dark-gray"
-          >
-            <div className="flex items-center justify-between gap-8">
-              <div className="flex-1">
-                <h3 className="text-3xl font-bold mb-4">Ready to accelerate your growth?</h3>
-                <p className="text-white/90 mb-6 max-w-2xl">
-                  Connect with expert ARISE coaches who specialize in leadership development. 
-                  Schedule your FREE coaching session to debrief your results and build a 
-                  personalized development plan.
-                </p>
-                <Button 
-                  className="!bg-arise-gold-alt !text-arise-deep-teal-alt hover:!bg-arise-gold-alt/90 flex items-center gap-2 font-semibold"
-                  style={{ backgroundColor: 'var(--color-arise-gold-alt, #F4B860)', color: 'var(--color-arise-deep-teal-alt, #1B5E6B)' }}
-                  onClick={() => router.push('/dashboard/coaching-options')}
-                >
-                  Explore coaching options
-                  <ArrowRight size={20} />
-                </Button>
-              </div>
-              {/* Image placeholder */}
-              <div className="hidden lg:block flex-shrink-0 w-64 h-64 bg-white/10 rounded-lg flex items-center justify-center overflow-hidden">
-                <span className="text-white/50 text-sm">Image placeholder</span>
-              </div>
-            </div>
-          </Card>
-        </div>
+        <SubscriptionManagement />
       )}
     </div>
   );

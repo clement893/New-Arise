@@ -175,6 +175,13 @@ export function useCancelSubscription() {
   });
 }
 
+export function useCreatePortalSession() {
+  return useMutation({
+    mutationFn: (returnUrl: string) => 
+      subscriptionsAPI.createPortalSession(returnUrl),
+  });
+}
+
 // Teams Hooks
 export function useTeams() {
   return useQuery({
