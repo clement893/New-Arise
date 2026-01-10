@@ -240,6 +240,33 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                     html_content = response.text
                     logger.debug(f"Successfully accessed profile page (HTML length: {len(html_content)} chars)")
                     
+                    # Check if page is JavaScript-rendered (common for SPAs)
+                    is_js_rendered = False
+                    if 'loading' in html_content.lower() or '<div id="root">' in html_content or 'react' in html_content.lower() or 'vue' in html_content.lower():
+                        is_js_rendered = True
+                        logger.info("Page appears to be JavaScript-rendered (SPA), trying API endpoints directly")
+                    
+                    # Extract any API endpoints or data from the HTML
+                    import re
+                    json_patterns = [
+                        r'window\.__INITIAL_STATE__\s*=\s*({.+?});',
+                        r'window\.__PRELOADED_STATE__\s*=\s*({.+?});',
+                        r'data-react-props\s*=\s*["\']({.+?})["\']',
+                        r'window\.profileData\s*=\s*({.+?});',
+                    ]
+                    
+                    api_data = None
+                    for pattern in json_patterns:
+                        matches = re.findall(pattern, html_content, re.DOTALL)
+                        if matches:
+                            try:
+                                import json
+                                api_data = json.loads(matches[0])
+                                logger.info(f"Found embedded API data in page")
+                                break
+                            except:
+                                pass
+                    
                     # Check if page indicates authentication is required
                     if 'sign in' in html_content.lower() or 'login' in html_content.lower() or 'private' in html_content.lower():
                         logger.warning("Page may require authentication")
@@ -251,13 +278,25 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                     # Continue anyway, might still be able to try direct PDF URLs
                 
                 # Try common PDF endpoints first (these might work for public profiles)
+                # 16Personalities may use different API versions and formats
                 pdf_urls_to_try = [
+                    # Direct PDF endpoints
                     f"https://www.16personalities.com/profiles/{profile_id}/pdf",
-                    f"https://www.16personalities.com/api/profiles/{profile_id}/pdf",
-                    f"https://www.16personalities.com/profiles/{profile_id}/export/pdf",
                     f"https://www.16personalities.com/profiles/{profile_id}/download/pdf",
+                    f"https://www.16personalities.com/profiles/{profile_id}/export/pdf",
+                    f"https://www.16personalities.com/profiles/{profile_id}/download",
+                    # API endpoints
+                    f"https://www.16personalities.com/api/profiles/{profile_id}/pdf",
+                    f"https://www.16personalities.com/api/profiles/{profile_id}/export/pdf",
                     f"https://www.16personalities.com/api/v1/profiles/{profile_id}/pdf",
                     f"https://www.16personalities.com/api/v1/profiles/{profile_id}/export/pdf",
+                    f"https://www.16personalities.com/api/v2/profiles/{profile_id}/pdf",
+                    # Alternative patterns
+                    f"https://www.16personalities.com/api/profile/{profile_id}/pdf",
+                    f"https://www.16personalities.com/api/profile/{profile_id}/export/pdf",
+                    # With format parameter
+                    f"https://www.16personalities.com/api/profiles/{profile_id}?format=pdf",
+                    f"https://www.16personalities.com/api/v1/profiles/{profile_id}?format=pdf",
                 ]
                 
                 pdf_bytes = None
@@ -287,12 +326,53 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                         logger.debug(f"Failed to download from {pdf_url}: {e}")
                         continue
                 
-                # If direct PDF download didn't work, try to extract from HTML page
+                # If direct PDF download didn't work, try to extract from HTML page or API data
                 if not pdf_bytes and 'html_content' in locals():
-                    logger.info("Direct PDF download failed, trying to extract from HTML page")
+                    logger.info("Direct PDF download failed, trying to extract from HTML page and embedded data")
                     try:
+                        from urllib.parse import urljoin, urlparse, quote
+                        
+                        # If we found embedded API data, try to extract PDF URL from it
+                        if api_data:
+                            try:
+                                # Common JSON structures
+                                if isinstance(api_data, dict):
+                                    pdf_url_from_data = None
+                                    # Try different nested paths
+                                    paths_to_check = [
+                                        ['pdf_url'],
+                                        ['pdfUrl'],
+                                        ['download_url'],
+                                        ['downloadUrl'],
+                                        ['export', 'pdf_url'],
+                                        ['profile', 'pdf_url'],
+                                        ['data', 'pdf_url'],
+                                        ['result', 'pdf_url'],
+                                    ]
+                                    for path in paths_to_check:
+                                        current = api_data
+                                        try:
+                                            for key in path:
+                                                current = current[key]
+                                            if current and isinstance(current, str):
+                                                pdf_url_from_data = current
+                                                break
+                                        except (KeyError, TypeError):
+                                            continue
+                                    
+                                    if pdf_url_from_data:
+                                        logger.info(f"Found PDF URL in embedded data: {pdf_url_from_data}")
+                                        try:
+                                            pdf_response = await client.get(pdf_url_from_data, follow_redirects=True)
+                                            if pdf_response.status_code == 200 and len(pdf_response.content) >= 4 and pdf_response.content[:4] == b'%PDF':
+                                                pdf_bytes = pdf_response.content
+                                                logger.info(f"Successfully downloaded PDF from embedded data URL ({len(pdf_bytes)} bytes)")
+                                        except Exception as e:
+                                            logger.debug(f"Failed to download from embedded URL: {e}")
+                            except Exception as e:
+                                logger.debug(f"Failed to parse embedded API data: {e}")
+                        
                         import re
-                        from urllib.parse import urljoin, urlparse
                         
                         # More comprehensive patterns to find PDF download links
                         pdf_link_patterns = [
