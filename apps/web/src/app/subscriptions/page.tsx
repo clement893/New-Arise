@@ -57,8 +57,9 @@ function SubscriptionsContent() {
       });
       
       // Redirect to checkout URL if provided, otherwise to success page
-      if (response.data.checkout_url) {
-        window.location.href = response.data.checkout_url;
+      // Backend returns 'url' not 'checkout_url' (see CheckoutSessionResponse schema)
+      if (response.data?.url) {
+        window.location.href = response.data.url;
       } else {
         router.push(`/subscriptions/success?plan=${planId}&period=${period}`);
       }

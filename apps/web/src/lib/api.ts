@@ -78,6 +78,7 @@ const API_URL = getApiUrl().replace(/\/$/, '');
  */
 const apiClient = axios.create({
   baseURL: `${API_URL}/api`,
+  timeout: 60000, // 60 seconds timeout to handle slow network or backend processing
   headers: {
     'Content-Type': 'application/json',
   },

@@ -300,7 +300,7 @@ export default function SubscriptionManagement() {
             <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
               No Active Subscription
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-gray-900 dark:text-gray-100 mb-6">
               You don't have an active subscription. Subscribe to a plan to get started.
             </p>
             <Link href={locale === 'en' ? '/pricing' : `/${locale}/pricing`}>

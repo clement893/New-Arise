@@ -46,26 +46,8 @@ function SubscriptionsContent() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [processedCheckout, setProcessedCheckout] = useState<string>('');
 
-  const handleSubscribe = useCallback(async (planId: string, period: 'month' | 'year') => {
-    try {
-      setError('');
-      const response = await createCheckoutMutation.mutateAsync({
-        plan_id: parseInt(planId, 10),
-        success_url: `${window.location.origin}/subscriptions/success?plan=${planId}&period=${period}`,
-        cancel_url: `${window.location.origin}/subscriptions`,
-      });
-      
-      // Redirect to checkout URL if provided, otherwise to success page
-      if (response.data.checkout_url) {
-        window.location.href = response.data.checkout_url;
-      } else {
-        router.push(`/subscriptions/success?plan=${planId}&period=${period}`);
-      }
-    } catch (err: unknown) {
-      setError(getErrorDetail(err) || getErrorMessage(err, 'Error subscribing to plan'));
-    }
-  }, [router, createCheckoutMutation]);
 
   // Transform subscription data from React Query
   useEffect(() => {
@@ -131,12 +113,37 @@ function SubscriptionsContent() {
     // Check if coming from pricing page
     const planId = searchParams.get('plan');
     const period = searchParams.get('period') as 'month' | 'year' | null;
+    const checkoutKey = planId && period ? `${planId}-${period}` : '';
     
-    if (planId && period) {
-      // Redirect to subscription creation flow
-      handleSubscribe(planId, period);
+    // Only trigger if we have both params and we haven't processed this exact checkout yet
+    if (planId && period && checkoutKey !== processedCheckout && !createCheckoutMutation.isPending) {
+      // Call handleSubscribe directly to avoid dependency issues
+      (async () => {
+        try {
+          setProcessedCheckout(checkoutKey);
+          setError('');
+          const response = await createCheckoutMutation.mutateAsync({
+            plan_id: parseInt(planId, 10),
+            success_url: `${window.location.origin}/subscriptions/success?plan=${planId}&period=${period}`,
+            cancel_url: `${window.location.origin}/subscriptions`,
+          });
+          
+          // Backend returns 'url' not 'checkout_url' (see CheckoutSessionResponse schema)
+          if (response.data?.url) {
+            window.location.href = response.data.url;
+          } else {
+            router.push(`/subscriptions/success?plan=${planId}&period=${period}`);
+          }
+        } catch (err: unknown) {
+          const errorDetail = getErrorDetail(err);
+          const errorMessage = getErrorMessage(err, 'Error subscribing to plan');
+          setError(errorDetail || errorMessage);
+          // Reset processed checkout on error so user can retry
+          setProcessedCheckout('');
+        }
+      })();
     }
-  }, [router, searchParams, handleSubscribe]);
+  }, [searchParams, processedCheckout, createCheckoutMutation, router]);
 
   const handleCancelSubscription = async () => {
     if (!confirm('Are you sure you want to cancel your subscription? It will remain active until the end of the current period.')) {
