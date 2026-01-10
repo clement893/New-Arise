@@ -8,7 +8,6 @@ import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import { Card } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import { ArrowLeft, BookOpen, Video, FileText, Users, Clock, CheckCircle2, PlayCircle } from 'lucide-react';
-import Image from 'next/image';
 
 // Resources data - This could be moved to a separate file or fetched from an API
 const resourcesData: Record<string, {
