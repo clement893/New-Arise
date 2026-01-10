@@ -49,7 +49,8 @@ export function HeroSection() {
           <ButtonLink 
             href="/register"
             size="lg"
-            className="bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-bold px-10 py-6 text-xl md:text-2xl shadow-2xl hover:shadow-arise-gold/50 transform hover:scale-105 transition-all duration-300 rounded-lg"
+            variant="primary"
+            className="!bg-arise-gold hover:!bg-arise-gold/90 !text-arise-deep-teal font-bold px-10 py-6 text-xl md:text-2xl shadow-2xl hover:shadow-arise-gold/50 transform hover:scale-105 transition-all duration-300 rounded-lg"
           >
             {t('getStarted')}
           </ButtonLink>
