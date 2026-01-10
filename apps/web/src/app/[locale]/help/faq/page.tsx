@@ -6,14 +6,12 @@
 
 'use client';
 
-import { useTranslations } from 'next-intl';
 import { FAQ } from '@/components/help';
 import { PageHeader, PageContainer } from '@/components/layout';
 import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
 
 export default function FAQPage() {
-  const t = useTranslations('help.faq');
 
   return (
     <>
