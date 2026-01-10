@@ -453,10 +453,21 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                                             logger.debug(f"Failed to download from extracted URL {pdf_url}: {e}")
                                             continue
                                 
-                                if pdf_bytes:
-                                    break
+                            if pdf_bytes:
+                                break
                     except Exception as e:
                         logger.warning(f"Failed to extract PDF link from HTML: {e}", exc_info=True)
+                
+                # If direct download and HTML extraction failed, try Playwright (headless browser)
+                if not pdf_bytes and PLAYWRIGHT_AVAILABLE:
+                    logger.info("Direct download failed, trying Playwright headless browser")
+                    try:
+                        pdf_bytes = await self._download_pdf_with_playwright(url, profile_id)
+                        if pdf_bytes:
+                            logger.info(f"Successfully downloaded PDF using Playwright ({len(pdf_bytes)} bytes)")
+                    except Exception as e:
+                        logger.warning(f"Playwright download failed: {e}", exc_info=True)
+                        # Continue to error message below
                 
                 if not pdf_bytes:
                     # If we still don't have a PDF, provide helpful error message with more context
@@ -469,6 +480,9 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                     error_details.append("- The PDF export feature requires JavaScript/authentication")
                     error_details.append("- The profile doesn't have a PDF export available")
                     
+                    if not PLAYWRIGHT_AVAILABLE:
+                        error_details.append("- Playwright is not installed (needed for JavaScript-rendered pages)")
+                    
                     raise ValueError(
                         "Could not automatically download PDF from the 16Personalities profile URL.\n\n" +
                         "\n".join(error_details) +
@@ -477,17 +491,6 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                 
                 if len(pdf_bytes) == 0:
                     raise ValueError("Downloaded PDF is empty")
-                
-                # If direct download and HTML extraction failed, try Playwright (headless browser)
-                if not pdf_bytes and PLAYWRIGHT_AVAILABLE:
-                    logger.info("Direct download failed, trying Playwright headless browser")
-                    try:
-                        pdf_bytes = await self._download_pdf_with_playwright(url, profile_id)
-                        if pdf_bytes:
-                            logger.info(f"Successfully downloaded PDF using Playwright ({len(pdf_bytes)} bytes)")
-                    except Exception as e:
-                        logger.warning(f"Playwright download failed: {e}", exc_info=True)
-                        # Continue to error message below
                 
                 if not pdf_bytes:
                     # If we still don't have a PDF, provide helpful error message with more context
