@@ -18,7 +18,8 @@ import {
   Heart,
   Info,
   CheckCircle,
-  Lock
+  Lock,
+  Eye
 } from 'lucide-react';
 import { getMyAssessments, Assessment as ApiAssessment, AssessmentType, get360Evaluators, EvaluatorStatus, submitAssessment } from '@/lib/api/assessments';
 import InviteAdditionalEvaluatorsModal from '@/components/360/InviteAdditionalEvaluatorsModal';
