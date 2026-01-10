@@ -202,7 +202,7 @@ export default function PricingPage() {
         error: err, 
         fullError: appError,
         errorMessage: appError.message,
-        errorDetail: appError.detail
+        errorDetails: appError.details
       });
       setApiPlans([]);
     } finally {
