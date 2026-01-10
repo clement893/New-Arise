@@ -14,7 +14,7 @@ import Card from '@/components/ui/Card';
 import { Sidebar } from '@/components/dashboard/Sidebar';
 import MotionDiv from '@/components/motion/MotionDiv';
 import RecommendationCard from '@/components/assessments/RecommendationCard';
-import { ArrowLeft, Download, Brain } from 'lucide-react';
+import { ArrowLeft, Download, Brain, FileText } from 'lucide-react';
 import { formatError } from '@/lib/utils/formatError';
 
 export default function MBTIResultsPage() {
