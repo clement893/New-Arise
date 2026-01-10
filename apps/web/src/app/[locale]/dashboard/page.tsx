@@ -5,6 +5,7 @@ export const dynamicParams = true;
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuthStore } from '@/lib/store';
 import { Card, Button, LoadingSkeleton, Stack } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
@@ -426,22 +427,25 @@ function DashboardContent() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    {evaluators.length > 0 && (
-                      <Button 
-                        variant="outline" 
-                        className="whitespace-nowrap font-semibold border-arise-button-primary text-white"
-                        onClick={() => {
-                          const feedback360Assessment = assessments.find(
-                            a => a.assessment_type === 'THREE_SIXTY_SELF'
-                          );
-                          if (feedback360Assessment?.id) {
-                            router.push(`/dashboard/evaluators?id=${feedback360Assessment.id}`);
-                          }
-                        }}
-                      >
-                        View evaluators ({evaluators.length})
-                      </Button>
-                    )}
+                    {(() => {
+                      const feedback360Assessment = assessments.find(
+                        a => a.assessment_type === 'THREE_SIXTY_SELF'
+                      );
+                      if (feedback360Assessment?.id) {
+                        return (
+                          <Link href={`/dashboard/evaluators?id=${feedback360Assessment.id}`}>
+                            <Button 
+                              variant="outline" 
+                              className="whitespace-nowrap font-semibold border-arise-button-primary hover:bg-arise-button-primary hover:text-white transition-colors"
+                            >
+                              <Eye size={16} className="mr-2" />
+                              {evaluators.length > 0 ? `View Evaluators (${evaluators.length})` : 'View Evaluators'}
+                            </Button>
+                          </Link>
+                        );
+                      }
+                      return null;
+                    })()}
                     <Button 
                       variant="arise-primary"
                       className="whitespace-nowrap font-semibold"

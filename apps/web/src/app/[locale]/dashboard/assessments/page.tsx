@@ -44,12 +44,13 @@ if (typeof window !== 'undefined') {
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { Card, Button, Stack } from '@/components/ui';
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { Brain, Target, Users, Heart, Upload, CheckCircle, Lock, type LucideIcon, Loader2, RefreshCw } from 'lucide-react';
-import { getMyAssessments, Assessment as ApiAssessment, AssessmentType } from '@/lib/api/assessments';
+import { Brain, Target, Users, Heart, Upload, CheckCircle, Lock, type LucideIcon, Loader2, RefreshCw, Eye } from 'lucide-react';
+import { getMyAssessments, Assessment as ApiAssessment, AssessmentType, get360Evaluators, type EvaluatorStatus } from '@/lib/api/assessments';
 import { startAssessment } from '@/lib/api/assessments';
 import InviteAdditionalEvaluatorsModal from '@/components/360/InviteAdditionalEvaluatorsModal';
 import { formatError } from '@/lib/utils/formatError';
@@ -1192,9 +1193,9 @@ function AssessmentsContent() {
                     </div>
                     
                     {/* 360 Feedback Evaluators Section - integrated in the same Card */}
-                    {safeAssessment.assessmentType === 'THREE_SIXTY_SELF' && (
+                    {safeAssessment.assessmentType === 'THREE_SIXTY_SELF' && safeAssessment.assessmentId && (
                       <div className="mt-6 pt-6 border-t border-gray-300">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-4">
                             <div 
                               className="w-12 h-12 rounded-full flex items-center justify-center"
@@ -1211,9 +1212,24 @@ function AssessmentsContent() {
                               </p>
                             </div>
                           </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          {safeAssessment.assessmentId && (
+                            <Link href={`/dashboard/evaluators?id=${safeAssessment.assessmentId}`}>
+                              <Button 
+                                variant="outline"
+                                size="sm"
+                                className="text-xs"
+                              >
+                                <Eye size={14} className="mr-1" />
+                                Voir les évaluateurs
+                              </Button>
+                            </Link>
+                          )}
                           <Button 
                             variant="primary"
-                            className="!bg-arise-gold !text-white hover:!bg-arise-gold/90"
+                            size="sm"
+                            className="!bg-arise-gold !text-white hover:!bg-arise-gold/90 text-xs"
                             style={{ backgroundColor: '#d8b868', color: '#000000' }}
                             onClick={() => setShowEvaluatorModal(true)}
                           >
