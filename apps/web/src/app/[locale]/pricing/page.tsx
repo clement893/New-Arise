@@ -13,7 +13,7 @@ import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
 import Loading from '@/components/ui/Loading';
 import Alert from '@/components/ui/Alert';
-import { subscriptionsAPI, api } from '@/lib/api';
+import { subscriptionsAPI } from '@/lib/api';
 import { handleApiError } from '@/lib/errors/api';
 import { logger } from '@/lib/logger';
 
@@ -105,16 +105,14 @@ export default function PricingPage() {
     setError(null);
     
     try {
-      // Use direct api.get() like PricingSection component does (line 22)
-      // api.get() returns axios response, so response.data is the FastAPI response
-      // FastAPI returns PlanListResponse: { plans: [...], total: ... }
-      const response = await api.get('/v1/subscriptions/plans', {
-        params: { active_only: true }
-      });
-      
-      // api.get() from api.ts is axios instance, so response is AxiosResponse
+      // Use subscriptionsAPI.getPlans() exactly like admin/plans/page.tsx does (line 60-61)
+      // This ensures consistent behavior with the admin page that works
+      // subscriptionsAPI.getPlans() uses apiClient.get() which is axios instance from api.ts
+      // axios.get() returns AxiosResponse, so response is the full axios response
       // response.data is the FastAPI response: { plans: [...], total: ... }
-      // This matches the structure used in PricingSection.tsx line 23: response.data.plans
+      const response = await subscriptionsAPI.getPlans(true); // Only active plans
+      
+      // Match the structure used in admin/plans/page.tsx line 61: response.data?.plans
       const fetchedPlans: ApiPlan[] = response.data?.plans || [];
       
       logger.debug('Loaded plans from API', { 
@@ -122,6 +120,7 @@ export default function PricingPage() {
         hasResponse: !!response,
         hasData: !!response?.data,
         responseDataType: typeof response?.data,
+        responseDataKeys: response?.data ? Object.keys(response.data) : [],
         plansCount: fetchedPlans.length,
         total: response?.data?.total,
         plans: fetchedPlans.map(p => ({ 
@@ -136,20 +135,53 @@ export default function PricingPage() {
       });
       
       if (fetchedPlans.length === 0) {
-        logger.warn('No plans found in API response', { 
-          response,
-          responseData: response?.data,
-          responsePlans: response?.data?.plans,
-          responseTotal: response?.data?.total
+        // Try fetching all plans (including inactive) to check if plans exist but are not ACTIVE
+        logger.warn('No active plans found, checking if any plans exist at all', { 
+          activePlansCount: fetchedPlans.length
         });
-        setError('Aucun plan d\'abonnement disponible pour le moment. Veuillez réessayer plus tard ou contacter le support.');
+        
+        try {
+          const allPlansResponse = await subscriptionsAPI.getPlans(false); // Get all plans
+          const allPlans = allPlansResponse.data?.plans || [];
+          
+          if (allPlans.length > 0) {
+            logger.error('Plans exist but are not ACTIVE. Status details:', { 
+              allPlans: allPlans.map(p => ({ 
+                id: p.id, 
+                name: p.name, 
+                status: p.status || 'UNKNOWN',
+                interval: p.interval 
+              }))
+            });
+            setError('Les plans existent mais ne sont pas marqués comme ACTIVE. Veuillez aller sur la page Admin > Plans pour marquer les plans comme ACTIVE (statut: ACTIVE).');
+          } else {
+            logger.error('No plans found at all in database', { 
+              response,
+              responseData: response?.data,
+              responsePlans: response?.data?.plans,
+              responseTotal: response?.data?.total,
+              responseStructure: {
+                hasData: !!response?.data,
+                dataType: typeof response?.data,
+                dataKeys: response?.data ? Object.keys(response.data) : [],
+                plansType: typeof response?.data?.plans,
+                plansIsArray: Array.isArray(response?.data?.plans),
+                plansLength: Array.isArray(response?.data?.plans) ? response.data.plans.length : 'not array'
+              }
+            });
+            setError('Aucun plan d\'abonnement trouvé dans la base de données. Veuillez créer des plans via la page Admin > Plans ou exécuter le script seed_plans.py sur le serveur backend.');
+          }
+        } catch (fallbackErr) {
+          logger.error('Error fetching all plans as fallback', { error: fallbackErr });
+          setError('Aucun plan actif disponible. Veuillez vérifier que les plans existent et sont marqués comme ACTIVE via la page Admin > Plans.');
+        }
+        
         setApiPlans([]);
         return;
       }
       
-      // Show all plans returned by API (they should already be filtered by active_only=true)
-      // Don't filter by interval here - show all active plans and let the display component handle it
-      logger.debug('Plans loaded successfully', { 
+      // Set all fetched plans (they should already be filtered by active_only=true)
+      logger.debug('Plans loaded successfully, setting to state', { 
         plansCount: fetchedPlans.length,
         planDetails: fetchedPlans.map(p => ({ 
           id: p.id, 
@@ -162,23 +194,6 @@ export default function PricingPage() {
         }))
       });
       
-      if (fetchedPlans.length === 0) {
-        logger.error('No plans found in API response', { 
-          response: response?.data,
-          responseStructure: {
-            hasData: !!response?.data,
-            dataType: typeof response?.data,
-            dataKeys: response?.data ? Object.keys(response.data) : [],
-            plansType: typeof response?.data?.plans,
-            plansLength: Array.isArray(response?.data?.plans) ? response.data.plans.length : 'not array'
-          }
-        });
-        setError('Aucun plan d\'abonnement disponible. Les plans peuvent être en cours de configuration. Veuillez contacter le support ou vérifier que les plans sont marqués comme ACTIVE dans la base de données.');
-        setApiPlans([]);
-        return;
-      }
-      
-      // Set all fetched plans (they should already be filtered by active_only=true)
       setApiPlans(fetchedPlans);
     } catch (err) {
       const appError = handleApiError(err);
