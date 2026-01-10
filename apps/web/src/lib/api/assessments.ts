@@ -74,6 +74,8 @@ export interface AssessmentResult {
     // MBTI-specific fields
     mbti_type?: string;
     dimension_preferences?: Record<string, any>;
+    // Source field for tracking result origin (e.g., 'pdf_ocr')
+    source?: string;
   };
   insights?: Record<string, any>;
   recommendations?: Record<string, any>;

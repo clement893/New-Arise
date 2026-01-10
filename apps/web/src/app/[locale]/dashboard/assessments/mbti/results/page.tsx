@@ -108,7 +108,7 @@ export default function MBTIResultsPage() {
   const dimensionPreferences = results.scores?.dimension_preferences || {};
   const insights = results.insights || {};
   const recommendations = results.recommendations || [];
-  const isFromOCR = results.scores?.source === 'pdf_ocr' || (results as any).raw_score?.source === 'pdf_ocr';
+  const isFromOCR = results.scores?.source === 'pdf_ocr';
   const typeInfo = mbtiTypes[mbtiType] || {
     name: 'Unknown Type',
     description: 'Type description not available.',
