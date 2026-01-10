@@ -2094,14 +2094,19 @@ async def delete_all_my_assessments(
         # Delete all related data using CASCADE (will automatically delete related records)
         # But we'll be explicit for clarity and to ensure proper deletion order
         
-        # 1. Delete assessment answers
+        # 1. Delete assessment answers using raw SQL to avoid answered_at column issue
+        # Use raw SQL to avoid answered_at column that doesn't exist in the database
         if assessment_ids:
-            answers_result = await db.execute(
-                select(AssessmentAnswer).where(AssessmentAnswer.assessment_id.in_(assessment_ids))
+            # Build placeholders for IN clause dynamically
+            placeholders = ','.join([f':id{i}' for i in range(len(assessment_ids))])
+            params = {f'id{i}': assessment_id for i, assessment_id in enumerate(assessment_ids)}
+            await db.execute(
+                text(f"""
+                    DELETE FROM assessment_answers
+                    WHERE assessment_id IN ({placeholders})
+                """),
+                params
             )
-            answers = answers_result.scalars().all()
-            for answer in answers:
-                await db.delete(answer)
         
         # 2. Delete 360 evaluators
         if assessment_ids:
