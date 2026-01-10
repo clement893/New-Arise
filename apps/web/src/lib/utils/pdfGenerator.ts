@@ -325,8 +325,11 @@ The following sections detail your results from each assessment, along with pers
       if (assessment.type === 'TKI' && scores.mode_scores) {
         const sorted = Object.entries(scores.mode_scores)
           .sort(([, a], [, b]) => (b as number) - (a as number));
-        doc.text(`Dominant Mode: ${sorted[0][0]}`, 25, yPos);
-        yPos += 7;
+        const dominantEntry = sorted[0];
+        if (dominantEntry) {
+          doc.text(`Dominant Mode: ${dominantEntry[0]}`, 25, yPos);
+          yPos += 7;
+        }
       }
 
       if (assessment.type === 'WELLNESS' && scores.pillar_scores) {
@@ -336,8 +339,11 @@ The following sections detail your results from each assessment, along with pers
             const bScore = typeof b === 'number' ? b : (b as any).score || (b as any).percentage || 0;
             return bScore - aScore;
           });
-        doc.text(`Strongest Pillar: ${sorted[0][0].replace(/_/g, ' ')}`, 25, yPos);
-        yPos += 7;
+        const strongestEntry = sorted[0];
+        if (strongestEntry) {
+          doc.text(`Strongest Pillar: ${strongestEntry[0].replace(/_/g, ' ')}`, 25, yPos);
+          yPos += 7;
+        }
       }
 
       if (assessment.type === 'THREE_SIXTY_SELF' && scores.capability_scores) {
