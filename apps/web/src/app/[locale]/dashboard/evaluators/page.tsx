@@ -268,7 +268,7 @@ function EvaluatorsContent() {
         <Card className="p-6">
           <div className="text-center">
             <p className="text-red-600 mb-4">{error}</p>
-            <Button variant="primary" onClick={loadEvaluators}>
+            <Button variant="primary" onClick={() => loadEvaluators()}>
               Réessayer
             </Button>
           </div>
@@ -309,7 +309,7 @@ function EvaluatorsContent() {
             </Button>
             <Button
               variant="outline"
-              onClick={loadEvaluators}
+              onClick={() => loadEvaluators()}
               className="flex items-center gap-2"
               disabled={isLoading}
             >
