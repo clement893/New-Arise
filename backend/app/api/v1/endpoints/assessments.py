@@ -1627,7 +1627,8 @@ async def upload_mbti_pdf(
         # PDF bytes will be downloaded later in the try block
         pdf_bytes = None
     
-    if not pdf_bytes and not profile_url:
+    # Ensure we have either file or URL
+    if not file and not profile_url:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Either a PDF file or a 16Personalities profile URL must be provided"
@@ -1649,6 +1650,13 @@ async def upload_mbti_pdf(
             logger.info(f"Downloading PDF from 16Personalities profile URL: {profile_url}")
             pdf_bytes = await ocr_service.download_pdf_from_url(profile_url)
             logger.info(f"Successfully downloaded PDF ({len(pdf_bytes)} bytes) from profile URL")
+        
+        # Ensure we have PDF bytes at this point
+        if not pdf_bytes:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No PDF data available for processing"
+            )
         
         # Extract MBTI results from PDF
         logger.info(f"Extracting MBTI results from PDF for user {current_user.id}")

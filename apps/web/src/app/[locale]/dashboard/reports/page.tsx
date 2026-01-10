@@ -65,55 +65,260 @@ function ResultsReportsContent() {
         (a: ApiAssessment) => a.status === 'COMPLETED'
       );
 
-      // Transform to display format
-      const transformedAssessments: AssessmentDisplay[] = completedAssessments.map((assessment: ApiAssessment) => {
-        const completedDate = assessment.completed_at 
-          ? new Date(assessment.completed_at).toLocaleDateString('fr-FR')
-          : 'N/A';
-        
-        // Extract score/result from score_summary based on type
-        let score = 'N/A';
-        let result = 'Completed';
-        
-        if (assessment.score_summary) {
-          const summary = assessment.score_summary;
-          if (assessment.assessment_type === 'MBTI' && summary.profile) {
-            result = summary.profile;
-            score = '100%';
-          } else if (assessment.assessment_type === 'TKI' && summary.dominant_mode) {
-            result = summary.dominant_mode;
-            score = '100%';
-          } else if (assessment.assessment_type === 'WELLNESS' && summary.percentage) {
-            score = `${Math.round(summary.percentage)}%`;
-            result = 'Wellness Score';
-          } else if (assessment.assessment_type === 'THREE_SIXTY_SELF' && summary.total_score) {
-            score = `${Math.round(summary.total_score)}%`;
-            result = '360° Feedback';
-          } else if (summary.percentage) {
-            score = `${Math.round(summary.percentage)}%`;
+      // Load detailed results for each assessment to generate insights
+      const transformedAssessments: AssessmentDisplay[] = await Promise.all(
+        completedAssessments.map(async (assessment: ApiAssessment) => {
+          const completedDate = assessment.completed_at 
+            ? new Date(assessment.completed_at).toLocaleDateString('fr-FR')
+            : 'N/A';
+          
+          // Try to load detailed result for insights
+          let detailedResult: AssessmentResult | undefined;
+          try {
+            detailedResult = await getAssessmentResults(assessment.id);
+          } catch (err) {
+            // If result not available, continue without it
+            console.warn(`Could not load detailed result for assessment ${assessment.id}:`, err);
           }
-        }
+          
+          // Extract score/result from score_summary or detailed result
+          let score = 'N/A';
+          let result = 'Completed';
+          
+          if (detailedResult?.scores) {
+            const scores = detailedResult.scores;
+            if (assessment.assessment_type === 'MBTI' && scores.mbti_type) {
+              result = scores.mbti_type;
+              score = scores.percentage ? `${Math.round(scores.percentage)}%` : '100%';
+            } else if (assessment.assessment_type === 'TKI' && scores.mode_scores) {
+              // Find dominant mode
+              const modeEntries = Object.entries(scores.mode_scores);
+              if (modeEntries.length > 0) {
+                const dominant = modeEntries.sort(([, a], [, b]) => (b as number) - (a as number))[0];
+                result = dominant[0];
+                score = '100%';
+              }
+            } else if (assessment.assessment_type === 'WELLNESS' && scores.percentage) {
+              score = `${Math.round(scores.percentage)}%`;
+              result = 'Wellness Score';
+            } else if (assessment.assessment_type === 'THREE_SIXTY_SELF' && scores.percentage) {
+              score = `${Math.round(scores.percentage)}%`;
+              result = '360° Feedback';
+            } else if (scores.percentage !== undefined) {
+              score = `${Math.round(scores.percentage)}%`;
+            }
+          } else if (assessment.score_summary) {
+            const summary = assessment.score_summary;
+            if (assessment.assessment_type === 'MBTI' && summary.profile) {
+              result = summary.profile;
+              score = '100%';
+            } else if (assessment.assessment_type === 'TKI' && summary.dominant_mode) {
+              result = summary.dominant_mode;
+              score = '100%';
+            } else if (assessment.assessment_type === 'WELLNESS' && summary.percentage) {
+              score = `${Math.round(summary.percentage)}%`;
+              result = 'Wellness Score';
+            } else if (assessment.assessment_type === 'THREE_SIXTY_SELF' && summary.total_score) {
+              score = `${Math.round(summary.total_score)}%`;
+              result = '360° Feedback';
+            } else if (summary.percentage) {
+              score = `${Math.round(summary.percentage)}%`;
+            }
+          }
 
-        return {
-          id: assessment.id,
-          name: getAssessmentName(assessment.assessment_type),
-          type: assessment.assessment_type,
-          status: 'completed',
-          completedDate,
-          score,
-          result,
-        };
-      });
+          return {
+            id: assessment.id,
+            name: getAssessmentName(assessment.assessment_type),
+            type: assessment.assessment_type,
+            status: 'completed',
+            completedDate,
+            score,
+            result,
+            detailedResult,
+          };
+        })
+      );
 
       setAssessments(transformedAssessments);
+      
+      // Generate key insights from assessments
+      const insights = generateKeyInsights(transformedAssessments);
+      setKeyInsights(insights);
+      
+      // Load additional stats
+      await loadAdditionalStats(completedAssessments);
     } catch (err: any) {
       console.error('Failed to load assessments:', err);
       setError('Failed to load assessment results');
       // Fallback to empty array
       setAssessments([]);
+      setKeyInsights([]);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const loadAdditionalStats = async (completedAssessments: ApiAssessment[]) => {
+    try {
+      // Count evaluators from 360 assessments
+      let evaluatorsCount = 0;
+      const threeSixtyAssessments = completedAssessments.filter(
+        (a) => a.assessment_type === 'THREE_SIXTY_SELF'
+      );
+      
+      for (const assessment of threeSixtyAssessments) {
+        try {
+          const evaluators = await get360Evaluators(assessment.id);
+          evaluatorsCount += evaluators.evaluators?.length || 0;
+        } catch (err) {
+          console.warn(`Could not load evaluators for assessment ${assessment.id}:`, err);
+        }
+      }
+      
+      // Calculate average score
+      const scores = assessments
+        .map((a) => {
+          const score = parseFloat(a.score.replace('%', ''));
+          return isNaN(score) ? 0 : score;
+        })
+        .filter((s) => s > 0);
+      const averageScore = scores.length > 0 
+        ? Math.round(scores.reduce((sum, s) => sum + s, 0) / scores.length)
+        : 0;
+      
+      setStats({
+        completedAssessments: completedAssessments.length,
+        averageScore,
+        developmentGoals: 12, // TODO: Implement API endpoint for development goals
+        evaluatorsCount,
+      });
+    } catch (err) {
+      console.error('Failed to load additional stats:', err);
+    }
+  };
+
+  const generateKeyInsights = (assessments: AssessmentDisplay[]): KeyInsight[] => {
+    const insights: KeyInsight[] = [];
+    let insightId = 1;
+
+    // MBTI Insight
+    const mbti = assessments.find((a) => a.type === 'MBTI' && a.detailedResult);
+    if (mbti && mbti.detailedResult?.scores?.mbti_type) {
+      const mbtiType = mbti.detailedResult.scores.mbti_type;
+      const description = mbti.detailedResult.insights?.personality_type 
+        || `Your personality type is ${mbtiType}, which indicates a strategic approach to leadership and decision-making.`;
+      
+      insights.push({
+        id: insightId++,
+        title: 'Leadership Style',
+        description,
+        category: 'Personality',
+      });
+    }
+
+    // TKI Insight
+    const tki = assessments.find((a) => a.type === 'TKI' && a.detailedResult);
+    if (tki && tki.detailedResult?.scores?.mode_scores) {
+      const modeScores = tki.detailedResult.scores.mode_scores;
+      const modeEntries = Object.entries(modeScores);
+      if (modeEntries.length > 0) {
+        const sorted = modeEntries.sort(([, a], [, b]) => (b as number) - (a as number));
+        const dominantMode = sorted[0][0];
+        const modeNames: Record<string, string> = {
+          competing: 'Competing',
+          collaborating: 'Collaborating',
+          compromising: 'Compromising',
+          avoiding: 'Avoiding',
+          accommodating: 'Accommodating',
+        };
+        const modeName = modeNames[dominantMode.toLowerCase()] || dominantMode;
+        
+        insights.push({
+          id: insightId++,
+          title: 'Conflict Resolution',
+          description: `Your dominant conflict style is ${modeName}, which is highly effective for ${dominantMode === 'collaborating' ? 'team environments and complex problem-solving' : dominantMode === 'competing' ? 'decisive situations requiring quick action' : 'finding balanced solutions'}.`,
+          category: 'TKI',
+        });
+      }
+    }
+
+    // 360° Feedback Insight
+    const threeSixty = assessments.find((a) => a.type === 'THREE_SIXTY_SELF' && a.detailedResult);
+    if (threeSixty && threeSixty.detailedResult?.scores) {
+      const scores = threeSixty.detailedResult.scores;
+      if (scores.capability_scores && typeof scores.capability_scores === 'object') {
+        const capabilities = Object.entries(scores.capability_scores);
+        if (capabilities.length > 0) {
+          const sorted = capabilities.sort(([, a], [, b]) => {
+            const aScore = typeof a === 'number' ? a : (a as any).self_score || 0;
+            const bScore = typeof b === 'number' ? b : (b as any).self_score || 0;
+            return bScore - aScore;
+          });
+          const strongest = sorted[0][0];
+          
+          insights.push({
+            id: insightId++,
+            title: 'Team Perception',
+            description: `Your 360° feedback shows strong ${strongest.replace(/_/g, ' ')} capabilities, with clear vision and effective communication skills recognized by your colleagues.`,
+            category: '360 Feedback',
+          });
+        }
+      } else if (scores.percentage) {
+        insights.push({
+          id: insightId++,
+          title: 'Team Perception',
+          description: `Your 360° feedback score is ${Math.round(scores.percentage)}%, indicating strong leadership capabilities recognized by your team.`,
+          category: '360 Feedback',
+        });
+      }
+    }
+
+    // Wellness Insight
+    const wellness = assessments.find((a) => a.type === 'WELLNESS' && a.detailedResult);
+    if (wellness && wellness.detailedResult?.scores) {
+      const scores = wellness.detailedResult.scores;
+      if (scores.pillar_scores && typeof scores.pillar_scores === 'object') {
+        const pillars = Object.entries(scores.pillar_scores);
+        if (pillars.length > 0) {
+          const sorted = pillars.sort(([, a], [, b]) => {
+            const aScore = typeof a === 'number' ? a : (a as any).score || (a as any).percentage || 0;
+            const bScore = typeof b === 'number' ? b : (b as any).score || (b as any).percentage || 0;
+            return bScore - aScore;
+          });
+          const strongest = sorted[0][0];
+          const weakest = sorted[sorted.length - 1][0];
+          
+          insights.push({
+            id: insightId++,
+            title: 'Wellness Focus',
+            description: `Your wellness score is ${wellness.score}. Your strongest pillar is ${strongest.replace(/_/g, ' ')}, while ${weakest.replace(/_/g, ' ')} could benefit from more attention for optimal performance.`,
+            category: 'Wellness',
+          });
+        }
+      } else if (scores.percentage) {
+        insights.push({
+          id: insightId++,
+          title: 'Wellness Focus',
+          description: `Your wellness score is ${wellness.score}. Consider improving stress management and sleep quality for better overall performance.`,
+          category: 'Wellness',
+        });
+      }
+    }
+
+    // Fill with default insights if we don't have enough
+    if (insights.length < 4) {
+      const defaultInsights = [
+        {
+          id: insightId++,
+          title: 'Continue Your Journey',
+          description: 'Complete additional assessments to unlock more personalized insights and recommendations.',
+          category: 'General',
+        },
+      ];
+      insights.push(...defaultInsights.slice(0, 4 - insights.length));
+    }
+
+    return insights.slice(0, 4); // Return max 4 insights
   };
 
   const getAssessmentName = (type: AssessmentType): string => {
@@ -143,33 +348,37 @@ function ResultsReportsContent() {
     }
   };
 
-  // Mock data for key insights
-  const insights = [
-    {
-      id: 1,
-      title: 'Leadership Style',
-      description: 'Your INTJ personality type indicates a strategic and analytical approach to leadership.',
-      category: 'Personality',
-    },
-    {
-      id: 2,
-      title: 'Conflict Resolution',
-      description: 'You prefer collaborative problem-solving, which is highly effective in team environments.',
-      category: 'TKI',
-    },
-    {
-      id: 3,
-      title: 'Team Perception',
-      description: 'Your 360° feedback shows strong communication skills and clear vision.',
-      category: '360 Feedback',
-    },
-    {
-      id: 4,
-      title: 'Wellness Focus',
-      description: 'Consider improving your stress management and sleep quality for better performance.',
-      category: 'Wellness',
-    },
-  ];
+  const handleExportAll = async () => {
+    try {
+      // TODO: Implement export all functionality
+      // This should generate a zip file with all assessment PDFs
+      alert('Export functionality coming soon! This will download all your assessment reports as a ZIP file.');
+    } catch (err) {
+      console.error('Failed to export assessments:', err);
+      alert('Failed to export assessments. Please try again.');
+    }
+  };
+
+  const handleDownloadProfile = async () => {
+    try {
+      // TODO: Implement complete leadership profile PDF generation
+      // This should generate a comprehensive PDF with all assessments
+      alert('Complete Leadership Profile download coming soon! This will generate a comprehensive PDF with all your assessment results.');
+    } catch (err) {
+      console.error('Failed to download profile:', err);
+      alert('Failed to download profile. Please try again.');
+    }
+  };
+
+  const handleDownloadAssessment = async (assessment: AssessmentDisplay) => {
+    try {
+      // TODO: Implement individual assessment PDF download
+      alert(`Download for ${assessment.name} coming soon!`);
+    } catch (err) {
+      console.error('Failed to download assessment:', err);
+      alert('Failed to download assessment. Please try again.');
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -208,7 +417,7 @@ function ResultsReportsContent() {
               <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center mx-auto mb-3">
                 <FileText className="text-arise-deep-teal" size={24} />
               </div>
-              <p className="text-3xl font-bold text-arise-deep-teal mb-1">{assessments.length}</p>
+              <p className="text-3xl font-bold text-arise-deep-teal mb-1">{stats.completedAssessments}</p>
               <p className="text-gray-700 text-sm">Assessments Completed</p>
             </Card>
 
@@ -216,16 +425,7 @@ function ResultsReportsContent() {
               <div className="w-12 h-12 bg-arise-gold/10 rounded-lg flex items-center justify-center mx-auto mb-3">
                 <TrendingUp className="text-arise-gold" size={24} />
               </div>
-              <p className="text-3xl font-bold text-arise-gold mb-1">
-                {assessments.length > 0
-                  ? Math.round(
-                      assessments.reduce((sum, a) => {
-                        const score = parseFloat(a.score.replace('%', ''));
-                        return sum + (isNaN(score) ? 0 : score);
-                      }, 0) / assessments.length
-                    )
-                  : 0}%
-              </p>
+              <p className="text-3xl font-bold text-arise-gold mb-1">{stats.averageScore}%</p>
               <p className="text-gray-700 text-sm">Average Score</p>
             </Card>
 
@@ -233,7 +433,7 @@ function ResultsReportsContent() {
               <div className="w-12 h-12 bg-primary-500/10 rounded-lg flex items-center justify-center mx-auto mb-3">
                 <Target className="text-primary-500" size={24} />
               </div>
-              <p className="text-3xl font-bold text-primary-500 mb-1">12</p>
+              <p className="text-3xl font-bold text-primary-500 mb-1">{stats.developmentGoals}</p>
               <p className="text-gray-700 text-sm">Development Goals</p>
             </Card>
 
@@ -241,7 +441,7 @@ function ResultsReportsContent() {
               <div className="w-12 h-12 bg-success-500/10 rounded-lg flex items-center justify-center mx-auto mb-3">
                 <Users className="text-success-500" size={24} />
               </div>
-              <p className="text-3xl font-bold text-success-500 mb-1">8</p>
+              <p className="text-3xl font-bold text-success-500 mb-1">{stats.evaluatorsCount}</p>
               <p className="text-gray-700 text-sm">360° Evaluators</p>
             </Card>
           </div>
@@ -265,6 +465,7 @@ function ResultsReportsContent() {
               <Button 
                 variant="arise-primary"
                 className="flex items-center gap-2"
+                onClick={handleExportAll}
               >
                 <Download size={16} />
                 Export All
@@ -313,7 +514,12 @@ function ResultsReportsContent() {
                         >
                           View Details
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleDownloadAssessment(assessment)}
+                          title={`Download ${assessment.name} report`}
+                        >
                           <Download size={16} />
                         </Button>
                       </div>
