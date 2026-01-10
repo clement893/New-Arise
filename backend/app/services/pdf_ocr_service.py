@@ -249,8 +249,9 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                     if response.status_code != 200:
                         raise ValueError(f"Failed to access profile URL: HTTP {response.status_code}. The profile may be private or inaccessible.")
                     
-                    html_content = response.text
-                    if html_content:
+                    # Get HTML content, ensure it's a string
+                    html_content = response.text if response.text else None
+                    if html_content and isinstance(html_content, str):
                         logger.debug(f"Successfully accessed profile page (HTML length: {len(html_content)} chars)")
                         
                         # Check if page is JavaScript-rendered (common for SPAs)
