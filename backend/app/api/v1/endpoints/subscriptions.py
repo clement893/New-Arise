@@ -6,6 +6,7 @@ API endpoints for subscription management
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 from app.core.database import get_db
 from app.core.cache import cached
@@ -29,7 +30,10 @@ from app.schemas.subscription import (
     CheckoutSessionResponse,
     PortalSessionResponse,
     SubscriptionWithPaymentMethodCreate,
+    InvoiceResponse,
 )
+from app.models.invoice import Invoice, InvoiceStatus
+from sqlalchemy.orm import selectinload
 
 router = APIRouter(prefix="/subscriptions", tags=["subscriptions"])
 
@@ -349,4 +353,28 @@ async def upgrade_subscription(
     )
     
     return SubscriptionResponse.model_validate(updated_subscription)
+
+
+@router.get("/payments", response_model=List[InvoiceResponse])
+async def get_my_payments(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    skip: int = Query(0, ge=0, description="Number of records to skip"),
+    limit: int = Query(100, ge=1, le=1000, description="Maximum number of records"),
+):
+    """Get current user's payment history (invoices) related to subscriptions"""
+    # Get all invoices for the user that are related to subscriptions
+    query = (
+        select(Invoice)
+        .where(Invoice.user_id == current_user.id)
+        .where(Invoice.subscription_id.isnot(None))  # Only subscription-related invoices
+        .order_by(Invoice.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+    )
+    
+    result = await db.execute(query)
+    invoices = result.scalars().all()
+    
+    return [InvoiceResponse.model_validate(invoice) for invoice in invoices]
 

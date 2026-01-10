@@ -138,10 +138,26 @@ export function useMySubscription() {
 export function useSubscriptionPayments() {
   return useQuery({
     queryKey: queryKeys.subscriptions.payments,
-    queryFn: () => subscriptionsAPI.getPayments(),
+    queryFn: async () => {
+      try {
+        // subscriptionsAPI.getPayments() uses apiClient.get() which is axios instance from api.ts
+        // axios.get() returns AxiosResponse, so response is the full axios response
+        // response.data is the FastAPI response: List[InvoiceResponse] (array directly)
+        const response = await subscriptionsAPI.getPayments();
+        // apiClient.get() from api.ts is axios instance, so response is AxiosResponse
+        // response.data is the FastAPI response (list of invoices)
+        return response.data || [];
+      } catch (error: any) {
+        // If endpoint returns 404, return empty array (endpoint might not exist or user has no payments)
+        if (error?.response?.status === 404) {
+          return [];
+        }
+        throw error;
+      }
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: (failureCount, error) => {
-      // Don't retry on 404
+      // Don't retry on 404 (endpoint might not exist yet or user has no payments)
       if (error && typeof error === 'object' && 'response' in error) {
         const response = (error as { response?: { status?: number } }).response;
         if (response?.status === 404) {

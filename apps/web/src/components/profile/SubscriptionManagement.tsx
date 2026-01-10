@@ -102,27 +102,30 @@ export default function SubscriptionManagement() {
 
   // Transform payments data from React Query
   useEffect(() => {
-    if (paymentsData?.data) {
-      setPayments((paymentsData.data as Array<{
+    // paymentsData is already an array (returned directly by the queryFn)
+    if (paymentsData && Array.isArray(paymentsData)) {
+      setPayments(paymentsData.map((payment: {
         id: string | number;
-        amount: number;
+        amount_due: number; // Invoice uses amount_due
+        amount_paid: number; // Invoice uses amount_paid
         currency: string;
         status: string;
         created_at: string;
-        invoice_url?: string;
-        description?: string;
-        payment_method?: string;
-      }>).map((payment): Payment => ({
+        hosted_invoice_url?: string; // Invoice uses hosted_invoice_url
+        invoice_pdf_url?: string;
+        invoice_number?: string;
+      }): Payment => ({
         id: String(payment.id),
-        amount: payment.amount / 100, // Convert from cents
+        // Use amount_due (or amount_paid if paid) - already in cents from database
+        amount: (payment.amount_paid > 0 ? payment.amount_paid : payment.amount_due) / 100,
         currency: payment.currency.toUpperCase(),
         status: (payment.status.toLowerCase() === 'paid' ? 'completed' : payment.status.toLowerCase()) as 'completed' | 'pending' | 'failed' | 'refunded',
         date: payment.created_at,
-        description: payment.description || 'Subscription payment',
-        paymentMethod: payment.payment_method || 'Card',
-        transactionId: payment.invoice_url,
+        description: payment.invoice_number ? `Invoice ${payment.invoice_number}` : 'Subscription payment',
+        paymentMethod: 'Card',
+        transactionId: payment.hosted_invoice_url || payment.invoice_pdf_url,
       })));
-    } else if (!paymentsLoading && !paymentsData) {
+    } else if (!paymentsLoading) {
       setPayments([]);
     }
   }, [paymentsData, paymentsLoading]);
