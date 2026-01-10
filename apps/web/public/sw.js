@@ -95,6 +95,12 @@ self.addEventListener('fetch', (event: FetchEvent) => {
     return;
   }
 
+  // Reports page - Network Only (no cache) to ensure updates are visible immediately
+  if (url.pathname.includes('/dashboard/reports')) {
+    event.respondWith(networkOnly(request));
+    return;
+  }
+
   // HTML pages - Network First
   if (request.headers.get('accept')?.includes('text/html')) {
     event.respondWith(networkFirst(request, CACHE_NAME, 300000)); // 5 minute cache
@@ -171,6 +177,21 @@ async function networkFirst(
         return cached;
       }
     }
+    throw error;
+  }
+}
+
+/**
+ * Network Only Strategy
+ * Always fetch from network, never use cache
+ */
+async function networkOnly(request: Request): Promise<Response> {
+  try {
+    const response = await fetch(request);
+    // Don't cache the response
+    return response;
+  } catch (error) {
+    // If network fails, don't fallback to cache - return error
     throw error;
   }
 }

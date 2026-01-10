@@ -1,11 +1,33 @@
 /**
  * PDF Generation Utilities
  * Functions to generate PDF reports for assessments
+ * 
+ * NOTE: These functions must only run on the client side as they use browser APIs
  */
 
-import { jsPDF } from 'jspdf';
-import JSZip from 'jszip';
 import type { AssessmentResult } from '@/lib/api/assessments';
+
+// Dynamic imports to ensure these only load on client side
+let jsPDF: any;
+let JSZip: any;
+
+const ensureClientSide = () => {
+  if (typeof window === 'undefined') {
+    throw new Error('PDF generation can only be performed on the client side');
+  }
+};
+
+const loadDependencies = async () => {
+  ensureClientSide();
+  if (!jsPDF) {
+    const jsPDFModule = await import('jspdf');
+    jsPDF = jsPDFModule.jsPDF;
+  }
+  if (!JSZip) {
+    const JSZipModule = await import('jszip');
+    JSZip = JSZipModule.default;
+  }
+};
 
 interface AssessmentForPDF {
   id: number;
@@ -21,6 +43,9 @@ interface AssessmentForPDF {
  * Generate a PDF for a single assessment
  */
 export const generateAssessmentPDF = async (assessment: AssessmentForPDF): Promise<Blob> => {
+  await loadDependencies();
+  ensureClientSide();
+  
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
@@ -195,6 +220,9 @@ export const generateAssessmentPDF = async (assessment: AssessmentForPDF): Promi
  * Generate a ZIP file containing all assessment PDFs
  */
 export const generateAllAssessmentsZip = async (assessments: AssessmentForPDF[]): Promise<Blob> => {
+  await loadDependencies();
+  ensureClientSide();
+  
   const zip = new JSZip();
   
   // Generate PDF for each assessment
@@ -218,6 +246,9 @@ export const generateAllAssessmentsZip = async (assessments: AssessmentForPDF[])
 export const generateCompleteLeadershipProfilePDF = async (
   assessments: AssessmentForPDF[]
 ): Promise<Blob> => {
+  await loadDependencies();
+  ensureClientSide();
+  
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();

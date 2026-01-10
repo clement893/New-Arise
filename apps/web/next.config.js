@@ -302,6 +302,24 @@ const nextConfig = {
           },
         ],
       },
+      {
+        // Force no-cache for reports page to ensure updates are visible immediately
+        source: '/:locale(en|fr|ar|he)?/dashboard/reports/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate, max-age=0',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
+          },
+        ],
+      },
     ];
   },
 };

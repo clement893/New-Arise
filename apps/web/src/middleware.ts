@@ -122,6 +122,14 @@ export async function middleware(request: NextRequest) {
   // Add security headers to response
   const isProduction = process.env.NODE_ENV === 'production';
   
+  // Force no-cache for reports page to ensure updates are visible immediately
+  if (pathnameWithoutLocale === '/dashboard/reports' || pathnameWithoutLocale.startsWith('/dashboard/reports')) {
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+    response.headers.set('X-No-Cache', 'true');
+  }
+  
   // Security headers are primarily handled by next.config.js headers() function
   // But we add additional headers here for API routes and dynamic responses
   if (pathname.startsWith('/api/')) {
