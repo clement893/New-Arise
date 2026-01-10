@@ -10,7 +10,8 @@ import { Card, Loading } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import { FileText, Download, TrendingUp, Target, Users, Brain } from 'lucide-react';
 import Image from 'next/image';
-import { getMyAssessments, getAssessmentResults, get360Evaluators, Assessment as ApiAssessment, AssessmentType, AssessmentResult } from '@/lib/api/assessments';
+import { getMyAssessments, getAssessmentResults, get360Evaluators, getDevelopmentGoalsCount, Assessment as ApiAssessment, AssessmentType, AssessmentResult } from '@/lib/api/assessments';
+import { generateAssessmentPDF, generateAllAssessmentsZip, generateCompleteLeadershipProfilePDF, downloadBlob } from '@/lib/utils/pdfGenerator';
 
 interface AssessmentDisplay {
   id: number;
@@ -48,6 +49,7 @@ function ResultsReportsContent() {
     evaluatorsCount: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -177,6 +179,15 @@ function ResultsReportsContent() {
         }
       }
       
+      // Load development goals count
+      let developmentGoalsCount = 0;
+      try {
+        const goalsData = await getDevelopmentGoalsCount();
+        developmentGoalsCount = goalsData.count || 0;
+      } catch (err) {
+        console.warn('Could not load development goals count:', err);
+      }
+      
       // Calculate average score from transformed assessments
       const scores = transformedAssessments
         .map((a) => {
@@ -191,7 +202,7 @@ function ResultsReportsContent() {
       setStats({
         completedAssessments: completedAssessments.length,
         averageScore,
-        developmentGoals: 12, // TODO: Implement API endpoint for development goals
+        developmentGoals: developmentGoalsCount,
         evaluatorsCount,
       });
     } catch (err) {
@@ -225,22 +236,25 @@ function ResultsReportsContent() {
       const modeEntries = Object.entries(modeScores);
       if (modeEntries.length > 0) {
         const sorted = modeEntries.sort(([, a], [, b]) => (b as number) - (a as number));
-        const dominantMode = sorted[0][0];
-        const modeNames: Record<string, string> = {
-          competing: 'Competing',
-          collaborating: 'Collaborating',
-          compromising: 'Compromising',
-          avoiding: 'Avoiding',
-          accommodating: 'Accommodating',
-        };
-        const modeName = modeNames[dominantMode.toLowerCase()] || dominantMode;
-        
-        insights.push({
-          id: insightId++,
-          title: 'Conflict Resolution',
-          description: `Your dominant conflict style is ${modeName}, which is highly effective for ${dominantMode === 'collaborating' ? 'team environments and complex problem-solving' : dominantMode === 'competing' ? 'decisive situations requiring quick action' : 'finding balanced solutions'}.`,
-          category: 'TKI',
-        });
+        const dominantEntry = sorted[0];
+        if (dominantEntry) {
+          const dominantMode = dominantEntry[0];
+          const modeNames: Record<string, string> = {
+            competing: 'Competing',
+            collaborating: 'Collaborating',
+            compromising: 'Compromising',
+            avoiding: 'Avoiding',
+            accommodating: 'Accommodating',
+          };
+          const modeName = modeNames[dominantMode.toLowerCase()] || dominantMode;
+          
+          insights.push({
+            id: insightId++,
+            title: 'Conflict Resolution',
+            description: `Your dominant conflict style is ${modeName}, which is highly effective for ${dominantMode === 'collaborating' ? 'team environments and complex problem-solving' : dominantMode === 'competing' ? 'decisive situations requiring quick action' : 'finding balanced solutions'}.`,
+            category: 'TKI',
+          });
+        }
       }
     }
 
@@ -351,33 +365,65 @@ function ResultsReportsContent() {
 
   const handleExportAll = async () => {
     try {
-      // TODO: Implement export all functionality
-      // This should generate a zip file with all assessment PDFs
-      alert('Export functionality coming soon! This will download all your assessment reports as a ZIP file.');
+      if (assessments.length === 0) {
+        alert('No assessments to export.');
+        return;
+      }
+
+      setIsGeneratingPDF(true);
+      
+      // Generate ZIP with all PDFs
+      const zipBlob = await generateAllAssessmentsZip(assessments);
+      
+      // Download the ZIP file
+      const timestamp = new Date().toISOString().split('T')[0];
+      downloadBlob(zipBlob, `ARISE_Assessments_${timestamp}.zip`);
     } catch (err) {
       console.error('Failed to export assessments:', err);
       alert('Failed to export assessments. Please try again.');
+    } finally {
+      setIsGeneratingPDF(false);
     }
   };
 
   const handleDownloadProfile = async () => {
     try {
-      // TODO: Implement complete leadership profile PDF generation
-      // This should generate a comprehensive PDF with all assessments
-      alert('Complete Leadership Profile download coming soon! This will generate a comprehensive PDF with all your assessment results.');
+      if (assessments.length === 0) {
+        alert('No assessments available to generate profile.');
+        return;
+      }
+
+      setIsGeneratingPDF(true);
+
+      // Generate comprehensive PDF
+      const pdfBlob = await generateCompleteLeadershipProfilePDF(assessments);
+      
+      // Download the PDF
+      const timestamp = new Date().toISOString().split('T')[0];
+      downloadBlob(pdfBlob, `ARISE_Complete_Leadership_Profile_${timestamp}.pdf`);
     } catch (err) {
       console.error('Failed to download profile:', err);
       alert('Failed to download profile. Please try again.');
+    } finally {
+      setIsGeneratingPDF(false);
     }
   };
 
   const handleDownloadAssessment = async (assessment: AssessmentDisplay) => {
     try {
-      // TODO: Implement individual assessment PDF download
-      alert(`Download for ${assessment.name} coming soon!`);
+      setIsGeneratingPDF(true);
+
+      // Generate PDF for this assessment
+      const pdfBlob = await generateAssessmentPDF(assessment);
+      
+      // Download the PDF
+      const fileName = `${assessment.name.replace(/\s+/g, '_')}_${assessment.id}.pdf`;
+      downloadBlob(pdfBlob, fileName);
     } catch (err) {
       console.error('Failed to download assessment:', err);
       alert('Failed to download assessment. Please try again.');
+    } finally {
+      setIsGeneratingPDF(false);
     }
   };
 
@@ -467,9 +513,10 @@ function ResultsReportsContent() {
                 variant="arise-primary"
                 className="flex items-center gap-2"
                 onClick={handleExportAll}
+                disabled={isGeneratingPDF || assessments.length === 0}
               >
                 <Download size={16} />
-                Export All
+                {isGeneratingPDF ? 'Generating...' : 'Export All'}
               </Button>
             </div>
 
@@ -653,8 +700,9 @@ function ResultsReportsContent() {
                   variant="arise-primary"
                   className="w-full"
                   onClick={handleDownloadProfile}
+                  disabled={isGeneratingPDF || assessments.length === 0}
                 >
-                  Download Complete Leadership Profile
+                  {isGeneratingPDF ? 'Generating PDF...' : 'Download Complete Leadership Profile'}
                 </Button>
               </div>
             </div>

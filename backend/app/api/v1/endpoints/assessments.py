@@ -1182,6 +1182,57 @@ async def invite_360_evaluators(
     }
 
 
+@router.get("/stats/development-goals-count")
+async def get_development_goals_count(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get the count of development goals (recommendations) from all completed assessments
+    """
+    try:
+        # Get all completed assessments for the user
+        result = await db.execute(
+            select(AssessmentResult)
+            .join(Assessment, AssessmentResult.assessment_id == Assessment.id)
+            .where(Assessment.user_id == current_user.id)
+        )
+        results = result.scalars().all()
+        
+        # Count recommendations across all results
+        total_recommendations = 0
+        for assessment_result in results:
+            if assessment_result.recommendations:
+                # recommendations can be a list or dict
+                if isinstance(assessment_result.recommendations, list):
+                    total_recommendations += len(assessment_result.recommendations)
+                elif isinstance(assessment_result.recommendations, dict):
+                    # Count recommendations in dict format
+                    if 'recommendations' in assessment_result.recommendations:
+                        recs = assessment_result.recommendations['recommendations']
+                        if isinstance(recs, list):
+                            total_recommendations += len(recs)
+                        else:
+                            total_recommendations += 1
+                    else:
+                        total_recommendations += 1
+                else:
+                    # If it's a single recommendation or other format, count as 1
+                    total_recommendations += 1
+        
+        return {
+            "count": total_recommendations,
+            "user_id": current_user.id
+        }
+    except Exception as e:
+        from app.core.logging import logger
+        logger.error(f"Error getting development goals count: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve development goals count"
+        )
+
+
 @router.get("/{assessment_id}/360/evaluators")
 async def get_360_evaluators_status(
     assessment_id: int,

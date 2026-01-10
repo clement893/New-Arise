@@ -387,6 +387,17 @@ export const get360Evaluators = async (assessmentId: number): Promise<Evaluators
 };
 
 /**
+ * Get development goals count from all assessments
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
+ */
+export const getDevelopmentGoalsCount = async (): Promise<{ count: number; user_id: number }> => {
+  const response = await apiClient.get(
+    `/v1/assessments/stats/development-goals-count`
+  );
+  return response.data;
+};
+
+/**
  * Get evaluator assessment by token (public endpoint)
  */
 export const getEvaluatorAssessment = async (token: string): Promise<EvaluatorAssessmentInfo> => {
