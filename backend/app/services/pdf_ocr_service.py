@@ -589,7 +589,30 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                     for strength in page_data["strengths"]:
                         if strength and strength not in merged_result["strengths"]:
                             merged_result["strengths"].append(strength)
-    
+
+                if page_data.get("challenges"):
+                    for challenge in page_data["challenges"]:
+                        if challenge and challenge not in merged_result["challenges"]:
+                            merged_result["challenges"].append(challenge)
+
+            # Validate extracted data
+            if not merged_result["mbti_type"]:
+                raise ValueError("Could not extract MBTI type from PDF. Please ensure the PDF contains MBTI results from 16Personalities.")
+
+            # Ensure dimension_preferences is properly structured
+            required_dimensions = ["EI", "SN", "TF", "JP"]
+            for dim in required_dimensions:
+                if dim not in merged_result["dimension_preferences"]:
+                    logger.warning(f"Missing dimension {dim} in extracted data, using default values")
+                    merged_result["dimension_preferences"][dim] = {}
+
+            logger.info(f"Successfully extracted MBTI results: {merged_result['mbti_type']}")
+            return merged_result
+
+        except Exception as e:
+            logger.error(f"Error extracting MBTI results from PDF: {str(e)}", exc_info=True)
+            raise ValueError(f"Failed to extract MBTI results from PDF: {str(e)}")
+
     async def _download_pdf_with_playwright(self, url: str, profile_id: str) -> Optional[bytes]:
         """
         Download PDF from 16Personalities using Playwright headless browser
