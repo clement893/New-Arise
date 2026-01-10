@@ -623,11 +623,12 @@ function AssessmentsContent() {
       // For other assessment types
       if (assessmentId) {
         // Resume existing assessment
-        router.push(`/dashboard/assessments/${getAssessmentRoute(assessmentType)}`);
+        router.push(`/dashboard/assessments/${getAssessmentRoute(assessmentType)}?assessmentId=${assessmentId}`);
       } else {
         // Start new assessment for other types
-        await startAssessment(assessmentType);
-        router.push(`/dashboard/assessments/${getAssessmentRoute(assessmentType)}`);
+        const response = await startAssessment(assessmentType);
+        // Pass the new assessment ID in the URL so the page can load it
+        router.push(`/dashboard/assessments/${getAssessmentRoute(assessmentType)}?assessmentId=${response.assessment_id}`);
       }
     } catch (err) {
       // Convert error to string to prevent React error #130
@@ -762,11 +763,12 @@ function AssessmentsContent() {
               if (assessment.assessmentType === 'THREE_SIXTY_SELF' && safeAssessmentId) {
                 router.push(`/dashboard/assessments/360-feedback?assessmentId=${safeAssessmentId}`);
               } else if (assessment.assessmentType === 'WELLNESS') {
-                router.push('/dashboard/assessments/wellness');
+                router.push(safeAssessmentId ? `/dashboard/assessments/wellness?assessmentId=${safeAssessmentId}` : '/dashboard/assessments/wellness');
               } else if (assessment.assessmentType === 'TKI') {
-                router.push('/dashboard/assessments/tki');
+                router.push(safeAssessmentId ? `/dashboard/assessments/tki?assessmentId=${safeAssessmentId}` : '/dashboard/assessments/tki');
               } else {
-                router.push(`/dashboard/assessments/${getAssessmentRoute(assessment.assessmentType)}`);
+                const route = getAssessmentRoute(assessment.assessmentType);
+                router.push(safeAssessmentId ? `/dashboard/assessments/${route}?assessmentId=${safeAssessmentId}` : `/dashboard/assessments/${route}`);
               }
             }
           }}

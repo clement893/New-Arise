@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTKIStore } from '@/stores/tkiStore';
 import { tkiQuestions, tkiModes } from '@/data/tkiQuestions';
 import { getMyAssessments } from '@/lib/api/assessments';
@@ -12,6 +12,8 @@ import { formatError } from '@/lib/utils/formatError';
 
 export default function TKIAssessmentPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlAssessmentId = searchParams.get('assessmentId');
   const {
     assessmentId,
     currentQuestion,
@@ -27,7 +29,9 @@ export default function TKIAssessmentPage() {
     submitAssessment,
   } = useTKIStore();
 
-  const [showIntro, setShowIntro] = useState(!assessmentId);
+  // Use assessmentId from URL if available, otherwise use store
+  const effectiveAssessmentId = urlAssessmentId ? parseInt(urlAssessmentId, 10) : assessmentId;
+  const [showIntro, setShowIntro] = useState(!effectiveAssessmentId);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 
   // Safety check: ensure tkiQuestions is loaded and currentQuestion is valid
@@ -44,8 +48,19 @@ export default function TKIAssessmentPage() {
   // Check for existing assessment and load answers on mount
   useEffect(() => {
     const checkExistingAssessment = async () => {
+      // Priority: URL param > store > API lookup
+      if (urlAssessmentId) {
+        const id = parseInt(urlAssessmentId, 10);
+        if (!isNaN(id)) {
+          // Assessment ID from URL, load existing answers
+          await loadExistingAnswers(id);
+          setShowIntro(false);
+          return;
+        }
+      }
+      
       if (assessmentId) {
-        // Assessment ID exists, load existing answers
+        // Assessment ID exists in store, load existing answers
         await loadExistingAnswers(assessmentId);
         setShowIntro(false);
       } else {
@@ -71,7 +86,7 @@ export default function TKIAssessmentPage() {
     };
 
     checkExistingAssessment();
-  }, []); // Only run on mount
+  }, [urlAssessmentId, assessmentId, loadExistingAnswers]); // Re-run when URL param or store changes
 
   useEffect(() => {
     if (currentQuestionData && answers[currentQuestionData.id]) {
@@ -139,7 +154,7 @@ export default function TKIAssessmentPage() {
 
             <div className="flex gap-4 justify-center">
               <Button
-                onClick={() => router.push(`/dashboard/assessments/tki/results?id=${assessmentId}`)}
+                onClick={() => router.push(`/dashboard/assessments/tki/results?id=${effectiveAssessmentId || assessmentId}`)}
                 className="bg-arise-gold hover:bg-arise-gold-dark text-white"
               >
                 View Results
