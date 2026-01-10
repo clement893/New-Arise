@@ -54,14 +54,46 @@ def run_migrations():
                     with open(migration_file, 'r', encoding='utf-8') as f:
                         sql_content = f.read()
                     
-                    # Execute SQL
-                    session.execute(text(sql_content))
+                    # Execute SQL - split into individual statements if needed
+                    # PostgreSQL DO blocks should be executed as single statements
+                    statements = []
+                    current_statement = []
+                    in_block = False
+                    
+                    for line in sql_content.split('\n'):
+                        line = line.strip()
+                        if not line or line.startswith('--'):
+                            continue
+                        
+                        current_statement.append(line)
+                        
+                        # Check if we're starting or ending a DO block
+                        if 'DO $$' in line or 'DO $$' in ' '.join(current_statement):
+                            in_block = True
+                        
+                        if in_block and 'END $$;' in line:
+                            statements.append('\n'.join(current_statement))
+                            current_statement = []
+                            in_block = False
+                        elif not in_block and line.endswith(';'):
+                            statements.append('\n'.join(current_statement))
+                            current_statement = []
+                    
+                    # If we have leftover statements
+                    if current_statement:
+                        statements.append('\n'.join(current_statement))
+                    
+                    # Execute each statement
+                    for stmt in statements:
+                        if stmt.strip():
+                            session.execute(text(stmt))
+                    
                     session.commit()
                     
-                    print(f"✅ Successfully executed {migration_file.name}")
+                    print(f"[SUCCESS] Successfully executed {migration_file.name}")
                     
                 except Exception as e:
-                    print(f"❌ Error executing {migration_file.name}: {e}", file=sys.stderr)
+                    print(f"[ERROR] Error executing {migration_file.name}: {e}", file=sys.stderr)
                     session.rollback()
                     # Continue with other migrations
                     continue
