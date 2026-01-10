@@ -283,11 +283,13 @@ The following sections detail your results from each assessment, along with pers
   yPos += 15;
 
   // Individual Assessment Sections
+  let isFirstAssessment = true;
   for (const assessment of assessments) {
-    // Add new page for each assessment
-    if (yPos > pageHeight - 50 || doc.getPageNumber() === 1) {
+    // Add new page for each assessment (always for first, then check space for others)
+    if (isFirstAssessment || yPos > pageHeight - 50) {
       doc.addPage();
       yPos = 20;
+      isFirstAssessment = false;
     }
 
     doc.setFontSize(18);
