@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import MotionDiv from '@/components/motion/MotionDiv';
 import {
   getAssessmentResults,
@@ -13,7 +14,7 @@ import {
 import { useFeedback360Store } from '@/stores/feedback360Store';
 import { feedback360Capabilities } from '@/data/feedback360Questions';
 import Button from '@/components/ui/Button';
-import { ArrowLeft, TrendingUp, TrendingDown, Minus, Users, CheckCircle, Clock, Mail, XCircle } from 'lucide-react';
+import { ArrowLeft, TrendingUp, TrendingDown, Minus, Users, CheckCircle, Clock, Mail, XCircle, Eye } from 'lucide-react';
 import { formatError } from '@/lib/utils/formatError';
 
 // Type guard to check if a value is a PillarScore object
@@ -295,9 +296,17 @@ export default function Feedback360ResultsPage() {
             {/* Evaluators Status Section */}
             {evaluators.length > 0 && (
               <div className="mt-6 rounded-lg border border-gray-200 p-4">
-                <h3 className="mb-4 text-lg font-semibold text-gray-900">
-                  Statut des évaluateurs
-                </h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Statut des évaluateurs
+                  </h3>
+                  <Link href="/dashboard/evaluators">
+                    <Button variant="outline" size="sm" className="text-xs">
+                      <Eye className="h-4 w-4 mr-1" />
+                      Voir tous
+                    </Button>
+                  </Link>
+                </div>
                 <div className="grid gap-3 md:grid-cols-3">
                   {evaluators.map((evaluator) => (
                     <div
