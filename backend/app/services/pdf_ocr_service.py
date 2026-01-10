@@ -190,26 +190,74 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
         Note: 16Personalities may require authentication or the profile may need to be public
         """
         try:
-            # Validate URL
-            if not url.startswith('https://www.16personalities.com/profiles/'):
-                raise ValueError(f"Invalid 16Personalities URL. Expected format: https://www.16personalities.com/profiles/...")
+            # Normalize URL - handle different formats
+            url = url.strip()
+            # Remove trailing slashes and query params for profile ID extraction
+            clean_url = url.split('?')[0].rstrip('/')
             
-            # Extract profile ID from URL
-            profile_id = url.split('/profiles/')[-1].split('/')[0].split('?')[0]
-            if not profile_id:
-                raise ValueError("Could not extract profile ID from URL")
+            # Validate URL format - support multiple patterns
+            if '16personalities.com' not in url.lower():
+                raise ValueError(f"Invalid 16Personalities URL. Must be a 16personalities.com URL. Got: {url}")
             
-            logger.info(f"Attempting to download PDF for profile ID: {profile_id}")
+            # Extract profile ID from URL - handle various formats
+            profile_id = None
+            if '/profiles/' in url:
+                profile_id = url.split('/profiles/')[-1].split('/')[0].split('?')[0]
+            elif '/profile/' in url:
+                profile_id = url.split('/profile/')[-1].split('/')[0].split('?')[0]
+            
+            if not profile_id or len(profile_id) < 3:
+                raise ValueError(f"Could not extract valid profile ID from URL: {url}")
+            
+            logger.info(f"Attempting to download PDF for profile ID: {profile_id} from URL: {url}")
             
             # Try to get PDF download URL
             # 16Personalities profile pages typically have a PDF download link
-            async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
+            async with httpx.AsyncClient(
+                timeout=httpx.Timeout(60.0, connect=10.0),
+                follow_redirects=True,
+                headers={
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                    'Accept-Language': 'en-US,en;q=0.9',
+                    'Accept-Encoding': 'gzip, deflate, br',
+                    'DNT': '1',
+                    'Connection': 'keep-alive',
+                    'Upgrade-Insecure-Requests': '1',
+                }
+            ) as client:
+                # First, access the profile page to get any session/auth cookies and check if it's accessible
+                try:
+                    logger.info(f"Accessing profile page: {url}")
+                    response = await client.get(url)
+                    if response.status_code == 404:
+                        raise ValueError(f"Profile not found (404). The profile may be private or the URL is incorrect: {url}")
+                    if response.status_code == 403:
+                        raise ValueError(f"Access forbidden (403). The profile is private and requires authentication. Please make your profile public or download the PDF manually.")
+                    if response.status_code != 200:
+                        raise ValueError(f"Failed to access profile URL: HTTP {response.status_code}. The profile may be private or inaccessible.")
+                    
+                    html_content = response.text
+                    logger.debug(f"Successfully accessed profile page (HTML length: {len(html_content)} chars)")
+                    
+                    # Check if page indicates authentication is required
+                    if 'sign in' in html_content.lower() or 'login' in html_content.lower() or 'private' in html_content.lower():
+                        logger.warning("Page may require authentication")
+                    
+                except httpx.TimeoutException:
+                    raise ValueError(f"Request timeout while accessing profile URL. Please try again or download the PDF manually.")
+                except Exception as e:
+                    logger.warning(f"Error accessing profile page: {e}")
+                    # Continue anyway, might still be able to try direct PDF URLs
+                
                 # Try common PDF endpoints first (these might work for public profiles)
                 pdf_urls_to_try = [
                     f"https://www.16personalities.com/profiles/{profile_id}/pdf",
                     f"https://www.16personalities.com/api/profiles/{profile_id}/pdf",
                     f"https://www.16personalities.com/profiles/{profile_id}/export/pdf",
                     f"https://www.16personalities.com/profiles/{profile_id}/download/pdf",
+                    f"https://www.16personalities.com/api/v1/profiles/{profile_id}/pdf",
+                    f"https://www.16personalities.com/api/v1/profiles/{profile_id}/export/pdf",
                 ]
                 
                 pdf_bytes = None
@@ -218,79 +266,116 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                         logger.debug(f"Trying PDF URL: {pdf_url}")
                         pdf_response = await client.get(pdf_url, follow_redirects=True)
                         content_type = pdf_response.headers.get('content-type', '').lower()
-                        if pdf_response.status_code == 200 and ('application/pdf' in content_type or 'pdf' in content_type or pdf_url.endswith('/pdf')):
+                        
+                        # Check status code and content type
+                        if pdf_response.status_code == 200:
                             # Check if it's actually a PDF by checking magic bytes
-                            if pdf_response.content[:4] == b'%PDF':
+                            if len(pdf_response.content) >= 4 and pdf_response.content[:4] == b'%PDF':
                                 pdf_bytes = pdf_response.content
                                 logger.info(f"Successfully downloaded PDF from {pdf_url} ({len(pdf_bytes)} bytes)")
                                 break
+                            elif 'application/pdf' in content_type:
+                                # Even if magic bytes don't match, trust content-type for now
+                                pdf_bytes = pdf_response.content
+                                logger.info(f"Successfully downloaded PDF from {pdf_url} ({len(pdf_bytes)} bytes) based on content-type")
+                                break
+                        elif pdf_response.status_code == 403:
+                            logger.debug(f"Access forbidden for {pdf_url} - profile may be private")
+                        elif pdf_response.status_code == 404:
+                            logger.debug(f"PDF endpoint not found: {pdf_url}")
                     except Exception as e:
                         logger.debug(f"Failed to download from {pdf_url}: {e}")
                         continue
                 
                 # If direct PDF download didn't work, try to extract from HTML page
-                if not pdf_bytes:
+                if not pdf_bytes and 'html_content' in locals():
                     logger.info("Direct PDF download failed, trying to extract from HTML page")
                     try:
-                        # Access the profile page
-                        response = await client.get(url, headers={
-                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                        })
-                        if response.status_code != 200:
-                            raise ValueError(f"Failed to access profile URL: HTTP {response.status_code}")
-                        
-                        # Parse HTML to find PDF download link
-                        html_content = response.text
                         import re
+                        from urllib.parse import urljoin, urlparse
                         
-                        # Look for PDF download links in the HTML
+                        # More comprehensive patterns to find PDF download links
                         pdf_link_patterns = [
-                            r'href=["\']([^"\']*\.pdf[^"\']*)["\']',
+                            # Direct PDF links
+                            r'href=["\']([^"\']*\.pdf(?:\?[^"\']*)?)["\']',
+                            r'src=["\']([^"\']*\.pdf(?:\?[^"\']*)?)["\']',
+                            # Download links containing "pdf"
                             r'href=["\']([^"\']*download[^"\']*pdf[^"\']*)["\']',
+                            r'href=["\']([^"\']*pdf[^"\']*download[^"\']*)["\']',
+                            # Export links
                             r'href=["\']([^"\']*export[^"\']*pdf[^"\']*)["\']',
+                            r'href=["\']([^"\']*pdf[^"\']*export[^"\']*)["\']',
+                            # Data attributes
                             r'data-pdf-url=["\']([^"\']*)["\']',
-                            r'pdf["\']:\s*["\']([^"\']*)["\']',
+                            r'data-url=["\']([^"\']*pdf[^"\']*)["\']',
+                            r'data-href=["\']([^"\']*pdf[^"\']*)["\']',
+                            # JSON/API data in scripts
+                            r'pdf["\']?\s*:\s*["\']([^"\']*)["\']',
+                            r'pdfUrl["\']?\s*:\s*["\']([^"\']*)["\']',
+                            r'downloadUrl["\']?\s*:\s*["\']([^"\']*pdf[^"\']*)["\']',
+                            # Button/action links
+                            r'action=["\']([^"\']*pdf[^"\']*)["\']',
                         ]
                         
+                        found_urls = set()
                         for pattern in pdf_link_patterns:
                             matches = re.findall(pattern, html_content, re.IGNORECASE)
                             for match in matches:
+                                # Clean up the URL
+                                match = match.strip().split('?')[0]  # Remove query params for now
+                                
                                 # Build absolute URL
                                 if match.startswith('http'):
                                     pdf_url = match
+                                elif match.startswith('//'):
+                                    pdf_url = f"https:{match}"
                                 elif match.startswith('/'):
                                     pdf_url = f"https://www.16personalities.com{match}"
                                 else:
-                                    pdf_url = f"https://www.16personalities.com/profiles/{profile_id}/{match}"
+                                    # Relative URL
+                                    base_url = f"https://www.16personalities.com/profiles/{profile_id}/"
+                                    pdf_url = urljoin(base_url, match)
                                 
-                                try:
-                                    logger.debug(f"Trying extracted PDF URL: {pdf_url}")
-                                    pdf_response = await client.get(pdf_url, follow_redirects=True)
-                                    if pdf_response.status_code == 200:
-                                        content_type = pdf_response.headers.get('content-type', '').lower()
-                                        # Check if it's a PDF by magic bytes
-                                        if pdf_response.content[:4] == b'%PDF' or 'application/pdf' in content_type:
-                                            pdf_bytes = pdf_response.content
-                                            logger.info(f"Successfully downloaded PDF from extracted URL: {pdf_url} ({len(pdf_bytes)} bytes)")
-                                            break
-                                except Exception as e:
-                                    logger.debug(f"Failed to download from extracted URL {pdf_url}: {e}")
-                                    continue
+                                if pdf_url and pdf_url not in found_urls:
+                                    found_urls.add(pdf_url)
+                                    try:
+                                        logger.debug(f"Trying extracted PDF URL: {pdf_url}")
+                                        pdf_response = await client.get(pdf_url, follow_redirects=True)
+                                        if pdf_response.status_code == 200:
+                                            content_type = pdf_response.headers.get('content-type', '').lower()
+                                            # Check if it's a PDF by magic bytes
+                                            if len(pdf_response.content) >= 4 and pdf_response.content[:4] == b'%PDF':
+                                                pdf_bytes = pdf_response.content
+                                                logger.info(f"Successfully downloaded PDF from extracted URL: {pdf_url} ({len(pdf_bytes)} bytes)")
+                                                break
+                                            elif 'application/pdf' in content_type:
+                                                pdf_bytes = pdf_response.content
+                                                logger.info(f"Successfully downloaded PDF from extracted URL: {pdf_url} ({len(pdf_bytes)} bytes) based on content-type")
+                                                break
+                                    except Exception as e:
+                                        logger.debug(f"Failed to download from extracted URL {pdf_url}: {e}")
+                                        continue
                             
                             if pdf_bytes:
                                 break
                     except Exception as e:
-                        logger.warning(f"Failed to extract PDF link from HTML: {e}")
+                        logger.warning(f"Failed to extract PDF link from HTML: {e}", exc_info=True)
                 
                 if not pdf_bytes:
-                    # If we still don't have a PDF, provide helpful error message
+                    # If we still don't have a PDF, provide helpful error message with more context
+                    error_details = []
+                    error_details.append(f"URL tried: {url}")
+                    error_details.append(f"Profile ID extracted: {profile_id}")
+                    error_details.append("Possible reasons:")
+                    error_details.append("- The profile is private and requires authentication (make it public in 16Personalities settings)")
+                    error_details.append("- The profile URL format has changed")
+                    error_details.append("- The PDF export feature requires JavaScript/authentication")
+                    error_details.append("- The profile doesn't have a PDF export available")
+                    
                     raise ValueError(
-                        "Could not automatically download PDF from the 16Personalities profile URL. "
-                        "This may be because:\n"
-                        "- The profile is private and requires authentication\n"
-                        "- The profile URL format has changed\n"
-                        "- The PDF export feature is not available for this profile\n\n"
-                        "Please download the PDF manually from 16Personalities and upload it using the file upload option instead."
+                        "Could not automatically download PDF from the 16Personalities profile URL.\n\n" +
+                        "\n".join(error_details) +
+                        "\n\nSolution: Please download the PDF manually from 16Personalities and upload it using the file upload option instead."
                     )
                 
                 if len(pdf_bytes) == 0:
