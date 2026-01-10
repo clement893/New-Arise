@@ -270,14 +270,17 @@ function ResultsReportsContent() {
             const bScore = typeof b === 'number' ? b : (b as any).self_score || 0;
             return bScore - aScore;
           });
-          const strongest = sorted[0][0];
-          
-          insights.push({
-            id: insightId++,
-            title: 'Team Perception',
-            description: `Your 360° feedback shows strong ${strongest.replace(/_/g, ' ')} capabilities, with clear vision and effective communication skills recognized by your colleagues.`,
-            category: '360 Feedback',
-          });
+          const strongestEntry = sorted[0];
+          if (strongestEntry) {
+            const strongest = strongestEntry[0];
+            
+            insights.push({
+              id: insightId++,
+              title: 'Team Perception',
+              description: `Your 360° feedback shows strong ${strongest.replace(/_/g, ' ')} capabilities, with clear vision and effective communication skills recognized by your colleagues.`,
+              category: '360 Feedback',
+            });
+          }
         }
       } else if (scores.percentage) {
         insights.push({
@@ -301,15 +304,19 @@ function ResultsReportsContent() {
             const bScore = typeof b === 'number' ? b : (b as any).score || (b as any).percentage || 0;
             return bScore - aScore;
           });
-          const strongest = sorted[0][0];
-          const weakest = sorted[sorted.length - 1][0];
-          
-          insights.push({
-            id: insightId++,
-            title: 'Wellness Focus',
-            description: `Your wellness score is ${wellness.score}. Your strongest pillar is ${strongest.replace(/_/g, ' ')}, while ${weakest.replace(/_/g, ' ')} could benefit from more attention for optimal performance.`,
-            category: 'Wellness',
-          });
+          const strongestEntry = sorted[0];
+          const weakestEntry = sorted[sorted.length - 1];
+          if (strongestEntry && weakestEntry) {
+            const strongest = strongestEntry[0];
+            const weakest = weakestEntry[0];
+            
+            insights.push({
+              id: insightId++,
+              title: 'Wellness Focus',
+              description: `Your wellness score is ${wellness.score}. Your strongest pillar is ${strongest.replace(/_/g, ' ')}, while ${weakest.replace(/_/g, ' ')} could benefit from more attention for optimal performance.`,
+              category: 'Wellness',
+            });
+          }
         }
       } else if (scores.percentage) {
         insights.push({
