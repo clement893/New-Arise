@@ -1,4 +1,5 @@
 import { Badge, Button, Card, Alert } from '@/components/ui';
+import { useLocale } from 'next-intl';
 import Link from 'next/link';
 
 interface Subscription {
@@ -25,6 +26,9 @@ export default function SubscriptionCard({
   onCancel,
   onResume,
 }: SubscriptionCardProps) {
+  const locale = useLocale();
+  const pricingUrl = locale === 'en' ? '/pricing' : `/${locale}/pricing`;
+  
   const getStatusBadge = (status: string) => {
     const variants: Record<string, 'success' | 'error' | 'default'> = {
       active: 'success',
@@ -103,7 +107,7 @@ export default function SubscriptionCard({
           {subscription.cancel_at_period_end && onResume && (
             <Button onClick={onResume}>Resume Subscription</Button>
           )}
-          <Link href="/pricing">
+          <Link href={pricingUrl}>
             <Button variant="outline">Change Plan</Button>
           </Link>
         </div>

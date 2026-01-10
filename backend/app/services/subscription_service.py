@@ -27,19 +27,59 @@ class SubscriptionService:
     async def get_user_subscription(
         self, 
         user_id: int, 
-        include_plan: bool = True
+        include_plan: bool = True,
+        active_only: bool = False
     ) -> Optional[Subscription]:
-        """Get user's active subscription with optional plan eager loading"""
-        query = (
-            select(Subscription)
-            .where(Subscription.user_id == user_id)
-            .where(Subscription.status.in_([
-                SubscriptionStatus.ACTIVE,
-                SubscriptionStatus.TRIALING,
-            ]))
-            .order_by(Subscription.created_at.desc())
-            .limit(1)
-        )
+        """Get user's subscription with optional plan eager loading
+        
+        Args:
+            user_id: User ID
+            include_plan: Whether to include plan relationship
+            active_only: If True, only return ACTIVE/TRIALING subscriptions.
+                        If False, prioritize ACTIVE/TRIALING but fallback to most recent subscription
+        """
+        if active_only:
+            # Original behavior: only return ACTIVE/TRIALING
+            query = (
+                select(Subscription)
+                .where(Subscription.user_id == user_id)
+                .where(Subscription.status.in_([
+                    SubscriptionStatus.ACTIVE,
+                    SubscriptionStatus.TRIALING,
+                ]))
+                .order_by(Subscription.created_at.desc())
+                .limit(1)
+            )
+        else:
+            # New behavior: prioritize ACTIVE/TRIALING, but fallback to most recent if none found
+            # First try to get active/trialing subscription
+            active_query = (
+                select(Subscription)
+                .where(Subscription.user_id == user_id)
+                .where(Subscription.status.in_([
+                    SubscriptionStatus.ACTIVE,
+                    SubscriptionStatus.TRIALING,
+                ]))
+                .order_by(Subscription.created_at.desc())
+                .limit(1)
+            )
+            
+            if include_plan:
+                active_query = active_query.options(selectinload(Subscription.plan))
+            
+            result = await self.db.execute(active_query)
+            subscription = result.scalar_one_or_none()
+            
+            if subscription:
+                return subscription
+            
+            # If no active subscription found, return the most recent subscription regardless of status
+            query = (
+                select(Subscription)
+                .where(Subscription.user_id == user_id)
+                .order_by(Subscription.created_at.desc())
+                .limit(1)
+            )
         
         if include_plan:
             query = query.options(selectinload(Subscription.plan))
@@ -154,7 +194,7 @@ class SubscriptionService:
     ) -> Subscription:
         """Create subscription from Stripe"""
         # Check if user already has an active subscription
-        existing = await self.get_user_subscription(user_id, include_plan=False)
+        existing = await self.get_user_subscription(user_id, include_plan=False, active_only=True)
         if existing:
             logger.warning(f"User {user_id} already has an active subscription {existing.id}")
             # Update existing instead of creating duplicate
@@ -304,7 +344,7 @@ class SubscriptionService:
 
     async def check_subscription_expired(self, user_id: int) -> bool:
         """Check if user's subscription has expired"""
-        subscription = await self.get_user_subscription(user_id)
+        subscription = await self.get_user_subscription(user_id, active_only=True)
         if not subscription:
             return True
 

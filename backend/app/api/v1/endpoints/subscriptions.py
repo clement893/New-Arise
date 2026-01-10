@@ -146,16 +146,17 @@ async def get_my_subscription(
     current_user: User = Depends(get_current_user),
     subscription_service: SubscriptionService = Depends(get_subscription_service),
 ):
-    """Get current user's subscription"""
+    """Get current user's subscription (most recent, prioritizing active subscriptions)"""
     subscription = await subscription_service.get_user_subscription(
         current_user.id, 
-        include_plan=True
+        include_plan=True,
+        active_only=False  # Return most recent subscription, prioritizing ACTIVE/TRIALING
     )
     
     if not subscription:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="No active subscription found"
+            detail="No subscription found"
         )
     
     return SubscriptionResponse.model_validate(subscription)
@@ -214,7 +215,10 @@ async def cancel_subscription(
     subscription_service: SubscriptionService = Depends(get_subscription_service),
 ):
     """Cancel current user's subscription"""
-    subscription = await subscription_service.get_user_subscription(current_user.id)
+    subscription = await subscription_service.get_user_subscription(
+        current_user.id,
+        active_only=True  # Only cancel active subscriptions
+    )
     
     if not subscription:
         raise HTTPException(
@@ -286,7 +290,8 @@ async def create_subscription_with_payment_method(
     # Reload with plan relationship
     subscription = await subscription_service.get_user_subscription(
         current_user.id,
-        include_plan=True
+        include_plan=True,
+        active_only=True  # Get active subscription after creation
     )
     
     return SubscriptionResponse.model_validate(subscription)
@@ -299,7 +304,10 @@ async def upgrade_subscription(
     subscription_service: SubscriptionService = Depends(get_subscription_service),
 ):
     """Upgrade subscription to new plan"""
-    subscription = await subscription_service.get_user_subscription(current_user.id)
+    subscription = await subscription_service.get_user_subscription(
+        current_user.id,
+        active_only=True  # Only upgrade active subscriptions
+    )
     
     if not subscription:
         raise HTTPException(
@@ -336,7 +344,8 @@ async def upgrade_subscription(
     # Reload with plan relationship
     updated_subscription = await subscription_service.get_user_subscription(
         current_user.id,
-        include_plan=True
+        include_plan=True,
+        active_only=True  # Get active subscription after upgrade
     )
     
     return SubscriptionResponse.model_validate(updated_subscription)

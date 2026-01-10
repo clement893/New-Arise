@@ -4,13 +4,18 @@
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Container from '@/components/ui/Container';
 import PricingCardSimple from '@/components/ui/PricingCardSimple';
 import BillingPeriodToggle from '@/components/ui/BillingPeriodToggle';
 import FAQItem from '@/components/ui/FAQItem';
 import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
+import Loading from '@/components/ui/Loading';
+import Alert from '@/components/ui/Alert';
+import { subscriptionsAPI } from '@/lib/api';
+import { handleApiError } from '@/lib/errors/api';
+import { logger } from '@/lib/logger';
 
 interface Plan {
   id: string;
@@ -23,53 +28,103 @@ interface Plan {
   buttonText: string;
 }
 
+interface ApiPlan {
+  id: number;
+  name: string;
+  description: string | null;
+  amount: number; // in cents
+  currency: string;
+  interval: 'MONTH' | 'YEAR' | 'WEEK' | 'DAY';
+  interval_count: number;
+  features: string | null; // JSON string
+  is_popular: boolean;
+}
+
 export default function PricingPage() {
   const [billingPeriod, setBillingPeriod] = useState<'month' | 'year'>('month');
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [apiPlans, setApiPlans] = useState<ApiPlan[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const plans: Plan[] = [
-    {
-      id: 'basic',
-      name: 'Basic',
-      price: 49,
+  const parseFeatures = (featuresJson: string | null): string[] => {
+    if (!featuresJson) return [];
+    try {
+      const parsed = JSON.parse(featuresJson);
+      const featureList: string[] = [];
+      for (const [key, value] of Object.entries(parsed)) {
+        if (value === true || (typeof value === 'string' && value.length > 0)) {
+          // Convert key to readable feature name
+          const featureName = key
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, (l) => l.toUpperCase());
+          featureList.push(featureName);
+        }
+      }
+      return featureList;
+    } catch (err) {
+      logger.error('Failed to parse features', { error: err, featuresJson });
+      return [];
+    }
+  };
+
+  const mapApiPlanToDisplayPlan = useCallback((apiPlan: ApiPlan): Plan => {
+    // Convert amount from cents to euros
+    const priceInEuros = apiPlan.amount === 0 ? -1 : apiPlan.amount / 100;
+    
+    // Only show monthly plans for now (filter by interval if needed)
+    // If the plan is yearly, adjust price accordingly
+    const displayPrice = apiPlan.interval === 'YEAR' 
+      ? Math.round(priceInEuros / 12) 
+      : priceInEuros;
+
+    return {
+      id: String(apiPlan.id),
+      name: apiPlan.name,
+      price: displayPrice,
       period: billingPeriod,
-      description: 'Parfait pour démarrer',
-      features: [
-        'Les 4 évaluations',
-        'Profil personnel',
-        'Insights de base',
-      ],
-      buttonText: 'Commencer',
-    },
-    {
-      id: 'professional',
-      name: 'Professional',
-      price: 99,
-      period: billingPeriod,
-      description: 'Pour les professionnels',
-      features: [
-        'Les 4 évaluations',
-        'Analyses avancées',
-        'Support prioritaire',
-        'Rapports personnalisés',
-      ],
-      popular: true,
-      buttonText: 'Essayer gratuitement',
-    },
-    {
-      id: 'enterprise',
-      name: 'Enterprise',
-      price: -1, // -1 indicates custom pricing
-      period: billingPeriod,
-      description: 'Pour les entreprises',
-      features: [
-        'Évaluations illimitées',
-        'Gestion d\'équipe',
-        'Support dédié',
-        'Accès API',
-      ],
-      buttonText: 'Nous contacter',
-    },
-  ];
+      description: apiPlan.description || '',
+      features: parseFeatures(apiPlan.features),
+      popular: apiPlan.is_popular,
+      buttonText: priceInEuros === -1 ? 'Nous contacter' : 'Commencer',
+    };
+  }, [billingPeriod]);
+
+  const loadPlans = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const response = await subscriptionsAPI.getPlans(true); // Only active plans
+      const fetchedPlans: ApiPlan[] = response.data.plans || [];
+      
+      // Filter to only show monthly plans (or convert yearly plans)
+      const monthlyPlans = fetchedPlans.filter(
+        (plan) => plan.interval === 'MONTH' && plan.interval_count === 1
+      );
+      
+      setApiPlans(monthlyPlans);
+    } catch (err) {
+      const appError = handleApiError(err);
+      setError('Failed to load plans. Please try again later.');
+      logger.error('Failed to load subscription plans', appError);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Remap plans when billingPeriod changes (no need to reload from API)
+  useEffect(() => {
+    if (apiPlans.length > 0) {
+      const mappedPlans = apiPlans.map(mapApiPlanToDisplayPlan);
+      setPlans(mappedPlans);
+    }
+  }, [apiPlans, mapApiPlanToDisplayPlan]);
+
+  // Load plans on mount
+  useEffect(() => {
+    loadPlans();
+  }, [loadPlans]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-muted dark:to-muted">
@@ -84,18 +139,34 @@ export default function PricingPage() {
           <BillingPeriodToggle value={billingPeriod} onChange={setBillingPeriod} />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {plans.map((plan) => (
-            <PricingCardSimple
-              key={plan.id}
-              plan={plan}
-              billingPeriod={billingPeriod}
-              onSelect={(_planId, _period) => {
-                // Navigation is handled by the PricingCardSimple component
-              }}
-            />
-          ))}
-        </div>
+        {error && (
+          <Alert variant="error" className="mb-6 max-w-3xl mx-auto">
+            {error}
+          </Alert>
+        )}
+
+        {isLoading ? (
+          <div className="flex justify-center items-center py-12">
+            <Loading />
+          </div>
+        ) : plans.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {plans.map((plan) => (
+              <PricingCardSimple
+                key={plan.id}
+                plan={plan}
+                billingPeriod={billingPeriod}
+                onSelect={(_planId, _period) => {
+                  // Navigation is handled by the PricingCardSimple component
+                }}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">No plans available at the moment.</p>
+          </div>
+        )}
 
         {/* FAQ Section */}
         <div className="mt-16 max-w-3xl mx-auto">

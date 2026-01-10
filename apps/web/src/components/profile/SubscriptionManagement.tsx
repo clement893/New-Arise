@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import Link from 'next/link';
 import { getErrorMessage, getErrorDetail } from '@/lib/errors';
 import { 
@@ -34,6 +35,7 @@ interface Subscription {
 export default function SubscriptionManagement() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const locale = useLocale();
   
   // React Query hooks
   const { data: subscriptionData, isLoading: subscriptionLoading, error: subscriptionError, refetch: refetchSubscription } = useMySubscription();
@@ -51,11 +53,25 @@ export default function SubscriptionManagement() {
   useEffect(() => {
     if (subscriptionData?.data) {
       const sub = subscriptionData.data;
+      
+      // Map backend status to frontend status
+      const statusMap: Record<string, 'active' | 'cancelled' | 'expired' | 'trial'> = {
+        'ACTIVE': 'active',
+        'CANCELLED': 'cancelled',
+        'CANCELED': 'cancelled', // Handle both spellings
+        'EXPIRED': 'expired',
+        'TRIALING': 'trial',
+        'INCOMPLETE': 'expired',
+        'INCOMPLETE_EXPIRED': 'expired',
+      };
+      
+      const mappedStatus = statusMap[sub.status?.toUpperCase()] || 'active';
+      
       setSubscription({
         id: String(sub.id),
         plan_id: String(sub.plan_id),
         plan_name: sub.plan?.name || 'Unknown Plan',
-        status: sub.status.toLowerCase() as 'active' | 'cancelled' | 'expired' | 'trial',
+        status: mappedStatus,
         current_period_start: sub.current_period_start || new Date().toISOString(),
         current_period_end: sub.current_period_end || new Date().toISOString(),
         cancel_at_period_end: sub.cancel_at_period_end || false,
@@ -265,7 +281,7 @@ export default function SubscriptionManagement() {
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               You don't have an active subscription. Subscribe to a plan to get started.
             </p>
-            <Link href="/pricing">
+            <Link href={locale === 'en' ? '/pricing' : `/${locale}/pricing`}>
               <Button variant="arise-primary">
                 View Plans
               </Button>
