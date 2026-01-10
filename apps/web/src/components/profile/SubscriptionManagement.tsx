@@ -102,9 +102,12 @@ export default function SubscriptionManagement() {
 
   // Transform payments data from React Query
   useEffect(() => {
-    // paymentsData is already an array (returned directly by the queryFn)
-    if (paymentsData && Array.isArray(paymentsData)) {
-      setPayments(paymentsData.map((payment: {
+    // React Query wraps the queryFn result in { data: ... }
+    // So paymentsData is the React Query result object, and paymentsData.data is the array
+    const invoices = paymentsData?.data || (Array.isArray(paymentsData) ? paymentsData : []);
+    
+    if (Array.isArray(invoices) && invoices.length > 0) {
+      setPayments(invoices.map((payment: {
         id: string | number;
         amount_due: number; // Invoice uses amount_due
         amount_paid: number; // Invoice uses amount_paid
@@ -116,7 +119,7 @@ export default function SubscriptionManagement() {
         invoice_number?: string;
       }): Payment => ({
         id: String(payment.id),
-        // Use amount_due (or amount_paid if paid) - already in cents from database
+        // Use amount_paid if paid, otherwise amount_due - already in cents from database
         amount: (payment.amount_paid > 0 ? payment.amount_paid : payment.amount_due) / 100,
         currency: payment.currency.toUpperCase(),
         status: (payment.status.toLowerCase() === 'paid' ? 'completed' : payment.status.toLowerCase()) as 'completed' | 'pending' | 'failed' | 'refunded',
