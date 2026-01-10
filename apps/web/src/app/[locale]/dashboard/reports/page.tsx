@@ -5,10 +5,11 @@ export const dynamicParams = true;
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import { Card, Loading } from '@/components/ui';
 import Button from '@/components/ui/Button';
-import { FileText, Download, TrendingUp, Target, Users, Brain } from 'lucide-react';
+import { FileText, Download, TrendingUp, Target, Users, Brain, Eye } from 'lucide-react';
 import Image from 'next/image';
 import { getMyAssessments, getAssessmentResults, get360Evaluators, getDevelopmentGoalsCount, Assessment as ApiAssessment, AssessmentType, AssessmentResult } from '@/lib/api/assessments';
 import { generateAssessmentPDF, generateAllAssessmentsZip, generateCompleteLeadershipProfilePDF, downloadBlob } from '@/lib/utils/pdfGenerator';
@@ -498,12 +499,24 @@ function ResultsReportsContent() {
               <p className="text-gray-700 text-sm">Development Goals</p>
             </Card>
 
-            <Card className="p-6 text-center bg-white">
+            <Card className="p-6 text-center bg-white relative group hover:shadow-lg transition-shadow">
               <div className="w-12 h-12 bg-success-500/10 rounded-lg flex items-center justify-center mx-auto mb-3">
                 <Users className="text-success-500" size={24} />
               </div>
               <p className="text-3xl font-bold text-success-500 mb-1">{stats.evaluatorsCount}</p>
-              <p className="text-gray-700 text-sm">360° Evaluators</p>
+              <p className="text-gray-700 text-sm mb-3">360° Evaluators</p>
+              {stats.evaluatorsCount > 0 && (
+                <Link href="/dashboard/evaluators">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full mt-2 text-xs"
+                  >
+                    <Eye size={14} className="mr-1" />
+                    View Evaluators
+                  </Button>
+                </Link>
+              )}
             </Card>
           </div>
 
