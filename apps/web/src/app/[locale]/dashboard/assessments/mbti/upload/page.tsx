@@ -25,6 +25,10 @@ export default function MBTIPDFUploadPage() {
   const handleFileSelect = (files: File[]) => {
     if (files.length > 0) {
       const file = files[0];
+      if (!file) {
+        setError('Aucun fichier sélectionné');
+        return;
+      }
       // Validate file
       if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
         setError('Veuillez sélectionner un fichier PDF valide');
