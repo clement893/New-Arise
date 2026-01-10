@@ -7,7 +7,6 @@ import { Card } from '@/components/ui';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { Users, Linkedin, Mail, Award, GraduationCap, Briefcase } from 'lucide-react';
 import Image from 'next/image';
-import { Link } from '@/i18n/routing';
 
 export default function TeamPage() {
   const t = useTranslations('team');
