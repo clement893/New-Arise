@@ -561,21 +561,41 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                     merged_result["mbti_type"] = page_data.get("mbti_type")
 
                 # Merge dimension preferences (accumulate or take average)
-                if page_data.get("dimension_preferences"):
-                    for dim, values in page_data["dimension_preferences"].items():
+                dimension_prefs = page_data.get("dimension_preferences")
+                if dimension_prefs and isinstance(dimension_prefs, dict):
+                    for dim, values in dimension_prefs.items():
+                        if not isinstance(values, dict):
+                            logger.warning(f"Dimension {dim} has invalid structure, skipping")
+                            continue
+                        
                         if dim not in merged_result["dimension_preferences"]:
                             merged_result["dimension_preferences"][dim] = values
                         else:
                             # Merge values (take average if both exist)
                             merged_values = {}
+                            existing_values = merged_result["dimension_preferences"][dim]
+                            if not isinstance(existing_values, dict):
+                                # If existing value is not a dict, replace it
+                                merged_result["dimension_preferences"][dim] = values
+                                continue
+                            
                             for key in ['E', 'I', 'S', 'N', 'T', 'F', 'J', 'P']:
-                                if key in values:
-                                    if key in merged_result["dimension_preferences"][dim]:
-                                        merged_values[key] = (values[key] + merged_result["dimension_preferences"][dim][key]) / 2
-                                    else:
-                                        merged_values[key] = values[key]
-                                elif key in merged_result["dimension_preferences"][dim]:
-                                    merged_values[key] = merged_result["dimension_preferences"][dim][key]
+                                val1 = values.get(key) if isinstance(values, dict) else None
+                                val2 = existing_values.get(key) if isinstance(existing_values, dict) else None
+                                
+                                # Only include key if at least one value is not None
+                                if val1 is not None or val2 is not None:
+                                    if val1 is not None and val2 is not None:
+                                        # Both values exist - take average
+                                        try:
+                                            merged_values[key] = (float(val1) + float(val2)) / 2
+                                        except (TypeError, ValueError):
+                                            # If conversion fails, use the first non-None value
+                                            merged_values[key] = val1 if val1 is not None else val2
+                                    elif val1 is not None:
+                                        merged_values[key] = val1
+                                    elif val2 is not None:
+                                        merged_values[key] = val2
                             merged_result["dimension_preferences"][dim] = merged_values
 
                 # Merge description (take first non-null)
