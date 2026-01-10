@@ -417,10 +417,10 @@ function EvaluatorsContent() {
                         <User className="text-arise-deep-teal" size={24} />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
+                        <h3 className="text-lg font-bold text-gray-900 mb-1">
                           {evaluator.name}
                         </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                        <p className="text-sm text-gray-900 mb-2">
                           {evaluator.email}
                         </p>
                         {evaluator.role && (
