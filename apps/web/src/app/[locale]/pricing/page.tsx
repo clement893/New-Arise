@@ -232,6 +232,7 @@ export default function PricingPage() {
       }, 2000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [isLoading, plans.length, apiPlans.length, error, loadPlans]);
 
   return (
