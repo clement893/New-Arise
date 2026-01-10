@@ -63,11 +63,13 @@ function ResultsReportsContent() {
       setError(null);
       const apiAssessments = await getMyAssessments();
       
-      // Filter only completed assessments (handle both 'COMPLETED' and 'completed' formats)
+      // Filter only completed assessments (handle both 'COMPLETED' and 'completed' formats, and also check for results)
       const completedAssessments = apiAssessments.filter(
         (a: ApiAssessment) => {
-          const status = a.status?.toUpperCase();
-          return status === 'COMPLETED' || a.status === 'completed';
+          const status = (a.status || '').toUpperCase();
+          // Include if status is completed (in any case), or if it has a score_summary (finalized with results)
+          // or if it has completed_at set (indicating it was finalized)
+          return status === 'COMPLETED' || !!a.score_summary || !!a.completed_at;
         }
       );
 
@@ -93,10 +95,7 @@ function ResultsReportsContent() {
         return (b.id || 0) - (a.id || 0);
       });
 
-      // Take only the latest assessment
-      const latestAssessment = sortedAssessments[0];
-      
-      if (!latestAssessment) {
+      if (sortedAssessments.length === 0) {
         setAssessments([]);
         setKeyInsights([]);
         setStats({
@@ -109,9 +108,9 @@ function ResultsReportsContent() {
         return;
       }
 
-      // Load detailed results for the latest assessment to generate insights
+      // Load detailed results for all completed assessments to generate insights
       const transformedAssessments: AssessmentDisplay[] = await Promise.all(
-        [latestAssessment].map(async (assessment: ApiAssessment) => {
+        sortedAssessments.map(async (assessment: ApiAssessment) => {
           const completedDate = assessment.completed_at 
             ? new Date(assessment.completed_at).toLocaleDateString('fr-FR')
             : 'N/A';
@@ -189,12 +188,13 @@ function ResultsReportsContent() {
 
       setAssessments(transformedAssessments);
       
-      // Generate key insights from assessments
+      // Generate key insights from assessments (use all, but prioritize latest for insights)
       const insights = generateKeyInsights(transformedAssessments);
       setKeyInsights(insights);
       
       // Load additional stats after assessments are set
-      // Pass all completed assessments for total count, but only latest will be used for evaluators
+      // Use the latest assessment (first in sorted list) for evaluator count if it's a 360
+      const latestAssessment = sortedAssessments[0];
       loadAdditionalStats(completedAssessments, transformedAssessments, latestAssessment);
     } catch (err: any) {
       console.error('Failed to load assessments:', err);
