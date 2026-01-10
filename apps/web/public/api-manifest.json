@@ -1416,13 +1416,6 @@
       "imports": []
     },
     {
-      "path": "app\\[locale]\\dashboard\\tests\\page.tsx",
-      "url": "/dashboard/tests",
-      "apiCalls": [],
-      "hasApiCalls": false,
-      "imports": []
-    },
-    {
       "path": "app\\[locale]\\db\\test\\page.tsx",
       "url": "/db/test",
       "apiCalls": [],

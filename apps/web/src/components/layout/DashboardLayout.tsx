@@ -79,11 +79,6 @@ const createSidebarItems = (userType?: UserType, isAdmin?: boolean): SidebarItem
             icon: <ClipboardList className="w-5 h-5" />,
           },
           {
-            label: 'Tests',
-            href: '/dashboard/tests',
-            icon: <ClipboardList className="w-5 h-5" />,
-          },
-          {
             label: 'Results & Reports',
             href: '/dashboard/reports',
             icon: <FileText className="w-5 h-5" />,
@@ -208,11 +203,6 @@ const createSidebarItems = (userType?: UserType, isAdmin?: boolean): SidebarItem
     {
       label: 'Assessments',
       href: '/dashboard/assessments',
-      icon: <ClipboardList className="w-5 h-5" />,
-    },
-    {
-      label: 'Tests',
-      href: '/dashboard/tests',
       icon: <ClipboardList className="w-5 h-5" />,
     },
     {
