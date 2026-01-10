@@ -89,9 +89,9 @@ function EvaluatorsContent() {
         case 'in_progress':
           return statusLower === 'in_progress' || statusLower === 'started';
         case 'invited':
-          return statusLower === 'invited';
+          return statusLower === 'invited' || statusLower === 'not_started';
         case 'pending':
-          return statusLower === 'pending' || statusLower === 'not_started';
+          return statusLower === 'pending' || statusLower === 'not_started' || statusLower === 'invited';
         default:
           return true;
       }
@@ -159,11 +159,11 @@ function EvaluatorsContent() {
           En cours
         </div>
       );
-    } else if (statusLower === 'invited') {
+    } else if (statusLower === 'invited' || statusLower === 'not_started') {
       return (
         <div className="flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">
           <Mail size={16} />
-          Invité
+          Invitation en attente
         </div>
       );
     } else {
@@ -248,7 +248,10 @@ function EvaluatorsContent() {
     }
   ).length;
   const invitedCount = evaluators.filter(
-    (e) => e.status?.toLowerCase() === 'invited'
+    (e) => {
+      const status = e.status?.toLowerCase() || '';
+      return status === 'invited' || status === 'not_started';
+    }
   ).length;
   const pendingCount = evaluators.length - completedCount - inProgressCount - invitedCount;
 
@@ -369,7 +372,7 @@ function EvaluatorsContent() {
                     {filter === 'completed' && 'Terminés'}
                     {filter === 'in_progress' && 'En cours'}
                     {filter === 'invited' && 'Invités'}
-                    {filter === 'pending' && 'En attente'}
+                    {filter === 'pending' && 'Invitation en attente'}
                   </Button>
                 ))}
               </div>
@@ -503,10 +506,12 @@ function EvaluatorsContent() {
           isOpen={showEvaluatorModal}
           onClose={() => setShowEvaluatorModal(false)}
           assessmentId={assessmentId}
-          onSuccess={() => {
+          onSuccess={async () => {
             setShowEvaluatorModal(false);
-            loadEvaluators();
-            setSuccessMessage('Les évaluateurs ont été invités avec succès');
+            // Set filter to pending to show newly added evaluators
+            setStatusFilter('pending');
+            await loadEvaluators();
+            setSuccessMessage('Les évaluateurs ont été invités avec succès et apparaissent sous "En attente"');
             setTimeout(() => setSuccessMessage(null), 5000);
           }}
         />
