@@ -343,117 +343,118 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                         continue
                 
                 # If direct PDF download didn't work, try to extract from HTML page or API data
-                if not pdf_bytes and 'html_content' in locals():
+                if not pdf_bytes and html_content:
                     logger.info("Direct PDF download failed, trying to extract from HTML page and embedded data")
                     try:
                         from urllib.parse import urljoin, urlparse, quote
                         
                         # If we found embedded API data, try to extract PDF URL from it
-                        if api_data:
+                        if api_data and isinstance(api_data, dict):
                             try:
                                 # Common JSON structures
-                                if isinstance(api_data, dict):
-                                    pdf_url_from_data = None
-                                    # Try different nested paths
-                                    paths_to_check = [
-                                        ['pdf_url'],
-                                        ['pdfUrl'],
-                                        ['download_url'],
-                                        ['downloadUrl'],
-                                        ['export', 'pdf_url'],
-                                        ['profile', 'pdf_url'],
-                                        ['data', 'pdf_url'],
-                                        ['result', 'pdf_url'],
-                                    ]
-                                    for path in paths_to_check:
-                                        current = api_data
-                                        try:
-                                            for key in path:
-                                                current = current[key]
-                                            if current and isinstance(current, str):
-                                                pdf_url_from_data = current
-                                                break
-                                        except (KeyError, TypeError):
-                                            continue
-                                    
-                                    if pdf_url_from_data:
-                                        logger.info(f"Found PDF URL in embedded data: {pdf_url_from_data}")
-                                        try:
-                                            pdf_response = await client.get(pdf_url_from_data, follow_redirects=True)
-                                            if pdf_response.status_code == 200 and len(pdf_response.content) >= 4 and pdf_response.content[:4] == b'%PDF':
-                                                pdf_bytes = pdf_response.content
-                                                logger.info(f"Successfully downloaded PDF from embedded data URL ({len(pdf_bytes)} bytes)")
-                                        except Exception as e:
-                                            logger.debug(f"Failed to download from embedded URL: {e}")
+                                pdf_url_from_data = None
+                                # Try different nested paths
+                                paths_to_check = [
+                                    ['pdf_url'],
+                                    ['pdfUrl'],
+                                    ['download_url'],
+                                    ['downloadUrl'],
+                                    ['export', 'pdf_url'],
+                                    ['profile', 'pdf_url'],
+                                    ['data', 'pdf_url'],
+                                    ['result', 'pdf_url'],
+                                ]
+                                for path in paths_to_check:
+                                    current = api_data
+                                    try:
+                                        for key in path:
+                                            current = current[key]
+                                        if current and isinstance(current, str):
+                                            pdf_url_from_data = current
+                                            break
+                                    except (KeyError, TypeError):
+                                        continue
+                                
+                                if pdf_url_from_data:
+                                    logger.info(f"Found PDF URL in embedded data: {pdf_url_from_data}")
+                                    try:
+                                        pdf_response = await client.get(pdf_url_from_data, follow_redirects=True)
+                                        if pdf_response.status_code == 200 and len(pdf_response.content) >= 4 and pdf_response.content[:4] == b'%PDF':
+                                            pdf_bytes = pdf_response.content
+                                            logger.info(f"Successfully downloaded PDF from embedded data URL ({len(pdf_bytes)} bytes)")
+                                    except Exception as e:
+                                        logger.debug(f"Failed to download from embedded URL: {e}")
                             except Exception as e:
                                 logger.debug(f"Failed to parse embedded API data: {e}")
                         
-                        import re
-                        
-                        # More comprehensive patterns to find PDF download links
-                        pdf_link_patterns = [
-                            # Direct PDF links
-                            r'href=["\']([^"\']*\.pdf(?:\?[^"\']*)?)["\']',
-                            r'src=["\']([^"\']*\.pdf(?:\?[^"\']*)?)["\']',
-                            # Download links containing "pdf"
-                            r'href=["\']([^"\']*download[^"\']*pdf[^"\']*)["\']',
-                            r'href=["\']([^"\']*pdf[^"\']*download[^"\']*)["\']',
-                            # Export links
-                            r'href=["\']([^"\']*export[^"\']*pdf[^"\']*)["\']',
-                            r'href=["\']([^"\']*pdf[^"\']*export[^"\']*)["\']',
-                            # Data attributes
-                            r'data-pdf-url=["\']([^"\']*)["\']',
-                            r'data-url=["\']([^"\']*pdf[^"\']*)["\']',
-                            r'data-href=["\']([^"\']*pdf[^"\']*)["\']',
-                            # JSON/API data in scripts
-                            r'pdf["\']?\s*:\s*["\']([^"\']*)["\']',
-                            r'pdfUrl["\']?\s*:\s*["\']([^"\']*)["\']',
-                            r'downloadUrl["\']?\s*:\s*["\']([^"\']*pdf[^"\']*)["\']',
-                            # Button/action links
-                            r'action=["\']([^"\']*pdf[^"\']*)["\']',
-                        ]
-                        
-                        found_urls = set()
-                        for pattern in pdf_link_patterns:
-                            matches = re.findall(pattern, html_content, re.IGNORECASE)
-                            for match in matches:
-                                # Clean up the URL
-                                match = match.strip().split('?')[0]  # Remove query params for now
-                                
-                                # Build absolute URL
-                                if match.startswith('http'):
-                                    pdf_url = match
-                                elif match.startswith('//'):
-                                    pdf_url = f"https:{match}"
-                                elif match.startswith('/'):
-                                    pdf_url = f"https://www.16personalities.com{match}"
-                                else:
-                                    # Relative URL
-                                    base_url = f"https://www.16personalities.com/profiles/{profile_id}/"
-                                    pdf_url = urljoin(base_url, match)
-                                
-                                if pdf_url and pdf_url not in found_urls:
-                                    found_urls.add(pdf_url)
-                                    try:
-                                        logger.debug(f"Trying extracted PDF URL: {pdf_url}")
-                                        pdf_response = await client.get(pdf_url, follow_redirects=True)
-                                        if pdf_response.status_code == 200:
-                                            content_type = pdf_response.headers.get('content-type', '').lower()
-                                            # Check if it's a PDF by magic bytes
-                                            if len(pdf_response.content) >= 4 and pdf_response.content[:4] == b'%PDF':
-                                                pdf_bytes = pdf_response.content
-                                                logger.info(f"Successfully downloaded PDF from extracted URL: {pdf_url} ({len(pdf_bytes)} bytes)")
-                                                break
-                                            elif 'application/pdf' in content_type:
-                                                pdf_bytes = pdf_response.content
-                                                logger.info(f"Successfully downloaded PDF from extracted URL: {pdf_url} ({len(pdf_bytes)} bytes) based on content-type")
-                                                break
-                                    except Exception as e:
-                                        logger.debug(f"Failed to download from extracted URL {pdf_url}: {e}")
-                                        continue
+                        # Only try HTML parsing if html_content is available and not None
+                        if html_content and isinstance(html_content, str):
+                            import re
                             
-                            if pdf_bytes:
-                                break
+                            # More comprehensive patterns to find PDF download links
+                            pdf_link_patterns = [
+                                # Direct PDF links
+                                r'href=["\']([^"\']*\.pdf(?:\?[^"\']*)?)["\']',
+                                r'src=["\']([^"\']*\.pdf(?:\?[^"\']*)?)["\']',
+                                # Download links containing "pdf"
+                                r'href=["\']([^"\']*download[^"\']*pdf[^"\']*)["\']',
+                                r'href=["\']([^"\']*pdf[^"\']*download[^"\']*)["\']',
+                                # Export links
+                                r'href=["\']([^"\']*export[^"\']*pdf[^"\']*)["\']',
+                                r'href=["\']([^"\']*pdf[^"\']*export[^"\']*)["\']',
+                                # Data attributes
+                                r'data-pdf-url=["\']([^"\']*)["\']',
+                                r'data-url=["\']([^"\']*pdf[^"\']*)["\']',
+                                r'data-href=["\']([^"\']*pdf[^"\']*)["\']',
+                                # JSON/API data in scripts
+                                r'pdf["\']?\s*:\s*["\']([^"\']*)["\']',
+                                r'pdfUrl["\']?\s*:\s*["\']([^"\']*)["\']',
+                                r'downloadUrl["\']?\s*:\s*["\']([^"\']*pdf[^"\']*)["\']',
+                                # Button/action links
+                                r'action=["\']([^"\']*pdf[^"\']*)["\']',
+                            ]
+                            
+                            found_urls = set()
+                            for pattern in pdf_link_patterns:
+                                matches = re.findall(pattern, html_content, re.IGNORECASE)
+                                for match in matches:
+                                    # Clean up the URL
+                                    match = match.strip().split('?')[0]  # Remove query params for now
+                                    
+                                    # Build absolute URL
+                                    if match.startswith('http'):
+                                        pdf_url = match
+                                    elif match.startswith('//'):
+                                        pdf_url = f"https:{match}"
+                                    elif match.startswith('/'):
+                                        pdf_url = f"https://www.16personalities.com{match}"
+                                    else:
+                                        # Relative URL
+                                        base_url = f"https://www.16personalities.com/profiles/{profile_id}/"
+                                        pdf_url = urljoin(base_url, match)
+                                    
+                                    if pdf_url and pdf_url not in found_urls:
+                                        found_urls.add(pdf_url)
+                                        try:
+                                            logger.debug(f"Trying extracted PDF URL: {pdf_url}")
+                                            pdf_response = await client.get(pdf_url, follow_redirects=True)
+                                            if pdf_response.status_code == 200:
+                                                content_type = pdf_response.headers.get('content-type', '').lower()
+                                                # Check if it's a PDF by magic bytes
+                                                if len(pdf_response.content) >= 4 and pdf_response.content[:4] == b'%PDF':
+                                                    pdf_bytes = pdf_response.content
+                                                    logger.info(f"Successfully downloaded PDF from extracted URL: {pdf_url} ({len(pdf_bytes)} bytes)")
+                                                    break
+                                                elif 'application/pdf' in content_type:
+                                                    pdf_bytes = pdf_response.content
+                                                    logger.info(f"Successfully downloaded PDF from extracted URL: {pdf_url} ({len(pdf_bytes)} bytes) based on content-type")
+                                                    break
+                                        except Exception as e:
+                                            logger.debug(f"Failed to download from extracted URL {pdf_url}: {e}")
+                                            continue
+                                
+                                if pdf_bytes:
+                                    break
                     except Exception as e:
                         logger.warning(f"Failed to extract PDF link from HTML: {e}", exc_info=True)
                 

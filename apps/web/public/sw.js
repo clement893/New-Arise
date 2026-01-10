@@ -45,7 +45,8 @@ self.addEventListener('install', (event: ExtendableEvent) => {
 self.addEventListener('activate', (event: ExtendableEvent) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
-      return Promise.all(
+      // Delete old caches
+      const deleteOldCaches = Promise.all(
         cacheNames
           .filter((name) => {
             return (
@@ -56,6 +57,21 @@ self.addEventListener('activate', (event: ExtendableEvent) => {
           })
           .map((name) => caches.delete(name))
       );
+
+      // Clean up reports page from all caches to ensure fresh data
+      const cleanupReportsCache = Promise.all(
+        [CACHE_NAME, STATIC_CACHE_NAME, API_CACHE_NAME].map(async (cacheName) => {
+          const cache = await caches.open(cacheName);
+          const keys = await cache.keys();
+          const reportsKeys = keys.filter((request) => {
+            const url = new URL(request.url);
+            return url.pathname.includes('/dashboard/reports');
+          });
+          return Promise.all(reportsKeys.map((key) => cache.delete(key)));
+        })
+      );
+
+      return Promise.all([deleteOldCaches, cleanupReportsCache]);
     })
   );
   // Take control of all pages immediately
