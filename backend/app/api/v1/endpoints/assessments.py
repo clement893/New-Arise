@@ -1714,11 +1714,13 @@ async def upload_mbti_pdf(
         extracted_data = await ocr_service.extract_mbti_results(pdf_bytes)
         
         # Validate extracted data
+        logger.debug(f"Validating extracted data: {extracted_data}")
         mbti_type = extracted_data.get("mbti_type")
-        if not mbti_type or len(mbti_type) != 4:
+        if not mbti_type or len(str(mbti_type)) != 4:
+            logger.error(f"Invalid MBTI type extracted: {mbti_type}")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Could not extract valid MBTI type from PDF. Extracted: {mbti_type}"
+                detail=f"Could not extract valid MBTI type from PDF. Extracted: {mbti_type}. Please ensure the PDF contains valid MBTI results from 16Personalities."
             )
         
         # Convert extracted data to assessment scores format
@@ -1763,43 +1765,64 @@ async def upload_mbti_pdf(
             )
             db.add(assessment)
         
-        await db.commit()
-        await db.refresh(assessment)
+        try:
+            await db.commit()
+            await db.refresh(assessment)
+            logger.debug(f"Assessment saved/updated successfully: {assessment.id}")
+        except Exception as commit_error:
+            logger.error(f"Failed to commit assessment: {commit_error}", exc_info=True)
+            await db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to save assessment: {str(commit_error)}"
+            )
         
         # Create or update assessment result
-        result_query = await db.execute(
-            select(AssessmentResult)
-            .where(AssessmentResult.assessment_id == assessment.id)
-        )
-        assessment_result = result_query.scalar_one_or_none()
-        
-        if assessment_result:
-            # Update existing result
-            assessment_result.scores = scores
-            assessment_result.insights = {
-                "description": extracted_data.get("description"),
-                "strengths": extracted_data.get("strengths", []),
-                "challenges": extracted_data.get("challenges", [])
-            }
-            assessment_result.recommendations = {}
-            assessment_result.updated_at = datetime.now(timezone.utc)
-        else:
-            # Create new result
-            assessment_result = AssessmentResult(
-                assessment_id=assessment.id,
-                user_id=current_user.id,
-                scores=scores,
-                insights={
+        logger.debug(f"Creating/updating assessment result for assessment {assessment.id}")
+        try:
+            result_query = await db.execute(
+                select(AssessmentResult)
+                .where(AssessmentResult.assessment_id == assessment.id)
+            )
+            assessment_result = result_query.scalar_one_or_none()
+            
+            if assessment_result:
+                # Update existing result
+                logger.debug("Updating existing assessment result")
+                assessment_result.scores = scores
+                assessment_result.insights = {
                     "description": extracted_data.get("description"),
                     "strengths": extracted_data.get("strengths", []),
                     "challenges": extracted_data.get("challenges", [])
-                },
-                recommendations={}
+                }
+                assessment_result.recommendations = {}
+                assessment_result.updated_at = datetime.now(timezone.utc)
+            else:
+                # Create new result
+                logger.debug("Creating new assessment result")
+                assessment_result = AssessmentResult(
+                    assessment_id=assessment.id,
+                    user_id=current_user.id,
+                    scores=scores,
+                    insights={
+                        "description": extracted_data.get("description"),
+                        "strengths": extracted_data.get("strengths", []),
+                        "challenges": extracted_data.get("challenges", [])
+                    },
+                    recommendations={}
+                )
+                db.add(assessment_result)
+            
+            await db.commit()
+            await db.refresh(assessment_result)
+            logger.debug(f"Assessment result saved successfully: {assessment_result.id}")
+        except Exception as result_error:
+            logger.error(f"Failed to create/update assessment result: {result_error}", exc_info=True)
+            await db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to save assessment result: {str(result_error)}"
             )
-            db.add(assessment_result)
-        
-        await db.commit()
-        await db.refresh(assessment_result)
         
         logger.info(f"Successfully extracted MBTI results from PDF: {mbti_type} for user {current_user.id}")
         
@@ -1815,6 +1838,10 @@ async def upload_mbti_pdf(
         raise
     except ValueError as e:
         logger.error(f"Error extracting MBTI results from PDF: {str(e)}", exc_info=True)
+        try:
+            await db.rollback()
+        except Exception:
+            pass
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Failed to extract MBTI results from PDF: {str(e)}"
@@ -1822,21 +1849,36 @@ async def upload_mbti_pdf(
     except Exception as e:
         error_type = type(e).__name__
         error_message = str(e)
-        logger.error(
-            f"Error processing MBTI PDF: {error_type}: {error_message}",
-            exc_info=True,
-            context={
-                "user_id": current_user.id,
-                "filename": file.filename if file else None,
-                "profile_url": profile_url if profile_url else None,
-                "file_size": len(pdf_bytes) if pdf_bytes else 0,
-                "error_type": error_type,
-                "error_message": error_message
-            }
-        )
-        await db.rollback()
+        
+        # Log full error details
+        try:
+            logger.error(
+                f"Error processing MBTI PDF: {error_type}: {error_message}",
+                exc_info=True,
+                extra={
+                    "user_id": current_user.id if current_user else None,
+                    "filename": file.filename if file and hasattr(file, 'filename') else None,
+                    "profile_url": profile_url,
+                    "file_size": len(pdf_bytes) if pdf_bytes else 0,
+                    "error_type": error_type,
+                    "error_message": error_message
+                }
+            )
+        except Exception as log_error:
+            # If logging fails, at least print to stderr
+            print(f"CRITICAL: Failed to log error. Original error: {error_type}: {error_message}")
+            print(f"Logging error: {log_error}")
+        
+        # Rollback transaction if active
+        try:
+            await db.rollback()
+        except Exception as rollback_error:
+            logger.error(f"Failed to rollback transaction: {rollback_error}")
+        
+        # Return more detailed error in development, generic in production
+        detail_message = f"Failed to process PDF: {error_type}: {error_message}"
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to process PDF: {error_type}: {error_message}"
+            detail=detail_message
         )
 
