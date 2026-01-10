@@ -14,7 +14,7 @@ import Card from '@/components/ui/Card';
 import { Sidebar } from '@/components/dashboard/Sidebar';
 import MotionDiv from '@/components/motion/MotionDiv';
 import RecommendationCard from '@/components/assessments/RecommendationCard';
-import { ArrowLeft, Download, Brain, FileText } from 'lucide-react';
+import { ArrowLeft, Download, Brain, FileText, Upload } from 'lucide-react';
 import { formatError } from '@/lib/utils/formatError';
 
 export default function MBTIResultsPage() {
@@ -29,18 +29,34 @@ export default function MBTIResultsPage() {
   useEffect(() => {
     if (assessmentId) {
       loadResults();
+    } else {
+      // No assessment ID provided, redirect to upload page
+      router.push('/dashboard/assessments/mbti/upload');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assessmentId]);
 
   const loadResults = async () => {
     try {
       setIsLoading(true);
+      setError(null);
       const data = await getAssessmentResults(Number(assessmentId));
       setResults(data);
-    } catch (err: unknown) {
+    } catch (err: any) {
       // Convert error to string to prevent React error #130
       const errorMessage = formatError(err);
-      setError(errorMessage);
+      
+      // Check if it's a "not found" error (results don't exist)
+      const isNotFound = err?.response?.status === 404 || 
+          (typeof errorMessage === 'string' && errorMessage.toLowerCase().includes('not found')) ||
+          (err?.message && err.message.toLowerCase().includes('not found'));
+      
+      if (isNotFound) {
+        // Results don't exist yet - set a specific error message
+        setError('MBTI_RESULTS_NOT_FOUND');
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -85,7 +101,51 @@ export default function MBTIResultsPage() {
   }
 
   if (error || !results) {
-    // Ensure error is always a string before rendering
+    // Check if it's a "results not found" error
+    const isNotFound = error === 'MBTI_RESULTS_NOT_FOUND' || 
+      (typeof error === 'string' && error.toLowerCase().includes('not found'));
+    
+    if (isNotFound || (!results && !isLoading)) {
+      // Results don't exist - show upload page option
+      return (
+        <div className="min-h-screen bg-gray-50 flex">
+          <Sidebar />
+          <div className="flex-1 flex items-center justify-center">
+            <Card className="max-w-md">
+              <div className="p-6 text-center">
+                <FileText className="w-16 h-16 text-purple-600 mx-auto mb-4" />
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  Aucun résultat MBTI trouvé
+                </h2>
+                <p className="text-gray-600 mb-6">
+                  Vous n'avez pas encore téléchargé votre score MBTI depuis 16Personalities.
+                  Téléchargez votre PDF ou partagez l'URL de votre profil pour voir vos résultats.
+                </p>
+                <div className="flex flex-col gap-3">
+                  <Button 
+                    variant="arise-primary"
+                    onClick={() => router.push('/dashboard/assessments/mbti/upload')}
+                    className="w-full"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Télécharger mon score MBTI
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => router.push('/dashboard/assessments')}
+                    className="w-full"
+                  >
+                    Retour aux assessments
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      );
+    }
+    
+    // Other errors
     const errorString = typeof error === 'string' ? error : formatError(error || 'Results not found');
     return (
       <div className="min-h-screen bg-gray-50 flex">
@@ -94,9 +154,14 @@ export default function MBTIResultsPage() {
           <Card className="max-w-md">
             <div className="p-6 text-center">
               <p className="text-red-600 mb-4">{errorString}</p>
-              <Button onClick={() => router.push('/dashboard/assessments')}>
-                Back to Assessments
-              </Button>
+              <div className="flex flex-col gap-2">
+                <Button onClick={() => router.push('/dashboard/assessments/mbti/upload')}>
+                  Télécharger mon score MBTI
+                </Button>
+                <Button variant="outline" onClick={() => router.push('/dashboard/assessments')}>
+                  Retour aux assessments
+                </Button>
+              </div>
             </div>
           </Card>
         </div>

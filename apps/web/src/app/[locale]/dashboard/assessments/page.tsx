@@ -715,17 +715,40 @@ function AssessmentsContent() {
     const hasAllAnswers = totalQuestions > 0 && answerCount > 0 && answerCount === totalQuestions;
     const hasSomeAnswers = answerCount > 0;
     
-    // Determine button based on actual data, not status
-    if (assessment.assessmentType === 'MBTI' && assessment.externalLink && assessment.status === 'completed') {
-      // MBTI: Show download link if completed
+    // MBTI: Handle differently - if completed, show "Télécharger mon score" which redirects to upload or results page
+    if (assessment.assessmentType === 'MBTI' && assessment.status === 'completed') {
+      // If assessmentId exists, redirect to results page (will handle if results don't exist)
+      // Otherwise, redirect to upload page
+      return (
+        <Button
+          variant="outline"
+          className="flex items-center gap-2"
+          onClick={() => {
+            if (safeAssessmentId && !isNaN(safeAssessmentId)) {
+              // Redirect to results page - if results don't exist, the page will handle it
+              router.push(`/dashboard/assessments/mbti/results?id=${safeAssessmentId}`);
+            } else {
+              // No assessment ID, redirect to upload page
+              router.push('/dashboard/assessments/mbti/upload');
+            }
+          }}
+        >
+          <Upload size={16} />
+          Télécharger mon score
+        </Button>
+      );
+    }
+    
+    // MBTI: If not completed but has external link, show link to take test
+    if (assessment.assessmentType === 'MBTI' && assessment.externalLink && assessment.status !== 'completed') {
       return (
         <Button
           variant="outline"
           className="flex items-center gap-2"
           onClick={() => window.open(assessment.externalLink, '_blank')}
         >
-          <Upload size={16} />
-          Télécharger mon score
+          <Brain size={16} />
+          Passer le test
         </Button>
       );
     }

@@ -4,7 +4,6 @@ export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, Grid } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import MotionDiv from '@/components/motion/MotionDiv';
@@ -175,52 +174,85 @@ export default function CoachingOptionsPage() {
   };
 
   return (
-    <DashboardLayout>
-      <div>
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Options de Coaching
+    <div className="p-6 md:p-8">
+      <MotionDiv variant="fade" duration="normal">
+        <div className="mb-8 pb-6">
+          <h1 className="text-4xl font-bold mb-2">
+            <span className="text-white">Options de </span>
+            <span style={{ color: '#D5B667' }}>Coaching</span>
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-white text-lg">
             Découvrez nos forfaits et rencontrez nos coachs certifiés pour accélérer votre développement en leadership
           </p>
         </div>
-        {/* Hero Section */}
-        <MotionDiv variant="fade" duration="normal">
-          <Card className="mb-12 overflow-hidden border-0 text-white" 
-            style={{ background: 'linear-gradient(135deg, rgba(10, 58, 64, 0.95) 0%, rgba(15, 90, 100, 0.95) 100%)' }}>
-            <div className="p-8 md:p-12">
-              <div className="flex items-center gap-3 mb-4">
-                <Sparkles className="h-8 w-8 text-arise-gold" />
-                <h2 className="text-3xl md:text-4xl font-bold">
-                  Transformez votre leadership avec l'accompagnement personnalisé
-                </h2>
+      </MotionDiv>
+      {/* Hero Section */}
+      <MotionDiv variant="fade" duration="normal">
+        <div className="relative mb-8" style={{ paddingBottom: '32px' }}>
+          <div 
+            className="absolute"
+            style={{ 
+              backgroundColor: '#D5DEE0',
+              top: '-20px',
+              bottom: 0,
+              left: '-15%',
+              right: '-15%',
+              width: 'calc(100% + 30%)',
+              zIndex: 0,
+              borderRadius: '16px',
+            }}
+          />
+          <div className="relative z-10">
+            <Card className="overflow-hidden border-0 text-white" 
+              style={{ background: 'linear-gradient(135deg, rgba(10, 58, 64, 0.95) 0%, rgba(15, 90, 100, 0.95) 100%)' }}>
+              <div className="p-8 md:p-12">
+                <div className="flex items-center gap-3 mb-4">
+                  <Sparkles className="h-8 w-8 text-arise-gold" />
+                  <h2 className="text-3xl md:text-4xl font-bold">
+                    Transformez votre leadership avec l'accompagnement personnalisé
+                  </h2>
+                </div>
+                <p className="text-lg text-white/90 max-w-3xl mb-6">
+                  Nos coachs certifiés ARISE vous accompagnent dans votre parcours de développement. 
+                  Choisissez le forfait qui correspond à vos objectifs et sélectionnez le coach qui vous inspire.
+                </p>
+                <div className="flex flex-wrap gap-4">
+                  <div className="flex items-center gap-2">
+                    <Award className="h-5 w-5 text-arise-gold" />
+                    <span>Coachs certifiés ICF</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="h-5 w-5 text-arise-gold" />
+                    <span>500+ clients accompagnés</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Star className="h-5 w-5 text-arise-gold" />
+                    <span>4.8/5 satisfaction moyenne</span>
+                  </div>
+                </div>
               </div>
-              <p className="text-lg text-white/90 max-w-3xl mb-6">
-                Nos coachs certifiés ARISE vous accompagnent dans votre parcours de développement. 
-                Choisissez le forfait qui correspond à vos objectifs et sélectionnez le coach qui vous inspire.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <div className="flex items-center gap-2">
-                  <Award className="h-5 w-5 text-arise-gold" />
-                  <span>Coachs certifiés ICF</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Users className="h-5 w-5 text-arise-gold" />
-                  <span>500+ clients accompagnés</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Star className="h-5 w-5 text-arise-gold" />
-                  <span>4.8/5 satisfaction moyenne</span>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </MotionDiv>
+            </Card>
+          </div>
+        </div>
+      </MotionDiv>
 
-        {/* Packages Section */}
-        <MotionDiv variant="slideUp" delay={100}>
-          <div className="mb-12">
+      {/* Packages Section */}
+      <MotionDiv variant="slideUp" delay={100}>
+        <div className="relative mb-8" style={{ paddingBottom: '32px' }}>
+          <div 
+            className="absolute"
+            style={{ 
+              backgroundColor: '#D5DEE0',
+              top: '-20px',
+              bottom: 0,
+              left: '-15%',
+              right: '-15%',
+              width: 'calc(100% + 30%)',
+              zIndex: 0,
+              borderRadius: '16px',
+            }}
+          />
+          <div className="relative z-10">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-gray-900 mb-3">
                 Nos Forfaits de Coaching
@@ -295,11 +327,26 @@ export default function CoachingOptionsPage() {
               ))}
             </Grid>
           </div>
-        </MotionDiv>
+        </div>
+      </MotionDiv>
 
-        {/* Coaches Section */}
-        <MotionDiv variant="slideUp" delay={200}>
-          <div id="coaches-section" className="mb-12 scroll-mt-8">
+      {/* Coaches Section */}
+      <MotionDiv variant="slideUp" delay={200}>
+        <div className="relative mb-8" style={{ paddingBottom: '32px' }}>
+          <div 
+            className="absolute"
+            style={{ 
+              backgroundColor: '#D5DEE0',
+              top: '-20px',
+              bottom: 0,
+              left: '-15%',
+              right: '-15%',
+              width: 'calc(100% + 30%)',
+              zIndex: 0,
+              borderRadius: '16px',
+            }}
+          />
+          <div id="coaches-section" className="relative z-10 scroll-mt-8">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-gray-900 mb-3">
                 Rencontrez nos Coachs
@@ -419,36 +466,53 @@ export default function CoachingOptionsPage() {
               ))}
             </Grid>
           </div>
-        </MotionDiv>
+        </div>
+      </MotionDiv>
 
-        {/* CTA Section */}
-        <MotionDiv variant="fade" delay={300}>
-          <Card className="text-center p-8 md:p-12 bg-gradient-to-r from-arise-teal to-arise-deep-teal text-white border-0">
-            <h2 className="text-3xl font-bold mb-4">
-              Prêt à commencer votre transformation ?
-            </h2>
-            <p className="text-lg text-white/90 mb-6 max-w-2xl mx-auto">
-              Contactez-nous pour discuter de vos besoins et trouver le forfait et le coach qui vous conviennent le mieux.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button
-                variant="primary"
-                className="bg-arise-gold text-arise-deep-teal hover:bg-arise-gold/90"
-                onClick={() => router.push('/dashboard')}
-              >
-                Retour au dashboard
-              </Button>
-              <Button
-                variant="outline"
-                className="border-2 border-white text-white hover:bg-white/10"
-                onClick={() => window.location.href = 'mailto:coaching@arise.com'}
-              >
-                Nous contacter
-              </Button>
-            </div>
-          </Card>
-        </MotionDiv>
-      </div>
-    </DashboardLayout>
+      {/* CTA Section */}
+      <MotionDiv variant="fade" delay={300}>
+        <div className="relative mb-8" style={{ paddingBottom: '32px' }}>
+          <div 
+            className="absolute"
+            style={{ 
+              backgroundColor: '#D5DEE0',
+              top: '-20px',
+              bottom: 0,
+              left: '-15%',
+              right: '-15%',
+              width: 'calc(100% + 30%)',
+              zIndex: 0,
+              borderRadius: '16px',
+            }}
+          />
+          <div className="relative z-10">
+            <Card className="text-center p-8 md:p-12 bg-gradient-to-r from-arise-teal to-arise-deep-teal text-white border-0">
+              <h2 className="text-3xl font-bold mb-4">
+                Prêt à commencer votre transformation ?
+              </h2>
+              <p className="text-lg text-white/90 mb-6 max-w-2xl mx-auto">
+                Contactez-nous pour discuter de vos besoins et trouver le forfait et le coach qui vous conviennent le mieux.
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <Button
+                  variant="primary"
+                  className="bg-arise-gold text-arise-deep-teal hover:bg-arise-gold/90"
+                  onClick={() => router.push('/dashboard')}
+                >
+                  Retour au dashboard
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-2 border-white text-white hover:bg-white/10"
+                  onClick={() => window.location.href = 'mailto:coaching@arise.com'}
+                >
+                  Nous contacter
+                </Button>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </MotionDiv>
+    </div>
   );
 }
