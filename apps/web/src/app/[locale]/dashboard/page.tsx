@@ -281,8 +281,8 @@ function DashboardContent() {
               router.push(`/dashboard/assessments/results?id=${evaluation.assessmentId}`);
             } else if (evaluation.assessmentType === 'THREE_SIXTY_SELF' && evaluation.assessmentId) {
               router.push(`/dashboard/assessments/360-feedback/results?id=${evaluation.assessmentId}`);
-            } else if (evaluation.assessmentType === 'MBTI' && evaluation.externalLink) {
-              window.open(evaluation.externalLink, '_blank');
+            } else if (evaluation.assessmentType === 'MBTI' && evaluation.assessmentId) {
+              router.push(`/dashboard/assessments/mbti/results?id=${evaluation.assessmentId}`);
             }
           }}
         >
@@ -314,6 +314,8 @@ function DashboardContent() {
                 router.push(`/dashboard/assessments/results?id=${evaluation.assessmentId}`);
               } else if (evaluation.assessmentType === 'THREE_SIXTY_SELF') {
                 router.push(`/dashboard/assessments/360-feedback/results?id=${evaluation.assessmentId}`);
+              } else if (evaluation.assessmentType === 'MBTI') {
+                router.push(`/dashboard/assessments/mbti/results?id=${evaluation.assessmentId}`);
               }
             } catch (err) {
               console.error('Failed to submit assessment:', err);
@@ -324,6 +326,8 @@ function DashboardContent() {
                 router.push(`/dashboard/assessments/results?id=${evaluation.assessmentId}`);
               } else if (evaluation.assessmentType === 'THREE_SIXTY_SELF') {
                 router.push(`/dashboard/assessments/360-feedback/results?id=${evaluation.assessmentId}`);
+              } else if (evaluation.assessmentType === 'MBTI') {
+                router.push(`/dashboard/assessments/mbti/results?id=${evaluation.assessmentId}`);
               }
             }
           }}
