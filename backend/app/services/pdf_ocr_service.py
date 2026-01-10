@@ -37,6 +37,14 @@ except ImportError:
     OPENAI_AVAILABLE = False
     logger.warning("OpenAI library not available. Install with: pip install openai")
 
+# Try to import Playwright for headless browser automation
+try:
+    from playwright.async_api import async_playwright, Browser, Page
+    PLAYWRIGHT_AVAILABLE = True
+except ImportError:
+    PLAYWRIGHT_AVAILABLE = False
+    logger.warning("Playwright not available. Install with: pip install playwright && playwright install chromium")
+
 # OpenAI configuration
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o")  # Use GPT-4o for vision
@@ -226,6 +234,10 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                     'Upgrade-Insecure-Requests': '1',
                 }
             ) as client:
+                # Initialize variables
+                html_content = None
+                api_data = None
+                
                 # First, access the profile page to get any session/auth cookies and check if it's accessible
                 try:
                     logger.info(f"Accessing profile page: {url}")
@@ -238,44 +250,48 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                         raise ValueError(f"Failed to access profile URL: HTTP {response.status_code}. The profile may be private or inaccessible.")
                     
                     html_content = response.text
-                    logger.debug(f"Successfully accessed profile page (HTML length: {len(html_content)} chars)")
-                    
-                    # Check if page is JavaScript-rendered (common for SPAs)
-                    is_js_rendered = False
-                    if 'loading' in html_content.lower() or '<div id="root">' in html_content or 'react' in html_content.lower() or 'vue' in html_content.lower():
-                        is_js_rendered = True
-                        logger.info("Page appears to be JavaScript-rendered (SPA), trying API endpoints directly")
-                    
-                    # Extract any API endpoints or data from the HTML
-                    import re
-                    json_patterns = [
-                        r'window\.__INITIAL_STATE__\s*=\s*({.+?});',
-                        r'window\.__PRELOADED_STATE__\s*=\s*({.+?});',
-                        r'data-react-props\s*=\s*["\']({.+?})["\']',
-                        r'window\.profileData\s*=\s*({.+?});',
-                    ]
-                    
-                    api_data = None
-                    for pattern in json_patterns:
-                        matches = re.findall(pattern, html_content, re.DOTALL)
-                        if matches:
-                            try:
-                                import json
-                                api_data = json.loads(matches[0])
-                                logger.info(f"Found embedded API data in page")
-                                break
-                            except:
-                                pass
-                    
-                    # Check if page indicates authentication is required
-                    if 'sign in' in html_content.lower() or 'login' in html_content.lower() or 'private' in html_content.lower():
-                        logger.warning("Page may require authentication")
+                    if html_content:
+                        logger.debug(f"Successfully accessed profile page (HTML length: {len(html_content)} chars)")
+                        
+                        # Check if page is JavaScript-rendered (common for SPAs)
+                        is_js_rendered = False
+                        html_lower = html_content.lower()
+                        if 'loading' in html_lower or '<div id="root">' in html_content or 'react' in html_lower or 'vue' in html_lower():
+                            is_js_rendered = True
+                            logger.info("Page appears to be JavaScript-rendered (SPA), trying API endpoints directly")
+                        
+                        # Extract any API endpoints or data from the HTML
+                        import re
+                        json_patterns = [
+                            r'window\.__INITIAL_STATE__\s*=\s*({.+?});',
+                            r'window\.__PRELOADED_STATE__\s*=\s*({.+?});',
+                            r'data-react-props\s*=\s*["\']({.+?})["\']',
+                            r'window\.profileData\s*=\s*({.+?});',
+                        ]
+                        
+                        for pattern in json_patterns:
+                            matches = re.findall(pattern, html_content, re.DOTALL)
+                            if matches:
+                                try:
+                                    import json
+                                    api_data = json.loads(matches[0])
+                                    logger.info(f"Found embedded API data in page")
+                                    break
+                                except:
+                                    pass
+                        
+                        # Check if page indicates authentication is required
+                        if html_content and ('sign in' in html_lower or 'login' in html_lower or 'private' in html_lower()):
+                            logger.warning("Page may require authentication")
                     
                 except httpx.TimeoutException:
                     raise ValueError(f"Request timeout while accessing profile URL. Please try again or download the PDF manually.")
+                except ValueError:
+                    raise  # Re-raise ValueError as-is
                 except Exception as e:
                     logger.warning(f"Error accessing profile page: {e}")
                     # Continue anyway, might still be able to try direct PDF URLs
+                    html_content = None
                 
                 # Try common PDF endpoints first (these might work for public profiles)
                 # 16Personalities may use different API versions and formats
@@ -460,6 +476,37 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                 
                 if len(pdf_bytes) == 0:
                     raise ValueError("Downloaded PDF is empty")
+                
+                # If direct download and HTML extraction failed, try Playwright (headless browser)
+                if not pdf_bytes and PLAYWRIGHT_AVAILABLE:
+                    logger.info("Direct download failed, trying Playwright headless browser")
+                    try:
+                        pdf_bytes = await self._download_pdf_with_playwright(url, profile_id)
+                        if pdf_bytes:
+                            logger.info(f"Successfully downloaded PDF using Playwright ({len(pdf_bytes)} bytes)")
+                    except Exception as e:
+                        logger.warning(f"Playwright download failed: {e}", exc_info=True)
+                        # Continue to error message below
+                
+                if not pdf_bytes:
+                    # If we still don't have a PDF, provide helpful error message with more context
+                    error_details = []
+                    error_details.append(f"URL tried: {url}")
+                    error_details.append(f"Profile ID extracted: {profile_id}")
+                    error_details.append("Possible reasons:")
+                    error_details.append("- The profile is private and requires authentication (make it public in 16Personalities settings)")
+                    error_details.append("- The profile URL format has changed")
+                    error_details.append("- The PDF export feature requires JavaScript/authentication")
+                    error_details.append("- The profile doesn't have a PDF export available")
+                    
+                    if not PLAYWRIGHT_AVAILABLE:
+                        error_details.append("- Playwright is not installed (needed for JavaScript-rendered pages)")
+                    
+                    raise ValueError(
+                        "Could not automatically download PDF from the 16Personalities profile URL.\n\n" +
+                        "\n".join(error_details) +
+                        "\n\nSolution: Please download the PDF manually from 16Personalities and upload it using the file upload option instead."
+                    )
                 
                 if len(pdf_bytes) > 10 * 1024 * 1024:  # 10MB
                     raise ValueError(f"Downloaded PDF is too large: {len(pdf_bytes) / 1024 / 1024:.2f}MB (max 10MB)")
