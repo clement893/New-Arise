@@ -28,13 +28,13 @@ export const generateAssessmentPDF = async (assessment: AssessmentForPDF): Promi
 
   // Title
   doc.setFontSize(20);
-  doc.setFont(undefined, 'bold');
+  doc.setFont('helvetica', 'bold');
   doc.text(assessment.name, pageWidth / 2, yPos, { align: 'center' });
   yPos += 15;
 
   // Assessment Info
   doc.setFontSize(12);
-  doc.setFont(undefined, 'normal');
+  doc.setFont('helvetica', 'normal');
   doc.text(`Completed: ${assessment.completedDate}`, 20, yPos);
   yPos += 8;
   doc.text(`Score: ${assessment.score}`, 20, yPos);
@@ -45,11 +45,11 @@ export const generateAssessmentPDF = async (assessment: AssessmentForPDF): Promi
   // Detailed Results Section
   if (assessment.detailedResult?.scores) {
     doc.setFontSize(14);
-    doc.setFont(undefined, 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.text('Detailed Results', 20, yPos);
     yPos += 10;
     doc.setFontSize(10);
-    doc.setFont(undefined, 'normal');
+    doc.setFont('helvetica', 'normal');
 
     const scores = assessment.detailedResult.scores;
 
@@ -119,11 +119,11 @@ export const generateAssessmentPDF = async (assessment: AssessmentForPDF): Promi
       yPos = 20;
     }
     doc.setFontSize(14);
-    doc.setFont(undefined, 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.text('Insights', 20, yPos);
     yPos += 10;
     doc.setFontSize(10);
-    doc.setFont(undefined, 'normal');
+    doc.setFont('helvetica', 'normal');
 
     const insights = assessment.detailedResult.insights;
     if (typeof insights === 'object') {
@@ -147,11 +147,11 @@ export const generateAssessmentPDF = async (assessment: AssessmentForPDF): Promi
       yPos = 20;
     }
     doc.setFontSize(14);
-    doc.setFont(undefined, 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.text('Recommendations', 20, yPos);
     yPos += 10;
     doc.setFontSize(10);
-    doc.setFont(undefined, 'normal');
+    doc.setFont('helvetica', 'normal');
 
     const recommendations = assessment.detailedResult.recommendations;
     if (Array.isArray(recommendations)) {
@@ -229,11 +229,11 @@ export const generateCompleteLeadershipProfilePDF = async (
   
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(32);
-  doc.setFont(undefined, 'bold');
+  doc.setFont('helvetica', 'bold');
   doc.text('Leadership Profile', pageWidth / 2, pageHeight / 2 - 20, { align: 'center' });
   
   doc.setFontSize(18);
-  doc.setFont(undefined, 'normal');
+  doc.setFont('helvetica', 'normal');
   doc.text('Comprehensive Assessment Results', pageWidth / 2, pageHeight / 2, { align: 'center' });
   
   doc.setFontSize(12);
@@ -247,12 +247,12 @@ export const generateCompleteLeadershipProfilePDF = async (
   yPos = 20;
   
   doc.setFontSize(20);
-  doc.setFont(undefined, 'bold');
+  doc.setFont('helvetica', 'bold');
   doc.text('Introduction', 20, yPos);
   yPos += 15;
 
   doc.setFontSize(12);
-  doc.setFont(undefined, 'normal');
+  doc.setFont('helvetica', 'normal');
   const introText = `This comprehensive leadership profile combines insights from ${assessments.length} assessment(s) to provide a holistic view of your leadership capabilities, strengths, and development opportunities.
 
 The following sections detail your results from each assessment, along with personalized insights and recommendations for continued growth.`;
@@ -263,12 +263,12 @@ The following sections detail your results from each assessment, along with pers
 
   // Summary Statistics
   doc.setFontSize(16);
-  doc.setFont(undefined, 'bold');
+  doc.setFont('helvetica', 'bold');
   doc.text('Summary Statistics', 20, yPos);
   yPos += 12;
 
   doc.setFontSize(11);
-  doc.setFont(undefined, 'normal');
+  doc.setFont('helvetica', 'normal');
   
   const scores = assessments
     .map((a) => parseFloat(a.score.replace('%', '')))
@@ -291,12 +291,12 @@ The following sections detail your results from each assessment, along with pers
     }
 
     doc.setFontSize(18);
-    doc.setFont(undefined, 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.text(assessment.name, 20, yPos);
     yPos += 12;
 
     doc.setFontSize(11);
-    doc.setFont(undefined, 'normal');
+    doc.setFont('helvetica', 'normal');
     doc.text(`Completed: ${assessment.completedDate}`, 20, yPos);
     yPos += 7;
     doc.text(`Score: ${assessment.score}`, 20, yPos);
@@ -307,11 +307,11 @@ The following sections detail your results from each assessment, along with pers
     // Detailed results
     if (assessment.detailedResult?.scores) {
       doc.setFontSize(14);
-      doc.setFont(undefined, 'bold');
+      doc.setFont('helvetica', 'bold');
       doc.text('Results', 20, yPos);
       yPos += 10;
       doc.setFontSize(10);
-      doc.setFont(undefined, 'normal');
+      doc.setFont('helvetica', 'normal');
 
       const scores = assessment.detailedResult.scores;
 
@@ -361,11 +361,11 @@ The following sections detail your results from each assessment, along with pers
       }
 
       doc.setFontSize(14);
-      doc.setFont(undefined, 'bold');
+      doc.setFont('helvetica', 'bold');
       doc.text('Key Recommendations', 20, yPos);
       yPos += 10;
       doc.setFontSize(10);
-      doc.setFont(undefined, 'normal');
+      doc.setFont('helvetica', 'normal');
 
       const recommendations = assessment.detailedResult.recommendations;
       const recs = Array.isArray(recommendations) 
@@ -392,12 +392,12 @@ The following sections detail your results from each assessment, along with pers
   yPos = 20;
 
   doc.setFontSize(20);
-  doc.setFont(undefined, 'bold');
+  doc.setFont('helvetica', 'bold');
   doc.text('Development Plan', 20, yPos);
   yPos += 15;
 
   doc.setFontSize(12);
-  doc.setFont(undefined, 'normal');
+  doc.setFont('helvetica', 'normal');
   const planText = `Based on your assessment results, focus on the following areas for continued leadership development:
 
 1. Leverage your identified strengths in leadership and communication
