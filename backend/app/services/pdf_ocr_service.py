@@ -454,8 +454,6 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                                             logger.debug(f"Failed to download from extracted URL {pdf_url}: {e}")
                                             continue
                                 
-                            if pdf_bytes:
-                                break
                     except Exception as e:
                         logger.warning(f"Failed to extract PDF link from HTML: {e}", exc_info=True)
                 
@@ -784,29 +782,6 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
         except Exception as e:
             logger.error(f"Error in Playwright PDF download: {e}", exc_info=True)
             raise
-
-                if page_data.get("challenges"):
-                    for challenge in page_data["challenges"]:
-                        if challenge and challenge not in merged_result["challenges"]:
-                            merged_result["challenges"].append(challenge)
-
-            # Validate extracted data
-            if not merged_result["mbti_type"]:
-                raise ValueError("Could not extract MBTI type from PDF. Please ensure the PDF contains MBTI results from 16Personalities.")
-
-            # Ensure dimension_preferences is properly structured
-            required_dimensions = ["EI", "SN", "TF", "JP"]
-            for dim in required_dimensions:
-                if dim not in merged_result["dimension_preferences"]:
-                    logger.warning(f"Missing dimension {dim} in extracted data, using default values")
-                    merged_result["dimension_preferences"][dim] = {}
-
-            logger.info(f"Successfully extracted MBTI results: {merged_result['mbti_type']}")
-            return merged_result
-
-        except Exception as e:
-            logger.error(f"Error extracting MBTI results from PDF: {str(e)}", exc_info=True)
-            raise ValueError(f"Failed to extract MBTI results from PDF: {str(e)}")
 
     @staticmethod
     def is_configured() -> bool:
