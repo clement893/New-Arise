@@ -60,6 +60,17 @@ class AssessmentAnswerRequest(BaseModel):
     answer_value: str = Field(..., description="Answer value (integer 1-5 or string 'A'/'B')")
 
 
+class EvaluatorAnswerRequest(BaseModel):
+    """Request for a single evaluator answer"""
+    question_id: str = Field(..., description="Question ID")
+    answer_value: str = Field(..., description="Answer value")
+
+
+class EvaluatorSubmitRequest(BaseModel):
+    """Request to submit evaluator assessment with list of answers"""
+    answers: List[EvaluatorAnswerRequest] = Field(..., description="List of answers")
+
+
 class AssessmentSubmitResponse(BaseModel):
     """Response after submitting an assessment"""
     assessment_id: int
@@ -664,11 +675,19 @@ async def get_assessment_results(
                 detail="Assessment not found"
             )
 
-        # Get assessment result using raw SQL since database has result_data, not scores
+        # Get assessment result using raw SQL to handle both 'scores' and 'result_data' columns
+        # This is more reliable than ORM when schema might vary
         from sqlalchemy import text
         result_query = await db.execute(
             text("""
-                SELECT id, assessment_id, result_data, created_at, updated_at
+                SELECT 
+                    id, 
+                    assessment_id, 
+                    COALESCE(scores, result_data) as scores_data,
+                    insights,
+                    recommendations,
+                    comparison_data,
+                    COALESCE(generated_at, created_at, updated_at) as generated_at
                 FROM assessment_results
                 WHERE assessment_id = :assessment_id
             """),
@@ -683,10 +702,10 @@ async def get_assessment_results(
             )
 
         # Extract data from raw SQL result
-        result_id, result_assessment_id, result_data, created_at, updated_at = result_row
+        result_id, result_assessment_id, scores_data, insights_data, recommendations_data, comparison_data, generated_at = result_row
 
-        if result_data is None:
-            logger.error(f"Could not retrieve result_data for assessment {assessment_id}")
+        if not scores_data:
+            logger.error(f"Could not retrieve scores/result_data for assessment {assessment_id}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Assessment results are incomplete. Please contact support."
@@ -696,17 +715,18 @@ async def get_assessment_results(
         assessment_type = assessment.assessment_type
         assessment_type_str = assessment_type.value if hasattr(assessment_type, 'value') else str(assessment_type)
 
-        # Use created_at as generated_at (database doesn't have generated_at)
-        generated_at = created_at or datetime.now(timezone.utc)
+        # Use generated_at or current time as fallback
+        if not generated_at:
+            generated_at = datetime.now(timezone.utc)
 
         return AssessmentResultResponse(
             id=result_id,
             assessment_id=result_assessment_id,
             assessment_type=assessment_type_str,
-            scores=result_data,  # result_data contains the scores
-            insights=None,  # Database doesn't have insights column
-            recommendations=None,  # Database doesn't have recommendations column
-            comparison_data=None,  # Database doesn't have comparison_data column
+            scores=scores_data,
+            insights=insights_data if insights_data else None,
+            recommendations=recommendations_data if recommendations_data else None,
+            comparison_data=comparison_data if comparison_data else None,
             generated_at=generated_at
         )
     except HTTPException:
@@ -1370,7 +1390,7 @@ async def get_360_evaluator_assessment(
 @router.post("/360-evaluator/{token}/submit")
 async def submit_360_evaluator_assessment(
     token: str,
-    answers: List[Dict[str, Any]] = Body(..., description="List of answers with question_id and answer_value"),
+    request: EvaluatorSubmitRequest,
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -1437,9 +1457,9 @@ async def submit_360_evaluator_assessment(
                 evaluator.started_at = datetime.now(timezone.utc)
 
         # Save all answers
-        for answer_data in answers:
-            question_id = answer_data.get("question_id")
-            answer_value = str(answer_data.get("answer_value"))
+        for answer_data in request.answers:
+            question_id = answer_data.question_id
+            answer_value = str(answer_data.answer_value)
 
             if not question_id or not answer_value:
                 continue
@@ -1832,45 +1852,140 @@ async def upload_mbti_pdf(
                 detail=f"Failed to save assessment: {str(commit_error)}"
             )
         
-        # Create or update assessment result
+        # Create or update assessment result using raw SQL to handle both 'scores' and 'result_data' columns
         logger.debug(f"Creating/updating assessment result for assessment {assessment.id}")
         try:
-            result_query = await db.execute(
-                select(AssessmentResult)
-                .where(AssessmentResult.assessment_id == assessment.id)
+            # First check if result exists
+            check_result = await db.execute(
+                text("""
+                    SELECT id FROM assessment_results
+                    WHERE assessment_id = :assessment_id
+                """),
+                {"assessment_id": assessment.id}
             )
-            assessment_result = result_query.scalar_one_or_none()
+            existing_result = check_result.first()
             
-            if assessment_result:
+            insights_json = json.dumps({
+                "description": extracted_data.get("description"),
+                "strengths": extracted_data.get("strengths", []),
+                "challenges": extracted_data.get("challenges", []),
+                "dimensions": extracted_data.get("dimension_preferences", {})
+            })
+            recommendations_json = json.dumps({})
+            scores_json = json.dumps(scores)
+            
+            # Check which column exists in the database (result_data or scores)
+            # Try to detect column name by checking table structure
+            column_check = await db.execute(
+                text("""
+                    SELECT column_name 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'assessment_results' 
+                    AND column_name IN ('scores', 'result_data')
+                    ORDER BY column_name
+                """)
+            )
+            columns = [row[0] for row in column_check.fetchall()]
+            
+            # Determine which column to use - prefer 'scores' if exists, otherwise 'result_data'
+            scores_column = 'scores' if 'scores' in columns else ('result_data' if 'result_data' in columns else None)
+            
+            if not scores_column:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Database schema error: Neither 'scores' nor 'result_data' column found in assessment_results table"
+                )
+            
+            if existing_result:
                 # Update existing result
-                logger.debug("Updating existing assessment result")
-                assessment_result.scores = scores
-                assessment_result.insights = {
-                    "description": extracted_data.get("description"),
-                    "strengths": extracted_data.get("strengths", []),
-                    "challenges": extracted_data.get("challenges", [])
-                }
-                assessment_result.recommendations = {}
-                assessment_result.updated_at = datetime.now(timezone.utc)
+                logger.debug(f"Updating existing assessment result using column '{scores_column}'")
+                if scores_column == 'scores' and 'insights' in columns:
+                    # New schema with scores, insights, recommendations
+                    await db.execute(
+                        text(f"""
+                            UPDATE assessment_results
+                            SET {scores_column} = :scores::jsonb,
+                                insights = :insights::jsonb,
+                                recommendations = :recommendations::jsonb,
+                                updated_at = :updated_at
+                            WHERE assessment_id = :assessment_id
+                        """),
+                        {
+                            "assessment_id": assessment.id,
+                            "scores": scores_json,
+                            "insights": insights_json,
+                            "recommendations": recommendations_json,
+                            "updated_at": datetime.now(timezone.utc)
+                        }
+                    )
+                else:
+                    # Old schema with result_data only
+                    await db.execute(
+                        text(f"""
+                            UPDATE assessment_results
+                            SET {scores_column} = :scores::jsonb,
+                                updated_at = :updated_at
+                            WHERE assessment_id = :assessment_id
+                        """),
+                        {
+                            "assessment_id": assessment.id,
+                            "scores": scores_json,
+                            "updated_at": datetime.now(timezone.utc)
+                        }
+                    )
             else:
                 # Create new result
-                logger.debug("Creating new assessment result")
-                assessment_result = AssessmentResult(
-                    assessment_id=assessment.id,
-                    user_id=current_user.id,
-                    scores=scores,
-                    insights={
-                        "description": extracted_data.get("description"),
-                        "strengths": extracted_data.get("strengths", []),
-                        "challenges": extracted_data.get("challenges", [])
-                    },
-                    recommendations={}
-                )
-                db.add(assessment_result)
+                logger.debug(f"Creating new assessment result using column '{scores_column}'")
+                if scores_column == 'scores' and 'insights' in columns and 'generated_at' in columns:
+                    # New schema with all columns
+                    await db.execute(
+                        text(f"""
+                            INSERT INTO assessment_results (assessment_id, user_id, {scores_column}, insights, recommendations, generated_at, updated_at)
+                            VALUES (:assessment_id, :user_id, :scores::jsonb, :insights::jsonb, :recommendations::jsonb, :generated_at, :updated_at)
+                        """),
+                        {
+                            "assessment_id": assessment.id,
+                            "user_id": current_user.id,
+                            "scores": scores_json,
+                            "insights": insights_json,
+                            "recommendations": recommendations_json,
+                            "generated_at": datetime.now(timezone.utc),
+                            "updated_at": datetime.now(timezone.utc)
+                        }
+                    )
+                elif scores_column == 'scores' and 'created_at' in columns:
+                    # Transitional schema with scores but created_at instead of generated_at
+                    await db.execute(
+                        text(f"""
+                            INSERT INTO assessment_results (assessment_id, user_id, {scores_column}, created_at, updated_at)
+                            VALUES (:assessment_id, :user_id, :scores::jsonb, :created_at, :updated_at)
+                        """),
+                        {
+                            "assessment_id": assessment.id,
+                            "user_id": current_user.id,
+                            "scores": scores_json,
+                            "created_at": datetime.now(timezone.utc),
+                            "updated_at": datetime.now(timezone.utc)
+                        }
+                    )
+                else:
+                    # Old schema with result_data
+                    await db.execute(
+                        text(f"""
+                            INSERT INTO assessment_results (assessment_id, user_id, {scores_column}, created_at, updated_at)
+                            VALUES (:assessment_id, :user_id, :scores::jsonb, :created_at, :updated_at)
+                        """),
+                        {
+                            "assessment_id": assessment.id,
+                            "user_id": current_user.id,
+                            "scores": scores_json,
+                            "created_at": datetime.now(timezone.utc),
+                            "updated_at": datetime.now(timezone.utc)
+                        }
+                    )
             
             await db.commit()
-            await db.refresh(assessment_result)
-            logger.debug(f"Assessment result saved successfully: {assessment_result.id}")
+            logger.debug(f"Assessment result saved successfully for assessment {assessment.id}")
         except Exception as result_error:
             logger.error(f"Failed to create/update assessment result: {result_error}", exc_info=True)
             await db.rollback()

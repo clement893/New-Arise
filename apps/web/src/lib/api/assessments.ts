@@ -416,7 +416,7 @@ export const submitEvaluatorAssessment = async (
 ): Promise<{ message: string; assessment_id: number; status: string }> => {
   const response = await axios.post(
     `${API_BASE_URL}/api/v1/assessments/360-evaluator/${token}/submit`,
-    answers
+    { answers }
   );
   return response.data;
 };
