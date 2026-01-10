@@ -11,13 +11,15 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import MotionDiv from '@/components/motion/MotionDiv';
 import FileUploadWithPreview from '@/components/ui/FileUploadWithPreview';
-import { ArrowLeft, Upload, Loader2, CheckCircle, AlertCircle, FileText } from 'lucide-react';
-import { uploadMBTIPDF } from '@/lib/api/assessments';
+import { ArrowLeft, Upload, Loader2, CheckCircle, AlertCircle, FileText, Link as LinkIcon } from 'lucide-react';
+import { uploadMBTIPDF, uploadMBTIPDFFromURL } from '@/lib/api/assessments';
 import { formatError } from '@/lib/utils/formatError';
 
 export default function MBTIPDFUploadPage() {
   const router = useRouter();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [profileUrl, setProfileUrl] = useState<string>('');
+  const [inputMode, setInputMode] = useState<'file' | 'url'>('file');
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -47,9 +49,28 @@ export default function MBTIPDFUploadPage() {
     }
   };
 
+  const validateProfileUrl = (url: string): boolean => {
+    if (!url.trim()) {
+      return false;
+    }
+    // Validate 16Personalities profile URL format
+    const urlPattern = /^https?:\/\/www\.16personalities\.com\/profiles\/[a-zA-Z0-9]+/;
+    return urlPattern.test(url.trim());
+  };
+
   const handleUpload = async () => {
-    if (!selectedFile) {
+    if (inputMode === 'file' && !selectedFile) {
       setError('Veuillez sélectionner un fichier PDF');
+      return;
+    }
+    
+    if (inputMode === 'url' && !profileUrl.trim()) {
+      setError('Veuillez entrer une URL de profil 16Personalities');
+      return;
+    }
+    
+    if (inputMode === 'url' && !validateProfileUrl(profileUrl)) {
+      setError('URL invalide. Format attendu: https://www.16personalities.com/profiles/...');
       return;
     }
 
@@ -68,7 +89,14 @@ export default function MBTIPDFUploadPage() {
         });
       }, 500);
 
-      const result = await uploadMBTIPDF(selectedFile);
+      let result;
+      if (inputMode === 'file' && selectedFile) {
+        result = await uploadMBTIPDF(selectedFile);
+      } else if (inputMode === 'url' && profileUrl) {
+        result = await uploadMBTIPDFFromURL(profileUrl.trim());
+      } else {
+        throw new Error('Mode d\'upload invalide');
+      }
       
       clearInterval(progressInterval);
       setUploadProgress(100);
@@ -138,33 +166,94 @@ export default function MBTIPDFUploadPage() {
                 </div>
               </div>
 
+              {/* Mode Selection */}
+              <div className="mb-6 flex gap-4">
+                <Button
+                  variant={inputMode === 'file' ? 'primary' : 'outline'}
+                  onClick={() => {
+                    setInputMode('file');
+                    setError(null);
+                    setProfileUrl('');
+                  }}
+                  className="flex-1"
+                  style={inputMode === 'file' ? { backgroundColor: '#D5B667', color: '#000000' } : undefined}
+                >
+                  <FileText size={18} className="mr-2" />
+                  Uploader un PDF
+                </Button>
+                <Button
+                  variant={inputMode === 'url' ? 'primary' : 'outline'}
+                  onClick={() => {
+                    setInputMode('url');
+                    setError(null);
+                    setSelectedFile(null);
+                  }}
+                  className="flex-1"
+                  style={inputMode === 'url' ? { backgroundColor: '#D5B667', color: '#000000' } : undefined}
+                >
+                  <LinkIcon size={18} className="mr-2" />
+                  Importer depuis URL
+                </Button>
+              </div>
+
               {/* Instructions */}
               <div className="bg-arise-beige p-4 rounded-lg mb-6">
                 <h3 className="font-semibold text-arise-teal mb-2">Instructions :</h3>
-                <ul className="text-sm text-gray-700 space-y-1">
-                  <li>• Format accepté : PDF uniquement</li>
-                  <li>• Taille maximale : 10MB</li>
-                  <li>• Le fichier sera analysé avec l'intelligence artificielle pour extraire vos résultats</li>
-                  <li>• Le processus peut prendre 10-30 secondes</li>
-                </ul>
+                {inputMode === 'file' ? (
+                  <ul className="text-sm text-gray-700 space-y-1">
+                    <li>• Format accepté : PDF uniquement</li>
+                    <li>• Taille maximale : 10MB</li>
+                    <li>• Le fichier sera analysé avec l'intelligence artificielle pour extraire vos résultats</li>
+                    <li>• Le processus peut prendre 10-30 secondes</li>
+                  </ul>
+                ) : (
+                  <ul className="text-sm text-gray-700 space-y-1">
+                    <li>• Collez l'URL de votre profil 16Personalities (ex: https://www.16personalities.com/profiles/6d65d1ec09592)</li>
+                    <li>• Le système téléchargera automatiquement le PDF depuis cette URL</li>
+                    <li>• Le PDF sera analysé avec l'intelligence artificielle pour extraire vos résultats</li>
+                    <li>• Le processus peut prendre 15-45 secondes</li>
+                  </ul>
+                )}
               </div>
 
-              {/* File Upload */}
-              <div className="mb-6">
-                <FileUploadWithPreview
-                  label="Sélectionner votre PDF"
-                  accept="application/pdf,.pdf"
-                  multiple={false}
-                  onFileSelect={handleFileSelect}
-                  maxSize={10}
-                  helperText="Taille maximale : 10MB • Format : PDF uniquement"
-                  fullWidth
-                  error={error || undefined}
-                />
-              </div>
+              {/* File Upload or URL Input */}
+              {inputMode === 'file' ? (
+                <div className="mb-6">
+                  <FileUploadWithPreview
+                    label="Sélectionner votre PDF"
+                    accept="application/pdf,.pdf"
+                    multiple={false}
+                    onFileSelect={handleFileSelect}
+                    maxSize={10}
+                    helperText="Taille maximale : 10MB • Format : PDF uniquement"
+                    fullWidth
+                    error={error || undefined}
+                  />
+                </div>
+              ) : (
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    URL de votre profil 16Personalities
+                  </label>
+                  <input
+                    type="url"
+                    value={profileUrl}
+                    onChange={(e) => {
+                      setProfileUrl(e.target.value);
+                      setError(null);
+                    }}
+                    placeholder="https://www.16personalities.com/profiles/6d65d1ec09592"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-arise-teal focus:border-arise-teal outline-none"
+                    disabled={isUploading}
+                  />
+                  <p className="mt-2 text-xs text-gray-500">
+                    Exemple : https://www.16personalities.com/profiles/6d65d1ec09592
+                  </p>
+                </div>
+              )}
 
-              {/* Selected File Display */}
-              {selectedFile && !isUploading && (
+              {/* Selected File or URL Display */}
+              {inputMode === 'file' && selectedFile && !isUploading && (
                 <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                   <div className="flex items-center gap-3">
                     <CheckCircle className="text-green-600 flex-shrink-0" size={24} />
@@ -172,6 +261,20 @@ export default function MBTIPDFUploadPage() {
                       <p className="font-medium text-green-900">{selectedFile.name}</p>
                       <p className="text-sm text-green-700">
                         {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {inputMode === 'url' && profileUrl && validateProfileUrl(profileUrl) && !isUploading && (
+                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="text-green-600 flex-shrink-0" size={24} />
+                    <div className="flex-1">
+                      <p className="font-medium text-green-900">URL valide</p>
+                      <p className="text-sm text-green-700 break-all">
+                        {profileUrl}
                       </p>
                     </div>
                   </div>
@@ -227,19 +330,23 @@ export default function MBTIPDFUploadPage() {
                 <Button
                   variant="primary"
                   onClick={handleUpload}
-                  disabled={!selectedFile || isUploading}
+                  disabled={
+                    (inputMode === 'file' && !selectedFile) || 
+                    (inputMode === 'url' && (!profileUrl.trim() || !validateProfileUrl(profileUrl))) ||
+                    isUploading
+                  }
                   className="flex-1 flex items-center justify-center gap-2"
                   style={{ backgroundColor: '#D5B667', color: '#000000' }}
                 >
                   {isUploading ? (
                     <>
                       <Loader2 className="animate-spin" size={20} />
-                      Analyse en cours...
+                      {inputMode === 'url' ? 'Téléchargement et analyse...' : 'Analyse en cours...'}
                     </>
                   ) : (
                     <>
-                      <Upload size={20} />
-                      Analyser mon PDF
+                      {inputMode === 'url' ? <LinkIcon size={20} /> : <Upload size={20} />}
+                      {inputMode === 'url' ? 'Importer depuis URL' : 'Analyser mon PDF'}
                     </>
                   )}
                 </Button>

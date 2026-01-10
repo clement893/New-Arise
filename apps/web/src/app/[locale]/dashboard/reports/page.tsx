@@ -10,7 +10,7 @@ import { Card, Loading } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import { FileText, Download, TrendingUp, Target, Users, Brain } from 'lucide-react';
 import Image from 'next/image';
-import { getMyAssessments, Assessment as ApiAssessment, AssessmentType } from '@/lib/api/assessments';
+import { getMyAssessments, getAssessmentResults, getEvaluators360, Assessment as ApiAssessment, AssessmentType, AssessmentResult } from '@/lib/api/assessments';
 
 interface AssessmentDisplay {
   id: number;
@@ -20,11 +20,33 @@ interface AssessmentDisplay {
   completedDate: string;
   score: string;
   result: string;
+  detailedResult?: AssessmentResult; // Store detailed result for insights
+}
+
+interface KeyInsight {
+  id: number;
+  title: string;
+  description: string;
+  category: string;
+}
+
+interface DashboardStats {
+  completedAssessments: number;
+  averageScore: number;
+  developmentGoals: number;
+  evaluatorsCount: number;
 }
 
 function ResultsReportsContent() {
   const router = useRouter();
   const [assessments, setAssessments] = useState<AssessmentDisplay[]>([]);
+  const [keyInsights, setKeyInsights] = useState<KeyInsight[]>([]);
+  const [stats, setStats] = useState<DashboardStats>({
+    completedAssessments: 0,
+    averageScore: 0,
+    developmentGoals: 0,
+    evaluatorsCount: 0,
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

@@ -447,6 +447,28 @@ export const uploadMBTIPDF = async (file: File): Promise<{ assessment_id: number
   return response.data;
 };
 
+/**
+ * Upload MBTI PDF from 16Personalities profile URL and extract results using OCR
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
+ */
+export const uploadMBTIPDFFromURL = async (profileUrl: string): Promise<{ assessment_id: number; mbti_type: string; scores: any; message: string }> => {
+  const formData = new FormData();
+  formData.append('profile_url', profileUrl);
+
+  const response = await apiClient.post(
+    `/v1/assessments/mbti/upload-pdf`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      timeout: 180000, // 180 seconds timeout (URL download + OCR can take longer)
+    }
+  );
+  
+  return response.data;
+};
+
 export const assessmentsApi = {
   start: startAssessment,
   saveAnswer,
@@ -456,6 +478,7 @@ export const assessmentsApi = {
   getMyAssessments,
   getAssessment,
   uploadMBTIPDF,
+  uploadMBTIPDFFromURL,
 };
 
 export default assessmentsApi;

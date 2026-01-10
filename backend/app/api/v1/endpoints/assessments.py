@@ -5,7 +5,7 @@ ARISE Leadership Assessment Tool
 
 from typing import List, Optional, Dict, Any
 import json
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Body, File, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Body, File, UploadFile, Form
 from pydantic import BaseModel, Field, EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, UniqueConstraint, text
@@ -1555,45 +1555,82 @@ async def upload_mbti_score(
 
 @router.post("/mbti/upload-pdf")
 async def upload_mbti_pdf(
-    file: UploadFile = File(...),
+    file: Optional[UploadFile] = File(None),
+    profile_url: Optional[str] = Form(None),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
     Upload MBTI PDF results from 16Personalities and extract results using OCR
+    Can accept either a file upload or a profile URL
     """
     import logging
     from app.services.pdf_ocr_service import PDFOCRService
     
     logger = logging.getLogger(__name__)
     
-    # Validate file
-    if not file.filename:
+    # Validate input - must have either file or profile_url
+    if not file and not profile_url:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No file provided"
+            detail="Either a PDF file or a 16Personalities profile URL must be provided"
         )
     
-    # Check file extension
-    if not file.filename.lower().endswith('.pdf'):
+    if file and profile_url:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid file type. Only PDF files are accepted."
+            detail="Please provide either a file OR a profile URL, not both"
         )
     
-    # Check file size (max 10MB)
-    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
-    file_content = await file.read()
-    if len(file_content) > MAX_FILE_SIZE:
-        raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail=f"File too large. Maximum size is {MAX_FILE_SIZE / (1024 * 1024):.0f}MB"
-        )
+    pdf_bytes = None
     
-    if len(file_content) == 0:
+    # Handle file upload
+    if file:
+        if not file.filename:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No file provided"
+            )
+        
+        # Check file extension
+        if not file.filename.lower().endswith('.pdf'):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid file type. Only PDF files are accepted."
+            )
+        
+        # Check file size (max 10MB)
+        MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+        file_content = await file.read()
+        if len(file_content) > MAX_FILE_SIZE:
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                detail=f"File too large. Maximum size is {MAX_FILE_SIZE / (1024 * 1024):.0f}MB"
+            )
+        
+        if len(file_content) == 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="File is empty"
+            )
+        
+        pdf_bytes = file_content
+    
+    # Handle profile URL
+    elif profile_url:
+        # Validate URL format
+        if not profile_url.startswith('https://www.16personalities.com/profiles/'):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid 16Personalities URL. Expected format: https://www.16personalities.com/profiles/..."
+            )
+        # PDF bytes will be downloaded later in the try block
+        pdf_bytes = None
+    
+    if not pdf_bytes and not profile_url:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="File is empty"
+            detail="Either a PDF file or a 16Personalities profile URL must be provided"
         )
     
     try:
@@ -1601,15 +1638,21 @@ async def upload_mbti_pdf(
         if not PDFOCRService.is_configured():
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="OCR service is not configured. Please configure OPENAI_API_KEY and install required dependencies."
+                detail="OCR service is not configured. Please configure OPENAI_API_KEY and install required dependencies (PyMuPDF, Pillow)."
             )
         
         # Initialize OCR service
         ocr_service = PDFOCRService()
         
+        # Download PDF from URL if needed
+        if profile_url and not pdf_bytes:
+            logger.info(f"Downloading PDF from 16Personalities profile URL: {profile_url}")
+            pdf_bytes = await ocr_service.download_pdf_from_url(profile_url)
+            logger.info(f"Successfully downloaded PDF ({len(pdf_bytes)} bytes) from profile URL")
+        
         # Extract MBTI results from PDF
         logger.info(f"Extracting MBTI results from PDF for user {current_user.id}")
-        extracted_data = await ocr_service.extract_mbti_results(file_content)
+        extracted_data = await ocr_service.extract_mbti_results(pdf_bytes)
         
         # Validate extracted data
         mbti_type = extracted_data.get("mbti_type")
@@ -1680,7 +1723,7 @@ async def upload_mbti_pdf(
                 "challenges": extracted_data.get("challenges", [])
             }
             assessment_result.recommendations = {}
-            assessment_result.generated_at = datetime.now(timezone.utc)
+            assessment_result.updated_at = datetime.now(timezone.utc)
         else:
             # Create new result
             assessment_result = AssessmentResult(
@@ -1692,8 +1735,7 @@ async def upload_mbti_pdf(
                     "strengths": extracted_data.get("strengths", []),
                     "challenges": extracted_data.get("challenges", [])
                 },
-                recommendations={},
-                generated_at=datetime.now(timezone.utc)
+                recommendations={}
             )
             db.add(assessment_result)
         
@@ -1726,8 +1768,9 @@ async def upload_mbti_pdf(
             exc_info=True,
             context={
                 "user_id": current_user.id,
-                "filename": file.filename,
-                "file_size": len(file_content),
+                "filename": file.filename if file else None,
+                "profile_url": profile_url if profile_url else None,
+                "file_size": len(pdf_bytes) if pdf_bytes else 0,
                 "error_type": error_type,
                 "error_message": error_message
             }

@@ -9,19 +9,22 @@ import io
 from typing import Dict, Any, List, Optional
 from pathlib import Path
 import logging
+import httpx
 
 logger = logging.getLogger(__name__)
 
 # Try to import required libraries
+# Use PyMuPDF (fitz) instead of pdf2image - doesn't require poppler
 try:
-    from pdf2image import convert_from_bytes
-    PDF2IMAGE_AVAILABLE = True
+    import fitz  # PyMuPDF
+    PYMUPDF_AVAILABLE = True
 except ImportError:
-    PDF2IMAGE_AVAILABLE = False
-    logger.warning("pdf2image not available. Install with: pip install pdf2image")
+    PYMUPDF_AVAILABLE = False
+    logger.warning("PyMuPDF (fitz) not available. Install with: pip install PyMuPDF")
 
 try:
     from PIL import Image
+    import io
     PIL_AVAILABLE = True
 except ImportError:
     PIL_AVAILABLE = False
@@ -49,8 +52,8 @@ class PDFOCRService:
             raise ValueError("OpenAI library is not installed. Install it with: pip install openai")
         if not OPENAI_API_KEY:
             raise ValueError("OPENAI_API_KEY is not configured")
-        if not PDF2IMAGE_AVAILABLE:
-            raise ValueError("pdf2image library is not installed. Install it with: pip install pdf2image")
+        if not PYMUPDF_AVAILABLE:
+            raise ValueError("PyMuPDF (fitz) library is not installed. Install it with: pip install PyMuPDF")
         if not PIL_AVAILABLE:
             raise ValueError("PIL (Pillow) library is not installed. Install it with: pip install Pillow")
 
@@ -61,31 +64,41 @@ class PDFOCRService:
 
     def _convert_pdf_to_images(self, pdf_bytes: bytes) -> List[bytes]:
         """
-        Convert PDF to images (one per page)
+        Convert PDF to images (one per page) using PyMuPDF (fitz)
         Returns list of image bytes in PNG format
         """
         try:
-            # Convert PDF to images
-            images = convert_from_bytes(pdf_bytes, dpi=200)  # 200 DPI for good quality
+            # Open PDF from bytes using PyMuPDF
+            pdf_document = fitz.open(stream=pdf_bytes, filetype="pdf")
             
-            # Convert PIL Images to bytes
             image_bytes_list = []
-            for img in images:
-                # Convert to RGB if necessary
-                if img.mode != 'RGB':
-                    img = img.convert('RGB')
-                
-                # Convert to bytes
-                img_byte_arr = io.BytesIO()
-                img.save(img_byte_arr, format='PNG', optimize=True)
-                img_bytes = img_byte_arr.getvalue()
-                image_bytes_list.append(img_bytes)
+            page_count = len(pdf_document)
+            logger.info(f"PDF opened successfully, {page_count} pages found")
             
-            logger.info(f"Converted PDF to {len(image_bytes_list)} images")
+            for page_num in range(page_count):
+                page = pdf_document[page_num]
+                
+                # Render page to image (pixmap) at 200 DPI
+                # Matrix(2.78, 2.78) scales 72 DPI to 200 DPI (200/72 ≈ 2.78)
+                zoom = 200 / 72  # 200 DPI
+                mat = fitz.Matrix(zoom, zoom)
+                pix = page.get_pixmap(matrix=mat, alpha=False)  # alpha=False for RGB
+                
+                # Convert pixmap to PNG bytes directly
+                img_bytes = pix.tobytes("png")
+                
+                # Ensure it's bytes
+                if isinstance(img_bytes, bytes):
+                    image_bytes_list.append(img_bytes)
+                else:
+                    image_bytes_list.append(bytes(img_bytes))
+            
+            pdf_document.close()
+            logger.info(f"Converted PDF to {len(image_bytes_list)} images using PyMuPDF")
             return image_bytes_list
         except Exception as e:
             logger.error(f"Error converting PDF to images: {str(e)}", exc_info=True)
-            raise ValueError(f"Failed to convert PDF to images: {str(e)}")
+            raise ValueError(f"Failed to convert PDF to images: {str(e)}. Make sure the PDF file is valid and PyMuPDF is installed.")
 
     def _encode_image_to_base64(self, image_bytes: bytes) -> str:
         """Encode image bytes to base64 string for OpenAI API"""
@@ -170,6 +183,134 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
         except Exception as e:
             logger.error(f"Error extracting text from image (page {page_num}): {str(e)}", exc_info=True)
             raise ValueError(f"Failed to extract text from PDF page {page_num}: {str(e)}")
+
+    async def download_pdf_from_url(self, url: str) -> bytes:
+        """
+        Download PDF from a 16Personalities profile URL
+        Note: 16Personalities may require authentication or the profile may need to be public
+        """
+        try:
+            # Validate URL
+            if not url.startswith('https://www.16personalities.com/profiles/'):
+                raise ValueError(f"Invalid 16Personalities URL. Expected format: https://www.16personalities.com/profiles/...")
+            
+            # Extract profile ID from URL
+            profile_id = url.split('/profiles/')[-1].split('/')[0].split('?')[0]
+            if not profile_id:
+                raise ValueError("Could not extract profile ID from URL")
+            
+            logger.info(f"Attempting to download PDF for profile ID: {profile_id}")
+            
+            # Try to get PDF download URL
+            # 16Personalities profile pages typically have a PDF download link
+            async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
+                # Try common PDF endpoints first (these might work for public profiles)
+                pdf_urls_to_try = [
+                    f"https://www.16personalities.com/profiles/{profile_id}/pdf",
+                    f"https://www.16personalities.com/api/profiles/{profile_id}/pdf",
+                    f"https://www.16personalities.com/profiles/{profile_id}/export/pdf",
+                    f"https://www.16personalities.com/profiles/{profile_id}/download/pdf",
+                ]
+                
+                pdf_bytes = None
+                for pdf_url in pdf_urls_to_try:
+                    try:
+                        logger.debug(f"Trying PDF URL: {pdf_url}")
+                        pdf_response = await client.get(pdf_url, follow_redirects=True)
+                        content_type = pdf_response.headers.get('content-type', '').lower()
+                        if pdf_response.status_code == 200 and ('application/pdf' in content_type or 'pdf' in content_type or pdf_url.endswith('/pdf')):
+                            # Check if it's actually a PDF by checking magic bytes
+                            if pdf_response.content[:4] == b'%PDF':
+                                pdf_bytes = pdf_response.content
+                                logger.info(f"Successfully downloaded PDF from {pdf_url} ({len(pdf_bytes)} bytes)")
+                                break
+                    except Exception as e:
+                        logger.debug(f"Failed to download from {pdf_url}: {e}")
+                        continue
+                
+                # If direct PDF download didn't work, try to extract from HTML page
+                if not pdf_bytes:
+                    logger.info("Direct PDF download failed, trying to extract from HTML page")
+                    try:
+                        # Access the profile page
+                        response = await client.get(url, headers={
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                        })
+                        if response.status_code != 200:
+                            raise ValueError(f"Failed to access profile URL: HTTP {response.status_code}")
+                        
+                        # Parse HTML to find PDF download link
+                        html_content = response.text
+                        import re
+                        
+                        # Look for PDF download links in the HTML
+                        pdf_link_patterns = [
+                            r'href=["\']([^"\']*\.pdf[^"\']*)["\']',
+                            r'href=["\']([^"\']*download[^"\']*pdf[^"\']*)["\']',
+                            r'href=["\']([^"\']*export[^"\']*pdf[^"\']*)["\']',
+                            r'data-pdf-url=["\']([^"\']*)["\']',
+                            r'pdf["\']:\s*["\']([^"\']*)["\']',
+                        ]
+                        
+                        for pattern in pdf_link_patterns:
+                            matches = re.findall(pattern, html_content, re.IGNORECASE)
+                            for match in matches:
+                                # Build absolute URL
+                                if match.startswith('http'):
+                                    pdf_url = match
+                                elif match.startswith('/'):
+                                    pdf_url = f"https://www.16personalities.com{match}"
+                                else:
+                                    pdf_url = f"https://www.16personalities.com/profiles/{profile_id}/{match}"
+                                
+                                try:
+                                    logger.debug(f"Trying extracted PDF URL: {pdf_url}")
+                                    pdf_response = await client.get(pdf_url, follow_redirects=True)
+                                    if pdf_response.status_code == 200:
+                                        content_type = pdf_response.headers.get('content-type', '').lower()
+                                        # Check if it's a PDF by magic bytes
+                                        if pdf_response.content[:4] == b'%PDF' or 'application/pdf' in content_type:
+                                            pdf_bytes = pdf_response.content
+                                            logger.info(f"Successfully downloaded PDF from extracted URL: {pdf_url} ({len(pdf_bytes)} bytes)")
+                                            break
+                                except Exception as e:
+                                    logger.debug(f"Failed to download from extracted URL {pdf_url}: {e}")
+                                    continue
+                            
+                            if pdf_bytes:
+                                break
+                    except Exception as e:
+                        logger.warning(f"Failed to extract PDF link from HTML: {e}")
+                
+                if not pdf_bytes:
+                    # If we still don't have a PDF, provide helpful error message
+                    raise ValueError(
+                        "Could not automatically download PDF from the 16Personalities profile URL. "
+                        "This may be because:\n"
+                        "- The profile is private and requires authentication\n"
+                        "- The profile URL format has changed\n"
+                        "- The PDF export feature is not available for this profile\n\n"
+                        "Please download the PDF manually from 16Personalities and upload it using the file upload option instead."
+                    )
+                
+                if len(pdf_bytes) == 0:
+                    raise ValueError("Downloaded PDF is empty")
+                
+                if len(pdf_bytes) > 10 * 1024 * 1024:  # 10MB
+                    raise ValueError(f"Downloaded PDF is too large: {len(pdf_bytes) / 1024 / 1024:.2f}MB (max 10MB)")
+                
+                logger.info(f"Successfully downloaded PDF: {len(pdf_bytes)} bytes")
+                return pdf_bytes
+                
+        except httpx.TimeoutException:
+            raise ValueError("Timeout while downloading PDF from URL. Please try again or upload the PDF manually.")
+        except httpx.RequestError as e:
+            raise ValueError(f"Failed to download PDF from URL: {str(e)}")
+        except ValueError:
+            raise  # Re-raise ValueError as-is
+        except Exception as e:
+            logger.error(f"Error downloading PDF from URL: {str(e)}", exc_info=True)
+            raise ValueError(f"Failed to download PDF from URL: {str(e)}")
 
     async def extract_mbti_results(self, pdf_bytes: bytes) -> Dict[str, Any]:
         """
@@ -261,6 +402,6 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
         return (
             OPENAI_AVAILABLE 
             and bool(OPENAI_API_KEY) 
-            and PDF2IMAGE_AVAILABLE 
+            and PYMUPDF_AVAILABLE 
             and PIL_AVAILABLE
         )
