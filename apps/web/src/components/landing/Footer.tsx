@@ -33,11 +33,6 @@ export function Footer() {
                   {t('team')}
                 </Link>
               </li>
-              <li>
-                <Link href="/careers" className="text-gray-400 hover:text-arise-gold transition-colors">
-                  {t('careers')}
-                </Link>
-              </li>
             </ul>
           </div>
 

@@ -204,8 +204,8 @@ export default function Sidebar({ isOpen: controlledIsOpen, onClose }: SidebarPr
         {/* Header with Hamburger Menu */}
         <div className="flex items-center justify-between h-16 px-lg border-b border-border flex-shrink-0">
           <Link href="/dashboard" className="flex items-center">
-            <span className="text-xl font-bold text-primary">
-              MODELE
+            <span className="text-xl font-bold text-arise-deep-teal">
+              ARISE
             </span>
           </Link>
           {/* Hamburger Menu Button (Mobile only) */}

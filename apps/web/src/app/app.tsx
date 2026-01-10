@@ -37,7 +37,6 @@ function AppContent({ children }: { children: React.ReactNode }) {
                       pathname?.includes('/privacy') || 
                       pathname?.includes('/terms') || 
                       pathname?.includes('/cookies') || 
-                      pathname?.includes('/careers') ||
                       pathname?.includes('/register') ||
                       pathname?.includes('/login') ||
                       pathname?.includes('/news');

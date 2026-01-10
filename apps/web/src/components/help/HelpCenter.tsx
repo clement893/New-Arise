@@ -30,42 +30,42 @@ const defaultCategories: HelpCategory[] = [
   {
     id: 'faq',
     title: 'FAQ',
-    description: 'Frequently asked questions and answers',
+    description: 'Questions fréquemment posées et leurs réponses',
     icon: <HelpCircle className="w-6 h-6" />,
     link: '/help/faq',
-    color: 'bg-[var(--color-primary-50)] dark:bg-[var(--color-primary-950)] border-[var(--color-primary-200)] dark:border-[var(--color-primary-800)]',
+    color: 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800',
   },
   {
     id: 'guides',
-    title: 'User Guides',
-    description: 'Step-by-step guides and tutorials',
+    title: 'Guides Utilisateur',
+    description: 'Guides pas à pas et tutoriels détaillés',
     icon: <BookOpen className="w-6 h-6" />,
     link: '/help/guides',
-    color: 'bg-[var(--color-secondary-50)] dark:bg-[var(--color-secondary-950)] border-[var(--color-secondary-200)] dark:border-[var(--color-secondary-800)]',
+    color: 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800',
   },
   {
     id: 'videos',
-    title: 'Video Tutorials',
-    description: 'Watch video tutorials and demos',
+    title: 'Tutoriels Vidéo',
+    description: 'Regardez des tutoriels vidéo et des démonstrations',
     icon: <Video className="w-6 h-6" />,
     link: '/help/videos',
-    color: 'bg-[var(--color-info-50)] dark:bg-[var(--color-info-950)] border-[var(--color-info-200)] dark:border-[var(--color-info-800)]',
+    color: 'bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800',
   },
   {
     id: 'contact',
-    title: 'Contact Support',
-    description: 'Get in touch with our support team',
+    title: 'Contacter le Support',
+    description: 'Entrez en contact avec notre équipe de support',
     icon: <MessageSquare className="w-6 h-6" />,
     link: '/help/contact',
-    color: 'bg-[var(--color-success-50)] dark:bg-[var(--color-success-950)] border-[var(--color-success-200)] dark:border-[var(--color-success-800)]',
+    color: 'bg-teal-50 dark:bg-teal-950 border-teal-200 dark:border-teal-800',
   },
   {
     id: 'tickets',
-    title: 'Support Tickets',
-    description: 'View and manage your support tickets',
+    title: 'Tickets de Support',
+    description: 'Consultez et gérez vos tickets de support',
     icon: <FileText className="w-6 h-6" />,
     link: '/help/tickets',
-    color: 'bg-[var(--color-warning-50)] dark:bg-[var(--color-warning-950)] border-[var(--color-warning-200)] dark:border-[var(--color-warning-800)]',
+    color: 'bg-orange-50 dark:bg-orange-950 border-orange-200 dark:border-orange-800',
   },
 ];
 
@@ -83,13 +83,13 @@ export default function HelpCenter({
       {/* Search Bar */}
       <Card className="mb-8">
         <div className="flex items-center gap-4">
-          <Search className="w-5 h-5 text-[var(--color-muted-foreground)]" />
+          <Search className="w-5 h-5 text-gray-500" />
           <input
             type="text"
-            placeholder="Search for help..."
-            className="flex-1 px-4 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-background)] text-[var(--color-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)]"
+            placeholder="Rechercher de l'aide..."
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-arise-deep-teal focus:border-transparent"
           />
-          <Button variant="primary">Search</Button>
+          <Button variant="primary" className="bg-arise-deep-teal hover:bg-arise-deep-teal/90 text-white">Rechercher</Button>
         </div>
       </Card>
 
@@ -102,13 +102,13 @@ export default function HelpCenter({
               className={`h-full ${category.color} border-2 transition-all`}
             >
               <div className="flex flex-col items-center text-center p-6">
-                <div className="mb-4 text-[var(--color-primary-600)] dark:text-[var(--color-primary-400)]">
+                <div className="mb-4 text-arise-deep-teal">
                   {category.icon}
                 </div>
-                <h3 className="text-xl font-semibold text-[var(--color-foreground)] mb-2">
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
                   {category.title}
                 </h3>
-                <p className="text-sm text-[var(--color-muted-foreground)]">
+                <p className="text-sm text-gray-600">
                   {category.description}
                 </p>
               </div>
@@ -118,18 +118,18 @@ export default function HelpCenter({
       </div>
 
       {/* Quick Links */}
-      <Card title="Quick Links" className="mt-8">
+      <Card title="Liens Rapides" className="mt-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Link href="/help/faq">
-            <div className="p-4 border border-[var(--color-border)] rounded-lg hover:bg-[var(--color-muted)] transition-colors">
-              <h4 className="font-medium text-[var(--color-foreground)]">Common Questions</h4>
-              <p className="text-sm text-[var(--color-muted-foreground)] mt-1">Find answers to common questions</p>
+            <div className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+              <h4 className="font-medium text-gray-900">Questions Courantes</h4>
+              <p className="text-sm text-gray-600 mt-1">Trouvez des réponses aux questions courantes</p>
             </div>
           </Link>
           <Link href="/help/contact">
-            <div className="p-4 border border-[var(--color-border)] rounded-lg hover:bg-[var(--color-muted)] transition-colors">
-              <h4 className="font-medium text-[var(--color-foreground)]">Need More Help?</h4>
-              <p className="text-sm text-[var(--color-muted-foreground)] mt-1">Contact our support team</p>
+            <div className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+              <h4 className="font-medium text-gray-900">Besoin d'Aide Supplémentaire ?</h4>
+              <p className="text-sm text-gray-600 mt-1">Contactez notre équipe de support</p>
             </div>
           </Link>
         </div>

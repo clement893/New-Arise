@@ -210,21 +210,6 @@ const advisoryBoard = [
           </div>
         </div>
 
-        {/* Join Us CTA */}
-        <MotionDiv variant="fade" duration="normal">
-          <Card className="p-8 md:p-12 bg-gradient-to-r from-arise-deep-teal to-arise-deep-teal/90 text-white text-center">
-            <h2 className="text-3xl font-bold mb-4">{t('joinUs.title')}</h2>
-            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              {t('joinUs.subtitle')}
-            </p>
-            <Link
-              href="/careers"
-              className="inline-flex items-center gap-2 px-8 py-3 bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold rounded-lg transition-colors"
-            >
-              {t('joinUs.viewPositions')}
-            </Link>
-          </Card>
-        </MotionDiv>
       </main>
       <Footer />
     </div>

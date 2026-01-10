@@ -9,25 +9,31 @@
 import { useTranslations } from 'next-intl';
 import { HelpCenter } from '@/components/help';
 import { PageHeader, PageContainer } from '@/components/layout';
+import { Header } from '@/components/landing/Header';
+import { Footer } from '@/components/landing/Footer';
 
 export default function HelpPage() {
   const t = useTranslations('help');
 
   return (
-    <PageContainer>
-      <PageHeader
-        title={t('title') || 'Help Center'}
-        description={t('description') || 'Find answers, guides, and get support'}
-        breadcrumbs={[
-          { label: t('breadcrumbs.home') || 'Home', href: '/' },
-          { label: t('breadcrumbs.help') || 'Help' },
-        ]}
-      />
+    <>
+      <Header />
+      <div className="pt-16 min-h-screen bg-white">
+        <PageContainer>
+          <PageHeader
+            title="Centre d'Aide"
+            description="Trouvez des réponses, des guides et obtenez de l'aide pour utiliser la plateforme ARISE"
+            titleClassName="text-gray-900"
+            descriptionClassName="text-gray-600"
+          />
 
-      <div className="mt-8">
-        <HelpCenter />
+          <div className="mt-8">
+            <HelpCenter />
+          </div>
+        </PageContainer>
       </div>
-    </PageContainer>
+      <Footer />
+    </>
   );
 }
 

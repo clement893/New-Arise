@@ -9,26 +9,31 @@
 import { useTranslations } from 'next-intl';
 import { FAQ } from '@/components/help';
 import { PageHeader, PageContainer } from '@/components/layout';
+import { Header } from '@/components/landing/Header';
+import { Footer } from '@/components/landing/Footer';
 
 export default function FAQPage() {
   const t = useTranslations('help.faq');
 
   return (
-    <PageContainer>
-      <PageHeader
-        title={t('title') || 'Frequently Asked Questions'}
-        description={t('description') || 'Find answers to common questions'}
-        breadcrumbs={[
-          { label: t('breadcrumbs.home') || 'Home', href: '/' },
-          { label: t('breadcrumbs.help') || 'Help', href: '/help' },
-          { label: t('breadcrumbs.faq') || 'FAQ' },
-        ]}
-      />
+    <>
+      <Header />
+      <div className="pt-16 min-h-screen bg-white">
+        <PageContainer>
+          <PageHeader
+            title="Questions Fréquemment Posées"
+            description="Trouvez des réponses aux questions les plus courantes sur la plateforme ARISE"
+            titleClassName="text-gray-900"
+            descriptionClassName="text-gray-600"
+          />
 
-      <div className="mt-8">
-        <FAQ />
+          <div className="mt-8">
+            <FAQ />
+          </div>
+        </PageContainer>
       </div>
-    </PageContainer>
+      <Footer />
+    </>
   );
 }
 

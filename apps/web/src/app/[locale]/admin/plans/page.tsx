@@ -11,6 +11,8 @@ import { Card, Button, Input, Textarea, Badge, Alert, Modal } from '@/components
 import { subscriptionsAPI } from '@/lib/api';
 import ProtectedSuperAdminRoute from '@/components/auth/ProtectedSuperAdminRoute';
 import { Edit2, Save, X, Loader2, Plus } from 'lucide-react';
+import { Header } from '@/components/landing/Header';
+import { Footer } from '@/components/landing/Footer';
 
 interface Plan {
   id: number;
@@ -214,44 +216,47 @@ function PlansPageContent() {
 
   if (isLoading) {
     return (
-      <PageContainer>
-        <PageHeader
-          title="Gestion des Plans"
-          description="Gérer les plans d'abonnement"
-          breadcrumbs={[
-            { label: 'Accueil', href: '/' },
-            { label: 'Administration', href: '/admin' },
-            { label: 'Plans' },
-          ]}
-        />
-        <div className="mt-6 flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <>
+        <Header />
+        <div className="pt-16 min-h-screen">
+          <PageContainer>
+            <PageHeader
+              title="Gestion des Plans"
+              description="Gérer les plans d'abonnement"
+              titleClassName="text-white"
+              descriptionClassName="text-white"
+            />
+            <div className="mt-6 flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          </PageContainer>
         </div>
-      </PageContainer>
+        <Footer />
+      </>
     );
   }
 
   return (
-    <PageContainer>
-      <PageHeader
-        title="Gestion des Plans"
-        description="Gérer les plans d'abonnement - Modifier les prix, descriptions et fonctionnalités"
-        breadcrumbs={[
-          { label: 'Accueil', href: '/' },
-          { label: 'Administration', href: '/admin' },
-          { label: 'Plans' },
-        ]}
-        actions={
-          <Button
-            variant="primary"
-            onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Créer un plan
-          </Button>
-        }
-      />
+    <>
+      <Header />
+      <div className="pt-16 min-h-screen">
+        <PageContainer>
+          <PageHeader
+            title="Gestion des Plans"
+            description="Gérer les plans d'abonnement - Modifier les prix, descriptions et fonctionnalités"
+            titleClassName="text-white"
+            descriptionClassName="text-white"
+            actions={
+              <Button
+                variant="primary"
+                onClick={() => setShowCreateModal(true)}
+                className="flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Créer un plan
+              </Button>
+            }
+          />
 
       {error && (
         <Alert variant="error" className="mt-6">
@@ -659,7 +664,10 @@ function PlansPageContent() {
           </div>
         </div>
       </Modal>
-    </PageContainer>
+        </PageContainer>
+      </div>
+      <Footer />
+    </>
   );
 }
 

@@ -42,17 +42,19 @@ export function HeroSection() {
           {t('title')} <span className="text-arise-gold">{t('titleHighlight')}</span>
         </h1>
         
-        <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto">
+        <p className="text-xl md:text-2xl text-white/90 mb-10 max-w-2xl mx-auto">
           {t('subtitle')}
         </p>
         
-        <Button 
-          asChild 
-          size="lg"
-          className="bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold px-8 py-6 text-lg"
-        >
-          <Link href="/register">{t('getStarted')}</Link>
-        </Button>
+        <div className="flex justify-center">
+          <Button 
+            asChild 
+            size="lg"
+            className="bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-bold px-10 py-6 text-xl md:text-2xl shadow-2xl hover:shadow-arise-gold/50 transform hover:scale-105 transition-all duration-300 rounded-lg"
+          >
+            <Link href="/register">{t('getStarted')}</Link>
+          </Button>
+        </div>
       </div>
     </section>
   );
