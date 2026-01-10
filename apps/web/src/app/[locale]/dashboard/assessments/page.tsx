@@ -1099,6 +1099,11 @@ function AssessmentsContent() {
                           }
                         })()}
                         {(() => {
+                          // MBTI should not display progress badge, only status
+                          if (safeAssessment.assessmentType === 'MBTI') {
+                            return null;
+                          }
+                          
                           // SIMPLIFIED PROGRESS DISPLAY: Show answerCount/totalQuestions if available
                           try {
                             const answerCount = typeof safeAssessment.answerCount === 'number' ? safeAssessment.answerCount : (typeof safeAssessment.answerCount === 'string' ? parseInt(safeAssessment.answerCount, 10) : 0);
@@ -1126,71 +1131,73 @@ function AssessmentsContent() {
                         {getActionButton(safeAssessment)}
                       </div>
                     </div>
-                    {/* Progress bar - always visible */}
-                    <div className="mt-4">
-                      {(() => {
-                        // SIMPLIFIED PROGRESS BAR: Use answerCount and totalQuestions directly from backend
-                        try {
-                          // Get safe numeric values
-                          const answerCount = typeof safeAssessment.answerCount === 'number' ? safeAssessment.answerCount : (typeof safeAssessment.answerCount === 'string' ? parseInt(safeAssessment.answerCount, 10) : 0);
-                          const totalQuestions = typeof safeAssessment.totalQuestions === 'number' ? safeAssessment.totalQuestions : (typeof safeAssessment.totalQuestions === 'string' ? parseInt(safeAssessment.totalQuestions, 10) : 0);
+                    {/* Progress bar - always visible, except for MBTI */}
+                    {safeAssessment.assessmentType !== 'MBTI' && (
+                      <div className="mt-4">
+                        {(() => {
+                          // SIMPLIFIED PROGRESS BAR: Use answerCount and totalQuestions directly from backend
+                          try {
+                            // Get safe numeric values
+                            const answerCount = typeof safeAssessment.answerCount === 'number' ? safeAssessment.answerCount : (typeof safeAssessment.answerCount === 'string' ? parseInt(safeAssessment.answerCount, 10) : 0);
+                            const totalQuestions = typeof safeAssessment.totalQuestions === 'number' ? safeAssessment.totalQuestions : (typeof safeAssessment.totalQuestions === 'string' ? parseInt(safeAssessment.totalQuestions, 10) : 0);
+                            
+                            let progressValue = answerCount;
+                            let progressMax = totalQuestions > 0 ? totalQuestions : 100;
+                            let progressPercentage = 0;
+                            let progressLabel = 'Non commencé';
+                            let barColor = '#9ca3af';
+                            
+                            if (totalQuestions > 0) {
+                              // Calculate percentage based on actual data
+                              progressPercentage = Math.round((answerCount / totalQuestions) * 100);
+                              progressLabel = answerCount === totalQuestions 
+                                ? 'Terminé' 
+                                : `Progression: ${answerCount}/${totalQuestions} questions`;
+                            } else if (answerCount > 0) {
+                              // Fallback: show answer count if total is unknown
+                              progressPercentage = Math.min(answerCount * 3, 99); // Estimate ~3% per answer
+                              progressLabel = `Progression: ${answerCount} réponses`;
+                            }
+                            
+                            // Set bar color: gold when there's progress, gray when 0
+                            barColor = answerCount > 0 ? '#d8b868' : '#9ca3af';
                           
-                          let progressValue = answerCount;
-                          let progressMax = totalQuestions > 0 ? totalQuestions : 100;
-                          let progressPercentage = 0;
-                          let progressLabel = 'Non commencé';
-                          let barColor = '#9ca3af';
-                          
-                          if (totalQuestions > 0) {
-                            // Calculate percentage based on actual data
-                            progressPercentage = Math.round((answerCount / totalQuestions) * 100);
-                            progressLabel = answerCount === totalQuestions 
-                              ? 'Terminé' 
-                              : `Progression: ${answerCount}/${totalQuestions} questions`;
-                          } else if (answerCount > 0) {
-                            // Fallback: show answer count if total is unknown
-                            progressPercentage = Math.min(answerCount * 3, 99); // Estimate ~3% per answer
-                            progressLabel = `Progression: ${answerCount} réponses`;
-                          }
-                          
-                          // Set bar color: gold when there's progress, gray when 0
-                          barColor = answerCount > 0 ? '#d8b868' : '#9ca3af';
-                        
-                        return (
-                          <div className="w-full">
-                            <div className="flex justify-between items-center mb-1">
-                              <span className="text-sm font-medium text-gray-700">
-                                {typeof progressLabel === 'string' ? progressLabel : String(progressLabel || 'Progression')}
-                              </span>
-                              <span className="text-sm text-gray-600">
-                                {typeof progressPercentage === 'number' ? `${progressPercentage}%` : '0%'}
-                              </span>
+                          return (
+                            <div className="w-full">
+                              <div className="flex justify-between items-center mb-1">
+                                <span className="text-sm font-medium text-gray-700">
+                                  {typeof progressLabel === 'string' ? progressLabel : String(progressLabel || 'Progression')}
+                                </span>
+                                <span className="text-sm text-gray-600">
+                                  {typeof progressPercentage === 'number' ? `${progressPercentage}%` : '0%'}
+                                </span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                <div
+                                  className="h-full rounded-full transition-all duration-300"
+                                  style={{ 
+                                    width: `${progressPercentage}%`,
+                                    backgroundColor: barColor
+                                  }}
+                                  role="progressbar"
+                                  aria-valuenow={progressValue}
+                                  aria-valuemin={0}
+                                  aria-valuemax={progressMax}
+                                />
+                              </div>
                             </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                              <div
-                                className="h-full rounded-full transition-all duration-300"
-                                style={{ 
-                                  width: `${progressPercentage}%`,
-                                  backgroundColor: barColor
-                                }}
-                                role="progressbar"
-                                aria-valuenow={progressValue}
-                                aria-valuemin={0}
-                                aria-valuemax={progressMax}
-                              />
+                          );
+                        } catch (progressError: any) {
+                          console.error('[Assessments] Error rendering progress bar:', progressError);
+                          return (
+                            <div className="w-full">
+                              <p className="text-sm text-gray-500">Progression non disponible</p>
                             </div>
-                          </div>
-                        );
-                      } catch (progressError: any) {
-                        console.error('[Assessments] Error rendering progress bar:', progressError);
-                        return (
-                          <div className="w-full">
-                            <p className="text-sm text-gray-500">Progression non disponible</p>
-                          </div>
-                        );
-                      }
-                      })()}
-                    </div>
+                          );
+                        }
+                        })()}
+                      </div>
+                    )}
                     
                     {/* 360 Feedback Evaluators Section - integrated in the same Card */}
                     {safeAssessment.assessmentType === 'THREE_SIXTY_SELF' && safeAssessment.assessmentId && (
