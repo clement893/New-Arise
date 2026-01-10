@@ -146,7 +146,7 @@ export default function PricingPage() {
           
           if (allPlans.length > 0) {
             logger.error('Plans exist but are not ACTIVE. Status details:', { 
-              allPlans: allPlans.map(p => ({ 
+              allPlans: allPlans.map((p: ApiPlan) => ({ 
                 id: p.id, 
                 name: p.name, 
                 status: p.status || 'UNKNOWN',
