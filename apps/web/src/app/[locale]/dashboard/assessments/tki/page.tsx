@@ -33,6 +33,14 @@ export default function TKIAssessmentPage() {
   const effectiveAssessmentId = urlAssessmentId ? parseInt(urlAssessmentId, 10) : assessmentId;
   const [showIntro, setShowIntro] = useState(!effectiveAssessmentId);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  
+  // Reset isCompleted if assessmentId changes (e.g., loading a different assessment)
+  useEffect(() => {
+    if (effectiveAssessmentId && effectiveAssessmentId !== assessmentId) {
+      // Loading a different assessment, reset completion status
+      useTKIStore.setState({ isCompleted: false });
+    }
+  }, [effectiveAssessmentId, assessmentId]);
 
   // Safety check: ensure tkiQuestions is loaded and currentQuestion is valid
   const currentQuestionData = tkiQuestions && tkiQuestions.length > 0 && currentQuestion >= 0 && currentQuestion < tkiQuestions.length
@@ -120,7 +128,9 @@ export default function TKIAssessmentPage() {
     previousQuestion();
   };
 
-  if (isCompleted) {
+  // Only show completion screen if assessment is actually completed AND we're not loading
+  // Check effectiveAssessmentId to ensure we're showing completion for the right assessment
+  if (isCompleted && !isLoading && effectiveAssessmentId && effectiveAssessmentId === assessmentId) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-arise-teal via-arise-teal-dark to-arise-teal flex items-center justify-center p-4">
         <MotionDiv variant="fade" duration="normal" className="max-w-2xl w-full">

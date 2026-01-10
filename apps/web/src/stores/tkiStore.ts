@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { startAssessment, submitAssessment, saveResponse, getAssessmentAnswers } from '@/lib/api/assessments';
+import { startAssessment, submitAssessment, saveResponse, getAssessmentAnswers, getAssessment } from '@/lib/api/assessments';
 import { formatError } from '@/lib/utils/formatError';
 
 // Helper function to extract error message from various error formats
@@ -51,7 +51,7 @@ export const useTKIStore = create<TKIState>()(
       ...initialState,
 
       startAssessment: async () => {
-        set({ isLoading: true, error: null });
+        set({ isLoading: true, error: null, isCompleted: false }); // Always reset isCompleted when starting
         try {
           const assessment = await startAssessment('TKI');
           set({
@@ -59,21 +59,32 @@ export const useTKIStore = create<TKIState>()(
             isLoading: false,
             currentQuestion: 0,
             answers: {},
-            isCompleted: false,
+            isCompleted: false, // New assessment is never completed
           });
         } catch (error: unknown) {
           const errorMessage = extractErrorMessage(error, 'Failed to start assessment');
           set({
             error: errorMessage,
             isLoading: false,
+            isCompleted: false, // Reset on error
           });
         }
       },
 
       // Load existing answers and navigate to last unanswered question
       loadExistingAnswers: async (assessmentId: number) => {
-        set({ isLoading: true, error: null });
+        set({ isLoading: true, error: null, isCompleted: false }); // Always reset isCompleted to false when loading
         try {
+          // Get assessment status from API to check if it's actually completed
+          let assessmentStatus: string | undefined;
+          try {
+            const assessment = await getAssessment(assessmentId);
+            assessmentStatus = assessment.status;
+          } catch (err) {
+            // If we can't get assessment status, continue with loading answers
+            console.warn('[TKI Store] Could not fetch assessment status, continuing...', err);
+          }
+
           const existingAnswers = await getAssessmentAnswers(assessmentId);
           
           // Convert answer values to strings (TKI uses "A" or "B")
@@ -85,11 +96,13 @@ export const useTKIStore = create<TKIState>()(
           // Find the first unanswered question
           const { tkiQuestions } = await import('@/data/tkiQuestions');
           let firstUnansweredIndex = 0;
+          let allQuestionsAnswered = true;
           for (let i = 0; i < tkiQuestions.length; i++) {
             const question = tkiQuestions[i];
             if (!question) continue;
             if (!answers[question.id]) {
               firstUnansweredIndex = i;
+              allQuestionsAnswered = false;
               break;
             }
             // If all questions are answered, stay at the last question
@@ -98,17 +111,25 @@ export const useTKIStore = create<TKIState>()(
             }
           }
 
+          // Only mark as completed if:
+          // 1. All questions are answered AND
+          // 2. Assessment status is "completed" or "COMPLETED" in the API
+          const isActuallyCompleted = allQuestionsAnswered && 
+            (assessmentStatus === 'completed' || assessmentStatus === 'COMPLETED');
+
           set({
             assessmentId,
             answers,
             currentQuestion: firstUnansweredIndex,
             isLoading: false,
+            isCompleted: isActuallyCompleted,
           });
         } catch (error: unknown) {
           const errorMessage = extractErrorMessage(error, 'Failed to load existing answers');
           set({
             error: errorMessage,
             isLoading: false,
+            isCompleted: false, // Reset on error
           });
         }
       },
