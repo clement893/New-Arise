@@ -1686,32 +1686,71 @@ async def upload_mbti_pdf(
         )
     
     try:
+        logger.info(f"Starting MBTI PDF upload for user {current_user.id}")
+        
         # Check if OCR service is configured
-        if not PDFOCRService.is_configured():
+        logger.debug("Checking if OCR service is configured...")
+        try:
+            is_configured = PDFOCRService.is_configured()
+            logger.debug(f"OCR service configured check result: {is_configured}")
+        except Exception as config_check_error:
+            logger.error(f"Error checking OCR service configuration: {config_check_error}", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=f"Error checking OCR service configuration: {str(config_check_error)}"
+            )
+        
+        if not is_configured:
+            logger.error("OCR service is not configured")
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="OCR service is not configured. Please configure OPENAI_API_KEY and install required dependencies (PyMuPDF, Pillow)."
             )
         
+        logger.debug("OCR service is configured, initializing...")
         # Initialize OCR service
-        ocr_service = PDFOCRService()
+        try:
+            ocr_service = PDFOCRService()
+            logger.debug("OCR service initialized successfully")
+        except Exception as init_error:
+            logger.error(f"Failed to initialize OCR service: {init_error}", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=f"Failed to initialize OCR service: {str(init_error)}. Please check OPENAI_API_KEY and ensure PyMuPDF and Pillow are installed."
+            )
         
         # Download PDF from URL if needed
         if profile_url and not pdf_bytes:
             logger.info(f"Downloading PDF from 16Personalities profile URL: {profile_url}")
-            pdf_bytes = await ocr_service.download_pdf_from_url(profile_url)
-            logger.info(f"Successfully downloaded PDF ({len(pdf_bytes)} bytes) from profile URL")
+            try:
+                pdf_bytes = await ocr_service.download_pdf_from_url(profile_url)
+                logger.info(f"Successfully downloaded PDF ({len(pdf_bytes)} bytes) from profile URL")
+            except Exception as download_error:
+                logger.error(f"Failed to download PDF from URL: {download_error}", exc_info=True)
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Failed to download PDF from URL: {str(download_error)}"
+                )
         
         # Ensure we have PDF bytes at this point
         if not pdf_bytes:
+            logger.error("No PDF data available for processing")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="No PDF data available for processing"
             )
         
+        logger.info(f"Extracting MBTI results from PDF for user {current_user.id} (PDF size: {len(pdf_bytes)} bytes)")
         # Extract MBTI results from PDF
-        logger.info(f"Extracting MBTI results from PDF for user {current_user.id}")
-        extracted_data = await ocr_service.extract_mbti_results(pdf_bytes)
+        try:
+            extracted_data = await ocr_service.extract_mbti_results(pdf_bytes)
+            logger.info(f"Successfully extracted MBTI data: {extracted_data.get('mbti_type', 'unknown')}")
+        except Exception as extract_error:
+            logger.error(f"Failed to extract MBTI results from PDF: {extract_error}", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Failed to extract MBTI results from PDF: {str(extract_error)}"
+            )
         
         # Validate extracted data
         logger.debug(f"Validating extracted data: {extracted_data}")
