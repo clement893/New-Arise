@@ -9,8 +9,8 @@ import React, { useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { reportWebVitals } from '@/lib/performance';
 import { logger } from '@/lib/logger';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import { Header } from '@/components/landing/Header';
+import { Footer } from '@/components/landing/Footer';
 
 function AppContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

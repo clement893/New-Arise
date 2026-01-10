@@ -26,7 +26,7 @@ export default function Footer() {
           {/* Brand Section */}
           <div className="lg:col-span-2">
             <h3 className="text-white font-bold text-xl mb-4">
-              MODELE<span className="text-primary-400">FULLSTACK</span>
+              <span className="text-arise-gold">ARISE</span>
             </h3>
             <p className="text-sm text-gray-400 dark:text-gray-500 mb-6 leading-relaxed max-w-md">
               Template full-stack moderne pour démarrer rapidement vos projets avec Next.js 16, React 19, FastAPI et PostgreSQL.
@@ -166,7 +166,7 @@ export default function Footer() {
         <div className="border-t border-gray-800 dark:border-gray-700 mt-10 pt-8">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-400 dark:text-gray-500">
             <p>
-              © {currentYear} Nukleo. Tous droits réservés.
+              © {currentYear} ARISE. Tous droits réservés.
             </p>
             <div className="flex items-center gap-6">
               <Link href="/sitemap" className="hover:text-primary-400 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-gray-900 rounded">

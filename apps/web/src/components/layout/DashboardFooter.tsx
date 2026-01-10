@@ -34,7 +34,7 @@ export default function DashboardFooter() {
             </Link>
           </div>
           <div className="text-sm text-muted-foreground">
-            <p>© {currentYear} MODELEFULLSTACK. Tous droits réservés.</p>
+            <p>© {currentYear} ARISE. Tous droits réservés.</p>
           </div>
         </div>
       </div>

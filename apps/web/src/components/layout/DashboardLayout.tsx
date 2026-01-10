@@ -403,8 +403,8 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
           {/* Mobile Header with Hamburger Menu */}
           <header className="lg:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30 flex-shrink-0">
             <div className="px-4 py-3 flex items-center justify-between">
-              <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                MODELE
+              <h1 className="text-lg font-semibold text-arise-deep-teal">
+                ARISE
               </h1>
               <button
                 onClick={handleMobileMenuToggle}
