@@ -46,7 +46,7 @@ if (SENTRY_DSN) {
         return null;
       }
       
-      // Filter out known non-critical errors
+      // Filter out known non-critical errors to reduce rate limiting
       const error = hint.originalException;
       if (error instanceof Error) {
         // Ignore network errors that are likely user-related (offline, etc.)
@@ -62,30 +62,68 @@ if (SENTRY_DSN) {
         if (error.message.includes('ResizeObserver loop')) {
           return null;
         }
+        
+        // Ignore MIME type errors (usually server configuration issues, not code errors)
+        if (error.message.includes('MIME type') || error.message.includes('Refused to execute')) {
+          return null;
+        }
+        
+        // Ignore React minified errors #418 (usually hydration or dangerouslySetInnerHTML issues)
+        if (error.message.includes('Minified React error #418') || error.message.includes('#418')) {
+          logger.warn('React error #418 detected - likely HTML rendering issue', { event });
+          return null; // Don't spam Sentry with these
+        }
+        
+        // Ignore Sentry rate limiting errors (429)
+        if (error.message.includes('429') || error.message.includes('Too Many Requests')) {
+          return null; // Don't send Sentry errors about Sentry itself
+        }
+        
+        // Ignore chunk loading errors (usually user network issues or cache)
+        if (error.message.includes('Loading chunk') || error.message.includes('Failed to fetch dynamically imported module')) {
+          return null;
+        }
       }
       
       return event;
     },
     
-    // Ignore specific URLs
+    // Ignore specific error patterns to reduce rate limiting
     ignoreErrors: [
-    // Browser extensions
-    'top.GLOBALS',
-    'originalCreateNotification',
-    'canvas.contentDocument',
-    'MyApp_RemoveAllHighlights',
-    'atomicFindClose',
-    'fb_xd_fragment',
-    'bmi_SafeAddOnload',
-    'EBCallBackMessageReceived',
-    'conduitPage',
-    
-    // Network errors
-    'NetworkError',
-    'Failed to fetch',
-    
+      // Browser extensions
+      'top.GLOBALS',
+      'originalCreateNotification',
+      'canvas.contentDocument',
+      'MyApp_RemoveAllHighlights',
+      'atomicFindClose',
+      'fb_xd_fragment',
+      'bmi_SafeAddOnload',
+      'EBCallBackMessageReceived',
+      'conduitPage',
+      
+      // Network errors
+      'NetworkError',
+      'Failed to fetch',
+      'Network request failed',
+      
       // ResizeObserver
       'ResizeObserver loop',
+      
+      // MIME type errors (server configuration issues)
+      'Refused to execute script',
+      'MIME type',
+      
+      // React errors
+      'Minified React error #418',
+      'Minified React error #',
+      
+      // Sentry rate limiting
+      '429',
+      'Too Many Requests',
+      
+      // Chunk loading (usually cache issues)
+      'Loading chunk',
+      'Failed to fetch dynamically imported module',
     ],
     
     // Set user context

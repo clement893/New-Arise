@@ -96,7 +96,7 @@ export const themeCacheInlineScript = `
     
     // Color generation functions (simplified inline version)
     function hexToRgb(hex) {
-      const result = /^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i.exec(hex);
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
       return result ? {
         r: parseInt(result[1], 16),
         g: parseInt(result[2], 16),
@@ -205,7 +205,7 @@ export const themeCacheInlineScript = `
     }
     
     function generateRgb(hex) {
-      const result = /^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i.exec(hex);
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
       return result ? result[1] + ', ' + result[2] + ', ' + result[3] : '';
     }
     
