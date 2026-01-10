@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, Button, LoadingSkeleton } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
@@ -34,22 +34,18 @@ function EvaluatorsContent() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadEvaluators();
-  }, []);
-
-  useEffect(() => {
-    filterEvaluators();
-  }, [evaluators, statusFilter]);
-
-  const loadEvaluators = async () => {
+  const loadEvaluators = useCallback(async (silent: boolean = false) => {
     try {
-      setIsLoading(true);
-      setError(null);
-      setSuccessMessage(null);
+      if (!silent) {
+        setIsLoading(true);
+        setError(null);
+        setSuccessMessage(null);
+      }
 
       // Get assessment ID from URL params or find it from assessments
-      let id: number | null = searchParams?.get('id') ? parseInt(searchParams.get('id')!) : null;
+      // Read searchParams directly (not in dependencies to avoid infinite loops)
+      const currentParams = searchParams;
+      let id: number | null = currentParams?.get('id') ? parseInt(currentParams.get('id')!) : null;
       
       if (!id) {
         const assessments = await getMyAssessments();
@@ -57,23 +53,66 @@ function EvaluatorsContent() {
           (a) => a.assessment_type === 'THREE_SIXTY_SELF'
         );
         if (!feedback360Assessment) {
-          setError('Aucun assessment de feedback 360° trouvé');
-          setIsLoading(false);
+          if (!silent) {
+            setError('Aucun assessment de feedback 360° trouvé');
+            setIsLoading(false);
+          }
           return;
         }
         id = feedback360Assessment.id;
       }
 
+      // Always update assessmentId (needed for polling)
       setAssessmentId(id);
       const response = await get360Evaluators(id);
       setEvaluators(response.evaluators || []);
     } catch (err) {
       console.error('Failed to load evaluators:', err);
-      setError(err instanceof Error ? err.message : 'Échec du chargement des évaluateurs');
+      if (!silent) {
+        setError(err instanceof Error ? err.message : 'Échec du chargement des évaluateurs');
+      }
     } finally {
-      setIsLoading(false);
+      if (!silent) {
+        setIsLoading(false);
+      }
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps - searchParams is read directly in the function
+
+  // Initial load and reload when searchParams change
+  useEffect(() => {
+    loadEvaluators();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams?.get('id')]); // Only reload when id param changes
+
+  useEffect(() => {
+    filterEvaluators();
+  }, [evaluators, statusFilter]);
+
+  // Auto-refresh evaluators status every 10 seconds if there are pending/in-progress evaluators
+  useEffect(() => {
+    if (!assessmentId || isLoading) {
+      return;
+    }
+
+    // Only poll if there are evaluators that are not completed
+    const hasPendingEvaluators = evaluators.some(e => {
+      const status = e.status?.toLowerCase() || '';
+      return status !== 'completed';
+    });
+
+    if (!hasPendingEvaluators) {
+      return; // Stop polling if all evaluators are completed
+    }
+
+    // Poll every 10 seconds to check for status updates (silent refresh)
+    const interval = setInterval(() => {
+      loadEvaluators(true); // Silent refresh - don't show loading state
+    }, 10000); // 10 seconds
+
+    // Cleanup interval on unmount or when dependencies change
+    return () => clearInterval(interval);
+  }, [assessmentId, isLoading, loadEvaluators, evaluators]); // Include evaluators to detect status changes
 
   const filterEvaluators = () => {
     if (statusFilter === 'all') {
