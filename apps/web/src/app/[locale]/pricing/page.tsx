@@ -96,18 +96,41 @@ export default function PricingPage() {
     
     try {
       const response = await subscriptionsAPI.getPlans(true); // Only active plans
-      const fetchedPlans: ApiPlan[] = response.data.plans || [];
+      
+      // apiClient.get returns response.data directly from axios, which is the FastAPI response
+      // FastAPI returns PlanListResponse: { plans: [...], total: ... }
+      // So response is already { plans: [...], total: ... }
+      const fetchedPlans: ApiPlan[] = (response as any).plans || (response as any).data?.plans || [];
+      
+      logger.debug('Loaded plans from API', { 
+        responseStructure: response,
+        plansCount: fetchedPlans.length,
+        plans: fetchedPlans.map(p => ({ id: p.id, name: p.name, interval: p.interval, amount: p.amount }))
+      });
+      
+      if (fetchedPlans.length === 0) {
+        logger.warn('No plans found in API response', { response });
+        setError('No subscription plans available. Please contact support.');
+        setApiPlans([]);
+        return;
+      }
       
       // Filter to only show monthly plans (or convert yearly plans)
       const monthlyPlans = fetchedPlans.filter(
         (plan) => plan.interval === 'MONTH' && plan.interval_count === 1
       );
       
+      logger.debug('Filtered monthly plans', { 
+        monthlyPlansCount: monthlyPlans.length,
+        allPlans: fetchedPlans.length
+      });
+      
       setApiPlans(monthlyPlans);
     } catch (err) {
       const appError = handleApiError(err);
-      setError('Failed to load plans. Please try again later.');
-      logger.error('Failed to load subscription plans', appError);
+      setError(`Failed to load plans: ${appError.message || 'Please try again later.'}`);
+      logger.error('Failed to load subscription plans', appError, { error: err, fullError: appError });
+      setApiPlans([]);
     } finally {
       setIsLoading(false);
     }

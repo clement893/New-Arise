@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import Link from 'next/link';
 import { getErrorMessage, getErrorDetail } from '@/lib/errors';
+import { logger } from '@/lib/logger';
 import { 
   useMySubscription, 
   useSubscriptionPayments, 
@@ -51,8 +52,22 @@ export default function SubscriptionManagement() {
 
   // Transform subscription data from React Query
   useEffect(() => {
+    logger.debug('SubscriptionManagement: subscriptionData changed', {
+      hasData: !!subscriptionData,
+      subscriptionData,
+      isLoading: subscriptionLoading,
+      error: subscriptionError
+    });
+    
     if (subscriptionData?.data) {
       const sub = subscriptionData.data;
+      
+      logger.debug('SubscriptionManagement: Processing subscription', {
+        id: sub.id,
+        status: sub.status,
+        planId: sub.plan_id,
+        planName: sub.plan?.name
+      });
       
       // Map backend status to frontend status
       const statusMap: Record<string, 'active' | 'cancelled' | 'expired' | 'trial'> = {
@@ -80,9 +95,10 @@ export default function SubscriptionManagement() {
         billing_period: (sub.plan?.interval?.toLowerCase() === 'year' ? 'year' : 'month') as 'month' | 'year',
       });
     } else if (!subscriptionLoading && !subscriptionData) {
+      logger.debug('SubscriptionManagement: No subscription data found');
       setSubscription(null);
     }
-  }, [subscriptionData, subscriptionLoading]);
+  }, [subscriptionData, subscriptionLoading, subscriptionError]);
 
   // Transform payments data from React Query
   useEffect(() => {
