@@ -95,8 +95,10 @@ function ResultsReportsContent() {
               const modeEntries = Object.entries(scores.mode_scores);
               if (modeEntries.length > 0) {
                 const dominant = modeEntries.sort(([, a], [, b]) => (b as number) - (a as number))[0];
-                result = dominant[0];
-                score = '100%';
+                if (dominant) {
+                  result = dominant[0];
+                  score = '100%';
+                }
               }
             } else if (assessment.assessment_type === 'WELLNESS' && scores.percentage) {
               score = `${Math.round(scores.percentage)}%`;
