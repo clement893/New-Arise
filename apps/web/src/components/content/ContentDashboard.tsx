@@ -89,14 +89,6 @@ export default function ContentDashboard({
       count: stats.totalTags,
     },
     {
-      title: 'Templates',
-      description: 'Manage content templates',
-      icon: Layout,
-      href: '/content/templates',
-      iconBgClass: 'bg-primary-100 dark:bg-primary-900/20',
-      iconTextClass: 'text-primary-600 dark:text-primary-400',
-    },
-    {
       title: 'Scheduled Content',
       description: 'View scheduled publications',
       icon: Calendar,

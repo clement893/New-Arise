@@ -736,13 +736,6 @@
       "imports": []
     },
     {
-      "path": "app\\[locale]\\components\\templates\\page.tsx",
-      "url": "/components/templates",
-      "apiCalls": [],
-      "hasApiCalls": false,
-      "imports": []
-    },
-    {
       "path": "app\\[locale]\\components\\theme\\page.tsx",
       "url": "/components/theme",
       "apiCalls": [],
@@ -967,30 +960,6 @@
         {
           "method": "DELETE",
           "endpoint": "/v1/tags/${id}"
-        }
-      ],
-      "hasApiCalls": true,
-      "imports": []
-    },
-    {
-      "path": "app\\[locale]\\content\\templates\\page.tsx",
-      "url": "/content/templates",
-      "apiCalls": [
-        {
-          "method": "GET",
-          "endpoint": "/v1/templates"
-        },
-        {
-          "method": "POST",
-          "endpoint": "/v1/templates"
-        },
-        {
-          "method": "PUT",
-          "endpoint": "/v1/templates/${id}"
-        },
-        {
-          "method": "DELETE",
-          "endpoint": "/v1/templates/${id}"
         }
       ],
       "hasApiCalls": true,

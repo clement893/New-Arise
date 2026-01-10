@@ -123,7 +123,6 @@ const localeRoutes = [
   '/components/subscriptions',
   '/components/surveys',
   '/components/tags',
-  '/components/templates',
   '/components/theme',
   '/components/utils',
   '/components/versions',

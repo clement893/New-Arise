@@ -194,14 +194,6 @@ export const sitePages: Record<string, SitemapPage[]> = {
       requiresAuth: true,
     },
     { 
-      path: '/content/templates', 
-      title: 'Templates Management', 
-      description: 'Gestion des modèles de contenu',
-      priority: 0.7,
-      changefreq: 'monthly',
-      requiresAuth: true,
-    },
-    { 
       path: '/content/schedule', 
       title: 'Scheduled Content', 
       description: 'Contenu programmé',
