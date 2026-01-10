@@ -480,6 +480,17 @@ export const uploadMBTIPDFFromURL = async (profileUrl: string): Promise<{ assess
   return response.data;
 };
 
+/**
+ * Delete all assessments for the current user (superadmin only)
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
+ */
+export const deleteAllMyAssessments = async (): Promise<{ message: string; deleted_count: number }> => {
+  const response = await apiClient.delete(
+    `/v1/assessments/my-assessments/all`
+  );
+  return response.data;
+};
+
 export const assessmentsApi = {
   start: startAssessment,
   saveAnswer,

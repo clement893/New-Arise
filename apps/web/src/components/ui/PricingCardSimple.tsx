@@ -67,7 +67,7 @@ export default function PricingCardSimple({
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
           {plan.name}
         </h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-6">{plan.description}</p>
+        <p className="text-gray-900 dark:text-gray-100 mb-6">{plan.description}</p>
         <div className="mb-6">
           {isCustomPricing ? (
             <div>
@@ -80,9 +80,9 @@ export default function PricingCardSimple({
               <span className="text-4xl font-bold text-gray-900 dark:text-gray-100">
                 {calculatePrice()}€
               </span>
-              <span className="text-gray-600 dark:text-gray-400">/mois</span>
+              <span className="text-gray-900 dark:text-gray-100">/mois</span>
               {billingPeriod === 'year' && calculateYearlyPrice() && (
-                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <div className="text-sm text-gray-900 dark:text-gray-100 mt-1">
                   {calculateYearlyPrice()}€/an
                 </div>
               )}
@@ -104,7 +104,7 @@ export default function PricingCardSimple({
           {plan.features.map((feature, index) => (
             <li key={index} className="flex items-start">
               <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-              <span className="text-gray-700 dark:text-gray-300">{feature}</span>
+              <span className="text-gray-900 dark:text-gray-100">{feature}</span>
             </li>
           ))}
         </ul>

@@ -546,11 +546,11 @@ function EvaluatorsContent() {
           onClose={() => setShowEvaluatorModal(false)}
           assessmentId={assessmentId}
           onSuccess={async () => {
-            setShowEvaluatorModal(false);
-            // Set filter to pending to show newly added evaluators
-            setStatusFilter('pending');
-            await loadEvaluators();
-            setSuccessMessage('Les évaluateurs ont été invités avec succès et apparaissent sous "En attente"');
+            // Immediately reload evaluators to show the newly added ones
+            await loadEvaluators(false); // false = silent reload to avoid showing loading state
+            // Set filter to all to show all evaluators including newly added
+            setStatusFilter('all');
+            setSuccessMessage('Les évaluateurs ont été ajoutés avec succès et apparaissent dans la liste');
             setTimeout(() => setSuccessMessage(null), 5000);
           }}
         />

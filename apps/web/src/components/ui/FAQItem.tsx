@@ -12,7 +12,7 @@ export default function FAQItem({ question, answer }: FAQItemProps) {
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
           {question}
         </h3>
-        <p className="text-gray-600 dark:text-gray-400">{answer}</p>
+        <p className="text-gray-900 dark:text-gray-100">{answer}</p>
       </div>
     </Card>
   );

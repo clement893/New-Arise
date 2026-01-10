@@ -1131,7 +1131,7 @@ async def invite_360_evaluators(
     # Create evaluator invitations and send emails
     email_service = EmailService()
     frontend_url = os.getenv("FRONTEND_URL", os.getenv("NEXT_PUBLIC_APP_URL", "http://localhost:3000"))
-    invited_evaluators = []
+    evaluator_objects = []  # Store evaluator objects to return complete data after commit
 
     for evaluator_data in request.evaluators:
         # Generate unique token
@@ -1146,6 +1146,7 @@ async def invite_360_evaluators(
             status=AssessmentStatus.NOT_STARTED
         )
         db.add(evaluator)
+        evaluator_objects.append(evaluator)  # Store object to access ID after commit
 
         # Send invitation email
         evaluation_url = f"{frontend_url.rstrip('/')}/360-evaluator/{invitation_token}"
@@ -1161,20 +1162,35 @@ async def invite_360_evaluators(
                     evaluation_url=evaluation_url,
                     role=role_label
                 )
-                evaluator.invitation_sent_at = datetime.utcnow()
+                evaluator.invitation_sent_at = datetime.now(timezone.utc)
                 logger.info(f"Sent 360 evaluator invitation email to {evaluator_data.email}")
             else:
                 logger.warning(f"Email service not configured, skipping email to {evaluator_data.email}")
         except Exception as e:
             logger.error(f"Failed to send invitation email to {evaluator_data.email}: {e}", exc_info=True)
 
-        invited_evaluators.append({
-            "name": evaluator_data.name,
-            "email": evaluator_data.email,
-            "role": evaluator_data.role
-        })
-
+    # Commit all evaluators and their updates (invitation_sent_at, etc.)
     await db.commit()
+    
+    # Refresh evaluator objects to ensure we have their IDs and latest state
+    for evaluator in evaluator_objects:
+        await db.refresh(evaluator)
+
+    # Return complete evaluator data including IDs
+    invited_evaluators = []
+    for evaluator in evaluator_objects:
+        invited_evaluators.append({
+            "id": evaluator.id,
+            "name": evaluator.evaluator_name,
+            "email": evaluator.evaluator_email,
+            "role": evaluator.evaluator_role.value,
+            "status": evaluator.status.value,
+            "invitation_token": evaluator.invitation_token,
+            "invitation_sent_at": evaluator.invitation_sent_at.isoformat() if evaluator.invitation_sent_at else None,
+            "invitation_opened_at": evaluator.invitation_opened_at.isoformat() if evaluator.invitation_opened_at else None,
+            "started_at": evaluator.started_at.isoformat() if evaluator.started_at else None,
+            "completed_at": evaluator.completed_at.isoformat() if evaluator.completed_at else None,
+        })
 
     return {
         "message": f"Invited {len(invited_evaluators)} evaluators successfully",
@@ -1919,5 +1935,96 @@ async def upload_mbti_pdf(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=detail_message
+        )
+
+
+@router.delete("/my-assessments/all", status_code=status.HTTP_200_OK)
+async def delete_all_my_assessments(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Delete all assessments for the current user (superadmin only)
+    This will permanently delete all assessments, answers, results, and evaluators
+    """
+    from app.dependencies import is_superadmin
+    from app.core.logging import logger
+    
+    # Check if user is superadmin
+    is_user_superadmin = await is_superadmin(current_user, db)
+    if not is_user_superadmin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only superadmins can delete all their assessments"
+        )
+    
+    try:
+        # Get all assessments for this user
+        result = await db.execute(
+            select(Assessment)
+            .where(Assessment.user_id == current_user.id)
+        )
+        assessments = result.scalars().all()
+        
+        if not assessments:
+            return {
+                "message": "No assessments found to delete",
+                "deleted_count": 0
+            }
+        
+        # Count assessments before deletion
+        deleted_count = len(assessments)
+        assessment_ids = [a.id for a in assessments]
+        
+        # Delete all related data using CASCADE (will automatically delete related records)
+        # But we'll be explicit for clarity and to ensure proper deletion order
+        
+        # 1. Delete assessment answers
+        if assessment_ids:
+            answers_result = await db.execute(
+                select(AssessmentAnswer).where(AssessmentAnswer.assessment_id.in_(assessment_ids))
+            )
+            answers = answers_result.scalars().all()
+            for answer in answers:
+                await db.delete(answer)
+        
+        # 2. Delete 360 evaluators
+        if assessment_ids:
+            evaluators_result = await db.execute(
+                select(Assessment360Evaluator).where(Assessment360Evaluator.assessment_id.in_(assessment_ids))
+            )
+            evaluators = evaluators_result.scalars().all()
+            for evaluator in evaluators:
+                await db.delete(evaluator)
+        
+        # 3. Delete assessment results
+        if assessment_ids:
+            results_result = await db.execute(
+                select(AssessmentResult).where(AssessmentResult.assessment_id.in_(assessment_ids))
+            )
+            results = results_result.scalars().all()
+            for result in results:
+                await db.delete(result)
+        
+        # 4. Delete assessments themselves (CASCADE will handle remaining relationships)
+        for assessment in assessments:
+            await db.delete(assessment)
+        
+        await db.commit()
+        
+        logger.info(
+            f"Superadmin {current_user.id} ({current_user.email}) deleted all {deleted_count} assessments"
+        )
+        
+        return {
+            "message": f"Successfully deleted {deleted_count} assessments",
+            "deleted_count": deleted_count
+        }
+    except Exception as e:
+        logger.error(f"Error deleting all assessments for user {current_user.id}: {e}", exc_info=True)
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete assessments: {str(e)}"
         )
 

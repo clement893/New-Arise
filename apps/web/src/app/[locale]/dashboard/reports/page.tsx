@@ -11,8 +11,10 @@ import { Card, Loading } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import { FileText, Download, TrendingUp, Target, Users, Brain, Eye } from 'lucide-react';
 import Image from 'next/image';
-import { getMyAssessments, getAssessmentResults, get360Evaluators, getDevelopmentGoalsCount, Assessment as ApiAssessment, AssessmentType, AssessmentResult } from '@/lib/api/assessments';
+import { getMyAssessments, getAssessmentResults, get360Evaluators, getDevelopmentGoalsCount, deleteAllMyAssessments, Assessment as ApiAssessment, AssessmentType, AssessmentResult } from '@/lib/api/assessments';
 import { generateAssessmentPDF, generateAllAssessmentsZip, generateCompleteLeadershipProfilePDF, downloadBlob } from '@/lib/utils/pdfGenerator';
+import { checkMySuperAdminStatus } from '@/lib/api/admin';
+import { Trash2, AlertTriangle } from 'lucide-react';
 
 interface AssessmentDisplay {
   id: number;
@@ -52,10 +54,24 @@ function ResultsReportsContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     loadAssessments();
+    checkSuperAdminStatus();
   }, []);
+
+  const checkSuperAdminStatus = async () => {
+    try {
+      const status = await checkMySuperAdminStatus();
+      setIsSuperAdmin(status.is_superadmin || false);
+    } catch (err) {
+      console.error('Failed to check superadmin status:', err);
+      setIsSuperAdmin(false);
+    }
+  };
 
   const loadAssessments = async () => {
     try {
@@ -482,17 +498,121 @@ function ResultsReportsContent() {
     }
   };
 
+  const handleDeleteAllAssessments = async () => {
+    if (!isSuperAdmin) {
+      setError('Seuls les super admins peuvent supprimer tous leurs assessments.');
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+      setError(null);
+      
+      const result = await deleteAllMyAssessments();
+      
+      // Reload assessments after deletion
+      await loadAssessments();
+      
+      setShowDeleteConfirm(false);
+      alert(`Tous vos assessments ont été supprimés avec succès. (${result.deleted_count} assessments supprimés)`);
+    } catch (err: any) {
+      console.error('Failed to delete all assessments:', err);
+      const errorMessage = err?.response?.data?.detail || err?.message || 'Échec de la suppression des assessments';
+      setError(errorMessage);
+      setShowDeleteConfirm(false);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Header */}
       <div className="mb-8 pb-6">
-        <h1 className="text-4xl font-bold text-white mb-2">
-          Results & Reports
-        </h1>
-        <p className="text-white">
-          View your assessment results and comprehensive leadership profile
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-white mb-2">
+              Results & Reports
+            </h1>
+            <p className="text-white">
+              View your assessment results and comprehensive leadership profile
+            </p>
+          </div>
+          {isSuperAdmin && assessments.length > 0 && (
+            <Button
+              variant="danger"
+              onClick={() => setShowDeleteConfirm(true)}
+              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white"
+            >
+              <Trash2 size={16} />
+              Reset All Assessments
+            </Button>
+          )}
+        </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <Card className="w-full max-w-md p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                <AlertTriangle className="text-red-600" size={24} />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Confirmer la suppression
+              </h2>
+            </div>
+            <p className="text-gray-700 mb-6">
+              Êtes-vous sûr de vouloir supprimer <strong>TOUS</strong> vos assessments ? 
+              Cette action est <strong>irréversible</strong> et supprimera définitivement :
+            </p>
+            <ul className="list-disc list-inside text-gray-700 mb-6 space-y-1 ml-4">
+              <li>Tous vos assessments ({assessments.length} assessments)</li>
+              <li>Toutes vos réponses</li>
+              <li>Tous vos résultats</li>
+              <li>Tous les évaluateurs 360° associés</li>
+            </ul>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
+                className="flex-1"
+              >
+                Annuler
+              </Button>
+              <Button
+                variant="danger"
+                onClick={handleDeleteAllAssessments}
+                disabled={isDeleting}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+              >
+                {isDeleting ? 'Suppression...' : 'Confirmer la suppression'}
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Error Message */}
+      {error && (
+        <Card className="mb-6 p-4 bg-red-50 border-red-200">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
+            <div className="flex-1">
+              <p className="font-medium text-red-900 mb-1">Erreur</p>
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+            <button
+              onClick={() => setError(null)}
+              className="text-red-600 hover:text-red-800"
+            >
+              ×
+            </button>
+          </div>
+        </Card>
+      )}
 
       {/* Wrapper for content with background color block */}
       <div className="relative mb-8" style={{ paddingBottom: '32px' }}>

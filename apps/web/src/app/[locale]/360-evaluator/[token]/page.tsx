@@ -5,6 +5,8 @@ import { useParams } from 'next/navigation';
 import { Card, Container } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import { Alert } from '@/components/ui';
+import { Header } from '@/components/landing/Header';
+import { Footer } from '@/components/landing/Footer';
 import {
   getEvaluatorAssessment,
   submitEvaluatorAssessment,
@@ -148,49 +150,65 @@ export default function Evaluator360Page() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-arise-teal to-arise-deep-teal flex items-center justify-center p-8">
-        <Card className="p-8 text-center max-w-md">
-          <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-arise-teal" />
-          <p className="text-gray-600">Chargement...</p>
-        </Card>
+      <div className="min-h-screen bg-gradient-to-br from-arise-teal to-arise-deep-teal">
+        <Header />
+        <div className="pt-16 flex items-center justify-center min-h-[calc(100vh-4rem)] p-8">
+          <Card className="p-8 text-center max-w-md">
+            <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-arise-teal" />
+            <p className="text-gray-600">Chargement...</p>
+          </Card>
+        </div>
+        <Footer />
       </div>
     );
   }
 
   if (error && !evaluatorInfo) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-arise-teal to-arise-deep-teal flex items-center justify-center p-8">
-        <Card className="p-8 text-center max-w-md">
-          <Alert variant="error">{error}</Alert>
-        </Card>
+      <div className="min-h-screen bg-gradient-to-br from-arise-teal to-arise-deep-teal">
+        <Header />
+        <div className="pt-16 flex items-center justify-center min-h-[calc(100vh-4rem)] p-8">
+          <Card className="p-8 text-center max-w-md">
+            <Alert variant="error">{error}</Alert>
+          </Card>
+        </div>
+        <Footer />
       </div>
     );
   }
 
   if (success || evaluatorInfo?.status === 'COMPLETED') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-arise-teal to-arise-deep-teal flex items-center justify-center p-8">
-        <Card className="p-8 text-center max-w-md">
-          <CheckCircle className="mx-auto mb-4 h-16 w-16 text-green-500" />
-          <h1 className="mb-4 text-3xl font-bold text-gray-900">
-            Merci pour votre évaluation !
-          </h1>
-          <p className="mb-8 text-gray-600">
-            Votre feedback a été enregistré avec succès. Votre contribution est précieuse pour
-            aider {evaluatorInfo?.user_being_evaluated?.name || 'cette personne'} dans son
-            développement.
-          </p>
-        </Card>
+      <div className="min-h-screen bg-gradient-to-br from-arise-teal to-arise-deep-teal">
+        <Header />
+        <div className="pt-16 flex items-center justify-center min-h-[calc(100vh-4rem)] p-8">
+          <Card className="p-8 text-center max-w-md">
+            <CheckCircle className="mx-auto mb-4 h-16 w-16 text-green-500" />
+            <h1 className="mb-4 text-3xl font-bold text-gray-900">
+              Merci pour votre évaluation !
+            </h1>
+            <p className="mb-8 text-gray-600">
+              Votre feedback a été enregistré avec succès. Votre contribution est précieuse pour
+              aider {evaluatorInfo?.user_being_evaluated?.name || 'cette personne'} dans son
+              développement.
+            </p>
+          </Card>
+        </div>
+        <Footer />
       </div>
     );
   }
 
   if (!evaluatorInfo || !question) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-arise-teal to-arise-deep-teal flex items-center justify-center p-8">
-        <Card className="p-8 text-center max-w-md">
-          <Alert variant="error">Informations non disponibles</Alert>
-        </Card>
+      <div className="min-h-screen bg-gradient-to-br from-arise-teal to-arise-deep-teal">
+        <Header />
+        <div className="pt-16 flex items-center justify-center min-h-[calc(100vh-4rem)] p-8">
+          <Card className="p-8 text-center max-w-md">
+            <Alert variant="error">Informations non disponibles</Alert>
+          </Card>
+        </div>
+        <Footer />
       </div>
     );
   }
@@ -198,10 +216,12 @@ export default function Evaluator360Page() {
   const allQuestionsAnswered = Object.keys(answers).length === 30;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-arise-teal to-arise-deep-teal p-8">
-      <Container className="max-w-4xl mx-auto">
-        {/* Header */}
-        <Card className="p-6 mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-arise-teal to-arise-deep-teal">
+      <Header />
+      <div className="pt-16 pb-8">
+        <Container className="max-w-4xl mx-auto px-4">
+          {/* Assessment Header Card */}
+          <Card className="p-6 mb-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 mb-2">
@@ -319,7 +339,9 @@ export default function Evaluator360Page() {
             )}
           </div>
         </Card>
-      </Container>
+        </Container>
+      </div>
+      <Footer />
     </div>
   );
 }

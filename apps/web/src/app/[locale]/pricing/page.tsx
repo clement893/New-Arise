@@ -241,7 +241,7 @@ export default function PricingPage() {
       <Container className="py-24">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold text-foreground mb-4">Choose your plan</h1>
-          <p className="text-xl text-muted-foreground mb-8">
+          <p className="text-xl text-gray-900 dark:text-gray-100 mb-8">
             Select the plan that best fits your needs
           </p>
 
@@ -273,7 +273,7 @@ export default function PricingPage() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">No plans available at the moment.</p>
+            <p className="text-gray-900 dark:text-gray-100">No plans available at the moment.</p>
           </div>
         )}
 

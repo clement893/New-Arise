@@ -170,13 +170,15 @@ export default function InviteAdditionalEvaluatorsModal({
 
       setSuccess(true);
       
-      // Close modal after a short delay and call onSuccess
+      // Immediately call onSuccess to refresh the evaluators list, then close modal after a short delay
+      if (onSuccess) {
+        await onSuccess();
+      }
+      
+      // Close modal after a short delay to show success message
       setTimeout(() => {
         handleClose();
-        if (onSuccess) {
-          onSuccess();
-        }
-      }, 2000);
+      }, 1500);
     } catch (err: unknown) {
       // Extract error message safely
       let errorMessage = 'Une erreur est survenue lors de l\'invitation des évaluateurs';

@@ -1,8 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/routing';
-import Button from '@/components/ui/Button';
+import ButtonLink from '@/components/ui/ButtonLink';
 
 export function HeroSection() {
   const t = useTranslations('landing.hero');
@@ -47,13 +46,13 @@ export function HeroSection() {
         </p>
         
         <div className="flex justify-center">
-          <Button 
-            asChild 
+          <ButtonLink 
+            href="/register"
             size="lg"
             className="bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-bold px-10 py-6 text-xl md:text-2xl shadow-2xl hover:shadow-arise-gold/50 transform hover:scale-105 transition-all duration-300 rounded-lg"
           >
-            <Link href="/register">{t('getStarted')}</Link>
-          </Button>
+            {t('getStarted')}
+          </ButtonLink>
         </div>
       </div>
     </section>

@@ -132,7 +132,7 @@ export default function MBTIPDFUploadPage() {
           <Button
             variant="ghost"
             onClick={() => router.push('/dashboard/assessments/mbti')}
-            className="mb-6"
+            className="mb-6 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
             disabled={isUploading}
           >
             <ArrowLeft size={16} className="mr-2" />
