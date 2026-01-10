@@ -153,10 +153,17 @@ function ResultsReportsContent() {
       loadAdditionalStats(completedAssessments, transformedAssessments);
     } catch (err: any) {
       console.error('Failed to load assessments:', err);
-      setError('Failed to load assessment results');
+      const errorMessage = err?.response?.data?.detail || err?.message || 'Failed to load assessment results';
+      setError(errorMessage);
       // Fallback to empty array
       setAssessments([]);
       setKeyInsights([]);
+      setStats({
+        completedAssessments: 0,
+        averageScore: 0,
+        developmentGoals: 0,
+        evaluatorsCount: 0,
+      });
     } finally {
       setIsLoading(false);
     }
