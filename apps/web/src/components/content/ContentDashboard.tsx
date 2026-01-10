@@ -9,7 +9,7 @@
 'use client';
 
 import { Card, StatsCard } from '@/components/ui';
-import { FileText, Image, Tag, Folder, Calendar, Layout, BookOpen } from 'lucide-react';
+import { FileText, Image, Tag, Folder, Calendar, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 
 export interface ContentStats {
