@@ -71,9 +71,47 @@ function ResultsReportsContent() {
         }
       );
 
-      // Load detailed results for each assessment to generate insights
+      // Sort by completed_at (most recent first), then by created_at, then by id as fallback
+      const sortedAssessments = [...completedAssessments].sort((a, b) => {
+        // First, try to sort by completed_at
+        if (a.completed_at && b.completed_at) {
+          const dateA = new Date(a.completed_at).getTime();
+          const dateB = new Date(b.completed_at).getTime();
+          if (dateB !== dateA) return dateB - dateA; // Most recent first
+        } else if (a.completed_at && !b.completed_at) return -1;
+        else if (!a.completed_at && b.completed_at) return 1;
+        
+        // If completed_at is same or missing, sort by created_at
+        if (a.created_at && b.created_at) {
+          const dateA = new Date(a.created_at).getTime();
+          const dateB = new Date(b.created_at).getTime();
+          if (dateB !== dateA) return dateB - dateA;
+        } else if (a.created_at && !b.created_at) return -1;
+        else if (!a.created_at && b.created_at) return 1;
+        
+        // Finally, sort by id (higher id = more recent)
+        return (b.id || 0) - (a.id || 0);
+      });
+
+      // Take only the latest assessment
+      const latestAssessment = sortedAssessments[0];
+      
+      if (!latestAssessment) {
+        setAssessments([]);
+        setKeyInsights([]);
+        setStats({
+          completedAssessments: 0,
+          averageScore: 0,
+          developmentGoals: 0,
+          evaluatorsCount: 0,
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Load detailed results for the latest assessment to generate insights
       const transformedAssessments: AssessmentDisplay[] = await Promise.all(
-        completedAssessments.map(async (assessment: ApiAssessment) => {
+        [latestAssessment].map(async (assessment: ApiAssessment) => {
           const completedDate = assessment.completed_at 
             ? new Date(assessment.completed_at).toLocaleDateString('fr-FR')
             : 'N/A';
@@ -156,7 +194,8 @@ function ResultsReportsContent() {
       setKeyInsights(insights);
       
       // Load additional stats after assessments are set
-      loadAdditionalStats(completedAssessments, transformedAssessments);
+      // Pass all completed assessments for total count, but only latest will be used for evaluators
+      loadAdditionalStats(completedAssessments, transformedAssessments, latestAssessment);
     } catch (err: any) {
       console.error('Failed to load assessments:', err);
       const errorMessage = err?.response?.data?.detail || err?.message || 'Failed to load assessment results';
@@ -175,20 +214,16 @@ function ResultsReportsContent() {
     }
   };
 
-  const loadAdditionalStats = async (completedAssessments: ApiAssessment[], transformedAssessments: AssessmentDisplay[]) => {
+  const loadAdditionalStats = async (completedAssessments: ApiAssessment[], transformedAssessments: AssessmentDisplay[], latestAssessment?: ApiAssessment) => {
     try {
-      // Count evaluators from 360 assessments
+      // Count evaluators only from the latest assessment if it's a 360 assessment
       let evaluatorsCount = 0;
-      const threeSixtyAssessments = completedAssessments.filter(
-        (a) => a.assessment_type === 'THREE_SIXTY_SELF'
-      );
-      
-      for (const assessment of threeSixtyAssessments) {
+      if (latestAssessment && latestAssessment.assessment_type === 'THREE_SIXTY_SELF') {
         try {
-          const evaluators = await get360Evaluators(assessment.id);
-          evaluatorsCount += evaluators.evaluators?.length || 0;
+          const evaluators = await get360Evaluators(latestAssessment.id);
+          evaluatorsCount = evaluators.evaluators?.length || 0;
         } catch (err) {
-          console.warn(`Could not load evaluators for assessment ${assessment.id}:`, err);
+          console.warn(`Could not load evaluators for assessment ${latestAssessment.id}:`, err);
         }
       }
       
