@@ -1,315 +1,170 @@
 'use client';
 
 /**
- * MBTI Assessment Questionnaire Page
- * 40 questions to determine personality type
+ * MBTI Assessment Introduction Page
+ * Redirects to 16personalities.com and allows PDF upload
  */
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useMBTIStore } from '@/stores/mbtiStore';
-import { formatError } from '@/lib/utils/formatError';
-import { mbtiQuestions } from '@/data/mbtiQuestions';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
-import { Sidebar } from '@/components/dashboard/Sidebar';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Upload, Brain, FileText, CheckCircle } from 'lucide-react';
 
 export default function MBTIAssessmentPage() {
   const router = useRouter();
-  const {
-    assessmentId,
-    currentQuestionIndex,
-    answers,
-    isLoading,
-    error,
-    startMBTIAssessment,
-    answerQuestion,
-    nextQuestion,
-    previousQuestion,
-    submitMBTI,
-  } = useMBTIStore();
-
-  const [selectedOption, setSelectedOption] = useState<'A' | 'B' | null>(null);
-
-  useEffect(() => {
-    if (!assessmentId) {
-      startMBTIAssessment();
-    }
-  }, [assessmentId, startMBTIAssessment]);
-
-  useEffect(() => {
-    // Load existing answer for current question
-    const currentQuestion = mbtiQuestions[currentQuestionIndex];
-    if (currentQuestion) {
-      const existingAnswer = answers.find((a) => a.questionId === currentQuestion.id);
-      if (existingAnswer) {
-        // Determine which option was selected
-        if (existingAnswer.preference === currentQuestion.optionA.preference) {
-          setSelectedOption('A');
-        } else {
-          setSelectedOption('B');
-        }
-      } else {
-        setSelectedOption(null);
-      }
-    }
-  }, [currentQuestionIndex, answers]);
-
-  const handleSelectOption = async (option: 'A' | 'B') => {
-    const currentQuestion = mbtiQuestions[currentQuestionIndex];
-    if (!currentQuestion) {
-      // Question not found - this should not happen in normal flow
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Current question not found');
-      }
-      return;
-    }
-    const preference =
-      option === 'A' ? currentQuestion.optionA.preference : currentQuestion.optionB.preference;
-
-    setSelectedOption(option);
-
-    try {
-      await answerQuestion(currentQuestion.id, preference);
-    } catch (err) {
-      // Error is already handled by the store and displayed to user
-      // Only log in development for debugging
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Failed to save answer:', err);
-      }
-    }
-  };
-
-  const handleNext = () => {
-    if (selectedOption) {
-      if (currentQuestionIndex < mbtiQuestions.length - 1) {
-        nextQuestion();
-      }
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentQuestionIndex > 0) {
-      previousQuestion();
-    }
-  };
-
-  const handleSubmit = async () => {
-    try {
-      await submitMBTI();
-      router.push(`/dashboard/assessments/mbti/results?id=${assessmentId}`);
-    } catch (err) {
-      // Error is already handled by the store and displayed to user
-      // Only log in development for debugging
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Failed to submit assessment:', err);
-      }
-    }
-  };
-
-  if (!assessmentId || isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex">
-        <Sidebar />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading assessment...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const currentQuestion = mbtiQuestions[currentQuestionIndex];
-  if (!currentQuestion) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex">
-        <Sidebar />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-gray-600">Question not found</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  const progress = ((currentQuestionIndex + 1) / mbtiQuestions.length) * 100;
-  const isLastQuestion = currentQuestionIndex === mbtiQuestions.length - 1;
-  const canSubmit = answers.length === mbtiQuestions.length;
+  const [showUploadOption, setShowUploadOption] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
+    <div className="relative">
+      {/* Background */}
+      <div
+        className="fixed inset-0 bg-cover bg-center opacity-10 pointer-events-none"
+        style={{
+          backgroundImage: 'url(/images/dashboard-bg.jpg)',
+        }}
+      />
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-4xl mx-auto p-8">
-          {/* Header */}
-          <MotionDiv variant="slideUp" duration="normal" className="mb-8">
-            <Button
-              variant="ghost"
-              onClick={() => router.push('/dashboard/assessments')}
-              className="mb-4"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Assessments
-            </Button>
-
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">MBTI Personality Assessment</h1>
-            <p className="text-gray-600">Discover your personality type across 4 dimensions</p>
-          </MotionDiv>
-
-          {/* Progress Bar */}
-          <MotionDiv variant="slideUp" duration="normal" delay={100} className="mb-8">
-            <Card>
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">
-                    Question {currentQuestionIndex + 1} of {mbtiQuestions.length}
-                  </span>
-                  <span className="text-sm font-medium text-purple-600">
-                    {progress.toFixed(0)}% Complete
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-purple-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-              </div>
-            </Card>
-          </MotionDiv>
-
-          {/* Question Card */}
-          <MotionDiv
-            key={currentQuestionIndex}
-            variant="slideUp"
-            duration="fast"
-            className="mb-8"
+      {/* Content */}
+      <div className="relative z-10 p-8">
+        <MotionDiv variant="slideUp" duration="normal">
+          <Button
+            variant="ghost"
+            onClick={() => router.push('/dashboard/assessments')}
+            className="mb-6"
           >
-            <Card>
-              <div className="p-8">
-                <div className="mb-6">
-                  <span className="inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium mb-4">
-                    {currentQuestion.dimension === 'EI' && 'Energy Source'}
-                    {currentQuestion.dimension === 'SN' && 'Information Gathering'}
-                    {currentQuestion.dimension === 'TF' && 'Decision Making'}
-                    {currentQuestion.dimension === 'JP' && 'Lifestyle'}
-                  </span>
-                  <h2 className="text-2xl font-semibold text-gray-900">
-                    {currentQuestion.question}
-                  </h2>
+            <ArrowLeft size={16} className="mr-2" />
+            Retour aux assessments
+          </Button>
+
+          <div className="mb-8 pb-6">
+            <h1 className="text-4xl font-bold mb-2">
+              <span className="text-white">Test MBTI - </span>
+              <span style={{ color: '#D5B667' }}>Personnalité</span>
+            </h1>
+            <p className="text-gray-600">
+              Découvrez votre type de personnalité à travers 4 dimensions
+            </p>
+          </div>
+
+          {/* Main Card */}
+          <Card className="mb-8">
+            <div className="p-8">
+              <div className="flex items-center gap-6 mb-8">
+                <div className="w-20 h-20 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#e7eeef' }}>
+                  <Brain className="text-arise-deep-teal" size={40} />
                 </div>
-
-                <div className="space-y-4">
-                  {/* Option A */}
-                  <button
-                    onClick={() => handleSelectOption('A')}
-                    className={`w-full p-6 rounded-lg border-2 transition-all duration-200 text-left ${
-                      selectedOption === 'A'
-                        ? 'border-purple-600 bg-purple-50 shadow-md ring-2 ring-purple-200 ring-offset-2 scale-[1.02]'
-                        : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50/50 bg-white'
-                    }`}
-                  >
-                    <div className="flex items-start gap-4">
-                      <div
-                        className={`flex-shrink-0 w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all ${
-                          selectedOption === 'A'
-                            ? 'border-purple-600 bg-purple-600 shadow-lg scale-110'
-                            : 'border-gray-300'
-                        }`}
-                      >
-                        {selectedOption === 'A' && <Check className="w-6 h-6 text-white" />}
-                      </div>
-                      <div className="flex-1">
-                        <p className={`font-medium transition-colors ${
-                          selectedOption === 'A'
-                            ? 'text-purple-900 font-semibold'
-                            : 'text-gray-900'
-                        }`}>
-                          {currentQuestion.optionA.text}
-                        </p>
-                      </div>
-                    </div>
-                  </button>
-
-                  {/* Option B */}
-                  <button
-                    onClick={() => handleSelectOption('B')}
-                    className={`w-full p-6 rounded-lg border-2 transition-all duration-200 text-left ${
-                      selectedOption === 'B'
-                        ? 'border-purple-600 bg-purple-50 shadow-md ring-2 ring-purple-200 ring-offset-2 scale-[1.02]'
-                        : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50/50 bg-white'
-                    }`}
-                  >
-                    <div className="flex items-start gap-4">
-                      <div
-                        className={`flex-shrink-0 w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all ${
-                          selectedOption === 'B'
-                            ? 'border-purple-600 bg-purple-600 shadow-lg scale-110'
-                            : 'border-gray-300'
-                        }`}
-                      >
-                        {selectedOption === 'B' && <Check className="w-6 h-6 text-white" />}
-                      </div>
-                      <div className="flex-1">
-                        <p className={`font-medium transition-colors ${
-                          selectedOption === 'B'
-                            ? 'text-purple-900 font-semibold'
-                            : 'text-gray-900'
-                        }`}>
-                          {currentQuestion.optionB.text}
-                        </p>
-                      </div>
-                    </div>
-                  </button>
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                    MBTI Personality Assessment
+                  </h2>
+                  <p className="text-gray-600">
+                    Le Myers-Briggs Type Indicator (MBTI) est un outil de développement personnel 
+                    qui identifie votre type de personnalité selon 4 dimensions principales.
+                  </p>
                 </div>
               </div>
-            </Card>
-          </MotionDiv>
 
-          {/* Error Message */}
-          {error && (
-            <MotionDiv variant="slideUp" duration="normal" className="mb-8">
-              <Card className="bg-red-50 border-red-200">
-                <div className="p-4">
-                  <p className="text-red-800">{typeof error === 'string' ? error : formatError(error)}</p>
+              {/* Instructions */}
+              <div className="bg-arise-beige p-6 rounded-lg mb-8">
+                <h3 className="font-semibold text-arise-teal mb-4 flex items-center gap-2">
+                  <FileText size={20} />
+                  Comment procéder ?
+                </h3>
+                <ol className="space-y-3 text-gray-700">
+                  <li className="flex items-start gap-3">
+                    <span className="flex-shrink-0 w-6 h-6 bg-arise-gold text-white rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                    <span>Cliquez sur le bouton ci-dessous pour accéder au test sur 16Personalities</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="flex-shrink-0 w-6 h-6 bg-arise-gold text-white rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                    <span>Complétez le test sur leur plateforme (environ 10-15 minutes)</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="flex-shrink-0 w-6 h-6 bg-arise-gold text-white rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                    <span>Téléchargez votre PDF de résultats depuis 16Personalities</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="flex-shrink-0 w-6 h-6 bg-arise-gold text-white rounded-full flex items-center justify-center text-sm font-bold">4</span>
+                    <span>Revenez ici et uploadez votre PDF pour voir vos résultats dans ARISE</span>
+                  </li>
+                </ol>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-4">
+                <Button
+                  variant="primary"
+                  onClick={() => window.open('https://www.16personalities.com/free-personality-test', '_blank')}
+                  className="w-full flex items-center justify-center gap-2"
+                  style={{ backgroundColor: '#D5B667', color: '#000000' }}
+                >
+                  <ExternalLink size={20} />
+                  Passer le test sur 16Personalities
+                </Button>
+
+                {!showUploadOption ? (
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowUploadOption(true)}
+                    className="w-full flex items-center justify-center gap-2"
+                  >
+                    <Upload size={20} />
+                    J'ai terminé le test, uploader mon PDF
+                  </Button>
+                ) : (
+                  <Card className="bg-arise-gold/10 border-2 border-arise-gold/30">
+                    <div className="p-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        <CheckCircle className="text-arise-gold" size={24} />
+                        <h3 className="font-semibold text-gray-900">Prêt à uploader votre PDF ?</h3>
+                      </div>
+                      <p className="text-gray-600 mb-4">
+                        Assurez-vous d'avoir téléchargé votre PDF de résultats depuis 16Personalities, 
+                        puis cliquez sur le bouton ci-dessous pour l'uploader.
+                      </p>
+                      <Button
+                        variant="primary"
+                        onClick={() => router.push('/dashboard/assessments/mbti/upload')}
+                        className="w-full flex items-center justify-center gap-2"
+                        style={{ backgroundColor: '#D5B667', color: '#000000' }}
+                      >
+                        <Upload size={20} />
+                        Uploader mon PDF de résultats
+                      </Button>
+                    </div>
+                  </Card>
+                )}
+              </div>
+            </div>
+          </Card>
+
+          {/* Information Card */}
+          <Card className="bg-arise-teal/10 border-2 border-arise-teal/30">
+            <div className="p-6">
+              <h3 className="font-semibold text-arise-teal mb-3">À propos du MBTI</h3>
+              <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
+                <div>
+                  <h4 className="font-medium mb-2">Les 4 dimensions :</h4>
+                  <ul className="space-y-1">
+                    <li>• <strong>E/I</strong> : Extraversion / Introversion</li>
+                    <li>• <strong>S/N</strong> : Sensation / Intuition</li>
+                    <li>• <strong>T/F</strong> : Pensée / Sentiment</li>
+                    <li>• <strong>J/P</strong> : Jugement / Perception</li>
+                  </ul>
                 </div>
-              </Card>
-            </MotionDiv>
-          )}
-
-          {/* Navigation */}
-          <MotionDiv variant="slideUp" duration="normal" delay={200} className="flex items-center justify-between">
-            <Button
-              variant="outline"
-              onClick={handlePrevious}
-              disabled={currentQuestionIndex === 0}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Previous
-            </Button>
-
-            {isLastQuestion && canSubmit ? (
-              <Button
-                onClick={handleSubmit}
-                disabled={!selectedOption || isLoading}
-                className="bg-purple-600 hover:bg-purple-700"
-              >
-                {isLoading ? 'Submitting...' : 'Submit Assessment'}
-                <Check className="w-4 h-4 ml-2" />
-              </Button>
-            ) : (
-              <Button onClick={handleNext} disabled={!selectedOption || isLastQuestion}>
-                Next
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            )}
-          </MotionDiv>
-        </div>
+                <div>
+                  <h4 className="font-medium mb-2">Votre type de personnalité :</h4>
+                  <p>
+                    Une combinaison de ces 4 dimensions donne naissance à 16 types de personnalité 
+                    uniques (INTJ, ENFP, ESTJ, etc.), chacun avec ses propres forces et préférences.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </MotionDiv>
       </div>
     </div>
   );

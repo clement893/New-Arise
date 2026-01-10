@@ -104,10 +104,11 @@ export default function MBTIResultsPage() {
     );
   }
 
-  const mbtiType = results.scores.mbti_type || 'XXXX';
-  const dimensionPreferences = results.scores.dimension_preferences || {};
+  const mbtiType = results.scores?.mbti_type || 'XXXX';
+  const dimensionPreferences = results.scores?.dimension_preferences || {};
   const insights = results.insights || {};
   const recommendations = results.recommendations || [];
+  const isFromOCR = results.scores?.source === 'pdf_ocr' || (results as any).raw_score?.source === 'pdf_ocr';
   const typeInfo = mbtiTypes[mbtiType] || {
     name: 'Unknown Type',
     description: 'Type description not available.',
@@ -137,6 +138,12 @@ export default function MBTIResultsPage() {
                   Your MBTI Personality Type
                 </h1>
                 <p className="text-gray-600">Understanding your unique personality profile</p>
+                {isFromOCR && (
+                  <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-arise-gold/20 text-arise-gold rounded-full text-sm font-medium">
+                    <FileText size={14} />
+                    Résultats extraits depuis PDF via OCR
+                  </div>
+                )}
               </div>
               <Button variant="outline">
                 <Download className="w-4 h-4 mr-2" />

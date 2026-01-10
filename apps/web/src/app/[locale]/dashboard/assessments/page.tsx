@@ -74,7 +74,7 @@ const ASSESSMENT_CONFIG: Record<string, { title: string; description: string; ic
     title: 'MBTI Personality',
     description: 'Understanding your natural preferences',
     icon: Brain,
-    externalLink: 'https://www.psychometrics.com/assessments/mbti/',
+    externalLink: 'https://www.16personalities.com/free-personality-test',
   },
   tki: {
     title: 'TKI Conflict Style',

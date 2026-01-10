@@ -5,7 +5,7 @@ ARISE Leadership Assessment Tool
 
 from typing import List, Optional, Dict, Any
 import json
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Body
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Body, File, UploadFile
 from pydantic import BaseModel, Field, EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, UniqueConstraint, text
@@ -1551,4 +1551,190 @@ async def upload_mbti_score(
         "message": "MBTI score uploaded successfully",
         "profile": mbti_profile.upper()
     }
+
+
+@router.post("/mbti/upload-pdf")
+async def upload_mbti_pdf(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Upload MBTI PDF results from 16Personalities and extract results using OCR
+    """
+    import logging
+    from app.services.pdf_ocr_service import PDFOCRService
+    
+    logger = logging.getLogger(__name__)
+    
+    # Validate file
+    if not file.filename:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No file provided"
+        )
+    
+    # Check file extension
+    if not file.filename.lower().endswith('.pdf'):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid file type. Only PDF files are accepted."
+        )
+    
+    # Check file size (max 10MB)
+    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+    file_content = await file.read()
+    if len(file_content) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=f"File too large. Maximum size is {MAX_FILE_SIZE / (1024 * 1024):.0f}MB"
+        )
+    
+    if len(file_content) == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File is empty"
+        )
+    
+    try:
+        # Check if OCR service is configured
+        if not PDFOCRService.is_configured():
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="OCR service is not configured. Please configure OPENAI_API_KEY and install required dependencies."
+            )
+        
+        # Initialize OCR service
+        ocr_service = PDFOCRService()
+        
+        # Extract MBTI results from PDF
+        logger.info(f"Extracting MBTI results from PDF for user {current_user.id}")
+        extracted_data = await ocr_service.extract_mbti_results(file_content)
+        
+        # Validate extracted data
+        mbti_type = extracted_data.get("mbti_type")
+        if not mbti_type or len(mbti_type) != 4:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Could not extract valid MBTI type from PDF. Extracted: {mbti_type}"
+            )
+        
+        # Convert extracted data to assessment scores format
+        dimension_preferences = extracted_data.get("dimension_preferences", {})
+        
+        # Create score structure compatible with assessment_scoring
+        scores = {
+            "mbti_type": mbti_type.upper(),
+            "dimension_preferences": dimension_preferences,
+            "description": extracted_data.get("description"),
+            "strengths": extracted_data.get("strengths", []),
+            "challenges": extracted_data.get("challenges", [])
+        }
+        
+        # Find or create MBTI assessment
+        result = await db.execute(
+            select(Assessment)
+            .where(
+                Assessment.user_id == current_user.id,
+                Assessment.assessment_type == AssessmentType.MBTI
+            )
+            .order_by(Assessment.created_at.desc())
+        )
+        assessment = result.scalar_one_or_none()
+        
+        if assessment:
+            # Update existing assessment
+            assessment.status = AssessmentStatus.COMPLETED
+            assessment.completed_at = datetime.now(timezone.utc)
+            assessment.processed_score = scores
+            assessment.raw_score = {"source": "pdf_ocr", "extracted_data": extracted_data}
+        else:
+            # Create new assessment
+            assessment = Assessment(
+                user_id=current_user.id,
+                assessment_type=AssessmentType.MBTI,
+                status=AssessmentStatus.COMPLETED,
+                started_at=datetime.now(timezone.utc),
+                completed_at=datetime.now(timezone.utc),
+                processed_score=scores,
+                raw_score={"source": "pdf_ocr", "extracted_data": extracted_data}
+            )
+            db.add(assessment)
+        
+        await db.commit()
+        await db.refresh(assessment)
+        
+        # Create or update assessment result
+        result_query = await db.execute(
+            select(AssessmentResult)
+            .where(AssessmentResult.assessment_id == assessment.id)
+        )
+        assessment_result = result_query.scalar_one_or_none()
+        
+        if assessment_result:
+            # Update existing result
+            assessment_result.scores = scores
+            assessment_result.insights = {
+                "description": extracted_data.get("description"),
+                "strengths": extracted_data.get("strengths", []),
+                "challenges": extracted_data.get("challenges", [])
+            }
+            assessment_result.recommendations = {}
+            assessment_result.generated_at = datetime.now(timezone.utc)
+        else:
+            # Create new result
+            assessment_result = AssessmentResult(
+                assessment_id=assessment.id,
+                user_id=current_user.id,
+                scores=scores,
+                insights={
+                    "description": extracted_data.get("description"),
+                    "strengths": extracted_data.get("strengths", []),
+                    "challenges": extracted_data.get("challenges", [])
+                },
+                recommendations={},
+                generated_at=datetime.now(timezone.utc)
+            )
+            db.add(assessment_result)
+        
+        await db.commit()
+        await db.refresh(assessment_result)
+        
+        logger.info(f"Successfully extracted MBTI results from PDF: {mbti_type} for user {current_user.id}")
+        
+        # Return response
+        return {
+            "assessment_id": assessment.id,
+            "mbti_type": mbti_type.upper(),
+            "scores": scores,
+            "message": "PDF uploaded and results extracted successfully"
+        }
+        
+    except HTTPException:
+        raise
+    except ValueError as e:
+        logger.error(f"Error extracting MBTI results from PDF: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to extract MBTI results from PDF: {str(e)}"
+        )
+    except Exception as e:
+        error_type = type(e).__name__
+        error_message = str(e)
+        logger.error(
+            f"Error processing MBTI PDF: {error_type}: {error_message}",
+            exc_info=True,
+            context={
+                "user_id": current_user.id,
+                "filename": file.filename,
+                "file_size": len(file_content),
+                "error_type": error_type,
+                "error_message": error_message
+            }
+        )
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to process PDF: {error_type}: {error_message}"
+        )
 

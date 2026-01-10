@@ -423,6 +423,28 @@ export const invite360Evaluators = async (
   return response.data;
 };
 
+/**
+ * Upload MBTI PDF and extract results using OCR
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
+ */
+export const uploadMBTIPDF = async (file: File): Promise<{ assessment_id: number; mbti_type: string; scores: any; message: string }> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await apiClient.post(
+    `/v1/assessments/mbti/upload-pdf`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      timeout: 120000, // 120 seconds timeout for OCR processing (can take time)
+    }
+  );
+  
+  return response.data;
+};
+
 export const assessmentsApi = {
   start: startAssessment,
   saveAnswer,
@@ -431,6 +453,7 @@ export const assessmentsApi = {
   getResults: getAssessmentResults,
   getMyAssessments,
   getAssessment,
+  uploadMBTIPDF,
 };
 
 export default assessmentsApi;

@@ -1,0 +1,268 @@
+'use client';
+
+/**
+ * MBTI PDF Upload Page
+ * Allows users to upload their PDF results from 16Personalities
+ */
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Button from '@/components/ui/Button';
+import Card from '@/components/ui/Card';
+import MotionDiv from '@/components/motion/MotionDiv';
+import FileUploadWithPreview from '@/components/ui/FileUploadWithPreview';
+import { ArrowLeft, Upload, Loader2, CheckCircle, AlertCircle, FileText } from 'lucide-react';
+import { uploadMBTIPDF } from '@/lib/api/assessments';
+import { formatError } from '@/lib/utils/formatError';
+
+export default function MBTIPDFUploadPage() {
+  const router = useRouter();
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const handleFileSelect = (files: File[]) => {
+    if (files.length > 0) {
+      const file = files[0];
+      // Validate file
+      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+        setError('Veuillez sélectionner un fichier PDF valide');
+        setSelectedFile(null);
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) { // 10MB
+        setError('Le fichier est trop volumineux. Taille maximale : 10MB');
+        setSelectedFile(null);
+        return;
+      }
+      setError(null);
+      setSelectedFile(file);
+    } else {
+      setSelectedFile(null);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile) {
+      setError('Veuillez sélectionner un fichier PDF');
+      return;
+    }
+
+    setIsUploading(true);
+    setError(null);
+    setUploadProgress(0);
+
+    try {
+      // Simulate progress (actual progress will be handled by the API)
+      const progressInterval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev < 90) {
+            return prev + 10;
+          }
+          return prev;
+        });
+      }, 500);
+
+      const result = await uploadMBTIPDF(selectedFile);
+      
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+
+      // Redirect to results page with assessment ID
+      const assessmentId = result.assessment_id || (result as any).assessmentId || (result as any).id;
+      if (assessmentId) {
+        router.push(`/dashboard/assessments/mbti/results?id=${assessmentId}`);
+      } else {
+        throw new Error('Aucun ID d\'assessment retourné');
+      }
+    } catch (err: unknown) {
+      const errorMessage = formatError(err);
+      setError(errorMessage);
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
+  };
+
+  return (
+    <div className="relative">
+      {/* Background */}
+      <div
+        className="fixed inset-0 bg-cover bg-center opacity-10 pointer-events-none"
+        style={{
+          backgroundImage: 'url(/images/dashboard-bg.jpg)',
+        }}
+      />
+
+      {/* Content */}
+      <div className="relative z-10 p-8">
+        <MotionDiv variant="slideUp" duration="normal">
+          <Button
+            variant="ghost"
+            onClick={() => router.push('/dashboard/assessments/mbti')}
+            className="mb-6"
+            disabled={isUploading}
+          >
+            <ArrowLeft size={16} className="mr-2" />
+            Retour
+          </Button>
+
+          <div className="mb-8 pb-6">
+            <h1 className="text-4xl font-bold mb-2">
+              <span className="text-white">Uploader votre </span>
+              <span style={{ color: '#D5B667' }}>PDF MBTI</span>
+            </h1>
+            <p className="text-gray-600">
+              Téléversez votre PDF de résultats depuis 16Personalities pour voir vos résultats dans ARISE
+            </p>
+          </div>
+
+          {/* Main Card */}
+          <Card className="mb-8">
+            <div className="p-8">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-16 h-16 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#e7eeef' }}>
+                  <FileText className="text-arise-deep-teal" size={32} />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                    Téléverser votre PDF de résultats
+                  </h2>
+                  <p className="text-gray-600">
+                    Sélectionnez le PDF que vous avez téléchargé depuis 16Personalities
+                  </p>
+                </div>
+              </div>
+
+              {/* Instructions */}
+              <div className="bg-arise-beige p-4 rounded-lg mb-6">
+                <h3 className="font-semibold text-arise-teal mb-2">Instructions :</h3>
+                <ul className="text-sm text-gray-700 space-y-1">
+                  <li>• Format accepté : PDF uniquement</li>
+                  <li>• Taille maximale : 10MB</li>
+                  <li>• Le fichier sera analysé avec l'intelligence artificielle pour extraire vos résultats</li>
+                  <li>• Le processus peut prendre 10-30 secondes</li>
+                </ul>
+              </div>
+
+              {/* File Upload */}
+              <div className="mb-6">
+                <FileUploadWithPreview
+                  label="Sélectionner votre PDF"
+                  accept="application/pdf,.pdf"
+                  multiple={false}
+                  onFileSelect={handleFileSelect}
+                  maxSize={10}
+                  helperText="Taille maximale : 10MB • Format : PDF uniquement"
+                  fullWidth
+                  error={error || undefined}
+                />
+              </div>
+
+              {/* Selected File Display */}
+              {selectedFile && !isUploading && (
+                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="text-green-600 flex-shrink-0" size={24} />
+                    <div className="flex-1">
+                      <p className="font-medium text-green-900">{selectedFile.name}</p>
+                      <p className="text-sm text-green-700">
+                        {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Upload Progress */}
+              {isUploading && (
+                <div className="mb-6">
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700">
+                      Analyse en cours...
+                    </span>
+                    <span className="text-sm font-medium text-arise-teal">
+                      {uploadProgress}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div
+                      className="bg-arise-teal h-3 rounded-full transition-all duration-300"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-600 mt-2">
+                    L'analyse de votre PDF peut prendre quelques instants...
+                  </p>
+                </div>
+              )}
+
+              {/* Error Message */}
+              {error && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
+                    <div className="flex-1">
+                      <p className="font-medium text-red-900 mb-1">Erreur</p>
+                      <p className="text-sm text-red-700">{error}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-4">
+                <Button
+                  variant="outline"
+                  onClick={() => router.push('/dashboard/assessments/mbti')}
+                  disabled={isUploading}
+                  className="flex-1"
+                >
+                  Annuler
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={handleUpload}
+                  disabled={!selectedFile || isUploading}
+                  className="flex-1 flex items-center justify-center gap-2"
+                  style={{ backgroundColor: '#D5B667', color: '#000000' }}
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="animate-spin" size={20} />
+                      Analyse en cours...
+                    </>
+                  ) : (
+                    <>
+                      <Upload size={20} />
+                      Analyser mon PDF
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </Card>
+
+          {/* Help Card */}
+          <Card className="bg-blue-50 border-blue-200">
+            <div className="p-6">
+              <h3 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                <AlertCircle size={20} />
+                Besoin d'aide ?
+              </h3>
+              <p className="text-sm text-blue-800 mb-2">
+                Si vous n'avez pas encore téléchargé votre PDF depuis 16Personalities :
+              </p>
+              <ol className="text-sm text-blue-800 space-y-1 ml-4 list-decimal">
+                <li>Retournez sur <a href="https://www.16personalities.com" target="_blank" rel="noopener noreferrer" className="underline font-medium">16Personalities</a></li>
+                <li>Connectez-vous à votre compte</li>
+                <li>Téléchargez votre PDF de résultats</li>
+                <li>Revenez ici et uploadez le fichier</li>
+              </ol>
+            </div>
+          </Card>
+        </MotionDiv>
+      </div>
+    </div>
+  );
+}
