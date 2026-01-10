@@ -378,12 +378,12 @@ export default function AdminAssessmentManagementPage() {
         ) : filteredAssessments.length === 0 ? (
           <div className="text-center py-12">
             <ClipboardList className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 dark:text-gray-400 text-lg font-medium mb-2">
+            <p className="text-gray-900 dark:text-gray-100 text-lg font-medium mb-2">
               {assessments.length === 0 
                 ? 'Aucun test trouvé' 
                 : 'Aucun test ne correspond aux filtres'}
             </p>
-            <p className="text-gray-500 dark:text-gray-500 text-sm">
+            <p className="text-gray-900 dark:text-gray-100 text-sm">
               {assessments.length === 0
                 ? 'Les tests apparaîtront ici une fois qu\'un endpoint admin sera configuré.'
                 : 'Essayez de modifier vos critères de recherche ou de filtrage.'}
@@ -410,7 +410,7 @@ export default function AdminAssessmentManagementPage() {
                             {assessment.user_email || `User #${assessment.user_id}`}
                           </h3>
                           {assessment.user_name && (
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                            <p className="text-sm text-gray-900 dark:text-gray-100">
                               {assessment.user_name}
                             </p>
                           )}
@@ -435,7 +435,7 @@ export default function AdminAssessmentManagementPage() {
                       </Badge>
                       <div className="flex items-center gap-2">
                         <BarChart3 className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                           {getProgressPercentage(assessment)}%
                         </span>
                       </div>
@@ -444,8 +444,8 @@ export default function AdminAssessmentManagementPage() {
                     {/* Progress Bar */}
                     <div>
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-gray-600 dark:text-gray-400">Progression</span>
-                        <span className="text-xs text-gray-600 dark:text-gray-400">
+                        <span className="text-xs text-gray-900 dark:text-gray-100">Progression</span>
+                        <span className="text-xs text-gray-900 dark:text-gray-100">
                           {assessment.answer_count} / {assessment.total_questions} questions
                         </span>
                       </div>
@@ -468,7 +468,7 @@ export default function AdminAssessmentManagementPage() {
                       <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                         <div className="flex items-center gap-2">
                           <TrendingUp className="w-4 h-4 text-arise-teal" />
-                          <span className="text-sm text-gray-600 dark:text-gray-400">Score</span>
+                          <span className="text-sm text-gray-900 dark:text-gray-100">Score</span>
                         </div>
                         {assessment.score_summary.percentage !== undefined ? (
                           <div className="text-right">
@@ -476,13 +476,13 @@ export default function AdminAssessmentManagementPage() {
                               {assessment.score_summary.percentage.toFixed(0)}%
                             </span>
                             {assessment.score_summary.dominant_mode && (
-                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                              <p className="text-xs text-gray-900 dark:text-gray-100">
                                 {assessment.score_summary.dominant_mode}
                               </p>
                             )}
                           </div>
                         ) : (
-                          <span className="text-gray-400 dark:text-gray-500 text-sm">-</span>
+                          <span className="text-gray-900 dark:text-gray-100 text-sm">-</span>
                         )}
                       </div>
                     )}
@@ -491,7 +491,7 @@ export default function AdminAssessmentManagementPage() {
                     <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
                       <div className="flex flex-col gap-1">
                         {assessment.started_at && (
-                          <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                          <div className="flex items-center gap-2 text-xs text-gray-900 dark:text-gray-100">
                             <Clock className="w-3 h-3" />
                             <span>Début: {new Date(assessment.started_at).toLocaleDateString('fr-FR', { 
                               day: '2-digit', 
@@ -501,7 +501,7 @@ export default function AdminAssessmentManagementPage() {
                           </div>
                         )}
                         {assessment.completed_at && (
-                          <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                          <div className="flex items-center gap-2 text-xs text-gray-900 dark:text-gray-100">
                             <CheckCircle className="w-3 h-3 text-success-600" />
                             <span>Terminé: {new Date(assessment.completed_at).toLocaleDateString('fr-FR', { 
                               day: '2-digit', 
@@ -542,7 +542,7 @@ export default function AdminAssessmentManagementPage() {
         <Card className="mb-6">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                 Type de test
               </label>
               <select
@@ -578,10 +578,10 @@ export default function AdminAssessmentManagementPage() {
               <div className="inline-flex p-4 bg-gray-100 dark:bg-gray-800 rounded-full mb-4">
                 <FileText className="w-12 h-12 text-gray-400" />
               </div>
-              <p className="text-gray-600 dark:text-gray-400 text-lg font-medium mb-2">
+              <p className="text-gray-900 dark:text-gray-100 text-lg font-medium mb-2">
                 Aucune question trouvée
               </p>
-              <p className="text-gray-500 dark:text-gray-500 text-sm mb-4">
+              <p className="text-gray-900 dark:text-gray-100 text-sm mb-4">
                 Les questions pour ce type de test ne sont pas encore configurées.
               </p>
               <Button
@@ -612,7 +612,7 @@ export default function AdminAssessmentManagementPage() {
                           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-semibold text-sm">
                             {index + 1}
                           </div>
-                          <span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                          <span className="text-xs font-mono text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
                             {question.id}
                           </span>
                           <Badge variant="default" className="capitalize">{question.pillar}</Badge>
@@ -659,7 +659,7 @@ export default function AdminAssessmentManagementPage() {
                           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-semibold text-sm">
                             {question.number}
                           </div>
-                          <span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                          <span className="text-xs font-mono text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
                             {question.id}
                           </span>
                           <Badge variant="default" className="capitalize">{question.modeA}</Badge>
@@ -715,7 +715,7 @@ export default function AdminAssessmentManagementPage() {
                             <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-semibold text-sm">
                               {question.number}
                             </div>
-                            <span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                            <span className="text-xs font-mono text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
                               {question.id}
                             </span>
                             <Badge variant="default">
@@ -765,7 +765,7 @@ export default function AdminAssessmentManagementPage() {
         >
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                 ID de la question
               </label>
               <Input
@@ -780,7 +780,7 @@ export default function AdminAssessmentManagementPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                 Texte de la question
               </label>
               <textarea
@@ -797,7 +797,7 @@ export default function AdminAssessmentManagementPage() {
             </div>
             {selectedTestType === 'WELLNESS' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                   Pilier
                 </label>
                 <Input
@@ -841,7 +841,7 @@ export default function AdminAssessmentManagementPage() {
         <Card className="mb-6">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                 Type de test
               </label>
               <select
@@ -864,10 +864,10 @@ export default function AdminAssessmentManagementPage() {
           {!rules ? (
             <div className="text-center py-12">
               <Calculator className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 dark:text-gray-400 text-lg font-medium mb-2">
+              <p className="text-gray-900 dark:text-gray-100 text-lg font-medium mb-2">
                 Règles non disponibles
               </p>
-              <p className="text-gray-500 dark:text-gray-500 text-sm">
+              <p className="text-gray-900 dark:text-gray-100 text-sm">
                 Les règles de calcul pour ce type de test ne sont pas encore configurées.
               </p>
             </div>
@@ -883,11 +883,11 @@ export default function AdminAssessmentManagementPage() {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-primary-200 dark:border-primary-700">
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Score maximum total</p>
+                        <p className="text-sm text-gray-900 dark:text-gray-100 mb-1">Score maximum total</p>
                         <p className="text-2xl font-bold text-primary-900 dark:text-primary-100">{rules.maxTotalScore}</p>
                       </div>
                       <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-primary-200 dark:border-primary-700">
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Échelle de réponse</p>
+                        <p className="text-sm text-gray-900 dark:text-gray-100 mb-1">Échelle de réponse</p>
                         <p className="text-2xl font-bold text-primary-900 dark:text-primary-100">
                           {rules.scale.min} - {rules.scale.max}
                         </p>
@@ -944,7 +944,7 @@ export default function AdminAssessmentManagementPage() {
                               </Button>
                             </div>
                             <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                                 Questions associées:
                               </p>
                               {pillar.questions?.length ? (
@@ -956,7 +956,7 @@ export default function AdminAssessmentManagementPage() {
                                   ))}
                                 </div>
                               ) : (
-                                <span className="text-sm text-gray-500 dark:text-gray-400 italic">
+                                <span className="text-sm text-gray-900 dark:text-gray-100 italic">
                                   Aucune question associée
                                 </span>
                               )}
@@ -979,11 +979,11 @@ export default function AdminAssessmentManagementPage() {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700">
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total de questions</p>
+                        <p className="text-sm text-gray-900 dark:text-gray-100 mb-1">Total de questions</p>
                         <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">{rules.totalQuestions}</p>
                       </div>
                       <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700">
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Questions par mode</p>
+                        <p className="text-sm text-gray-900 dark:text-gray-100 mb-1">Questions par mode</p>
                         <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">{rules.questionsPerMode}</p>
                       </div>
                     </div>
@@ -991,7 +991,7 @@ export default function AdminAssessmentManagementPage() {
                   
                   <Card className="p-6">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-                      <BarChart3 className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                      <BarChart3 className="w-5 h-5 text-gray-900 dark:text-gray-100" />
                       Modes de conflit
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -1024,11 +1024,11 @@ export default function AdminAssessmentManagementPage() {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-teal-200 dark:border-teal-700">
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Score maximum total</p>
+                        <p className="text-sm text-gray-900 dark:text-gray-100 mb-1">Score maximum total</p>
                         <p className="text-2xl font-bold text-primary-900 dark:text-primary-100">{rules.maxTotalScore}</p>
                       </div>
                       <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-teal-200 dark:border-teal-700">
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Échelle de réponse</p>
+                        <p className="text-sm text-gray-900 dark:text-gray-100 mb-1">Échelle de réponse</p>
                         <p className="text-2xl font-bold text-primary-900 dark:text-primary-100">
                           {rules.scale.min} - {rules.scale.max}
                         </p>
@@ -1038,7 +1038,7 @@ export default function AdminAssessmentManagementPage() {
                   
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-                      <BarChart3 className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                      <BarChart3 className="w-5 h-5 text-gray-900 dark:text-gray-100" />
                       Règles par capacité
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1090,7 +1090,7 @@ export default function AdminAssessmentManagementPage() {
                                 </Button>
                               </div>
                               <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                                   Questions associées:
                                 </p>
                                 {capability.questions?.length ? (
@@ -1102,7 +1102,7 @@ export default function AdminAssessmentManagementPage() {
                                     ))}
                                   </div>
                                 ) : (
-                                  <span className="text-sm text-gray-500 dark:text-gray-400 italic">
+                                  <span className="text-sm text-gray-900 dark:text-gray-100 italic">
                                     Aucune question associée
                                   </span>
                                 )}
@@ -1130,7 +1130,7 @@ export default function AdminAssessmentManagementPage() {
         >
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                 Nom
               </label>
               <Input
@@ -1144,7 +1144,7 @@ export default function AdminAssessmentManagementPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                 Score maximum
               </label>
               <Input
@@ -1189,7 +1189,7 @@ export default function AdminAssessmentManagementPage() {
               </div>
               Gestion des Évaluations
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 ml-14">
+            <p className="text-gray-900 dark:text-gray-100 ml-14">
               Gérez les évaluations, questions et règles de calcul des réponses
             </p>
           </div>

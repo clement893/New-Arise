@@ -80,10 +80,10 @@ function DevelopmentPlanContent() {
     <div className="space-y-8">
       {/* Header */}
       <div className="mb-8 pb-6">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">
+        <h1 className="text-4xl font-bold text-white mb-2">
           Development Plan
         </h1>
-        <p className="text-gray-700">
+        <p className="text-white">
           Track your personal and professional development journey
         </p>
       </div>
@@ -176,7 +176,7 @@ function DevelopmentPlanContent() {
           {resources.map((resource) => {
             const Icon = resource.icon;
             return (
-              <Card key={resource.id} className="p-4 border border-gray-200 hover:border-arise-deep-teal/30 transition-colors bg-white">
+              <Card key={resource.id} className="p-4 border border-gray-200 hover:border-arise-deep-teal/30 transition-colors bg-white cursor-pointer" onClick={() => router.push(`/dashboard/development-plan/resources/${resource.id}`)}>
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center flex-shrink-0">
                     <Icon className="text-arise-deep-teal" size={20} />
@@ -190,7 +190,14 @@ function DevelopmentPlanContent() {
                     </p>
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-gray-600">{resource.duration}</span>
-                      <Button variant="secondary" size="sm">
+                      <Button 
+                        variant="secondary" 
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/dashboard/development-plan/resources/${resource.id}`);
+                        }}
+                      >
                         View
                       </Button>
                     </div>
@@ -235,19 +242,18 @@ function DevelopmentPlanContent() {
       </Card>
 
       {/* Ready to accelerate your growth? */}
-      <Card className="bg-arise-deep-teal text-white p-8">
+      <Card className="text-white border-0 p-8 overflow-hidden" style={{ backgroundColor: '#2E2E2E' }}>
         <div className="flex flex-col md:flex-row items-center gap-6">
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <h2 className="text-2xl font-bold mb-3">
               Ready to accelerate your growth?
             </h2>
-            <p className="text-white/90 mb-4">
+            <p className="text-white/90 mb-4 break-words">
               Connect with expert ARISE coaches who specialize in leadership development. 
               Schedule your FREE coaching session to debrief your results and build a personalized development plan.
             </p>
             <Button 
-              variant="secondary" 
-              className="bg-arise-gold hover:bg-arise-gold/90 text-white"
+              variant="arise-primary"
               onClick={() => router.push('/dashboard/coaching-options')}
             >
               Explore coaching options →

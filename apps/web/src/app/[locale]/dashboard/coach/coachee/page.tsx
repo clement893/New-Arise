@@ -4,7 +4,6 @@ export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { PageHeader } from '@/components/layout';
 import { Card, Container, Button, Grid } from '@/components/ui';
 import { 
   Users, 
@@ -113,12 +112,15 @@ export default function CoacheePage() {
 
   return (
     <>
-      <PageHeader
-        title="Mes Coachees"
-        description="Gérez vos coachees, suivez leurs progrès et planifiez vos sessions de coaching."
-      />
-
       <Container className="py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Mes Coachees
+          </h1>
+          <p className="text-white">
+            Gérez vos coachees, suivez leurs progrès et planifiez vos sessions de coaching.
+          </p>
+        </div>
         {/* Stats Cards */}
         <Grid columns={{ mobile: 1, tablet: 2, desktop: 4 }} gap="normal" className="mb-8">
           <Card className="p-6">

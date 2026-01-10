@@ -200,7 +200,7 @@ export default function AdminUsersPage() {
                           </div>
                         </td>
                         <td className="py-4 px-4">
-                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                          <div className="text-sm text-gray-900 dark:text-gray-100">
                             {getUserDisplayName(user)}
                           </div>
                         </td>
@@ -215,7 +215,7 @@ export default function AdminUsersPage() {
                           </Badge>
                         </td>
                         <td className="py-4 px-4">
-                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                          <div className="text-sm text-gray-900 dark:text-gray-100">
                             {new Date(user.created_at).toLocaleDateString('fr-FR')}
                           </div>
                         </td>

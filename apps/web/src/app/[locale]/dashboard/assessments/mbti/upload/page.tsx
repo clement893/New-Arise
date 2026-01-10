@@ -144,7 +144,7 @@ export default function MBTIPDFUploadPage() {
               <span className="text-white">Uploader votre </span>
               <span style={{ color: '#D5B667' }}>PDF MBTI</span>
             </h1>
-            <p className="text-gray-600">
+            <p className="text-white">
               Téléversez votre PDF de résultats depuis 16Personalities pour voir vos résultats dans ARISE
             </p>
           </div>
