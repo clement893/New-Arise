@@ -10,7 +10,7 @@ import { Card, Loading } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import { FileText, Download, TrendingUp, Target, Users, Brain } from 'lucide-react';
 import Image from 'next/image';
-import { getMyAssessments, getAssessmentResults, getEvaluators360, Assessment as ApiAssessment, AssessmentType, AssessmentResult } from '@/lib/api/assessments';
+import { getMyAssessments, getAssessmentResults, get360Evaluators, Assessment as ApiAssessment, AssessmentType, AssessmentResult } from '@/lib/api/assessments';
 
 interface AssessmentDisplay {
   id: number;
@@ -145,8 +145,8 @@ function ResultsReportsContent() {
       const insights = generateKeyInsights(transformedAssessments);
       setKeyInsights(insights);
       
-      // Load additional stats
-      await loadAdditionalStats(completedAssessments);
+      // Load additional stats after assessments are set
+      loadAdditionalStats(completedAssessments, transformedAssessments);
     } catch (err: any) {
       console.error('Failed to load assessments:', err);
       setError('Failed to load assessment results');
@@ -158,7 +158,7 @@ function ResultsReportsContent() {
     }
   };
 
-  const loadAdditionalStats = async (completedAssessments: ApiAssessment[]) => {
+  const loadAdditionalStats = async (completedAssessments: ApiAssessment[], transformedAssessments: AssessmentDisplay[]) => {
     try {
       // Count evaluators from 360 assessments
       let evaluatorsCount = 0;
@@ -175,8 +175,8 @@ function ResultsReportsContent() {
         }
       }
       
-      // Calculate average score
-      const scores = assessments
+      // Calculate average score from transformed assessments
+      const scores = transformedAssessments
         .map((a) => {
           const score = parseFloat(a.score.replace('%', ''));
           return isNaN(score) ? 0 : score;
@@ -340,8 +340,7 @@ function ResultsReportsContent() {
     } else if (assessment.type === 'WELLNESS') {
       router.push(`/dashboard/assessments/results?id=${assessment.id}`);
     } else if (assessment.type === 'MBTI') {
-      // MBTI might not have a results page yet, redirect to assessments
-      router.push('/dashboard/assessments');
+      router.push(`/dashboard/assessments/mbti/results?id=${assessment.id}`);
     } else {
       // Default to general results page
       router.push(`/dashboard/assessments/results?id=${assessment.id}`);
@@ -547,7 +546,8 @@ function ResultsReportsContent() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {insights.map((insight) => (
+              {keyInsights.length > 0 ? (
+                keyInsights.map((insight) => (
                 <Card key={insight.id} className="p-4 border border-gray-200 bg-gray-50">
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-arise-gold rounded-full mt-2 flex-shrink-0" />
@@ -566,7 +566,12 @@ function ResultsReportsContent() {
                     </div>
                   </div>
                 </Card>
-              ))}
+              ))
+              ) : (
+                <div className="col-span-2 text-center py-8 text-gray-500">
+                  <p>Complete assessments to see your key insights</p>
+                </div>
+              )}
             </div>
           </Card>
 
@@ -645,6 +650,7 @@ function ResultsReportsContent() {
                 <Button 
                   variant="arise-primary"
                   className="w-full"
+                  onClick={handleDownloadProfile}
                 >
                   Download Complete Leadership Profile
                 </Button>

@@ -357,19 +357,30 @@ export default function MBTIPDFUploadPage() {
           {/* Help Card */}
           <Card className="bg-blue-50 border-blue-200">
             <div className="p-6">
-              <h3 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+              <h3 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
                 <AlertCircle size={20} />
                 Besoin d'aide ?
               </h3>
-              <p className="text-sm text-blue-800 mb-2">
-                Si vous n'avez pas encore téléchargé votre PDF depuis 16Personalities :
-              </p>
-              <ol className="text-sm text-blue-800 space-y-1 ml-4 list-decimal">
-                <li>Retournez sur <a href="https://www.16personalities.com" target="_blank" rel="noopener noreferrer" className="underline font-medium">16Personalities</a></li>
-                <li>Connectez-vous à votre compte</li>
-                <li>Téléchargez votre PDF de résultats</li>
-                <li>Revenez ici et uploadez le fichier</li>
-              </ol>
+              <div className="space-y-4 text-sm text-blue-800">
+                <div>
+                  <p className="font-medium mb-2">Option 1 : Import depuis URL (Recommandé)</p>
+                  <ol className="space-y-1 ml-4 list-decimal">
+                    <li>Connectez-vous à votre compte sur <a href="https://www.16personalities.com" target="_blank" rel="noopener noreferrer" className="underline font-medium">16Personalities</a></li>
+                    <li>Allez sur votre page de profil (ex: https://www.16personalities.com/profiles/6d65d1ec09592)</li>
+                    <li>Copiez l'URL complète depuis la barre d'adresse</li>
+                    <li>Collez l'URL ici et cliquez sur "Importer depuis URL"</li>
+                  </ol>
+                </div>
+                <div>
+                  <p className="font-medium mb-2">Option 2 : Upload de fichier PDF</p>
+                  <ol className="space-y-1 ml-4 list-decimal">
+                    <li>Retournez sur <a href="https://www.16personalities.com" target="_blank" rel="noopener noreferrer" className="underline font-medium">16Personalities</a></li>
+                    <li>Connectez-vous à votre compte</li>
+                    <li>Téléchargez votre PDF de résultats depuis votre profil</li>
+                    <li>Revenez ici et uploadez le fichier PDF</li>
+                  </ol>
+                </div>
+              </div>
             </div>
           </Card>
         </MotionDiv>
