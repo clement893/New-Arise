@@ -63,9 +63,12 @@ function ResultsReportsContent() {
       setError(null);
       const apiAssessments = await getMyAssessments();
       
-      // Filter only completed assessments
+      // Filter only completed assessments (handle both 'COMPLETED' and 'completed' formats)
       const completedAssessments = apiAssessments.filter(
-        (a: ApiAssessment) => a.status === 'COMPLETED'
+        (a: ApiAssessment) => {
+          const status = a.status?.toUpperCase();
+          return status === 'COMPLETED' || a.status === 'completed';
+        }
       );
 
       // Load detailed results for each assessment to generate insights
@@ -81,7 +84,9 @@ function ResultsReportsContent() {
             detailedResult = await getAssessmentResults(assessment.id);
           } catch (err) {
             // If result not available, continue without it
+            // This is expected for some assessments that may not have detailed results yet
             console.warn(`Could not load detailed result for assessment ${assessment.id}:`, err);
+            // Note: Assessment will still be displayed, just without detailed insights
           }
           
           // Extract score/result from score_summary or detailed result
