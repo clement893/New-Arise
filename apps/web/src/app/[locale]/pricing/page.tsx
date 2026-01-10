@@ -13,7 +13,7 @@ import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
 import Loading from '@/components/ui/Loading';
 import Alert from '@/components/ui/Alert';
-import { subscriptionsAPI } from '@/lib/api';
+import { subscriptionsAPI, api } from '@/lib/api';
 import { handleApiError } from '@/lib/errors/api';
 import { logger } from '@/lib/logger';
 
@@ -38,6 +38,7 @@ interface ApiPlan {
   interval_count: number;
   features: string | null; // JSON string
   is_popular: boolean;
+  status?: string; // PlanStatus: ACTIVE, INACTIVE, ARCHIVED
 }
 
 export default function PricingPage() {
@@ -72,11 +73,20 @@ export default function PricingPage() {
     // Convert amount from cents to euros
     const priceInEuros = apiPlan.amount === 0 ? -1 : apiPlan.amount / 100;
     
-    // Only show monthly plans for now (filter by interval if needed)
-    // If the plan is yearly, adjust price accordingly
-    const displayPrice = apiPlan.interval === 'YEAR' 
-      ? Math.round(priceInEuros / 12) 
-      : priceInEuros;
+    // Adjust price based on interval and billing period
+    let displayPrice = priceInEuros;
+    
+    if (apiPlan.interval === 'YEAR') {
+      // If plan is yearly, show monthly equivalent if billingPeriod is month
+      displayPrice = billingPeriod === 'month' 
+        ? Math.round((priceInEuros / 12) * 100) / 100 // Round to 2 decimals
+        : priceInEuros;
+    } else if (apiPlan.interval === 'MONTH') {
+      // If plan is monthly but user selected yearly, show yearly price
+      displayPrice = billingPeriod === 'year'
+        ? Math.round(priceInEuros * 12 * 100) / 100
+        : priceInEuros;
+    }
 
     return {
       id: String(apiPlan.id),
@@ -95,41 +105,90 @@ export default function PricingPage() {
     setError(null);
     
     try {
-      const response = await subscriptionsAPI.getPlans(true); // Only active plans
-      
-      // apiClient.get returns response.data directly from axios, which is the FastAPI response
+      // Use direct api.get() like PricingSection component does (line 22)
+      // api.get() returns axios response, so response.data is the FastAPI response
       // FastAPI returns PlanListResponse: { plans: [...], total: ... }
-      // So response is already { plans: [...], total: ... }
-      const fetchedPlans: ApiPlan[] = (response as any).plans || (response as any).data?.plans || [];
+      const response = await api.get('/v1/subscriptions/plans', {
+        params: { active_only: true }
+      });
+      
+      // api.get() from api.ts is axios instance, so response is AxiosResponse
+      // response.data is the FastAPI response: { plans: [...], total: ... }
+      // This matches the structure used in PricingSection.tsx line 23: response.data.plans
+      const fetchedPlans: ApiPlan[] = response.data?.plans || [];
       
       logger.debug('Loaded plans from API', { 
-        responseStructure: response,
+        response,
+        hasResponse: !!response,
+        hasData: !!response?.data,
+        responseDataType: typeof response?.data,
         plansCount: fetchedPlans.length,
-        plans: fetchedPlans.map(p => ({ id: p.id, name: p.name, interval: p.interval, amount: p.amount }))
+        total: response?.data?.total,
+        plans: fetchedPlans.map(p => ({ 
+          id: p.id, 
+          name: p.name, 
+          interval: p.interval, 
+          interval_count: p.interval_count,
+          amount: p.amount, 
+          status: p.status,
+          is_popular: p.is_popular
+        }))
       });
       
       if (fetchedPlans.length === 0) {
-        logger.warn('No plans found in API response', { response });
-        setError('No subscription plans available. Please contact support.');
+        logger.warn('No plans found in API response', { 
+          response,
+          responseData: response?.data,
+          responsePlans: response?.data?.plans,
+          responseTotal: response?.data?.total
+        });
+        setError('Aucun plan d\'abonnement disponible pour le moment. Veuillez réessayer plus tard ou contacter le support.');
         setApiPlans([]);
         return;
       }
       
-      // Filter to only show monthly plans (or convert yearly plans)
-      const monthlyPlans = fetchedPlans.filter(
-        (plan) => plan.interval === 'MONTH' && plan.interval_count === 1
-      );
-      
-      logger.debug('Filtered monthly plans', { 
-        monthlyPlansCount: monthlyPlans.length,
-        allPlans: fetchedPlans.length
+      // Show all plans returned by API (they should already be filtered by active_only=true)
+      // Don't filter by interval here - show all active plans and let the display component handle it
+      logger.debug('Plans loaded successfully', { 
+        plansCount: fetchedPlans.length,
+        planDetails: fetchedPlans.map(p => ({ 
+          id: p.id, 
+          name: p.name, 
+          status: p.status, 
+          interval: p.interval,
+          interval_count: p.interval_count,
+          amount: p.amount,
+          is_popular: p.is_popular
+        }))
       });
       
-      setApiPlans(monthlyPlans);
+      if (fetchedPlans.length === 0) {
+        logger.error('No plans found in API response', { 
+          response: response?.data,
+          responseStructure: {
+            hasData: !!response?.data,
+            dataType: typeof response?.data,
+            dataKeys: response?.data ? Object.keys(response.data) : [],
+            plansType: typeof response?.data?.plans,
+            plansLength: Array.isArray(response?.data?.plans) ? response.data.plans.length : 'not array'
+          }
+        });
+        setError('Aucun plan d\'abonnement disponible. Les plans peuvent être en cours de configuration. Veuillez contacter le support ou vérifier que les plans sont marqués comme ACTIVE dans la base de données.');
+        setApiPlans([]);
+        return;
+      }
+      
+      // Set all fetched plans (they should already be filtered by active_only=true)
+      setApiPlans(fetchedPlans);
     } catch (err) {
       const appError = handleApiError(err);
-      setError(`Failed to load plans: ${appError.message || 'Please try again later.'}`);
-      logger.error('Failed to load subscription plans', appError, { error: err, fullError: appError });
+      setError(`Erreur lors du chargement des plans: ${appError.message || 'Veuillez réessayer plus tard.'}`);
+      logger.error('Failed to load subscription plans', appError, { 
+        error: err, 
+        fullError: appError,
+        errorMessage: appError.message,
+        errorDetail: appError.detail
+      });
       setApiPlans([]);
     } finally {
       setIsLoading(false);
@@ -144,10 +203,21 @@ export default function PricingPage() {
     }
   }, [apiPlans, mapApiPlanToDisplayPlan]);
 
-  // Load plans on mount
+  // Load plans on mount and when component mounts
   useEffect(() => {
     loadPlans();
   }, [loadPlans]);
+
+  // Also try to reload plans if still empty after initial load
+  useEffect(() => {
+    if (!isLoading && plans.length === 0 && apiPlans.length === 0 && !error) {
+      logger.debug('No plans loaded, attempting reload after 2 seconds');
+      const timer = setTimeout(() => {
+        loadPlans();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, plans.length, apiPlans.length, error, loadPlans]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-muted dark:to-muted">
