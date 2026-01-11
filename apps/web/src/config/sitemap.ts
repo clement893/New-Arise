@@ -72,35 +72,11 @@ export const sitePages: Record<string, SitemapPage[]> = {
       requiresAuth: true,
     },
     { 
-      path: '/dashboard/analytics', 
-      title: 'Analytics', 
-      description: 'Métriques et analyses de performance',
-      priority: 0.8,
-      changefreq: 'daily',
-      requiresAuth: true,
-    },
-    { 
       path: '/dashboard/reports', 
       title: 'Reports', 
       description: 'Créer et consulter des rapports personnalisés',
       priority: 0.8,
       changefreq: 'weekly',
-      requiresAuth: true,
-    },
-    { 
-      path: '/dashboard/activity', 
-      title: 'Activity Feed', 
-      description: 'Flux d\'activité récentes',
-      priority: 0.8,
-      changefreq: 'daily',
-      requiresAuth: true,
-    },
-    { 
-      path: '/dashboard/insights', 
-      title: 'Business Insights', 
-      description: 'Métriques et tendances business',
-      priority: 0.8,
-      changefreq: 'daily',
       requiresAuth: true,
     },
     { 
@@ -218,40 +194,6 @@ export const sitePages: Record<string, SitemapPage[]> = {
       description: 'Gestion des pages',
       priority: 0.8,
       changefreq: 'weekly',
-      requiresAuth: true,
-    },
-  ],
-  'CMS Features': [
-    {
-      path: '/menus',
-      title: 'Menu Management',
-      description: 'Gestion des menus de navigation',
-      priority: 0.7,
-      changefreq: 'monthly',
-      requiresAuth: true,
-    },
-    {
-      path: '/forms',
-      title: 'Form Builder',
-      description: 'Création de formulaires dynamiques',
-      priority: 0.7,
-      changefreq: 'monthly',
-      requiresAuth: true,
-    },
-    {
-      path: '/surveys',
-      title: 'Surveys',
-      description: 'Création et gestion de sondages et questionnaires',
-      priority: 0.8,
-      changefreq: 'weekly',
-      requiresAuth: true,
-    },
-    {
-      path: '/seo',
-      title: 'SEO Management',
-      description: 'Gestion des paramètres SEO',
-      priority: 0.7,
-      changefreq: 'monthly',
       requiresAuth: true,
     },
   ],
@@ -446,90 +388,6 @@ export const sitePages: Record<string, SitemapPage[]> = {
       requiresAdmin: true,
     },
   ],
-  'Exemples': [
-    { 
-      path: '/examples', 
-      title: 'Exemples', 
-      description: 'Page d\'exemples',
-      priority: 0.6,
-      changefreq: 'monthly',
-      requiresAuth: false, // Page publique
-    },
-    { 
-      path: '/examples/dashboard', 
-      title: 'Exemple Dashboard', 
-      description: 'Exemple de tableau de bord',
-      priority: 0.6,
-      changefreq: 'monthly',
-      requiresAuth: false, // Page publique
-    },
-    { 
-      path: '/examples/onboarding', 
-      title: 'Exemple Onboarding', 
-      description: 'Exemple d\'onboarding',
-      priority: 0.6,
-      changefreq: 'monthly',
-      requiresAuth: false, // Page publique
-    },
-    { 
-      path: '/examples/settings', 
-      title: 'Exemple Paramètres', 
-      description: 'Exemple de paramètres',
-      priority: 0.6,
-      changefreq: 'monthly',
-      requiresAuth: false, // Page publique
-    },
-  ],
-  'Onboarding': [
-    {
-      path: '/onboarding',
-      title: 'Onboarding',
-      description: 'Configuration initiale du compte',
-      priority: 0.8,
-      changefreq: 'monthly',
-      requiresAuth: true,
-    },
-    {
-      path: '/onboarding/welcome',
-      title: 'Onboarding Welcome',
-      description: 'Écran de bienvenue',
-      priority: 0.7,
-      changefreq: 'monthly',
-      requiresAuth: true,
-    },
-    {
-      path: '/onboarding/profile',
-      title: 'Onboarding Profile',
-      description: 'Configuration du profil',
-      priority: 0.7,
-      changefreq: 'monthly',
-      requiresAuth: true,
-    },
-    {
-      path: '/onboarding/preferences',
-      title: 'Onboarding Preferences',
-      description: 'Configuration des préférences',
-      priority: 0.7,
-      changefreq: 'monthly',
-      requiresAuth: true,
-    },
-    {
-      path: '/onboarding/team',
-      title: 'Onboarding Team',
-      description: 'Configuration de l\'équipe',
-      priority: 0.7,
-      changefreq: 'monthly',
-      requiresAuth: true,
-    },
-    {
-      path: '/onboarding/complete',
-      title: 'Onboarding Complete',
-      description: 'Onboarding terminé',
-      priority: 0.7,
-      changefreq: 'monthly',
-      requiresAuth: true,
-    },
-  ],
   'Outils': [
     { 
       path: '/ai/chat', 
@@ -538,38 +396,6 @@ export const sitePages: Record<string, SitemapPage[]> = {
       priority: 0.8,
       changefreq: 'weekly',
       requiresAuth: true, // Protected page
-    },
-    { 
-      path: '/ai/test', 
-      title: 'Test IA', 
-      description: 'Page de test pour l\'IA',
-      priority: 0.5,
-      changefreq: 'monthly',
-      requiresAuth: false, // Page publique
-    },
-    { 
-      path: '/email/test', 
-      title: 'Test Email', 
-      description: 'Page de test pour les emails',
-      priority: 0.5,
-      changefreq: 'monthly',
-      requiresAuth: false, // Page publique
-    },
-    { 
-      path: '/db/test', 
-      title: 'Database Health Check', 
-      description: 'Page de vérification de la santé de la base de données',
-      priority: 0.5,
-      changefreq: 'monthly',
-      requiresAuth: true, // Protected page
-    },
-    { 
-      path: '/monitoring', 
-      title: 'Monitoring', 
-      description: 'Page de monitoring',
-      priority: 0.6,
-      changefreq: 'weekly',
-      requiresAuth: false, // Page publique
     },
     { 
       path: '/docs', 

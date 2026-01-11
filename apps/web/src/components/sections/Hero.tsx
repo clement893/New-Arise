@@ -91,12 +91,6 @@ export default function Hero() {
           <ButtonLink href="/auth/register" size="lg" variant="primary">
             Commencer maintenant
           </ButtonLink>
-          <ButtonLink href="/components" size="lg" variant="secondary">
-            Voir les composants
-          </ButtonLink>
-          <ButtonLink href="/monitoring" size="lg" variant="secondary">
-            Monitoring
-          </ButtonLink>
           <ButtonLink href="/auth/login" size="lg" variant="outline">
             Se connecter
           </ButtonLink>

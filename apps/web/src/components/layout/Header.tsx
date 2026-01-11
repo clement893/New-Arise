@@ -48,9 +48,6 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6" aria-label="Navigation principale">
-            <Link href="/components" className="text-muted-foreground hover:text-primary transition">
-              Composants
-            </Link>
           </nav>
 
           {/* Desktop Actions */}
@@ -124,13 +121,6 @@ export default function Header() {
                 className="text-foreground hover:text-primary transition-colors px-4 py-3 min-h-[44px] flex items-center rounded-lg hover:bg-muted/50"
               >
                 Accueil
-              </Link>
-              <Link
-                href="/components"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors px-4 py-3 min-h-[44px] flex items-center rounded-lg hover:bg-muted/50"
-              >
-                Composants
               </Link>
               {isAuthenticated() && (
                 <>

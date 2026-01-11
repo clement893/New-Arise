@@ -141,6 +141,16 @@ if [ -n "$DATABASE_URL" ]; then
             python scripts/ensure_avatar_migration.py 2>&1 || echo "⚠️  Avatar column verification skipped (will be created by auto-migration if needed)"
         fi
         
+        # Import assessment questions after migration (with timeout)
+        echo "=========================================="
+        echo "Importing assessment questions..."
+        echo "=========================================="
+        if command -v timeout >/dev/null 2>&1; then
+            timeout 60 python scripts/import_assessment_questions_auto.py 2>&1 || echo "⚠️  Could not import questions (will be imported on next startup or manually)"
+        else
+            python scripts/import_assessment_questions_auto.py 2>&1 || echo "⚠️  Could not import questions (will be imported on next startup or manually)"
+        fi
+        
         # Ensure default theme exists after migrations (with timeout)
         echo "=========================================="
         echo "Ensuring default theme exists..."

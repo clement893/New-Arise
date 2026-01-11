@@ -13,13 +13,10 @@ export default function CTA() {
             pour créer des applications modernes et performantes.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center" role="group" aria-label="Actions d'appel à l'action">
-            <ButtonLink href="/components" size="lg" variant="primary" aria-label="Explorer les composants disponibles">
-              Explorer les composants
-            </ButtonLink>
-            <ButtonLink href="/auth/register" size="lg" variant="secondary" aria-label="Créer un compte gratuit pour commencer">
+            <ButtonLink href="/auth/register" size="lg" variant="primary" aria-label="Créer un compte gratuit pour commencer">
               Créer un compte gratuit
             </ButtonLink>
-            <ButtonLink href="https://github.com/clement893/MODELE-NEXTJS-FULLSTACK" target="_blank" size="lg" variant="outline" aria-label="Voir le projet sur GitHub (ouvre dans un nouvel onglet)">
+            <ButtonLink href="https://github.com/clement893/MODELE-NEXTJS-FULLSTACK" target="_blank" size="lg" variant="secondary" aria-label="Voir le projet sur GitHub (ouvre dans un nouvel onglet)">
               Voir sur GitHub
             </ButtonLink>
           </div>

@@ -21,6 +21,7 @@ from app.models.assessment import (
     AssessmentAnswer,
     Assessment360Evaluator,
     AssessmentResult,
+    AssessmentQuestion,
     AssessmentType,
     AssessmentStatus,
     EvaluatorRole,
@@ -121,6 +122,59 @@ class AssessmentResultResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# ============================================================================
+# Question Management Schemas
+# ============================================================================
+
+class AssessmentQuestionResponse(BaseModel):
+    """Assessment question response"""
+    id: int
+    question_id: str
+    assessment_type: str
+    question: Optional[str] = None
+    pillar: Optional[str] = None
+    number: Optional[int] = None
+    option_a: Optional[str] = None
+    option_b: Optional[str] = None
+    mode_a: Optional[str] = None
+    mode_b: Optional[str] = None
+    capability: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class AssessmentQuestionCreate(BaseModel):
+    """Create assessment question request"""
+    question_id: str = Field(..., description="Unique question ID (e.g., wellness_q1, tki_1, 360_1)")
+    assessment_type: str = Field(..., description="Assessment type (wellness, tki, 360_self, 360_evaluator)")
+    question: Optional[str] = Field(None, description="Question text (for Wellness and 360°)")
+    pillar: Optional[str] = Field(None, description="Wellness pillar")
+    number: Optional[int] = Field(None, description="Question number")
+    option_a: Optional[str] = Field(None, description="TKI option A")
+    option_b: Optional[str] = Field(None, description="TKI option B")
+    mode_a: Optional[str] = Field(None, description="TKI mode A")
+    mode_b: Optional[str] = Field(None, description="TKI mode B")
+    capability: Optional[str] = Field(None, description="360° capability")
+    metadata: Optional[Dict[str, Any]] = Field(None, description="Additional metadata")
+
+
+class AssessmentQuestionUpdate(BaseModel):
+    """Update assessment question request"""
+    question: Optional[str] = Field(None, description="Question text")
+    pillar: Optional[str] = Field(None, description="Wellness pillar")
+    number: Optional[int] = Field(None, description="Question number")
+    option_a: Optional[str] = Field(None, description="TKI option A")
+    option_b: Optional[str] = Field(None, description="TKI option B")
+    mode_a: Optional[str] = Field(None, description="TKI mode A")
+    mode_b: Optional[str] = Field(None, description="TKI mode B")
+    capability: Optional[str] = Field(None, description="360° capability")
+    metadata: Optional[Dict[str, Any]] = Field(None, description="Additional metadata")
 
 
 # ============================================================================
@@ -2242,5 +2296,254 @@ async def delete_all_my_assessments(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to delete assessments: {str(e)}"
+        )
+
+
+# ============================================================================
+# Question Management Endpoints
+# ============================================================================
+
+@router.get("/questions", response_model=List[AssessmentQuestionResponse])
+async def list_questions(
+    assessment_type: Optional[str] = Query(None, description="Filter by assessment type"),
+    current_user: User = Depends(get_current_user),
+    _: None = Depends(require_admin_or_superadmin),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    List all assessment questions
+    Requires admin or superadmin privileges
+    """
+    try:
+        db_query = select(AssessmentQuestion)
+        
+        if assessment_type:
+            # Validate assessment type
+            try:
+                assessment_type_enum = AssessmentType(assessment_type.lower())
+                db_query = db_query.where(AssessmentQuestion.assessment_type == assessment_type_enum)
+            except ValueError:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid assessment type: {assessment_type}"
+                )
+        
+        db_query = db_query.order_by(AssessmentQuestion.assessment_type, AssessmentQuestion.number, AssessmentQuestion.question_id)
+        
+        result = await db.execute(db_query)
+        questions = result.scalars().all()
+        
+        return [AssessmentQuestionResponse.model_validate(q) for q in questions]
+    except HTTPException:
+        raise
+    except Exception as e:
+        from app.core.logging import logger
+        logger.error(f"Error listing questions: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to list questions: {str(e)}"
+        )
+
+
+@router.get("/questions/{question_id}", response_model=AssessmentQuestionResponse)
+async def get_question(
+    question_id: str,
+    current_user: User = Depends(get_current_user),
+    _: None = Depends(require_admin_or_superadmin),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get a specific question by question_id
+    Requires admin or superadmin privileges
+    """
+    try:
+        result = await db.execute(
+            select(AssessmentQuestion).where(AssessmentQuestion.question_id == question_id)
+        )
+        question = result.scalar_one_or_none()
+        
+        if not question:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Question with ID '{question_id}' not found"
+            )
+        
+        return AssessmentQuestionResponse.model_validate(question)
+    except HTTPException:
+        raise
+    except Exception as e:
+        from app.core.logging import logger
+        logger.error(f"Error getting question {question_id}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get question: {str(e)}"
+        )
+
+
+@router.post("/questions", response_model=AssessmentQuestionResponse, status_code=status.HTTP_201_CREATED)
+async def create_question(
+    question_data: AssessmentQuestionCreate,
+    current_user: User = Depends(get_current_user),
+    _: None = Depends(require_admin_or_superadmin),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Create a new question
+    Requires admin or superadmin privileges
+    """
+    try:
+        # Validate assessment type
+        try:
+            assessment_type_enum = AssessmentType(question_data.assessment_type.lower())
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid assessment type: {question_data.assessment_type}"
+            )
+        
+        # Check if question_id already exists
+        result = await db.execute(
+            select(AssessmentQuestion).where(AssessmentQuestion.question_id == question_data.question_id)
+        )
+        existing = result.scalar_one_or_none()
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Question with ID '{question_data.question_id}' already exists"
+            )
+        
+        # Create question
+        question = AssessmentQuestion(
+            question_id=question_data.question_id,
+            assessment_type=assessment_type_enum,
+            question=question_data.question,
+            pillar=question_data.pillar,
+            number=question_data.number,
+            option_a=question_data.option_a,
+            option_b=question_data.option_b,
+            mode_a=question_data.mode_a,
+            mode_b=question_data.mode_b,
+            capability=question_data.capability,
+            metadata=question_data.metadata
+        )
+        
+        db.add(question)
+        await db.commit()
+        await db.refresh(question)
+        
+        return AssessmentQuestionResponse.model_validate(question)
+    except HTTPException:
+        await db.rollback()
+        raise
+    except Exception as e:
+        from app.core.logging import logger
+        logger.error(f"Error creating question: {e}", exc_info=True)
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create question: {str(e)}"
+        )
+
+
+@router.put("/questions/{question_id}", response_model=AssessmentQuestionResponse)
+async def update_question(
+    question_id: str,
+    question_data: AssessmentQuestionUpdate,
+    current_user: User = Depends(get_current_user),
+    _: None = Depends(require_admin_or_superadmin),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Update a question
+    Requires admin or superadmin privileges
+    """
+    try:
+        result = await db.execute(
+            select(AssessmentQuestion).where(AssessmentQuestion.question_id == question_id)
+        )
+        question = result.scalar_one_or_none()
+        
+        if not question:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Question with ID '{question_id}' not found"
+            )
+        
+        # Update fields
+        if question_data.question is not None:
+            question.question = question_data.question
+        if question_data.pillar is not None:
+            question.pillar = question_data.pillar
+        if question_data.number is not None:
+            question.number = question_data.number
+        if question_data.option_a is not None:
+            question.option_a = question_data.option_a
+        if question_data.option_b is not None:
+            question.option_b = question_data.option_b
+        if question_data.mode_a is not None:
+            question.mode_a = question_data.mode_a
+        if question_data.mode_b is not None:
+            question.mode_b = question_data.mode_b
+        if question_data.capability is not None:
+            question.capability = question_data.capability
+        if question_data.metadata is not None:
+            question.metadata = question_data.metadata
+        
+        question.updated_at = datetime.utcnow()
+        
+        await db.commit()
+        await db.refresh(question)
+        
+        return AssessmentQuestionResponse.model_validate(question)
+    except HTTPException:
+        await db.rollback()
+        raise
+    except Exception as e:
+        from app.core.logging import logger
+        logger.error(f"Error updating question {question_id}: {e}", exc_info=True)
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update question: {str(e)}"
+        )
+
+
+@router.delete("/questions/{question_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_question(
+    question_id: str,
+    current_user: User = Depends(get_current_user),
+    _: None = Depends(require_admin_or_superadmin),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Delete a question
+    Requires admin or superadmin privileges
+    """
+    try:
+        result = await db.execute(
+            select(AssessmentQuestion).where(AssessmentQuestion.question_id == question_id)
+        )
+        question = result.scalar_one_or_none()
+        
+        if not question:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Question with ID '{question_id}' not found"
+            )
+        
+        await db.delete(question)
+        await db.commit()
+        
+        return None
+    except HTTPException:
+        await db.rollback()
+        raise
+    except Exception as e:
+        from app.core.logging import logger
+        logger.error(f"Error deleting question {question_id}: {e}", exc_info=True)
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete question: {str(e)}"
         )
 

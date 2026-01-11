@@ -115,11 +115,6 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/components" className="text-gray-400 dark:text-gray-500 hover:text-primary-400 dark:hover:text-primary-400 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-gray-900 rounded inline-block">
-                  Composants
-                </Link>
-              </li>
-              <li>
                 <Link href="https://github.com/clement893/MODELE-NEXTJS-FULLSTACK" target="_blank" rel="noopener noreferrer" className="text-gray-400 dark:text-gray-500 hover:text-primary-400 dark:hover:text-primary-400 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-gray-900 rounded inline-block" aria-label="GitHub (ouvre dans un nouvel onglet)">
                   GitHub
                 </Link>

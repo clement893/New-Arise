@@ -169,9 +169,6 @@ const data = await response.json();`}
         <p className="text-muted-foreground mb-4">
           La bibliothèque de composants inclut des boutons, formulaires, cartes et bien plus encore.
         </p>
-        <Link href="/components">
-          <Button variant="primary">Explorer les composants</Button>
-        </Link>
       </Card>
 
       <Card id="components-forms" className="mb-8">
@@ -179,9 +176,6 @@ const data = await response.json();`}
         <p className="text-muted-foreground mb-4">
           Composants de formulaire réutilisables avec validation intégrée.
         </p>
-        <Link href="/components/forms">
-          <Button variant="primary">Voir les formulaires</Button>
-        </Link>
       </Card>
 
       <Card id="components-cards" className="mb-8">
@@ -189,9 +183,6 @@ const data = await response.json();`}
         <p className="text-muted-foreground mb-4">
           Composants de carte pour afficher du contenu de manière structurée.
         </p>
-        <Link href="/components/layout">
-          <Button variant="primary">Voir les cartes</Button>
-        </Link>
       </Card>
 
       {/* Guides Section */}

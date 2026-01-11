@@ -50,12 +50,6 @@ export default function NotFound() {
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 {t('notFound.goBack') || 'Retour'}
               </Button>
-              <Link href="/components">
-                <Button variant="ghost" className="w-full sm:w-auto">
-                  <Search className="w-4 h-4 mr-2" />
-                  {t('notFound.browseComponents') || 'Explorer les composants'}
-                </Button>
-              </Link>
             </div>
 
             {/* Helpful Links */}

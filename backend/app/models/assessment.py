@@ -204,6 +204,46 @@ class Assessment360Evaluator(Base):
         return f"<Assessment360Evaluator(id={self.id}, email={self.evaluator_email}, role={self.evaluator_role}, status={self.status})>"
 
 
+class AssessmentQuestion(Base):
+    """
+    Modèle pour les questions d'assessment.
+
+    Stocke les questions pour chaque type d'assessment (Wellness, TKI, 360°).
+    Permet la gestion dynamique des questions via l'interface admin.
+    """
+    __tablename__ = "assessment_questions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    question_id = Column(String(100), unique=True, nullable=False, index=True)  # ex: "wellness_q1", "tki_1", "360_1"
+    assessment_type = Column(SQLEnum(AssessmentType, name='assessmenttype'), nullable=False, index=True)
+
+    # Champ question principal (pour Wellness et 360°)
+    question = Column(String(1000), nullable=True)
+
+    # Champs spécifiques à Wellness
+    pillar = Column(String(200), nullable=True)  # ex: "Avoidance of Risky Substances", "Movement"
+
+    # Champs spécifiques à TKI
+    number = Column(Integer, nullable=True)  # Numéro de question (1-30 pour TKI)
+    option_a = Column(String(500), nullable=True)  # Option A
+    option_b = Column(String(500), nullable=True)  # Option B
+    mode_a = Column(String(50), nullable=True)  # Mode A (competing, collaborating, etc.)
+    mode_b = Column(String(50), nullable=True)  # Mode B
+
+    # Champs spécifiques à 360°
+    capability = Column(String(100), nullable=True)  # ex: "communication", "team_culture"
+
+    # Métadonnées supplémentaires (JSON pour flexibilité)
+    metadata = Column(JSON, nullable=True)
+
+    # Métadonnées
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default='now()')
+    updated_at = Column(DateTime(timezone=True), nullable=False, server_default='now()')
+
+    def __repr__(self):
+        return f"<AssessmentQuestion(id={self.id}, question_id={self.question_id}, assessment_type={self.assessment_type})>"
+
+
 # ============================================================================
 # NOTES POUR CURSOR
 # ============================================================================

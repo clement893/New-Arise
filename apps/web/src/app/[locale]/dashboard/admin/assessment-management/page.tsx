@@ -788,7 +788,13 @@ export default function AdminAssessmentManagementPage() {
               <Button
                 variant="primary"
                 onClick={() => {
-                  setEditingQuestion({ id: '', text: '', pillar: '' });
+                  setEditingQuestion({ 
+                    question_id: '', 
+                    assessment_type: selectedTestType === 'THREE_SIXTY_SELF' || selectedTestType === 'THREE_SIXTY_EVALUATOR' ? '360_self' : selectedTestType.toLowerCase(),
+                    text: '', 
+                    question: '',
+                    pillar: '' 
+                  } as Question);
                   setQuestionEditModalOpen(true);
                 }}
                 className="flex items-center gap-2 mx-auto"
@@ -799,158 +805,178 @@ export default function AdminAssessmentManagementPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4">
-              {selectedTestType === 'WELLNESS' && wellnessQuestions.map((question, index) => (
-                <MotionDiv
-                  key={question.id}
-                  variant="slideUp"
-                  duration="fast"
-                  delay={index * 0.03}
-                >
-                  <Card className="p-5 hover:shadow-md transition-all duration-200 border-l-4 border-l-blue-500">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-semibold text-sm">
-                            {index + 1}
-                          </div>
-                          <span className="text-xs font-mono text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
-                            {question.id}
-                          </span>
-                          <Badge variant="default" className="capitalize">{question.pillar}</Badge>
-                        </div>
-                        <p className="text-gray-900 text-base leading-relaxed font-medium">
-                          {question.question}
-                        </p>
-                      </div>
-                      <div className="flex gap-2 flex-shrink-0">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEditQuestion({ ...question, text: question.question } as Question)}
-                          title="Modifier"
-                          className="hover:bg-primary-50 dark:hover:bg-primary-900/20"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                          title="Supprimer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-                </MotionDiv>
-              ))}
-              
-              {selectedTestType === 'TKI' && tkiQuestions.map((question, index) => (
-                <MotionDiv
-                  key={question.id}
-                  variant="slideUp"
-                  duration="fast"
-                  delay={index * 0.03}
-                >
-                  <Card className="p-5 hover:shadow-md transition-all duration-200 border-l-4 border-l-purple-500">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-semibold text-sm">
-                            {question.number}
-                          </div>
-                          <span className="text-xs font-mono text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
-                            {question.id}
-                          </span>
-                          <Badge variant="default" className="capitalize">{question.modeA}</Badge>
-                          <Badge variant="default" className="capitalize">{question.modeB}</Badge>
-                        </div>
-                        <div className="space-y-3">
-                          <div className="p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg border border-primary-200 dark:border-primary-800">
-                            <p className="text-sm font-semibold text-primary-700 dark:text-primary-300 mb-1">Option A</p>
-                            <p className="text-gray-900 font-medium">{question.optionA}</p>
-                          </div>
-                          <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                            <p className="text-sm font-semibold text-purple-700 dark:text-purple-300 mb-1">Option B</p>
-                            <p className="text-gray-900 font-medium">{question.optionB}</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex gap-2 flex-shrink-0">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEditQuestion({ ...question, text: question.optionA + ' / ' + question.optionB } as Question)}
-                          title="Modifier"
-                          className="hover:bg-purple-50 dark:hover:bg-purple-900/20"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                          title="Supprimer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-                </MotionDiv>
-              ))}
-              
-              {(selectedTestType === 'THREE_SIXTY_SELF' || selectedTestType === 'THREE_SIXTY_EVALUATOR') && 
-                feedback360Questions.map((question, index) => (
-                  <MotionDiv
-                    key={question.id}
-                    variant="slideUp"
-                    duration="fast"
-                    delay={index * 0.03}
-                  >
-                    <Card className="p-5 hover:shadow-md transition-all duration-200 border-l-4 border-l-teal-500">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-semibold text-sm">
-                              {question.number}
+              {displayQuestions.map((question, index) => {
+                // Render based on assessment type
+                if (question.assessment_type === 'wellness' || selectedTestType === 'WELLNESS') {
+                  return (
+                    <MotionDiv
+                      key={question.question_id}
+                      variant="slideUp"
+                      duration="fast"
+                      delay={index * 0.03}
+                    >
+                      <Card className="p-5 hover:shadow-md transition-all duration-200 border-l-4 border-l-blue-500">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-semibold text-sm">
+                                {index + 1}
+                              </div>
+                              <span className="text-xs font-mono text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                                {question.question_id}
+                              </span>
+                              {question.pillar && (
+                                <Badge variant="default" className="capitalize">{question.pillar}</Badge>
+                              )}
                             </div>
-                            <span className="text-xs font-mono text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
-                              {question.id}
-                            </span>
-                            <Badge variant="default">
-                              {feedback360Capabilities.find(c => c.id === question.capability)?.icon} {feedback360Capabilities.find(c => c.id === question.capability)?.title || question.capability}
-                            </Badge>
+                            <p className="text-gray-900 text-base leading-relaxed font-medium">
+                              {question.question}
+                            </p>
                           </div>
-                          <p className="text-gray-900 text-base leading-relaxed font-medium">
-                            {question.question}
-                          </p>
+                          <div className="flex gap-2 flex-shrink-0">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEditQuestion(question)}
+                              title="Modifier"
+                              className="hover:bg-primary-50 dark:hover:bg-primary-900/20"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDeleteQuestion(question.question_id)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                              title="Supprimer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
-                        <div className="flex gap-2 flex-shrink-0">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEditQuestion({ ...question, text: question.question } as Question)}
-                            title="Modifier"
-                            className="hover:bg-primary-50 dark:hover:bg-primary-900/20"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                            title="Supprimer"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                      </Card>
+                    </MotionDiv>
+                  );
+                } else if (question.assessment_type === 'tki' || selectedTestType === 'TKI') {
+                  return (
+                    <MotionDiv
+                      key={question.question_id}
+                      variant="slideUp"
+                      duration="fast"
+                      delay={index * 0.03}
+                    >
+                      <Card className="p-5 hover:shadow-md transition-all duration-200 border-l-4 border-l-purple-500">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-semibold text-sm">
+                                {question.number || index + 1}
+                              </div>
+                              <span className="text-xs font-mono text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                                {question.question_id}
+                              </span>
+                              {question.mode_a && (
+                                <Badge variant="default" className="capitalize">{question.mode_a}</Badge>
+                              )}
+                              {question.mode_b && (
+                                <Badge variant="default" className="capitalize">{question.mode_b}</Badge>
+                              )}
+                            </div>
+                            <div className="space-y-3">
+                              {question.option_a && (
+                                <div className="p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg border border-primary-200 dark:border-primary-800">
+                                  <p className="text-sm font-semibold text-primary-700 dark:text-primary-300 mb-1">Option A</p>
+                                  <p className="text-gray-900 font-medium">{question.option_a}</p>
+                                </div>
+                              )}
+                              {question.option_b && (
+                                <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                                  <p className="text-sm font-semibold text-purple-700 dark:text-purple-300 mb-1">Option B</p>
+                                  <p className="text-gray-900 font-medium">{question.option_b}</p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex gap-2 flex-shrink-0">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEditQuestion(question)}
+                              title="Modifier"
+                              className="hover:bg-purple-50 dark:hover:bg-purple-900/20"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDeleteQuestion(question.question_id)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                              title="Supprimer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                    </Card>
-                  </MotionDiv>
-                ))
-              }
+                      </Card>
+                    </MotionDiv>
+                  );
+                } else if ((question.assessment_type === '360_self' || question.assessment_type === '360_evaluator') || 
+                          (selectedTestType === 'THREE_SIXTY_SELF' || selectedTestType === 'THREE_SIXTY_EVALUATOR')) {
+                  return (
+                    <MotionDiv
+                      key={question.question_id}
+                      variant="slideUp"
+                      duration="fast"
+                      delay={index * 0.03}
+                    >
+                      <Card className="p-5 hover:shadow-md transition-all duration-200 border-l-4 border-l-teal-500">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-semibold text-sm">
+                                {question.number || index + 1}
+                              </div>
+                              <span className="text-xs font-mono text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                                {question.question_id}
+                              </span>
+                              {question.capability && (
+                                <Badge variant="default">
+                                  {feedback360Capabilities.find(c => c.id === question.capability)?.icon} {feedback360Capabilities.find(c => c.id === question.capability)?.title || question.capability}
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-gray-900 text-base leading-relaxed font-medium">
+                              {question.question}
+                            </p>
+                          </div>
+                          <div className="flex gap-2 flex-shrink-0">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEditQuestion(question)}
+                              title="Modifier"
+                              className="hover:bg-primary-50 dark:hover:bg-primary-900/20"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDeleteQuestion(question.question_id)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                              title="Supprimer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </Card>
+                    </MotionDiv>
+                  );
+                }
+                return null;
+              })}
             </div>
           )}
         </Card>
@@ -962,7 +988,7 @@ export default function AdminAssessmentManagementPage() {
             setQuestionEditModalOpen(false);
             setEditingQuestion(null);
           }}
-          title={editingQuestion?.id ? 'Modifier la question' : 'Ajouter une question'}
+          title={editingQuestion?.question_id ? 'Modifier la question' : 'Ajouter une question'}
         >
           <div className="space-y-4">
             <div>
@@ -970,32 +996,34 @@ export default function AdminAssessmentManagementPage() {
                 ID de la question
               </label>
               <Input
-                value={editingQuestion?.id || ''}
+                value={editingQuestion?.question_id || editingQuestion?.id || ''}
                 onChange={(e) => {
                   if (editingQuestion) {
-                    setEditingQuestion({ ...editingQuestion, id: e.target.value });
+                    setEditingQuestion({ ...editingQuestion, question_id: e.target.value, id: e.target.value });
                   }
                 }}
                 placeholder="ex: wellness_q1"
-                disabled={!!editingQuestion?.id}
+                disabled={!!editingQuestion?.question_id || !!editingQuestion?.id}
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-                Texte de la question
-              </label>
-              <textarea
-                value={editingQuestion?.text || editingQuestion?.question || ''}
-                onChange={(e) => {
-                  if (editingQuestion) {
-                    setEditingQuestion({ ...editingQuestion, text: e.target.value, question: e.target.value });
-                  }
-                }}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-arise-teal"
-                rows={4}
-                placeholder="Entrez le texte de la question..."
-              />
-            </div>
+            {(selectedTestType === 'WELLNESS' || selectedTestType === 'THREE_SIXTY_SELF' || selectedTestType === 'THREE_SIXTY_EVALUATOR') && (
+              <div>
+                <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                  Texte de la question
+                </label>
+                <textarea
+                  value={editingQuestion?.text || editingQuestion?.question || ''}
+                  onChange={(e) => {
+                    if (editingQuestion) {
+                      setEditingQuestion({ ...editingQuestion, text: e.target.value, question: e.target.value });
+                    }
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-arise-teal"
+                  rows={4}
+                  placeholder="Entrez le texte de la question..."
+                />
+              </div>
+            )}
             {selectedTestType === 'WELLNESS' && (
               <div>
                 <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
@@ -1012,6 +1040,118 @@ export default function AdminAssessmentManagementPage() {
                 />
               </div>
             )}
+            {selectedTestType === 'TKI' && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                    Numéro
+                  </label>
+                  <Input
+                    type="number"
+                    value={editingQuestion?.number || ''}
+                    onChange={(e) => {
+                      if (editingQuestion) {
+                        setEditingQuestion({ ...editingQuestion, number: parseInt(e.target.value) || undefined });
+                      }
+                    }}
+                    placeholder="ex: 1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                    Option A
+                  </label>
+                  <textarea
+                    value={editingQuestion?.optionA || editingQuestion?.option_a || ''}
+                    onChange={(e) => {
+                      if (editingQuestion) {
+                        setEditingQuestion({ ...editingQuestion, optionA: e.target.value, option_a: e.target.value });
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-arise-teal"
+                    rows={2}
+                    placeholder="Texte de l'option A..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                    Option B
+                  </label>
+                  <textarea
+                    value={editingQuestion?.optionB || editingQuestion?.option_b || ''}
+                    onChange={(e) => {
+                      if (editingQuestion) {
+                        setEditingQuestion({ ...editingQuestion, optionB: e.target.value, option_b: e.target.value });
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-arise-teal"
+                    rows={2}
+                    placeholder="Texte de l'option B..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                    Mode A
+                  </label>
+                  <Input
+                    value={editingQuestion?.modeA || editingQuestion?.mode_a || ''}
+                    onChange={(e) => {
+                      if (editingQuestion) {
+                        setEditingQuestion({ ...editingQuestion, modeA: e.target.value, mode_a: e.target.value });
+                      }
+                    }}
+                    placeholder="ex: competing"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                    Mode B
+                  </label>
+                  <Input
+                    value={editingQuestion?.modeB || editingQuestion?.mode_b || ''}
+                    onChange={(e) => {
+                      if (editingQuestion) {
+                        setEditingQuestion({ ...editingQuestion, modeB: e.target.value, mode_b: e.target.value });
+                      }
+                    }}
+                    placeholder="ex: collaborating"
+                  />
+                </div>
+              </>
+            )}
+            {(selectedTestType === 'THREE_SIXTY_SELF' || selectedTestType === 'THREE_SIXTY_EVALUATOR') && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                    Numéro
+                  </label>
+                  <Input
+                    type="number"
+                    value={editingQuestion?.number || ''}
+                    onChange={(e) => {
+                      if (editingQuestion) {
+                        setEditingQuestion({ ...editingQuestion, number: parseInt(e.target.value) || undefined });
+                      }
+                    }}
+                    placeholder="ex: 1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                    Capacité
+                  </label>
+                  <Input
+                    value={editingQuestion?.capability || ''}
+                    onChange={(e) => {
+                      if (editingQuestion) {
+                        setEditingQuestion({ ...editingQuestion, capability: e.target.value });
+                      }
+                    }}
+                    placeholder="ex: communication"
+                  />
+                </div>
+              </>
+            )}
             <div className="flex justify-end gap-2 pt-4">
               <Button
                 variant="outline"
@@ -1022,9 +1162,9 @@ export default function AdminAssessmentManagementPage() {
               >
                 Annuler
               </Button>
-              <Button variant="primary" onClick={handleSaveQuestion}>
+              <Button variant="primary" onClick={handleSaveQuestion} disabled={questionsLoading}>
                 <Save className="w-4 h-4 mr-2" />
-                Enregistrer
+                {questionsLoading ? 'Enregistrement...' : 'Enregistrer'}
               </Button>
             </div>
           </div>

@@ -83,30 +83,6 @@ export function getNavigationConfig(isAdmin: boolean): NavigationConfig {
         collapsible: true,
         defaultOpen: false,
       },
-      // Contenu (collapsible group)
-      {
-        name: 'Contenu',
-        icon: <FolderKanban className="w-5 h-5" />,
-        items: [
-          {
-            name: 'Pages',
-            href: '/admin/pages',
-            icon: <FileText className="w-5 h-5" />,
-          },
-          {
-            name: 'Articles',
-            href: '/admin/articles',
-            icon: <FileCheck className="w-5 h-5" />,
-          },
-          {
-            name: 'Médias',
-            href: '/admin/media',
-            icon: <Image className="w-5 h-5" />,
-          },
-        ],
-        collapsible: true,
-        defaultOpen: false,
-      },
       // Individual (collapsible group)
       {
         name: 'Individual',

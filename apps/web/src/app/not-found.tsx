@@ -47,12 +47,6 @@ export default function NotFound() {
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Retour
               </Button>
-              <Link href="/components">
-                <Button variant="ghost" className="w-full sm:w-auto">
-                  <Search className="w-4 h-4 mr-2" />
-                  Explorer les composants
-                </Button>
-              </Link>
             </div>
             {/* Helpful Links */}
             <div className="mt-8 pt-6 border-t border-border">

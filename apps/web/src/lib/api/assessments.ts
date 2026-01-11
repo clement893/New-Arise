@@ -492,30 +492,110 @@ export const deleteAllMyAssessments = async (): Promise<{ message: string; delet
 };
 
 /**
+ * Assessment Question types
+ */
+export interface AssessmentQuestion {
+  id: number;
+  question_id: string;
+  assessment_type: string;
+  question?: string;
+  pillar?: string;
+  number?: number;
+  option_a?: string;
+  option_b?: string;
+  mode_a?: string;
+  mode_b?: string;
+  capability?: string;
+  metadata?: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AssessmentQuestionCreate {
+  question_id: string;
+  assessment_type: string;
+  question?: string;
+  pillar?: string;
+  number?: number;
+  option_a?: string;
+  option_b?: string;
+  mode_a?: string;
+  mode_b?: string;
+  capability?: string;
+  metadata?: Record<string, any>;
+}
+
+export interface AssessmentQuestionUpdate {
+  question?: string;
+  pillar?: string;
+  number?: number;
+  option_a?: string;
+  option_b?: string;
+  mode_a?: string;
+  mode_b?: string;
+  capability?: string;
+  metadata?: Record<string, any>;
+}
+
+/**
  * Get questions for a specific assessment type
  * Uses apiClient to benefit from automatic token refresh on 401 errors
  */
-export const getQuestions = async (assessmentType: string): Promise<any[]> => {
+export const getQuestions = async (assessmentType?: string): Promise<AssessmentQuestion[]> => {
+  const params = assessmentType ? { assessment_type: assessmentType } : {};
   const response = await apiClient.get(
     `/v1/assessments/questions`,
-    {
-      params: { assessment_type: assessmentType }
-    }
+    { params }
   );
   return response.data;
 };
 
 /**
- * Admin: Get all questions for management
+ * Get a specific question by question_id
  * Uses apiClient to benefit from automatic token refresh on 401 errors
  */
-export const getAdminQuestions = async (assessmentType?: string): Promise<any> => {
-  const params = assessmentType ? { assessment_type: assessmentType } : {};
+export const getQuestion = async (questionId: string): Promise<AssessmentQuestion> => {
   const response = await apiClient.get(
-    `/v1/assessments/admin/questions`,
-    { params }
+    `/v1/assessments/questions/${questionId}`
   );
   return response.data;
+};
+
+/**
+ * Create a new question
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
+ */
+export const createQuestion = async (questionData: AssessmentQuestionCreate): Promise<AssessmentQuestion> => {
+  const response = await apiClient.post(
+    `/v1/assessments/questions`,
+    questionData
+  );
+  return response.data;
+};
+
+/**
+ * Update a question
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
+ */
+export const updateQuestion = async (
+  questionId: string,
+  questionData: AssessmentQuestionUpdate
+): Promise<AssessmentQuestion> => {
+  const response = await apiClient.put(
+    `/v1/assessments/questions/${questionId}`,
+    questionData
+  );
+  return response.data;
+};
+
+/**
+ * Delete a question
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
+ */
+export const deleteQuestion = async (questionId: string): Promise<void> => {
+  await apiClient.delete(
+    `/v1/assessments/questions/${questionId}`
+  );
 };
 
 export const assessmentsApi = {
