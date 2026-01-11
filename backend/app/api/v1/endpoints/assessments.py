@@ -2029,6 +2029,21 @@ async def upload_mbti_pdf(
                             "updated_at": datetime.now(timezone.utc)
                         }
                     )
+                elif scores_column == 'scores' and 'generated_at' in columns:
+                    # Schema with scores and generated_at (but no insights/recommendations)
+                    await db.execute(
+                        text(f"""
+                            INSERT INTO assessment_results (assessment_id, user_id, {scores_column}, generated_at, updated_at)
+                            VALUES (:assessment_id, :user_id, CAST(:scores AS jsonb), :generated_at, :updated_at)
+                        """),
+                        {
+                            "assessment_id": assessment.id,
+                            "user_id": current_user.id,
+                            "scores": scores_json,
+                            "generated_at": datetime.now(timezone.utc),
+                            "updated_at": datetime.now(timezone.utc)
+                        }
+                    )
                 elif scores_column == 'scores' and 'created_at' in columns:
                     # Transitional schema with scores but created_at instead of generated_at
                     await db.execute(
@@ -2045,18 +2060,16 @@ async def upload_mbti_pdf(
                         }
                     )
                 else:
-                    # Old schema with result_data
+                    # Old schema with result_data - no timestamp columns
                     await db.execute(
                         text(f"""
-                            INSERT INTO assessment_results (assessment_id, user_id, {scores_column}, created_at, updated_at)
-                            VALUES (:assessment_id, :user_id, CAST(:scores AS jsonb), :created_at, :updated_at)
+                            INSERT INTO assessment_results (assessment_id, user_id, {scores_column})
+                            VALUES (:assessment_id, :user_id, CAST(:scores AS jsonb))
                         """),
                         {
                             "assessment_id": assessment.id,
                             "user_id": current_user.id,
-                            "scores": scores_json,
-                            "created_at": datetime.now(timezone.utc),
-                            "updated_at": datetime.now(timezone.utc)
+                            "scores": scores_json
                         }
                     )
             
