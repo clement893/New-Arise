@@ -506,7 +506,7 @@ export interface AssessmentQuestion {
   mode_a?: string;
   mode_b?: string;
   capability?: string;
-  metadata?: Record<string, any>;
+  question_metadata?: Record<string, any>;
   created_at: string;
   updated_at: string;
 }
@@ -522,7 +522,7 @@ export interface AssessmentQuestionCreate {
   mode_a?: string;
   mode_b?: string;
   capability?: string;
-  metadata?: Record<string, any>;
+  question_metadata?: Record<string, any>;
 }
 
 export interface AssessmentQuestionUpdate {
@@ -534,7 +534,7 @@ export interface AssessmentQuestionUpdate {
   mode_a?: string;
   mode_b?: string;
   capability?: string;
-  metadata?: Record<string, any>;
+  question_metadata?: Record<string, any>;
 }
 
 /**

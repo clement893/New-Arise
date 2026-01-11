@@ -2424,7 +2424,7 @@ async def create_question(
             mode_a=question_data.mode_a,
             mode_b=question_data.mode_b,
             capability=question_data.capability,
-            metadata=question_data.metadata
+            question_metadata=question_data.question_metadata
         )
         
         db.add(question)
@@ -2486,8 +2486,8 @@ async def update_question(
             question.mode_b = question_data.mode_b
         if question_data.capability is not None:
             question.capability = question_data.capability
-        if question_data.metadata is not None:
-            question.metadata = question_data.metadata
+        if question_data.question_metadata is not None:
+            question.question_metadata = question_data.question_metadata
         
         question.updated_at = datetime.utcnow()
         

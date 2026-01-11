@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS assessment_questions (
     capability VARCHAR(100),
     
     -- Additional metadata (JSON)
-    metadata JSONB,
+    question_metadata JSONB,
     
     -- Timestamps
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
@@ -52,4 +52,4 @@ COMMENT ON COLUMN assessment_questions.option_b IS 'TKI option B text';
 COMMENT ON COLUMN assessment_questions.mode_a IS 'TKI mode A (competing, collaborating, etc.)';
 COMMENT ON COLUMN assessment_questions.mode_b IS 'TKI mode B';
 COMMENT ON COLUMN assessment_questions.capability IS '360° capability category';
-COMMENT ON COLUMN assessment_questions.metadata IS 'Additional metadata in JSON format';
+COMMENT ON COLUMN assessment_questions.question_metadata IS 'Additional metadata in JSON format';
