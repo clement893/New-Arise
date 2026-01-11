@@ -799,13 +799,16 @@ function AssessmentsContent() {
           className="border-arise-button-primary text-white hover:bg-arise-button-primary hover:text-white"
           disabled={isStarting}
           onClick={() => {
-            if (assessment.requiresEvaluators) {
+            // For 360 assessments, always redirect to the assessment page
+            if (assessment.assessmentType === 'THREE_SIXTY_SELF' && safeAssessmentId) {
+              router.push(`/dashboard/assessments/360-feedback?assessmentId=${safeAssessmentId}`);
+            } else if (assessment.requiresEvaluators && safeAssessmentId) {
+              // Other assessments that require evaluators and have an assessmentId - open modal
               setStartingAssessment(null); // Reset loading state when opening modal
               setShowEvaluatorModal(true);
             } else {
-              if (assessment.assessmentType === 'THREE_SIXTY_SELF' && safeAssessmentId) {
-                router.push(`/dashboard/assessments/360-feedback?assessmentId=${safeAssessmentId}`);
-              } else if (assessment.assessmentType === 'WELLNESS') {
+              // For other assessment types
+              if (assessment.assessmentType === 'WELLNESS') {
                 router.push(safeAssessmentId ? `/dashboard/assessments/wellness?assessmentId=${safeAssessmentId}` : '/dashboard/assessments/wellness');
               } else if (assessment.assessmentType === 'TKI') {
                 router.push(safeAssessmentId ? `/dashboard/assessments/tki?assessmentId=${safeAssessmentId}` : '/dashboard/assessments/tki');
