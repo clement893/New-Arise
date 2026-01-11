@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 import { useAuthStore } from '@/lib/store';
-import { Card, Badge, Container, StatsCard, StatusCard, ServiceTestCard } from '@/components/ui';
+import { Card, Badge, Container, StatsCard, StatusCard } from '@/components/ui';
 
 function DashboardContent() {
   const { user } = useAuthStore();
