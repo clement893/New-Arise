@@ -547,20 +547,21 @@ async def submit_assessment(
     assessment.processed_score = scores
 
     # Create assessment result
-    # Note: Database has result_data column, not scores. We'll store scores in result_data.
+    # Note: Database has scores column (renamed from result_data). We'll store scores in scores column.
     try:
         # Serialize scores to JSON string for PostgreSQL JSONB column
-        result_data_json = json.dumps(scores)
+        scores_json = json.dumps(scores)
         await db.execute(
             text("""
-                INSERT INTO assessment_results (assessment_id, result_data, created_at, updated_at)
-                VALUES (:assessment_id, CAST(:result_data AS jsonb), NOW(), NOW())
+                INSERT INTO assessment_results (assessment_id, user_id, scores, generated_at, updated_at)
+                VALUES (:assessment_id, :user_id, CAST(:scores AS jsonb), NOW(), NOW())
                 ON CONFLICT (assessment_id) DO UPDATE
-                SET result_data = CAST(:result_data AS jsonb), updated_at = NOW()
+                SET scores = CAST(:scores AS jsonb), updated_at = NOW()
             """),
             {
                 "assessment_id": assessment.id,
-                "result_data": result_data_json
+                "user_id": current_user.id,
+                "scores": scores_json
             }
         )
 
