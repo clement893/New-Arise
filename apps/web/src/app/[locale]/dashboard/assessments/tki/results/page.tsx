@@ -38,7 +38,26 @@ export default function TKIResultsPage() {
 
       // Transform AssessmentResult to TKIResults format
       const { scores } = data;
-      const modeScores = scores.mode_scores || {};
+      
+      // Handle different possible score structures
+      // Backend returns mode_counts, but it might be stored as mode_scores in the database
+      let modeScores: Record<string, number> = {};
+      
+      if (scores.mode_scores) {
+        // If stored as mode_scores in database
+        modeScores = scores.mode_scores;
+      } else if (scores.mode_counts) {
+        // If stored as mode_counts (what calculate_tki_score returns)
+        modeScores = scores.mode_counts;
+      } else {
+        // Check if mode counts are directly in scores object
+        const possibleModes = ['competing', 'collaborating', 'avoiding', 'accommodating', 'compromising'];
+        possibleModes.forEach(mode => {
+          if (typeof scores[mode] === 'number') {
+            modeScores[mode] = scores[mode];
+          }
+        });
+      }
 
       // Find dominant and secondary modes
       const sortedModes = Object.entries(modeScores)
@@ -177,7 +196,7 @@ export default function TKIResultsPage() {
               <h1 className="text-4xl font-bold text-arise-teal mb-2">
                 TKI Conflict Style Results
               </h1>
-              <p className="text-gray-600">
+              <p className="text-white">
                 Your conflict management profile
               </p>
             </div>
