@@ -837,12 +837,21 @@ function AssessmentsContent() {
         onClick={async () => {
           try {
             setStartingAssessment(assessment.assessmentType);
-            if (assessment.requiresEvaluators) {
+            // For 360 assessments, always redirect to start page if no assessmentId exists
+            if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
+              if (safeAssessmentId) {
+                // Existing assessment - resume it
+                router.push(`/dashboard/assessments/360-feedback?assessmentId=${safeAssessmentId}`);
+              } else {
+                // New assessment - redirect to start page to invite evaluators
+                router.push('/dashboard/assessments/360-feedback/start');
+              }
+            } else if (assessment.requiresEvaluators && safeAssessmentId) {
+              // Other assessments that require evaluators and have an assessmentId
               setStartingAssessment(null); // Reset loading state when opening modal
               setShowEvaluatorModal(true);
-            } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
-              router.push('/dashboard/assessments/360-feedback/start');
             } else {
+              // For other assessment types
               await handleStartAssessment(assessment.assessmentType, safeAssessmentId);
             }
           } catch (err) {
@@ -850,7 +859,7 @@ function AssessmentsContent() {
             console.error('Failed to start assessment:', errorMessage);
             setError(errorMessage);
           } finally {
-            if (!assessment.requiresEvaluators && assessment.assessmentType !== 'THREE_SIXTY_SELF') {
+            if (assessment.assessmentType !== 'THREE_SIXTY_SELF' && !(assessment.requiresEvaluators && safeAssessmentId)) {
               setStartingAssessment(null);
             }
           }
