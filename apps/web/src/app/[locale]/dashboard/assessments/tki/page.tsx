@@ -9,6 +9,7 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { formatError } from '@/lib/utils/formatError';
+import { Target, ArrowLeft, ArrowRight } from 'lucide-react';
 
 export default function TKIAssessmentPage() {
   const router = useRouter();
@@ -339,130 +340,150 @@ export default function TKIAssessmentPage() {
     );
   }
 
+  const answeredCount = Object.keys(answers).length;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-arise-teal via-arise-teal-dark to-arise-teal flex items-center justify-center p-4">
-      <div className="max-w-4xl w-full">
-        {/* Progress Bar */}
-        <div className="mb-4">
-          <div className="flex justify-between text-white text-sm mb-2">
-            <span className="text-white">
-              Question {currentQuestion + 1} of {tkiQuestions.length}
-            </span>
-            <span className="text-white">{Math.round(progress)}% Complete</span>
-          </div>
-          <div className="w-full bg-white/20 rounded-full h-2">
-            <div
-              className="bg-arise-gold h-2 rounded-full transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            />
+    <div className="relative">
+      <div 
+        className="fixed inset-0 bg-cover bg-center opacity-10 pointer-events-none"
+        style={{
+          backgroundImage: 'url(/images/dashboard-bg.jpg)',
+        }}
+      />
+      <div className="relative z-10 p-8">
+        <div className="flex items-center justify-center min-h-[80vh]">
+          <div className="max-w-4xl w-full">
+            <MotionDiv key={currentQuestion} variant="slideUp" duration="fast">
+              <Card className="p-8">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <Target className="w-6 h-6 text-arise-teal" />
+                    <span className="font-semibold text-gray-900">
+                      TKI Conflict Style
+                    </span>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm font-medium text-gray-700 mb-1">
+                      Question {currentQuestion + 1} / {tkiQuestions.length}
+                    </div>
+                    <div className="w-32 bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-arise-gold h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {Math.round(progress)}% completed
+                    </div>
+                  </div>
+                  <div className="px-3 py-1 bg-arise-gold/10 text-arise-gold rounded-full text-xs font-medium">
+                    Conflict Style
+                  </div>
+                </div>
+
+                {/* Question Area */}
+                <div className="mb-8 text-center">
+                  <div className="mb-6">
+                    <Target className="w-16 h-16 text-arise-teal mx-auto mb-4" />
+                  </div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                    When dealing with conflict, which statement best describes you?
+                  </h2>
+                </div>
+
+                {/* Options A/B */}
+                <div className="space-y-4 mb-8">
+                  {/* Option A */}
+                  <button
+                    onClick={() => handleSelectAnswer('A')}
+                    disabled={isLoading}
+                    className={`w-full p-6 rounded-lg border-2 transition-all duration-200 text-left ${
+                      selectedAnswer === 'A'
+                        ? 'border-gray-800 bg-gray-800 text-white shadow-lg'
+                        : 'border-gray-200 bg-white text-gray-900 hover:border-gray-300'
+                    } ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                  >
+                    <div className="flex items-start">
+                      <div
+                        className={`w-10 h-10 rounded-full border-2 flex items-center justify-center mr-4 flex-shrink-0 transition-all ${
+                          selectedAnswer === 'A' ? 'border-white bg-white text-gray-800 shadow-lg' : 'border-gray-300 bg-white text-gray-600'
+                        }`}
+                      >
+                        <span className="font-bold">A</span>
+                      </div>
+                      <p className={`leading-relaxed transition-colors ${
+                        selectedAnswer === 'A'
+                          ? 'text-white font-semibold'
+                          : 'text-gray-800'
+                      }`}>
+                        {currentQuestionData.optionA}
+                      </p>
+                    </div>
+                  </button>
+
+                  {/* Option B */}
+                  <button
+                    onClick={() => handleSelectAnswer('B')}
+                    disabled={isLoading}
+                    className={`w-full p-6 rounded-lg border-2 transition-all duration-200 text-left ${
+                      selectedAnswer === 'B'
+                        ? 'border-gray-800 bg-gray-800 text-white shadow-lg'
+                        : 'border-gray-200 bg-white text-gray-900 hover:border-gray-300'
+                    } ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                  >
+                    <div className="flex items-start">
+                      <div
+                        className={`w-10 h-10 rounded-full border-2 flex items-center justify-center mr-4 flex-shrink-0 transition-all ${
+                          selectedAnswer === 'B' ? 'border-white bg-white text-gray-800 shadow-lg' : 'border-gray-300 bg-white text-gray-600'
+                        }`}
+                      >
+                        <span className="font-bold">B</span>
+                      </div>
+                      <p className={`leading-relaxed transition-colors ${
+                        selectedAnswer === 'B'
+                          ? 'text-white font-semibold'
+                          : 'text-gray-800'
+                      }`}>
+                        {currentQuestionData.optionB}
+                      </p>
+                    </div>
+                  </button>
+                </div>
+
+                {error && (
+                  <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+                    {typeof error === 'string' ? error : formatError(error)}
+                  </div>
+                )}
+
+                {/* Footer Navigation */}
+                <div className="flex items-center justify-between pt-6 border-t border-gray-200">
+                  <Button
+                    onClick={handleBack}
+                    disabled={currentQuestion === 0 || isLoading}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <ArrowLeft size={20} />
+                    Back
+                  </Button>
+                  <span className="text-sm text-gray-600">
+                    {answeredCount} / {tkiQuestions.length} responses
+                  </span>
+                  <Button
+                    onClick={handleNext}
+                    disabled={!selectedAnswer || isLoading}
+                    className="flex items-center gap-2 bg-arise-deep-teal hover:bg-arise-deep-teal/90"
+                  >
+                    {isLoading ? 'Saving...' : isLastQuestion ? 'Submit' : 'Next'}
+                    <ArrowRight size={20} />
+                  </Button>
+                </div>
+              </Card>
+            </MotionDiv>
           </div>
         </div>
-
-        {/* Question Card */}
-        <MotionDiv key={currentQuestion} variant="slideUp" duration="fast">
-          <Card className="bg-white p-8">
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-arise-teal mb-4">
-                When dealing with conflict, which statement best describes you?
-              </h2>
-            </div>
-
-            <div className="space-y-4 mb-8">
-              {/* Option A */}
-              <button
-                onClick={() => handleSelectAnswer('A')}
-                disabled={isLoading}
-                className={`w-full p-6 rounded-lg border-2 transition-all duration-200 text-left ${
-                  selectedAnswer === 'A'
-                    ? 'border-arise-gold bg-arise-gold/10 shadow-md ring-2 ring-arise-gold/30 ring-offset-2 scale-[1.02]'
-                    : 'border-gray-200 hover:border-arise-teal hover:bg-arise-teal/5 bg-white'
-                } ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-              >
-                <div className="flex items-start">
-                  <div
-                    className={`w-10 h-10 rounded-full border-2 flex items-center justify-center mr-4 flex-shrink-0 transition-all ${
-                      selectedAnswer === 'A' ? 'border-arise-gold bg-arise-gold shadow-lg scale-110' : 'border-gray-300'
-                    }`}
-                  >
-                    {selectedAnswer === 'A' ? (
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                      </svg>
-                    ) : (
-                      <span className="font-bold text-gray-400">A</span>
-                    )}
-                  </div>
-                  <p className={`leading-relaxed transition-colors ${
-                    selectedAnswer === 'A'
-                      ? 'text-arise-gold font-semibold'
-                      : 'text-gray-800'
-                  }`}>
-                    {currentQuestionData.optionA}
-                  </p>
-                </div>
-              </button>
-
-              {/* Option B */}
-              <button
-                onClick={() => handleSelectAnswer('B')}
-                disabled={isLoading}
-                className={`w-full p-6 rounded-lg border-2 transition-all duration-200 text-left ${
-                  selectedAnswer === 'B'
-                    ? 'border-arise-gold bg-arise-gold/10 shadow-md ring-2 ring-arise-gold/30 ring-offset-2 scale-[1.02]'
-                    : 'border-gray-200 hover:border-arise-teal hover:bg-arise-teal/5 bg-white'
-                } ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-              >
-                <div className="flex items-start">
-                  <div
-                    className={`w-10 h-10 rounded-full border-2 flex items-center justify-center mr-4 flex-shrink-0 transition-all ${
-                      selectedAnswer === 'B' ? 'border-arise-gold bg-arise-gold shadow-lg scale-110' : 'border-gray-300'
-                    }`}
-                  >
-                    {selectedAnswer === 'B' ? (
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                      </svg>
-                    ) : (
-                      <span className="font-bold text-gray-400">B</span>
-                    )}
-                  </div>
-                  <p className={`leading-relaxed transition-colors ${
-                    selectedAnswer === 'B'
-                      ? 'text-arise-gold font-semibold'
-                      : 'text-gray-800'
-                  }`}>
-                    {currentQuestionData.optionB}
-                  </p>
-                </div>
-              </button>
-            </div>
-
-            {error && (
-              <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
-                {typeof error === 'string' ? error : formatError(error)}
-              </div>
-            )}
-
-            {/* Navigation */}
-            <div className="flex justify-between items-center">
-              <Button
-                onClick={handleBack}
-                disabled={currentQuestion === 0 || isLoading}
-                variant="outline"
-              >
-                Back
-              </Button>
-
-              <Button
-                onClick={handleNext}
-                disabled={!selectedAnswer || isLoading}
-                className="bg-arise-gold hover:bg-arise-gold-dark text-white"
-              >
-                {isLoading ? 'Saving...' : isLastQuestion ? 'Submit' : 'Next'}
-              </Button>
-            </div>
-          </Card>
-        </MotionDiv>
       </div>
     </div>
   );

@@ -10,8 +10,10 @@ import {
   feedback360Scale,
 } from '@/data/feedback360Questions';
 import Button from '@/components/ui/Button';
+import Card from '@/components/ui/Card';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 import { formatError } from '@/lib/utils/formatError';
+import { feedback360CapabilityIcons, DefaultIcon } from '@/lib/utils/assessmentIcons';
 
 export default function Feedback360Page() {
   const router = useRouter();
@@ -281,103 +283,122 @@ export default function Feedback360Page() {
     );
   }
 
+  const currentCapability = feedback360Capabilities.find((c) => c.id === question.capability);
+  const CapabilityIcon = currentCapability 
+    ? (feedback360CapabilityIcons[currentCapability.id] || DefaultIcon)
+    : DefaultIcon;
+  const answeredCount = Object.keys(answers).length;
+
+  // Map scale labels to short format
+  const scaleLabelMap: Record<number, string> = {
+    1: 'Not at all',
+    2: 'Rarely',
+    3: 'Sometimes',
+    4: 'Often',
+    5: 'Always',
+  };
+
   return (
-    <div className="min-h-screen bg-arise-teal p-8">
-      <div className="mx-auto max-w-4xl">
-        {/* Progress Bar */}
-        <div className="mb-6">
-          <div className="mb-2 flex items-center justify-between text-sm">
-            <span className="text-white">Question {currentQuestion + 1} of 30</span>
-            <span className="text-white">{progress}% Complete</span>
-          </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-white/30">
-            <div
-              className="h-full bg-arise-gold transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-        </div>
-
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <MotionDiv
-            key={currentQuestion}
-            variant="slideUp"
-            duration="normal"
-            className="rounded-lg bg-white p-8 shadow-lg w-full max-w-4xl"
-          >
-          {/* Capability Badge */}
-          <div className="mb-4">
-            <span className="inline-flex items-center gap-2 rounded-full bg-arise-teal/10 px-4 py-2 text-sm font-medium text-arise-teal">
-              {feedback360Capabilities.find((c) => c.id === question.capability)?.icon}
-              {feedback360Capabilities.find((c) => c.id === question.capability)?.title}
-            </span>
-          </div>
-
-          {/* Question */}
-          <h2 className="mb-8 text-2xl font-semibold text-gray-900">{question.question}</h2>
-
-          {/* Scale */}
-          <div className="mb-8 space-y-3">
-            {feedback360Scale.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => handleSelectValue(option.value)}
-                className={`w-full rounded-lg border-2 p-4 text-left transition-all duration-200 ${
-                  selectedValue === option.value
-                    ? 'border-arise-teal bg-arise-teal/10 shadow-md ring-2 ring-arise-teal/30 ring-offset-2 scale-[1.02]'
-                    : 'border-gray-200 hover:border-arise-teal/50 hover:bg-arise-teal/5 bg-white'
-                }`}
-              >
-                <div className="flex items-center justify-between">
+    <div className="relative">
+      <div 
+        className="fixed inset-0 bg-cover bg-center opacity-10 pointer-events-none"
+        style={{
+          backgroundImage: 'url(/images/dashboard-bg.jpg)',
+        }}
+      />
+      <div className="relative z-10 p-8">
+        <div className="flex items-center justify-center min-h-[80vh]">
+          <div className="max-w-4xl w-full">
+            <MotionDiv key={currentQuestion} variant="slideUp" duration="fast">
+              <Card className="p-8">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
                   <div className="flex items-center gap-3">
-                    <div className={`flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
-                      selectedValue === option.value
-                        ? 'border-arise-teal bg-arise-teal shadow-lg scale-110'
-                        : 'border-gray-300'
-                    }`}>
-                      {selectedValue === option.value && (
-                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
-                      )}
-                    </div>
-                    <span className={`font-medium transition-colors ${
-                      selectedValue === option.value
-                        ? 'text-arise-teal font-semibold'
-                        : 'text-gray-900'
-                    }`}>
-                      {option.label}
+                    <CapabilityIcon className="w-6 h-6 text-arise-teal" />
+                    <span className="font-semibold text-gray-900">
+                      {currentCapability?.title || '360° Feedback'}
                     </span>
                   </div>
-                  <span className={`text-2xl font-bold transition-colors ${
-                    selectedValue === option.value
-                      ? 'text-arise-teal'
-                      : 'text-gray-600'
-                  }`}>
-                    {option.value}
-                  </span>
+                  <div className="text-center">
+                    <div className="text-sm font-medium text-gray-700 mb-1">
+                      Question {currentQuestion + 1} / {feedback360Questions.length}
+                    </div>
+                    <div className="w-32 bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-arise-gold h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {Math.round(progress)}% completed
+                    </div>
+                  </div>
+                  <div className="px-3 py-1 bg-arise-teal/10 text-arise-teal rounded-full text-xs font-medium">
+                    {currentCapability?.title || 'Leadership'}
+                  </div>
                 </div>
-              </button>
-            ))}
-          </div>
 
-          {/* Navigation */}
-          <div className="flex justify-between">
-            <Button variant="outline" onClick={handleBack} disabled={currentQuestion === 0}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Button>
+                {/* Question Area */}
+                <div className="mb-8 text-center">
+                  <div className="mb-6">
+                    <CapabilityIcon className="w-16 h-16 text-arise-teal mx-auto mb-4" />
+                  </div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                    {question.question}
+                  </h2>
+                </div>
 
-            <Button
-              onClick={handleNext}
-              disabled={selectedValue === null}
-              className="bg-arise-gold hover:bg-arise-gold/90"
-            >
-              {currentQuestion === 29 ? 'Finish' : 'Next'}
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+                {/* Scale Options - Horizontal */}
+                <div className="flex gap-3 mb-8">
+                  {feedback360Scale.map((option) => {
+                    const isSelected = selectedValue === option.value;
+                    const shortLabel = scaleLabelMap[option.value] || option.label;
+                    return (
+                      <button
+                        key={option.value}
+                        onClick={() => handleSelectValue(option.value)}
+                        className={`
+                          flex-1 p-4 rounded-lg border-2 transition-all duration-200 text-center
+                          ${isSelected
+                            ? 'border-gray-800 bg-gray-800 text-white shadow-lg'
+                            : 'border-gray-200 bg-white text-gray-900 hover:border-gray-300'
+                          }
+                        `}
+                      >
+                        <div className={`font-semibold ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                          {shortLabel} {option.value}/5
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Footer Navigation */}
+                <div className="flex items-center justify-between pt-6 border-t border-gray-200">
+                  <Button 
+                    variant="outline" 
+                    onClick={handleBack} 
+                    disabled={currentQuestion === 0}
+                    className="flex items-center gap-2"
+                  >
+                    <ArrowLeft size={20} />
+                    Back
+                  </Button>
+                  <span className="text-sm text-gray-600">
+                    {answeredCount} / {feedback360Questions.length} responses
+                  </span>
+                  <Button
+                    onClick={handleNext}
+                    disabled={selectedValue === null}
+                    className="flex items-center gap-2 bg-arise-deep-teal hover:bg-arise-deep-teal/90"
+                  >
+                    {currentQuestion === 29 ? 'Finish' : 'Next'}
+                    <ArrowRight size={20} />
+                  </Button>
+                </div>
+              </Card>
+            </MotionDiv>
           </div>
-        </MotionDiv>
         </div>
       </div>
     </div>

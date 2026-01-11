@@ -13,6 +13,7 @@ import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 import { getMyAssessments, submitAssessment as submitAssessmentApi, getAssessmentResults } from '@/lib/api/assessments';
 import { determineAssessmentStatus } from '@/lib/utils/assessmentStatus';
 import { formatError } from '@/lib/utils/formatError';
+import { wellnessPillarIcons, DefaultIcon } from '@/lib/utils/assessmentIcons';
 
 function WellnessAssessmentContent() {
   const router = useRouter();
@@ -510,6 +511,24 @@ function WellnessAssessmentContent() {
     );
   }
 
+  // Get current pillar info and icon
+  const currentPillar = currentQuestion?.pillar 
+    ? wellnessPillars.find(p => p.name === currentQuestion.pillar)
+    : null;
+  const PillarIcon = currentPillar 
+    ? (wellnessPillarIcons[currentPillar.name] || DefaultIcon)
+    : DefaultIcon;
+  const answeredCount = Object.keys(answers).length;
+
+  // Map scale labels to short format
+  const scaleLabelMap: Record<number, string> = {
+    1: 'Not at all',
+    2: 'Rarely',
+    3: 'Sometimes',
+    4: 'Often',
+    5: 'Always',
+  };
+
   return (
     <div className="relative">
       <div 
@@ -519,72 +538,75 @@ function WellnessAssessmentContent() {
         }}
       />
       <div className="relative z-10 p-8">
-          {/* Progress Bar */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-white">
-                Question {currentQuestionIndex + 1} of {wellnessQuestions.length}
-              </span>
-              <span className="text-sm font-medium text-white">
-                {typeof progress === 'number' ? progress : 0}% Complete
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-arise-deep-teal h-2 rounded-full transition-all duration-300"
-                style={{ width: `${typeof progress === 'number' ? progress : 0}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Question Card - Centered */}
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="max-w-4xl w-full">
-              <MotionDiv variant="slideUp" duration="fast" key={currentQuestionIndex}>
-                <Card className="mb-6">
-                  <div className="mb-8">
-                    <div className="inline-block px-3 py-1 bg-arise-deep-teal/10 text-arise-deep-teal rounded-full text-sm font-medium mb-4">
-                      {currentQuestion?.pillar ? (wellnessPillars.find(p => p.name === currentQuestion.pillar)?.name || currentQuestion.pillar) : 'Question'}
+        {/* Question Card - Centered */}
+        <div className="flex items-center justify-center min-h-[80vh]">
+          <div className="max-w-4xl w-full">
+            <MotionDiv variant="slideUp" duration="fast" key={currentQuestionIndex}>
+              <Card className="p-8">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <PillarIcon className="w-6 h-6 text-arise-deep-teal" />
+                    <span className="font-semibold text-gray-900">
+                      {currentPillar?.name || 'Wellness Assessment'}
+                    </span>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm font-medium text-gray-700 mb-1">
+                      Question {currentQuestionIndex + 1} / {wellnessQuestions.length}
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900">
-                      {currentQuestion?.question || 'Question not available'}
-                    </h2>
+                    <div className="w-32 bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-arise-deep-teal h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${typeof progress === 'number' ? progress : 0}%` }}
+                      />
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {typeof progress === 'number' ? Math.round(progress) : 0}% completed
+                    </div>
                   </div>
+                  <div className="px-3 py-1 bg-arise-deep-teal/10 text-arise-deep-teal rounded-full text-xs font-medium">
+                    {currentPillar?.name || 'Question'}
+                  </div>
+                </div>
 
-                  {/* Scale Options */}
-                  <div className="grid grid-cols-5 gap-4">
-                  {scaleOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => handleAnswerSelect(option.value)}
-                      className={`
-                        p-6 rounded-lg border-2 transition-all duration-200 relative
-                        ${currentAnswer === option.value
-                          ? 'border-arise-deep-teal bg-arise-deep-teal text-white shadow-lg ring-2 ring-arise-deep-teal/30 ring-offset-2 scale-110'
-                          : 'border-gray-200 bg-white hover:border-arise-deep-teal/50 hover:bg-arise-deep-teal/5'
-                        }
-                      `}
-                    >
-                      {currentAnswer === option.value && (
-                        <div className="absolute top-2 right-2">
-                          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                          </svg>
+                {/* Question Area */}
+                <div className="mb-8 text-center">
+                  <div className="mb-6">
+                    <PillarIcon className="w-16 h-16 text-arise-deep-teal mx-auto mb-4" />
+                  </div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                    {currentQuestion?.question || 'Question not available'}
+                  </h2>
+                </div>
+
+                {/* Scale Options - Horizontal */}
+                <div className="flex gap-3 mb-8">
+                  {scaleOptions.map((option) => {
+                    const isSelected = currentAnswer === option.value;
+                    const shortLabel = scaleLabelMap[option.value] || option.label;
+                    return (
+                      <button
+                        key={option.value}
+                        onClick={() => handleAnswerSelect(option.value)}
+                        className={`
+                          flex-1 p-4 rounded-lg border-2 transition-all duration-200 text-center
+                          ${isSelected
+                            ? 'border-gray-800 bg-gray-800 text-white shadow-lg'
+                            : 'border-gray-200 bg-white text-gray-900 hover:border-gray-300'
+                          }
+                        `}
+                      >
+                        <div className={`font-semibold ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                          {shortLabel} {option.value}/5
                         </div>
-                      )}
-                      <div className={`text-3xl font-bold mb-2 ${currentAnswer === option.value ? 'text-white' : 'text-gray-900'}`}>
-                        {option.value}
-                      </div>
-                      <div className={`text-sm font-medium ${currentAnswer === option.value ? 'text-white' : 'text-gray-600'}`}>
-                        {option.label}
-                      </div>
-                    </button>
-                  ))}
-                  </div>
-                </Card>
+                      </button>
+                    );
+                  })}
+                </div>
 
-                {/* Navigation Buttons */}
-                <div className="flex justify-between">
+                {/* Footer Navigation */}
+                <div className="flex items-center justify-between pt-6 border-t border-gray-200">
                   <Button
                     variant="outline"
                     onClick={handleBack}
@@ -593,20 +615,24 @@ function WellnessAssessmentContent() {
                     <ArrowLeft size={20} />
                     Back
                   </Button>
+                  <span className="text-sm text-gray-600">
+                    {answeredCount} / {wellnessQuestions.length} responses
+                  </span>
                   <Button
                     variant="primary"
                     onClick={handleNext}
                     disabled={!currentAnswer}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 bg-arise-deep-teal hover:bg-arise-deep-teal/90"
                   >
                     {isLastQuestion ? 'Complete' : 'Next'}
                     <ArrowRight size={20} />
                   </Button>
                 </div>
-              </MotionDiv>
-            </div>
+              </Card>
+            </MotionDiv>
           </div>
         </div>
+      </div>
     </div>
   );
 }

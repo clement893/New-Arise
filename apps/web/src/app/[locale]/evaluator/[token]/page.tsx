@@ -7,12 +7,13 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { feedback360Questions } from '@/data/feedback360Questions';
+import { feedback360Questions, feedback360Capabilities } from '@/data/feedback360Questions';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { ArrowLeft, ArrowRight, Check, Clock } from 'lucide-react';
 import axios from 'axios';
+import { feedback360CapabilityIcons, DefaultIcon } from '@/lib/utils/assessmentIcons';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
@@ -202,6 +203,21 @@ export default function EvaluatorAssessmentPage() {
     ? Math.ceil((new Date(assessmentInfo.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
     : 0;
 
+  // Get capability info and icon
+  const currentCapability = feedback360Capabilities?.find((c) => c.id === currentQuestion?.capability);
+  const CapabilityIcon = currentCapability 
+    ? (feedback360CapabilityIcons[currentCapability.id] || DefaultIcon)
+    : DefaultIcon;
+
+  // Map scale labels to short format
+  const scaleLabelMap: Record<number, string> = {
+    1: 'Not at all',
+    2: 'Rarely',
+    3: 'Sometimes',
+    4: 'Often',
+    5: 'Always',
+  };
+
   if (!currentQuestion) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -218,157 +234,153 @@ export default function EvaluatorAssessmentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto p-8">
-        {/* Header */}
-        <MotionDiv variant="slideUp" duration="normal" className="mb-8">
+    <div className="relative min-h-screen bg-gray-50">
+      <div 
+        className="fixed inset-0 bg-cover bg-center opacity-10 pointer-events-none"
+        style={{
+          backgroundImage: 'url(/images/dashboard-bg.jpg)',
+        }}
+      />
+      <div className="relative z-10 p-8">
+        {/* Info Header */}
+        <MotionDiv variant="slideUp" duration="normal" className="mb-6">
           <Card className="bg-gradient-to-r from-teal-50 to-cyan-50 border-teal-200">
-            <div className="p-6">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            <div className="p-4">
+              <h1 className="text-xl font-bold text-gray-900 mb-1">
                 360° Feedback for {assessmentInfo?.participant_name}
               </h1>
-              <p className="text-gray-700 mb-3">
+              <p className="text-sm text-gray-700 mb-2">
                 Hello {assessmentInfo?.evaluator_name}, you've been invited to provide anonymous feedback.
               </p>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Clock className="w-4 h-4" />
+              <div className="flex items-center gap-2 text-xs text-gray-600">
+                <Clock className="w-3 h-3" />
                 <span>Expires in {daysUntilExpiry} days</span>
               </div>
             </div>
           </Card>
         </MotionDiv>
 
-        {/* Progress Bar */}
-        <MotionDiv variant="slideUp" duration="normal" delay={100} className="mb-8">
-          <Card>
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">
-                  Question {currentQuestionIndex + 1} of {feedback360Questions.length}
-                </span>
-                <span className="text-sm font-medium text-teal-600">
-                  {progress.toFixed(0)}% Complete
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-teal-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-            </div>
-          </Card>
-        </MotionDiv>
-
-        {/* Question Card */}
-        <MotionDiv
-          key={currentQuestionIndex}
-          variant="slideUp"
-          duration="fast"
-          className="mb-8"
-        >
-          <Card>
-            <div className="p-8">
-              <div className="mb-6">
-                <span className="inline-block px-3 py-1 bg-teal-100 text-teal-700 rounded-full text-sm font-medium mb-4">
-                  {currentQuestion.capability.replace('_', ' ').toUpperCase()}
-                </span>
-                <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-                  {currentQuestion.question}
-                </h2>
-                <p className="text-gray-600 text-sm">
-                  Rate on a scale from 1 (Strongly Disagree) to 5 (Strongly Agree)
-                </p>
-              </div>
-
-              {/* Rating Scale */}
-              <div className="space-y-3">
-                {[1, 2, 3, 4, 5].map((score) => (
-                  <button
-                    key={score}
-                    onClick={() => handleSelectScore(score)}
-                    disabled={isSaving}
-                    className={`w-full p-4 rounded-lg border-2 transition-all duration-200 text-left ${
-                      selectedScore === score
-                        ? 'border-teal-600 bg-teal-50 shadow-md ring-2 ring-teal-200 ring-offset-2'
-                        : 'border-gray-200 hover:border-teal-300 hover:bg-teal-50/50 bg-white'
-                    } ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className={`flex-shrink-0 w-10 h-10 rounded-full border-2 flex items-center justify-center font-bold text-lg transition-all ${
-                        selectedScore === score
-                          ? 'border-teal-600 bg-teal-600 text-white shadow-lg scale-110'
-                          : 'border-gray-300 text-gray-600 bg-white'
-                      }`}>
-                        {score}
-                      </div>
-                      <div className="flex-1">
-                        <p className={`font-medium transition-colors ${
-                          selectedScore === score
-                            ? 'text-teal-900 font-semibold'
-                            : 'text-gray-900'
-                        }`}>
-                          {score === 1 && 'Strongly Disagree'}
-                          {score === 2 && 'Disagree'}
-                          {score === 3 && 'Neutral'}
-                          {score === 4 && 'Agree'}
-                          {score === 5 && 'Strongly Agree'}
-                        </p>
-                      </div>
-                      {selectedScore === score && (
-                        <div className="flex-shrink-0 animate-fade-in">
-                          <Check className="w-6 h-6 text-teal-600" />
-                        </div>
-                      )}
+        <div className="flex items-center justify-center min-h-[70vh]">
+          <div className="max-w-4xl w-full">
+            <MotionDiv
+              key={currentQuestionIndex}
+              variant="slideUp"
+              duration="fast"
+            >
+              <Card className="p-8">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <CapabilityIcon className="w-6 h-6 text-teal-600" />
+                    <span className="font-semibold text-gray-900">
+                      {currentCapability?.title || '360° Feedback'}
+                    </span>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm font-medium text-gray-700 mb-1">
+                      Question {currentQuestionIndex + 1} / {feedback360Questions.length}
                     </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </Card>
-        </MotionDiv>
+                    <div className="w-32 bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-teal-600 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {Math.round(progress)}% completed
+                    </div>
+                  </div>
+                  <div className="px-3 py-1 bg-teal-100 text-teal-700 rounded-full text-xs font-medium">
+                    {currentCapability?.title || 'Leadership'}
+                  </div>
+                </div>
 
-        {/* Error Message */}
-        {error && assessmentInfo && (
-          <MotionDiv variant="slideUp" duration="normal" className="mb-8">
-            <Card className="bg-red-50 border-red-200">
-              <div className="p-4">
-                <p className="text-red-800">{error}</p>
-              </div>
-            </Card>
-          </MotionDiv>
-        )}
+                {/* Question Area */}
+                <div className="mb-8 text-center">
+                  <div className="mb-6">
+                    <CapabilityIcon className="w-16 h-16 text-teal-600 mx-auto mb-4" />
+                  </div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                    {currentQuestion.question}
+                  </h2>
+                </div>
 
-        {/* Navigation */}
-        <MotionDiv variant="slideUp" duration="normal" delay={200} className="flex items-center justify-between">
-          <Button
-            variant="outline"
-            onClick={handlePrevious}
-            disabled={currentQuestionIndex === 0 || isSaving}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Previous
-          </Button>
+                {/* Scale Options - Horizontal */}
+                <div className="flex gap-3 mb-8">
+                  {[1, 2, 3, 4, 5].map((score) => {
+                    const isSelected = selectedScore === score;
+                    const shortLabel = scaleLabelMap[score] || 
+                      (score === 1 ? 'Strongly Disagree' :
+                       score === 2 ? 'Disagree' :
+                       score === 3 ? 'Neutral' :
+                       score === 4 ? 'Agree' : 'Strongly Agree');
+                    return (
+                      <button
+                        key={score}
+                        onClick={() => handleSelectScore(score)}
+                        disabled={isSaving}
+                        className={`
+                          flex-1 p-4 rounded-lg border-2 transition-all duration-200 text-center
+                          ${isSelected
+                            ? 'border-gray-800 bg-gray-800 text-white shadow-lg'
+                            : 'border-gray-200 bg-white text-gray-900 hover:border-gray-300'
+                          }
+                          ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                        `}
+                      >
+                        <div className={`font-semibold ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                          {shortLabel} {score}/5
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
 
-          {isLastQuestion && canSubmit ? (
-            <Button
-              onClick={handleSubmit}
-              disabled={selectedScore === null || isSaving}
-              className="bg-teal-600 hover:bg-teal-700"
-            >
-              {isSaving ? 'Submitting...' : 'Submit Feedback'}
-              <Check className="w-4 h-4 ml-2" />
-            </Button>
-          ) : (
-            <Button
-              onClick={handleNext}
-              disabled={selectedScore === null || isLastQuestion || isSaving}
-            >
-              Next
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          )}
-        </MotionDiv>
+                {/* Error Message */}
+                {error && assessmentInfo && (
+                  <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+                    {error}
+                  </div>
+                )}
+
+                {/* Footer Navigation */}
+                <div className="flex items-center justify-between pt-6 border-t border-gray-200">
+                  <Button
+                    variant="outline"
+                    onClick={handlePrevious}
+                    disabled={currentQuestionIndex === 0 || isSaving}
+                    className="flex items-center gap-2"
+                  >
+                    <ArrowLeft size={20} />
+                    Back
+                  </Button>
+                  <span className="text-sm text-gray-600">
+                    {answers.length} / {feedback360Questions.length} responses
+                  </span>
+                  {isLastQuestion && canSubmit ? (
+                    <Button
+                      onClick={handleSubmit}
+                      disabled={selectedScore === null || isSaving}
+                      className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700"
+                    >
+                      {isSaving ? 'Submitting...' : 'Submit Feedback'}
+                      <Check size={20} />
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleNext}
+                      disabled={selectedScore === null || isLastQuestion || isSaving}
+                      className="flex items-center gap-2 bg-arise-deep-teal hover:bg-arise-deep-teal/90"
+                    >
+                      Next
+                      <ArrowRight size={20} />
+                    </Button>
+                  )}
+                </div>
+              </Card>
+            </MotionDiv>
+          </div>
+        </div>
       </div>
     </div>
   );
