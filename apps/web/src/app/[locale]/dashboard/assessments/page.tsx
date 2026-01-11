@@ -49,8 +49,8 @@ import { Card, Button, Stack } from '@/components/ui';
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { Brain, Target, Users, Heart, Upload, CheckCircle, Lock, type LucideIcon, Loader2, RefreshCw, Eye } from 'lucide-react';
-import { getMyAssessments, Assessment as ApiAssessment, AssessmentType } from '@/lib/api/assessments';
+import { Brain, Target, Users, Heart, Upload, CheckCircle, Lock, type LucideIcon, Loader2, RefreshCw, Eye, Clock, Mail } from 'lucide-react';
+import { getMyAssessments, Assessment as ApiAssessment, AssessmentType, get360Evaluators, EvaluatorStatus } from '@/lib/api/assessments';
 import { startAssessment } from '@/lib/api/assessments';
 import InviteAdditionalEvaluatorsModal from '@/components/360/InviteAdditionalEvaluatorsModal';
 import { formatError } from '@/lib/utils/formatError';
@@ -100,10 +100,18 @@ const ASSESSMENT_CONFIG: Record<string, { title: string; description: string; ic
   },
 };
 
+const ROLE_LABELS: Record<string, string> = {
+  PEER: 'Pair / Collègue',
+  MANAGER: 'Manager / Supérieur',
+  DIRECT_REPORT: 'Rapport direct / Collaborateur',
+  STAKEHOLDER: 'Partie prenante / Client',
+};
+
 function AssessmentsContent() {
   const router = useRouter();
   const pathname = usePathname();
   const [showEvaluatorModal, setShowEvaluatorModal] = useState(false);
+  const [evaluators, setEvaluators] = useState<Record<number, EvaluatorStatus[]>>({});
   const isInitialMount = useRef(true);
   const previousPathnameRef = useRef<string | null>(null);
   
@@ -576,6 +584,21 @@ function AssessmentsContent() {
       
       setAssessments(finalValidatedAssessments);
       
+      // Load evaluators for 360 assessments
+      const threeSixtyAssessment = finalValidatedAssessments.find(a => a.assessmentType === 'THREE_SIXTY_SELF' && a.assessmentId);
+      if (threeSixtyAssessment?.assessmentId) {
+        try {
+          const evaluatorsResponse = await get360Evaluators(threeSixtyAssessment.assessmentId);
+          setEvaluators(prev => ({
+            ...prev,
+            [threeSixtyAssessment.assessmentId!]: evaluatorsResponse.evaluators || []
+          }));
+        } catch (evaluatorsErr) {
+          console.error('Failed to load evaluators:', formatError(evaluatorsErr));
+          // Don't fail the whole page if evaluators fail to load
+        }
+      }
+      
       // Cache assessments in sessionStorage for instant display on next visit
       // Only cache validated data to prevent corruption
       // CRITICAL: Remove icon from cached data (React components cannot be serialized)
@@ -777,6 +800,7 @@ function AssessmentsContent() {
           disabled={isStarting}
           onClick={() => {
             if (assessment.requiresEvaluators) {
+              setStartingAssessment(null); // Reset loading state when opening modal
               setShowEvaluatorModal(true);
             } else {
               if (assessment.assessmentType === 'THREE_SIXTY_SELF' && safeAssessmentId) {
@@ -814,6 +838,7 @@ function AssessmentsContent() {
           try {
             setStartingAssessment(assessment.assessmentType);
             if (assessment.requiresEvaluators) {
+              setStartingAssessment(null); // Reset loading state when opening modal
               setShowEvaluatorModal(true);
             } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
               router.push('/dashboard/assessments/360-feedback/start');
@@ -1225,7 +1250,7 @@ function AssessmentsContent() {
                             </div>
                             <div>
                               <h3 className="text-lg font-bold text-gray-900 mb-1">
-                                Ajoutez vos évaluateurs avant de commencer cet assessment
+                                Évaluateurs 360°
                               </h3>
                               <p className="text-sm text-gray-600">
                                 Invitez des collègues à fournir un feedback 360° sur votre leadership
@@ -1233,6 +1258,69 @@ function AssessmentsContent() {
                             </div>
                           </div>
                         </div>
+                        
+                        {/* Evaluators List */}
+                        {(() => {
+                          const assessmentEvaluators = safeAssessment.assessmentId ? evaluators[safeAssessment.assessmentId] || [] : [];
+                          if (assessmentEvaluators.length === 0) {
+                            return (
+                              <div className="mb-3">
+                                <p className="text-sm text-gray-600 mb-3">Aucun évaluateur ajouté pour le moment</p>
+                              </div>
+                            );
+                          }
+                          
+                          const getEvaluatorStatusBadge = (status: string) => {
+                            const statusLower = status.toLowerCase();
+                            if (statusLower === 'completed') {
+                              return (
+                                <div className="flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                                  <CheckCircle size={12} />
+                                  Terminé
+                                </div>
+                              );
+                            } else if (statusLower === 'in_progress' || statusLower === 'started') {
+                              return (
+                                <div className="flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                                  <Clock size={12} />
+                                  En cours
+                                </div>
+                              );
+                            } else {
+                              return (
+                                <div className="flex items-center gap-1 px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">
+                                  <Mail size={12} />
+                                  Invité
+                                </div>
+                              );
+                            }
+                          };
+                          
+                          return (
+                            <div className="mb-3 space-y-2">
+                              {assessmentEvaluators.map((evaluator) => (
+                                <div key={evaluator.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <span className="text-sm font-medium text-gray-900">{evaluator.name}</span>
+                                      {getEvaluatorStatusBadge(evaluator.status)}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs text-gray-600">
+                                      <span>{evaluator.email}</span>
+                                      {evaluator.role && (
+                                        <>
+                                          <span>•</span>
+                                          <span>{ROLE_LABELS[evaluator.role] || evaluator.role}</span>
+                                        </>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        })()}
+                        
                         <div className="flex items-center gap-3">
                           {safeAssessment.assessmentId && (
                             <Link href={`/dashboard/evaluators?id=${safeAssessment.assessmentId}`}>
@@ -1242,7 +1330,7 @@ function AssessmentsContent() {
                                 className="text-xs"
                               >
                                 <Eye size={14} className="mr-1" />
-                                Voir les évaluateurs
+                                Voir tous
                               </Button>
                             </Link>
                           )}
@@ -1354,9 +1442,23 @@ function AssessmentsContent() {
             isOpen={showEvaluatorModal}
             onClose={() => setShowEvaluatorModal(false)}
             assessmentId={safeModalAssessmentId}
-            onSuccess={() => {
+            onSuccess={async () => {
               setShowEvaluatorModal(false);
-              loadAssessments(); // Reload to refresh evaluator status
+              // Reload assessments and evaluators
+              await loadAssessments();
+              // Reload evaluators for the 360 assessment
+              const feedback360Assessment = safeAssessments.find(a => a.assessmentType === 'THREE_SIXTY_SELF');
+              if (feedback360Assessment?.assessmentId) {
+                try {
+                  const evaluatorsResponse = await get360Evaluators(feedback360Assessment.assessmentId);
+                  setEvaluators(prev => ({
+                    ...prev,
+                    [feedback360Assessment.assessmentId!]: evaluatorsResponse.evaluators || []
+                  }));
+                } catch (evaluatorsErr) {
+                  console.error('Failed to reload evaluators:', formatError(evaluatorsErr));
+                }
+              }
             }}
           />
         );

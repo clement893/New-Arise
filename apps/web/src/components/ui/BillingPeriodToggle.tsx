@@ -25,10 +25,10 @@ export default function BillingPeriodToggle({
         onClick={() => onChange('year')}
         variant={value === 'year' ? 'primary' : 'ghost'}
         size="md"
-        className="px-6"
+        className="px-6 text-white"
       >
         Annuel
-        <Badge variant="success" className="ml-2">
+        <Badge variant="success" className="ml-2 text-white">
           -20%
         </Badge>
       </Button>
