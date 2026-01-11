@@ -564,6 +564,8 @@ export const getQuestion = async (questionId: string): Promise<AssessmentQuestio
 /**
  * Create a new question
  * Uses apiClient to benefit from automatic token refresh on 401 errors
+ * @param questionData - The question data to create
+ * @returns The created question
  */
 export const createQuestion = async (questionData: AssessmentQuestionCreate): Promise<AssessmentQuestion> => {
   const response = await apiClient.post(
@@ -576,6 +578,9 @@ export const createQuestion = async (questionData: AssessmentQuestionCreate): Pr
 /**
  * Update a question
  * Uses apiClient to benefit from automatic token refresh on 401 errors
+ * @param questionId - The ID of the question to update
+ * @param questionData - The question data to update
+ * @returns The updated question
  */
 export const updateQuestion = async (
   questionId: string,
@@ -591,6 +596,7 @@ export const updateQuestion = async (
 /**
  * Delete a question
  * Uses apiClient to benefit from automatic token refresh on 401 errors
+ * @param questionId - The ID of the question to delete
  */
 export const deleteQuestion = async (questionId: string): Promise<void> => {
   await apiClient.delete(
