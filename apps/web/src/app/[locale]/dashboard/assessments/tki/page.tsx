@@ -60,17 +60,60 @@ export default function TKIAssessmentPage() {
       if (urlAssessmentId) {
         const id = parseInt(urlAssessmentId, 10);
         if (!isNaN(id)) {
-          // Assessment ID from URL, load existing answers
-          await loadExistingAnswers(id);
-          setShowIntro(false);
+          try {
+            // Assessment ID from URL, load existing answers
+            await loadExistingAnswers(id);
+            // Only hide intro if we successfully loaded (assessment exists)
+            if (assessmentId !== null) {
+              setShowIntro(false);
+            } else {
+              // Assessment doesn't exist, show intro to start new one
+              setShowIntro(true);
+              // Clean up URL parameter
+              const newParams = new URLSearchParams(searchParams.toString());
+              newParams.delete('assessmentId');
+              router.replace(`/dashboard/assessments/tki${newParams.toString() ? '?' + newParams.toString() : ''}`, { scroll: false });
+            }
+          } catch (err) {
+            // If assessment not found, show intro
+            const error = err as { message?: string; response?: { status?: number } };
+            if (error?.response?.status === 404 || error?.message?.includes('not found')) {
+              setShowIntro(true);
+              // Clean up URL parameter
+              const newParams = new URLSearchParams(searchParams.toString());
+              newParams.delete('assessmentId');
+              router.replace(`/dashboard/assessments/tki${newParams.toString() ? '?' + newParams.toString() : ''}`, { scroll: false });
+            } else {
+              // Other errors, still show intro but log error
+              console.error('Failed to load assessment:', err);
+              setShowIntro(true);
+            }
+          }
           return;
         }
       }
       
       if (assessmentId) {
-        // Assessment ID exists in store, load existing answers
-        await loadExistingAnswers(assessmentId);
-        setShowIntro(false);
+        try {
+          // Assessment ID exists in store, load existing answers
+          await loadExistingAnswers(assessmentId);
+          // Only hide intro if we successfully loaded (assessment still exists)
+          if (assessmentId !== null) {
+            setShowIntro(false);
+          } else {
+            // Assessment was deleted, show intro
+            setShowIntro(true);
+          }
+        } catch (err) {
+          // If assessment not found, show intro
+          const error = err as { message?: string; response?: { status?: number } };
+          if (error?.response?.status === 404 || error?.message?.includes('not found')) {
+            setShowIntro(true);
+          } else {
+            console.error('Failed to load assessment:', err);
+            setShowIntro(true);
+          }
+        }
       } else {
         // Check if there's an existing assessment
         try {
@@ -81,20 +124,39 @@ export default function TKIAssessmentPage() {
           );
           
           if (tkiAssessment && tkiAssessment.id) {
-            // Load existing answers and navigate to last question
-            await loadExistingAnswers(tkiAssessment.id);
-            setShowIntro(false);
+            try {
+              // Load existing answers and navigate to last question
+              await loadExistingAnswers(tkiAssessment.id);
+              // Only hide intro if we successfully loaded
+              if (assessmentId !== null) {
+                setShowIntro(false);
+              } else {
+                setShowIntro(true);
+              }
+            } catch (err) {
+              // If assessment not found, show intro
+              const error = err as { message?: string; response?: { status?: number } };
+              if (error?.response?.status === 404 || error?.message?.includes('not found')) {
+                setShowIntro(true);
+              } else {
+                console.error('Failed to load assessment:', err);
+                setShowIntro(true);
+              }
+            }
+          } else {
+            setShowIntro(true);
           }
         } catch (err) {
           // Convert error to string to prevent React error #130
           const errorMessage = formatError(err);
           console.error('Failed to check existing assessments:', errorMessage);
+          setShowIntro(true);
         }
       }
     };
 
     checkExistingAssessment();
-  }, [urlAssessmentId, assessmentId, loadExistingAnswers]); // Re-run when URL param or store changes
+  }, [urlAssessmentId, assessmentId, loadExistingAnswers, router, searchParams]); // Re-run when URL param or store changes
 
   useEffect(() => {
     if (currentQuestionData && answers[currentQuestionData.id]) {

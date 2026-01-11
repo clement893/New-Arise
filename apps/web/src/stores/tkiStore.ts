@@ -77,12 +77,33 @@ export const useTKIStore = create<TKIState>()(
         try {
           // Get assessment status from API to check if it's actually completed
           let assessmentStatus: string | undefined;
+          let isNotFound = false;
           try {
             const assessment = await getAssessment(assessmentId);
             assessmentStatus = assessment.status;
-          } catch (err) {
-            // If we can't get assessment status, continue with loading answers
-            console.warn('[TKI Store] Could not fetch assessment status, continuing...', err);
+          } catch (err: unknown) {
+            // Check if it's a 404 error (assessment not found)
+            const error = err as { response?: { status?: number } };
+            if (error?.response?.status === 404) {
+              isNotFound = true;
+              console.warn('[TKI Store] Assessment not found (404), resetting...', assessmentId);
+            } else {
+              // If we can't get assessment status for other reasons, continue with loading answers
+              console.warn('[TKI Store] Could not fetch assessment status, continuing...', err);
+            }
+          }
+
+          // If assessment doesn't exist, reset state and throw error to let page handle it
+          if (isNotFound) {
+            set({
+              assessmentId: null,
+              answers: {},
+              currentQuestion: 0,
+              isLoading: false,
+              isCompleted: false,
+              error: 'Assessment not found',
+            });
+            throw new Error('Assessment not found');
           }
 
           const existingAnswers = await getAssessmentAnswers(assessmentId);
@@ -125,12 +146,28 @@ export const useTKIStore = create<TKIState>()(
             isCompleted: isActuallyCompleted,
           });
         } catch (error: unknown) {
-          const errorMessage = extractErrorMessage(error, 'Failed to load existing answers');
-          set({
-            error: errorMessage,
-            isLoading: false,
-            isCompleted: false, // Reset on error
-          });
+          // Check if it's a 404 error from getAssessmentAnswers
+          const err = error as { response?: { status?: number }; message?: string };
+          const isNotFound = err?.response?.status === 404 || err?.message === 'Assessment not found';
+          
+          if (isNotFound) {
+            // Assessment doesn't exist, reset state
+            set({
+              assessmentId: null,
+              answers: {},
+              currentQuestion: 0,
+              isLoading: false,
+              isCompleted: false,
+              error: null, // Don't show error, just reset
+            });
+          } else {
+            const errorMessage = extractErrorMessage(error, 'Failed to load existing answers');
+            set({
+              error: errorMessage,
+              isLoading: false,
+              isCompleted: false, // Reset on error
+            });
+          }
         }
       },
 
