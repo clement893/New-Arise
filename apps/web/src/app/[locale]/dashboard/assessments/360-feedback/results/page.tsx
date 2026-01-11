@@ -95,8 +95,9 @@ export default function Feedback360ResultsPage() {
         );
         console.log('[360-Feedback Results] Found 360 assessment:', feedback360Assessment ? { id: feedback360Assessment.id, status: feedback360Assessment.status } : 'none');
         if (!feedback360Assessment) {
-          setError('No 360 feedback assessment found. Please start a new 360 feedback assessment first.');
-          setIsLoading(false);
+          // No 360 assessment found, redirect to start page
+          console.log('[360-Feedback Results] No 360 assessment found, redirecting to start page');
+          router.push('/dashboard/assessments/360-feedback/start');
           return;
         }
         id = feedback360Assessment.id;
@@ -108,8 +109,9 @@ export default function Feedback360ResultsPage() {
       console.log('[360-Feedback Results] Assessment found:', assessment ? { id: assessment.id, type: assessment.assessment_type, status: assessment.status } : 'none');
       
       if (!assessment) {
-        setError(`Assessment not found. You may not have access to this assessment. (ID: ${id})`);
-        setIsLoading(false);
+        // Assessment not found, redirect to assessments page
+        console.log('[360-Feedback Results] Assessment not found, redirecting to assessments page');
+        router.push('/dashboard/assessments');
         return;
       }
 
@@ -118,8 +120,9 @@ export default function Feedback360ResultsPage() {
       console.log('[360-Feedback Results] Assessment status check:', { status: assessment.status, isCompleted });
       
       if (!isCompleted) {
-        setError(`This assessment is not completed yet. Please complete the assessment first. Current status: ${assessment.status}`);
-        setIsLoading(false);
+        // If assessment is not completed, redirect to the assessment page instead of showing error
+        console.log('[360-Feedback Results] Assessment not completed, redirecting to assessment page');
+        router.push(`/dashboard/assessments/360-feedback?assessmentId=${id}`);
         return;
       }
 
