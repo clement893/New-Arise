@@ -126,6 +126,8 @@ class ProjectFactory(Factory):
         """
         Create a Project instance.
         
+        Note: Project model has been removed. This method now raises NotImplementedError.
+        
         @param name - Project name
         @param owner_id - Owner user ID
         @param description - Project description
@@ -133,22 +135,8 @@ class ProjectFactory(Factory):
         @param extra_fields - Additional fields to set
         @returns Project instance
         """
-        from app.models.project import Project
-        
-        # Validate
-        if not ProjectFactory.validate(name=name, owner_id=owner_id):
-            raise ValueError("Invalid project creation parameters")
-        
-        # Create project
-        project = Project(
-            name=name,
-            owner_id=owner_id,
-            description=description,
-            settings=settings or {},
-            **extra_fields
-        )
-        
-        return project
+        # Project model no longer exists
+        raise NotImplementedError("Project model has been removed from ARISE")
     
     @staticmethod
     def validate(name: str, owner_id: int) -> bool:

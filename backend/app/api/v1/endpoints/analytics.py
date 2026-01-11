@@ -11,10 +11,8 @@ from sqlalchemy import select, func
 from datetime import datetime, timedelta
 
 from app.models.user import User
-from app.models.project import Project
 from app.dependencies import get_current_user, get_db
 from app.core.security_audit import SecurityAuditLogger, SecurityEventType
-from app.core.tenancy_helpers import apply_tenant_scope
 from fastapi import Request
 
 router = APIRouter()
@@ -40,77 +38,33 @@ async def get_analytics_metrics(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Get analytics metrics for the dashboard"""
+    """Get analytics metrics for the dashboard
     
-    # Parse date range or use defaults
-    if end_date:
-        end_dt = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
-    else:
-        end_dt = datetime.utcnow()
+    Note: This endpoint previously used the Project model which has been removed.
+    It now returns empty/default metrics until new metrics are implemented.
+    """
     
-    if start_date:
-        start_dt = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
-    else:
-        start_dt = end_dt - timedelta(days=30)
-    
-    # Calculate metrics from projects
-    projects_query = select(Project).where(
-        Project.user_id == current_user.id,
-        Project.created_at >= start_dt,
-        Project.created_at <= end_dt
-    )
-    projects_query = apply_tenant_scope(projects_query, Project)
-    
-    result = await db.execute(projects_query)
-    projects = result.scalars().all()
-    
-    # Calculate previous period for comparison
-    period_duration = end_dt - start_dt
-    prev_start_dt = start_dt - period_duration
-    prev_end_dt = start_dt
-    
-    prev_projects_query = select(Project).where(
-        Project.user_id == current_user.id,
-        Project.created_at >= prev_start_dt,
-        Project.created_at < prev_end_dt
-    )
-    prev_projects_query = apply_tenant_scope(prev_projects_query, Project)
-    prev_result = await db.execute(prev_projects_query)
-    prev_projects = prev_result.scalars().all()
-    
-    # Calculate metrics
-    total_projects = len(projects)
-    active_projects = len([p for p in projects if p.status == 'active'])
-    prev_total = len(prev_projects)
-    
-    # Calculate growth
-    growth = 0.0
-    if prev_total > 0:
-        growth = ((total_projects - prev_total) / prev_total) * 100
-    elif total_projects > 0:
-        growth = 100.0
-    
-    # Build metrics
+    # Placeholder metrics - to be replaced with actual ARISE metrics
     metrics = [
         AnalyticsMetric(
-            label="Total Projects",
-            value=float(total_projects),
-            change=abs(growth) if growth != 0 else None,
-            changeType="increase" if growth >= 0 else "decrease",
+            label="Total Users",
+            value=0.0,
+            change=None,
+            changeType=None,
             format="number"
         ),
         AnalyticsMetric(
-            label="Active Projects",
-            value=float(active_projects),
+            label="Active Assessments",
+            value=0.0,
             change=None,
             changeType=None,
             format="number"
         ),
         AnalyticsMetric(
             label="Growth Rate",
-            value=abs(growth),
+            value=0.0,
             change=None,
-            changeType="increase" if growth >= 0 else "decrease",
+            changeType=None,
             format="percentage"
         ),
     ]

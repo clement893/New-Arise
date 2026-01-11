@@ -181,18 +181,17 @@ class SearchService:
         limit: int = 50,
         offset: int = 0
     ) -> Dict[str, Any]:
-        """Search projects with full-text search"""
-        from app.models.project import Project
+        """Search projects with full-text search
         
-        search_fields = ['name', 'description']
-        return await self.full_text_search(
-            model_class=Project,
-            search_query=search_query,
-            search_fields=search_fields,
-            filters=filters,
-            limit=limit,
-            offset=offset
-        )
+        Note: Project model has been removed. This method now returns empty results.
+        """
+        # Project model no longer exists - return empty results
+        return {
+            "results": [],
+            "total": 0,
+            "limit": limit,
+            "offset": offset
+        }
 
     def _serialize_model(self, model_instance: Any) -> Dict[str, Any]:
         """Serialize SQLAlchemy model to dict"""

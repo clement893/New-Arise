@@ -144,14 +144,13 @@ class TenancyMetrics:
         }
         
         # Count resources for each tenant-aware model
-        from app.models.project import Project
-        from app.models.form import Form
+        # Note: Project and Form models have been removed
         from app.models.page import Page
         from app.models.menu import Menu
         
         models = [
-            ("projects", Project),
-            ("forms", Form),
+            # ("projects", Project),  # Removed
+            # ("forms", Form),  # Removed
             ("pages", Page),
             ("menus", Menu),
         ]

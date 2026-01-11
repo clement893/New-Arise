@@ -12,7 +12,6 @@ from sqlalchemy.orm import selectinload
 
 from app.models.user import User
 from app.models.invoice import Invoice
-from app.models.project import Project
 from app.core.tenancy_helpers import apply_tenant_scope
 
 
@@ -286,17 +285,9 @@ class ERPService:
         client_result = await self.db.execute(client_query)
         client_stats = client_result.first()
         
-        # Get project stats
-        project_query = select(
-            func.count(Project.id).label("total"),
-            func.count(
-                case((Project.status == "active", 1), else_=None)
-            ).label("active"),
-        )
-        
-        project_query = apply_tenant_scope(project_query, Project)
-        project_result = await self.db.execute(project_query)
-        project_stats = project_result.first()
+        # Project stats removed - Project model no longer exists
+        # TODO: Replace with actual ARISE metrics when available
+        project_stats = type('obj', (object,), {'total': 0, 'active': 0})()
         
         # Log slow query if threshold exceeded
         execution_time = time.time() - start_time
