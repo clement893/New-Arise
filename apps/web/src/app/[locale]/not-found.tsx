@@ -10,7 +10,7 @@ import Button from '@/components/ui/Button';
 import Container from '@/components/ui/Container';
 import Card from '@/components/ui/Card';
 import { useTranslations } from 'next-intl';
-import { Home, ArrowLeft, Search } from 'lucide-react';
+import { Home, ArrowLeft } from 'lucide-react';
 
 export default function NotFound() {
   const t = useTranslations('errors');
