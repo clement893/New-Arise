@@ -715,41 +715,36 @@ function AssessmentsContent() {
     const hasAllAnswers = totalQuestions > 0 && answerCount > 0 && answerCount === totalQuestions;
     const hasSomeAnswers = answerCount > 0;
     
-    // MBTI: Handle differently - if completed, show "Télécharger mon score" which redirects to upload or results page
-    if (assessment.assessmentType === 'MBTI' && assessment.status === 'completed') {
-      // If assessmentId exists, redirect to results page (will handle if results don't exist)
-      // Otherwise, redirect to upload page
+    // MBTI: Always show two buttons - "Passer le test" and "Uploader son test"
+    if (assessment.assessmentType === 'MBTI') {
       return (
-        <Button
-          variant="outline"
-          className="flex items-center gap-2"
-          onClick={() => {
-            if (safeAssessmentId && !isNaN(safeAssessmentId)) {
-              // Redirect to results page - if results don't exist, the page will handle it
-              router.push(`/dashboard/assessments/mbti/results?id=${safeAssessmentId}`);
-            } else {
-              // No assessment ID, redirect to upload page
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={() => {
+              if (assessment.externalLink) {
+                window.open(assessment.externalLink, '_blank');
+              } else {
+                // If no external link, redirect to internal MBTI page
+                router.push('/dashboard/assessments/mbti');
+              }
+            }}
+          >
+            <Brain size={16} />
+            Passer le test
+          </Button>
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={() => {
               router.push('/dashboard/assessments/mbti/upload');
-            }
-          }}
-        >
-          <Upload size={16} />
-          Télécharger mon score
-        </Button>
-      );
-    }
-    
-    // MBTI: If not completed but has external link, show link to take test
-    if (assessment.assessmentType === 'MBTI' && assessment.externalLink && assessment.status !== 'completed') {
-      return (
-        <Button
-          variant="outline"
-          className="flex items-center gap-2"
-          onClick={() => window.open(assessment.externalLink, '_blank')}
-        >
-          <Brain size={16} />
-          Passer le test
-        </Button>
+            }}
+          >
+            <Upload size={16} />
+            Uploader son test
+          </Button>
+        </div>
       );
     }
     
@@ -1146,11 +1141,6 @@ function AssessmentsContent() {
                             return null;
                           }
                         })()}
-                        {safeAssessment.externalLink && safeAssessment.status !== 'completed' && (
-                          <span className="px-3 py-1 border border-arise-deep-teal text-arise-deep-teal rounded-full text-xs font-medium">
-                            Lien externe
-                          </span>
-                        )}
                         {getActionButton(safeAssessment)}
                       </div>
                     </div>
