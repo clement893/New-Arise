@@ -1333,6 +1333,74 @@ async def get_360_evaluators_status(
     }
 
 
+@router.delete("/{assessment_id}/evaluators/{evaluator_id}", status_code=status.HTTP_200_OK)
+async def remove_360_evaluator(
+    assessment_id: int,
+    evaluator_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Remove an evaluator from a 360 assessment (cancel invitation)
+    """
+    from app.core.logging import logger
+    
+    # Verify assessment exists and belongs to the current user
+    assessment_result = await db.execute(
+        select(Assessment)
+        .where(
+            Assessment.id == assessment_id,
+            Assessment.user_id == current_user.id,
+            Assessment.assessment_type == AssessmentType.THREE_SIXTY_SELF
+        )
+    )
+    assessment = assessment_result.scalar_one_or_none()
+    
+    if not assessment:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Assessment not found"
+        )
+    
+    # Get evaluator
+    evaluator_result = await db.execute(
+        select(Assessment360Evaluator)
+        .where(
+            Assessment360Evaluator.id == evaluator_id,
+            Assessment360Evaluator.assessment_id == assessment_id
+        )
+    )
+    evaluator = evaluator_result.scalar_one_or_none()
+    
+    if not evaluator:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Evaluator not found"
+        )
+    
+    # Don't allow deletion if already completed
+    if evaluator.status == AssessmentStatus.COMPLETED:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot remove an evaluator who has already completed the assessment"
+        )
+    
+    # Delete the evaluator
+    await db.delete(evaluator)
+    await db.commit()
+    
+    logger.info(
+        f"Evaluator {evaluator_id} removed from assessment {assessment_id} by user {current_user.id}",
+        context={
+            "assessment_id": assessment_id,
+            "evaluator_id": evaluator_id,
+            "user_id": current_user.id
+        }
+    )
+    
+    return {"message": "Evaluator removed successfully"}
+
+
 @router.get("/360-evaluator/{token}")
 async def get_360_evaluator_assessment(
     token: str,
