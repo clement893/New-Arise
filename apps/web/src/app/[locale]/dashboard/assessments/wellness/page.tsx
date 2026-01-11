@@ -144,6 +144,10 @@ function WellnessAssessmentContent() {
           // Only load existing answers if assessment is NOT completed
           // This prevents errors when coming back from results page
           if (status !== 'completed') {
+            // Reset isCompleted to false if assessment is not actually completed
+            // This handles stale state from previous sessions
+            useWellnessStore.setState({ isCompleted: false });
+            
             // Load existing answers and navigate to last unanswered question
             const { assessmentId: currentAssessmentId, currentStep: currentStepState } = useWellnessStore.getState();
             
@@ -168,10 +172,13 @@ function WellnessAssessmentContent() {
             }
           } else {
             // Assessment is completed, show intro (user can view results from here)
+            // Make sure isCompleted is set correctly
+            useWellnessStore.setState({ isCompleted: true });
             setShowIntro(true);
           }
         } else {
-          // No existing assessment, show intro
+          // No existing assessment, reset any stale completion state and show intro
+          useWellnessStore.setState({ isCompleted: false });
           setShowIntro(true);
         }
       } catch (err) {
@@ -188,6 +195,12 @@ function WellnessAssessmentContent() {
   }, [router]); // Removed loadExistingAnswers from dependencies to prevent re-runs
 
   useEffect(() => {
+    // Don't check isCompleted until we've finished checking for existing assessments
+    // This prevents showing completion screen prematurely when store has stale state
+    if (isCheckingExisting) {
+      return;
+    }
+
     if (isCompleted) {
       // Get assessmentId from store and verify results exist before redirecting
       const { assessmentId } = useWellnessStore.getState();
@@ -210,11 +223,13 @@ function WellnessAssessmentContent() {
             setShowCompletion(true);
           });
       } else {
-        // Fallback: show completion screen if no assessmentId
-        setShowCompletion(true);
+        // No assessmentId but isCompleted is true - this is stale state, reset it
+        console.warn('[Wellness] isCompleted is true but no assessmentId - resetting stale state');
+        useWellnessStore.setState({ isCompleted: false });
+        setShowIntro(true);
       }
     }
-  }, [isCompleted, router]);
+  }, [isCompleted, isCheckingExisting, router]);
   
   // Reset completion state when component unmounts or route changes
   // This prevents issues when navigating back from results page
@@ -340,15 +355,24 @@ function WellnessAssessmentContent() {
                     size="lg"
                     onClick={async () => {
                       try {
+                        // Reset any stale completion state before starting
+                        useWellnessStore.setState({ isCompleted: false });
+                        setShowCompletion(false);
                         await startAssessment();
                         // Verify assessmentId was set
-                        const { assessmentId: newAssessmentId } = useWellnessStore.getState();
+                        const { assessmentId: newAssessmentId, isCompleted: newIsCompleted } = useWellnessStore.getState();
                         if (!newAssessmentId) {
                           console.error('[Wellness] startAssessment did not set assessmentId');
                           alert('Erreur: Impossible de démarrer l\'assessment. Veuillez réessayer.');
                           return;
                         }
+                        // Double-check that isCompleted is false after starting
+                        if (newIsCompleted) {
+                          console.warn('[Wellness] isCompleted is true after startAssessment - resetting');
+                          useWellnessStore.setState({ isCompleted: false });
+                        }
                         console.log(`[Wellness] Assessment started with ID: ${newAssessmentId}`);
+                        setShowCompletion(false);
                         setShowIntro(false);
                       } catch (error) {
                         const errorMessage = formatError(error);
