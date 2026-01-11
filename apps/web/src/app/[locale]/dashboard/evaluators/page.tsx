@@ -326,7 +326,7 @@ function EvaluatorsContent() {
             <Button
               variant="outline"
               onClick={() => router.push('/dashboard')}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-white border-white hover:bg-white/10 hover:text-white"
             >
               <ArrowLeft size={20} />
               Retour
@@ -334,7 +334,7 @@ function EvaluatorsContent() {
             <Button
               variant="outline"
               onClick={() => loadEvaluators()}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-white border-white hover:bg-white/10 hover:text-white disabled:text-white/50 disabled:border-white/50"
               disabled={isLoading}
             >
               <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
