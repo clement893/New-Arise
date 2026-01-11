@@ -998,7 +998,7 @@ export default function AdminAssessmentManagementPage() {
                 value={editingQuestion?.question_id || editingQuestion?.id || ''}
                 onChange={(e) => {
                   if (editingQuestion) {
-                    setEditingQuestion({ ...editingQuestion, question_id: e.target.value, id: e.target.value });
+                    setEditingQuestion({ ...editingQuestion, question_id: e.target.value });
                   }
                 }}
                 placeholder="ex: wellness_q1"
