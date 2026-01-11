@@ -567,12 +567,12 @@ export const mbtiTypes: Record<string, { name: string; description: string; stre
       strengths: ['Supportive', 'Reliable', 'Patient', 'Observant'],
     },
     INFJ: {
-      name: 'The Counselor',
+      name: 'Advocate',
       description: 'Quiet and mystical, yet very inspiring and tireless idealists.',
       strengths: ['Insightful', 'Principled', 'Passionate', 'Creative'],
     },
     INTJ: {
-      name: 'The Mastermind',
+      name: 'Architect',
       description: 'Imaginative and strategic thinkers, with a plan for everything.',
       strengths: ['Strategic', 'Independent', 'Determined', 'Innovative'],
     },
@@ -631,7 +631,7 @@ export const mbtiTypes: Record<string, { name: string; description: string; stre
       strengths: ['Caring', 'Social', 'Loyal', 'Organized'],
     },
     ENFJ: {
-      name: 'The Teacher',
+      name: 'Protagonist',
       description: 'Charismatic and inspiring leaders, able to mesmerize their listeners.',
       strengths: ['Charismatic', 'Altruistic', 'Natural leader', 'Reliable'],
     },

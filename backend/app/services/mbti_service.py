@@ -193,7 +193,7 @@ MBTI_TYPE_DESCRIPTIONS = {
         'challenges': ['Can be needy', 'May be too selfless', 'Sensitive to criticism'],
     },
     'ENFJ': {
-        'name': 'The Teacher',
+        'name': 'Protagonist',
         'description': 'Charismatic and inspiring leaders, able to mesmerize their listeners. ENFJs are altruistic, natural leaders, and reliable.',
         'strengths': ['Charismatic', 'Altruistic', 'Natural leader', 'Reliable', 'Tolerant'],
         'challenges': ['Can be too idealistic', 'May be too selfless', 'Difficulty making tough decisions'],
