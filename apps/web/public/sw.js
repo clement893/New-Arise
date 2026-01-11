@@ -107,7 +107,7 @@ self.addEventListener('fetch', (event: FetchEvent) => {
 
   // API requests - Network First with short cache
   if (url.pathname.startsWith('/api/')) {
-    event.respondWith(networkFirst(request, API_CACHE_NAME, 60000)); // 1 minute cache
+    event.respondWith(networkFirst(request, API_CACHE_NAME, 30000)); // 30 seconds cache (reduced from 1 minute)
     return;
   }
 
@@ -117,9 +117,15 @@ self.addEventListener('fetch', (event: FetchEvent) => {
     return;
   }
 
-  // HTML pages - Network First
+  // Dashboard and assessments pages - Network Only (no cache) for frequently changing data
+  if (url.pathname.includes('/dashboard/assessments') || url.pathname.includes('/dashboard/evaluators')) {
+    event.respondWith(networkOnly(request));
+    return;
+  }
+
+  // HTML pages - Network First with shorter cache
   if (request.headers.get('accept')?.includes('text/html')) {
-    event.respondWith(networkFirst(request, CACHE_NAME, 300000)); // 5 minute cache
+    event.respondWith(networkFirst(request, CACHE_NAME, 30000)); // 30 seconds cache (reduced from 5 minutes)
     return;
   }
 

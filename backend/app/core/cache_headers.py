@@ -15,7 +15,7 @@ from datetime import datetime, timedelta, timezone
 class CacheHeadersMiddleware(BaseHTTPMiddleware):
     """Middleware for adding cache headers to responses"""
 
-    def __init__(self, app, default_max_age: int = 300):
+    def __init__(self, app, default_max_age: int = 30):
         super().__init__(app)
         self.default_max_age = default_max_age
 
@@ -81,22 +81,28 @@ class CacheHeadersMiddleware(BaseHTTPMiddleware):
 
     def _get_cache_max_age(self, path: str) -> int:
         """Determine cache max-age based on endpoint"""
+        # Frequently changing data - no cache or very short cache
+        if "/assessments" in path or "/evaluators" in path or "/360" in path:
+            return 0  # No cache for frequently changing data
+        if "/dashboard" in path or "/reports" in path:
+            return 0  # No cache for dashboard data
+        
         # Static/rarely changing data - longer cache
         if "/health" in path or "/docs" in path:
             return 60  # 1 minute
         
         # User data - shorter cache
         if "/users/me" in path:
-            return 60  # 1 minute
+            return 30  # 30 seconds
         
-        # List endpoints - medium cache
+        # List endpoints - shorter cache
         if "/users" in path and path.endswith("/users"):
-            return 300  # 5 minutes
+            return 30  # 30 seconds (reduced from 5 minutes)
         
-        # Individual resources - medium cache
+        # Individual resources - shorter cache
         if "/users/" in path or "/resources/" in path:
-            return 300  # 5 minutes
+            return 30  # 30 seconds (reduced from 5 minutes)
         
-        # Default cache
+        # Default cache (30 seconds)
         return self.default_max_age
 

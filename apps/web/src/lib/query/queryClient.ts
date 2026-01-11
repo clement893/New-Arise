@@ -12,10 +12,11 @@ import { QueryClient } from '@tanstack/react-query';
  */
 const defaultQueryOptions = {
   queries: {
-    // Cache time: 5 minutes (data is considered fresh for 5 minutes)
-    staleTime: 1000 * 60 * 5,
-    // Cache persists for 10 minutes
-    gcTime: 1000 * 60 * 10, // Previously cacheTime
+    // Cache time: 30 seconds (data is considered fresh for 30 seconds)
+    // Reduced from 5 minutes to improve data freshness and reduce delays
+    staleTime: 1000 * 30,
+    // Cache persists for 2 minutes (reduced from 10 minutes)
+    gcTime: 1000 * 60 * 2, // Previously cacheTime
     // Retry failed requests
     retry: (failureCount: number, error: unknown) => {
       // Don't retry on 4xx errors (client errors)
@@ -34,9 +35,9 @@ const defaultQueryOptions = {
     refetchOnWindowFocus: process.env.NODE_ENV === 'production',
     // Refetch on reconnect
     refetchOnReconnect: true,
-    // Only refetch on mount if data is stale (not fresh)
-    // This prevents unnecessary API calls when navigating between pages
-    refetchOnMount: false,
+    // Refetch on mount to ensure fresh data when navigating between pages
+    // Changed from false to true to improve data freshness
+    refetchOnMount: true,
   },
   mutations: {
     // Retry mutations once
