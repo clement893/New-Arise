@@ -1928,9 +1928,9 @@ async def upload_mbti_pdf(
                     await db.execute(
                         text(f"""
                             UPDATE assessment_results
-                            SET {scores_column} = :scores::jsonb,
-                                insights = :insights::jsonb,
-                                recommendations = :recommendations::jsonb,
+                            SET {scores_column} = CAST(:scores AS jsonb),
+                                insights = CAST(:insights AS jsonb),
+                                recommendations = CAST(:recommendations AS jsonb),
                                 updated_at = :updated_at
                             WHERE assessment_id = :assessment_id
                         """),
@@ -1947,7 +1947,7 @@ async def upload_mbti_pdf(
                     await db.execute(
                         text(f"""
                             UPDATE assessment_results
-                            SET {scores_column} = :scores::jsonb,
+                            SET {scores_column} = CAST(:scores AS jsonb),
                                 updated_at = :updated_at
                             WHERE assessment_id = :assessment_id
                         """),
@@ -1965,7 +1965,7 @@ async def upload_mbti_pdf(
                     await db.execute(
                         text(f"""
                             INSERT INTO assessment_results (assessment_id, user_id, {scores_column}, insights, recommendations, generated_at, updated_at)
-                            VALUES (:assessment_id, :user_id, :scores::jsonb, :insights::jsonb, :recommendations::jsonb, :generated_at, :updated_at)
+                            VALUES (:assessment_id, :user_id, CAST(:scores AS jsonb), CAST(:insights AS jsonb), CAST(:recommendations AS jsonb), :generated_at, :updated_at)
                         """),
                         {
                             "assessment_id": assessment.id,
@@ -1982,7 +1982,7 @@ async def upload_mbti_pdf(
                     await db.execute(
                         text(f"""
                             INSERT INTO assessment_results (assessment_id, user_id, {scores_column}, created_at, updated_at)
-                            VALUES (:assessment_id, :user_id, :scores::jsonb, :created_at, :updated_at)
+                            VALUES (:assessment_id, :user_id, CAST(:scores AS jsonb), :created_at, :updated_at)
                         """),
                         {
                             "assessment_id": assessment.id,
@@ -1997,7 +1997,7 @@ async def upload_mbti_pdf(
                     await db.execute(
                         text(f"""
                             INSERT INTO assessment_results (assessment_id, user_id, {scores_column}, created_at, updated_at)
-                            VALUES (:assessment_id, :user_id, :scores::jsonb, :created_at, :updated_at)
+                            VALUES (:assessment_id, :user_id, CAST(:scores AS jsonb), :created_at, :updated_at)
                         """),
                         {
                             "assessment_id": assessment.id,
