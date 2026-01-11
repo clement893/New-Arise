@@ -8,6 +8,18 @@ import Input from '@/components/ui/Input';
 import Badge from '@/components/ui/Badge';
 import { getErrorMessage } from '@/lib/errors';
 import { 
+  getMyAssessments, 
+  Assessment as ApiAssessment,
+  getQuestions,
+  createQuestion,
+  updateQuestion,
+  deleteQuestion,
+  AssessmentQuestion,
+  AssessmentQuestionCreate,
+  AssessmentQuestionUpdate
+} from '@/lib/api/assessments';
+import { apiClient } from '@/lib/api';
+import { 
   Search, 
   Eye, 
   Loader2, 
@@ -28,9 +40,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { wellnessQuestions } from '@/data/wellnessQuestionsReal';
-import { tkiQuestions } from '@/data/tkiQuestions';
-import { feedback360Questions, feedback360Capabilities } from '@/data/feedback360Questions';
+import { feedback360Capabilities } from '@/data/feedback360Questions';
 
 type TabType = 'assessments' | 'questions' | 'rules';
 
@@ -53,17 +63,12 @@ interface Assessment {
   created_at: string;
 }
 
-interface Question {
-  id: string;
+interface Question extends AssessmentQuestion {
   text?: string;
-  question?: string;
-  pillar?: string;
-  category?: string;
   optionA?: string;
   optionB?: string;
   modeA?: string;
   modeB?: string;
-  [key: string]: unknown; // Allow additional properties
 }
 
 interface ScoringRule {
@@ -101,6 +106,9 @@ export default function AdminAssessmentManagementPage() {
   const [selectedTestType, setSelectedTestType] = useState<string>('WELLNESS');
   const [questionEditModalOpen, setQuestionEditModalOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
+  const [questions, setQuestions] = useState<AssessmentQuestion[]>([]);
+  const [questionsLoading, setQuestionsLoading] = useState(false);
+  const [questionsError, setQuestionsError] = useState<string | null>(null);
   
   // Rules management
   const [selectedRuleType, setSelectedRuleType] = useState<string>('WELLNESS');
@@ -118,8 +126,46 @@ export default function AdminAssessmentManagementPage() {
       setLoading(true);
       setError(null);
       
-      // TODO: Call admin endpoint when available
-      setAssessments([]);
+      // For now, use my-assessments endpoint (admin will see all assessments when admin endpoint is available)
+      // In the future, we can create an admin endpoint: GET /v1/assessments/admin/all
+      try {
+        const apiAssessments = await getMyAssessments();
+        
+        // Map API assessments to local format
+        const mappedAssessments: Assessment[] = apiAssessments.map((apiAssessment: ApiAssessment) => {
+          // Convert status from backend format (lowercase) to frontend format (uppercase)
+          let statusUpper = apiAssessment.status.toUpperCase();
+          if (statusUpper === 'NOT_STARTED') statusUpper = 'NOT_STARTED';
+          if (statusUpper === 'IN_PROGRESS') statusUpper = 'IN_PROGRESS';
+          if (statusUpper === 'COMPLETED') statusUpper = 'COMPLETED';
+          
+          // Get score summary from assessment result if available
+          let scoreSummary = undefined;
+          if (apiAssessment.score_summary) {
+            scoreSummary = apiAssessment.score_summary;
+          }
+          
+          return {
+            id: apiAssessment.id,
+            user_id: apiAssessment.user_id,
+            assessment_type: apiAssessment.assessment_type,
+            status: statusUpper,
+            started_at: apiAssessment.started_at || null,
+            completed_at: apiAssessment.completed_at || null,
+            answer_count: apiAssessment.answer_count || 0,
+            total_questions: apiAssessment.total_questions || 0,
+            score_summary: scoreSummary,
+            created_at: apiAssessment.created_at,
+          };
+        });
+        
+        setAssessments(mappedAssessments);
+      } catch (apiErr) {
+        // If API call fails, try admin endpoint (if available in future)
+        console.error('Failed to fetch assessments from my-assessments endpoint:', apiErr);
+        // For now, just set empty array if API fails
+        setAssessments([]);
+      }
     } catch (err) {
       setError(getErrorMessage(err, 'Erreur lors du chargement des tests'));
     } finally {
@@ -145,18 +191,33 @@ export default function AdminAssessmentManagementPage() {
     return Math.round((assessment.answer_count / assessment.total_questions) * 100);
   };
 
-  const getQuestionsForType = (type: string) => {
-    switch (type) {
-      case 'WELLNESS':
-        return wellnessQuestions;
-      case 'TKI':
-        return tkiQuestions;
-      case 'THREE_SIXTY_SELF':
-      case 'THREE_SIXTY_EVALUATOR':
-        return feedback360Questions;
-      default:
-        return [];
+  const fetchQuestions = async () => {
+    try {
+      setQuestionsLoading(true);
+      setQuestionsError(null);
+      
+      // Convert frontend type to backend format
+      const backendType = selectedTestType === 'THREE_SIXTY_SELF' || selectedTestType === 'THREE_SIXTY_EVALUATOR'
+        ? '360_self'
+        : selectedTestType.toLowerCase();
+      
+      const fetchedQuestions = await getQuestions(backendType);
+      setQuestions(fetchedQuestions);
+    } catch (err) {
+      const errorMessage = getErrorMessage(err, 'Erreur lors du chargement des questions');
+      setQuestionsError(errorMessage);
+      console.error('Error fetching questions:', err);
+    } finally {
+      setQuestionsLoading(false);
     }
+  };
+
+  const getQuestionsForType = (type: string): AssessmentQuestion[] => {
+    // Return questions from state (loaded from API)
+    if (type === selectedTestType) {
+      return questions;
+    }
+    return [];
   };
 
   const getRulesForType = (type: string) => {
@@ -201,15 +262,102 @@ export default function AdminAssessmentManagementPage() {
     }
   };
 
-  const handleEditQuestion = (question: Question) => {
-    setEditingQuestion(question);
+  const handleEditQuestion = (question: AssessmentQuestion) => {
+    // Convert to Question format for editing
+    const editQuestion: Question = {
+      ...question,
+      text: question.question,
+      optionA: question.option_a,
+      optionB: question.option_b,
+      modeA: question.mode_a,
+      modeB: question.mode_b,
+    };
+    setEditingQuestion(editQuestion);
     setQuestionEditModalOpen(true);
   };
 
-  const handleSaveQuestion = () => {
-    // TODO: Implement save logic when backend API is available
-    setQuestionEditModalOpen(false);
-    setEditingQuestion(null);
+  const handleSaveQuestion = async () => {
+    if (!editingQuestion) return;
+    
+    try {
+      setQuestionsLoading(true);
+      setQuestionsError(null);
+      
+      // Convert frontend type to backend format
+      const backendType = selectedTestType === 'THREE_SIXTY_SELF' || selectedTestType === 'THREE_SIXTY_EVALUATOR'
+        ? '360_self'
+        : selectedTestType.toLowerCase();
+      
+      if (editingQuestion.question_id && questions.find(q => q.question_id === editingQuestion.question_id)) {
+        // Update existing question
+        const updateData: AssessmentQuestionUpdate = {
+          question: editingQuestion.text || editingQuestion.question,
+          pillar: editingQuestion.pillar,
+          number: editingQuestion.number,
+          option_a: editingQuestion.optionA || editingQuestion.option_a,
+          option_b: editingQuestion.optionB || editingQuestion.option_b,
+          mode_a: editingQuestion.modeA || editingQuestion.mode_a,
+          mode_b: editingQuestion.modeB || editingQuestion.mode_b,
+          capability: editingQuestion.capability,
+        };
+        
+        await updateQuestion(editingQuestion.question_id, updateData);
+      } else {
+        // Create new question
+        if (!editingQuestion.question_id) {
+          throw new Error('Question ID is required');
+        }
+        
+        const createData: AssessmentQuestionCreate = {
+          question_id: editingQuestion.question_id,
+          assessment_type: backendType,
+          question: editingQuestion.text || editingQuestion.question,
+          pillar: editingQuestion.pillar,
+          number: editingQuestion.number,
+          option_a: editingQuestion.optionA || editingQuestion.option_a,
+          option_b: editingQuestion.optionB || editingQuestion.option_b,
+          mode_a: editingQuestion.modeA || editingQuestion.mode_a,
+          mode_b: editingQuestion.modeB || editingQuestion.mode_b,
+          capability: editingQuestion.capability,
+        };
+        
+        await createQuestion(createData);
+      }
+      
+      // Refresh questions list
+      await fetchQuestions();
+      
+      setQuestionEditModalOpen(false);
+      setEditingQuestion(null);
+    } catch (err) {
+      const errorMessage = getErrorMessage(err, 'Erreur lors de la sauvegarde de la question');
+      setQuestionsError(errorMessage);
+      console.error('Error saving question:', err);
+    } finally {
+      setQuestionsLoading(false);
+    }
+  };
+
+  const handleDeleteQuestion = async (questionId: string) => {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer la question "${questionId}" ?`)) {
+      return;
+    }
+    
+    try {
+      setQuestionsLoading(true);
+      setQuestionsError(null);
+      
+      await deleteQuestion(questionId);
+      
+      // Refresh questions list
+      await fetchQuestions();
+    } catch (err) {
+      const errorMessage = getErrorMessage(err, 'Erreur lors de la suppression de la question');
+      setQuestionsError(errorMessage);
+      console.error('Error deleting question:', err);
+    } finally {
+      setQuestionsLoading(false);
+    }
   };
 
   const handleEditRule = (rule: ScoringRule) => {
@@ -223,15 +371,41 @@ export default function AdminAssessmentManagementPage() {
     setEditingRule(null);
   };
 
-  // Calculate statistics
+  // Calculate statistics from backend data
   const totalAssessments = assessments.length;
-  const completedAssessments = assessments.filter(a => a.status === 'COMPLETED').length;
-  const inProgressAssessments = assessments.filter(a => a.status === 'IN_PROGRESS').length;
-  const averageScore = assessments.length > 0
-    ? assessments
-        .filter(a => a.score_summary?.percentage !== undefined)
-        .reduce((sum, a) => sum + (a.score_summary?.percentage || 0), 0) /
-      assessments.filter(a => a.score_summary?.percentage !== undefined).length
+  const completedAssessments = assessments.filter(a => 
+    a.status === 'COMPLETED' || a.status === 'completed'
+  ).length;
+  const inProgressAssessments = assessments.filter(a => 
+    a.status === 'IN_PROGRESS' || a.status === 'in_progress'
+  ).length;
+  
+  // Calculate average score from completed assessments with scores
+  // Need to fetch results from backend for each completed assessment to get percentage
+  // For now, calculate from score_summary if available
+  const completedWithScores = assessments.filter(a => {
+    const isCompleted = a.status === 'COMPLETED' || a.status === 'completed';
+    if (!isCompleted) return false;
+    
+    // Check if score_summary exists and has percentage
+    if (a.score_summary?.percentage !== undefined) return true;
+    return false;
+  });
+  
+  const averageScore = completedWithScores.length > 0
+    ? completedWithScores.reduce((sum, a) => {
+        const percentage = a.score_summary?.percentage;
+        // Handle different formats: number, string, or object with value
+        let scoreValue = 0;
+        if (typeof percentage === 'number') {
+          scoreValue = percentage;
+        } else if (typeof percentage === 'string') {
+          scoreValue = parseFloat(percentage) || 0;
+        } else if (percentage && typeof percentage === 'object' && 'value' in percentage) {
+          scoreValue = typeof percentage.value === 'number' ? percentage.value : 0;
+        }
+        return sum + scoreValue;
+      }, 0) / completedWithScores.length
     : 0;
 
   const renderAssessmentsTab = () => (
@@ -534,7 +708,7 @@ export default function AdminAssessmentManagementPage() {
   );
 
   const renderQuestionsTab = () => {
-    const questions = getQuestionsForType(selectedTestType);
+    const displayQuestions = getQuestionsForType(selectedTestType);
     
     return (
       <>
@@ -557,23 +731,50 @@ export default function AdminAssessmentManagementPage() {
                 ))}
               </select>
             </div>
-            <Button
-              variant="primary"
-              onClick={() => {
-                setEditingQuestion({ id: '', text: '', pillar: '' });
-                setQuestionEditModalOpen(true);
-              }}
-              className="flex items-center gap-2"
-            >
-              <Plus size={20} />
-              Ajouter une question
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={fetchQuestions}
+                disabled={questionsLoading}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={`w-4 h-4 ${questionsLoading ? 'animate-spin' : ''}`} />
+                Actualiser
+              </Button>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  setEditingQuestion({ 
+                    question_id: '', 
+                    assessment_type: selectedTestType === 'THREE_SIXTY_SELF' || selectedTestType === 'THREE_SIXTY_EVALUATOR' ? '360_self' : selectedTestType.toLowerCase(),
+                    text: '', 
+                    question: '',
+                    pillar: '' 
+                  } as Question);
+                  setQuestionEditModalOpen(true);
+                }}
+                className="flex items-center gap-2"
+              >
+                <Plus size={20} />
+                Ajouter une question
+              </Button>
+            </div>
           </div>
         </Card>
 
+        {questionsError && (
+          <Alert variant="error" className="mb-6" onClose={() => setQuestionsError(null)}>
+            {questionsError}
+          </Alert>
+        )}
+
         {/* Questions List */}
         <Card>
-          {questions.length === 0 ? (
+          {questionsLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-arise-teal" />
+            </div>
+          ) : displayQuestions.length === 0 ? (
             <div className="text-center py-12">
               <div className="inline-flex p-4 bg-gray-100 dark:bg-gray-800 rounded-full mb-4">
                 <FileText className="w-12 h-12 text-black" />
