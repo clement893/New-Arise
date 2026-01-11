@@ -41,20 +41,22 @@ export default function TKIResultsPage() {
       
       // Handle different possible score structures
       // Backend returns mode_counts, but it might be stored as mode_scores in the database
+      // Use type assertion to access properties that may not be in the type definition
+      const scoresAny = scores as any;
       let modeScores: Record<string, number> = {};
       
       if (scores.mode_scores) {
         // If stored as mode_scores in database
         modeScores = scores.mode_scores;
-      } else if (scores.mode_counts) {
+      } else if (scoresAny.mode_counts) {
         // If stored as mode_counts (what calculate_tki_score returns)
-        modeScores = scores.mode_counts;
+        modeScores = scoresAny.mode_counts;
       } else {
         // Check if mode counts are directly in scores object
         const possibleModes = ['competing', 'collaborating', 'avoiding', 'accommodating', 'compromising'];
         possibleModes.forEach(mode => {
-          if (typeof scores[mode] === 'number') {
-            modeScores[mode] = scores[mode];
+          if (typeof scoresAny[mode] === 'number') {
+            modeScores[mode] = scoresAny[mode];
           }
         });
       }
