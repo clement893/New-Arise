@@ -59,9 +59,11 @@ describe('ERPNavigation', () => {
     });
 
     const { container } = render(<ERPNavigation />);
-    const activeLink = container.querySelector('a[href="/erp/invoices"]');
+    // ERP pages removed - test updated
+    const dashboardLink = container.querySelector('a[href="/erp/dashboard"]');
     
-    expect(activeLink).toHaveClass('bg-primary-100');
+    // Note: ERP pages have been removed from the application
+    expect(dashboardLink).toBeNull();
   });
 
   it('groups items by module', () => {

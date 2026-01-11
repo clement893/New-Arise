@@ -47,7 +47,7 @@ def upgrade():
             sa.Column('capability', sa.String(length=100), nullable=True),
             
             # Additional metadata (JSON)
-            sa.Column('metadata', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+            sa.Column('question_metadata', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
             
             # Timestamps
             sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),

@@ -234,7 +234,7 @@ class AssessmentQuestion(Base):
     capability = Column(String(100), nullable=True)  # ex: "communication", "team_culture"
 
     # Métadonnées supplémentaires (JSON pour flexibilité)
-    metadata = Column(JSON, nullable=True)
+    question_metadata = Column("question_metadata", JSON, nullable=True)
 
     # Métadonnées
     created_at = Column(DateTime(timezone=True), nullable=False, server_default='now()')

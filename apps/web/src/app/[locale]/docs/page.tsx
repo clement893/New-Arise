@@ -266,7 +266,7 @@ const data = await response.json();`}
                 </a>
               </li>
               <li>
-                <a href="/examples" className="text-blue-600 dark:text-blue-400 hover:underline">
+                {/* Examples removed */}
                   Exemples de pages
                 </a>
               </li>

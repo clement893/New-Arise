@@ -141,7 +141,7 @@ class AssessmentQuestionResponse(BaseModel):
     mode_a: Optional[str] = None
     mode_b: Optional[str] = None
     capability: Optional[str] = None
-    metadata: Optional[Dict[str, Any]] = None
+    question_metadata: Optional[Dict[str, Any]] = None
     created_at: datetime
     updated_at: datetime
 
@@ -161,7 +161,7 @@ class AssessmentQuestionCreate(BaseModel):
     mode_a: Optional[str] = Field(None, description="TKI mode A")
     mode_b: Optional[str] = Field(None, description="TKI mode B")
     capability: Optional[str] = Field(None, description="360° capability")
-    metadata: Optional[Dict[str, Any]] = Field(None, description="Additional metadata")
+    question_metadata: Optional[Dict[str, Any]] = Field(None, description="Additional metadata")
 
 
 class AssessmentQuestionUpdate(BaseModel):
@@ -174,7 +174,7 @@ class AssessmentQuestionUpdate(BaseModel):
     mode_a: Optional[str] = Field(None, description="TKI mode A")
     mode_b: Optional[str] = Field(None, description="TKI mode B")
     capability: Optional[str] = Field(None, description="360° capability")
-    metadata: Optional[Dict[str, Any]] = Field(None, description="Additional metadata")
+    question_metadata: Optional[Dict[str, Any]] = Field(None, description="Additional metadata")
 
 
 # ============================================================================

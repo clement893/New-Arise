@@ -59,9 +59,11 @@ describe('ClientNavigation', () => {
     });
 
     const { container } = render(<ClientNavigation />);
-    const activeLink = container.querySelector('a[href="/client/invoices"]');
+    // Client portal pages removed - test updated
+    const dashboardLink = container.querySelector('a[href="/client/dashboard"]');
     
-    expect(activeLink).toHaveClass('bg-primary-100');
+    // Note: Client portal pages have been removed from the application
+    expect(dashboardLink).toBeNull();
   });
 
   it('filters items based on permissions', () => {
