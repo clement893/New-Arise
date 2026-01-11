@@ -263,18 +263,20 @@ function DashboardContent() {
     if (evaluation.status === 'locked') {
       return (
         <Button variant="secondary" disabled className="w-full">
-          Verrouillé
+          Locked
         </Button>
       );
     }
 
-    // Cas: Complété → Voir les résultats
+    // Case: Completed → View Results
     if (evaluation.status === 'completed') {
       return (
         <Button 
           variant="outline" 
-          className="w-full rounded-full"
-          style={{ color: '#0F454D', borderColor: '#0F454D' }}
+          className="w-full rounded-full text-white"
+          style={{ backgroundColor: '#0F454D', borderColor: '#0F454D' }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 69, 77, 0.9)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F454D'}
           onClick={() => {
             if (evaluation.assessmentType === 'TKI' && evaluation.assessmentId) {
               router.push(`/dashboard/assessments/tki/results?id=${evaluation.assessmentId}`);
@@ -287,12 +289,12 @@ function DashboardContent() {
             }
           }}
         >
-          Voir les résultats
+          View Results
         </Button>
       );
     }
 
-    // Cas: En cours avec toutes les réponses → Voir les résultats (avec soumission auto)
+    // Case: In progress with all answers → View Results (with auto submission)
     if (evaluation.status === 'in-progress' && 
         evaluation.answerCount !== undefined && 
         evaluation.totalQuestions !== undefined && 
@@ -334,27 +336,28 @@ function DashboardContent() {
             }
           }}
         >
-          Voir les résultats
+          View Results
         </Button>
       );
     }
 
-    // Cas: En cours avec réponses partielles → Continuer
+    // Case: In progress with partial answers → Continue
     if (evaluation.status === 'in-progress') {
       return (
         <Button 
           variant="outline"
-          className="w-full border-arise-button-primary text-white hover:bg-arise-button-primary hover:text-white font-semibold"
+          className="w-full font-semibold"
+          style={{ color: '#0F454D', borderColor: '#0F454D' }}
           onClick={() => {
             router.push(`/dashboard/assessments/${getAssessmentRoute(evaluation.assessmentType)}`);
           }}
         >
-          Continuer
+          Continue
         </Button>
       );
     }
 
-    // Cas: Disponible ou pas commencé → Commencer
+    // Case: Available or not started → Start
     return (
       <Button 
         variant="primary" 
@@ -364,7 +367,7 @@ function DashboardContent() {
           router.push(`/dashboard/assessments/${getAssessmentRoute(evaluation.assessmentType)}`);
         }}
       >
-        Commencer
+        Start
       </Button>
     );
   };
@@ -556,7 +559,7 @@ function DashboardContent() {
                       className="font-semibold"
                       onClick={() => router.push('/dashboard/assessments')}
                     >
-                      Add assessment
+                      Add Assessment
                     </Button>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
