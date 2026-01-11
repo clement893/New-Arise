@@ -10,13 +10,16 @@ import {
   useMySubscription, 
   useSubscriptionPayments, 
   useCancelSubscription,
-  useCreatePortalSession
+  useCreatePortalSession,
+  useSubscriptionPlans,
+  useCreateCheckoutSession
 } from '@/lib/query/queries';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Alert from '@/components/ui/Alert';
 import Loading from '@/components/ui/Loading';
 import SubscriptionCard from '@/components/subscriptions/SubscriptionCard';
+import { PricingCard, type Plan } from '@/components/subscriptions/PricingCard';
 import { PaymentHistory, type Payment } from '@/components/billing';
 import { Settings, ExternalLink } from 'lucide-react';
 
@@ -41,11 +44,14 @@ export default function SubscriptionManagement() {
   // React Query hooks
   const { data: subscriptionData, isLoading: subscriptionLoading, error: subscriptionError, refetch: refetchSubscription } = useMySubscription();
   const { data: paymentsData, isLoading: paymentsLoading } = useSubscriptionPayments();
+  const { data: plansData, isLoading: plansLoading } = useSubscriptionPlans(true);
   const cancelSubscriptionMutation = useCancelSubscription();
   const createPortalSessionMutation = useCreatePortalSession();
+  const createCheckoutMutation = useCreateCheckoutSession();
   
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -132,6 +138,17 @@ export default function SubscriptionManagement() {
       setPayments([]);
     }
   }, [paymentsData, paymentsLoading]);
+
+  // Transform plans data from React Query
+  useEffect(() => {
+    // React Query wraps axios response in { data: AxiosResponse }
+    // So plansData.data is AxiosResponse, and plansData.data.data is PlanListResponse
+    if (plansData?.data?.data?.plans) {
+      setPlans(plansData.data.data.plans);
+    } else if (!plansLoading && plansData) {
+      setPlans([]);
+    }
+  }, [plansData, plansLoading]);
 
   // Update loading state
   useEffect(() => {
@@ -232,6 +249,29 @@ export default function SubscriptionManagement() {
     }
   };
 
+  const handleSelectPlan = async (planId: number) => {
+    try {
+      setError('');
+      setSuccess('');
+      const returnUrl = `${window.location.origin}${window.location.pathname}?tab=subscription`;
+      const response = await createCheckoutMutation.mutateAsync({
+        plan_id: planId,
+        success_url: `${window.location.origin}/subscriptions/success?plan=${planId}`,
+        cancel_url: returnUrl,
+      });
+      
+      if (response.data?.url) {
+        window.location.href = response.data.url;
+      } else {
+        router.push(`/subscriptions/success?plan=${planId}`);
+      }
+    } catch (err: unknown) {
+      const errorDetail = getErrorDetail(err);
+      const errorMessage = getErrorMessage(err, 'Error subscribing to plan');
+      setError(errorDetail || errorMessage);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Success Message */}
@@ -295,21 +335,55 @@ export default function SubscriptionManagement() {
           )}
         </>
       ) : (
-        <Card className="p-6">
-          <div className="text-center py-12">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-              No Active Subscription
-            </h3>
-            <p className="text-gray-900 dark:text-gray-100 mb-6">
-              You don't have an active subscription. Subscribe to a plan to get started.
-            </p>
-            <Link href={locale === 'en' ? '/pricing' : `/${locale}/pricing`}>
-              <Button variant="arise-primary">
-                View Plans
-              </Button>
-            </Link>
-          </div>
-        </Card>
+        <>
+          <Card className="p-6">
+            <div className="text-center py-8">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                No Active Subscription
+              </h3>
+              <p className="text-gray-900 dark:text-gray-100 mb-6">
+                You don't have an active subscription. Subscribe to a plan to get started.
+              </p>
+            </div>
+          </Card>
+          {plansLoading ? (
+            <Card className="p-6">
+              <div className="py-12 text-center">
+                <Loading />
+                <p className="text-gray-600 dark:text-gray-400 mt-4">Loading plans...</p>
+              </div>
+            </Card>
+          ) : plans.length > 0 ? (
+            <div className="space-y-6">
+              <div className="text-center">
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Available Plans</h2>
+                <p className="text-gray-600 dark:text-gray-400">Select a plan that fits your needs</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {plans.map((plan) => (
+                  <PricingCard
+                    key={plan.id}
+                    plan={plan}
+                    onSelect={handleSelectPlan}
+                    isLoading={createCheckoutMutation.isPending}
+                    currentPlanId={subscription?.plan_id ? parseInt(subscription.plan_id) : undefined}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <Card className="p-6">
+              <div className="text-center py-12">
+                <p className="text-gray-600 dark:text-gray-400 mb-6">No plans available at the moment</p>
+                <Link href={locale === 'en' ? '/pricing' : `/${locale}/pricing`}>
+                  <Button variant="arise-primary">
+                    View Plans
+                  </Button>
+                </Link>
+              </div>
+            </Card>
+          )}
+        </>
       )}
     </div>
   );
