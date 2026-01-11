@@ -62,17 +62,24 @@ export default function SubscriptionManagement() {
       hasData: !!subscriptionData,
       subscriptionData,
       isLoading: subscriptionLoading,
-      error: subscriptionError
+      error: subscriptionError,
+      hasDataProperty: !!(subscriptionData?.data),
+      dataStructure: subscriptionData ? Object.keys(subscriptionData) : null
     });
     
-    if (subscriptionData?.data) {
-      const sub = subscriptionData.data;
+    // Handle subscriptionData - React Query wraps axios response in { data: AxiosResponse }
+    // So subscriptionData.data is the AxiosResponse, and subscriptionData.data.data is the actual data
+    const actualData = subscriptionData?.data?.data || subscriptionData?.data;
+    
+    if (actualData) {
+      const sub = actualData;
       
       logger.debug('SubscriptionManagement: Processing subscription', {
         id: sub.id,
         status: sub.status,
         planId: sub.plan_id,
-        planName: sub.plan?.name
+        planName: sub.plan?.name,
+        hasPlan: !!sub.plan
       });
       
       // Map backend status to frontend status
@@ -86,7 +93,14 @@ export default function SubscriptionManagement() {
         'INCOMPLETE_EXPIRED': 'expired',
       };
       
-      const mappedStatus = statusMap[sub.status?.toUpperCase()] || 'active';
+      const statusUpper = sub.status?.toUpperCase() || '';
+      const mappedStatus = statusMap[statusUpper] || 'active';
+      
+      logger.debug('SubscriptionManagement: Mapped status', {
+        originalStatus: sub.status,
+        statusUpper,
+        mappedStatus
+      });
       
       setSubscription({
         id: String(sub.id),
@@ -100,8 +114,13 @@ export default function SubscriptionManagement() {
         currency: sub.plan?.currency?.toUpperCase() || 'EUR',
         billing_period: (sub.plan?.interval?.toLowerCase() === 'year' ? 'year' : 'month') as 'month' | 'year',
       });
-    } else if (!subscriptionLoading && !subscriptionData) {
-      logger.debug('SubscriptionManagement: No subscription data found');
+    } else if (!subscriptionLoading) {
+      logger.debug('SubscriptionManagement: No subscription data found', {
+        hasSubscriptionData: !!subscriptionData,
+        hasData: !!subscriptionData?.data,
+        hasNestedData: !!subscriptionData?.data?.data,
+        error: subscriptionError
+      });
       setSubscription(null);
     }
   }, [subscriptionData, subscriptionLoading, subscriptionError]);
