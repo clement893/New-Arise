@@ -7,22 +7,23 @@
 -- This can happen if an assessment was marked as completed but never submitted
 
 -- Fix assessment 70 specifically (if it exists and has the issue)
+-- Cast enum to text for comparison with string values
 UPDATE assessments 
-SET status = 'in_progress',
+SET status = 'in_progress'::assessmentstatus,
     completed_at = NULL,
     updated_at = NOW()
 WHERE id = 70 
-AND status = 'completed' 
+AND status::text = 'completed' 
 AND NOT EXISTS (
     SELECT 1 FROM assessment_results WHERE assessment_id = 70
 );
 
 -- Also fix any other assessments with the same issue (preventive fix)
 UPDATE assessments 
-SET status = 'in_progress',
+SET status = 'in_progress'::assessmentstatus,
     completed_at = NULL,
     updated_at = NOW()
-WHERE status = 'completed' 
+WHERE status::text = 'completed' 
 AND assessment_type IN ('360_self', 'tki', 'wellness')
 AND NOT EXISTS (
     SELECT 1 FROM assessment_results WHERE assessment_id = assessments.id

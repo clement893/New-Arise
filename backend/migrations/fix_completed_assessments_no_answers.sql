@@ -7,11 +7,12 @@
 -- This can happen due to data inconsistencies or bugs in the submission process
 
 -- Fix all assessments marked as completed but with 0 answers
+-- Cast enum to text for comparison with string values
 UPDATE assessments 
-SET status = 'in_progress',
+SET status = 'in_progress'::assessmentstatus,
     completed_at = NULL,
     updated_at = NOW()
-WHERE status = 'completed' 
+WHERE status::text = 'completed' 
 AND assessment_type IN ('360_self', 'tki', 'wellness')
 AND NOT EXISTS (
     SELECT 1 
@@ -21,10 +22,10 @@ AND NOT EXISTS (
 
 -- Also set status to 'in_progress' if it's 'not_started' but has answers (data inconsistency)
 UPDATE assessments 
-SET status = 'in_progress',
+SET status = 'in_progress'::assessmentstatus,
     started_at = COALESCE(started_at, NOW()),
     updated_at = NOW()
-WHERE status = 'not_started' 
+WHERE status::text = 'not_started' 
 AND assessment_type IN ('360_self', 'tki', 'wellness')
 AND EXISTS (
     SELECT 1 

@@ -15,26 +15,10 @@ from app.core.database import Base
 
 # Import all models here for autogenerate
 # This ensures Alembic can detect all table changes
-from app.models import user  # noqa: F401
-from app.models import role  # noqa: F401
-from app.models import team  # noqa: F401
-from app.models import invitation  # noqa: F401
-from app.models import theme  # noqa: F401
-from app.models import project  # noqa: F401
-from app.models import file  # noqa: F401
-from app.models import plan  # noqa: F401
-from app.models import subscription  # noqa: F401
-from app.models import invoice  # noqa: F401
-from app.models import api_key  # noqa: F401
-from app.models import webhook_event  # noqa: F401
-from app.models import integration  # noqa: F401
-from app.models import page  # noqa: F401
-from app.models import form  # noqa: F401
-from app.models import menu  # noqa: F401
-from app.models import support_ticket  # noqa: F401
-from app.models import contact  # noqa: F401
-from app.models import company  # noqa: F401
-from app.models import assessment  # noqa: F401
+# Import all models here for autogenerate
+# This ensures Alembic can detect all table changes
+# Import from __init__.py which loads all active models
+from app.models import *  # noqa: F401, F403
 from app.core.security_audit import SecurityAuditLog  # noqa: F401
 
 # this is the Alembic Config object, which provides

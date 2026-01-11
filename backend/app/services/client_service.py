@@ -12,7 +12,6 @@ from sqlalchemy.orm import selectinload
 
 from app.models.user import User
 from app.models.invoice import Invoice
-from app.models.project import Project
 from app.models.support_ticket import SupportTicket
 from app.core.tenancy_helpers import apply_tenant_scope
 
@@ -130,69 +129,6 @@ class ClientService:
         
         # Eager load relationships to prevent N+1 queries
         query = query.options(selectinload(Invoice.user), selectinload(Invoice.subscription))
-        
-        result = await self.db.execute(query)
-        return result.scalar_one_or_none()
-    
-    async def get_client_projects(
-        self,
-        user_id: int,
-        skip: int = 0,
-        limit: int = 100,
-        status: Optional[str] = None,
-    ) -> tuple[List[Project], int]:
-        """
-        Get projects for a specific client
-        
-        Args:
-            user_id: Client user ID
-            skip: Number of records to skip
-            limit: Maximum number of records
-            status: Optional status filter
-            
-        Returns:
-            Tuple of (projects list, total count)
-        """
-        query = select(Project).where(Project.user_id == user_id)
-        
-        if status:
-            query = query.where(Project.status == status)
-        
-        # Apply tenant scoping
-        query = apply_tenant_scope(query, Project)
-        
-        # Get total count
-        count_query = select(func.count()).select_from(query.subquery())
-        total_result = await self.db.execute(count_query)
-        total = total_result.scalar() or 0
-        
-        # Get paginated results
-        query = query.order_by(Project.created_at.desc()).offset(skip).limit(limit)
-        result = await self.db.execute(query)
-        projects = result.scalars().all()
-        
-        return list(projects), total
-    
-    async def get_client_project(self, user_id: int, project_id: int) -> Optional[Project]:
-        """
-        Get a specific project for a client
-        
-        Args:
-            user_id: Client user ID
-            project_id: Project ID
-            
-        Returns:
-            Project object or None
-        """
-        query = select(Project).where(
-            and_(
-                Project.id == project_id,
-                Project.user_id == user_id,
-            )
-        )
-        
-        # Apply tenant scoping
-        query = apply_tenant_scope(query, Project)
         
         result = await self.db.execute(query)
         return result.scalar_one_or_none()
@@ -336,18 +272,6 @@ class ClientService:
         invoice_result = await self.db.execute(invoice_query)
         invoice_stats = invoice_result.first()
         
-        # Get project stats
-        project_query = select(
-            func.count(Project.id).label("total"),
-            func.count(
-                func.case((Project.status == "active", 1), else_=None)
-            ).label("active"),
-        ).where(Project.user_id == user_id)
-        
-        project_query = apply_tenant_scope(project_query, Project)
-        project_result = await self.db.execute(project_query)
-        project_stats = project_result.first()
-        
         # Get ticket stats
         ticket_query = select(
             func.count(SupportTicket.id).label("open"),
@@ -375,8 +299,6 @@ class ClientService:
             "total_invoices": invoice_stats.total or 0,
             "pending_invoices": 0,  # Will be calculated from status
             "paid_invoices": 0,  # Will be calculated from status
-            "total_projects": project_stats.total or 0,
-            "active_projects": project_stats.active or 0,
             "open_tickets": ticket_stats.open or 0,
             "total_spent": Decimal(str(invoice_stats.total_amount or 0)),
             "pending_amount": Decimal(str(invoice_stats.pending_amount or 0)),
