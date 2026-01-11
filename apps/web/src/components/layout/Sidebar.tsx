@@ -6,11 +6,10 @@ import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
 import { useAuth } from '@/hooks/useAuth';
 import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
 // ThemeToggle removed - dark mode is no longer supported
 import { getNavigationConfig, type NavigationItem, type NavigationGroup } from '@/lib/navigation';
 import { clsx } from 'clsx';
-import { ChevronDown, ChevronRight, Search, X } from 'lucide-react';
+import { ChevronDown, ChevronRight, X } from 'lucide-react';
 
 export interface SidebarProps {
   isOpen?: boolean;
@@ -21,7 +20,6 @@ export default function Sidebar({ isOpen: controlledIsOpen, onClose }: SidebarPr
   const pathname = usePathname();
   const { user } = useAuthStore();
   const { logout } = useAuth();
-  const [searchQuery, setSearchQuery] = useState('');
   const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   
@@ -56,37 +54,8 @@ export default function Sidebar({ isOpen: controlledIsOpen, onClose }: SidebarPr
     return pathname?.startsWith(href);
   };
 
-  // Filter navigation based on search query
-  const filteredNavigation = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return navigationConfig.items;
-    }
-
-    const query = searchQuery.toLowerCase();
-    return navigationConfig.items.map((item) => {
-      if ('items' in item) {
-        // It's a group
-        const filteredItems = item.items.filter(
-          (subItem) =>
-            subItem.name.toLowerCase().includes(query) ||
-            subItem.href.toLowerCase().includes(query)
-        );
-        if (filteredItems.length > 0) {
-          return { ...item, items: filteredItems };
-        }
-        return null;
-      } else {
-        // It's a single item
-        if (
-          item.name.toLowerCase().includes(query) ||
-          item.href.toLowerCase().includes(query)
-        ) {
-          return item;
-        }
-        return null;
-      }
-    }).filter((item): item is NavigationItem | NavigationGroup => item !== null);
-  }, [navigationConfig.items, searchQuery]);
+  // Use navigation items directly (no search filtering)
+  const filteredNavigation = navigationConfig.items;
 
   // Render navigation item
   const renderNavItem = (item: NavigationItem) => {
@@ -219,40 +188,11 @@ export default function Sidebar({ isOpen: controlledIsOpen, onClose }: SidebarPr
           </button>
         </div>
 
-      {/* Search Bar */}
-      <div className="px-lg py-md border-b border-border flex-shrink-0">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Rechercher..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-10 h-10"
-            aria-label="Rechercher dans la navigation"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              aria-label="Effacer la recherche"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-      </div>
 
       {/* Navigation */}
       <nav className="flex-1 px-lg py-md space-y-1 overflow-y-auto">
-        {filteredNavigation.length === 0 ? (
-          <div className="px-lg py-md text-sm text-muted-foreground text-center">
-            Aucun résultat trouvé
-          </div>
-        ) : (
-          filteredNavigation.map((item) =>
-            'items' in item ? renderNavGroup(item) : renderNavItem(item)
-          )
+        {filteredNavigation.map((item) =>
+          'items' in item ? renderNavGroup(item) : renderNavItem(item)
         )}
       </nav>
 

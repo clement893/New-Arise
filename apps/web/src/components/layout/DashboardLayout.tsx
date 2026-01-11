@@ -371,7 +371,7 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
           currentPath={pathname}
           className="h-full"
           user={user}
-          showSearch={true}
+          showSearch={false}
           isMobile={true}
           onClose={handleMobileMenuClose}
           onHomeClick={handleHomeClick}
@@ -391,7 +391,7 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
             onToggleCollapse={handleToggleCollapse}
             className="h-screen sticky top-0"
             user={user}
-            showSearch={true}
+            showSearch={false}
             onHomeClick={handleDesktopHomeClick}
             themeToggleComponent={null}
             onLogoutClick={handleDesktopLogoutClick}
