@@ -311,7 +311,7 @@ export default function AdminAssessmentManagementPage() {
       <Card className="mb-6">
         <div className="flex flex-col md:flex-row gap-4 items-center">
           <div className="flex-1 relative w-full">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black w-5 h-5" />
             <Input
               placeholder="Rechercher par email utilisateur, nom ou type de test..."
               value={searchTerm}
@@ -321,7 +321,7 @@ export default function AdminAssessmentManagementPage() {
           </div>
           <div className="flex gap-2 w-full md:w-auto">
             <div className="relative flex-1 md:flex-none">
-              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
+              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black w-4 h-4 pointer-events-none" />
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
@@ -377,7 +377,7 @@ export default function AdminAssessmentManagementPage() {
           </div>
         ) : filteredAssessments.length === 0 ? (
           <div className="text-center py-12">
-            <ClipboardList className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <ClipboardList className="w-16 h-16 text-black mx-auto mb-4" />
             <p className="text-gray-900 dark:text-gray-100 text-lg font-medium mb-2">
               {assessments.length === 0 
                 ? 'Aucun test trouvé' 
@@ -434,7 +434,7 @@ export default function AdminAssessmentManagementPage() {
                         {ASSESSMENT_TYPE_LABELS[assessment.assessment_type] || assessment.assessment_type}
                       </Badge>
                       <div className="flex items-center gap-2">
-                        <BarChart3 className="w-4 h-4 text-gray-400" />
+                        <BarChart3 className="w-4 h-4 text-black" />
                         <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                           {getProgressPercentage(assessment)}%
                         </span>
@@ -576,7 +576,7 @@ export default function AdminAssessmentManagementPage() {
           {questions.length === 0 ? (
             <div className="text-center py-12">
               <div className="inline-flex p-4 bg-gray-100 dark:bg-gray-800 rounded-full mb-4">
-                <FileText className="w-12 h-12 text-gray-400" />
+                <FileText className="w-12 h-12 text-black" />
               </div>
               <p className="text-gray-900 dark:text-gray-100 text-lg font-medium mb-2">
                 Aucune question trouvée
@@ -863,7 +863,7 @@ export default function AdminAssessmentManagementPage() {
         <Card>
           {!rules ? (
             <div className="text-center py-12">
-              <Calculator className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <Calculator className="w-16 h-16 text-black mx-auto mb-4" />
               <p className="text-gray-900 dark:text-gray-100 text-lg font-medium mb-2">
                 Règles non disponibles
               </p>
