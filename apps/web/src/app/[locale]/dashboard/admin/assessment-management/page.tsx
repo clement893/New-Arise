@@ -617,7 +617,7 @@ export default function AdminAssessmentManagementPage() {
                           </span>
                           <Badge variant="default" className="capitalize">{question.pillar}</Badge>
                         </div>
-                        <p className="text-gray-900 dark:text-gray-100 text-base leading-relaxed">
+                        <p className="text-gray-900 text-base leading-relaxed font-medium">
                           {question.question}
                         </p>
                       </div>
@@ -668,11 +668,11 @@ export default function AdminAssessmentManagementPage() {
                         <div className="space-y-3">
                           <div className="p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg border border-primary-200 dark:border-primary-800">
                             <p className="text-sm font-semibold text-primary-700 dark:text-primary-300 mb-1">Option A</p>
-                            <p className="text-gray-900 dark:text-gray-100">{question.optionA}</p>
+                            <p className="text-gray-900 font-medium">{question.optionA}</p>
                           </div>
                           <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
                             <p className="text-sm font-semibold text-purple-700 dark:text-purple-300 mb-1">Option B</p>
-                            <p className="text-gray-900 dark:text-gray-100">{question.optionB}</p>
+                            <p className="text-gray-900 font-medium">{question.optionB}</p>
                           </div>
                         </div>
                       </div>
@@ -722,7 +722,7 @@ export default function AdminAssessmentManagementPage() {
                               {feedback360Capabilities.find(c => c.id === question.capability)?.icon} {feedback360Capabilities.find(c => c.id === question.capability)?.title || question.capability}
                             </Badge>
                           </div>
-                          <p className="text-gray-900 dark:text-gray-100 text-base leading-relaxed">
+                          <p className="text-gray-900 text-base leading-relaxed font-medium">
                             {question.question}
                           </p>
                         </div>
