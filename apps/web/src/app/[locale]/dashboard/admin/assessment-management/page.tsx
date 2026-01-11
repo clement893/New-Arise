@@ -18,7 +18,6 @@ import {
   AssessmentQuestionCreate,
   AssessmentQuestionUpdate
 } from '@/lib/api/assessments';
-import { apiClient } from '@/lib/api';
 import { 
   Search, 
   Eye, 
