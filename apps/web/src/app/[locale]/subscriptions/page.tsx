@@ -266,7 +266,7 @@ function SubscriptionsContent() {
                     plan={plan}
                     onSelect={handleSelectPlan}
                     isLoading={createCheckoutMutation.isPending}
-                    currentPlanId={subscription?.plan_id ? parseInt(subscription.plan_id) : undefined}
+                    currentPlanId={undefined}
                   />
                 ))}
               </div>
