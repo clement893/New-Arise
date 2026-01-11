@@ -393,7 +393,7 @@ export default function AdminAssessmentManagementPage() {
   
   const averageScore = completedWithScores.length > 0
     ? completedWithScores.reduce((sum, a) => {
-        const percentage = a.score_summary?.percentage;
+        const percentage = a.score_summary?.percentage as number | string | { value: number } | undefined;
         // Handle different formats: number, string, or object with value
         let scoreValue = 0;
         if (typeof percentage === 'number') {
@@ -401,7 +401,7 @@ export default function AdminAssessmentManagementPage() {
         } else if (typeof percentage === 'string') {
           scoreValue = parseFloat(percentage) || 0;
         } else if (percentage && typeof percentage === 'object' && 'value' in percentage) {
-          scoreValue = typeof percentage.value === 'number' ? percentage.value : 0;
+          scoreValue = typeof (percentage as { value: number }).value === 'number' ? (percentage as { value: number }).value : 0;
         }
         return sum + scoreValue;
       }, 0) / completedWithScores.length
