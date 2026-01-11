@@ -267,8 +267,6 @@ const data = await response.json();`}
               </li>
               <li>
                 {/* Examples removed */}
-                  Exemples de pages
-                </a>
               </li>
               <li>
                 <Link href="/dashboard" className="text-blue-600 dark:text-blue-400 hover:underline">

@@ -173,7 +173,6 @@ export default function AdminContent() {
                 </svg>
               }
             />
-          </Grid>
         </Card>
       </MotionDiv>
 
