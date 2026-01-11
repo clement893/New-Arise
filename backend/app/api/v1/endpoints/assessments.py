@@ -455,19 +455,42 @@ async def submit_assessment(
 
     if assessment.status == AssessmentStatus.COMPLETED:
         from app.core.logging import logger
-        logger.info(
-            f"Attempt to submit already completed assessment {assessment_id}",
-            context={
-                "assessment_id": assessment_id,
-                "user_id": current_user.id,
-                "assessment_type": assessment.assessment_type,
-                "completed_at": assessment.completed_at.isoformat() if assessment.completed_at else None
-            }
+        from app.models.assessment import AssessmentResult
+        # Check if assessment has results - if not, allow resetting and resubmitting
+        result_check = await db.execute(
+            select(AssessmentResult).where(AssessmentResult.assessment_id == assessment_id)
         )
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="This assessment has already been completed. You can view your results in the results page."
-        )
+        existing_result = result_check.scalar_one_or_none()
+        
+        if existing_result:
+            # Assessment is completed and has results - don't allow resubmission
+            logger.info(
+                f"Attempt to submit already completed assessment {assessment_id}",
+                context={
+                    "assessment_id": assessment_id,
+                    "user_id": current_user.id,
+                    "assessment_type": assessment.assessment_type,
+                    "completed_at": assessment.completed_at.isoformat() if assessment.completed_at else None
+                }
+            )
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="This assessment has already been completed. You can view your results in the results page."
+            )
+        else:
+            # Assessment is marked as completed but has no results - reset status and allow submission
+            logger.info(
+                f"Resetting completed assessment {assessment_id} without results to allow resubmission",
+                context={
+                    "assessment_id": assessment_id,
+                    "user_id": current_user.id,
+                    "assessment_type": assessment.assessment_type,
+                }
+            )
+            assessment.status = AssessmentStatus.IN_PROGRESS
+            assessment.completed_at = None
+            await db.commit()
+            await db.refresh(assessment)
 
     # Get all answers using raw SQL to avoid answered_at column issue
     answers_result = await db.execute(
