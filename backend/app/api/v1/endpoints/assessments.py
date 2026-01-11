@@ -699,37 +699,22 @@ async def get_assessment_results(
                 detail="Assessment not found"
             )
 
-        # Get assessment result using raw SQL to handle both 'scores' and 'result_data' columns
-        # This is more reliable than ORM when schema might vary
-        from sqlalchemy import text
+        # Get assessment result using raw SQL
+        # Use ORM query to leverage the model mapping (scores -> result_data column if needed)
         result_query = await db.execute(
-            text("""
-                SELECT 
-                    id, 
-                    assessment_id, 
-                    COALESCE(scores, result_data) as scores_data,
-                    insights,
-                    recommendations,
-                    comparison_data,
-                    COALESCE(generated_at, created_at, updated_at) as generated_at
-                FROM assessment_results
-                WHERE assessment_id = :assessment_id
-            """),
-            {"assessment_id": assessment_id}
+            select(AssessmentResult)
+            .where(AssessmentResult.assessment_id == assessment_id)
         )
-        result_row = result_query.first()
+        result = result_query.scalar_one_or_none()
 
-        if not result_row:
+        if not result:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Assessment results not found. The assessment may not be completed yet."
             )
 
-        # Extract data from raw SQL result
-        result_id, result_assessment_id, scores_data, insights_data, recommendations_data, comparison_data, generated_at = result_row
-
-        if not scores_data:
-            logger.error(f"Could not retrieve scores/result_data for assessment {assessment_id}")
+        if not result.scores:
+            logger.error(f"Could not retrieve scores for assessment {assessment_id}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Assessment results are incomplete. Please contact support."
@@ -740,17 +725,16 @@ async def get_assessment_results(
         assessment_type_str = assessment_type.value if hasattr(assessment_type, 'value') else str(assessment_type)
 
         # Use generated_at or current time as fallback
-        if not generated_at:
-            generated_at = datetime.now(timezone.utc)
+        generated_at = result.generated_at if result.generated_at else datetime.now(timezone.utc)
 
         return AssessmentResultResponse(
-            id=result_id,
-            assessment_id=result_assessment_id,
+            id=result.id,
+            assessment_id=result.assessment_id,
             assessment_type=assessment_type_str,
-            scores=scores_data,
-            insights=insights_data if insights_data else None,
-            recommendations=recommendations_data if recommendations_data else None,
-            comparison_data=comparison_data if comparison_data else None,
+            scores=result.scores,
+            insights=result.insights if result.insights else None,
+            recommendations=result.recommendations if result.recommendations else None,
+            comparison_data=result.comparison_data if result.comparison_data else None,
             generated_at=generated_at
         )
     except HTTPException:
