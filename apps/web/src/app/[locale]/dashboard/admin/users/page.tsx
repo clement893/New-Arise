@@ -23,7 +23,7 @@ export default function AdminUsersPage() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set());
+  const [selectedUserIds, setSelectedUserIds] = useState<Set<number>>(new Set());
   const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const pageSize = 20;
@@ -120,7 +120,7 @@ export default function AdminUsersPage() {
     }
   };
 
-  const handleSelectUser = (userId: string, checked: boolean) => {
+  const handleSelectUser = (userId: number, checked: boolean) => {
     const newSelected = new Set(selectedUserIds);
     if (checked) {
       newSelected.add(userId);
