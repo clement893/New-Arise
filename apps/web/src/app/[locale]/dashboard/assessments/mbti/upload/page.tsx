@@ -146,8 +146,17 @@ export default function MBTIPDFUploadPage() {
     }
   };
 
-  // Cleanup on unmount
+  // Reset state on mount and cleanup on unmount
   useEffect(() => {
+    // Reset any stale upload state when component mounts
+    setIsUploading(false);
+    setUploadProgress(0);
+    setError(null);
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
+    }
+
     return () => {
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
