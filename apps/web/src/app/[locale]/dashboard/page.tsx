@@ -134,7 +134,7 @@ function DashboardContent() {
               variant="arise-primary"
               onClick={loadAssessments}
             >
-              Réessayer
+              Try Again
             </Button>
           </div>
         </Card>
@@ -238,14 +238,14 @@ function DashboardContent() {
         return (
           <span className="inline-flex items-center gap-1 px-3 py-1 bg-success-100 text-success-700 text-xs rounded-full font-medium">
             <CheckCircle size={12} />
-            Terminé
+            Completed
           </span>
         );
       case 'in-progress':
         return (
           <div className="flex items-center gap-2">
             <span className="inline-block px-3 py-1 bg-primary-100 text-primary-700 text-xs rounded-full font-medium">
-              En cours
+              In Progress
             </span>
             {answerCount !== undefined && totalQuestions !== undefined && (
               <span className="inline-block px-2 py-1 bg-primary-50 text-primary-700 text-xs rounded-full font-medium">
@@ -273,10 +273,8 @@ function DashboardContent() {
       return (
         <Button 
           variant="outline" 
-          className="w-full rounded-full text-white"
-          style={{ backgroundColor: '#0F454D', borderColor: '#0F454D' }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 69, 77, 0.9)'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F454D'}
+          className="w-full rounded-full"
+          style={{ color: '#0F454D', borderColor: '#0F454D' }}
           onClick={() => {
             if (evaluation.assessmentType === 'TKI' && evaluation.assessmentId) {
               router.push(`/dashboard/assessments/tki/results?id=${evaluation.assessmentId}`);
@@ -303,10 +301,8 @@ function DashboardContent() {
       return (
         <Button 
           variant="outline" 
-          className="w-full rounded-full text-white"
-          style={{ backgroundColor: '#0F454D', borderColor: '#0F454D' }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 69, 77, 0.9)'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F454D'}
+          className="w-full rounded-full"
+          style={{ color: '#0F454D', borderColor: '#0F454D' }}
           onClick={async () => {
             if (!evaluation.assessmentId) return;
             
@@ -447,10 +443,8 @@ function DashboardContent() {
                           <Link href={`/dashboard/evaluators?id=${feedback360Assessment.id}`}>
                             <Button 
                               variant="outline" 
-                              className="whitespace-nowrap font-semibold text-white transition-colors"
-                              style={{ backgroundColor: '#0F454D', borderColor: '#0F454D' }}
-                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 69, 77, 0.9)'}
-                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F454D'}
+                              className="whitespace-nowrap font-semibold transition-colors"
+                              style={{ color: '#0F454D', borderColor: '#0F454D' }}
                             >
                               <Eye size={16} className="mr-2" />
                               {evaluators.length > 0 ? `View Evaluators (${evaluators.length})` : 'View Evaluators'}
@@ -478,7 +472,7 @@ function DashboardContent() {
                         }
                       }}
                     >
-                      Add evaluators
+                      Add Evaluators
                     </Button>
                   </div>
                   </div>
