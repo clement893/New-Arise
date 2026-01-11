@@ -738,8 +738,25 @@ function AssessmentsContent() {
     const hasAllAnswers = totalQuestions > 0 && answerCount > 0 && answerCount === totalQuestions;
     const hasSomeAnswers = answerCount > 0;
     
-    // MBTI: Always show two buttons - "Passer le test" and "Uploader son test"
+    // MBTI: Show "Voir les résultats" if completed, otherwise show two buttons
     if (assessment.assessmentType === 'MBTI') {
+      // If completed, show "Voir les résultats" button
+      if (assessment.status === 'completed' && safeAssessmentId) {
+        return (
+          <Button 
+            variant="outline" 
+            className="w-full rounded-full"
+            onClick={() => {
+              router.push(`/dashboard/assessments/mbti/results?id=${safeAssessmentId}`);
+            }}
+          >
+            <Eye size={16} className="mr-2" />
+            Voir les résultats
+          </Button>
+        );
+      }
+      
+      // Otherwise, show the two buttons
       return (
         <div className="flex gap-2">
           <Button
