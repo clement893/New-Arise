@@ -2091,15 +2091,15 @@ async def delete_all_my_assessments(
         deleted_count = len(assessments)
         assessment_ids = [a.id for a in assessments]
         
-        # Delete all related data using CASCADE (will automatically delete related records)
-        # But we'll be explicit for clarity and to ensure proper deletion order
+        # Delete all related data using raw SQL to avoid ORM issues with answered_at column
+        # Database CASCADE will handle any remaining relationships, but we're explicit for clarity
         
-        # 1. Delete assessment answers using raw SQL to avoid answered_at column issue
-        # Use raw SQL to avoid answered_at column that doesn't exist in the database
         if assessment_ids:
             # Build placeholders for IN clause dynamically
             placeholders = ','.join([f':id{i}' for i in range(len(assessment_ids))])
             params = {f'id{i}': assessment_id for i, assessment_id in enumerate(assessment_ids)}
+            
+            # 1. Delete assessment answers using raw SQL to avoid answered_at column issue
             await db.execute(
                 text(f"""
                     DELETE FROM assessment_answers
@@ -2107,28 +2107,34 @@ async def delete_all_my_assessments(
                 """),
                 params
             )
-        
-        # 2. Delete 360 evaluators
-        if assessment_ids:
-            evaluators_result = await db.execute(
-                select(Assessment360Evaluator).where(Assessment360Evaluator.assessment_id.in_(assessment_ids))
+            
+            # 2. Delete 360 evaluators using raw SQL
+            await db.execute(
+                text(f"""
+                    DELETE FROM assessment_360_evaluators
+                    WHERE assessment_id IN ({placeholders})
+                """),
+                params
             )
-            evaluators = evaluators_result.scalars().all()
-            for evaluator in evaluators:
-                await db.delete(evaluator)
-        
-        # 3. Delete assessment results
-        if assessment_ids:
-            results_result = await db.execute(
-                select(AssessmentResult).where(AssessmentResult.assessment_id.in_(assessment_ids))
+            
+            # 3. Delete assessment results using raw SQL
+            await db.execute(
+                text(f"""
+                    DELETE FROM assessment_results
+                    WHERE assessment_id IN ({placeholders})
+                """),
+                params
             )
-            results = results_result.scalars().all()
-            for result in results:
-                await db.delete(result)
-        
-        # 4. Delete assessments themselves (CASCADE will handle remaining relationships)
-        for assessment in assessments:
-            await db.delete(assessment)
+            
+            # 4. Delete assessments themselves using raw SQL
+            # This avoids triggering ORM cascade which tries to load answers with answered_at column
+            await db.execute(
+                text(f"""
+                    DELETE FROM assessments
+                    WHERE id IN ({placeholders})
+                """),
+                params
+            )
         
         await db.commit()
         
