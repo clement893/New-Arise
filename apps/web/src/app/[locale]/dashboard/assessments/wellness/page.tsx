@@ -247,20 +247,20 @@ function WellnessAssessmentContent() {
         console.error('[Wellness] Cannot save answer: currentQuestion is invalid', 
           currentQuestion ? `currentQuestion.id: ${currentQuestion.id}` : 'currentQuestion is null'
         );
-        alert('Erreur: Question invalide. Veuillez rafraîchir la page.');
+        alert('Error: Invalid question. Please refresh the page.');
         return;
       }
       const { assessmentId } = useWellnessStore.getState();
       if (!assessmentId) {
         console.error('[Wellness] Cannot save answer: assessmentId is null');
-        alert('Erreur: L\'assessment n\'est pas démarré. Veuillez recommencer.');
+        alert('Error: The assessment has not been started. Please start again.');
         return;
       }
       await setAnswer(currentQuestion.id, value);
     } catch (error) {
       const errorMessage = formatError(error);
       console.error('[Wellness] Error in handleAnswerSelect:', errorMessage);
-      alert('Erreur lors de la sauvegarde de la réponse. Veuillez réessayer.');
+      alert('Error saving the answer. Please try again.');
     }
   };
 
@@ -275,7 +275,7 @@ function WellnessAssessmentContent() {
     } catch (error) {
       const errorMessage = formatError(error);
       console.error('[Wellness] Error in handleNext:', errorMessage);
-      alert('Erreur lors de la navigation. Veuillez réessayer.');
+      alert('Error navigating. Please try again.');
     }
   };
 
@@ -364,7 +364,7 @@ function WellnessAssessmentContent() {
                         const { assessmentId: newAssessmentId, isCompleted: newIsCompleted } = useWellnessStore.getState();
                         if (!newAssessmentId) {
                           console.error('[Wellness] startAssessment did not set assessmentId');
-                          alert('Erreur: Impossible de démarrer l\'assessment. Veuillez réessayer.');
+                          alert('Error: Unable to start the assessment. Please try again.');
                           return;
                         }
                         // Double-check that isCompleted is false after starting
@@ -378,7 +378,7 @@ function WellnessAssessmentContent() {
                       } catch (error) {
                         const errorMessage = formatError(error);
                         console.error('[Wellness] Failed to start assessment:', errorMessage);
-                        alert('Erreur: Impossible de démarrer l\'assessment. Veuillez réessayer.');
+                        alert('Error: Unable to start the assessment. Please try again.');
                       }
                     }}
                     disabled={isLoading}

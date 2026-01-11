@@ -190,11 +190,11 @@ export default function MBTIPDFUploadPage() {
 
           <div className="mb-8 pb-6">
             <h1 className="text-4xl font-bold mb-2">
-              <span className="text-white">Uploader votre </span>
-              <span style={{ color: '#D5B667' }}>PDF MBTI</span>
+              <span className="text-white">Upload your </span>
+              <span style={{ color: '#D5B667' }}>MBTI PDF</span>
             </h1>
             <p className="text-white">
-              Téléversez votre PDF de résultats depuis 16Personalities pour voir vos résultats dans ARISE
+              Upload your results PDF from 16Personalities to see your results in ARISE
             </p>
           </div>
 
@@ -207,10 +207,10 @@ export default function MBTIPDFUploadPage() {
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 mb-1">
-                    Téléverser votre PDF de résultats
+                    Upload your results PDF
                   </h2>
                   <p className="text-gray-600">
-                    Sélectionnez le PDF que vous avez téléchargé depuis 16Personalities
+                    Select the PDF you downloaded from 16Personalities
                   </p>
                 </div>
               </div>
@@ -228,7 +228,7 @@ export default function MBTIPDFUploadPage() {
                   style={inputMode === 'file' ? { backgroundColor: '#D5B667', color: '#000000' } : undefined}
                 >
                   <FileText size={18} className="mr-2" />
-                  Uploader un PDF
+                  Upload a PDF
                 </Button>
                 <Button
                   variant={inputMode === 'url' ? 'primary' : 'outline'}
@@ -335,7 +335,7 @@ export default function MBTIPDFUploadPage() {
                 <div className="mb-6">
                   <div className="mb-2 flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-700">
-                      Analyse en cours...
+                      Analysis in progress...
                     </span>
                     <span className="text-sm font-medium text-arise-teal">
                       {uploadProgress}%
@@ -348,7 +348,7 @@ export default function MBTIPDFUploadPage() {
                     />
                   </div>
                   <p className="text-xs text-gray-600 mt-2">
-                    L'analyse de votre PDF peut prendre quelques instants...
+                    PDF analysis may take a few moments...
                   </p>
                 </div>
               )}
@@ -359,7 +359,7 @@ export default function MBTIPDFUploadPage() {
                   <div className="flex items-start gap-3">
                     <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
                     <div className="flex-1">
-                      <p className="font-medium text-red-900 mb-1">Erreur</p>
+                      <p className="font-medium text-red-900 mb-1">Error</p>
                       <p className="text-sm text-red-700">{error}</p>
                     </div>
                   </div>
@@ -374,7 +374,7 @@ export default function MBTIPDFUploadPage() {
                   disabled={isUploading}
                   className="flex-1"
                 >
-                  Annuler
+                  Cancel
                 </Button>
                 <Button
                   variant="primary"
@@ -390,7 +390,7 @@ export default function MBTIPDFUploadPage() {
                   {isUploading ? (
                     <>
                       <Loader2 className="animate-spin" size={20} />
-                      {inputMode === 'url' ? 'Téléchargement et analyse...' : 'Analyse en cours...'}
+                      {inputMode === 'url' ? 'Downloading and analyzing...' : 'Analysis in progress...'}
                     </>
                   ) : (
                     <>

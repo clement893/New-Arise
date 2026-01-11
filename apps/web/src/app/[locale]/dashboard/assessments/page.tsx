@@ -101,10 +101,10 @@ const ASSESSMENT_CONFIG: Record<string, { title: string; description: string; ic
 };
 
 const ROLE_LABELS: Record<string, string> = {
-  PEER: 'Pair / Collègue',
-  MANAGER: 'Manager / Supérieur',
-  DIRECT_REPORT: 'Rapport direct / Collaborateur',
-  STAKEHOLDER: 'Partie prenante / Client',
+  PEER: 'Peer / Colleague',
+  MANAGER: 'Manager / Superior',
+  DIRECT_REPORT: 'Direct Report / Collaborator',
+  STAKEHOLDER: 'Stakeholder / Client',
 };
 
 function AssessmentsContent() {
@@ -686,26 +686,26 @@ function AssessmentsContent() {
         return (
           <div className="flex items-center gap-2 px-3 py-1 bg-success-100 text-success-700 rounded-full text-sm font-medium">
             <CheckCircle size={16} />
-            Terminé
+            Completed
           </div>
         );
       case 'in-progress':
         return (
           <div className="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
-            En cours
+            In Progress
           </div>
         );
       case 'locked':
         return (
           <div className="flex items-center gap-2 px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-sm font-medium">
             <Lock size={16} />
-            Verrouillé
+            Locked
           </div>
         );
       default:
         return (
           <div className="px-3 py-1 bg-arise-gold/20 text-arise-gold rounded-full text-sm font-medium">
-            Disponible
+            Available
           </div>
         );
     }
@@ -738,21 +738,23 @@ function AssessmentsContent() {
     const hasAllAnswers = totalQuestions > 0 && answerCount > 0 && answerCount === totalQuestions;
     const hasSomeAnswers = answerCount > 0;
     
-    // MBTI: Show "Voir les résultats" if completed, otherwise show two buttons
+    // MBTI: Show "View Results" if completed, otherwise show two buttons
     if (assessment.assessmentType === 'MBTI') {
-      // If completed, show "Voir les résultats" button
+      // If completed, show "View Results" button
       if (assessment.status === 'completed' && safeAssessmentId) {
         return (
           <Button 
             variant="outline" 
-            className="w-full rounded-full"
-            style={{ color: '#0F454D', borderColor: '#0F454D' }}
+            className="w-full rounded-full text-white"
+            style={{ backgroundColor: '#0F454D', borderColor: '#0F454D' }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 69, 77, 0.9)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F454D'}
             onClick={() => {
               router.push(`/dashboard/assessments/mbti/results?id=${safeAssessmentId}`);
             }}
           >
             <Eye size={16} className="mr-2" />
-            Voir les résultats
+            View Results
           </Button>
         );
       }
@@ -773,7 +775,7 @@ function AssessmentsContent() {
             }}
           >
             <Brain size={16} />
-            Passer le test
+            Take the test
           </Button>
           <Button
             variant="outline"
@@ -783,18 +785,21 @@ function AssessmentsContent() {
             }}
           >
             <Upload size={16} />
-            Uploader son test
+            Upload your test
           </Button>
         </div>
       );
     }
     
     if (hasAllAnswers && safeAssessmentId && !isNaN(safeAssessmentId)) {
-      // All questions answered: Show "Voir les résultats" button
+      // All questions answered: Show "View Results" button
       return (
         <Button 
           variant="outline" 
-          style={{ color: '#0F454D', borderColor: '#0F454D' }}
+          className="text-white"
+          style={{ backgroundColor: '#0F454D', borderColor: '#0F454D' }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 69, 77, 0.9)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F454D'}
           onClick={() => {
             if (assessment.assessmentType === 'TKI') {
               router.push(`/dashboard/assessments/tki/results?id=${safeAssessmentId}`);
@@ -805,13 +810,13 @@ function AssessmentsContent() {
             }
           }}
         >
-          Voir les résultats
+          View Results
         </Button>
       );
     }
     
     if (hasSomeAnswers && safeAssessmentId && !isNaN(safeAssessmentId)) {
-      // Some questions answered: Show "Continuer" button
+      // Some questions answered: Show "Continue" button
       return (
         <Button 
           variant="outline"
@@ -841,16 +846,16 @@ function AssessmentsContent() {
           {isStarting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Chargement...
+              Loading...
             </>
           ) : (
-            'Continuer'
+            'Continue'
           )}
         </Button>
       );
     }
     
-    // No answers yet: Show "Commencer" button
+    // No answers yet: Show "Start" button
     return (
       <Button 
         variant="outline"
@@ -890,10 +895,10 @@ function AssessmentsContent() {
         {isStarting ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Chargement...
+            Loading...
           </>
         ) : (
-          'Commencer'
+          'Start'
         )}
       </Button>
     );
@@ -959,7 +964,7 @@ function AssessmentsContent() {
               </Button>
             ) : (
               <Button variant="primary" onClick={loadAssessments}>
-                Réessayer
+                Retry
               </Button>
             )}
           </div>
@@ -1130,7 +1135,7 @@ function AssessmentsContent() {
                     return (
                       <Card key={cardKey} className="border-red-300 bg-red-50">
                         <div className="p-4">
-                          <p className="text-red-700">Erreur: Icône invalide pour {safeAssessment.title}</p>
+                          <p className="text-red-700">Error: Invalid icon for {safeAssessment.title}</p>
                         </div>
                       </Card>
                     );
@@ -1213,19 +1218,19 @@ function AssessmentsContent() {
                             let progressValue = answerCount;
                             let progressMax = totalQuestions > 0 ? totalQuestions : 100;
                             let progressPercentage = 0;
-                            let progressLabel = 'Non commencé';
+                            let progressLabel = 'Not started';
                             let barColor = '#9ca3af';
                             
                             if (totalQuestions > 0) {
                               // Calculate percentage based on actual data
                               progressPercentage = Math.round((answerCount / totalQuestions) * 100);
                               progressLabel = answerCount === totalQuestions 
-                                ? 'Terminé' 
-                                : `Progression: ${answerCount}/${totalQuestions} questions`;
+                                ? 'Completed' 
+                                : `Progress: ${answerCount}/${totalQuestions} questions`;
                             } else if (answerCount > 0) {
                               // Fallback: show answer count if total is unknown
                               progressPercentage = Math.min(answerCount * 3, 99); // Estimate ~3% per answer
-                              progressLabel = `Progression: ${answerCount} réponses`;
+                              progressLabel = `Progress: ${answerCount} responses`;
                             }
                             
                             // Set bar color: gold when there's progress, gray when 0
@@ -1235,7 +1240,7 @@ function AssessmentsContent() {
                             <div className="w-full">
                               <div className="flex justify-between items-center mb-1">
                                 <span className="text-sm font-medium text-gray-700">
-                                  {typeof progressLabel === 'string' ? progressLabel : String(progressLabel || 'Progression')}
+                                  {typeof progressLabel === 'string' ? progressLabel : String(progressLabel || 'Progress')}
                                 </span>
                                 <span className="text-sm text-gray-600">
                                   {typeof progressPercentage === 'number' ? `${progressPercentage}%` : '0%'}
@@ -1260,7 +1265,7 @@ function AssessmentsContent() {
                           console.error('[Assessments] Error rendering progress bar:', progressError);
                           return (
                             <div className="w-full">
-                              <p className="text-sm text-gray-500">Progression non disponible</p>
+                              <p className="text-sm text-gray-500">Progress not available</p>
                             </div>
                           );
                         }
@@ -1281,10 +1286,10 @@ function AssessmentsContent() {
                             </div>
                             <div>
                               <h3 className="text-lg font-bold text-gray-900 mb-1">
-                                Évaluateurs 360°
+                                360° Evaluators
                               </h3>
                               <p className="text-sm text-gray-600">
-                                Invitez des collègues à fournir un feedback 360° sur votre leadership
+                                Invite colleagues to provide 360° feedback on your leadership
                               </p>
                             </div>
                           </div>
@@ -1296,7 +1301,7 @@ function AssessmentsContent() {
                           if (assessmentEvaluators.length === 0) {
                             return (
                               <div className="mb-3">
-                                <p className="text-sm text-gray-600 mb-3">Aucun évaluateur ajouté pour le moment</p>
+                                <p className="text-sm text-gray-600 mb-3">No evaluators added yet</p>
                               </div>
                             );
                           }
@@ -1307,14 +1312,14 @@ function AssessmentsContent() {
                               return (
                                 <div className="flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
                                   <CheckCircle size={12} />
-                                  Terminé
+                                  Completed
                                 </div>
                               );
                             } else if (statusLower === 'in_progress' || statusLower === 'started') {
                               return (
                                 <div className="flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
                                   <Clock size={12} />
-                                  En cours
+                                  In Progress
                                 </div>
                               );
                             } else {
@@ -1424,7 +1429,7 @@ function AssessmentsContent() {
                           {typeof assessment.title === 'string' ? assessment.title : 'Assessment'}
                         </h3>
                         <p className="text-sm text-red-700 mb-4">
-                          Erreur d'affichage. Veuillez rafraîchir la page.
+                          Display error. Please refresh the page.
                         </p>
                         <Button 
                           variant="outline" 

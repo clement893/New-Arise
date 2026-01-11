@@ -101,7 +101,7 @@ export default function MBTIAssessmentPage() {
                   style={{ backgroundColor: '#D5B667', color: '#000000' }}
                 >
                   <ExternalLink size={20} />
-                  Passer le test sur 16Personalities
+                  Take the test on 16Personalities
                 </Button>
 
                 {!showUploadOption ? (
@@ -111,18 +111,18 @@ export default function MBTIAssessmentPage() {
                     className="w-full flex items-center justify-center gap-2"
                   >
                     <Upload size={20} />
-                    J'ai terminé le test, uploader mon PDF
+                    I've completed the test, upload my PDF
                   </Button>
                 ) : (
                   <Card className="bg-arise-gold/10 border-2 border-arise-gold/30">
                     <div className="p-6">
                       <div className="flex items-center gap-3 mb-4">
                         <CheckCircle className="text-arise-gold" size={24} />
-                        <h3 className="font-semibold text-gray-900">Prêt à uploader votre PDF ?</h3>
+                        <h3 className="font-semibold text-gray-900">Ready to upload your PDF?</h3>
                       </div>
                       <p className="text-gray-600 mb-4">
-                        Assurez-vous d'avoir téléchargé votre PDF de résultats depuis 16Personalities, 
-                        puis cliquez sur le bouton ci-dessous pour l'uploader.
+                        Make sure you've downloaded your results PDF from 16Personalities, 
+                        then click the button below to upload it.
                       </p>
                       <Button
                         variant="primary"
@@ -131,7 +131,7 @@ export default function MBTIAssessmentPage() {
                         style={{ backgroundColor: '#D5B667', color: '#000000' }}
                       >
                         <Upload size={20} />
-                        Uploader mon PDF de résultats
+                        Upload my results PDF
                       </Button>
                     </div>
                   </Card>

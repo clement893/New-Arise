@@ -350,19 +350,19 @@ export default function Feedback360ResultsPage() {
                             <CheckCircle className="h-5 w-5" />
                           </div>
                         ) : evaluator.status === 'in_progress' || evaluator.status === 'IN_PROGRESS' ? (
-                          <div className="flex items-center gap-1 text-primary-600" title="En cours">
+                          <div className="flex items-center gap-1 text-primary-600" title="In Progress">
                             <Clock className="h-5 w-5" />
                           </div>
                         ) : evaluator.invitation_opened_at ? (
-                          <div className="flex items-center gap-1 text-yellow-600" title="Invitation ouverte">
+                          <div className="flex items-center gap-1 text-yellow-600" title="Invitation opened">
                             <Mail className="h-5 w-5" />
                           </div>
                         ) : evaluator.invitation_sent_at ? (
-                          <div className="flex items-center gap-1 text-gray-400" title="Invitation envoyée">
+                          <div className="flex items-center gap-1 text-gray-400" title="Invitation sent">
                             <Mail className="h-5 w-5" />
                           </div>
                         ) : (
-                          <div className="flex items-center gap-1 text-gray-400" title="Pas encore invité">
+                          <div className="flex items-center gap-1 text-gray-400" title="Not yet invited">
                             <XCircle className="h-5 w-5" />
                           </div>
                         )}
@@ -373,15 +373,15 @@ export default function Feedback360ResultsPage() {
                 <div className="mt-4 flex items-center gap-4 text-xs text-gray-500">
                   <div className="flex items-center gap-1">
                     <CheckCircle className="h-4 w-4 text-success-600" />
-                    <span>Complété ({evaluators.filter((e) => e.status === 'completed' || e.status === 'COMPLETED').length})</span>
+                    <span>Completed ({evaluators.filter((e) => e.status === 'completed' || e.status === 'COMPLETED').length})</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Clock className="h-4 w-4 text-primary-600" />
-                    <span>En cours ({evaluators.filter((e) => e.status === 'in_progress' || e.status === 'IN_PROGRESS').length})</span>
+                    <span>In Progress ({evaluators.filter((e) => e.status === 'in_progress' || e.status === 'IN_PROGRESS').length})</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Mail className="h-4 w-4 text-gray-400" />
-                    <span>Invitation envoyée ({evaluators.filter((e) => (e.status === 'not_started' || e.status === 'NOT_STARTED') && e.invitation_sent_at).length})</span>
+                    <span>Invitation sent ({evaluators.filter((e) => (e.status === 'not_started' || e.status === 'NOT_STARTED') && e.invitation_sent_at).length})</span>
                   </div>
                 </div>
               </div>

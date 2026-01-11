@@ -214,7 +214,7 @@ export default function Start360FeedbackPage() {
       setError(
         err.response?.data?.detail || 
         err.message || 
-        'Une erreur est survenue lors du démarrage de l\'évaluation 360°'
+        'An error occurred while starting the 360° assessment'
       );
     } finally {
       setIsSubmitting(false);
@@ -250,7 +250,7 @@ export default function Start360FeedbackPage() {
       setError(
         err.response?.data?.detail || 
         err.message || 
-        'Une erreur est survenue lors du démarrage de l\'évaluation 360°'
+        'An error occurred while starting the 360° assessment'
       );
     } finally {
       setIsSubmitting(false);
@@ -268,11 +268,11 @@ export default function Start360FeedbackPage() {
             </h1>
             <p className="mb-8 text-gray-600">
               {submittedEvaluatorsCount > 0
-                ? `Les invitations ont été envoyées ${submittedEvaluatorsCount > 1 ? `aux ${submittedEvaluatorsCount} évaluateurs` : 'à l\'évaluateur'}. Vous pouvez maintenant commencer votre auto-évaluation.`
-                : 'Votre évaluation 360° a été créée. Vous pouvez maintenant commencer votre auto-évaluation et ajouter des évaluateurs plus tard si vous le souhaitez.'}
+                ? `Invitations have been sent ${submittedEvaluatorsCount > 1 ? `to ${submittedEvaluatorsCount} evaluators` : 'to the evaluator'}. You can now start your self-assessment.`
+                : 'Your 360° assessment has been created. You can now start your self-assessment and add evaluators later if you wish.'}
             </p>
             <p className="text-sm text-gray-500">
-              Redirection en cours...
+              Redirecting...
             </p>
           </Card>
         </div>
@@ -283,8 +283,8 @@ export default function Start360FeedbackPage() {
   return (
     <>
       <PageHeader
-        title="Démarrer une évaluation 360° Feedback"
-        description="Invitez des personnes à évaluer votre leadership (optionnel). Elles recevront un email avec un lien vers le formulaire. Vous pouvez ajouter des évaluateurs plus tard."
+        title="Start a 360° Feedback Assessment"
+        description="Invite people to evaluate your leadership (optional). They will receive an email with a link to the form. You can add evaluators later."
         titleClassName="text-white"
         descriptionClassName="text-white"
       />
@@ -296,7 +296,7 @@ export default function Start360FeedbackPage() {
             <Card className="mb-6 p-6">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                  Évaluateurs ajoutés ({existingEvaluators.length})
+                  Added Evaluators ({existingEvaluators.length})
                 </h2>
                 <Button
                   type="button"
@@ -310,7 +310,7 @@ export default function Start360FeedbackPage() {
                   }}
                   disabled={isLoadingEvaluators}
                 >
-                  {isLoadingEvaluators ? 'Chargement...' : 'Actualiser'}
+                  {isLoadingEvaluators ? 'Loading...' : 'Refresh'}
                 </Button>
               </div>
               <div className="space-y-3">
@@ -327,13 +327,13 @@ export default function Start360FeedbackPage() {
                     'COMPLETED': 'bg-success-100 text-success-700',
                   };
                   const statusLabels = {
-                    'not_started': 'Invitation envoyée',
-                    'in_progress': 'En cours',
-                    'completed': 'Terminé',
+                    'not_started': 'Invitation sent',
+                    'in_progress': 'In Progress',
+                    'completed': 'Completed',
                     // Support for uppercase format (backward compatibility)
-                    'NOT_STARTED': 'Invitation envoyée',
-                    'IN_PROGRESS': 'En cours',
-                    'COMPLETED': 'Terminé',
+                    'NOT_STARTED': 'Invitation sent',
+                    'IN_PROGRESS': 'In Progress',
+                    'COMPLETED': 'Completed',
                   };
                   
                   return (
@@ -529,7 +529,7 @@ export default function Start360FeedbackPage() {
                     onClick={() => router.push('/dashboard/assessments')}
                     disabled={isSubmitting}
                   >
-                    Annuler
+                    Cancel
                   </Button>
                   <Button
                     type="button"
@@ -538,9 +538,9 @@ export default function Start360FeedbackPage() {
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
-                      <>Traitement en cours...</>
+                      <>Processing...</>
                     ) : (
-                      <>Passer cette étape</>
+                      <>Skip this step</>
                     )}
                   </Button>
                 </div>
@@ -550,13 +550,13 @@ export default function Start360FeedbackPage() {
                   className="bg-arise-gold hover:bg-arise-gold/90"
                 >
                   {isSubmitting ? (
-                    <>Envoi en cours...</>
+                    <>Sending...</>
                   ) : (
                     <>
                       <UserPlus className="mr-2 h-4 w-4" />
                       {evaluators.length > 0 && evaluators.some(e => e.name.trim() && e.email.trim())
-                        ? 'Envoyer les invitations et commencer'
-                        : 'Commencer sans évaluateurs'}
+                        ? 'Send invitations and start'
+                        : 'Start without evaluators'}
                     </>
                   )}
                 </Button>
