@@ -301,7 +301,7 @@ export default function MBTIResultsPage() {
                       oppositePreference = dimKeys.find(k => k !== preference) || dimKeys[1] || dimKeys[0];
                       
                       // Get opposite percentage
-                      const oppositeValue = prefs[oppositePreference];
+                      const oppositeValue = oppositePreference ? prefs[oppositePreference] : undefined;
                       if (typeof oppositeValue === 'number') {
                         oppositePercentage = oppositeValue;
                       } else if (oppositeValue && typeof oppositeValue === 'object' && typeof oppositeValue.value === 'number') {
