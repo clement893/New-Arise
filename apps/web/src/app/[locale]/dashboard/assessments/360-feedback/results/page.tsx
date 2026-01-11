@@ -58,15 +58,26 @@ export default function Feedback360ResultsPage() {
       setError(null);
 
       // Get assessment ID from URL params, store, or find it from my assessments
-      let id: number | null = searchParams?.get('id') ? parseInt(searchParams.get('id')!) : null;
-      if (!id) {
+      const urlId = searchParams?.get('id');
+      let id: number | null = urlId ? parseInt(urlId, 10) : null;
+      
+      console.log('[360-Feedback Results] Loading results', {
+        urlId,
+        parsedId: id,
+        storeAssessmentId: assessmentId,
+        isNaN: urlId ? isNaN(parseInt(urlId, 10)) : null
+      });
+      
+      if (!id || isNaN(id)) {
         id = assessmentId || null;
+        console.log('[360-Feedback Results] Using store assessmentId:', id);
       }
       
       // Get all assessments to find the one we're looking for and check its status
       let assessments;
       try {
         assessments = await getMyAssessments();
+        console.log('[360-Feedback Results] Loaded assessments:', assessments.length, assessments.map(a => ({ id: a.id, type: a.assessment_type, status: a.status })));
       } catch (assessmentListError: any) {
         // If we get a 401, it's an authentication issue
         if (assessmentListError?.response?.status === 401) {
@@ -78,12 +89,13 @@ export default function Feedback360ResultsPage() {
         throw assessmentListError;
       }
       
-      if (!id) {
+      if (!id || isNaN(id)) {
         const feedback360Assessment = assessments.find(
           (a) => a.assessment_type === 'THREE_SIXTY_SELF'
         );
+        console.log('[360-Feedback Results] Found 360 assessment:', feedback360Assessment ? { id: feedback360Assessment.id, status: feedback360Assessment.status } : 'none');
         if (!feedback360Assessment) {
-          setError('No 360 feedback assessment found');
+          setError('No 360 feedback assessment found. Please start a new 360 feedback assessment first.');
           setIsLoading(false);
           return;
         }
@@ -93,15 +105,20 @@ export default function Feedback360ResultsPage() {
       // Find the assessment to check its status
       const assessment = assessments.find((a) => a.id === id);
       
+      console.log('[360-Feedback Results] Assessment found:', assessment ? { id: assessment.id, type: assessment.assessment_type, status: assessment.status } : 'none');
+      
       if (!assessment) {
-        setError('Assessment not found. You may not have access to this assessment.');
+        setError(`Assessment not found. You may not have access to this assessment. (ID: ${id})`);
         setIsLoading(false);
         return;
       }
 
       // Check if assessment is completed
-      if (assessment.status !== 'completed' && assessment.status !== 'COMPLETED') {
-        setError(`This assessment is not completed yet. Please complete the assessment first. Status: ${assessment.status}`);
+      const isCompleted = assessment.status === 'completed' || assessment.status === 'COMPLETED';
+      console.log('[360-Feedback Results] Assessment status check:', { status: assessment.status, isCompleted });
+      
+      if (!isCompleted) {
+        setError(`This assessment is not completed yet. Please complete the assessment first. Current status: ${assessment.status}`);
         setIsLoading(false);
         return;
       }
