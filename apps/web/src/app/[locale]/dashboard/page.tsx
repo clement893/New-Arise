@@ -446,8 +446,10 @@ function DashboardContent() {
                           <Link href={`/dashboard/evaluators?id=${feedback360Assessment.id}`}>
                             <Button 
                               variant="outline" 
-                              className="whitespace-nowrap font-semibold transition-colors"
-                              style={{ color: '#0F454D', borderColor: '#0F454D' }}
+                              className="whitespace-nowrap font-semibold text-white transition-colors"
+                              style={{ backgroundColor: '#0F454D', borderColor: '#0F454D' }}
+                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 69, 77, 0.9)'}
+                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F454D'}
                             >
                               <Eye size={16} className="mr-2" />
                               {evaluators.length > 0 ? `View Evaluators (${evaluators.length})` : 'View Evaluators'}
