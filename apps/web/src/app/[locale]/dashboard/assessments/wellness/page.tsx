@@ -542,11 +542,11 @@ function WellnessAssessmentContent() {
         <div className="flex items-center justify-center min-h-[80vh]">
           <div className="max-w-4xl w-full">
             <MotionDiv variant="slideUp" duration="fast" key={currentQuestionIndex}>
-              <Card className="p-8">
+              <Card className="p-8 bg-white/95">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
                   <div className="flex items-center gap-3">
-                    <PillarIcon className="w-6 h-6 text-arise-deep-teal" />
+                    <PillarIcon className="w-6 h-6" style={{ color: '#0F4C56' }} />
                     <span className="font-semibold text-gray-900">
                       {currentPillar?.name || 'Wellness Assessment'}
                     </span>
@@ -557,15 +557,15 @@ function WellnessAssessmentContent() {
                     </div>
                     <div className="w-32 bg-gray-200 rounded-full h-2">
                       <div
-                        className="bg-arise-deep-teal h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${typeof progress === 'number' ? progress : 0}%` }}
+                        className="h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${typeof progress === 'number' ? progress : 0}%`, backgroundColor: '#0F4C56' }}
                       />
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
                       {typeof progress === 'number' ? Math.round(progress) : 0}% completed
                     </div>
                   </div>
-                  <div className="px-3 py-1 bg-arise-deep-teal/10 text-arise-deep-teal rounded-full text-xs font-medium">
+                  <div className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: 'rgba(15, 76, 86, 0.1)', color: '#0F4C56' }}>
                     {currentPillar?.name || 'Question'}
                   </div>
                 </div>
@@ -573,9 +573,9 @@ function WellnessAssessmentContent() {
                 {/* Question Area */}
                 <div className="mb-8 text-center">
                   <div className="mb-6">
-                    <PillarIcon className="w-16 h-16 text-arise-deep-teal mx-auto mb-4" />
+                    <PillarIcon className="w-16 h-16 mx-auto mb-4" style={{ color: '#0F4C56' }} />
                   </div>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                  <h2 className="text-3xl font-bold mb-2" style={{ color: '#0F4C56' }}>
                     {currentQuestion?.question || 'Question not available'}
                   </h2>
                 </div>
@@ -611,6 +611,7 @@ function WellnessAssessmentContent() {
                     variant="outline"
                     onClick={handleBack}
                     className="flex items-center gap-2"
+                    style={{ borderColor: '#0F4C56', color: '#0F4C56' }}
                   >
                     <ArrowLeft size={20} />
                     Back
@@ -622,7 +623,10 @@ function WellnessAssessmentContent() {
                     variant="primary"
                     onClick={handleNext}
                     disabled={!currentAnswer}
-                    className="flex items-center gap-2 bg-arise-deep-teal hover:bg-arise-deep-teal/90"
+                    className="flex items-center gap-2 text-white"
+                    style={{ backgroundColor: '#0F4C56' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.9)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F4C56'}
                   >
                     {isLastQuestion ? 'Complete' : 'Next'}
                     <ArrowRight size={20} />

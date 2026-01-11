@@ -310,11 +310,11 @@ export default function Feedback360Page() {
         <div className="flex items-center justify-center min-h-[80vh]">
           <div className="max-w-4xl w-full">
             <MotionDiv key={currentQuestion} variant="slideUp" duration="fast">
-              <Card className="p-8">
+              <Card className="p-8 bg-white/95">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
                   <div className="flex items-center gap-3">
-                    <CapabilityIcon className="w-6 h-6 text-arise-teal" />
+                    <CapabilityIcon className="w-6 h-6" style={{ color: '#0F4C56' }} />
                     <span className="font-semibold text-gray-900">
                       {currentCapability?.title || '360° Feedback'}
                     </span>
@@ -325,15 +325,15 @@ export default function Feedback360Page() {
                     </div>
                     <div className="w-32 bg-gray-200 rounded-full h-2">
                       <div
-                        className="bg-arise-gold h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${progress}%` }}
+                        className="h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${progress}%`, backgroundColor: '#0F4C56' }}
                       />
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
                       {Math.round(progress)}% completed
                     </div>
                   </div>
-                  <div className="px-3 py-1 bg-arise-teal/10 text-arise-teal rounded-full text-xs font-medium">
+                  <div className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: 'rgba(15, 76, 86, 0.1)', color: '#0F4C56' }}>
                     {currentCapability?.title || 'Leadership'}
                   </div>
                 </div>
@@ -341,9 +341,9 @@ export default function Feedback360Page() {
                 {/* Question Area */}
                 <div className="mb-8 text-center">
                   <div className="mb-6">
-                    <CapabilityIcon className="w-16 h-16 text-arise-teal mx-auto mb-4" />
+                    <CapabilityIcon className="w-16 h-16 mx-auto mb-4" style={{ color: '#0F4C56' }} />
                   </div>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                  <h2 className="text-3xl font-bold mb-2" style={{ color: '#0F4C56' }}>
                     {question.question}
                   </h2>
                 </div>
@@ -380,6 +380,7 @@ export default function Feedback360Page() {
                     onClick={handleBack} 
                     disabled={currentQuestion === 0}
                     className="flex items-center gap-2"
+                    style={{ borderColor: '#0F4C56', color: '#0F4C56' }}
                   >
                     <ArrowLeft size={20} />
                     Back
@@ -390,7 +391,10 @@ export default function Feedback360Page() {
                   <Button
                     onClick={handleNext}
                     disabled={selectedValue === null}
-                    className="flex items-center gap-2 bg-arise-deep-teal hover:bg-arise-deep-teal/90"
+                    className="flex items-center gap-2 text-white"
+                    style={{ backgroundColor: '#0F4C56' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.9)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F4C56'}
                   >
                     {currentQuestion === 29 ? 'Finish' : 'Next'}
                     <ArrowRight size={20} />
