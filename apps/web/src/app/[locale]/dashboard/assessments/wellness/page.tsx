@@ -74,17 +74,6 @@ function WellnessAssessmentContent() {
       try {
         setIsCheckingExisting(true);
         
-        // Check if we're coming back from results page - if so, don't auto-redirect
-        const { isCompleted: storeIsCompleted, assessmentId: storeAssessmentId } = useWellnessStore.getState();
-        if (storeIsCompleted && storeAssessmentId) {
-          // Assessment is marked as completed in store, likely coming back from results
-          // Don't auto-redirect, just show the assessment state
-          console.log('[Wellness] Assessment is completed in store, not auto-redirecting');
-          setShowIntro(false);
-          setIsCheckingExisting(false);
-          return;
-        }
-        
         const assessments = await getMyAssessments();
         const wellnessAssessment = assessments.find(
           a => a.assessment_type === 'WELLNESS'
@@ -93,6 +82,12 @@ function WellnessAssessmentContent() {
         if (wellnessAssessment && wellnessAssessment.id) {
           // Use determineAssessmentStatus to check if assessment is truly completed
           const status = determineAssessmentStatus(wellnessAssessment, 'WELLNESS');
+          
+          // Reset store isCompleted state if assessment is not actually completed
+          // This handles cases where store has stale completion state
+          if (status !== 'completed') {
+            useWellnessStore.setState({ isCompleted: false });
+          }
           
           // Only redirect to results if assessment is completed AND results exist
           if (status === 'completed') {
