@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { PageHeader, PageContainer, Section } from '@/components/layout';
-import { Card, Button, Badge, LoadingSkeleton, ServiceTestCard, Grid } from '@/components/ui';
+import { Card, Button, Badge, LoadingSkeleton, ServiceTestCard } from '@/components/ui';
 import Link from 'next/link';
 import { Sparkles } from 'lucide-react';
 import MotionDiv from '@/components/motion/MotionDiv';
