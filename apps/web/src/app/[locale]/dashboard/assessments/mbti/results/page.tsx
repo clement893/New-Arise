@@ -5,7 +5,7 @@
  * Displays personality type, dimension breakdowns, and insights
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getAssessmentResults, AssessmentResult } from '@/lib/api/assessments';
 import { mbtiTypes } from '@/data/mbtiQuestions';
@@ -25,6 +25,7 @@ export default function MBTIResultsPage() {
   const [results, setResults] = useState<AssessmentResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const retryCountRef = useRef(0);
 
   useEffect(() => {
     if (assessmentId) {
@@ -42,6 +43,8 @@ export default function MBTIResultsPage() {
       setError(null);
       const data = await getAssessmentResults(Number(assessmentId));
       setResults(data);
+      retryCountRef.current = 0; // Reset retry count on success
+      setIsLoading(false);
     } catch (err: any) {
       // Convert error to string to prevent React error #130
       const errorMessage = formatError(err);
@@ -52,13 +55,24 @@ export default function MBTIResultsPage() {
           (err?.message && err.message.toLowerCase().includes('not found'));
       
       if (isNotFound) {
-        // Results don't exist yet - set a specific error message
+        // Results don't exist yet - retry up to 3 times with increasing delays
+        if (retryCountRef.current < 3) {
+          const delay = (retryCountRef.current + 1) * 2000; // 2s, 4s, 6s
+          console.log(`Results not found, retrying in ${delay}ms (attempt ${retryCountRef.current + 1}/3)`);
+          retryCountRef.current += 1;
+          setTimeout(() => {
+            loadResults();
+          }, delay);
+          // Keep loading state while retrying
+          return;
+        }
+        // After all retries, set error message
         setError('MBTI_RESULTS_NOT_FOUND');
+        setIsLoading(false);
       } else {
         setError(errorMessage);
+        setIsLoading(false);
       }
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -253,10 +267,66 @@ export default function MBTIResultsPage() {
             <div className="grid gap-4">
               {Object.entries(dimensionPreferences).map(
                 ([dimension, prefs]: [string, any], index) => {
-                  const preference = prefs.preference;
-                  const percentage = prefs[preference];
-                  const oppositePreference = dimension.replace(preference, '').trim();
-                  const oppositePercentage = prefs[oppositePreference] || 100 - percentage;
+                  // Handle different data structures from OCR vs manual input
+                  let preference: string | undefined;
+                  let percentage: number = 50; // Default to 50% if not found
+                  let oppositePreference: string | undefined;
+                  let oppositePercentage: number = 50; // Default to 50% if not found
+
+                  if (prefs && typeof prefs === 'object') {
+                    // Try to get preference from prefs.preference or infer from keys
+                    if (prefs.preference) {
+                      preference = prefs.preference;
+                    } else {
+                      // Try to infer from dimension (e.g., "EI" -> "E" or "I")
+                      const dimKeys = dimension.split('');
+                      if (dimKeys.length >= 2) {
+                        preference = dimKeys[0]; // Default to first letter
+                      }
+                    }
+
+                    if (preference) {
+                      // Get percentage value - could be in prefs[preference] or prefs[preference].value
+                      const prefValue = prefs[preference];
+                      if (typeof prefValue === 'number') {
+                        percentage = prefValue;
+                      } else if (prefValue && typeof prefValue === 'object' && typeof prefValue.value === 'number') {
+                        percentage = prefValue.value;
+                      } else if (typeof prefValue === 'string' && !isNaN(Number(prefValue))) {
+                        percentage = Number(prefValue);
+                      }
+
+                      // Get opposite preference
+                      const dimKeys = dimension.split('');
+                      oppositePreference = dimKeys.find(k => k !== preference) || dimKeys[1] || dimKeys[0];
+                      
+                      // Get opposite percentage
+                      const oppositeValue = prefs[oppositePreference];
+                      if (typeof oppositeValue === 'number') {
+                        oppositePercentage = oppositeValue;
+                      } else if (oppositeValue && typeof oppositeValue === 'object' && typeof oppositeValue.value === 'number') {
+                        oppositePercentage = oppositeValue.value;
+                      } else if (typeof oppositeValue === 'string' && !isNaN(Number(oppositeValue))) {
+                        oppositePercentage = Number(oppositeValue);
+                      } else {
+                        // Calculate from percentage if opposite not found
+                        oppositePercentage = 100 - percentage;
+                      }
+                    }
+                  }
+
+                  // Ensure percentages are valid numbers
+                  percentage = isNaN(percentage) || percentage < 0 || percentage > 100 ? 50 : percentage;
+                  oppositePercentage = isNaN(oppositePercentage) || oppositePercentage < 0 || oppositePercentage > 100 
+                    ? (100 - percentage) 
+                    : oppositePercentage;
+
+                  // Ensure they sum to 100
+                  const total = percentage + oppositePercentage;
+                  if (total !== 100 && total > 0) {
+                    percentage = Math.round((percentage / total) * 100);
+                    oppositePercentage = 100 - percentage;
+                  }
 
                   return (
                     <MotionDiv
@@ -271,9 +341,11 @@ export default function MBTIResultsPage() {
                             <h3 className="font-semibold text-gray-900">
                               {getDimensionLabel(dimension)}
                             </h3>
-                            <span className="text-sm font-medium text-purple-600">
-                              {getPreferenceLabel(preference)}
-                            </span>
+                            {preference && (
+                              <span className="text-sm font-medium text-purple-600">
+                                {getPreferenceLabel(preference)}
+                              </span>
+                            )}
                           </div>
 
                           {/* Progress Bar */}
