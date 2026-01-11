@@ -815,7 +815,7 @@ function AssessmentsContent() {
       return (
         <Button 
           variant="outline"
-          className="border-arise-button-primary text-white hover:bg-arise-button-primary hover:text-white"
+          style={{ color: '#0F454D', borderColor: '#0F454D' }}
           disabled={isStarting}
           onClick={() => {
             // For 360 assessments, always redirect to the assessment page
