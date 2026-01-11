@@ -195,7 +195,7 @@ export default function TKIResultsPage() {
             </Button>
 
             <div className="mb-8 pb-6">
-              <h1 className="text-4xl font-bold text-arise-teal mb-2">
+              <h1 className="text-4xl font-bold text-white mb-2">
                 TKI Conflict Style Results
               </h1>
               <p className="text-white">
@@ -230,7 +230,7 @@ export default function TKIResultsPage() {
 
             {/* All Modes Breakdown */}
             <Card className="mb-8">
-              <h2 className="text-2xl font-bold text-arise-teal mb-6">
+              <h2 className="text-2xl font-bold text-white mb-6">
                 Your Conflict Management Profile
               </h2>
 
@@ -247,8 +247,8 @@ export default function TKIResultsPage() {
                         <div className="flex items-center gap-3">
                           <div className="text-2xl">{modeInfo?.icon}</div>
                           <div>
-                            <h3 className="font-bold text-gray-900">{modeInfo?.title}</h3>
-                            <p className="text-sm text-gray-600">{modeInfo?.description}</p>
+                            <h3 className="font-bold text-white">{modeInfo?.title}</h3>
+                            <p className="text-sm text-white">{modeInfo?.description}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -259,7 +259,7 @@ export default function TKIResultsPage() {
 
                       {/* Progress Bar */}
                       <div className="mb-3">
-                        <div className="flex justify-between text-sm text-gray-600 mb-1">
+                        <div className="flex justify-between text-sm text-white mb-1">
                           <span>{count} responses</span>
                           <span>{percentage}%</span>
                         </div>
@@ -273,7 +273,7 @@ export default function TKIResultsPage() {
 
                       {/* Insight */}
                       <div className="bg-arise-beige p-4 rounded-lg">
-                        <p className="text-sm text-gray-700">
+                        <p className="text-sm text-white">
                           {getModeInsight(modeId, count)}
                         </p>
                       </div>
@@ -285,17 +285,17 @@ export default function TKIResultsPage() {
 
             {/* Recommendations */}
             <Card className="bg-arise-gold/10 border-2 border-arise-gold/30">
-              <h2 className="text-2xl font-bold text-arise-teal mb-4">
+              <h2 className="text-2xl font-bold text-white mb-4">
                 Recommendations
               </h2>
               <div className="space-y-3">
-                <p className="text-gray-700">
+                <p className="text-white">
                   <strong>Leverage your strengths:</strong> Your dominant {dominantModeInfo?.title.toLowerCase()} style can be very effective in appropriate situations. Continue to use it when it serves you well.
                 </p>
-                <p className="text-gray-700">
+                <p className="text-white">
                   <strong>Develop flexibility:</strong> Consider situations where your less-used modes might be more effective. Expanding your conflict management repertoire will make you a more adaptable leader.
                 </p>
-                <p className="text-gray-700">
+                <p className="text-white">
                   <strong>Context matters:</strong> No single conflict mode is best in all situations. The most effective leaders can flex between different approaches based on the context, relationship, and importance of the issue.
                 </p>
               </div>
