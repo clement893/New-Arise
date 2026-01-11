@@ -745,7 +745,10 @@ function AssessmentsContent() {
         return (
           <Button 
             variant="outline" 
-            className="w-full rounded-full"
+            className="w-full rounded-full text-white"
+            style={{ backgroundColor: '#0F4C56', borderColor: '#0F4C56' }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.9)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F4C56'}
             onClick={() => {
               router.push(`/dashboard/assessments/mbti/results?id=${safeAssessmentId}`);
             }}
@@ -793,6 +796,10 @@ function AssessmentsContent() {
       return (
         <Button 
           variant="outline" 
+          className="text-white"
+          style={{ backgroundColor: '#0F4C56', borderColor: '#0F4C56' }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.9)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F4C56'}
           onClick={() => {
             if (assessment.assessmentType === 'TKI') {
               router.push(`/dashboard/assessments/tki/results?id=${safeAssessmentId}`);
