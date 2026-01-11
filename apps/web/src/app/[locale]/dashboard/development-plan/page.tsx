@@ -193,6 +193,15 @@ function DevelopmentPlanContent() {
                       <Button 
                         variant="secondary" 
                         size="sm"
+                        style={{ backgroundColor: '#0F454D', borderColor: '#0F454D', color: '#FFFFFF' }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = 'rgba(15, 69, 77, 0.9)';
+                          e.currentTarget.style.borderColor = 'rgba(15, 69, 77, 0.9)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = '#0F454D';
+                          e.currentTarget.style.borderColor = '#0F454D';
+                        }}
                         onClick={(e) => {
                           e.stopPropagation();
                           router.push(`/dashboard/development-plan/resources/${resource.id}`);
