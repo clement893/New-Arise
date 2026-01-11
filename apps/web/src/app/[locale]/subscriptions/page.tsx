@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getErrorMessage, getErrorDetail } from '@/lib/errors';
-import { useMySubscription, useSubscriptionPayments, useCreateCheckoutSession, useCancelSubscription } from '@/lib/query/queries';
+import { useMySubscription, useSubscriptionPayments, useCreateCheckoutSession, useCancelSubscription, useSubscriptionPlans } from '@/lib/query/queries';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Alert from '@/components/ui/Alert';
@@ -12,6 +12,7 @@ import Container from '@/components/ui/Container';
 import Loading from '@/components/ui/Loading';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import SubscriptionCard from '@/components/subscriptions/SubscriptionCard';
+import { PricingCard, type Plan } from '@/components/subscriptions/PricingCard';
 import { PaymentHistory, type Payment } from '@/components/billing';
 
 // Note: Client Components are already dynamic by nature.
@@ -39,11 +40,13 @@ function SubscriptionsContent() {
   // Use React Query hooks for data fetching
   const { data: subscriptionData, isLoading: subscriptionLoading, error: subscriptionError } = useMySubscription();
   const { data: paymentsData, isLoading: paymentsLoading } = useSubscriptionPayments();
+  const { data: plansData, isLoading: plansLoading } = useSubscriptionPlans(true);
   const createCheckoutMutation = useCreateCheckoutSession();
   const cancelSubscriptionMutation = useCancelSubscription();
   
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [processedCheckout, setProcessedCheckout] = useState<string>('');
@@ -96,6 +99,17 @@ function SubscriptionsContent() {
       setPayments([]);
     }
   }, [paymentsData, paymentsLoading]);
+
+  // Transform plans data from React Query
+  useEffect(() => {
+    // React Query wraps axios response in { data: AxiosResponse }
+    // So plansData.data is AxiosResponse, and plansData.data.data is PlanListResponse
+    if (plansData?.data?.data?.plans) {
+      setPlans(plansData.data.data.plans);
+    } else if (!plansLoading && plansData) {
+      setPlans([]);
+    }
+  }, [plansData, plansLoading]);
 
   // Update loading state based on React Query
   useEffect(() => {
@@ -177,6 +191,27 @@ function SubscriptionsContent() {
     }
   };
 
+  const handleSelectPlan = async (planId: number) => {
+    try {
+      setError('');
+      const response = await createCheckoutMutation.mutateAsync({
+        plan_id: planId,
+        success_url: `${window.location.origin}/subscriptions/success?plan=${planId}`,
+        cancel_url: `${window.location.origin}/subscriptions`,
+      });
+      
+      if (response.data?.url) {
+        window.location.href = response.data.url;
+      } else {
+        router.push(`/subscriptions/success?plan=${planId}`);
+      }
+    } catch (err: unknown) {
+      const errorDetail = getErrorDetail(err);
+      const errorMessage = getErrorMessage(err, 'Error subscribing to plan');
+      setError(errorDetail || errorMessage);
+    }
+  };
+
 
   return (
     <div className="py-12">
@@ -208,14 +243,45 @@ function SubscriptionsContent() {
           <PaymentHistory payments={payments} />
         </>
       ) : (
-        <Card>
-          <div className="py-12 text-center">
-            <p className="text-muted-foreground mb-6">You don't have an active subscription</p>
-            <Link href="/pricing">
-              <Button>View Plans</Button>
-            </Link>
-          </div>
-        </Card>
+        <>
+          <Card className="mb-8">
+            <div className="py-8 text-center">
+              <h2 className="text-2xl font-bold text-foreground mb-2">No Active Subscription</h2>
+              <p className="text-muted-foreground mb-6">Choose a plan to get started</p>
+            </div>
+          </Card>
+          {plansLoading ? (
+            <Card>
+              <div className="py-12 text-center">
+                <Loading />
+              </div>
+            </Card>
+          ) : plans.length > 0 ? (
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold text-foreground mb-6 text-center">Available Plans</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {plans.map((plan) => (
+                  <PricingCard
+                    key={plan.id}
+                    plan={plan}
+                    onSelect={handleSelectPlan}
+                    isLoading={createCheckoutMutation.isPending}
+                    currentPlanId={subscription?.plan_id ? parseInt(subscription.plan_id) : undefined}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <Card>
+              <div className="py-12 text-center">
+                <p className="text-muted-foreground mb-6">No plans available at the moment</p>
+                <Link href="/pricing">
+                  <Button>View Plans</Button>
+                </Link>
+              </div>
+            </Card>
+          )}
+        </>
       )}
       </Container>
     </div>
