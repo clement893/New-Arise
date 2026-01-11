@@ -179,10 +179,34 @@ export default function SubscriptionManagement() {
     if (subscriptionError) {
       const errorDetail = getErrorDetail(subscriptionError);
       const errorMessage = getErrorMessage(subscriptionError, 'Error loading subscription');
-      // Only show error if it's not a 404 (no subscription)
-      if (errorDetail && !errorDetail.includes('404')) {
+      
+      // Check if it's a 404 or authentication error
+      const is404 = subscriptionError && typeof subscriptionError === 'object' && 'response' in subscriptionError 
+        && (subscriptionError as any).response?.status === 404;
+      const is401 = subscriptionError && typeof subscriptionError === 'object' && 'response' in subscriptionError 
+        && (subscriptionError as any).response?.status === 401;
+      
+      logger.debug('SubscriptionManagement: Subscription error', {
+        is404,
+        is401,
+        errorDetail,
+        errorMessage,
+        error: subscriptionError
+      });
+      
+      // Only show error if it's not a 404 (no subscription is normal) or 401 (auth will retry)
+      if (!is404 && !is401 && errorDetail) {
         setError(errorDetail || errorMessage);
+      } else if (is401) {
+        // 401 errors are usually transient during auth initialization
+        logger.debug('SubscriptionManagement: 401 error (auth may not be ready yet)');
+      } else if (is404) {
+        // 404 is normal - user just doesn't have a subscription yet
+        logger.debug('SubscriptionManagement: 404 error (no subscription found - this is normal)');
       }
+    } else {
+      // Clear error when there's no error
+      setError('');
     }
   }, [subscriptionError]);
 
