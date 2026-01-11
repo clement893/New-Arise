@@ -197,9 +197,9 @@ export default function TKIAssessmentPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-arise-teal via-arise-teal-dark to-arise-teal flex items-center justify-center p-4">
         <MotionDiv variant="fade" duration="normal" className="max-w-2xl w-full">
-          <Card className="bg-white p-8 text-center">
+          <Card className="p-8 text-center" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
             <div className="mb-6">
-              <div className="w-20 h-20 bg-arise-gold rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#0F4C56' }}>
                 <svg
                   className="w-10 h-10 text-white"
                   fill="none"
@@ -214,7 +214,7 @@ export default function TKIAssessmentPage() {
                   />
                 </svg>
               </div>
-              <h1 className="text-3xl font-bold text-arise-teal mb-2">Congratulations!</h1>
+              <h1 className="text-3xl font-bold mb-2" style={{ color: '#0F4C56' }}>Congratulations!</h1>
               <p className="text-gray-600">You've completed the TKI Conflict Style Assessment</p>
             </div>
 
@@ -228,11 +228,18 @@ export default function TKIAssessmentPage() {
             <div className="flex gap-4 justify-center">
               <Button
                 onClick={() => router.push(`/dashboard/assessments/tki/results?id=${effectiveAssessmentId || assessmentId}`)}
-                className="bg-arise-gold hover:bg-arise-gold-dark text-white"
+                className="text-white"
+                style={{ backgroundColor: '#0F4C56' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.9)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F4C56'}
               >
                 View Results
               </Button>
-              <Button onClick={() => router.push('/dashboard/assessments')} variant="outline">
+              <Button 
+                onClick={() => router.push('/dashboard/assessments')} 
+                variant="outline"
+                style={{ borderColor: '#0F4C56', color: '#0F4C56' }}
+              >
                 Back to Assessments
               </Button>
             </div>

@@ -406,12 +406,12 @@ function WellnessAssessmentContent() {
         />
         <div className="relative z-10 p-8 flex items-center justify-center min-h-screen">
             <MotionDiv variant="fade" duration="normal">
-              <Card className="max-w-2xl text-center">
+              <Card className="max-w-2xl text-center" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
                 <div className="mb-6">
-                  <div className="w-20 h-20 bg-success-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle className="text-success-600" size={48} />
+                  <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#0F4C56' }}>
+                    <CheckCircle className="text-white" size={48} />
                   </div>
-                  <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                  <h1 className="text-4xl font-bold mb-4" style={{ color: '#0F4C56' }}>
                     Congratulations!
                   </h1>
                   <p className="text-gray-600 text-lg mb-2">
@@ -426,6 +426,7 @@ function WellnessAssessmentContent() {
                   <Button 
                     variant="outline"
                     onClick={() => router.push('/dashboard')}
+                    style={{ borderColor: '#0F4C56', color: '#0F4C56' }}
                   >
                     Go to Dashboard
                   </Button>
@@ -437,12 +438,17 @@ function WellnessAssessmentContent() {
                         router.push(`/dashboard/assessments/results?id=${assessmentId}`);
                       }
                     }}
+                    className="text-white"
+                    style={{ backgroundColor: '#0F4C56' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.9)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F4C56'}
                   >
                     View Results
                   </Button>
                   <Button 
                     variant="outline"
                     onClick={handleFinish}
+                    style={{ borderColor: '#0F4C56', color: '#0F4C56' }}
                   >
                     View All Assessments
                   </Button>
