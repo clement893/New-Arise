@@ -1957,7 +1957,7 @@ async def upload_mbti_pdf(
                     SELECT column_name 
                     FROM information_schema.columns 
                     WHERE table_name = 'assessment_results' 
-                    AND column_name IN ('scores', 'result_data')
+                    AND column_name IN ('scores', 'result_data', 'generated_at', 'created_at', 'insights', 'recommendations')
                     ORDER BY column_name
                 """)
             )
