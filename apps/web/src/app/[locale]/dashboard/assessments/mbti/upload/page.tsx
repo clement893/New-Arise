@@ -5,7 +5,7 @@
  * Allows users to upload their PDF results from 16Personalities
  */
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -23,6 +23,7 @@ export default function MBTIPDFUploadPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleFileSelect = (files: File[]) => {
     if (files.length > 0) {
@@ -78,43 +79,84 @@ export default function MBTIPDFUploadPage() {
     setError(null);
     setUploadProgress(0);
 
+    // Clean up any existing interval
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
+    }
+
     try {
       // Simulate progress (actual progress will be handled by the API)
-      const progressInterval = setInterval(() => {
+      // Progress increases slowly to 90%, then waits for API response
+      let currentProgress = 0;
+      progressIntervalRef.current = setInterval(() => {
         setUploadProgress((prev) => {
-          if (prev < 90) {
-            return prev + 10;
+          // Gradually increase to 90%, then slow down
+          if (prev < 80) {
+            currentProgress = prev + 5;
+            return currentProgress;
+          } else if (prev < 90) {
+            // Slow down as we approach 90%
+            currentProgress = Math.min(prev + 1, 90);
+            return currentProgress;
           }
-          return prev;
+          // Stay at 90% until API completes
+          return 90;
         });
-      }, 500);
+      }, 300);
 
       let result;
-      if (inputMode === 'file' && selectedFile) {
-        result = await uploadMBTIPDF(selectedFile);
-      } else if (inputMode === 'url' && profileUrl) {
-        result = await uploadMBTIPDFFromURL(profileUrl.trim());
-      } else {
-        throw new Error('Mode d\'upload invalide');
+      try {
+        if (inputMode === 'file' && selectedFile) {
+          result = await uploadMBTIPDF(selectedFile);
+        } else if (inputMode === 'url' && profileUrl) {
+          result = await uploadMBTIPDFFromURL(profileUrl.trim());
+        } else {
+          throw new Error('Mode d\'upload invalide');
+        }
+      } finally {
+        // Always clean up interval when API call completes (success or error)
+        if (progressIntervalRef.current) {
+          clearInterval(progressIntervalRef.current);
+          progressIntervalRef.current = null;
+        }
       }
       
-      clearInterval(progressInterval);
+      // Set progress to 100% on success
       setUploadProgress(100);
 
       // Redirect to results page with assessment ID
       const assessmentId = result.assessment_id || (result as any).assessmentId || (result as any).id;
       if (assessmentId) {
+        // Add a small delay to ensure database is synchronized before redirecting
+        await new Promise(resolve => setTimeout(resolve, 1000));
         router.push(`/dashboard/assessments/mbti/results?id=${assessmentId}`);
       } else {
         throw new Error('Aucun ID d\'assessment retourné');
       }
     } catch (err: unknown) {
+      // Ensure interval is cleaned up in case of error
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+      
       const errorMessage = formatError(err);
       setError(errorMessage);
       setIsUploading(false);
       setUploadProgress(0);
     }
   };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+    };
+  }, []);
 
   return (
     <div className="relative">
