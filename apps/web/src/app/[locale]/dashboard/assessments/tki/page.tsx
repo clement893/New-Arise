@@ -354,7 +354,7 @@ export default function TKIAssessmentPage() {
         <div className="flex items-center justify-center min-h-[80vh]">
           <div className="max-w-4xl w-full">
             <MotionDiv key={currentQuestion} variant="slideUp" duration="fast">
-              <Card className="p-8 bg-white/95">
+              <Card className="p-8" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
                   <div className="flex items-center gap-3">
