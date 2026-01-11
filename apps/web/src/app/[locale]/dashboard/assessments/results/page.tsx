@@ -317,10 +317,10 @@ function AssessmentResultsContent() {
               <ArrowLeft className="mr-2" size={16} />
               Back to Assessments
             </Button>
-            <h1 className="text-4xl font-bold text-arise-deep-teal mb-2">
+            <h1 className="text-4xl font-bold text-white mb-2">
               Wellness Assessment Results
             </h1>
-            <p className="text-gray-600">
+            <p className="text-white">
               Your comprehensive wellness profile across six key pillars
             </p>
           </div>
