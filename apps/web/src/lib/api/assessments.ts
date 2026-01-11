@@ -491,6 +491,33 @@ export const deleteAllMyAssessments = async (): Promise<{ message: string; delet
   return response.data;
 };
 
+/**
+ * Get questions for a specific assessment type
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
+ */
+export const getQuestions = async (assessmentType: string): Promise<any[]> => {
+  const response = await apiClient.get(
+    `/v1/assessments/questions`,
+    {
+      params: { assessment_type: assessmentType }
+    }
+  );
+  return response.data;
+};
+
+/**
+ * Admin: Get all questions for management
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
+ */
+export const getAdminQuestions = async (assessmentType?: string): Promise<any> => {
+  const params = assessmentType ? { assessment_type: assessmentType } : {};
+  const response = await apiClient.get(
+    `/v1/assessments/admin/questions`,
+    { params }
+  );
+  return response.data;
+};
+
 export const assessmentsApi = {
   start: startAssessment,
   saveAnswer,

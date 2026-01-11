@@ -14,7 +14,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from datetime import datetime, timezone
 
 from app.core.database import get_db
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, require_admin_or_superadmin
 from app.models.user import User
 from app.models.assessment import (
     Assessment,
@@ -26,6 +26,7 @@ from app.models.assessment import (
     EvaluatorRole,
 )
 from app.config.assessment_config import get_total_questions
+from app.config.assessment_questions import get_questions_for_type
 
 router = APIRouter()
 

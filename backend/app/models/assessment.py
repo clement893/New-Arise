@@ -130,7 +130,10 @@ class AssessmentResult(Base):
     #   "pillar_scores": {"sleep": 20, "nutrition": 18, ...},  # Wellness
     #   "capability_scores": {"communication": 20, ...}  # 360°
     # }
-    scores = Column(JSON, nullable=False)
+    # Note: Database may have 'result_data' or 'scores' column
+    # We map 'scores' attribute to 'result_data' column if 'scores' doesn't exist
+    # This is handled at the ORM level - SQLAlchemy will use the column name
+    scores = Column('scores', JSON, nullable=False)
 
     # Interprétations détaillées (JSON)
     # Contient les textes d'interprétation pour chaque dimension/mode/pillar
