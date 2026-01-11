@@ -273,7 +273,10 @@ function DashboardContent() {
       return (
         <Button 
           variant="outline" 
-          className="w-full rounded-full"
+          className="w-full rounded-full text-white"
+          style={{ backgroundColor: '#0F454D', borderColor: '#0F454D' }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 69, 77, 0.9)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F454D'}
           onClick={() => {
             if (evaluation.assessmentType === 'TKI' && evaluation.assessmentId) {
               router.push(`/dashboard/assessments/tki/results?id=${evaluation.assessmentId}`);
@@ -300,7 +303,10 @@ function DashboardContent() {
       return (
         <Button 
           variant="outline" 
-          className="w-full rounded-full"
+          className="w-full rounded-full text-white"
+          style={{ backgroundColor: '#0F454D', borderColor: '#0F454D' }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 69, 77, 0.9)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F454D'}
           onClick={async () => {
             if (!evaluation.assessmentId) return;
             
@@ -530,9 +536,10 @@ function DashboardContent() {
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="bg-arise-button-primary text-white border-2 font-semibold"
+                      className="bg-arise-button-primary border-2 font-semibold"
                       style={{ 
-                        borderColor: '#799ba1', 
+                        borderColor: '#799ba1',
+                        color: '#FFFFFF',
                       }}
                       onClick={() => router.push('/dashboard/results')}
                     >
