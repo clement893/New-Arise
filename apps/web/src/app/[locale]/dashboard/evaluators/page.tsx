@@ -49,27 +49,51 @@ function EvaluatorsContent() {
       
       if (!id) {
         const assessments = await getMyAssessments();
+        console.log('[EvaluatorsPage] Assessments loaded:', assessments);
         const feedback360Assessment = assessments.find(
           (a) => a.assessment_type === 'THREE_SIXTY_SELF'
         );
         if (!feedback360Assessment) {
           if (!silent) {
-            setError('Aucun assessment de feedback 360° trouvé');
+            setError('Aucun assessment de feedback 360° trouvé. Veuillez d\'abord démarrer un assessment 360° depuis la page Assessments.');
             setIsLoading(false);
           }
           return;
         }
         id = feedback360Assessment.id;
+        console.log('[EvaluatorsPage] Found 360 assessment ID:', id);
       }
 
       // Always update assessmentId (needed for polling)
       setAssessmentId(id);
+      console.log('[EvaluatorsPage] Loading evaluators for assessment ID:', id);
       const response = await get360Evaluators(id);
-      setEvaluators(response.evaluators || []);
+      console.log('[EvaluatorsPage] Evaluators response:', response);
+      const evaluatorsList = response.evaluators || [];
+      console.log('[EvaluatorsPage] Evaluators list:', evaluatorsList);
+      setEvaluators(evaluatorsList);
     } catch (err) {
-      console.error('Failed to load evaluators:', err);
-      if (!silent) {
-        setError(err instanceof Error ? err.message : 'Échec du chargement des évaluateurs');
+      console.error('[EvaluatorsPage] Failed to load evaluators:', err);
+      if (err instanceof Error) {
+        console.error('[EvaluatorsPage] Error details:', {
+          message: err.message,
+          stack: err.stack,
+          name: err.name
+        });
+        // Check for 404 error (assessment not found)
+        if (err.message.includes('404') || err.message.includes('not found')) {
+          if (!silent) {
+            setError('Assessment 360° non trouvé. Veuillez d\'abord démarrer un assessment 360° depuis la page Assessments.');
+          }
+        } else {
+          if (!silent) {
+            setError(`Échec du chargement des évaluateurs: ${err.message}`);
+          }
+        }
+      } else {
+        if (!silent) {
+          setError('Échec du chargement des évaluateurs. Veuillez réessayer.');
+        }
       }
     } finally {
       if (!silent) {
@@ -425,20 +449,30 @@ function EvaluatorsContent() {
         <div className="space-y-4">
           {filteredEvaluators.length === 0 ? (
             <Card className="p-8 text-center">
-              <p className="text-gray-600 mb-4">
-                {evaluators.length === 0 
-                  ? 'Aucun évaluateur trouvé.' 
-                  : 'Aucun évaluateur ne correspond au filtre sélectionné.'}
-              </p>
-              {evaluators.length === 0 && assessmentId && (
-                <Button
-                  variant="primary"
-                  onClick={() => setShowEvaluatorModal(true)}
-                >
-                  <Plus size={20} className="mr-2" />
-                  Ajouter des évaluateurs
-                </Button>
-              )}
+              <div className="max-w-md mx-auto">
+                <p className="text-gray-600 mb-4 text-lg">
+                  {evaluators.length === 0 
+                    ? 'Aucun évaluateur ajouté pour le moment.' 
+                    : 'Aucun évaluateur ne correspond au filtre sélectionné.'}
+                </p>
+                {evaluators.length === 0 && (
+                  <div className="space-y-3">
+                    <p className="text-gray-500 text-sm mb-4">
+                      Pour recevoir des retours sur votre leadership, ajoutez des évaluateurs qui vous connaissent professionnellement (collègues, managers, collaborateurs directs, etc.).
+                    </p>
+                    {assessmentId && (
+                      <Button
+                        variant="primary"
+                        onClick={() => setShowEvaluatorModal(true)}
+                        className="font-semibold"
+                      >
+                        <Plus size={20} className="mr-2" />
+                        Ajouter des évaluateurs
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
             </Card>
           ) : (
             filteredEvaluators.map((evaluator) => {
