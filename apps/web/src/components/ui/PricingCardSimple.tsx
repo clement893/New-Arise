@@ -65,7 +65,7 @@ export default function PricingCardSimple({
       )}
       <div className="p-8">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-          {plan.name}
+          {plan.name === 'Test' ? 'test pour la plateforme' : plan.name}
         </h2>
         <p className="text-gray-900 dark:text-gray-100 mb-6">{plan.description}</p>
         <div className="mb-6">
@@ -77,10 +77,10 @@ export default function PricingCardSimple({
             </div>
           ) : (
             <>
-              <span className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+              <span className="text-4xl font-bold text-black">
                 {calculatePrice()}€
               </span>
-              <span className="text-gray-900 dark:text-gray-100">/mois</span>
+              <span className="text-black">/mois</span>
               {billingPeriod === 'year' && calculateYearlyPrice() && (
                 <div className="text-sm text-gray-900 dark:text-gray-100 mt-1">
                   {calculateYearlyPrice()}€/an
