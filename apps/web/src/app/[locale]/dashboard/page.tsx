@@ -273,10 +273,14 @@ function DashboardContent() {
       return (
         <Button 
           variant="outline" 
-          className="w-full rounded-full text-white"
-          style={{ backgroundColor: '#0F454D', borderColor: '#0F454D' }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 69, 77, 0.9)'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F454D'}
+          className="w-full rounded-full"
+          style={{ color: '#0F444C', borderColor: '#0F444C' }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(15, 68, 76, 0.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }}
           onClick={() => {
             if (evaluation.assessmentType === 'TKI' && evaluation.assessmentId) {
               router.push(`/dashboard/assessments/tki/results?id=${evaluation.assessmentId}`);
@@ -304,7 +308,13 @@ function DashboardContent() {
         <Button 
           variant="outline" 
           className="w-full rounded-full"
-          style={{ color: '#0F454D', borderColor: '#0F454D' }}
+          style={{ color: '#0F444C', borderColor: '#0F444C' }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(15, 68, 76, 0.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }}
           onClick={async () => {
             if (!evaluation.assessmentId) return;
             
@@ -446,10 +456,14 @@ function DashboardContent() {
                           <Link href={`/dashboard/evaluators?id=${feedback360Assessment.id}`}>
                             <Button 
                               variant="outline" 
-                              className="whitespace-nowrap font-semibold text-white transition-colors"
-                              style={{ backgroundColor: '#0F454D', borderColor: '#0F454D' }}
-                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 69, 77, 0.9)'}
-                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F454D'}
+                              className="whitespace-nowrap font-semibold transition-colors"
+                              style={{ color: '#0F444C', borderColor: '#0F444C' }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = 'rgba(15, 68, 76, 0.1)';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                              }}
                             >
                               <Eye size={16} className="mr-2" />
                               {evaluators.length > 0 ? `View Evaluators (${evaluators.length})` : 'View Evaluators'}
