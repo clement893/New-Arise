@@ -285,6 +285,8 @@ export default function Start360FeedbackPage() {
       <PageHeader
         title="Démarrer une évaluation 360° Feedback"
         description="Invitez des personnes à évaluer votre leadership (optionnel). Elles recevront un email avec un lien vers le formulaire. Vous pouvez ajouter des évaluateurs plus tard."
+        titleClassName="text-white"
+        descriptionClassName="text-white"
       />
 
       <Container className="py-8">
