@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
-import { Card, Button, Container, Alert, Modal } from '@/components/ui';
+import { Card, Button, Container, Alert, Modal, Checkbox } from '@/components/ui';
 import Input from '@/components/ui/Input';
 import Badge from '@/components/ui/Badge';
 import { usersAPI, type User } from '@/lib/api/users';
@@ -23,6 +23,9 @@ export default function AdminUsersPage() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
   const pageSize = 20;
 
   useEffect(() => {
@@ -109,6 +112,68 @@ export default function AdminUsersPage() {
     return labels[userType || ''] || userType || 'N/A';
   };
 
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedUserIds(new Set(users.map(u => u.id)));
+    } else {
+      setSelectedUserIds(new Set());
+    }
+  };
+
+  const handleSelectUser = (userId: string, checked: boolean) => {
+    const newSelected = new Set(selectedUserIds);
+    if (checked) {
+      newSelected.add(userId);
+    } else {
+      newSelected.delete(userId);
+    }
+    setSelectedUserIds(newSelected);
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedUserIds.size === 0) return;
+
+    try {
+      setBulkDeleting(true);
+      setError(null);
+      setSuccessMessage(null);
+      
+      const userIdsArray = Array.from(selectedUserIds);
+      const deletePromises = userIdsArray.map(userId => usersAPI.delete(userId));
+      await Promise.all(deletePromises);
+      
+      // Remove users from the list
+      setUsers(users.filter((u) => !selectedUserIds.has(u.id)));
+      
+      // Update total count
+      setTotal((prev) => Math.max(0, prev - selectedUserIds.size));
+      
+      const count = selectedUserIds.size;
+      setSuccessMessage(`${count} utilisateur${count > 1 ? 's' : ''} ${count > 1 ? 'ont été supprimés' : 'a été supprimé'} avec succès.`);
+      
+      // Clear selection
+      setSelectedUserIds(new Set());
+      setBulkDeleteModalOpen(false);
+      
+      // Refresh the list
+      await fetchUsers();
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 5000);
+    } catch (err) {
+      setError(getErrorMessage(err, 'Erreur lors de la suppression des utilisateurs'));
+      setBulkDeleteModalOpen(false);
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
+  const allSelected = users.length > 0 && selectedUserIds.size === users.length;
+  const someSelected = selectedUserIds.size > 0 && selectedUserIds.size < users.length;
+  const selectedCount = selectedUserIds.size;
+
   return (
     <Container className="py-8">
       <div className="mb-6">
@@ -147,6 +212,47 @@ export default function AdminUsersPage() {
         </div>
       </Card>
 
+      {/* Bulk Actions Bar */}
+      {selectedCount > 0 && (
+        <Card className="mb-6 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+          <div className="flex items-center justify-between py-3 px-4">
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                {selectedCount} utilisateur{selectedCount > 1 ? 's' : ''} sélectionné{selectedCount > 1 ? 's' : ''}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedUserIds(new Set())}
+                className="text-sm"
+              >
+                Tout désélectionner
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={() => setBulkDeleteModalOpen(true)}
+                disabled={bulkDeleting}
+              >
+                {bulkDeleting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    Suppression...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Supprimer ({selectedCount})
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* Users Table */}
       <Card>
         {loading ? (
@@ -165,6 +271,14 @@ export default function AdminUsersPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="text-left py-3 px-4 w-12">
+                      <Checkbox
+                        checked={allSelected}
+                        indeterminate={someSelected}
+                        onChange={(e) => handleSelectAll(e.target.checked)}
+                        className="cursor-pointer"
+                      />
+                    </th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
                       Email
                     </th>
@@ -195,12 +309,20 @@ export default function AdminUsersPage() {
                     >
                       <tr className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                         <td className="py-4 px-4">
-                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          <Checkbox
+                            checked={selectedUserIds.has(user.id)}
+                            onChange={(e) => handleSelectUser(user.id, e.target.checked)}
+                            onClick={(e) => e.stopPropagation()}
+                            className="cursor-pointer"
+                          />
+                        </td>
+                        <td className="py-4 px-4">
+                          <div className="text-sm font-medium text-gray-900">
                             {user.email}
                           </div>
                         </td>
                         <td className="py-4 px-4">
-                          <div className="text-sm text-gray-900 dark:text-gray-100">
+                          <div className="text-sm text-gray-900">
                             {getUserDisplayName(user)}
                           </div>
                         </td>
@@ -361,6 +483,52 @@ export default function AdminUsersPage() {
           </p>
           <p className="text-sm text-red-600 dark:text-red-400 font-medium">
             ⚠️ Cette action est irréversible. L'utilisateur sera immédiatement retiré de la liste.
+          </p>
+        </div>
+      </Modal>
+
+      {/* Bulk Delete Confirmation Modal */}
+      <Modal
+        isOpen={bulkDeleteModalOpen}
+        onClose={() => {
+          setBulkDeleteModalOpen(false);
+        }}
+        title="Confirmer la suppression en masse"
+        size="sm"
+        footer={
+          <>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setBulkDeleteModalOpen(false);
+              }}
+              disabled={bulkDeleting}
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="danger"
+              onClick={handleBulkDelete}
+              disabled={bulkDeleting}
+            >
+              {bulkDeleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Suppression...
+                </>
+              ) : (
+                `Supprimer ${selectedCount} utilisateur${selectedCount > 1 ? 's' : ''}`
+              )}
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-gray-600 dark:text-gray-400">
+            Êtes-vous sûr de vouloir supprimer <strong className="text-gray-900 dark:text-gray-100">{selectedCount} utilisateur{selectedCount > 1 ? 's' : ''}</strong> ?
+          </p>
+          <p className="text-sm text-red-600 dark:text-red-400 font-medium">
+            ⚠️ Cette action est irréversible. Les utilisateurs seront immédiatement retirés de la liste.
           </p>
         </div>
       </Modal>
