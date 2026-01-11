@@ -60,6 +60,7 @@ export default function MBTIPDFUploadPage() {
   };
 
   const handleUpload = async () => {
+    // Validate inputs BEFORE starting upload process
     if (inputMode === 'file' && !selectedFile) {
       setError('Veuillez sélectionner un fichier PDF');
       return;
@@ -75,30 +76,27 @@ export default function MBTIPDFUploadPage() {
       return;
     }
 
-    setIsUploading(true);
-    setError(null);
-    setUploadProgress(0);
-
-    // Clean up any existing interval
+    // Clean up any existing interval BEFORE starting new upload
     if (progressIntervalRef.current) {
       clearInterval(progressIntervalRef.current);
       progressIntervalRef.current = null;
     }
 
+    setIsUploading(true);
+    setError(null);
+    setUploadProgress(0);
+
     try {
       // Simulate progress (actual progress will be handled by the API)
       // Progress increases slowly to 90%, then waits for API response
-      let currentProgress = 0;
       progressIntervalRef.current = setInterval(() => {
         setUploadProgress((prev) => {
           // Gradually increase to 90%, then slow down
           if (prev < 80) {
-            currentProgress = prev + 5;
-            return currentProgress;
+            return prev + 5;
           } else if (prev < 90) {
             // Slow down as we approach 90%
-            currentProgress = Math.min(prev + 1, 90);
-            return currentProgress;
+            return Math.min(prev + 1, 90);
           }
           // Stay at 90% until API completes
           return 90;
@@ -109,7 +107,7 @@ export default function MBTIPDFUploadPage() {
       try {
         if (inputMode === 'file' && selectedFile) {
           result = await uploadMBTIPDF(selectedFile);
-        } else if (inputMode === 'url' && profileUrl) {
+        } else if (inputMode === 'url' && profileUrl.trim()) {
           result = await uploadMBTIPDFFromURL(profileUrl.trim());
         } else {
           throw new Error('Mode d\'upload invalide');
