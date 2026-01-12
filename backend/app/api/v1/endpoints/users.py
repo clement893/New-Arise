@@ -448,7 +448,43 @@ async def update_current_user(
         
         logger.info(f"User profile updated successfully for: {current_user.email}")
         
-        return current_user
+        # Convert User model to UserResponse schema
+        # Since UserResponse has from_attributes=True, we can validate directly from the model
+        # But we need to handle datetime serialization explicitly
+        try:
+            # Try to use from_attributes directly (Pydantic v2)
+            # This should work since UserResponse.model_config has from_attributes=True
+            return UserResponse.model_validate(current_user)
+        except Exception as validation_error:
+            logger.error(
+                f"Error converting user to UserResponse with from_attributes: {validation_error}\n"
+                f"  User data: id={current_user.id}, email={current_user.email}, "
+                f"first_name={current_user.first_name}, last_name={current_user.last_name}, "
+                f"is_active={current_user.is_active}, user_type={current_user.user_type}, "
+                f"created_at={current_user.created_at}, updated_at={current_user.updated_at}",
+                exc_info=True
+            )
+            # Fallback: convert manually with explicit datetime handling
+            try:
+                user_dict = {
+                    "id": current_user.id,
+                    "email": current_user.email,
+                    "first_name": current_user.first_name,
+                    "last_name": current_user.last_name,
+                    "is_active": current_user.is_active,
+                    "created_at": current_user.created_at.isoformat() if hasattr(current_user.created_at, 'isoformat') else str(current_user.created_at),
+                    "updated_at": current_user.updated_at.isoformat() if hasattr(current_user.updated_at, 'isoformat') else str(current_user.updated_at),
+                }
+                return UserResponse.model_validate(user_dict)
+            except Exception as fallback_error:
+                logger.error(
+                    f"Error in fallback conversion: {fallback_error}",
+                    exc_info=True
+                )
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Failed to serialize user data"
+                )
         
     except HTTPException:
         raise

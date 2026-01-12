@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/lib/store';
-import { useAuth } from '@/hooks/useAuth';
 import { useHydrated } from '@/hooks/useHydrated';
 import Button from '@/components/ui/Button';
 import { LanguageToggle } from './LanguageToggle';
@@ -14,7 +13,6 @@ import { clsx } from 'clsx';
 export function Header() {
   const t = useTranslations('landing.header');
   const { isAuthenticated } = useAuthStore();
-  const { logout } = useAuth();
   const isHydrated = useHydrated();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
