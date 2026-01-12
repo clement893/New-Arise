@@ -50,7 +50,8 @@ export default function ProfilePage() {
         
         // Load user data
         const response = await usersAPI.getMe();
-        const userData = extractApiData<ApiUserResponse>(response);
+        // usersAPI.getMe() returns ApiResponse<ApiUserResponse> with a data property
+        const userData: ApiUserResponse | undefined = (response as { data?: ApiUserResponse }).data;
         
         if (userData && typeof userData === 'object') {
           // Initialize form with user data
@@ -157,7 +158,8 @@ export default function ProfilePage() {
 
       // Call API to update user
       const response = await usersAPI.updateMe(updateData);
-      const userData = extractApiData<ApiUserResponse>(response);
+      // usersAPI.updateMe() returns ApiResponse<ApiUserResponse> with a data property
+      const userData: ApiUserResponse | undefined = (response as { data?: ApiUserResponse }).data;
       
       if (userData && typeof userData === 'object') {
         // Update auth store with new user data
