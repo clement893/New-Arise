@@ -32,22 +32,7 @@ export default function AdminUsersPage() {
   const [userSuperAdminStatus, setUserSuperAdminStatus] = useState<Record<number, boolean>>({});
   const pageSize = 20;
 
-  useEffect(() => {
-    fetchUsers();
-  }, [currentPage, searchTerm]);
-
-  // Check superadmin status for all users when they are loaded
-  useEffect(() => {
-    if (users.length > 0) {
-      users.forEach(user => {
-        if (userSuperAdminStatus[user.id] === undefined) {
-          checkUserSuperAdminStatus(user);
-        }
-      });
-    }
-  }, [users, checkUserSuperAdminStatus, userSuperAdminStatus]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -64,7 +49,11 @@ export default function AdminUsersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, pageSize, searchTerm]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const handleDelete = async () => {
     if (!selectedUser) return;
