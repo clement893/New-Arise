@@ -17,23 +17,52 @@ export default function AboutPage() {
       <main className="container mx-auto px-4 pt-24 pb-12">
         {/* Hero Section */}
         <MotionDiv variant="fade" duration="normal">
-          <div className="mb-12 pb-6 text-center">
-            <h1 className="text-5xl font-bold text-gray-900 mb-4">
-              {t('title')}
-            </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              {t('subtitle')}
-            </p>
+          <div className="mb-16 relative flex items-center bg-arise-deep-teal overflow-hidden rounded-lg min-h-[400px] md:min-h-[500px]">
+            {/* Background Image */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center opacity-10"
+              style={{
+                backgroundImage: 'url(/images/dashboard-bg.jpg)',
+              }}
+            />
+            {/* Vertical lines texture */}
+            <div 
+              className="absolute inset-0 opacity-20"
+              style={{
+                backgroundImage: `repeating-linear-gradient(
+                  90deg,
+                  transparent,
+                  transparent 3px,
+                  rgba(255, 255, 255, 0.08) 3px,
+                  rgba(255, 255, 255, 0.08) 4px
+                )`
+              }}
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center relative z-10 p-8 md:p-12 w-full">
+              <div className="pt-8">
+                <h1 className="text-5xl font-bold text-white mb-4">
+                  {t('title')}
+                </h1>
+                <p className="text-xl text-white/90 max-w-3xl">
+                  {t('subtitle')}
+                </p>
+              </div>
+              <div className="relative h-64 md:h-96 rounded-lg overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 flex items-center justify-center">
+                  <Users className="text-white/30" size={120} />
+                </div>
+              </div>
+            </div>
           </div>
         </MotionDiv>
 
         {/* Mission Section */}
         <div className="mb-16">
-          <Card className="p-8 md:p-12">
+          <Card className="p-6 md:p-8 border border-[#D8B868]">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div>
                 <div className="flex items-center gap-3 mb-4">
-                  <Target className="text-arise-deep-teal" size={32} />
+                  <Users className="text-arise-deep-teal" size={32} />
                   <h2 className="text-3xl font-bold text-gray-900">{t('mission.title')}</h2>
                 </div>
                 <p className="text-lg text-gray-700 mb-4">
@@ -45,7 +74,7 @@ export default function AboutPage() {
               </div>
               <div className="relative h-64 md:h-80 rounded-lg overflow-hidden bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20">
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <Users className="text-arise-deep-teal/30" size={120} />
+                  <Target className="text-arise-deep-teal/30" size={120} />
                 </div>
               </div>
             </div>
@@ -54,7 +83,7 @@ export default function AboutPage() {
 
         {/* Vision Section */}
         <div className="mb-16">
-          <Card className="p-8 md:p-12 bg-gradient-to-br from-arise-deep-teal/5 to-white">
+          <Card className="p-6 md:p-8 border border-[#D8B868] bg-gradient-to-br from-arise-deep-teal/5 to-white">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div className="order-2 md:order-1 relative h-64 md:h-80 rounded-lg overflow-hidden bg-gradient-to-br from-arise-gold/20 to-arise-deep-teal/20">
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -78,59 +107,62 @@ export default function AboutPage() {
         </div>
 
         {/* Values Section */}
-        <div className="mb-16">
-          <MotionDiv variant="fade" duration="normal">
-            <div className="text-center mb-12">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <Heart className="text-arise-deep-teal" size={32} />
-                <h2 className="text-3xl font-bold text-gray-900">{t('values.title')}</h2>
+        <div className="mb-16 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-tr from-[#0F0F0F] via-[#0F4C56] to-transparent opacity-50" style={{ background: 'linear-gradient(to top right, #0F0F0F 0%, #0F4C56 50%, transparent 100%)' }}></div>
+          <div className="relative z-10 bg-arise-deep-teal py-20 px-4">
+            <MotionDiv variant="fade" duration="normal">
+              <div className="text-center mb-12">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <Heart className="text-white" size={32} />
+                  <h2 className="text-3xl font-bold text-white">{t('values.title')}</h2>
+                </div>
+                <p className="text-lg text-white/80 max-w-2xl mx-auto">
+                  {t('values.subtitle')}
+                </p>
               </div>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                {t('values.subtitle')}
-              </p>
+            </MotionDiv>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+              <Card className="p-6 text-center bg-transparent border-2 border-arise-gold">
+                <div className="w-16 h-16 bg-arise-deep-teal/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Heart className="text-white" size={32} />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">{t('values.authenticity.title')}</h3>
+                <p className="text-white/80">
+                  {t('values.authenticity.text')}
+                </p>
+              </Card>
+
+              <Card className="p-6 text-center bg-transparent border-2 border-arise-gold">
+                <div className="w-16 h-16 bg-arise-gold/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <TrendingUp className="text-white" size={32} />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">{t('values.growth.title')}</h3>
+                <p className="text-white/80">
+                  {t('values.growth.text')}
+                </p>
+              </Card>
+
+              <Card className="p-6 text-center bg-transparent border-2 border-arise-gold">
+                <div className="w-16 h-16 bg-arise-deep-teal/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Lightbulb className="text-white" size={32} />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">{t('values.innovation.title')}</h3>
+                <p className="text-white/80">
+                  {t('values.innovation.text')}
+                </p>
+              </Card>
+
+              <Card className="p-6 text-center bg-transparent border-2 border-arise-gold">
+                <div className="w-16 h-16 bg-arise-gold/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Award className="text-white" size={32} />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">{t('values.excellence.title')}</h3>
+                <p className="text-white/80">
+                  {t('values.excellence.text')}
+                </p>
+              </Card>
             </div>
-          </MotionDiv>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="p-6 text-center">
-              <div className="w-16 h-16 bg-arise-deep-teal/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Heart className="text-arise-deep-teal" size={32} />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">{t('values.authenticity.title')}</h3>
-              <p className="text-gray-600">
-                {t('values.authenticity.text')}
-              </p>
-            </Card>
-
-            <Card className="p-6 text-center">
-              <div className="w-16 h-16 bg-arise-gold/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="text-arise-gold" size={32} />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">{t('values.growth.title')}</h3>
-              <p className="text-gray-600">
-                {t('values.growth.text')}
-              </p>
-            </Card>
-
-            <Card className="p-6 text-center">
-              <div className="w-16 h-16 bg-arise-deep-teal/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Lightbulb className="text-arise-deep-teal" size={32} />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">{t('values.innovation.title')}</h3>
-              <p className="text-gray-600">
-                {t('values.innovation.text')}
-              </p>
-            </Card>
-
-            <Card className="p-6 text-center">
-              <div className="w-16 h-16 bg-arise-gold/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Award className="text-arise-gold" size={32} />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">{t('values.excellence.title')}</h3>
-              <p className="text-gray-600">
-                {t('values.excellence.text')}
-              </p>
-            </Card>
           </div>
         </div>
 
@@ -224,7 +256,7 @@ export default function AboutPage() {
             </p>
             <Button
               asChild
-              className="!bg-arise-gold hover:!bg-arise-gold/90 !text-arise-deep-teal font-semibold px-8 py-3 text-lg inline-flex items-center gap-2"
+              className="!bg-[#D8B868] hover:!bg-[#D8B868]/90 !text-arise-deep-teal font-semibold px-8 py-4 text-lg inline-flex items-center gap-2 rounded-2xl"
             >
               <Link href="/register">
                 {t('cta.getStarted')}

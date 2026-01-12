@@ -30,7 +30,7 @@ export function HeroSection() {
       />
 
       {/* Content */}
-      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+      <div className="relative z-10 text-center px-[11px] max-w-4xl mx-auto">
         <div className="mb-6">
           <p className="text-arise-gold text-sm uppercase tracking-widest mb-4">
             {t('platform')}

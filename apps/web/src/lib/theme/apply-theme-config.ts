@@ -246,7 +246,7 @@ export function applyThemeConfigDirectly(config: ThemeConfig, options?: {
   // These use exact design colors by default, but can be customized via theme system
   const ariseDeepTeal = (originalBaseColorsConfig as any).ariseDeepTeal || (colorsConfig as any).ariseDeepTeal || '#0A3A40';
   const ariseDeepTealAlt = (originalBaseColorsConfig as any).ariseDeepTealAlt || (colorsConfig as any).ariseDeepTealAlt || '#1B5E6B';
-  const ariseGold = (originalBaseColorsConfig as any).ariseGold || (colorsConfig as any).ariseGold || '#D4AF37';
+  const ariseGold = (originalBaseColorsConfig as any).ariseGold || (colorsConfig as any).ariseGold || '#D8B868';
   const ariseGoldAlt = (originalBaseColorsConfig as any).ariseGoldAlt || (colorsConfig as any).ariseGoldAlt || '#F4B860';
   const ariseDarkGray = (originalBaseColorsConfig as any).ariseDarkGray || (colorsConfig as any).ariseDarkGray || '#2e2e2e';
   const ariseLightBeige = (originalBaseColorsConfig as any).ariseLightBeige || (colorsConfig as any).ariseLightBeige || '#F5F5DC';
