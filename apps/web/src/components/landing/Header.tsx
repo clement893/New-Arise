@@ -74,11 +74,8 @@ export function Header() {
                   Admin
                 </Link>
                 <LanguageToggle />
-                <Button 
-                  onClick={logout}
-                  className="bg-[#D8B868] hover:bg-[#D8B868]/90 text-white rounded-2xl px-6 py-2"
-                >
-                  Déconnexion
+                <Button asChild className="bg-[#D8B868] hover:bg-[#D8B868]/90 text-white rounded-2xl px-6 py-2">
+                  <Link href="/register">{t('getStarted')}</Link>
                 </Button>
               </>
             ) : (
@@ -161,17 +158,11 @@ export function Header() {
                         Admin
                       </Button>
                     </Link>
-                    <Button 
-                      size="sm" 
-                      variant="primary" 
-                      onClick={() => {
-                        logout();
-                        setMobileMenuOpen(false);
-                      }}
-                      className="w-full bg-arise-deep-teal hover:bg-arise-deep-teal/90 text-white"
-                    >
-                      Déconnexion
-                    </Button>
+                    <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
+                      <Button size="sm" variant="primary" className="w-full bg-arise-deep-teal hover:bg-arise-deep-teal/90 text-white">
+                        {t('getStarted')}
+                      </Button>
+                    </Link>
                   </>
                 ) : (
                   <>

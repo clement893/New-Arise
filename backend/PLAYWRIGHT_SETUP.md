@@ -110,6 +110,39 @@ If downloads timeout:
 - Check network connectivity
 - Verify the profile URL is accessible
 
+### 16Personalities PDF Download Fails
+
+If you get "Failed to download PDF from URL" even though your profile is public:
+
+1. **Verify Profile is Public**:
+   - Go to https://www.16personalities.com
+   - Log in to your account
+   - Go to Settings → Privacy
+   - Ensure "Profile Visibility" is set to "Public"
+   - Save changes
+
+2. **Check Profile URL Format**:
+   - The URL should be: `https://www.16personalities.com/profiles/YOUR_PROFILE_ID`
+   - Make sure there are no extra characters or parameters
+
+3. **Manual Download Alternative**:
+   - If automatic download fails, you can manually download the PDF:
+     - Go to your profile page on 16Personalities
+     - Look for a "Download PDF" or "Export" button
+     - Click it and save the PDF file
+     - Upload the PDF file directly using the file upload option in ARISE
+
+4. **Why It Might Fail**:
+   - 16Personalities may require JavaScript to generate the PDF
+   - The PDF download may require authentication cookies
+   - 16Personalities may have changed their PDF download mechanism
+   - The profile may appear public but still require login for PDF export
+
+5. **If Playwright is Not Installed**:
+   - The system will try direct HTTP requests first
+   - If those fail, it will try Playwright (if available)
+   - If Playwright is not installed, you'll need to download the PDF manually
+
 ## Performance Notes
 
 - Playwright adds ~2-5 seconds to download time
