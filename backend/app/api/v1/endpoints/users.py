@@ -18,7 +18,8 @@ from app.core.cache_enhanced import cache_query
 from app.core.rate_limit import rate_limit_decorator
 from app.core.logging import logger
 from app.models.user import User
-from app.schemas.user import UserResponse, UserUpdate
+from app.schemas.user import UserUpdate
+from app.schemas.auth import UserResponse
 from app.dependencies import get_current_user
 from fastapi import HTTPException, status
 from typing import Annotated
@@ -109,13 +110,16 @@ async def list_users(
         for user in users:
             try:
                 # Convert SQLAlchemy User to dict, excluding relationships
-                # Handle datetime conversion explicitly
+                # Handle datetime conversion explicitly for UserResponse from app.schemas.auth
                 user_dict = {
                     "id": user.id,
                     "email": user.email,
                     "first_name": user.first_name,
                     "last_name": user.last_name,
+                    "avatar": user.avatar,
                     "is_active": user.is_active,
+                    "user_type": user.user_type.value if user.user_type else "INDIVIDUAL",
+                    "theme_preference": user.theme_preference or 'system',
                     "created_at": user.created_at.isoformat() if hasattr(user.created_at, 'isoformat') else str(user.created_at),
                     "updated_at": user.updated_at.isoformat() if hasattr(user.updated_at, 'isoformat') else str(user.updated_at),
                 }
@@ -159,12 +163,16 @@ async def list_users(
                 try:
                     # Convert SQLAlchemy User to dict, excluding relationships
                     # This prevents issues with eager-loaded relationships
+                    # Handle datetime conversion explicitly for UserResponse from app.schemas.auth
                     user_dict = {
                         "id": user.id,
                         "email": user.email,
                         "first_name": user.first_name,
                         "last_name": user.last_name,
+                        "avatar": user.avatar,
                         "is_active": user.is_active,
+                        "user_type": user.user_type.value if user.user_type else "INDIVIDUAL",
+                        "theme_preference": user.theme_preference or 'system',
                         "created_at": user.created_at.isoformat() if hasattr(user.created_at, 'isoformat') else str(user.created_at),
                         "updated_at": user.updated_at.isoformat() if hasattr(user.updated_at, 'isoformat') else str(user.updated_at),
                     }
@@ -249,7 +257,27 @@ async def get_user(
         from fastapi import HTTPException, status
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     
-    return user
+    # Convert User model to UserResponse schema (from app.schemas.auth)
+    try:
+        user_response = UserResponse(
+            id=user.id,
+            email=user.email,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            avatar=user.avatar,
+            is_active=user.is_active,
+            user_type=user.user_type.value if user.user_type else "INDIVIDUAL",
+            theme_preference=user.theme_preference or 'system',
+            created_at=user.created_at.isoformat() if user.created_at else "",
+            updated_at=user.updated_at.isoformat() if user.updated_at else "",
+        )
+        return user_response
+    except Exception as e:
+        logger.error(f"Error creating UserResponse for user {user.id}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to serialize user data"
+        )
 
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -448,43 +476,35 @@ async def update_current_user(
         
         logger.info(f"User profile updated successfully for: {current_user.email}")
         
-        # Convert User model to UserResponse schema
-        # Since UserResponse has from_attributes=True, we can validate directly from the model
-        # But we need to handle datetime serialization explicitly
+        # Convert User model to UserResponse schema (from app.schemas.auth)
+        # This schema expects created_at and updated_at as strings, not datetime objects
         try:
-            # Try to use from_attributes directly (Pydantic v2)
-            # This should work since UserResponse.model_config has from_attributes=True
-            return UserResponse.model_validate(current_user)
-        except Exception as validation_error:
+            user_response = UserResponse(
+                id=current_user.id,
+                email=current_user.email,
+                first_name=current_user.first_name,
+                last_name=current_user.last_name,
+                avatar=current_user.avatar,
+                is_active=current_user.is_active,
+                user_type=current_user.user_type.value if current_user.user_type else "INDIVIDUAL",
+                theme_preference=current_user.theme_preference or 'system',  # Required field for API compatibility
+                created_at=current_user.created_at.isoformat() if current_user.created_at else "",
+                updated_at=current_user.updated_at.isoformat() if current_user.updated_at else "",
+            )
+            return user_response
+        except Exception as e:
             logger.error(
-                f"Error converting user to UserResponse with from_attributes: {validation_error}\n"
+                f"Error creating UserResponse for user {current_user.id}: {e}\n"
                 f"  User data: id={current_user.id}, email={current_user.email}, "
                 f"first_name={current_user.first_name}, last_name={current_user.last_name}, "
                 f"is_active={current_user.is_active}, user_type={current_user.user_type}, "
                 f"created_at={current_user.created_at}, updated_at={current_user.updated_at}",
                 exc_info=True
             )
-            # Fallback: convert manually with explicit datetime handling
-            try:
-                user_dict = {
-                    "id": current_user.id,
-                    "email": current_user.email,
-                    "first_name": current_user.first_name,
-                    "last_name": current_user.last_name,
-                    "is_active": current_user.is_active,
-                    "created_at": current_user.created_at.isoformat() if hasattr(current_user.created_at, 'isoformat') else str(current_user.created_at),
-                    "updated_at": current_user.updated_at.isoformat() if hasattr(current_user.updated_at, 'isoformat') else str(current_user.updated_at),
-                }
-                return UserResponse.model_validate(user_dict)
-            except Exception as fallback_error:
-                logger.error(
-                    f"Error in fallback conversion: {fallback_error}",
-                    exc_info=True
-                )
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail="Failed to serialize user data"
-                )
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to serialize user data"
+            )
         
     except HTTPException:
         raise
