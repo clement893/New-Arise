@@ -82,7 +82,7 @@ export function getThemeTokens() {
       arise: {
         deepTeal: `var(--color-arise-deep-teal, ${config.colors?.ariseDeepTeal || '#0A3A40'})`,
         deepTealAlt: `var(--color-arise-deep-teal-alt, ${config.colors?.ariseDeepTealAlt || '#1B5E6B'})`,
-        gold: `var(--color-arise-gold, ${config.colors?.ariseGold || '#D4AF37'})`,
+        gold: `var(--color-arise-gold, ${config.colors?.ariseGold || '#D8B868'})`,
         goldAlt: `var(--color-arise-gold-alt, ${config.colors?.ariseGoldAlt || '#F4B860'})`,
         darkGray: `var(--color-arise-dark-gray, ${config.colors?.ariseDarkGray || '#2e2e2e'})`,
         lightBeige: `var(--color-arise-light-beige, ${config.colors?.ariseLightBeige || '#F5F5DC'})`,

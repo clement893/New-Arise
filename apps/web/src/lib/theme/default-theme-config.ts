@@ -12,7 +12,7 @@ export const DEFAULT_THEME_CONFIG = {
   // ARISE Brand Colors - Using ARISE brand colors as primary colors
   // All colors adjusted to meet WCAG AA contrast requirements (4.5:1 for text, 3:1 for UI)
   primary_color: "#0A3A40",  // ARISE deep teal (exact design color)
-  secondary_color: "#D4AF37",  // ARISE gold (exact design color)
+  secondary_color: "#D8B868",  // ARISE gold (updated design color)
   danger_color: "#dc2626",  // Refined red (5.1:1 on white)
   warning_color: "#b45309",  // Warm amber 700 (4.5:1 on white, improved from #d97706)
   info_color: "#0891b2",  // Professional cyan (4.5:1 on white)
@@ -59,7 +59,7 @@ export const DEFAULT_THEME_CONFIG = {
   // All colors adjusted to meet WCAG AA contrast requirements
   colors: {
     primary: "#0A3A40",  // ARISE deep teal (exact design color)
-    secondary: "#D4AF37",  // ARISE gold (exact design color)
+    secondary: "#D8B868",  // ARISE gold (updated design color)
     danger: "#dc2626",  // Refined red (5.1:1 on white)
     warning: "#b45309",  // Warm amber 700 (4.5:1 on white, improved from #d97706)
     info: "#0891b2",  // Professional cyan (4.5:1 on white)
@@ -80,7 +80,7 @@ export const DEFAULT_THEME_CONFIG = {
     ariseDeepTealAlt: "#1B5E6B",  // ARISE deep teal alternative (used in dashboard)
     ariseButtonPrimary: "#0F454D",  // ARISE primary button color
     ariseButtonPrimaryHover: "#0d4148",  // ARISE primary button hover color
-    ariseGold: "#D4AF37",  // ARISE gold (exact design color)
+    ariseGold: "#D8B868",  // ARISE gold (updated design color)
     ariseGoldAlt: "#F4B860",  // ARISE gold alternative (used in buttons)
     ariseDarkGray: "#2e2e2e",  // ARISE dark gray (used for backgrounds)
     ariseLightBeige: "#F5F5DC",  // ARISE light beige

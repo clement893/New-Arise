@@ -39,7 +39,7 @@ export function Header() {
   }, [mobileMenuOpen]);
 
   return (
-    <nav className="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
+    <nav className="bg-white/80 backdrop-blur-[40px] shadow-sm fixed top-0 left-0 right-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -47,8 +47,8 @@ export function Header() {
             <span className="text-2xl font-bold text-arise-deep-teal">ARISE</span>
           </Link>
 
-          {/* Navigation Desktop */}
-          <div className="hidden md:flex items-center space-x-8">
+          {/* Navigation Desktop - Centered */}
+          <div className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
             <Link href="/about" className="text-gray-700 hover:text-arise-deep-teal transition-colors">
               {t('about')}
             </Link>
@@ -61,12 +61,12 @@ export function Header() {
           </div>
 
           {/* Actions Desktop */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-4 ml-auto">
             <Link href="/login" className="text-gray-700 hover:text-arise-deep-teal transition-colors">
               {t('signIn')}
             </Link>
             <LanguageToggle />
-            <Button asChild className="bg-arise-deep-teal hover:bg-arise-deep-teal/90 text-white">
+            <Button asChild className="bg-[#D8B868] hover:bg-[#D8B868]/90 text-white rounded-2xl px-6 py-2">
               <Link href="/register">{t('getStarted')}</Link>
             </Button>
           </div>

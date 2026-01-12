@@ -256,7 +256,7 @@ export function GlobalThemeProvider({ children }: GlobalThemeProviderProps) {
     // These use exact design colors by default, but can be customized via theme system
     const ariseDeepTeal = (colorsConfig as any).ariseDeepTeal || '#0A3A40';
     const ariseDeepTealAlt = (colorsConfig as any).ariseDeepTealAlt || '#1B5E6B';
-    const ariseGold = (colorsConfig as any).ariseGold || '#D4AF37';
+    const ariseGold = (colorsConfig as any).ariseGold || '#D8B868';
     const ariseGoldAlt = (colorsConfig as any).ariseGoldAlt || '#F4B860';
     const ariseDarkGray = (colorsConfig as any).ariseDarkGray || '#2e2e2e';
     const ariseLightBeige = (colorsConfig as any).ariseLightBeige || '#F5F5DC';

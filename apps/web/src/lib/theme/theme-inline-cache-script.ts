@@ -49,7 +49,7 @@ export const themeCacheInlineScript = `
       config = {
         mode: "light",
         primary_color: "#0A3A40",
-        secondary_color: "#D4AF37",
+        secondary_color: "#D8B868",
         danger_color: "#dc2626",
         warning_color: "#b45309",
         info_color: "#0891b2",
@@ -58,7 +58,7 @@ export const themeCacheInlineScript = `
         border_radius: "8px",
         colors: {
           primary: "#0A3A40",
-          secondary: "#D4AF37",
+          secondary: "#D8B868",
           danger: "#dc2626",
           warning: "#b45309",
           info: "#0891b2",
@@ -78,7 +78,7 @@ export const themeCacheInlineScript = `
           ariseDeepTealAlt: "#1B5E6B",
           ariseButtonPrimary: "#0F454D",
           ariseButtonPrimaryHover: "#0d4148",
-          ariseGold: "#D4AF37",
+          ariseGold: "#D8B868",
           ariseGoldAlt: "#F4B860",
           ariseDarkGray: "#2e2e2e",
           ariseLightBeige: "#F5F5DC",
@@ -316,7 +316,7 @@ export const themeCacheInlineScript = `
     // These use exact design colors by default, but can be customized via theme system
     const ariseDeepTeal = colorsConfig.ariseDeepTeal || '#0A3A40';
     const ariseDeepTealAlt = colorsConfig.ariseDeepTealAlt || '#1B5E6B';
-    const ariseGold = colorsConfig.ariseGold || '#D4AF37';
+    const ariseGold = colorsConfig.ariseGold || '#D8B868';
     const ariseGoldAlt = colorsConfig.ariseGoldAlt || '#F4B860';
     const ariseDarkGray = colorsConfig.ariseDarkGray || '#2e2e2e';
     const ariseLightBeige = colorsConfig.ariseLightBeige || '#F5F5DC';

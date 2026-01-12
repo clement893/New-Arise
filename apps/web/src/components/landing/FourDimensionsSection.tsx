@@ -35,8 +35,9 @@ export function FourDimensionsSection() {
   ];
 
   return (
-    <section className="py-20 bg-arise-deep-teal">
-      <div className="container mx-auto px-4">
+    <section className="py-20 bg-arise-deep-teal relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-tr from-[#0F0F0F] via-[#0F4C56] to-transparent opacity-50" style={{ background: 'linear-gradient(to top right, #0F0F0F 0%, #0F4C56 50%, transparent 100%)' }}></div>
+      <div className="container mx-auto px-[11px] relative z-10">
         <div className="max-w-4xl mx-auto text-center mb-16">
           <p className="text-arise-gold text-sm uppercase tracking-widest mb-4">
             {t('methodology')}
@@ -44,7 +45,7 @@ export function FourDimensionsSection() {
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
             {t('title')}
           </h2>
-          <h3 className="text-3xl md:text-4xl font-semibold text-white/90">
+          <h3 className="text-3xl md:text-4xl font-light text-white/90">
             {t('subtitle')}
           </h3>
         </div>
@@ -88,9 +89,14 @@ export function FourDimensionsSection() {
             <Button 
               asChild 
               size="lg"
-              className="bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold px-8 py-6 text-lg"
+              className="bg-white hover:bg-white/90 text-arise-deep-teal font-semibold px-8 py-6 text-lg inline-flex items-center gap-2"
             >
-              <Link href="/register">{t('startNow')}</Link>
+              <Link href="/register">
+                {t('startNow')}
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
             </Button>
           </div>
         </div>

@@ -8,7 +8,8 @@ import Input from '@/components/ui/Input';
 import Badge from '@/components/ui/Badge';
 import { usersAPI, type User } from '@/lib/api/users';
 import { getErrorMessage } from '@/lib/errors';
-import { Search, Trash2, Edit, Eye, Loader2 } from 'lucide-react';
+import { Search, Trash2, Edit, Eye, Loader2, Shield } from 'lucide-react';
+import { makeSuperAdmin, checkSuperAdminStatus } from '@/lib/api/admin';
 import MotionDiv from '@/components/motion/MotionDiv';
 
 export default function AdminUsersPage() {
@@ -26,6 +27,9 @@ export default function AdminUsersPage() {
   const [selectedUserIds, setSelectedUserIds] = useState<Set<number>>(new Set());
   const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [superAdminModalOpen, setSuperAdminModalOpen] = useState(false);
+  const [makingSuperAdmin, setMakingSuperAdmin] = useState(false);
+  const [userSuperAdminStatus, setUserSuperAdminStatus] = useState<Record<number, boolean>>({});
   const pageSize = 20;
 
   const fetchUsers = useCallback(async () => {
@@ -170,6 +174,60 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleMakeSuperAdmin = async () => {
+    if (!selectedUser) return;
+
+    try {
+      setMakingSuperAdmin(true);
+      setError(null);
+      setSuccessMessage(null);
+      
+      await makeSuperAdmin(selectedUser.email);
+      
+      // Update user superadmin status
+      setUserSuperAdminStatus(prev => ({
+        ...prev,
+        [selectedUser.id]: true
+      }));
+      
+      setSuccessMessage(`L'utilisateur ${selectedUser.email} a été promu superadmin avec succès.`);
+      
+      // Close modal
+      setSuperAdminModalOpen(false);
+      setSelectedUser(null);
+      
+      // Refresh the list
+      await fetchUsers();
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 5000);
+    } catch (err) {
+      setError(getErrorMessage(err, 'Erreur lors de la promotion en superadmin'));
+      setSuperAdminModalOpen(false);
+    } finally {
+      setMakingSuperAdmin(false);
+    }
+  };
+
+  const checkUserSuperAdminStatus = useCallback(async (user: User) => {
+    // Skip if already checked
+    if (userSuperAdminStatus[user.id] !== undefined) {
+      return;
+    }
+    
+    try {
+      const status = await checkSuperAdminStatus(user.email);
+      setUserSuperAdminStatus(prev => ({
+        ...prev,
+        [user.id]: status.is_superadmin
+      }));
+    } catch (err) {
+      console.error('Error checking superadmin status:', err);
+    }
+  }, [userSuperAdminStatus]);
+
   const allSelected = users.length > 0 && selectedUserIds.size === users.length;
   const someSelected = selectedUserIds.size > 0 && selectedUserIds.size < users.length;
   const selectedCount = selectedUserIds.size;
@@ -292,6 +350,9 @@ export default function AdminUsersPage() {
                       Statut
                     </th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      Superadmin
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
                       Créé le
                     </th>
                     <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
@@ -337,6 +398,25 @@ export default function AdminUsersPage() {
                           </Badge>
                         </td>
                         <td className="py-4 px-4">
+                          {(() => {
+                            const isSuperAdmin = userSuperAdminStatus[user.id];
+                            if (isSuperAdmin === undefined) {
+                              // Check status on mount
+                              checkUserSuperAdminStatus(user);
+                              return (
+                                <Badge variant="default" className="opacity-50">
+                                  Vérification...
+                                </Badge>
+                              );
+                            }
+                            return (
+                              <Badge variant={isSuperAdmin ? 'error' : 'default'}>
+                                {isSuperAdmin ? 'Oui' : 'Non'}
+                              </Badge>
+                            );
+                          })()}
+                        </td>
+                        <td className="py-4 px-4">
                           <div className="text-sm text-gray-900 dark:text-gray-100">
                             {new Date(user.created_at).toLocaleDateString('fr-FR')}
                           </div>
@@ -362,6 +442,18 @@ export default function AdminUsersPage() {
                               title="Modifier"
                             >
                               <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                setSelectedUser(user);
+                                setSuperAdminModalOpen(true);
+                              }}
+                              title="Rendre superadmin"
+                              className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+                            >
+                              <Shield className="w-4 h-4" />
                             </Button>
                             <Button
                               size="sm"
@@ -530,6 +622,65 @@ export default function AdminUsersPage() {
           <p className="text-sm text-red-600 dark:text-red-400 font-medium">
             ⚠️ Cette action est irréversible. Les utilisateurs seront immédiatement retirés de la liste.
           </p>
+        </div>
+      </Modal>
+
+      {/* Make SuperAdmin Confirmation Modal */}
+      <Modal
+        isOpen={superAdminModalOpen}
+        onClose={() => {
+          setSuperAdminModalOpen(false);
+          setSelectedUser(null);
+        }}
+        title="Rendre superadmin"
+        size="sm"
+        footer={
+          <>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSuperAdminModalOpen(false);
+                setSelectedUser(null);
+              }}
+              disabled={makingSuperAdmin}
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleMakeSuperAdmin}
+              disabled={makingSuperAdmin}
+            >
+              {makingSuperAdmin ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Promotion...
+                </>
+              ) : (
+                <>
+                  <Shield className="w-4 h-4 mr-2" />
+                  Rendre superadmin
+                </>
+              )}
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-gray-600 dark:text-gray-400">
+            Êtes-vous sûr de vouloir rendre <strong className="text-gray-900 dark:text-gray-100">{selectedUser?.email}</strong> superadmin ?
+          </p>
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <p className="text-sm text-blue-800 dark:text-blue-200 font-medium mb-2">
+              ⚡ Privilèges superadmin :
+            </p>
+            <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1 list-disc list-inside">
+              <li>Accès à toutes les fonctionnalités administratives</li>
+              <li>Gestion des thèmes et configurations système</li>
+              <li>Gestion des rôles et permissions</li>
+              <li>Accès aux logs et statistiques avancées</li>
+            </ul>
+          </div>
         </div>
       </Modal>
     </Container>

@@ -7,8 +7,8 @@ export function BuildingLeadersSection() {
   const t = useTranslations('landing.buildingLeaders');
 
   return (
-    <section className="py-20 bg-arise-light-beige">
-      <div className="container mx-auto px-4">
+    <section className="py-20 bg-white">
+      <div className="container mx-auto px-[11px]">
         <div className="max-w-6xl mx-auto">
           <div className="mb-12">
             <h2 className="text-4xl md:text-5xl font-bold text-arise-deep-teal mb-4">

@@ -93,16 +93,26 @@ export default function RegisterPage() {
       {/* Progress Bar */}
       {step < 7 && (
         <div className="relative z-10 container mx-auto px-4 pt-24 mb-8">
-          <div className="flex justify-between items-center mb-4">
-            <div className="text-white text-sm font-medium">
-              Step {step} of 7
-            </div>
+          <div className="flex justify-center items-center gap-2 mb-2">
+            {Array.from({ length: 7 }, (_, index) => {
+              const stepNumber = index + 1;
+              const isActive = stepNumber <= step;
+              return (
+                <div
+                  key={stepNumber}
+                  className={`rounded-full transition-all duration-500 ${
+                    isActive ? 'bg-[#EF977D]' : 'bg-white/30'
+                  }`}
+                  style={{
+                    width: '8px',
+                    height: '8px',
+                  }}
+                />
+              );
+            })}
           </div>
-          <div className="bg-white/20 rounded-full h-2 overflow-hidden">
-            <div 
-              className="bg-arise-gold h-full transition-all duration-500"
-              style={{ width: `${(step / 7) * 100}%` }}
-            />
+          <div className="text-white text-sm font-medium text-center">
+            Step {step} of 7
           </div>
         </div>
       )}

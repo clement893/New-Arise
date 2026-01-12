@@ -48,8 +48,8 @@ export function ChooseYourPathSection() {
   ];
 
   return (
-    <section className="py-20 bg-arise-light-beige">
-      <div className="container mx-auto px-4">
+    <section className="py-20 bg-white">
+      <div className="container mx-auto px-[11px]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-arise-deep-teal mb-4">
@@ -64,10 +64,10 @@ export function ChooseYourPathSection() {
             {paths.map((path) => (
               <div 
                 key={path.title}
-                className="bg-white rounded-lg shadow-lg p-8 hover:shadow-xl transition-shadow duration-300 flex flex-col"
+                className="bg-transparent border border-[#D8B868] rounded-lg shadow-lg p-8 hover:shadow-xl transition-shadow duration-300 flex flex-col"
               >
                 <div className="mb-6">
-                  <div className="w-16 h-16 bg-arise-deep-teal rounded-lg flex items-center justify-center mb-4">
+                  <div className="w-16 h-16 bg-[#F5F5DC] rounded-lg flex items-center justify-center mb-4">
                     <path.icon className="w-8 h-8 text-arise-gold" />
                   </div>
                   <h3 className="text-2xl font-bold text-arise-deep-teal mb-3">
