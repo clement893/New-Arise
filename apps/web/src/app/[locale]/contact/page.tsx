@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
-import { Card } from '@/components/ui';
+import { Card, Alert } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import MotionDiv from '@/components/motion/MotionDiv';
@@ -23,6 +23,7 @@ export default function ContactPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -43,9 +44,13 @@ export default function ContactPage() {
       
       if (response.data?.success) {
         setIsSubmitted(true);
+        setSuccessMessage(response.data?.message || 'Votre message a été envoyé avec succès ! Vous recevrez un email de confirmation sous peu.');
         setFormData({ name: '', email: '', subject: '', message: '' });
-        // Reset success message after 5 seconds
-        setTimeout(() => setIsSubmitted(false), 5000);
+        // Reset success message after 8 seconds
+        setTimeout(() => {
+          setIsSubmitted(false);
+          setSuccessMessage(null);
+        }, 8000);
       } else {
         throw new Error(response.data?.message || 'Failed to send message');
       }
@@ -80,6 +85,24 @@ export default function ContactPage() {
             </p>
           </div>
         </MotionDiv>
+
+        {/* Success Message */}
+        {successMessage && (
+          <MotionDiv variant="fade" duration="fast">
+            <Alert variant="success" className="mb-6" onClose={() => {
+              setIsSubmitted(false);
+              setSuccessMessage(null);
+            }}>
+              <div className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-semibold text-green-900 mb-1">Message envoyé avec succès !</h3>
+                  <p className="text-green-800 text-sm">{successMessage}</p>
+                </div>
+              </div>
+            </Alert>
+          </MotionDiv>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Contact Information */}
@@ -174,18 +197,7 @@ export default function ContactPage() {
           {/* Contact Form */}
           <div className="lg:col-span-2">
             <Card className="p-8">
-              {isSubmitted ? (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle className="text-green-600" size={32} />
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('form.messageSent')}</h2>
-                  <p className="text-gray-600">
-                    {t('form.thankYou')}
-                  </p>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
@@ -281,7 +293,6 @@ export default function ContactPage() {
                     </p>
                   </div>
                 </form>
-              )}
             </Card>
           </div>
         </div>
