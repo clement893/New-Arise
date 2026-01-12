@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, Button, Container, Alert, Modal, Checkbox } from '@/components/ui';
 import Input from '@/components/ui/Input';
 import Badge from '@/components/ui/Badge';
@@ -28,11 +28,7 @@ export default function AdminUsersPage() {
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const pageSize = 20;
 
-  useEffect(() => {
-    fetchUsers();
-  }, [currentPage, searchTerm]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -49,7 +45,11 @@ export default function AdminUsersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, pageSize, searchTerm]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const handleDelete = async () => {
     if (!selectedUser) return;
