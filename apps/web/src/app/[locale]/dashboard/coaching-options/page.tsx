@@ -504,7 +504,7 @@ export default function CoachingOptionsPage() {
                 <Button
                   variant="outline"
                   className="border-2 border-white text-white hover:bg-white/10"
-                  onClick={() => window.location.href = 'mailto:coaching@arise.com'}
+                  onClick={() => router.push('/contact')}
                 >
                   Nous contacter
                 </Button>
