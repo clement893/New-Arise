@@ -8,17 +8,70 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import SubscriptionManagement from '@/components/profile/SubscriptionManagement';
 import { clsx } from 'clsx';
+import { usersAPI } from '@/lib/api';
+import { useToast } from '@/lib/toast';
+import { transformApiUserToStoreUser } from '@/lib/auth/userTransform';
 
 export default function ProfilePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user } = useAuthStore();
+  const { user, setUser } = useAuthStore();
+  const { showToast } = useToast();
   
   // Initialize activeTab from URL parameter or default to 'profile'
   const [activeTab, setActiveTab] = useState<'profile' | 'subscription'>(() => {
     const tab = searchParams?.get('tab');
     return (tab === 'subscription' ? 'subscription' : 'profile') as 'profile' | 'subscription';
   });
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    gender: 'male',
+    age: '',
+    highestDegree: '',
+    mainGoal: '',
+    workedWithCoach: false,
+    organizationName: '',
+    position: '',
+  });
+
+  // Load user data on mount
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await usersAPI.getMe();
+        if (response.data) {
+          // Initialize form with user data
+          setFormData(prev => ({
+            ...prev,
+            firstName: response.data.first_name || '',
+            lastName: response.data.last_name || '',
+            email: response.data.email || '',
+            // Note: Other fields (gender, age, etc.) are not in the API response
+            // They would need to be stored separately if needed
+          }));
+        }
+      } catch (error) {
+        console.error('Failed to load user data:', error);
+        showToast({
+          message: 'Failed to load profile data',
+          type: 'error',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadUserData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   // Update activeTab when URL parameter changes
   useEffect(() => {
@@ -45,20 +98,6 @@ export default function ProfilePage() {
       : window.location.pathname;
     router.replace(newUrl, { scroll: false });
   };
-  
-  const [formData, setFormData] = useState({
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john@example.com',
-    password: '',
-    gender: 'male',
-    age: '',
-    highestDegree: '',
-    mainGoal: '',
-    workedWithCoach: false,
-    organizationName: 'Company',
-    position: 'Manager',
-  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -70,9 +109,50 @@ export default function ProfilePage() {
     }
   };
 
-  const handleSave = () => {
-    console.log('Saving profile:', formData);
-    // TODO: Implement save functionality
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+      
+      // Prepare update data (only fields that can be updated via API)
+      const updateData: {
+        first_name?: string;
+        last_name?: string;
+        email?: string;
+      } = {};
+
+      if (formData.firstName.trim()) {
+        updateData.first_name = formData.firstName.trim();
+      }
+      if (formData.lastName.trim()) {
+        updateData.last_name = formData.lastName.trim();
+      }
+      if (formData.email.trim()) {
+        updateData.email = formData.email.trim();
+      }
+
+      // Call API to update user
+      const response = await usersAPI.updateMe(updateData);
+
+      if (response.data) {
+        // Update auth store with new user data
+        const updatedUser = transformApiUserToStoreUser(response.data);
+        setUser(updatedUser);
+
+        showToast({
+          message: 'Profile updated successfully',
+          type: 'success',
+        });
+      }
+    } catch (error: any) {
+      console.error('Failed to save profile:', error);
+      const errorMessage = error?.response?.data?.detail || error?.message || 'Failed to update profile. Please try again.';
+      showToast({
+        message: errorMessage,
+        type: 'error',
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -329,10 +409,11 @@ export default function ProfilePage() {
           <div className="flex justify-end">
             <Button
               onClick={handleSave}
-              className="!bg-arise-gold-alt !text-arise-deep-teal-alt hover:!bg-arise-gold-alt/90 font-semibold px-8 py-3"
+              disabled={isSaving || isLoading}
+              className="!bg-arise-gold-alt !text-arise-deep-teal-alt hover:!bg-arise-gold-alt/90 font-semibold px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ backgroundColor: 'var(--color-arise-gold-alt, #F4B860)', color: 'var(--color-arise-deep-teal-alt, #1B5E6B)' }}
             >
-              Save
+              {isSaving ? 'Saving...' : 'Save'}
             </Button>
           </div>
         </Card>

@@ -13,7 +13,7 @@ import { clsx } from 'clsx';
 
 export function Header() {
   const t = useTranslations('landing.header');
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const { logout } = useAuth();
   const isHydrated = useHydrated();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
