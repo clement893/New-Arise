@@ -254,12 +254,26 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                     if html_content and isinstance(html_content, str):
                         logger.debug(f"Successfully accessed profile page (HTML length: {len(html_content)} chars)")
                         
+                        html_lower = html_content.lower()
+                        
+                        # Check if page indicates the profile is private or requires authentication
+                        private_indicators = [
+                            'sign in', 'login', 'log in', 'sign up',
+                            'private profile', 'this profile is private',
+                            'authentication required', 'please log in',
+                            'access denied', 'you must be logged in'
+                        ]
+                        
+                        is_private = any(indicator in html_lower for indicator in private_indicators)
+                        if is_private:
+                            logger.warning("Page content suggests profile may be private or requires authentication")
+                            # Don't fail immediately, but note it for later error messages
+                        
                         # Check if page is JavaScript-rendered (common for SPAs)
                         is_js_rendered = False
-                        html_lower = html_content.lower()
-                        if 'loading' in html_lower or '<div id="root">' in html_content or 'react' in html_lower or 'vue' in html_lower():
+                        if 'loading' in html_lower or '<div id="root">' in html_content or 'react' in html_lower or 'vue' in html_lower or 'next.js' in html_lower:
                             is_js_rendered = True
-                            logger.info("Page appears to be JavaScript-rendered (SPA), trying API endpoints directly")
+                            logger.info("Page appears to be JavaScript-rendered (SPA), will try Playwright if available")
                         
                         # Extract any API endpoints or data from the HTML
                         import re
@@ -268,6 +282,7 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                             r'window\.__PRELOADED_STATE__\s*=\s*({.+?});',
                             r'data-react-props\s*=\s*["\']({.+?})["\']',
                             r'window\.profileData\s*=\s*({.+?});',
+                            r'window\.__NEXT_DATA__\s*=\s*({.+?});',
                         ]
                         
                         for pattern in json_patterns:
@@ -280,10 +295,6 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                                     break
                                 except:
                                     pass
-                        
-                        # Check if page indicates authentication is required
-                        if html_content and ('sign in' in html_lower or 'login' in html_lower or 'private' in html_lower()):
-                            logger.warning("Page may require authentication")
                     
                 except httpx.TimeoutException:
                     raise ValueError(f"Request timeout while accessing profile URL. Please try again or download the PDF manually.")
@@ -468,48 +479,38 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                         logger.warning(f"Playwright download failed: {e}", exc_info=True)
                         # Continue to error message below
                 
+                # Validate we have PDF bytes
                 if not pdf_bytes:
                     # If we still don't have a PDF, provide helpful error message with more context
                     error_details = []
                     error_details.append(f"URL tried: {url}")
                     error_details.append(f"Profile ID extracted: {profile_id}")
+                    error_details.append("")
                     error_details.append("Possible reasons:")
                     error_details.append("- The profile is private and requires authentication (make it public in 16Personalities settings)")
                     error_details.append("- The profile URL format has changed")
                     error_details.append("- The PDF export feature requires JavaScript/authentication")
                     error_details.append("- The profile doesn't have a PDF export available")
+                    error_details.append("- 16Personalities may have changed their PDF download mechanism")
                     
                     if not PLAYWRIGHT_AVAILABLE:
                         error_details.append("- Playwright is not installed (needed for JavaScript-rendered pages)")
+                        error_details.append("  To install: pip install playwright && playwright install chromium")
+                    
+                    error_details.append("")
+                    error_details.append("Solution:")
+                    error_details.append("1. Go to your 16Personalities profile page")
+                    error_details.append("2. Click on 'Download PDF' or 'Export' button")
+                    error_details.append("3. Save the PDF file")
+                    error_details.append("4. Upload it using the file upload option in ARISE")
                     
                     raise ValueError(
                         "Could not automatically download PDF from the 16Personalities profile URL.\n\n" +
-                        "\n".join(error_details) +
-                        "\n\nSolution: Please download the PDF manually from 16Personalities and upload it using the file upload option instead."
+                        "\n".join(error_details)
                     )
                 
                 if len(pdf_bytes) == 0:
                     raise ValueError("Downloaded PDF is empty")
-                
-                if not pdf_bytes:
-                    # If we still don't have a PDF, provide helpful error message with more context
-                    error_details = []
-                    error_details.append(f"URL tried: {url}")
-                    error_details.append(f"Profile ID extracted: {profile_id}")
-                    error_details.append("Possible reasons:")
-                    error_details.append("- The profile is private and requires authentication (make it public in 16Personalities settings)")
-                    error_details.append("- The profile URL format has changed")
-                    error_details.append("- The PDF export feature requires JavaScript/authentication")
-                    error_details.append("- The profile doesn't have a PDF export available")
-                    
-                    if not PLAYWRIGHT_AVAILABLE:
-                        error_details.append("- Playwright is not installed (needed for JavaScript-rendered pages)")
-                    
-                    raise ValueError(
-                        "Could not automatically download PDF from the 16Personalities profile URL.\n\n" +
-                        "\n".join(error_details) +
-                        "\n\nSolution: Please download the PDF manually from 16Personalities and upload it using the file upload option instead."
-                    )
                 
                 if len(pdf_bytes) > 10 * 1024 * 1024:  # 10MB
                     raise ValueError(f"Downloaded PDF is too large: {len(pdf_bytes) / 1024 / 1024:.2f}MB (max 10MB)")
@@ -656,16 +657,23 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                 )
                 
                 try:
-                    # Create a new page
+                    # Create a new page with more realistic browser context
                     context = await browser.new_context(
                         viewport={'width': 1920, 'height': 1080},
                         user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        locale='en-US',
+                        timezone_id='America/New_York',
+                        extra_http_headers={
+                            'Accept-Language': 'en-US,en;q=0.9',
+                            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                        }
                     )
                     page = await context.new_page()
                     
                     # Set up response listener to capture PDF downloads
                     pdf_bytes = None
                     pdf_downloaded = False
+                    pdf_urls_found = []
                     
                     async def handle_response(response):
                         nonlocal pdf_bytes, pdf_downloaded
@@ -675,25 +683,52 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                         # Check if this is a PDF response
                         if 'application/pdf' in content_type or url_response.endswith('.pdf') or '/pdf' in url_response.lower():
                             try:
-                                pdf_bytes = await response.body()
+                                body = await response.body()
                                 # Verify it's actually a PDF
-                                if len(pdf_bytes) >= 4 and pdf_bytes[:4] == b'%PDF':
+                                if len(body) >= 4 and body[:4] == b'%PDF':
+                                    pdf_bytes = body
                                     pdf_downloaded = True
                                     logger.info(f"PDF detected in response from {url_response} ({len(pdf_bytes)} bytes)")
                             except Exception as e:
                                 logger.debug(f"Error reading PDF from response: {e}")
+                        # Also collect any URLs that might be PDF endpoints
+                        elif '/pdf' in url_response.lower() or 'download' in url_response.lower():
+                            pdf_urls_found.append(url_response)
                     
-                    # Listen for responses
+                    # Listen for responses and requests
                     page.on('response', handle_response)
+                    
+                    # Also listen for requests to catch PDF URLs
+                    async def handle_request(request):
+                        url_req = request.url
+                        if '/pdf' in url_req.lower() or 'download' in url_req.lower():
+                            pdf_urls_found.append(url_req)
+                    
+                    page.on('request', handle_request)
                     
                     # Navigate to the profile page
                     logger.info(f"Navigating to profile page: {url}")
-                    await page.goto(url, wait_until='networkidle', timeout=60000)
+                    try:
+                        await page.goto(url, wait_until='domcontentloaded', timeout=60000)
+                        # Wait for network to be mostly idle
+                        await page.wait_for_load_state('networkidle', timeout=30000)
+                    except Exception as e:
+                        logger.warning(f"Navigation timeout or error: {e}, continuing anyway")
                     
-                    # Wait a bit for JavaScript to load
-                    await page.wait_for_timeout(3000)
+                    # Wait for JavaScript to fully load and render
+                    await page.wait_for_timeout(5000)
                     
-                    # Try to find and click PDF download button/link
+                    # Try to wait for specific elements that might indicate the page is loaded
+                    try:
+                        # Wait for common page elements
+                        await page.wait_for_selector('body', timeout=10000)
+                    except:
+                        pass
+                    
+                    # Try multiple strategies to find and download PDF
+                    strategies = []
+                    
+                    # Strategy 1: Find and click PDF download button/link
                     pdf_selectors = [
                         'a[href*="pdf"]',
                         'a[href*="download"]',
@@ -701,92 +736,199 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                         'button:has-text("Download")',
                         'a:has-text("PDF")',
                         'a:has-text("Download PDF")',
+                        'a:has-text("Download")',
                         '[data-testid*="pdf"]',
                         '[data-testid*="download"]',
                         '.pdf-download',
                         '.download-pdf',
                         'button[aria-label*="PDF"]',
                         'button[aria-label*="Download"]',
+                        '[class*="pdf"]',
+                        '[class*="download"]',
+                        'a[download]',
                     ]
                     
                     clicked = False
                     for selector in pdf_selectors:
                         try:
-                            element = await page.query_selector(selector)
+                            # Wait a bit for element to appear
+                            element = await page.wait_for_selector(selector, timeout=2000, state='visible')
                             if element:
                                 logger.info(f"Found PDF download element with selector: {selector}")
-                                await element.click()
+                                # Scroll into view
+                                await element.scroll_into_view_if_needed()
+                                await page.wait_for_timeout(500)
+                                # Try to click
+                                await element.click(timeout=5000)
                                 clicked = True
                                 # Wait for download to start
-                                await page.wait_for_timeout(2000)
-                                break
+                                await page.wait_for_timeout(3000)
+                                if pdf_downloaded:
+                                    break
                         except Exception as e:
                             logger.debug(f"Selector {selector} not found or clickable: {e}")
                             continue
                     
-                    # If no button found, try to trigger download via JavaScript
-                    if not clicked:
-                        logger.info("No PDF button found, trying to trigger download via JavaScript")
+                    # Strategy 2: Extract PDF URL from JavaScript/DOM
+                    if not pdf_downloaded:
+                        logger.info("Trying to extract PDF URL from JavaScript and DOM")
                         try:
-                            # Try common JavaScript methods to get PDF
                             pdf_url_js = await page.evaluate("""
                                 () => {
                                     // Try to find PDF URL in various ways
+                                    const results = [];
+                                    
+                                    // Check window objects
+                                    if (window.profileData && window.profileData.pdfUrl) {
+                                        results.push(window.profileData.pdfUrl);
+                                    }
+                                    if (window.__INITIAL_STATE__) {
+                                        const state = window.__INITIAL_STATE__;
+                                        if (state.profile && state.profile.pdfUrl) {
+                                            results.push(state.profile.pdfUrl);
+                                        }
+                                        if (state.pdfUrl) {
+                                            results.push(state.pdfUrl);
+                                        }
+                                    }
+                                    
+                                    // Check all script tags
                                     const scripts = Array.from(document.querySelectorAll('script'));
                                     for (const script of scripts) {
                                         const content = script.textContent || script.innerHTML;
-                                        const pdfMatch = content.match(/["']([^"']*pdf[^"']*)["']/i);
-                                        if (pdfMatch) return pdfMatch[1];
+                                        // Look for PDF URLs
+                                        const pdfMatches = content.match(/["']([^"']*\/pdf[^"']*)["']/gi);
+                                        if (pdfMatches) {
+                                            pdfMatches.forEach(m => {
+                                                const url = m.replace(/["']/g, '');
+                                                if (url.includes('pdf') || url.includes('download')) {
+                                                    results.push(url);
+                                                }
+                                            });
+                                        }
                                     }
                                     
-                                    // Try window object
-                                    if (window.profileData && window.profileData.pdfUrl) {
-                                        return window.profileData.pdfUrl;
+                                    // Find all links that might be PDF
+                                    const links = Array.from(document.querySelectorAll('a[href]'));
+                                    for (const link of links) {
+                                        const href = link.getAttribute('href');
+                                        if (href && (href.includes('pdf') || href.includes('download'))) {
+                                            results.push(href);
+                                        }
                                     }
                                     
-                                    // Try to find download link
-                                    const pdfLink = document.querySelector('a[href*="pdf"], a[href*="download"]');
-                                    if (pdfLink) return pdfLink.href;
+                                    // Find buttons with data attributes
+                                    const buttons = Array.from(document.querySelectorAll('button[data-url], a[data-url]'));
+                                    for (const btn of buttons) {
+                                        const dataUrl = btn.getAttribute('data-url');
+                                        if (dataUrl && (dataUrl.includes('pdf') || dataUrl.includes('download'))) {
+                                            results.push(dataUrl);
+                                        }
+                                    }
                                     
-                                    return null;
+                                    return results.length > 0 ? results[0] : null;
                                 }
                             """)
                             
                             if pdf_url_js:
                                 logger.info(f"Found PDF URL via JavaScript: {pdf_url_js}")
+                                # Make URL absolute if needed
+                                if not pdf_url_js.startswith('http'):
+                                    if pdf_url_js.startswith('//'):
+                                        pdf_url_js = f"https:{pdf_url_js}"
+                                    elif pdf_url_js.startswith('/'):
+                                        pdf_url_js = f"https://www.16personalities.com{pdf_url_js}"
+                                    else:
+                                        pdf_url_js = f"https://www.16personalities.com/profiles/{profile_id}/{pdf_url_js}"
+                                
                                 # Navigate to PDF URL
-                                response = await page.goto(pdf_url_js, wait_until='networkidle', timeout=30000)
-                                if response:
-                                    pdf_bytes = await response.body()
-                                    if len(pdf_bytes) >= 4 and pdf_bytes[:4] == b'%PDF':
-                                        pdf_downloaded = True
+                                try:
+                                    response = await page.goto(pdf_url_js, wait_until='networkidle', timeout=30000)
+                                    if response:
+                                        body = await response.body()
+                                        if len(body) >= 4 and body[:4] == b'%PDF':
+                                            pdf_bytes = body
+                                            pdf_downloaded = True
+                                            logger.info(f"Successfully downloaded PDF from extracted URL ({len(pdf_bytes)} bytes)")
+                                except Exception as e:
+                                    logger.debug(f"Failed to download from extracted URL: {e}")
                         except Exception as e:
                             logger.debug(f"JavaScript PDF extraction failed: {e}")
                     
-                    # Wait a bit more for any async downloads
+                    # Strategy 3: Try to trigger download via JavaScript click simulation
                     if not pdf_downloaded:
-                        await page.wait_for_timeout(5000)
+                        logger.info("Trying to trigger PDF download via JavaScript click simulation")
+                        try:
+                            await page.evaluate("""
+                                () => {
+                                    // Find all potential download elements
+                                    const elements = document.querySelectorAll('a[href*="pdf"], a[href*="download"], button[onclick*="pdf"], button[onclick*="download"]');
+                                    for (const el of elements) {
+                                        try {
+                                            el.click();
+                                        } catch (e) {
+                                            // Try dispatchEvent instead
+                                            const event = new MouseEvent('click', {
+                                                view: window,
+                                                bubbles: true,
+                                                cancelable: true
+                                            });
+                                            el.dispatchEvent(event);
+                                        }
+                                    }
+                                }
+                            """)
+                            await page.wait_for_timeout(3000)
+                        except Exception as e:
+                            logger.debug(f"JavaScript click simulation failed: {e}")
                     
-                    # If we still don't have PDF, try direct API endpoints
+                    # Strategy 4: Try direct API endpoints with cookies from the page
                     if not pdf_bytes:
-                        logger.info("Trying direct API endpoints via Playwright")
+                        logger.info("Trying direct API endpoints via Playwright with page cookies")
+                        # Get cookies from the page
+                        cookies = await context.cookies()
+                        cookie_string = '; '.join([f"{c['name']}={c['value']}" for c in cookies])
+                        
                         api_endpoints = [
                             f"https://www.16personalities.com/api/profiles/{profile_id}/pdf",
                             f"https://www.16personalities.com/profiles/{profile_id}/pdf",
                             f"https://www.16personalities.com/api/v1/profiles/{profile_id}/pdf",
+                            f"https://www.16personalities.com/profiles/{profile_id}/download/pdf",
+                            f"https://www.16personalities.com/profiles/{profile_id}/export/pdf",
                         ]
                         
                         for endpoint in api_endpoints:
                             try:
                                 response = await page.goto(endpoint, wait_until='networkidle', timeout=30000)
                                 if response and response.status == 200:
-                                    pdf_bytes = await response.body()
-                                    if len(pdf_bytes) >= 4 and pdf_bytes[:4] == b'%PDF':
+                                    body = await response.body()
+                                    if len(body) >= 4 and body[:4] == b'%PDF':
+                                        pdf_bytes = body
                                         logger.info(f"Successfully downloaded PDF from {endpoint} ({len(pdf_bytes)} bytes)")
                                         break
                             except Exception as e:
                                 logger.debug(f"Failed to download from {endpoint}: {e}")
                                 continue
+                    
+                    # Strategy 5: Try URLs found during page load
+                    if not pdf_bytes and pdf_urls_found:
+                        logger.info(f"Trying {len(pdf_urls_found)} PDF URLs found during page load")
+                        for pdf_url in pdf_urls_found[:5]:  # Try first 5 URLs
+                            try:
+                                response = await page.goto(pdf_url, wait_until='networkidle', timeout=20000)
+                                if response and response.status == 200:
+                                    body = await response.body()
+                                    if len(body) >= 4 and body[:4] == b'%PDF':
+                                        pdf_bytes = body
+                                        logger.info(f"Successfully downloaded PDF from found URL ({len(pdf_bytes)} bytes)")
+                                        break
+                            except Exception as e:
+                                logger.debug(f"Failed to download from found URL {pdf_url}: {e}")
+                                continue
+                    
+                    # Wait a bit more for any async downloads
+                    if not pdf_downloaded:
+                        await page.wait_for_timeout(5000)
                     
                     await context.close()
                     
