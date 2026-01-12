@@ -25,9 +25,9 @@ export function TestimonialsSection() {
 
   return (
     <section className="py-20 bg-arise-light-beige">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-[11px]">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold text-arise-deep-teal mb-12 text-center">
+          <h2 className="text-4xl md:text-5xl font-semibold text-arise-deep-teal mb-12 text-center">
             {t('title')}
           </h2>
 

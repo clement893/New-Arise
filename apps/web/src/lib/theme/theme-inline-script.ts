@@ -252,7 +252,7 @@ export const themeInlineScript = `
     // These use exact design colors by default, but can be customized via theme system
     const ariseDeepTeal = colorsConfig.ariseDeepTeal || '#0A3A40';
     const ariseDeepTealAlt = colorsConfig.ariseDeepTealAlt || '#1B5E6B';
-    const ariseGold = colorsConfig.ariseGold || '#D4AF37';
+    const ariseGold = colorsConfig.ariseGold || '#D8B868';
     const ariseGoldAlt = colorsConfig.ariseGoldAlt || '#F4B860';
     const ariseDarkGray = colorsConfig.ariseDarkGray || '#2e2e2e';
     const ariseLightBeige = colorsConfig.ariseLightBeige || '#F5F5DC';
