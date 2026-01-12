@@ -76,14 +76,14 @@ export default function LoginPage() {
       
       {/* Background Image */}
       <div 
-        className="absolute inset-0 bg-cover bg-center opacity-20"
+        className="absolute inset-0 bg-cover bg-center opacity-20 pointer-events-none"
         style={{
           backgroundImage: 'url(/images/dashboard-bg.jpg)',
         }}
       />
       {/* Vertical lines texture */}
       <div 
-        className="absolute inset-0 opacity-20"
+        className="absolute inset-0 opacity-20 pointer-events-none"
         style={{
           backgroundImage: `repeating-linear-gradient(
             90deg,
@@ -201,7 +201,9 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-      <Footer />
+      <div className="relative z-10">
+        <Footer />
+      </div>
     </div>
   );
 }
