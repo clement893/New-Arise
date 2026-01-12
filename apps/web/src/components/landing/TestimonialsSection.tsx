@@ -24,7 +24,7 @@ export function TestimonialsSection() {
   ];
 
   return (
-    <section className="py-20 bg-arise-light-beige">
+    <section className="py-20 bg-white">
       <div className="container mx-auto px-[11px]">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-semibold text-arise-deep-teal mb-12 text-center">

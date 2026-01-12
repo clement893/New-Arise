@@ -17,33 +17,40 @@ export default function AboutPage() {
       <main className="container mx-auto px-4 pt-24 pb-12">
         {/* Hero Section */}
         <MotionDiv variant="fade" duration="normal">
-          <div className="mb-16 relative overflow-hidden rounded-2xl shadow-lg">
-            <div className="grid grid-cols-1 md:grid-cols-2 min-h-[400px] md:min-h-[500px]">
-              {/* Left Section - Text Area */}
-              <div 
-                className="flex flex-col justify-center p-8 md:p-12 order-2 md:order-1"
-                style={{ backgroundColor: '#1A4B4B' }}
-              >
-                <h1 className="mb-6">
-                  <span className="block text-3xl md:text-4xl font-medium text-[#D4AF37] mb-2">
-                    Notre
-                  </span>
-                  <span className="block text-5xl md:text-6xl font-bold text-[#D4AF37]">
-                    histoire
-                  </span>
+          <div className="mb-16 relative flex items-center bg-arise-deep-teal overflow-hidden rounded-lg min-h-[400px] md:min-h-[500px]">
+            {/* Background Image */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center opacity-10"
+              style={{
+                backgroundImage: 'url(/images/dashboard-bg.jpg)',
+              }}
+            />
+            {/* Vertical lines texture */}
+            <div 
+              className="absolute inset-0 opacity-20"
+              style={{
+                backgroundImage: `repeating-linear-gradient(
+                  90deg,
+                  transparent,
+                  transparent 3px,
+                  rgba(255, 255, 255, 0.08) 3px,
+                  rgba(255, 255, 255, 0.08) 4px
+                )`
+              }}
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center relative z-10 p-8 md:p-12 w-full">
+              <div className="pt-8">
+                <h1 className="text-5xl font-bold text-white mb-4">
+                  {t('title')}
                 </h1>
-                <p className="text-lg md:text-xl text-white max-w-xl">
+                <p className="text-xl text-white/90 max-w-3xl">
                   {t('subtitle')}
                 </p>
               </div>
-              
-              {/* Right Section - Image Area */}
-              <div className="relative h-64 md:h-auto overflow-hidden order-1 md:order-2 md:rounded-r-2xl rounded-t-2xl">
-                <img
-                  src="/images/dashboard-bg.jpg"
-                  alt="Professional team"
-                  className="w-full h-full object-cover"
-                />
+              <div className="relative h-64 md:h-96 rounded-lg overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 flex items-center justify-center">
+                  <Users className="text-white/30" size={120} />
+                </div>
               </div>
             </div>
           </div>
