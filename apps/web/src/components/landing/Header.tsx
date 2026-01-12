@@ -3,6 +3,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
+import { useAuthStore } from '@/lib/store';
+import { useAuth } from '@/hooks/useAuth';
+import { useHydrated } from '@/hooks/useHydrated';
 import Button from '@/components/ui/Button';
 import { LanguageToggle } from './LanguageToggle';
 import { Menu, X } from 'lucide-react';
@@ -10,6 +13,9 @@ import { clsx } from 'clsx';
 
 export function Header() {
   const t = useTranslations('landing.header');
+  const { isAuthenticated, user } = useAuthStore();
+  const { logout } = useAuth();
+  const isHydrated = useHydrated();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -62,13 +68,30 @@ export function Header() {
 
           {/* Actions Desktop */}
           <div className="hidden md:flex items-center space-x-4 ml-auto">
-            <Link href="/login" className="text-gray-700 hover:text-arise-deep-teal transition-colors">
-              {t('signIn')}
-            </Link>
-            <LanguageToggle />
-            <Button asChild className="bg-[#D8B868] hover:bg-[#D8B868]/90 text-white rounded-2xl px-6 py-2">
-              <Link href="/register">{t('getStarted')}</Link>
-            </Button>
+            {isHydrated && isAuthenticated() ? (
+              <>
+                <Link href="/dashboard" className="text-gray-700 hover:text-arise-deep-teal transition-colors">
+                  Admin
+                </Link>
+                <LanguageToggle />
+                <Button 
+                  onClick={logout}
+                  className="bg-[#D8B868] hover:bg-[#D8B868]/90 text-white rounded-2xl px-6 py-2"
+                >
+                  Déconnexion
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="text-gray-700 hover:text-arise-deep-teal transition-colors">
+                  {t('signIn')}
+                </Link>
+                <LanguageToggle />
+                <Button asChild className="bg-[#D8B868] hover:bg-[#D8B868]/90 text-white rounded-2xl px-6 py-2">
+                  <Link href="/register">{t('getStarted')}</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -131,16 +154,39 @@ export function Header() {
             </Link>
             <div className="border-t border-gray-200 pt-4 mt-2">
               <div className="flex flex-col gap-2 px-2">
-                <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                  <Button size="sm" variant="ghost" className="w-full justify-start text-gray-700 hover:text-arise-deep-teal">
-                    {t('signIn')}
-                  </Button>
-                </Link>
-                <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
-                  <Button size="sm" variant="primary" className="w-full bg-arise-deep-teal hover:bg-arise-deep-teal/90 text-white">
-                    {t('getStarted')}
-                  </Button>
-                </Link>
+                {isHydrated && isAuthenticated() ? (
+                  <>
+                    <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                      <Button size="sm" variant="ghost" className="w-full justify-start text-gray-700 hover:text-arise-deep-teal">
+                        Admin
+                      </Button>
+                    </Link>
+                    <Button 
+                      size="sm" 
+                      variant="primary" 
+                      onClick={() => {
+                        logout();
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full bg-arise-deep-teal hover:bg-arise-deep-teal/90 text-white"
+                    >
+                      Déconnexion
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                      <Button size="sm" variant="ghost" className="w-full justify-start text-gray-700 hover:text-arise-deep-teal">
+                        {t('signIn')}
+                      </Button>
+                    </Link>
+                    <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
+                      <Button size="sm" variant="primary" className="w-full bg-arise-deep-teal hover:bg-arise-deep-teal/90 text-white">
+                        {t('getStarted')}
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </nav>
