@@ -133,15 +133,31 @@ export default function ProfilePage() {
       // Call API to update user
       const response = await usersAPI.updateMe(updateData);
 
-      if (response.data) {
+      // Handle response - apiClient.put returns the data directly
+      // The backend returns JSONResponse with model_dump(mode='json')
+      const userData = response?.data || response;
+      
+      if (userData) {
+        console.log('Update response:', userData);
+        
         // Update auth store with new user data
-        const updatedUser = transformApiUserToStoreUser(response.data);
+        const updatedUser = transformApiUserToStoreUser(userData);
         setUser(updatedUser);
+
+        // Update form data with the response from server
+        setFormData(prev => ({
+          ...prev,
+          firstName: userData.first_name || '',
+          lastName: userData.last_name || '',
+          email: userData.email || '',
+        }));
 
         showToast({
           message: 'Profile updated successfully',
           type: 'success',
         });
+      } else {
+        throw new Error('No data returned from server');
       }
     } catch (error: any) {
       console.error('Failed to save profile:', error);
