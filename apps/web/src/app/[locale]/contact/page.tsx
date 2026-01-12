@@ -22,7 +22,6 @@ export default function ContactPage() {
     message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -43,12 +42,10 @@ export default function ContactPage() {
       });
       
       if (response.data?.success) {
-        setIsSubmitted(true);
         setSuccessMessage(response.data?.message || 'Votre message a été envoyé avec succès ! Vous recevrez un email de confirmation sous peu.');
         setFormData({ name: '', email: '', subject: '', message: '' });
         // Reset success message after 8 seconds
         setTimeout(() => {
-          setIsSubmitted(false);
           setSuccessMessage(null);
         }, 8000);
       } else {
@@ -90,7 +87,6 @@ export default function ContactPage() {
         {successMessage && (
           <MotionDiv variant="fade" duration="fast">
             <Alert variant="success" className="mb-6" onClose={() => {
-              setIsSubmitted(false);
               setSuccessMessage(null);
             }}>
               <div className="flex items-start gap-3">

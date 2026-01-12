@@ -47,8 +47,9 @@ export default function TKIAssessmentPage() {
   const currentQuestionData = tkiQuestions && tkiQuestions.length > 0 && currentQuestion >= 0 && currentQuestion < tkiQuestions.length
     ? tkiQuestions[currentQuestion]
     : null;
+  // Calculate progress based on answered questions, not current question position (like wellness assessment)
   const progress = tkiQuestions && tkiQuestions.length > 0
-    ? ((currentQuestion + 1) / tkiQuestions.length) * 100
+    ? Math.round((Object.keys(answers).length / tkiQuestions.length) * 100)
     : 0;
   const isLastQuestion = tkiQuestions && tkiQuestions.length > 0
     ? currentQuestion === tkiQuestions.length - 1
