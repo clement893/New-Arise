@@ -9,7 +9,6 @@ import Input from '@/components/ui/Input';
 import SubscriptionManagement from '@/components/profile/SubscriptionManagement';
 import { clsx } from 'clsx';
 import { usersAPI, apiClient } from '@/lib/api';
-import { extractApiData } from '@/lib/api/utils';
 import { useToast } from '@/lib/toast';
 import { transformApiUserToStoreUser, type ApiUserResponse } from '@/lib/auth/userTransform';
 
