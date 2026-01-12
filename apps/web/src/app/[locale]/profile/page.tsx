@@ -8,7 +8,8 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import SubscriptionManagement from '@/components/profile/SubscriptionManagement';
 import { clsx } from 'clsx';
-import { usersAPI } from '@/lib/api';
+import { usersAPI, apiClient } from '@/lib/api';
+import { extractApiData } from '@/lib/api/utils';
 import { useToast } from '@/lib/toast';
 import { transformApiUserToStoreUser } from '@/lib/auth/userTransform';
 
@@ -41,22 +42,46 @@ export default function ProfilePage() {
     position: '',
   });
 
-  // Load user data on mount
+  // Load user data and preferences on mount
   useEffect(() => {
     const loadUserData = async () => {
       try {
         setIsLoading(true);
+        
+        // Load user data
         const response = await usersAPI.getMe();
-        if (response.data) {
+        const userData = extractApiData(response);
+        
+        if (userData && typeof userData === 'object') {
           // Initialize form with user data
           setFormData(prev => ({
             ...prev,
-            firstName: response.data.first_name || '',
-            lastName: response.data.last_name || '',
-            email: response.data.email || '',
-            // Note: Other fields (gender, age, etc.) are not in the API response
-            // They would need to be stored separately if needed
+            firstName: userData.first_name || prev.firstName || '',
+            lastName: userData.last_name || prev.lastName || '',
+            email: userData.email || prev.email || '',
           }));
+        }
+        
+        // Load user preferences for additional fields
+        try {
+          const preferencesResponse = await apiClient.get('/v1/users/preferences');
+          const preferences = extractApiData(preferencesResponse) || {};
+          
+          if (preferences && typeof preferences === 'object') {
+            setFormData(prev => ({
+              ...prev,
+              gender: preferences.gender || prev.gender || 'male',
+              age: preferences.age || prev.age || '',
+              highestDegree: preferences.highestDegree || prev.highestDegree || '',
+              mainGoal: preferences.mainGoal || prev.mainGoal || '',
+              workedWithCoach: preferences.workedWithCoach ?? prev.workedWithCoach ?? false,
+              organizationName: preferences.organizationName || prev.organizationName || '',
+              position: preferences.position || prev.position || '',
+            }));
+          }
+        } catch (prefError) {
+          // Preferences might not exist yet, that's okay
+          console.log('No preferences found or error loading preferences:', prefError);
         }
       } catch (error) {
         console.error('Failed to load user data:', error);
@@ -132,14 +157,9 @@ export default function ProfilePage() {
 
       // Call API to update user
       const response = await usersAPI.updateMe(updateData);
-
-      // Handle response - apiClient.put returns the data directly
-      // The backend returns JSONResponse with model_dump(mode='json')
-      const userData = response?.data || response;
+      const userData = extractApiData(response);
       
-      if (userData) {
-        console.log('Update response:', userData);
-        
+      if (userData && typeof userData === 'object') {
         // Update auth store with new user data
         const updatedUser = transformApiUserToStoreUser(userData);
         setUser(updatedUser);
@@ -147,10 +167,42 @@ export default function ProfilePage() {
         // Update form data with the response from server
         setFormData(prev => ({
           ...prev,
-          firstName: userData.first_name || '',
-          lastName: userData.last_name || '',
-          email: userData.email || '',
+          firstName: userData.first_name || prev.firstName || '',
+          lastName: userData.last_name || prev.lastName || '',
+          email: userData.email || prev.email || '',
         }));
+
+        // Save additional fields to user preferences
+        try {
+          const preferencesToSave: Record<string, any> = {
+            gender: formData.gender,
+            age: formData.age,
+            highestDegree: formData.highestDegree,
+            mainGoal: formData.mainGoal,
+            workedWithCoach: formData.workedWithCoach,
+            organizationName: formData.organizationName,
+            position: formData.position,
+          };
+          
+          // Remove empty values
+          Object.keys(preferencesToSave).forEach(key => {
+            if (preferencesToSave[key] === '' || preferencesToSave[key] === null || preferencesToSave[key] === undefined) {
+              delete preferencesToSave[key];
+            }
+          });
+          
+          if (Object.keys(preferencesToSave).length > 0) {
+            await apiClient.put('/v1/users/preferences', preferencesToSave);
+          }
+        } catch (prefError) {
+          console.error('Failed to save preferences:', prefError);
+          // Don't fail the whole save if preferences fail
+          showToast({
+            message: 'Profile updated, but some additional information could not be saved',
+            type: 'warning',
+          });
+          return; // Return early to avoid showing success message
+        }
 
         showToast({
           message: 'Profile updated successfully',
