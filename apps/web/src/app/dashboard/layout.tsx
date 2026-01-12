@@ -7,6 +7,7 @@ export const runtime = 'nodejs';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { useAuthStore } from '@/lib/store';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Sidebar from '@/components/ui/Sidebar';
@@ -30,6 +31,7 @@ function DashboardLayoutContent({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const locale = useLocale();
   const { logout, user } = useAuthStore();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -116,7 +118,8 @@ function DashboardLayoutContent({
           isMobile={true}
           onClose={() => setMobileMenuOpen(false)}
           onHomeClick={() => {
-            router.push('/');
+            const homePath = locale === 'en' ? '/' : `/${locale}`;
+            router.push(homePath);
             setMobileMenuOpen(false);
           }}
           themeToggleComponent={null}
@@ -154,7 +157,10 @@ function DashboardLayoutContent({
               <div className="flex items-center gap-3">
                 <Button
                   variant="ghost"
-                  onClick={() => router.push('/')}
+                  onClick={() => {
+                    const homePath = locale === 'en' ? '/' : `/${locale}`;
+                    router.push(homePath);
+                  }}
                   aria-label="Retour à l'accueil"
                   title="Retour à l'accueil"
                 >
