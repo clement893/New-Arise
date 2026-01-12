@@ -2,7 +2,7 @@
 API v1 router registration.
 """
 from fastapi import APIRouter
-from app.api.v1.endpoints import themes, theme_fonts, websocket, admin, auth, two_factor, api_keys, users, health, db_health, newsletter, exports, imports, search, tags, activities, templates, user_preferences, email_templates, audit_trail, integrations, api_settings, organization_settings, general_settings, pages, menus, support_tickets, seo, teams, invitations, rbac, notifications, api_connection_check, media, insights, analytics, posts, subscriptions, assessments
+from app.api.v1.endpoints import themes, theme_fonts, websocket, admin, auth, two_factor, api_keys, users, health, db_health, newsletter, exports, imports, search, tags, activities, templates, user_preferences, email_templates, audit_trail, integrations, api_settings, organization_settings, general_settings, pages, menus, support_tickets, seo, teams, invitations, rbac, notifications, api_connection_check, media, insights, analytics, posts, subscriptions, assessments, contact
 from app.api.v1.endpoints.reseau import contacts as reseau_contacts
 from app.api.v1.endpoints.client import invoices_router, tickets_router, dashboard_router
 from app.api.v1.endpoints.erp import invoices_router as erp_invoices_router, clients_router, orders_router, inventory_router, reports_router, dashboard_router as erp_dashboard_router
@@ -115,6 +115,12 @@ api_router.include_router(
     newsletter.router,
     prefix="/newsletter",
     tags=["newsletter"]
+)
+
+# Register contact endpoints
+api_router.include_router(
+    contact.router,
+    tags=["contact"]
 )
 
 # Register subscription endpoints

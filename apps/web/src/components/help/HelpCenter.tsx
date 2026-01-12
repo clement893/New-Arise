@@ -8,6 +8,7 @@
 
 'use client';
 
+import { useState, useMemo } from 'react';
 import { Card, Button } from '@/components/ui';
 import { Link } from '@/i18n/routing';
 import { HelpCircle, MessageSquare, BookOpen, Video, FileText, Search } from 'lucide-react';
@@ -78,44 +79,83 @@ export default function HelpCenter({
   categories = defaultCategories,
   className,
 }: HelpCenterProps) {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filter categories based on search query
+  const filteredCategories = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return categories;
+    }
+    
+    const query = searchQuery.toLowerCase();
+    return categories.filter((category) => {
+      return (
+        category.title.toLowerCase().includes(query) ||
+        category.description.toLowerCase().includes(query) ||
+        category.id.toLowerCase().includes(query)
+      );
+    });
+  }, [categories, searchQuery]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Search is handled by filteredCategories, no need for additional action
+  };
+
   return (
     <div className={className}>
       {/* Search Bar */}
       <Card className="mb-8">
-        <div className="flex items-center gap-4">
+        <form onSubmit={handleSearch} className="flex items-center gap-4">
           <Search className="w-5 h-5 text-gray-500" />
           <input
             type="text"
             placeholder="Rechercher de l'aide..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-arise-deep-teal focus:border-transparent"
           />
-          <Button variant="primary" className="bg-arise-deep-teal hover:bg-arise-deep-teal/90 text-white">Rechercher</Button>
-        </div>
+          <Button 
+            type="submit"
+            variant="primary" 
+            className="bg-arise-deep-teal hover:bg-arise-deep-teal/90 text-white"
+          >
+            Rechercher
+          </Button>
+        </form>
       </Card>
 
       {/* Help Categories */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {categories.map((category) => (
-          <Link key={category.id} href={category.link}>
-            <Card
-              hover
-              className={`h-full ${category.color} border-2 transition-all`}
-            >
-              <div className="flex flex-col items-center text-center p-6">
-                <div className="mb-4 text-arise-deep-teal">
-                  {category.icon}
+      {filteredCategories.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredCategories.map((category) => (
+            <Link key={category.id} href={category.link}>
+              <Card
+                hover
+                className={`h-full ${category.color} border-2 transition-all`}
+              >
+                <div className="flex flex-col items-center text-center p-6">
+                  <div className="mb-4 text-arise-deep-teal">
+                    {category.icon}
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    {category.title}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    {category.description}
+                  </p>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  {category.title}
-                </h3>
-                <p className="text-sm text-gray-600">
-                  {category.description}
-                </p>
-              </div>
-            </Card>
-          </Link>
-        ))}
-      </div>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <Card className="p-8 text-center">
+          <p className="text-gray-600">
+            Aucun résultat trouvé pour "{searchQuery}". Essayez avec d'autres mots-clés.
+          </p>
+        </Card>
+      )}
 
       {/* Quick Links */}
       <Card title="Liens Rapides" className="mt-8">
@@ -126,7 +166,7 @@ export default function HelpCenter({
               <p className="text-sm text-gray-600 mt-1">Trouvez des réponses aux questions courantes</p>
             </div>
           </Link>
-          <Link href="/help/contact">
+          <Link href="/contact">
             <div className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
               <h4 className="font-medium text-gray-900">Besoin d'Aide Supplémentaire ?</h4>
               <p className="text-sm text-gray-600 mt-1">Contactez notre équipe de support</p>

@@ -10,6 +10,8 @@ import Input from '@/components/ui/Input';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle } from 'lucide-react';
 import { Link } from '@/i18n/routing';
+import { apiClient } from '@/lib/api';
+import { AxiosError } from 'axios';
 
 export default function ContactPage() {
   const t = useTranslations('contact');
@@ -31,15 +33,34 @@ export default function ContactPage() {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    setFormData({ name: '', email: '', subject: '', message: '' });
-    
-    // Reset success message after 5 seconds
-    setTimeout(() => setIsSubmitted(false), 5000);
+    try {
+      const response = await apiClient.post<{ success: boolean; message: string }>('/v1/contact', {
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+      });
+      
+      if (response.data?.success) {
+        setIsSubmitted(true);
+        setFormData({ name: '', email: '', subject: '', message: '' });
+        // Reset success message after 5 seconds
+        setTimeout(() => setIsSubmitted(false), 5000);
+      } else {
+        throw new Error(response.data?.message || 'Failed to send message');
+      }
+    } catch (error) {
+      console.error('Contact form error:', error);
+      const errorMessage = error instanceof AxiosError 
+        ? error.response?.data?.detail || error.message || 'Failed to send message. Please try again.'
+        : error instanceof Error 
+        ? error.message 
+        : 'Failed to send message. Please try again.';
+      
+      alert(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
