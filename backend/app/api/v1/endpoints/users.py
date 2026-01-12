@@ -451,7 +451,8 @@ async def update_current_user(
         HTTPException: If email is already taken by another user
     """
     try:
-        logger.info(f"Updating user profile for: {current_user.email}")
+        logger.info(f"Updating user profile for: {current_user.email} (ID: {current_user.id})")
+        logger.debug(f"Update data received: {user_data.model_dump(exclude_unset=True)}")
         
         # Check if email is being updated and if it's already taken
         if user_data.email and user_data.email != current_user.email:
@@ -467,43 +468,83 @@ async def update_current_user(
         
         # Update only provided fields
         update_data = user_data.model_dump(exclude_unset=True)
+        logger.debug(f"Fields to update: {list(update_data.keys())}")
+        
         for field, value in update_data.items():
-            setattr(current_user, field, value)
+            if hasattr(current_user, field):
+                setattr(current_user, field, value)
+                logger.debug(f"Updated field {field} to {value}")
+            else:
+                logger.warning(f"Field {field} does not exist on User model, skipping")
         
         # Save changes
-        await db.commit()
-        await db.refresh(current_user)
+        try:
+            await db.commit()
+            logger.debug("Database commit successful")
+        except Exception as commit_error:
+            logger.error(f"Database commit failed: {commit_error}", exc_info=True)
+            await db.rollback()
+            raise
+        
+        try:
+            await db.refresh(current_user)
+            logger.debug("User refresh successful")
+        except Exception as refresh_error:
+            logger.error(f"User refresh failed: {refresh_error}", exc_info=True)
+            # Continue anyway, we can still create the response
         
         logger.info(f"User profile updated successfully for: {current_user.email}")
         
         # Convert User model to UserResponse schema (from app.schemas.auth)
         # This schema expects created_at and updated_at as strings, not datetime objects
         try:
+            # Safely convert datetime to ISO string
+            def safe_isoformat(dt):
+                if dt is None:
+                    return ""
+                if hasattr(dt, 'isoformat'):
+                    return dt.isoformat()
+                return str(dt)
+            
+            # Safely get user_type value
+            user_type_str = "INDIVIDUAL"
+            if current_user.user_type:
+                if hasattr(current_user.user_type, 'value'):
+                    user_type_str = current_user.user_type.value
+                else:
+                    user_type_str = str(current_user.user_type)
+            
             user_response = UserResponse(
                 id=current_user.id,
-                email=current_user.email,
+                email=current_user.email or "",
                 first_name=current_user.first_name,
                 last_name=current_user.last_name,
-                avatar=current_user.avatar,
-                is_active=current_user.is_active,
-                user_type=current_user.user_type.value if current_user.user_type else "INDIVIDUAL",
-                theme_preference=current_user.theme_preference or 'system',  # Required field for API compatibility
-                created_at=current_user.created_at.isoformat() if current_user.created_at else "",
-                updated_at=current_user.updated_at.isoformat() if current_user.updated_at else "",
+                avatar=getattr(current_user, 'avatar', None),
+                is_active=getattr(current_user, 'is_active', True),
+                user_type=user_type_str,
+                theme_preference=getattr(current_user, 'theme_preference', None) or 'system',
+                created_at=safe_isoformat(getattr(current_user, 'created_at', None)),
+                updated_at=safe_isoformat(getattr(current_user, 'updated_at', None)),
             )
+            logger.info(f"Successfully created UserResponse for user {current_user.id}")
             return user_response
         except Exception as e:
             logger.error(
                 f"Error creating UserResponse for user {current_user.id}: {e}\n"
-                f"  User data: id={current_user.id}, email={current_user.email}, "
-                f"first_name={current_user.first_name}, last_name={current_user.last_name}, "
-                f"is_active={current_user.is_active}, user_type={current_user.user_type}, "
-                f"created_at={current_user.created_at}, updated_at={current_user.updated_at}",
+                f"  Error type: {type(e).__name__}\n"
+                f"  Error message: {str(e)}\n"
+                f"  User data: id={current_user.id}, email={getattr(current_user, 'email', 'N/A')}, "
+                f"first_name={getattr(current_user, 'first_name', 'N/A')}, "
+                f"last_name={getattr(current_user, 'last_name', 'N/A')}, "
+                f"is_active={getattr(current_user, 'is_active', 'N/A')}, "
+                f"user_type={getattr(current_user, 'user_type', 'N/A')}, "
+                f"created_at={getattr(current_user, 'created_at', 'N/A')}, "
+                f"updated_at={getattr(current_user, 'updated_at', 'N/A')}",
                 exc_info=True
             )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to serialize user data"
+                detail=f"Failed to serialize user data: {str(e)}"
             )
         
     except HTTPException:
