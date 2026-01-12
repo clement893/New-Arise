@@ -499,23 +499,37 @@ async def update_current_user(
         # Use the same approach as /auth/me endpoint for consistency
         try:
             logger.debug(f"Creating UserResponse for user {current_user.id}")
-            user_response = UserResponse(
-                id=current_user.id,
-                email=current_user.email,
-                first_name=current_user.first_name,
-                last_name=current_user.last_name,
-                avatar=current_user.avatar,
-                is_active=current_user.is_active,
-                user_type=current_user.user_type.value if current_user.user_type else "INDIVIDUAL",
-                theme_preference=current_user.theme_preference or 'system',
-                created_at=current_user.created_at.isoformat() if current_user.created_at else "",
-                updated_at=current_user.updated_at.isoformat() if current_user.updated_at else "",
-            )
+            
+            # Build response data manually to ensure all fields are present
+            response_data = {
+                "id": current_user.id,
+                "email": current_user.email,
+                "first_name": current_user.first_name,
+                "last_name": current_user.last_name,
+                "avatar": current_user.avatar,
+                "is_active": current_user.is_active,
+                "user_type": current_user.user_type.value if current_user.user_type else "INDIVIDUAL",
+                "theme_preference": current_user.theme_preference or 'system',
+                "created_at": current_user.created_at.isoformat() if current_user.created_at else "",
+                "updated_at": current_user.updated_at.isoformat() if current_user.updated_at else "",
+            }
+            
+            # Validate with UserResponse schema
+            user_response = UserResponse.model_validate(response_data)
+            
+            # Return as JSONResponse to ensure proper serialization
             logger.info(f"Successfully created UserResponse for user {current_user.id}")
-            return user_response
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content=user_response.model_dump(mode='json')
+            )
         except Exception as e:
             logger.error(
-                f"Error creating UserResponse for user {current_user.id}: {e}",
+                f"Error creating UserResponse for user {current_user.id}: {e}\n"
+                f"  User attributes: {dir(current_user)}\n"
+                f"  User type: {type(current_user)}\n"
+                f"  Has created_at: {hasattr(current_user, 'created_at')}\n"
+                f"  Has updated_at: {hasattr(current_user, 'updated_at')}",
                 exc_info=True
             )
             # Re-raise as HTTPException with more context
