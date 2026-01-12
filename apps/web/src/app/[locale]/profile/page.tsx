@@ -11,7 +11,7 @@ import { clsx } from 'clsx';
 import { usersAPI, apiClient } from '@/lib/api';
 import { extractApiData } from '@/lib/api/utils';
 import { useToast } from '@/lib/toast';
-import { transformApiUserToStoreUser } from '@/lib/auth/userTransform';
+import { transformApiUserToStoreUser, type ApiUserResponse } from '@/lib/auth/userTransform';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -50,7 +50,7 @@ export default function ProfilePage() {
         
         // Load user data
         const response = await usersAPI.getMe();
-        const userData = extractApiData(response);
+        const userData = extractApiData<ApiUserResponse>(response);
         
         if (userData && typeof userData === 'object') {
           // Initialize form with user data
@@ -157,7 +157,7 @@ export default function ProfilePage() {
 
       // Call API to update user
       const response = await usersAPI.updateMe(updateData);
-      const userData = extractApiData(response);
+      const userData = extractApiData<ApiUserResponse>(response);
       
       if (userData && typeof userData === 'object') {
         // Update auth store with new user data
