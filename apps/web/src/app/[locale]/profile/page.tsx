@@ -65,19 +65,21 @@ export default function ProfilePage() {
         
         // Load user preferences for additional fields
         try {
-          const preferencesResponse = await apiClient.get('/v1/users/preferences');
-          const preferences = extractApiData(preferencesResponse) || {};
+          const preferencesResponse = await apiClient.get<Record<string, any>>('/v1/users/preferences');
+          // apiClient.get returns ApiResponse<T> with a data property
+          const responseData = preferencesResponse as { data?: Record<string, any> };
+          const preferences: Record<string, any> = responseData?.data || {};
           
           if (preferences && typeof preferences === 'object') {
             setFormData(prev => ({
               ...prev,
-              gender: preferences.gender || prev.gender || 'male',
-              age: preferences.age || prev.age || '',
-              highestDegree: preferences.highestDegree || prev.highestDegree || '',
-              mainGoal: preferences.mainGoal || prev.mainGoal || '',
-              workedWithCoach: preferences.workedWithCoach ?? prev.workedWithCoach ?? false,
-              organizationName: preferences.organizationName || prev.organizationName || '',
-              position: preferences.position || prev.position || '',
+              gender: (preferences.gender as string) || prev.gender || 'male',
+              age: (preferences.age as string) || prev.age || '',
+              highestDegree: (preferences.highestDegree as string) || prev.highestDegree || '',
+              mainGoal: (preferences.mainGoal as string) || prev.mainGoal || '',
+              workedWithCoach: (preferences.workedWithCoach as boolean) ?? prev.workedWithCoach ?? false,
+              organizationName: (preferences.organizationName as string) || prev.organizationName || '',
+              position: (preferences.position as string) || prev.position || '',
             }));
           }
         } catch (prefError) {
