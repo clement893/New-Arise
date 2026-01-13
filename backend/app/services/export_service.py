@@ -221,11 +221,26 @@ class ExportService:
             parent=styles['Heading1'],
             fontSize=16,
             textColor=colors.HexColor('#1a1a1a'),
-            spaceAfter=30,
+            spaceAfter=10,
         )
         
-        # Add title
-        story.append(Paragraph(title, title_style))
+        # Split title if it contains newlines (for Overall Score)
+        title_lines = title.split('\n')
+        for i, line in enumerate(title_lines):
+            if i == 0:
+                # First line is the main title
+                story.append(Paragraph(line, title_style))
+            else:
+                # Subsequent lines (like Overall Score) use a smaller style
+                subtitle_style = ParagraphStyle(
+                    'Subtitle',
+                    parent=styles['Normal'],
+                    fontSize=12,
+                    textColor=colors.HexColor('#1a1a1a'),
+                    spaceAfter=15,
+                )
+                story.append(Paragraph(line, subtitle_style))
+        
         story.append(Spacer(1, 0.2 * inch))
         
         # Get headers
@@ -253,9 +268,15 @@ class ExportService:
                 
                 # Wrap long text in Paragraph for better PDF rendering
                 # This allows text to wrap within cells
-                if len(value) > 50 and 'Question' in header:
-                    # Use Paragraph for long questions to enable wrapping
-                    table_row.append(Paragraph(value, styles['Normal']))
+                if len(value) > 40:
+                    # Use Paragraph for long text to enable wrapping
+                    para_style = ParagraphStyle(
+                        'CellText',
+                        parent=styles['Normal'],
+                        fontSize=7,
+                        leading=8,
+                    )
+                    table_row.append(Paragraph(value, para_style))
                 else:
                     table_row.append(value)
             table_data.append(table_row)
@@ -271,11 +292,9 @@ class ExportService:
         col_widths = []
         for i, header in enumerate(headers):
             if 'Question' in header:
-                col_widths.append(col_width * 2.5)  # Question column is wider
-            elif 'Pillar' in header:
-                col_widths.append(col_width * 1.2)  # Pillar column slightly wider
+                col_widths.append(col_width * 2.2)  # Question column is wider
             else:
-                col_widths.append(col_width * 0.8)  # Other columns narrower
+                col_widths.append(col_width * 0.9)  # Other columns narrower
         
         # Normalize to fit page width
         total_width = sum(col_widths)
