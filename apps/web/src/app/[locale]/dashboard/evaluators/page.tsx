@@ -338,8 +338,11 @@ function EvaluatorsContent() {
           if (cacheEntries.length > 0) {
             // Sort by timestamp (most recent first) and get the first one
             cacheEntries.sort((a, b) => b.timestamp - a.timestamp);
-            id = cacheEntries[0].id;
-            console.log('[EvaluatorsPage] Found assessment ID from cache:', id);
+            const firstEntry = cacheEntries[0];
+            if (firstEntry) {
+              id = firstEntry.id;
+              console.log('[EvaluatorsPage] Found assessment ID from cache:', id);
+            }
           }
         }
       }
