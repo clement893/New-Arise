@@ -71,16 +71,8 @@ export function Step6_CompleteProfile() {
 
           <div className="flex gap-4">
             <Button
-              type="button"
-              onClick={handleSkip}
-              variant="outline"
-              className="flex-1 border-arise-deep-teal text-arise-deep-teal hover:bg-arise-deep-teal hover:text-white"
-            >
-              Skip for now
-            </Button>
-            <Button
               type="submit"
-              className="flex-1 bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold"
+              className="w-full bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold"
             >
               Continue
             </Button>

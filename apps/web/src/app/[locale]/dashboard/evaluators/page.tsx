@@ -761,6 +761,23 @@ function EvaluatorsContent() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams?.get('id')]); // Only reload when id param changes
 
+  // CRITICAL: Auto-save cache whenever evaluators change
+  // This ensures cache is always up-to-date, even if API fails
+  useEffect(() => {
+    if (assessmentId && evaluators.length > 0) {
+      console.log('[EvaluatorsPage] 💾 Auto-saving cache - evaluators changed:', evaluators.length, 'evaluators for assessment', assessmentId);
+      saveEvaluatorsToCache(assessmentId, evaluators);
+      
+      // Verify cache was saved
+      const verifyCache = getCachedEvaluators(assessmentId);
+      if (verifyCache.length > 0) {
+        console.log('[EvaluatorsPage] ✅ Auto-save verified - cache has', verifyCache.length, 'evaluators');
+      } else {
+        console.error('[EvaluatorsPage] ❌ Auto-save verification FAILED - cache is empty after save!');
+      }
+    }
+  }, [evaluators, assessmentId]);
+
   useEffect(() => {
     console.log('[EvaluatorsPage] 🔄 filterEvaluators triggered. evaluators:', evaluators.length, 'statusFilter:', statusFilter);
     filterEvaluators();
@@ -1006,18 +1023,22 @@ function EvaluatorsContent() {
             <Button
               variant="outline"
               onClick={() => router.push('/dashboard')}
-              className="flex items-center gap-2 text-white border-white hover:bg-white/10 hover:text-white"
+              size="sm"
+              className="flex items-center gap-2 text-white hover:bg-white/10 hover:text-white text-xs"
+              style={{ border: 'none', color: '#FFFFFF', padding: '4px 8px' }}
             >
-              <ArrowLeft size={20} />
+              <ArrowLeft size={14} />
               Retour
             </Button>
             <Button
               variant="outline"
               onClick={() => loadEvaluators()}
-              className="flex items-center gap-2 text-white border-white hover:bg-white/10 hover:text-white disabled:text-white/50 disabled:border-white/50"
+              size="sm"
+              className="flex items-center gap-2 text-white hover:bg-white/10 hover:text-white disabled:text-white/50 text-xs"
+              style={{ border: 'none', color: '#FFFFFF', padding: '4px 8px' }}
               disabled={isLoading}
             >
-              <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
+              <RefreshCw size={12} className={isLoading ? 'animate-spin' : ''} />
               Actualiser
             </Button>
           </div>
@@ -1036,8 +1057,9 @@ function EvaluatorsContent() {
                 variant="arise-primary"
                 className="font-semibold flex flex-row items-center gap-2"
                 onClick={() => setShowEvaluatorModal(true)}
+                style={{ width: 'fit-content' }}
               >
-                <Plus size={20} />
+                <Plus size={16} style={{ marginRight: '4px' }} />
                 Ajouter des évaluateurs
               </Button>
             )}
@@ -1261,7 +1283,19 @@ function EvaluatorsContent() {
           assessmentId={assessmentId}
           onSuccess={async () => {
             // Immediately reload evaluators to show the newly added ones
-            await loadEvaluators(false); // false = silent reload to avoid showing loading state
+            try {
+              await loadEvaluators(false); // false = silent reload to avoid showing loading state
+            } catch (err) {
+              console.error('[EvaluatorsPage] Error reloading evaluators after add:', err);
+              // Even if API fails, try to reload from cache
+              if (assessmentId) {
+                const cachedEvaluators = getCachedEvaluators(assessmentId);
+                if (cachedEvaluators.length > 0) {
+                  console.log('[EvaluatorsPage] Using cache after add error:', cachedEvaluators.length, 'evaluators');
+                  setEvaluators(cachedEvaluators);
+                }
+              }
+            }
             // Set filter to all to show all evaluators including newly added
             setStatusFilter('all');
             setSuccessMessage('Les évaluateurs ont été ajoutés avec succès et apparaissent dans la liste');

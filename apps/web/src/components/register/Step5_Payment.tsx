@@ -352,7 +352,7 @@ function PaymentFormContent() {
     <div className="w-full max-w-4xl mx-auto p-6">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Payment Form */}
-        <div className="lg:col-span-2 bg-white rounded-lg shadow-xl p-8">
+        <div className="lg:col-span-2 rounded-lg shadow-xl p-8">
           <h2 className="text-3xl font-bold text-arise-deep-teal mb-2">
             Payment
           </h2>
@@ -464,33 +464,35 @@ function PaymentFormContent() {
         </div>
 
         {/* Order Summary */}
-        <div className="bg-white rounded-lg shadow-xl p-6">
-          <h3 className="text-xl font-bold text-arise-deep-teal mb-6">
+        <div className="rounded-lg shadow-xl p-6" style={{ backgroundColor: 'rgba(0, 0, 0, 0.1)', backdropFilter: 'blur(40px)' }}>
+          <h3 className="text-xl font-bold text-white mb-6">
             Order Summary
           </h3>
           
           <div className="space-y-4 mb-6">
             <div className="flex justify-between">
-              <span className="text-gray-700">Plan</span>
-              <span className="font-semibold text-arise-deep-teal capitalize">
+              <span className="text-white">Plan</span>
+              <span className="font-semibold text-white capitalize">
                 {selectedPlan?.name || planId || 'N/A'}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-700">Billing</span>
-              <span className="text-gray-700 capitalize">
+              <span className="text-white">Billing</span>
+              <span className="text-white capitalize">
                 {selectedPlan ? getIntervalLabel(selectedPlan) : 'Monthly'}
               </span>
             </div>
-            <div className="border-t pt-4 flex justify-between">
-              <span className="font-semibold text-gray-900">Total</span>
-              <span className="font-bold text-arise-gold text-xl">
-                {selectedPlan ? `${formatPrice(selectedPlan)}/${getIntervalLabel(selectedPlan)}` : '$0.00'}
-              </span>
+            <div className="border-t pt-4">
+              <div className="flex flex-col">
+                <span className="font-semibold text-white mb-2">Total</span>
+                <span className="font-bold text-white text-xl">
+                  {selectedPlan ? `${formatPrice(selectedPlan)}/${getIntervalLabel(selectedPlan)}` : '$0.00'}
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="bg-arise-light-beige rounded-lg p-4 text-sm text-gray-700">
+          <div className="rounded-lg p-4 text-sm text-white" style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}>
             <p className="mb-2">✓ 30-day money-back guarantee</p>
             <p className="mb-2">✓ Cancel anytime</p>
             <p className="mb-2">✓ Secure payment processing by Stripe</p>

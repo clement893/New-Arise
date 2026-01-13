@@ -81,7 +81,7 @@ function DevelopmentPlanContent() {
       {/* Header */}
       <div className="mb-8 pb-6">
         <h1 className="text-4xl font-bold text-white mb-2">
-          Development Plan
+          Development <span style={{ color: '#D8B868' }}>Plan</span>
         </h1>
         <p className="text-white">
           Track your personal and professional development journey
@@ -92,8 +92,8 @@ function DevelopmentPlanContent() {
       <Card className="p-6 bg-white">
         <div className="flex items-center justify-start mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
-              <Target className="text-arise-deep-teal" size={24} />
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(15, 76, 86, 0.1)' }}>
+              <Target className="text-arise-deep-teal" size={24} style={{ color: '#0F4C56' }} />
             </div>
             <div>
               <h2 className="text-2xl font-bold text-gray-900">
@@ -152,8 +152,8 @@ function DevelopmentPlanContent() {
       {/* Recommended Resources */}
       <Card className="p-6 bg-white">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
-            <BookOpen className="text-arise-deep-teal" size={24} />
+          <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(15, 76, 86, 0.1)' }}>
+            <BookOpen className="text-arise-deep-teal" size={24} style={{ color: '#0F4C56' }} />
           </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
@@ -171,8 +171,8 @@ function DevelopmentPlanContent() {
             return (
               <Card key={resource.id} className="p-4 border border-gray-200 hover:border-arise-deep-teal/30 transition-colors bg-white cursor-pointer" onClick={() => router.push(`/dashboard/development-plan/resources/${resource.id}`)}>
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Icon className="text-arise-deep-teal" size={20} />
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(15, 76, 86, 0.1)' }}>
+                    <Icon className="text-arise-deep-teal" size={20} style={{ color: '#0F4C56' }} />
                   </div>
                   <div className="flex-1">
                     <h3 className="text-base font-semibold text-gray-900 mb-1">
@@ -214,8 +214,8 @@ function DevelopmentPlanContent() {
       {/* Your Progress */}
       <Card className="p-6 bg-white">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
-            <TrendingUp className="text-arise-deep-teal" size={24} />
+          <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(15, 76, 86, 0.1)' }}>
+            <TrendingUp className="text-arise-deep-teal" size={24} style={{ color: '#0F4C56' }} />
           </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-900">

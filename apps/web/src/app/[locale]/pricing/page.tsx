@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import Container from '@/components/ui/Container';
 import PricingCardSimple from '@/components/ui/PricingCardSimple';
 import BillingPeriodToggle from '@/components/ui/BillingPeriodToggle';
@@ -238,13 +239,48 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-muted dark:to-muted">
       <Header />
-      <Container className="py-24">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-foreground mb-4">Choose your plan</h1>
-          <p className="text-xl text-gray-900 dark:text-gray-100 mb-8">
-            Select the plan that best fits your needs
-          </p>
+      <Container className="py-12" padding={false}>
+        <div className="px-[11px]">
+        {/* Hero Section */}
+        <div className="mb-16 rounded-2xl overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 items-stretch">
+            {/* Left Section - Text on Dark Teal Background (2/3) */}
+            <div className="md:col-span-2 relative z-10 p-8 md:p-12 lg:p-16 flex flex-col justify-center" style={{ backgroundColor: '#0F4C56' }}>
+              <div className="text-left">
+                <h1 className="mb-6">
+                  <span className="block text-4xl md:text-5xl lg:text-6xl font-light mb-2" style={{ color: '#D8B868' }}>
+                    Choose
+                  </span>
+                  <span className="block text-4xl md:text-5xl lg:text-6xl font-medium" style={{ color: '#D8B868' }}>
+                    your plan
+                  </span>
+                </h1>
+                <p className="text-lg md:text-xl text-white max-w-2xl leading-relaxed">
+                  Autonomiser des leaders authentiques grâce à une évaluation et un développement holistiques
+                </p>
+              </div>
+            </div>
+            
+            {/* Right Section - Photo (1/3) */}
+            <div className="md:col-span-1 relative h-64 md:h-auto rounded-r-2xl overflow-hidden">
+              <div className="absolute inset-0">
+                <Image 
+                  src="/images/pricing-hero.jpg" 
+                  alt="Choose your plan"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+                {/* Fallback gradient if image fails to load */}
+                <div className="absolute inset-0 bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                  <div className="text-white/30 text-4xl">👥</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
+        <div className="text-center mb-12">
           <BillingPeriodToggle value={billingPeriod} onChange={setBillingPeriod} />
         </div>
 
@@ -278,8 +314,8 @@ export default function PricingPage() {
         )}
 
         {/* FAQ Section */}
-        <div className="mt-16 max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-foreground mb-8">
+        <div className="mt-16 max-w-4xl mx-auto">
+          <h2 className="text-3xl font-semibold text-center mb-8" style={{ color: '#D8B868' }}>
             Questions fréquentes
           </h2>
           <div className="space-y-4">
@@ -296,6 +332,7 @@ export default function PricingPage() {
               answer="Nous acceptons les cartes de crédit (Visa, Mastercard, American Express) et les virements bancaires pour les plans Enterprise."
             />
           </div>
+        </div>
         </div>
       </Container>
       <Footer />

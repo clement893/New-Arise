@@ -17,14 +17,14 @@ export const DEFAULT_THEME_CONFIG = {
   warning_color: "#b45309",  // Warm amber 700 (4.5:1 on white, improved from #d97706)
   info_color: "#0891b2",  // Professional cyan (4.5:1 on white)
   success_color: "#047857",  // Professional green 700 (4.5:1 on white, improved from #059669)
-  font_family: "Inter",
+  font_family: "Open Sans",
   border_radius: "8px",
   
   // Typography configuration - Professional and readable
   typography: {
-    fontFamily: "Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-    fontFamilyHeading: "Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-    fontFamilySubheading: "Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    fontFamily: "Open Sans, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    fontFamilyHeading: "Open Sans, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    fontFamilySubheading: "Open Sans, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
     fontFamilyMono: "'Fira Code', 'Courier New', monospace",
     fontSize: {
       xs: "12px",
@@ -52,7 +52,7 @@ export const DEFAULT_THEME_CONFIG = {
     textBody: "#1e293b",  // Slate 800
     textSecondary: "#64748b",  // Slate 500
     textLink: "#0A3A40",  // ARISE deep teal (matches primary)
-    fontUrl: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    fontUrl: "https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap"
   },
   
   // Colors configuration (comprehensive) - ARISE Brand Colors

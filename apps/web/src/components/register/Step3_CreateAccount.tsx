@@ -107,7 +107,7 @@ export function Step3_CreateAccount() {
   return (
     <div className="w-full max-w-2xl mx-auto p-6">
       <div className="bg-white rounded-lg shadow-xl p-8">
-        <h2 className="text-3xl font-bold text-arise-deep-teal mb-2 text-center">
+        <h2 className="text-3xl font-bold text-arise-deep-teal mb-1 text-center">
           Create your account
         </h2>
         <p className="text-gray-600 text-center mb-8">

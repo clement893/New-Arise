@@ -7,7 +7,7 @@ import { useAuthStore } from '@/lib/store';
 import { useHydrated } from '@/hooks/useHydrated';
 import Button from '@/components/ui/Button';
 import { LanguageToggle } from './LanguageToggle';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ArrowRight } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export function Header() {
@@ -72,8 +72,25 @@ export function Header() {
                   Admin
                 </Link>
                 <LanguageToggle />
-                <Button asChild className="bg-[#D8B868] hover:bg-[#D8B868]/90 text-white rounded-2xl px-6 py-2">
-                  <Link href="/register">{t('getStarted')}</Link>
+                <Button 
+                  asChild 
+                  className="text-white flex items-center gap-2 rounded-lg"
+                  style={{ 
+                    backgroundColor: '#0F4C56',
+                    padding: '12px 24px',
+                    borderRadius: '8px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#0d3d45';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#0F4C56';
+                  }}
+                >
+                  <Link href="/register">
+                    {t('getStarted')}
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
                 </Button>
               </>
             ) : (
@@ -82,8 +99,25 @@ export function Header() {
                   {t('signIn')}
                 </Link>
                 <LanguageToggle />
-                <Button asChild className="bg-[#D8B868] hover:bg-[#D8B868]/90 text-white rounded-2xl px-6 py-2">
-                  <Link href="/register">{t('getStarted')}</Link>
+                <Button 
+                  asChild 
+                  className="text-white flex items-center gap-2 rounded-lg"
+                  style={{ 
+                    backgroundColor: '#0F4C56',
+                    padding: '12px 24px',
+                    borderRadius: '8px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#0d3d45';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#0F4C56';
+                  }}
+                >
+                  <Link href="/register">
+                    {t('getStarted')}
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
                 </Button>
               </>
             )}
@@ -157,8 +191,21 @@ export function Header() {
                       </Button>
                     </Link>
                     <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
-                      <Button size="sm" variant="primary" className="w-full bg-arise-deep-teal hover:bg-arise-deep-teal/90 text-white">
+                      <Button 
+                        size="sm" 
+                        className="w-full text-white flex items-center justify-center gap-2 rounded-lg"
+                        style={{ 
+                          backgroundColor: '#0F4C56',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#0d3d45';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = '#0F4C56';
+                        }}
+                      >
                         {t('getStarted')}
+                        <ArrowRight className="w-4 h-4" />
                       </Button>
                     </Link>
                   </>
@@ -170,8 +217,21 @@ export function Header() {
                       </Button>
                     </Link>
                     <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
-                      <Button size="sm" variant="primary" className="w-full bg-arise-deep-teal hover:bg-arise-deep-teal/90 text-white">
+                      <Button 
+                        size="sm" 
+                        className="w-full text-white flex items-center justify-center gap-2 rounded-lg"
+                        style={{ 
+                          backgroundColor: '#0F4C56',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#0d3d45';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = '#0F4C56';
+                        }}
+                      >
                         {t('getStarted')}
+                        <ArrowRight className="w-4 h-4" />
                       </Button>
                     </Link>
                   </>
@@ -181,6 +241,8 @@ export function Header() {
           </nav>
         </div>
       </div>
+      {/* Ligne sous le header */}
+      <div className="h-px bg-black" style={{ opacity: 0.05 }}></div>
     </nav>
   );
 }

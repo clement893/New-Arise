@@ -424,7 +424,7 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
             style={{
               animation: 'fadeInSlideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
               zIndex: 10,
-              marginLeft: '14%',
+              marginLeft: '7.5%',
               marginRight: '5%',
               scrollbarWidth: 'none', // Firefox
               msOverflowStyle: 'none', // IE and Edge

@@ -230,7 +230,7 @@ export default function ProfilePage() {
     <div className="relative">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-white mb-2">Your profile</h1>
+        <h1 className="text-4xl font-bold text-white mb-2">Your <span style={{ color: '#D8B868' }}>profile</span></h1>
         <p className="text-white/90 text-lg mb-6">Update my profile information & Subscription</p>
         
         {/* Tabs */}
@@ -481,7 +481,7 @@ export default function ProfilePage() {
               className="!bg-arise-gold-alt !text-arise-deep-teal-alt hover:!bg-arise-gold-alt/90 font-semibold px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ backgroundColor: 'var(--color-arise-gold-alt, #F4B860)', color: 'var(--color-arise-deep-teal-alt, #1B5E6B)' }}
             >
-              {isSaving ? 'Saving...' : 'Save'}
+              {isSaving ? 'Saving...' : <span style={{ color: '#2E2E2E' }}>Save</span>}
             </Button>
           </div>
         </Card>
