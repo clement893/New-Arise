@@ -7,11 +7,12 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, Button } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { assessmentsApi, AssessmentResult, PillarScore } from '@/lib/api/assessments';
-import { wellnessPillars } from '@/data/wellnessQuestionsReal';
-import { ArrowLeft, Download, Share2, TrendingUp, Loader2 } from 'lucide-react';
+import { assessmentsApi, AssessmentResult, PillarScore, getAssessmentAnswers } from '@/lib/api/assessments';
+import { wellnessPillars, wellnessQuestions, wellnessScale } from '@/data/wellnessQuestionsReal';
+import { ArrowLeft, Download, Share2, TrendingUp, Loader2, Copy, Mail, ExternalLink, X } from 'lucide-react';
 import { apiClient } from '@/lib/api';
 import { formatError } from '@/lib/utils/formatError';
+import { useToast } from '@/components/ui';
 
 function AssessmentResultsContent() {
   const router = useRouter();
@@ -23,6 +24,8 @@ function AssessmentResultsContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (assessmentId) {
@@ -131,10 +134,13 @@ function AssessmentResultsContent() {
   };
 
   const handleDownloadPDF = async () => {
-    if (!results) return;
+    if (!results || !assessmentId) return;
 
     try {
       setIsDownloading(true);
+      
+      // Fetch assessment answers for detailed breakdown
+      const answers = await getAssessmentAnswers(parseInt(assessmentId));
       
       const { scores } = results;
       
@@ -144,38 +150,113 @@ function AssessmentResultsContent() {
       const safePercentage = typeof scores?.percentage === 'number' ? scores.percentage : (typeof scores?.percentage === 'string' ? parseFloat(scores.percentage) : 0);
       const pillar_scores = scores?.pillar_scores || {};
 
-      // Prepare data for PDF export
-      const exportData = [
+      // Prepare summary data with proper structure for PDF headers
+      const summaryRows: Array<Record<string, string>> = [
         {
-          'Assessment Type': 'Wellness Assessment',
-          'Overall Score': `${isNaN(safeTotalScore) ? 0 : safeTotalScore} / ${isNaN(safeMaxScore) ? 150 : safeMaxScore}`,
-          'Percentage': `${isNaN(safePercentage) ? 0 : safePercentage.toFixed(1)}%`,
-          'Date': new Date().toLocaleDateString('fr-FR'),
+          'Question #': 'SUMMARY',
+          'Pillar': '',
+          'Question': '',
+          'Answer': '',
+          'Score': '',
         },
-        ...(pillar_scores ? Object.entries(pillar_scores).map(([pillarId, pillarData]) => {
+        {
+          'Question #': 'Assessment Type',
+          'Pillar': 'Wellness Assessment',
+          'Question': '',
+          'Answer': '',
+          'Score': '',
+        },
+        {
+          'Question #': 'Overall Score',
+          'Pillar': `${isNaN(safeTotalScore) ? 0 : safeTotalScore} / ${isNaN(safeMaxScore) ? 150 : safeMaxScore}`,
+          'Question': `${isNaN(safePercentage) ? 0 : safePercentage.toFixed(1)}%`,
+          'Answer': new Date().toLocaleDateString('fr-FR'),
+          'Score': '',
+        },
+      ];
+
+      // Add pillar scores
+      if (pillar_scores) {
+        Object.entries(pillar_scores).forEach(([pillarId, pillarData]) => {
           const pillar = wellnessPillars.find(p => p.id === pillarId);
           const isPillarScoreObject = (data: number | PillarScore | undefined): data is PillarScore => {
             return typeof data === 'object' && data !== null && 'score' in data;
           };
           const pillarScore = isPillarScoreObject(pillarData) ? pillarData.score : (typeof pillarData === 'number' ? pillarData : 0);
           const pillarPercentage = isPillarScoreObject(pillarData) ? pillarData.percentage : (pillarScore / 25) * 100;
+          const status = pillarPercentage >= 80 ? 'Excellent' : pillarPercentage >= 60 ? 'Good' : 'Needs Attention';
           
-          return {
-            'Pillar': pillar?.name || pillarId,
-            'Score': `${pillarScore} / 25`,
-            'Percentage': `${pillarPercentage.toFixed(1)}%`,
-            'Status': pillarPercentage >= 80 ? 'Excellent' : pillarPercentage >= 60 ? 'Good' : 'Needs Attention',
-          };
-        }) : []),
+          summaryRows.push({
+            'Question #': pillar?.name || pillarId,
+            'Pillar': `${pillarScore} / 25`,
+            'Question': `${pillarPercentage.toFixed(1)}%`,
+            'Answer': status,
+            'Score': '',
+          });
+        });
+      }
+
+      // Prepare detailed question-by-question data grouped by pillar
+      const questionsByPillar: Record<string, typeof wellnessQuestions> = {};
+      wellnessQuestions.forEach(q => {
+        if (!questionsByPillar[q.pillar]) {
+          questionsByPillar[q.pillar] = [];
+        }
+        questionsByPillar[q.pillar].push(q);
+      });
+
+      // Create detailed data rows
+      const detailedRows: Array<Record<string, string>> = [];
+      
+      // Add section header
+      detailedRows.push({
+        'Question #': 'DETAILED QUESTIONS & ANSWERS',
+        'Pillar': '',
+        'Question': '',
+        'Answer': '',
+        'Score': '',
+      });
+
+      // Add questions grouped by pillar
+      Object.entries(questionsByPillar).forEach(([pillar, pillarQuestions]) => {
+        // Add pillar header
+        detailedRows.push({
+          'Question #': `--- ${pillar.toUpperCase()} ---`,
+          'Pillar': '',
+          'Question': '',
+          'Answer': '',
+          'Score': '',
+        });
+
+        // Add questions for this pillar
+        pillarQuestions.forEach((question) => {
+          const answerValue = answers[question.id] || '0';
+          const answerNum = parseInt(answerValue, 10) || 0;
+          const answerLabel = wellnessScale.find(s => s.value === answerNum)?.label || 'Not Answered';
+          
+          detailedRows.push({
+            'Question #': question.id.replace('wellness_q', ''),
+            'Pillar': pillar,
+            'Question': question.question,
+            'Answer': answerLabel,
+            'Score': `${answerNum}/5`,
+          });
+        });
+      });
+
+      // Combine summary and detailed data
+      const exportData = [
+        ...summaryRows,
+        ...detailedRows,
       ];
 
-      // Call the export API
+      // Call the export API with proper headers for questions/answers
       const response = await apiClient.post(
         '/v1/exports/export',
         {
           format: 'pdf',
           data: exportData,
-          headers: Object.keys(exportData[0] || {}),
+          headers: ['Question #', 'Pillar', 'Question', 'Answer', 'Score'],
           title: `Wellness Assessment Report - ${new Date().toLocaleDateString('fr-FR')}`,
         },
         {
@@ -202,14 +283,209 @@ function AssessmentResultsContent() {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+      
+      showToast({
+        message: 'PDF downloaded successfully',
+        type: 'success',
+      });
     } catch (err: unknown) {
       // Convert error to string to prevent React error #130
       const errorMessage = formatError(err);
       console.error('Error downloading PDF:', errorMessage);
-      setError('Failed to download PDF report. Please try again.');
+      showToast({
+        message: 'Failed to download PDF report. Please try again.',
+        type: 'error',
+      });
     } finally {
       setIsDownloading(false);
     }
+  };
+
+  const handleSharePDF = async () => {
+    if (!assessmentId || !results) return;
+    
+    try {
+      setIsDownloading(true);
+      
+      // Use the same PDF generation logic as handleDownloadPDF
+      // Just open in new tab instead of downloading
+      const answers = await getAssessmentAnswers(parseInt(assessmentId));
+      const { scores } = results;
+      
+      const safeTotalScore = typeof scores?.total_score === 'number' ? scores.total_score : (typeof scores?.total_score === 'string' ? parseInt(scores.total_score, 10) : 0);
+      const safeMaxScore = typeof scores?.max_score === 'number' ? scores.max_score : (typeof scores?.max_score === 'string' ? parseInt(scores.max_score, 10) : 150);
+      const safePercentage = typeof scores?.percentage === 'number' ? scores.percentage : (typeof scores?.percentage === 'string' ? parseFloat(scores.percentage) : 0);
+      const pillar_scores = scores?.pillar_scores || {};
+
+      const summaryRows: Array<Record<string, string>> = [
+        {
+          'Question #': 'SUMMARY',
+          'Pillar': '',
+          'Question': '',
+          'Answer': '',
+          'Score': '',
+        },
+        {
+          'Question #': 'Assessment Type',
+          'Pillar': 'Wellness Assessment',
+          'Question': '',
+          'Answer': '',
+          'Score': '',
+        },
+        {
+          'Question #': 'Overall Score',
+          'Pillar': `${isNaN(safeTotalScore) ? 0 : safeTotalScore} / ${isNaN(safeMaxScore) ? 150 : safeMaxScore}`,
+          'Question': `${isNaN(safePercentage) ? 0 : safePercentage.toFixed(1)}%`,
+          'Answer': new Date().toLocaleDateString('fr-FR'),
+          'Score': '',
+        },
+      ];
+
+      if (pillar_scores) {
+        Object.entries(pillar_scores).forEach(([pillarId, pillarData]) => {
+          const pillar = wellnessPillars.find(p => p.id === pillarId);
+          const isPillarScoreObject = (data: number | PillarScore | undefined): data is PillarScore => {
+            return typeof data === 'object' && data !== null && 'score' in data;
+          };
+          const pillarScore = isPillarScoreObject(pillarData) ? pillarData.score : (typeof pillarData === 'number' ? pillarData : 0);
+          const pillarPercentage = isPillarScoreObject(pillarData) ? pillarData.percentage : (pillarScore / 25) * 100;
+          const status = pillarPercentage >= 80 ? 'Excellent' : pillarPercentage >= 60 ? 'Good' : 'Needs Attention';
+          
+          summaryRows.push({
+            'Question #': pillar?.name || pillarId,
+            'Pillar': `${pillarScore} / 25`,
+            'Question': `${pillarPercentage.toFixed(1)}%`,
+            'Answer': status,
+            'Score': '',
+          });
+        });
+      }
+
+      const questionsByPillar: Record<string, typeof wellnessQuestions> = {};
+      wellnessQuestions.forEach(q => {
+        if (!questionsByPillar[q.pillar]) {
+          questionsByPillar[q.pillar] = [];
+        }
+        questionsByPillar[q.pillar].push(q);
+      });
+
+      const detailedRows: Array<Record<string, string>> = [];
+      detailedRows.push({
+        'Question #': 'DETAILED QUESTIONS & ANSWERS',
+        'Pillar': '',
+        'Question': '',
+        'Answer': '',
+        'Score': '',
+      });
+
+      Object.entries(questionsByPillar).forEach(([pillar, pillarQuestions]) => {
+        detailedRows.push({
+          'Question #': `--- ${pillar.toUpperCase()} ---`,
+          'Pillar': '',
+          'Question': '',
+          'Answer': '',
+          'Score': '',
+        });
+
+        pillarQuestions.forEach((question) => {
+          const answerValue = answers[question.id] || '0';
+          const answerNum = parseInt(answerValue, 10) || 0;
+          const answerLabel = wellnessScale.find(s => s.value === answerNum)?.label || 'Not Answered';
+          
+          detailedRows.push({
+            'Question #': question.id.replace('wellness_q', ''),
+            'Pillar': pillar,
+            'Question': question.question,
+            'Answer': answerLabel,
+            'Score': `${answerNum}/5`,
+          });
+        });
+      });
+
+      const exportData = [
+        ...summaryRows,
+        ...detailedRows,
+      ];
+
+      const response = await apiClient.post(
+        '/v1/exports/export',
+        {
+          format: 'pdf',
+          data: exportData,
+          headers: ['Question #', 'Pillar', 'Question', 'Answer', 'Score'],
+          title: `Wellness Assessment Report - ${new Date().toLocaleDateString('fr-FR')}`,
+        },
+        {
+          responseType: 'blob',
+        }
+      );
+
+      let blob: Blob;
+      if (response.data instanceof Blob) {
+        blob = response.data;
+      } else if (response.data instanceof ArrayBuffer) {
+        blob = new Blob([response.data], { type: 'application/pdf' });
+      } else {
+        blob = new Blob([response.data], { type: 'application/pdf' });
+      }
+
+      // Open PDF in new tab
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      
+      showToast({
+        message: 'PDF opened in new tab',
+        type: 'success',
+      });
+      
+      setShowShareDialog(false);
+    } catch (err: unknown) {
+      const errorMessage = formatError(err);
+      console.error('Error opening PDF:', errorMessage);
+      showToast({
+        message: 'Failed to open PDF. Please try again.',
+        type: 'error',
+      });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleCopyPDFLink = async () => {
+    if (!assessmentId) return;
+    
+    try {
+      // For now, copy the current page URL with assessment ID
+      // In the future, this could be a shareable link with token
+      const currentUrl = window.location.href;
+      
+      await navigator.clipboard.writeText(currentUrl);
+      
+      showToast({
+        message: 'Results page link copied to clipboard',
+        type: 'success',
+      });
+      
+      setShowShareDialog(false);
+    } catch (err: unknown) {
+      const errorMessage = formatError(err);
+      console.error('Error copying link:', errorMessage);
+      showToast({
+        message: 'Failed to copy link. Please try again.',
+        type: 'error',
+      });
+    }
+  };
+
+  const handleEmailPDF = () => {
+    if (!assessmentId) return;
+    
+    const currentUrl = window.location.href;
+    const subject = encodeURIComponent('Wellness Assessment Results');
+    const body = encodeURIComponent(`Please find my Wellness Assessment Results at the following link:\n\n${currentUrl}\n\nYou can view and download the detailed PDF report from this page.`);
+    
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    setShowShareDialog(false);
   };
 
   if (isLoading) {
@@ -356,7 +632,11 @@ function AssessmentResultsContent() {
                       </>
                     )}
                   </Button>
-                  <Button variant="outline" className="bg-white text-arise-deep-teal hover:bg-gray-100">
+                  <Button 
+                    variant="outline" 
+                    className="bg-white text-arise-deep-teal hover:bg-gray-100"
+                    onClick={() => setShowShareDialog(true)}
+                  >
                     <Share2 className="mr-2" size={16} />
                     Share Results
                   </Button>
@@ -573,6 +853,65 @@ function AssessmentResultsContent() {
           </MotionDiv>
         </div>
       </div>
+
+      {/* Share Dialog */}
+      {showShareDialog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Share2 className="h-5 w-5 text-arise-deep-teal" />
+                <h3 className="text-lg font-semibold">Share Results</h3>
+              </div>
+              <button
+                onClick={() => setShowShareDialog(false)}
+                className="p-1 hover:bg-gray-100 rounded"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={handleSharePDF}
+              >
+                <ExternalLink className="mr-2" size={16} />
+                Open PDF in New Tab
+              </Button>
+              
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={handleCopyPDFLink}
+              >
+                <Copy className="mr-2" size={16} />
+                Copy PDF Link
+              </Button>
+              
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={handleEmailPDF}
+              >
+                <Mail className="mr-2" size={16} />
+                Send PDF Link by Email
+              </Button>
+            </div>
+
+            <div className="mt-4 pt-4 border-t">
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => setShowShareDialog(false)}
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
   );
 }
 
