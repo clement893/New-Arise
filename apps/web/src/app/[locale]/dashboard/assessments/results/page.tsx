@@ -187,7 +187,7 @@ function AssessmentResultsContent() {
       const detailedRows: Array<Record<string, string>> = [];
 
       // Add questions grouped by pillar
-      Object.entries(questionsByPillar).forEach(([pillar, pillarQuestions]) => {
+      Object.entries(questionsByPillar).forEach(([, pillarQuestions]) => {
         // Add questions for this pillar
         pillarQuestions.forEach((question) => {
           const answerValue = answers[question.id] || '0';
@@ -320,7 +320,7 @@ function AssessmentResultsContent() {
       const detailedRows: Array<Record<string, string>> = [];
 
       // Add questions grouped by pillar
-      Object.entries(questionsByPillar).forEach(([pillar, pillarQuestions]) => {
+      Object.entries(questionsByPillar).forEach(([, pillarQuestions]) => {
         // Add questions for this pillar
         pillarQuestions.forEach((question) => {
           const answerValue = answers[question.id] || '0';
