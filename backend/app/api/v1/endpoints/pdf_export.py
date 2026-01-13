@@ -14,7 +14,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, List
 
 from app.core.database import get_db
-from app.core.auth import get_current_user
+from app.dependencies import get_current_user
 from app.models.user import User
 from app.models.assessment import Assessment, AssessmentResult, AssessmentType
 from app.services.pdf_export_service import generate_assessment_pdf
@@ -156,7 +156,6 @@ async def create_pdf_share_link(
     
     # Construire l'URL du lien partageable
     # L'URL sera de la forme: {API_URL}/api/v1/pdf-export/share/{token}
-    import os
     api_url = os.getenv("API_URL", os.getenv("BASE_URL", "http://localhost:8000"))
     if not api_url:
         # Fallback: construire depuis BASE_URL ou utiliser localhost
