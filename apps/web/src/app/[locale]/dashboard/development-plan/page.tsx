@@ -90,7 +90,7 @@ function DevelopmentPlanContent() {
 
       {/* Your Development Goals */}
       <Card className="p-6 bg-white">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-start mb-6">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
               <Target className="text-arise-deep-teal" size={24} />
@@ -104,13 +104,6 @@ function DevelopmentPlanContent() {
               </p>
             </div>
           </div>
-          <Button 
-            variant="primary" 
-            className="!bg-arise-gold hover:!bg-arise-gold/90 !text-white"
-            style={{ backgroundColor: '#d8b868', color: '#000000' }}
-          >
-            Add New Goal
-          </Button>
         </div>
 
         <div className="space-y-4">

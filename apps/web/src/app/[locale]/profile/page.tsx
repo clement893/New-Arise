@@ -264,7 +264,7 @@ export default function ProfilePage() {
       {activeTab === 'profile' && (
         <Card className="p-8">
           {/* User Header within card */}
-          <div className="flex items-center justify-between mb-8 pb-8 border-b border-gray-200">
+          <div className="flex items-center justify-start mb-8 pb-8 border-b border-gray-200">
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
                 {user?.avatar_url ? (
@@ -282,9 +282,6 @@ export default function ProfilePage() {
                 </span>
               </div>
             </div>
-            <Button variant="arise-primary">
-              Follow me
-            </Button>
           </div>
 
           {/* Personal Information Section */}
