@@ -45,12 +45,22 @@ function EvaluatorsContent() {
         // Check if cache is recent (less than 24 hours old) - longer persistence
         if (parsed.timestamp && Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000) {
           const cachedData = parsed.data || [];
-          console.log('[EvaluatorsPage] Loaded evaluators from cache:', cachedData.length, 'evaluators');
+          console.log('[EvaluatorsPage] ✅ Loaded evaluators from cache:', cachedData.length, 'evaluators for assessment', assessmentId);
+          
+          // Log completed evaluators in cache
+          const completedInCache = cachedData.filter((e: EvaluatorStatus) => e.status?.toLowerCase() === 'completed');
+          if (completedInCache.length > 0) {
+            console.log('[EvaluatorsPage] ✅ Cache includes', completedInCache.length, 'completed evaluator(s):', completedInCache.map((e: EvaluatorStatus) => e.name));
+          }
+          
           return cachedData;
         } else {
           // Cache expired, clear it
+          console.log('[EvaluatorsPage] Cache expired for assessment', assessmentId, '- clearing');
           localStorage.removeItem(cacheKey);
         }
+      } else {
+        console.log('[EvaluatorsPage] No cache found for assessment', assessmentId);
       }
     } catch (e) {
       console.error('[EvaluatorsPage] Error loading cache:', e);
@@ -72,6 +82,23 @@ function EvaluatorsContent() {
       return;
     }
     
+    // CRITICAL: Protect against overwriting cache with empty list
+    // If we have existing cache with data, don't overwrite with empty list
+    // This prevents losing evaluators when API returns empty (which shouldn't happen, but just in case)
+    const existingCache = getCachedEvaluators(assessmentId);
+    if (existingCache.length > 0 && evaluators.length === 0) {
+      console.warn('[EvaluatorsPage] ⚠️ WARNING: Attempting to save empty list, but cache has', existingCache.length, 'evaluators. Keeping existing cache.');
+      console.warn('[EvaluatorsPage] ⚠️ This should not happen - API should always return evaluators. Keeping cache to prevent data loss.');
+      // Don't overwrite cache with empty list - keep existing cache
+      return;
+    }
+    
+    // If we're saving a non-empty list, always save (even if it's smaller than cache)
+    // This ensures completed evaluators are saved
+    if (evaluators.length > 0) {
+      console.log('[EvaluatorsPage] 💾 Saving', evaluators.length, 'evaluators to cache (replacing', existingCache.length, 'existing)');
+    }
+    
     // Declare variables outside try-catch so they're accessible in catch block
     const cacheKey = `evaluators_cache_${assessmentId}`;
     const cacheData = {
@@ -86,12 +113,25 @@ function EvaluatorsContent() {
       localStorage.setItem(cacheKey, serialized);
       console.log('[EvaluatorsPage] ✅ Saved evaluators to cache:', evaluators.length, 'evaluators for assessment', assessmentId);
       
+      // Log completed evaluators count
+      const completedCount = evaluators.filter(e => e.status?.toLowerCase() === 'completed').length;
+      if (completedCount > 0) {
+        console.log('[EvaluatorsPage] ✅ Cache includes', completedCount, 'completed evaluator(s)');
+      }
+      
       // Verify it was saved
       const verify = localStorage.getItem(cacheKey);
       if (verify) {
         try {
           const parsed = JSON.parse(verify);
-          console.log('[EvaluatorsPage] ✅ Cache verification - saved', parsed.count || parsed.data?.length || 0, 'evaluators');
+          const savedCount = parsed.count || parsed.data?.length || 0;
+          console.log('[EvaluatorsPage] ✅ Cache verification - saved', savedCount, 'evaluators');
+          
+          // Verify completed evaluators are in cache
+          const savedCompleted = parsed.data?.filter((e: any) => e.status?.toLowerCase() === 'completed') || [];
+          if (savedCompleted.length > 0) {
+            console.log('[EvaluatorsPage] ✅ Cache verification - includes', savedCompleted.length, 'completed evaluator(s)');
+          }
         } catch (parseErr) {
           console.error('[EvaluatorsPage] ❌ Cache verification failed - cannot parse:', parseErr);
         }
@@ -229,20 +269,85 @@ function EvaluatorsContent() {
         console.log('[EvaluatorsPage] ✅ Evaluators response from API:', response);
         const evaluatorsList = response.evaluators || [];
         console.log('[EvaluatorsPage] Evaluators list from API:', evaluatorsList.length, 'evaluators');
-        console.log('[EvaluatorsPage] Evaluators statuses:', evaluatorsList.map(e => ({ id: e.id, name: e.name, status: e.status })));
+        
+        // Log evaluator statuses for debugging BEFORE saving
+        console.log('[EvaluatorsPage] 📊 Evaluators from API:');
+        evaluatorsList.forEach(e => {
+          const isCompleted = e.status?.toLowerCase() === 'completed';
+          console.log('[EvaluatorsPage]   -', e.name, '| Status:', e.status, isCompleted ? '✅ COMPLETED' : '');
+        });
         
         // CRITICAL: Always save to cache after successful API load
-        if (id && evaluatorsList.length > 0) {
-          console.log('[EvaluatorsPage] Saving fresh data to cache:', evaluatorsList.length, 'evaluators for assessment', id);
-          saveEvaluatorsToCache(id, evaluatorsList);
-          // Verify cache was saved
-          const verifyCache = getCachedEvaluators(id);
-          console.log('[EvaluatorsPage] Cache verification - loaded from cache:', verifyCache.length, 'evaluators');
+        // This ensures cache is always up-to-date with the latest status, including completed evaluators
+        // BUT: Only save if we have evaluators OR if cache is also empty (to avoid overwriting with empty)
+        if (id) {
+          const existingCache = getCachedEvaluators(id);
+          
+          // Only save if:
+          // 1. We have evaluators from API (always save)
+          // 2. OR cache is also empty (both are empty, so it's safe to save)
+          if (evaluatorsList.length > 0 || existingCache.length === 0) {
+            console.log('[EvaluatorsPage] 💾 Saving fresh data to cache:', evaluatorsList.length, 'evaluators for assessment', id);
+            saveEvaluatorsToCache(id, evaluatorsList);
+            
+            // Verify cache was saved
+            const verifyCache = getCachedEvaluators(id);
+            console.log('[EvaluatorsPage] ✅ Cache verification - saved and verified:', verifyCache.length, 'evaluators');
+            
+            // Log what's in cache after saving
+            if (verifyCache.length > 0) {
+              console.log('[EvaluatorsPage] 📊 Evaluators in cache after save:');
+              verifyCache.forEach(e => {
+                const isCompleted = e.status?.toLowerCase() === 'completed';
+                console.log('[EvaluatorsPage]   -', e.name, '| Status:', e.status, isCompleted ? '✅ COMPLETED' : '');
+              });
+            } else {
+              console.warn('[EvaluatorsPage] ⚠️ Cache is empty after save!');
+            }
+          } else {
+            // API returned empty but cache has data - keep cache, don't overwrite
+            console.warn('[EvaluatorsPage] ⚠️ API returned empty list but cache has', existingCache.length, 'evaluators. Keeping cache.');
+            console.warn('[EvaluatorsPage] ⚠️ This might indicate an API issue. Using cached data instead.');
+            // Use cached data instead of empty API response
+            setEvaluators(existingCache);
+            if (!silent) {
+              setIsLoading(false);
+            }
+            return; // Don't update state with empty list
+          }
         }
         
         // Update state with fresh data from API
-        console.log('[EvaluatorsPage] Setting evaluators state from API:', evaluatorsList.length);
+        // BUT: If API returns empty but we have cache, keep cache instead
+        if (evaluatorsList.length === 0 && id) {
+          const cachedEvaluators = getCachedEvaluators(id);
+          if (cachedEvaluators.length > 0) {
+            console.warn('[EvaluatorsPage] ⚠️ API returned empty list but cache has', cachedEvaluators.length, 'evaluators. Using cache instead.');
+            // Don't update state with empty list - cache is already set above
+            if (!silent) {
+              setIsLoading(false);
+            }
+            return;
+          }
+        }
+        
+        console.log('[EvaluatorsPage] ✅ Setting evaluators state from API:', evaluatorsList.length, 'evaluators');
+        
+        // Log completed evaluators count
+        const completedCount = evaluatorsList.filter(e => e.status?.toLowerCase() === 'completed').length;
+        if (completedCount > 0) {
+          console.log('[EvaluatorsPage] ✅ API returned', completedCount, 'completed evaluator(s)');
+          evaluatorsList.filter(e => e.status?.toLowerCase() === 'completed').forEach(e => {
+            console.log('[EvaluatorsPage]   ✅ Completed:', e.name);
+          });
+        }
+        
         setEvaluators(evaluatorsList);
+        
+        // Double-check that state was set correctly after a brief delay
+        setTimeout(() => {
+          console.log('[EvaluatorsPage] 🔍 Post-set state check - should have', evaluatorsList.length, 'evaluators in state');
+        }, 100);
       } catch (apiErr: any) {
         console.error('[EvaluatorsPage] ⚠️ API call failed:', apiErr);
         const is401 = apiErr?.response?.status === 401 || apiErr?.message?.includes('401') || apiErr?.message?.includes('Unauthorized');
@@ -377,11 +482,22 @@ function EvaluatorsContent() {
       console.log('[EvaluatorsPage] ✅ IMMEDIATE cache load - found', cachedEvaluators.length, 'cached evaluators for assessment', id);
       if (cachedEvaluators.length > 0) {
         console.log('[EvaluatorsPage] ✅ Loading from cache IMMEDIATELY on mount:', cachedEvaluators.length, 'evaluators');
+        
+        // Log completed evaluators
+        const completed = cachedEvaluators.filter(e => e.status?.toLowerCase() === 'completed');
+        if (completed.length > 0) {
+          console.log('[EvaluatorsPage] ✅ Cache includes', completed.length, 'completed evaluator(s):', completed.map(e => e.name));
+        }
+        
         setEvaluators(cachedEvaluators);
         setAssessmentId(id);
         setIsLoading(false); // Don't show loading since we have cached data
-        console.log('[EvaluatorsPage] ✅ Cache loaded, evaluators should be visible now');
+        console.log('[EvaluatorsPage] ✅ Cache loaded and state set, evaluators should be visible now');
+      } else {
+        console.log('[EvaluatorsPage] ⚠️ No cached evaluators found for assessment', id, '- will try API');
       }
+    } else {
+      console.log('[EvaluatorsPage] ⚠️ No assessment ID found - cannot load from cache');
     }
     
     // Now try to load from API in background (async)
@@ -430,6 +546,7 @@ function EvaluatorsContent() {
   }, [searchParams?.get('id')]); // Only reload when id param changes
 
   useEffect(() => {
+    console.log('[EvaluatorsPage] 🔄 filterEvaluators triggered. evaluators:', evaluators.length, 'statusFilter:', statusFilter);
     filterEvaluators();
   }, [evaluators, statusFilter]);
 
@@ -443,10 +560,18 @@ function EvaluatorsContent() {
     // Always poll to refresh status, even if all are completed (to show completed evaluators)
     const refreshEvaluators = async () => {
       try {
+        console.log('[EvaluatorsPage] 🔄 Background refresh triggered for assessment', assessmentId);
         await loadEvaluators(true); // Silent refresh - don't show loading state
         // Cache is automatically saved in loadEvaluators
+        console.log('[EvaluatorsPage] ✅ Background refresh completed');
       } catch (err) {
-        console.error('[EvaluatorsPage] Error in background refresh:', err);
+        console.error('[EvaluatorsPage] ⚠️ Error in background refresh:', err);
+        // Even if refresh fails, cache should still be available
+        const cachedEvaluators = getCachedEvaluators(assessmentId);
+        if (cachedEvaluators.length > 0) {
+          console.log('[EvaluatorsPage] ✅ Using cache after refresh error:', cachedEvaluators.length, 'evaluators');
+          setEvaluators(cachedEvaluators);
+        }
       }
     };
 
