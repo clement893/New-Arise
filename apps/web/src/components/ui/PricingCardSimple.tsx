@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Button, Card, Badge } from '@/components/ui';
+import { Button, Card } from '@/components/ui';
 import { ArrowRight } from 'lucide-react';
 import clsx from 'clsx';
 
