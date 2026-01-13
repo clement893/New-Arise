@@ -68,13 +68,16 @@ function EvaluatorsContent() {
   // Save evaluators to cache (localStorage for persistence across page refreshes)
   const saveEvaluatorsToCache = (assessmentId: number, evaluators: EvaluatorStatus[]) => {
     if (typeof window === 'undefined' || !assessmentId) return;
+    
+    // Declare variables outside try-catch so they're accessible in catch block
+    const cacheKey = `evaluators_cache_${assessmentId}`;
+    const cacheData = {
+      data: evaluators,
+      timestamp: Date.now(),
+      assessmentId: assessmentId
+    };
+    
     try {
-      const cacheKey = `evaluators_cache_${assessmentId}`;
-      const cacheData = {
-        data: evaluators,
-        timestamp: Date.now(),
-        assessmentId: assessmentId
-      };
       localStorage.setItem(cacheKey, JSON.stringify(cacheData));
       console.log('[EvaluatorsPage] Saved evaluators to cache:', evaluators.length, 'evaluators for assessment', assessmentId);
     } catch (e) {
