@@ -187,11 +187,11 @@ function DevelopmentPlanContent() {
                         variant="secondary" 
                         size="sm"
                         style={{ backgroundColor: '#0F454D', borderColor: '#0F454D', color: '#FFFFFF' }}
-                        onMouseEnter={(e) => {
+                        onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                           e.currentTarget.style.backgroundColor = 'rgba(15, 69, 77, 0.9)';
                           e.currentTarget.style.borderColor = 'rgba(15, 69, 77, 0.9)';
                         }}
-                        onMouseLeave={(e) => {
+                        onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
                           e.currentTarget.style.backgroundColor = '#0F454D';
                           e.currentTarget.style.borderColor = '#0F454D';
                         }}

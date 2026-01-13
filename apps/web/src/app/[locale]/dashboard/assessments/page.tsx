@@ -42,7 +42,7 @@ if (typeof window !== 'undefined') {
   });
 }
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Card, Button, Stack } from '@/components/ui';
@@ -868,8 +868,8 @@ function AssessmentsContent() {
             variant="outline" 
             className="w-full rounded-full text-white flex flex-row items-center gap-2"
             style={{ backgroundColor: '#0F454D', borderColor: '#0F454D' }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 69, 77, 0.9)'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F454D'}
+            onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => e.currentTarget.style.backgroundColor = 'rgba(15, 69, 77, 0.9)'}
+            onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => e.currentTarget.style.backgroundColor = '#0F454D'}
             onClick={() => {
               router.push(`/dashboard/assessments/mbti/results?id=${safeAssessmentId}`);
             }}

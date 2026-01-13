@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/store';
@@ -342,10 +342,10 @@ function DashboardContent() {
           variant="outline" 
           className="w-full rounded-full"
           style={{ color: '#0F444C', borderColor: '#0F444C' }}
-          onMouseEnter={(e) => {
+          onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
             e.currentTarget.style.backgroundColor = 'rgba(15, 68, 76, 0.1)';
           }}
-          onMouseLeave={(e) => {
+          onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
             e.currentTarget.style.backgroundColor = 'transparent';
           }}
           onClick={async () => {
@@ -494,10 +494,10 @@ function DashboardContent() {
                       size="sm"
                       className="whitespace-nowrap font-semibold transition-colors flex flex-row items-center gap-2 text-sm"
                               style={{ color: '#0F444C', borderColor: '#0F444C' }}
-                              onMouseEnter={(e) => {
+                              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                                 e.currentTarget.style.backgroundColor = 'rgba(15, 68, 76, 0.1)';
                               }}
-                              onMouseLeave={(e) => {
+                              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
                                 e.currentTarget.style.backgroundColor = 'transparent';
                               }}
                             >
@@ -575,11 +575,11 @@ function DashboardContent() {
                       variant="primary" 
                       className="font-semibold"
                       style={{ backgroundColor: '#d5b667', color: '#000000' }}
-                      onMouseEnter={(e) => {
+                      onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                         e.currentTarget.style.backgroundColor = '#d5b667';
                         e.currentTarget.style.opacity = '0.9';
                       }}
-                      onMouseLeave={(e) => {
+                      onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
                         e.currentTarget.style.backgroundColor = '#d5b667';
                         e.currentTarget.style.opacity = '1';
                       }}
@@ -595,10 +595,10 @@ function DashboardContent() {
                         color: '#FFFFFF',
                         backgroundColor: 'transparent',
                       }}
-                      onMouseEnter={(e) => {
+                      onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                         e.currentTarget.style.backgroundColor = 'rgba(121, 155, 161, 0.1)';
                       }}
-                      onMouseLeave={(e) => {
+                      onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
                         e.currentTarget.style.backgroundColor = 'transparent';
                       }}
                       onClick={() => router.push('/dashboard/results')}
@@ -622,12 +622,12 @@ function DashboardContent() {
                         <Card 
                           key={index} 
                           className={`group relative transition-all duration-300 ${evaluation.status === 'locked' ? 'opacity-60' : ''}`}
-                          onMouseEnter={evaluation.status !== 'locked' ? (e) => {
+                          onMouseEnter={evaluation.status !== 'locked' ? (e: React.MouseEvent<HTMLDivElement>) => {
                             const cardElement = e.currentTarget;
                             cardElement.style.backgroundColor = 'rgba(15, 76, 86, 0.2)';
                             cardElement.style.setProperty('--glassmorphism-card-background', 'rgba(15, 76, 86, 0.2)');
                           } : undefined}
-                          onMouseLeave={evaluation.status !== 'locked' ? (e) => {
+                          onMouseLeave={evaluation.status !== 'locked' ? (e: React.MouseEvent<HTMLDivElement>) => {
                             const cardElement = e.currentTarget;
                             cardElement.style.backgroundColor = '';
                             cardElement.style.removeProperty('--glassmorphism-card-background');

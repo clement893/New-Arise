@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { useFeedback360Store } from '@/stores/feedback360Store';
@@ -393,8 +393,8 @@ export default function Feedback360Page() {
                     disabled={selectedValue === null}
                     className="flex items-center gap-2 text-white"
                     style={{ backgroundColor: '#0F4C56' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.9)'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F4C56'}
+                    onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.9)'}
+                    onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => e.currentTarget.style.backgroundColor = '#0F4C56'}
                   >
                     {currentQuestion === 29 ? 'Finish' : 'Next'}
                     <ArrowRight size={20} />
