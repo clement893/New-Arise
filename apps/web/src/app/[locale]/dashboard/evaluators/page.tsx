@@ -31,48 +31,103 @@ function EvaluatorsContent() {
   let initialAssessmentId: number | null = null;
   
   if (typeof window !== 'undefined') {
-    const currentParams = searchParams;
-    let id: number | null = currentParams?.get('id') ? parseInt(currentParams.get('id')!) : null;
+    console.log('[EvaluatorsPage] 🚀 SYNC INIT - Starting cache load on component init');
     
-    // If no ID in URL, try to get from cache immediately
+    // Try to get ID from URL first
+    let id: number | null = null;
+    try {
+      const currentParams = searchParams;
+      if (currentParams) {
+        const idParam = currentParams.get('id');
+        if (idParam) {
+          id = parseInt(idParam);
+          console.log('[EvaluatorsPage] 🚀 SYNC INIT - Found ID in URL:', id);
+        }
+      }
+    } catch (e) {
+      console.warn('[EvaluatorsPage] ⚠️ Could not read searchParams synchronously:', e);
+    }
+    
+    // If no ID in URL, try to get from cache immediately (search ALL cache entries)
     if (!id) {
+      console.log('[EvaluatorsPage] 🚀 SYNC INIT - No ID in URL, searching all cache entries...');
       const cacheKeys = Object.keys(localStorage).filter(k => k.startsWith('evaluators_cache_'));
+      console.log('[EvaluatorsPage] 🚀 SYNC INIT - Found', cacheKeys.length, 'cache keys in localStorage');
+      
       if (cacheKeys.length > 0) {
         const cacheEntries = cacheKeys.map(key => {
           try {
-            const data = JSON.parse(localStorage.getItem(key) || '{}');
-            return { key, id: data.assessmentId || parseInt(key.replace('evaluators_cache_', '')), timestamp: data.timestamp || 0 };
-          } catch {
-            return { key, id: parseInt(key.replace('evaluators_cache_', '')), timestamp: 0 };
+            const rawData = localStorage.getItem(key);
+            if (rawData) {
+              const data = JSON.parse(rawData);
+              const entryId = data.assessmentId || parseInt(key.replace('evaluators_cache_', ''));
+              const entryData = data.data || [];
+              return { 
+                key, 
+                id: entryId, 
+                timestamp: data.timestamp || 0,
+                data: entryData,
+                dataLength: entryData.length
+              };
+            }
+          } catch (e) {
+            console.error('[EvaluatorsPage] ❌ Error parsing cache key', key, ':', e);
           }
-        }).filter(e => !isNaN(e.id));
+          return null;
+        }).filter(e => e !== null && !isNaN(e!.id)) as Array<{ key: string; id: number; timestamp: number; data: EvaluatorStatus[]; dataLength: number }>;
         
         if (cacheEntries.length > 0) {
+          console.log('[EvaluatorsPage] 🚀 SYNC INIT - Parsed', cacheEntries.length, 'cache entries');
+          // Sort by timestamp (most recent first) and get the first one with data
           cacheEntries.sort((a, b) => b.timestamp - a.timestamp);
-          const firstEntry = cacheEntries[0];
+          const firstEntry = cacheEntries.find(e => e.dataLength > 0) || cacheEntries[0];
           if (firstEntry) {
             id = firstEntry.id;
+            console.log('[EvaluatorsPage] 🚀 SYNC INIT - Selected cache entry for assessment', id, 'with', firstEntry.dataLength, 'evaluators');
           }
         }
       }
     }
     
+    // Load cache for the found ID
     if (id) {
       const cacheKey = `evaluators_cache_${id}`;
       const rawCache = localStorage.getItem(cacheKey);
+      console.log('[EvaluatorsPage] 🚀 SYNC INIT - Checking cache key', cacheKey, ':', rawCache ? 'EXISTS' : 'NOT FOUND');
+      
       if (rawCache) {
         try {
           const parsed = JSON.parse(rawCache);
+          console.log('[EvaluatorsPage] 🚀 SYNC INIT - Parsed cache:', {
+            hasData: !!parsed.data,
+            dataIsArray: Array.isArray(parsed.data),
+            dataLength: parsed.data?.length || 0,
+            assessmentId: parsed.assessmentId,
+            timestamp: parsed.timestamp ? new Date(parsed.timestamp).toISOString() : 'N/A'
+          });
+          
           if (parsed.data && Array.isArray(parsed.data) && parsed.data.length > 0) {
             initialEvaluators = parsed.data;
             initialAssessmentId = id;
             initialCacheLoaded = true;
             console.log('[EvaluatorsPage] 🚀 SYNC CACHE LOAD - Found', initialEvaluators.length, 'evaluators in cache for assessment', id);
+            
+            // Log completed evaluators
+            const completed = initialEvaluators.filter(e => e.status?.toLowerCase() === 'completed');
+            if (completed.length > 0) {
+              console.log('[EvaluatorsPage] 🚀 SYNC CACHE LOAD - Includes', completed.length, 'completed evaluator(s):', completed.map(e => e.name));
+            }
+          } else {
+            console.warn('[EvaluatorsPage] ⚠️ SYNC INIT - Cache exists but has no data or empty array');
           }
         } catch (e) {
           console.error('[EvaluatorsPage] ❌ Error parsing cache on init:', e);
         }
+      } else {
+        console.warn('[EvaluatorsPage] ⚠️ SYNC INIT - No cache found for assessment', id);
       }
+    } else {
+      console.warn('[EvaluatorsPage] ⚠️ SYNC INIT - No assessment ID found (neither in URL nor in cache)');
     }
   }
   
