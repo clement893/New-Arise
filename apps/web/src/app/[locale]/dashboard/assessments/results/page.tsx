@@ -575,14 +575,15 @@ function AssessmentResultsContent() {
   }
 
   return (
-    <div className="relative">
-      <div 
-        className="fixed inset-0 bg-cover bg-center opacity-10 pointer-events-none"
-        style={{
-          backgroundImage: 'url(/images/dashboard-bg.jpg)',
-        }}
-      />
-      <div className="relative z-10 p-8">
+    <>
+      <div className="relative">
+        <div 
+          className="fixed inset-0 bg-cover bg-center opacity-10 pointer-events-none"
+          style={{
+            backgroundImage: 'url(/images/dashboard-bg.jpg)',
+          }}
+        />
+        <div className="relative z-10 p-8">
           {/* Header */}
           <div className="mb-8 pb-6">
             <Button
@@ -912,6 +913,7 @@ function AssessmentResultsContent() {
           </div>
         </div>
       )}
+    </>
   );
 }
 
