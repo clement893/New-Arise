@@ -76,7 +76,11 @@ export default function Feedback360ResultsPage() {
       // Get all assessments to find the one we're looking for and check its status
       let assessments;
       try {
-        assessments = await getMyAssessments();
+        const allAssessments = await getMyAssessments();
+        // Filter out evaluator assessments (360_evaluator) - these shouldn't appear in user's list
+        assessments = allAssessments.filter(
+          (a) => a.assessment_type !== 'THREE_SIXTY_EVALUATOR' && a.assessment_type !== '360_evaluator'
+        );
         console.log('[360-Feedback Results] Loaded assessments:', assessments.length, assessments.map(a => ({ id: a.id, type: a.assessment_type, status: a.status })));
       } catch (assessmentListError: any) {
         // If we get a 401, it's an authentication issue
@@ -165,30 +169,72 @@ export default function Feedback360ResultsPage() {
 
       // Transform AssessmentResult to Results format
       const scores = response.scores;
+      console.log('[360-Feedback Results] Raw scores from API:', JSON.stringify(scores, null, 2));
+      
+      // Map backend capability IDs to frontend IDs
+      const capabilityIdMap: Record<string, string> = {
+        'problem_solving': 'problem_solving_and_decision_making',
+        // Other capabilities should match
+        'communication': 'communication',
+        'team_culture': 'team_culture',
+        'leadership_style': 'leadership_style',
+        'change_management': 'change_management',
+        'stress_management': 'stress_management',
+      };
+      
+      // Transform capability scores
+      // Backend returns sums (max 25 for 5 questions), frontend needs averages (max 5.0)
       const capabilityScores: CapabilityScore[] = scores.capability_scores
         ? Object.entries(scores.capability_scores).map(([capability, score]) => {
-            const scoreValue = isPillarScore(score) ? score.score : score;
+            const rawScoreValue = isPillarScore(score) ? score.score : (typeof score === 'number' ? score : 0);
+            // Convert sum (max 25) to average (max 5.0) by dividing by 5
+            const averageScore = rawScoreValue / 5;
+            
+            // Map capability ID to frontend format
+            const mappedCapability = capabilityIdMap[capability] || capability;
+            
+            console.log('[360-Feedback Results] Capability score:', {
+              backendId: capability,
+              frontendId: mappedCapability,
+              rawSum: rawScoreValue,
+              average: averageScore
+            });
+            
             return {
-              capability,
-              self_score: scoreValue,
+              capability: mappedCapability,
+              self_score: averageScore,
               others_avg_score: 0, // Will be set if evaluator responses exist
               gap: 0,
-              level: scoreValue >= 4 ? 'high' : scoreValue >= 2.5 ? 'moderate' : 'low',
+              level: averageScore >= 4 ? 'high' : averageScore >= 2.5 ? 'moderate' : 'low',
             };
           })
         : [];
 
       // Check if there are evaluator responses
       const hasEvaluatorResponses = completedCount > 0;
+      
+      // Calculate percentage if not provided or invalid
+      let percentage = scores.percentage;
+      if (!percentage || isNaN(percentage) || percentage === 0) {
+        // Calculate from total_score and max_score
+        if (scores.total_score !== undefined && scores.max_score !== undefined && scores.max_score > 0) {
+          percentage = (scores.total_score / scores.max_score) * 100;
+          console.log('[360-Feedback Results] Calculated percentage:', percentage, 'from', scores.total_score, '/', scores.max_score);
+        } else {
+          percentage = 0;
+        }
+      }
 
       const transformedResults: Results = {
-        total_score: scores.total_score,
-        max_score: scores.max_score,
-        percentage: scores.percentage,
+        total_score: scores.total_score || 0,
+        max_score: scores.max_score || 150,
+        percentage: Math.round(percentage * 10) / 10, // Round to 1 decimal
         capability_scores: capabilityScores,
         has_evaluator_responses: hasEvaluatorResponses,
         evaluator_count: completedCount,
       };
+      
+      console.log('[360-Feedback Results] Transformed results:', JSON.stringify(transformedResults, null, 2));
 
       setResults(transformedResults);
     } catch (err: unknown) {
@@ -415,10 +461,10 @@ export default function Feedback360ResultsPage() {
           <div className="flex items-center justify-center">
             <div className="text-center">
               <div className="mb-2 text-6xl font-bold text-arise-teal">
-                {results.percentage}%
+                {results.percentage !== undefined && !isNaN(results.percentage) ? `${results.percentage}%` : '0%'}
               </div>
               <div className="text-gray-600">
-                {results.total_score} out of {results.max_score} points
+                {results.total_score || 0} out of {results.max_score || 150} points
               </div>
             </div>
           </div>
@@ -440,6 +486,11 @@ export default function Feedback360ResultsPage() {
               const capInfo = feedback360Capabilities.find(
                 (c) => c.id === capScore.capability
               );
+              
+              // Fallback if capability not found
+              const capabilityTitle = capInfo?.title || capScore.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+              const capabilityDescription = capInfo?.description || '';
+              const capabilityIcon = capInfo?.icon || '📊';
 
               return (
                 <MotionDiv
@@ -452,14 +503,16 @@ export default function Feedback360ResultsPage() {
                   {/* Capability Header */}
                   <div className="mb-4 flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <span className="text-3xl">{capInfo?.icon}</span>
+                      <span className="text-3xl">{capabilityIcon}</span>
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900">
-                          {capInfo?.title}
+                          {capabilityTitle}
                         </h3>
-                        <p className="text-sm text-gray-600">
-                          {capInfo?.description}
-                        </p>
+                        {capabilityDescription && (
+                          <p className="text-sm text-gray-600">
+                            {capabilityDescription}
+                          </p>
+                        )}
                       </div>
                     </div>
 

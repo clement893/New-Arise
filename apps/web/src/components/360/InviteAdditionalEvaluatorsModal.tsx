@@ -355,9 +355,9 @@ export default function InviteAdditionalEvaluatorsModal({
                   type="button"
                   variant="outline"
                   onClick={addEvaluator}
-                  className="w-full"
+                  className="w-full flex flex-row items-center gap-2"
                 >
-                  <Plus className="mr-2 h-4 w-4" />
+                  <Plus className="h-4 w-4" />
                   Ajouter un évaluateur
                 </Button>
               </div>

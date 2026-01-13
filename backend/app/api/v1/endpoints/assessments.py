@@ -192,7 +192,10 @@ async def list_assessments(
     """
     result = await db.execute(
         select(Assessment)
-        .where(Assessment.user_id == current_user.id)
+        .where(
+            Assessment.user_id == current_user.id,
+            Assessment.assessment_type != AssessmentType.THREE_SIXTY_EVALUATOR  # Exclude evaluator assessments
+        )
         .order_by(Assessment.created_at.desc())
     )
     assessments = result.scalars().all()

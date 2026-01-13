@@ -219,15 +219,20 @@ def calculate_360_score(answers: List[AssessmentAnswer]) -> Dict[str, Any]:
     # Calculate capability scores
     capability_scores = {}
     total_score = 0
+    max_score = 150
     
     for capability_name, question_ids in capability_questions.items():
         capability_score = sum(answer_lookup.get(qid, 0) for qid in question_ids)
         capability_scores[capability_name] = capability_score
         total_score += capability_score
     
+    # Calculate percentage
+    percentage = (total_score / max_score * 100) if max_score > 0 else 0
+    
     return {
         "total_score": total_score,
-        "max_score": 150,
+        "max_score": max_score,
+        "percentage": round(percentage, 1),
         "capability_scores": capability_scores,
         "answers": answer_lookup
     }
