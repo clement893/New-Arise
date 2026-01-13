@@ -131,22 +131,14 @@ async def create_pdf_share_link(
     # Générer un token unique pour le partage
     share_token = secrets.token_urlsafe(32)
     
-    # Stocker le token dans la base de données (dans assessment_results ou créer une table dédiée)
-    # Pour l'instant, on va stocker dans report_url ou créer un champ share_token
-    # Utilisons report_url pour stocker le token temporairement
+    # Stocker le token dans la base de données (dans assessment_results.report_url)
     try:
-        db.execute(
-            text("""
-                UPDATE assessment_results 
-                SET report_url = :share_token, updated_at = NOW()
-                WHERE assessment_id = :assessment_id
-            """),
-            {
-                "share_token": share_token,
-                "assessment_id": assessment_id
-            }
-        )
+        # Use ORM to update the result
+        result.report_url = share_token
+        result.updated_at = datetime.now(timezone.utc)
+        db.add(result)
         db.commit()
+        db.refresh(result)
     except Exception as e:
         db.rollback()
         raise HTTPException(
