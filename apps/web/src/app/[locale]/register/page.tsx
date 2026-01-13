@@ -95,7 +95,7 @@ export default function RegisterPage() {
 
       {/* Progress Bar */}
       {step < 7 && (
-        <div className="relative z-10 container mx-auto px-4 pt-96 mb-8">
+        <div className="relative z-10 container mx-auto px-4 pt-20 sm:pt-[120px] md:pt-[165px] mb-8">
           <div className="flex justify-center items-center gap-2 mb-2">
             {Array.from({ length: 8 }, (_, index) => {
               const stepNumber = index + 1;

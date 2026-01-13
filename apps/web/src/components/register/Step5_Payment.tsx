@@ -352,11 +352,11 @@ function PaymentFormContent() {
     <div className="w-full max-w-4xl mx-auto p-6">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Payment Form */}
-        <div className="lg:col-span-2 rounded-lg shadow-xl p-8">
-          <h2 className="text-3xl font-bold text-arise-deep-teal mb-2">
+        <div className="lg:col-span-2 rounded-lg p-8">
+          <h2 className="text-3xl font-bold mb-2" style={{ color: '#FFFFFF' }}>
             Payment
           </h2>
-          <p className="text-gray-600 mb-8">
+          <p className="mb-8" style={{ color: '#FFFFFF' }}>
             Complete your purchase securely with Stripe
           </p>
 

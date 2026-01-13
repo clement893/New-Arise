@@ -247,15 +247,15 @@ export default function PricingPage() {
             {/* Left Section - Text on Dark Teal Background (2/3) */}
             <div className="md:col-span-2 relative z-10 p-8 md:p-12 lg:p-16 flex flex-col justify-center" style={{ backgroundColor: '#0F4C56' }}>
               <div className="text-left">
-                <h1 className="mb-6">
-                  <span className="block text-4xl md:text-5xl lg:text-6xl font-light mb-2" style={{ color: '#D8B868' }}>
+                <h1 className="mb-4 md:mb-6">
+                  <span className="block text-4xl md:text-5xl lg:text-6xl font-light mb-1 md:mb-2" style={{ color: '#D8B868' }}>
                     Choose
                   </span>
                   <span className="block text-4xl md:text-5xl lg:text-6xl font-medium" style={{ color: '#D8B868' }}>
                     your plan
                   </span>
                 </h1>
-                <p className="text-lg md:text-xl text-white max-w-2xl leading-relaxed">
+                <p className="text-base md:text-lg text-white/90 leading-relaxed">
                   Autonomiser des leaders authentiques grâce à une évaluation et un développement holistiques
                 </p>
               </div>
@@ -263,19 +263,15 @@ export default function PricingPage() {
             
             {/* Right Section - Photo (1/3) */}
             <div className="md:col-span-1 relative h-64 md:h-auto rounded-r-2xl overflow-hidden">
-              <div className="absolute inset-0">
-                <Image 
-                  src="/images/pricing-hero.jpg" 
-                  alt="Choose your plan"
-                  fill
-                  className="object-cover"
-                  priority
-                />
-                {/* Fallback gradient if image fails to load */}
-                <div className="absolute inset-0 bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                  <div className="text-white/30 text-4xl">👥</div>
-                </div>
-              </div>
+              <Image 
+                src="/images/pricing-hero.jpg" 
+                alt="Choose your plan"
+                fill
+                className="object-cover"
+                priority
+              />
+              {/* Fallback gradient if image fails to load */}
+              <div className="absolute inset-0 bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 opacity-0" />
             </div>
           </div>
         </div>
@@ -295,7 +291,7 @@ export default function PricingPage() {
             <Loading />
           </div>
         ) : plans.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {plans.map((plan) => (
               <PricingCardSimple
                 key={plan.id}

@@ -44,25 +44,15 @@ export default function PricingCardSimple({
 
   return (
     <Card
-      className={clsx(
-        'relative rounded-xl',
-        plan.popular && 'border-2 border-blue-500 shadow-xl scale-105'
-      )}
+      className="relative rounded-xl border-0 shadow-none"
       style={{ backgroundColor: '#F3F4F6' }}
     >
-      {plan.popular && (
-        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-          <Badge variant="success" className="px-4 py-1">
-            Le plus populaire
-          </Badge>
-        </div>
-      )}
       <div className="p-8">
         {/* Price */}
         <div className="mb-6">
           {isCustomPricing ? (
             <div>
-              <span className="text-4xl font-bold" style={{ color: '#0F4C56' }}>
+              <span className="text-4xl md:text-5xl font-bold" style={{ color: '#0F4C56' }}>
                 Sur devis
               </span>
             </div>
@@ -79,22 +69,22 @@ export default function PricingCardSimple({
         </div>
 
         {/* Title */}
-        <h2 className="text-xl md:text-2xl font-bold mb-2" style={{ color: '#374151' }}>
+        <h2 className="text-xl md:text-2xl font-bold mb-2" style={{ color: '#1F2937' }}>
           {plan.name}
         </h2>
 
         {/* Description */}
-        <p className="text-base mb-6" style={{ color: '#374151' }}>
+        <p className="text-base mb-6" style={{ color: '#1F2937' }}>
           {plan.description || 'test pour la plateforme'}
         </p>
 
         {/* Button */}
         <Link href={`/subscriptions?plan=${plan.id}&period=${billingPeriod}`}>
           <Button
-            className="w-full rounded-lg flex items-center justify-center gap-2"
+            className="w-full rounded-lg flex items-center justify-center gap-2 font-semibold"
             style={{ 
               backgroundColor: '#D8B868', 
-              color: '#374151',
+              color: '#1F2937',
               border: 'none'
             }}
             onMouseEnter={(e) => {

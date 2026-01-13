@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
 import { Card } from '@/components/ui';
-import Button from '@/components/ui/Button';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { Target, Eye, Award, Users, Lightbulb, TrendingUp, CheckCircle } from 'lucide-react';
 import { Link } from '@/i18n/routing';
@@ -64,7 +63,10 @@ export default function AboutPage() {
 
         {/* Mission Section */}
         <div className="mb-16">
-          <Card className="p-0 border border-[#D8B868] rounded-2xl overflow-hidden bg-white">
+          <Card 
+            className="p-0 border border-[#D8B868] rounded-2xl overflow-hidden bg-white"
+            style={{ borderColor: '#D8B868' }}
+          >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch">
               {/* Image Left */}
               <div className="relative h-64 md:h-auto rounded-l-2xl overflow-hidden">
@@ -107,7 +109,10 @@ export default function AboutPage() {
 
         {/* Vision Section */}
         <div className="mb-16">
-          <Card className="p-0 border border-[#D8B868] rounded-2xl overflow-hidden bg-white">
+          <Card 
+            className="p-0 border border-[#D8B868] rounded-2xl overflow-hidden bg-white"
+            style={{ borderColor: '#D8B868' }}
+          >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch">
               {/* Image Left */}
               <div className="relative h-64 md:h-auto rounded-l-2xl overflow-hidden">
@@ -212,7 +217,7 @@ export default function AboutPage() {
 
         {/* Timeline Section */}
         <div className="mb-16">
-          <Card className="p-8 md:p-12 bg-white">
+          <div>
             <MotionDiv variant="fade" duration="normal">
               <h2 className="text-3xl md:text-4xl font-medium text-center mb-12" style={{ color: '#D8B868' }}>
                 {t('journey.title')}
@@ -300,7 +305,7 @@ export default function AboutPage() {
                 </div>
               </div>
             </div>
-          </Card>
+          </div>
         </div>
 
         {/* CTA Section */}
@@ -312,15 +317,13 @@ export default function AboutPage() {
             <p className="text-lg md:text-xl text-gray-900 mb-10 max-w-2xl mx-auto leading-relaxed">
               {t('cta.subtitle')}
             </p>
-            <Button
-              asChild
-              className="font-medium px-8 py-4 text-lg rounded-xl inline-flex items-center gap-2"
+            <Link 
+              href="/register"
+              className="font-semibold px-8 py-4 text-lg rounded-xl inline-flex items-center justify-center gap-2 transition-colors"
               style={{ backgroundColor: '#2E2E2E', color: '#FFFFFF' }}
             >
-              <Link href="/register">
-                {t('cta.getStarted')}
-              </Link>
-            </Button>
+              {t('cta.getStarted')}
+            </Link>
           </Card>
         </MotionDiv>
       </main>
