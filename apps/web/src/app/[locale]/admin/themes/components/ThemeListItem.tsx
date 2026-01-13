@@ -72,8 +72,9 @@ export function ThemeListItem({
             variant="primary"
             size="sm"
             title="Activer ce thème"
+            className="flex items-center gap-2"
           >
-            <Power className="w-4 h-4 mr-1" />
+            <Power className="w-4 h-4" />
             Activer
           </Button>
         )}
@@ -82,8 +83,9 @@ export function ThemeListItem({
           variant="outline"
           size="sm"
           title="Éditer ce thème"
+          className="flex items-center gap-2"
         >
-          <Edit className="w-4 h-4 mr-1" />
+          <Edit className="w-4 h-4" />
           Éditer
         </Button>
         <Button
@@ -91,8 +93,9 @@ export function ThemeListItem({
           variant="outline"
           size="sm"
           title="Dupliquer ce thème"
+          className="flex items-center gap-2"
         >
-          <Copy className="w-4 h-4 mr-1" />
+          <Copy className="w-4 h-4" />
           Dupliquer
         </Button>
         {theme.canDelete && (
@@ -101,8 +104,9 @@ export function ThemeListItem({
             variant="danger"
             size="sm"
             title="Supprimer ce thème"
+            className="flex items-center gap-2"
           >
-            <Trash2 className="w-4 h-4 mr-1" />
+            <Trash2 className="w-4 h-4" />
             Supprimer
           </Button>
         )}

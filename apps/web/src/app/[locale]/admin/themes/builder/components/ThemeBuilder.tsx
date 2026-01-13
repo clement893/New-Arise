@@ -67,12 +67,12 @@ export function ThemeBuilder() {
               </p>
             </div>
             <div className="flex gap-2">
-              <Button variant="secondary" onClick={handleSave}>
-                <Save className="w-4 h-4 mr-2" />
+              <Button variant="secondary" onClick={handleSave} className="flex items-center gap-2">
+                <Save className="w-4 h-4" />
                 Save Draft
               </Button>
-              <Button variant="primary" onClick={handleExport}>
-                <Download className="w-4 h-4 mr-2" />
+              <Button variant="primary" onClick={handleExport} className="flex items-center gap-2">
+                <Download className="w-4 h-4" />
                 Export
               </Button>
             </div>

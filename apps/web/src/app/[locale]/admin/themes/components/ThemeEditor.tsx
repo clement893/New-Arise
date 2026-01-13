@@ -287,8 +287,8 @@ export function ThemeEditor({ theme, onSave, onCancel }: ThemeEditorProps) {
               {theme ? 'Modifiez les propriétés du thème' : 'Remplissez le formulaire pour créer un nouveau thème'}
             </p>
           </div>
-          <Button onClick={onCancel} variant="outline" size="sm">
-            <X className="w-4 h-4 mr-2" />
+          <Button onClick={onCancel} variant="outline" size="sm" className="flex items-center gap-2">
+            <X className="w-4 h-4" />
             Annuler
           </Button>
         </div>
@@ -318,9 +318,9 @@ export function ThemeEditor({ theme, onSave, onCancel }: ThemeEditorProps) {
                 variant="outline"
                 size="sm"
                 disabled={resetting || saving}
-                className="mt-2"
+                className="mt-2 flex items-center gap-2"
               >
-                <RotateCcw className={`w-4 h-4 mr-2 ${resetting ? 'animate-spin' : ''}`} />
+                <RotateCcw className={`w-4 h-4 ${resetting ? 'animate-spin' : ''}`} />
                 {resetting ? 'Réinitialisation...' : 'Réinitialiser aux valeurs par défaut'}
               </Button>
             </div>
@@ -359,8 +359,9 @@ export function ThemeEditor({ theme, onSave, onCancel }: ThemeEditorProps) {
               onClick={handleResetToDefault}
               variant="outline"
               disabled={resetting || saving}
+              className="flex items-center gap-2"
             >
-              <RotateCcw className={`w-4 h-4 mr-2 ${resetting ? 'animate-spin' : ''}`} />
+              <RotateCcw className={`w-4 h-4 ${resetting ? 'animate-spin' : ''}`} />
               {resetting ? 'Réinitialisation...' : 'Réinitialiser aux valeurs par défaut'}
             </Button>
           )}
@@ -372,8 +373,9 @@ export function ThemeEditor({ theme, onSave, onCancel }: ThemeEditorProps) {
               onClick={handleSave}
               variant="primary"
               disabled={saving || resetting || (state.activeTab === 'json' && !isJSONValid)}
+              className="flex items-center gap-2"
             >
-              <Save className="w-4 h-4 mr-2" />
+              <Save className="w-4 h-4" />
               {saving ? 'Sauvegarde...' : 'Sauvegarder'}
             </Button>
           </div>

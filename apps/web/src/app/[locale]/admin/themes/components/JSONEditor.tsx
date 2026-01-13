@@ -220,8 +220,8 @@ export function JSONEditor({ config, onChange, onValidationChange }: JSONEditorP
           <h3 className="text-lg font-semibold text-foreground">Éditeur JSON</h3>
         </div>
         <div className="flex gap-2">
-          <Button onClick={handleFormat} variant="outline" size="sm" disabled={!isValid}>
-            <RefreshCw className="w-4 h-4 mr-2" />
+          <Button onClick={handleFormat} variant="outline" size="sm" disabled={!isValid} className="flex items-center gap-2">
+            <RefreshCw className="w-4 h-4" />
             Formater
           </Button>
           <Button onClick={handleReset} variant="outline" size="sm">
