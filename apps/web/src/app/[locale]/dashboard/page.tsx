@@ -593,15 +593,13 @@ function DashboardContent() {
                       style={{ 
                         borderColor: '#799ba1',
                         color: '#FFFFFF',
+                        backgroundColor: 'transparent',
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.backgroundColor = 'rgba(121, 155, 161, 0.1)';
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.backgroundColor = 'transparent';
-                      }}
-                      style={{
-                        backgroundColor: 'transparent',
                       }}
                       onClick={() => router.push('/dashboard/results')}
                     >
