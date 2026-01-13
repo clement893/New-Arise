@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button, Card, Badge } from '@/components/ui';
-import { Check, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import clsx from 'clsx';
 
 interface Plan {
