@@ -250,24 +250,62 @@ class ExportService:
                     value = ""
                 else:
                     value = str(value)
-                table_row.append(value)
+                
+                # Wrap long text in Paragraph for better PDF rendering
+                # This allows text to wrap within cells
+                if len(value) > 50 and 'Question' in header:
+                    # Use Paragraph for long questions to enable wrapping
+                    table_row.append(Paragraph(value, styles['Normal']))
+                else:
+                    table_row.append(value)
             table_data.append(table_row)
         
-        # Create table
-        table = Table(table_data)
-        table.setStyle(TableStyle([
+        # Create table with column widths to prevent overflow
+        # Calculate column widths based on number of columns
+        num_cols = len(headers)
+        page_width = letter[0] - 2 * inch  # Account for margins
+        col_width = page_width / num_cols
+        
+        # Adjust column widths for better readability
+        # Question column should be wider, others can be narrower
+        col_widths = []
+        for i, header in enumerate(headers):
+            if 'Question' in header:
+                col_widths.append(col_width * 2.5)  # Question column is wider
+            elif 'Pillar' in header:
+                col_widths.append(col_width * 1.2)  # Pillar column slightly wider
+            else:
+                col_widths.append(col_width * 0.8)  # Other columns narrower
+        
+        # Normalize to fit page width
+        total_width = sum(col_widths)
+        if total_width > page_width:
+            col_widths = [w * (page_width / total_width) for w in col_widths]
+        
+        table = Table(table_data, colWidths=col_widths)
+        
+        # Create a style that allows text wrapping
+        style = TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('FONTSIZE', (0, 0), (-1, 0), 9),
             ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
             ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
             ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
             ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -1), 8),
+            ('FONTSIZE', (0, 1), (-1, -1), 7),
             ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ]))
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.beige]),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+        ])
+        
+        table.setStyle(style)
         
         story.append(table)
         doc.build(story)
