@@ -29,7 +29,7 @@ function ThemeBuilderPageContent() {
       <div className="mt-6">
         <div className="mb-4">
           <Link href="/admin/themes">
-            <Button variant="secondary" size="sm" className="flex items-center gap-2">
+            <Button variant="secondary" size="sm" className="flex flex-row items-center gap-2">
               <ArrowLeft className="w-4 h-4" />
               Back to Themes
             </Button>

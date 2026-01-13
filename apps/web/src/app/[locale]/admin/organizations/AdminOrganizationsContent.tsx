@@ -480,7 +480,7 @@ export default function AdminOrganizationsContent() {
             resetForm();
             setShowCreateModal(true);
           }}
-          className="flex items-center gap-2"
+          className="flex flex-row items-center gap-2"
         >
           <Plus className="h-4 w-4" />
           Créer une organisation

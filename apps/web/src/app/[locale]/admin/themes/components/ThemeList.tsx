@@ -173,7 +173,7 @@ export function ThemeList({
                 {themes.length} thème{themes.length > 1 ? 's' : ''} disponible{themes.length > 1 ? 's' : ''}
               </p>
             </div>
-            <Button onClick={onCreateTheme} variant="primary" className="flex items-center gap-2">
+            <Button onClick={onCreateTheme} variant="primary" className="flex flex-row items-center gap-2">
               <Plus className="w-4 h-4" />
               Créer un thème
             </Button>
@@ -182,7 +182,7 @@ export function ThemeList({
         {themes.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground mb-4">Aucun thème disponible</p>
-            <Button onClick={onCreateTheme} variant="primary" className="flex items-center gap-2">
+            <Button onClick={onCreateTheme} variant="primary" className="flex flex-row items-center gap-2">
               <Plus className="w-4 h-4" />
               Créer le premier thème
             </Button>

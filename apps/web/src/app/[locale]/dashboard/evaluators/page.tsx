@@ -34,6 +34,50 @@ function EvaluatorsContent() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
 
+  // Load cached evaluators from sessionStorage
+  const getCachedEvaluators = (assessmentId: number): EvaluatorStatus[] => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const cacheKey = `evaluators_cache_${assessmentId}`;
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        // Check if cache is recent (less than 5 minutes old)
+        if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) {
+          const cachedData = parsed.data || [];
+          console.log('[EvaluatorsPage] Loaded evaluators from cache:', cachedData.length);
+          return cachedData;
+        }
+      }
+    } catch (e) {
+      console.error('[EvaluatorsPage] Error loading cache:', e);
+      // Clear corrupted cache
+      try {
+        const cacheKey = `evaluators_cache_${assessmentId}`;
+        sessionStorage.removeItem(cacheKey);
+      } catch (clearError) {
+        // Ignore clear errors
+      }
+    }
+    return [];
+  };
+
+  // Save evaluators to cache
+  const saveEvaluatorsToCache = (assessmentId: number, evaluators: EvaluatorStatus[]) => {
+    if (typeof window === 'undefined') return;
+    try {
+      const cacheKey = `evaluators_cache_${assessmentId}`;
+      sessionStorage.setItem(cacheKey, JSON.stringify({
+        data: evaluators,
+        timestamp: Date.now()
+      }));
+      console.log('[EvaluatorsPage] Saved evaluators to cache:', evaluators.length);
+    } catch (e) {
+      console.error('[EvaluatorsPage] Error saving cache:', e);
+      // Ignore cache errors
+    }
+  };
+
   const loadEvaluators = useCallback(async (silent: boolean = false) => {
     try {
       if (!silent) {
@@ -66,12 +110,29 @@ function EvaluatorsContent() {
 
       // Always update assessmentId (needed for polling)
       setAssessmentId(id);
+      
+      // Try to load from cache first for instant display (only on initial load, not silent refresh)
+      if (!silent && id) {
+        const cachedEvaluators = getCachedEvaluators(id);
+        if (cachedEvaluators.length > 0) {
+          setEvaluators(cachedEvaluators);
+          setIsLoading(false);
+          // Still load fresh data in background
+        }
+      }
+      
       console.log('[EvaluatorsPage] Loading evaluators for assessment ID:', id);
       const response = await get360Evaluators(id);
       console.log('[EvaluatorsPage] Evaluators response:', response);
       const evaluatorsList = response.evaluators || [];
       console.log('[EvaluatorsPage] Evaluators list:', evaluatorsList);
       console.log('[EvaluatorsPage] Evaluators statuses:', evaluatorsList.map(e => ({ id: e.id, name: e.name, status: e.status })));
+      
+      // Save to cache
+      if (id) {
+        saveEvaluatorsToCache(id, evaluatorsList);
+      }
+      
       setEvaluators(evaluatorsList);
     } catch (err) {
       console.error('[EvaluatorsPage] Failed to load evaluators:', err);
@@ -104,9 +165,43 @@ function EvaluatorsContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty deps - searchParams is read directly in the function
 
-  // Initial load and reload when searchParams change
+  // Load from cache on initial mount if available
   useEffect(() => {
-    loadEvaluators();
+    const loadFromCache = async () => {
+      try {
+        // Get assessment ID from URL params or find it from assessments
+        const currentParams = searchParams;
+        let id: number | null = currentParams?.get('id') ? parseInt(currentParams.get('id')!) : null;
+        
+        if (!id) {
+          const assessments = await getMyAssessments();
+          const feedback360Assessment = assessments.find(
+            (a) => a.assessment_type === 'THREE_SIXTY_SELF'
+          );
+          if (feedback360Assessment) {
+            id = feedback360Assessment.id;
+          }
+        }
+        
+        if (id) {
+          const cachedEvaluators = getCachedEvaluators(id);
+          if (cachedEvaluators.length > 0) {
+            console.log('[EvaluatorsPage] Loading from cache on mount:', cachedEvaluators.length);
+            setEvaluators(cachedEvaluators);
+            setAssessmentId(id);
+            // Still load fresh data but don't show loading state
+            loadEvaluators(true);
+            return;
+          }
+        }
+      } catch (err) {
+        console.error('[EvaluatorsPage] Error loading from cache:', err);
+      }
+      // If no cache, load normally
+      loadEvaluators();
+    };
+    
+    loadFromCache();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams?.get('id')]); // Only reload when id param changes
 

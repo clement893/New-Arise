@@ -250,7 +250,7 @@ function PlansPageContent() {
               <Button
                 variant="primary"
                 onClick={() => setShowCreateModal(true)}
-                className="flex items-center gap-2"
+                className="flex flex-row items-center gap-2"
               >
                 <Plus className="w-4 h-4" />
                 Créer un plan
@@ -337,7 +337,7 @@ function PlansPageContent() {
                           variant="primary"
                           size="sm"
                           onClick={() => handleSave(plan.id)}
-                          className="flex items-center gap-2"
+                          className="flex flex-row items-center gap-2"
                         >
                           <Save className="w-4 h-4" />
                           Enregistrer
@@ -346,7 +346,7 @@ function PlansPageContent() {
                           variant="outline"
                           size="sm"
                           onClick={() => handleCancel(plan.id)}
-                          className="flex items-center gap-2"
+                          className="flex flex-row items-center gap-2"
                         >
                           <X className="w-4 h-4" />
                           Annuler
@@ -357,7 +357,7 @@ function PlansPageContent() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleEdit(plan)}
-                        className="flex items-center gap-2"
+                        className="flex flex-row items-center gap-2"
                       >
                         <Edit2 className="w-4 h-4" />
                         Modifier
@@ -555,7 +555,7 @@ function PlansPageContent() {
               variant="primary"
               onClick={handleCreatePlan}
               disabled={creatingPlan || !newPlan.name || !newPlan.amount}
-              className="flex items-center gap-2"
+              className="flex flex-row items-center gap-2"
             >
               {creatingPlan ? (
                 <>
