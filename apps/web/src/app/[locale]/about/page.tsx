@@ -7,7 +7,7 @@ import { Footer } from '@/components/landing/Footer';
 import { Card } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { Target, Eye, Heart, Award, ArrowRight, Users, Lightbulb, TrendingUp, CheckCircle } from 'lucide-react';
+import { Target, Eye, Award, Users, Lightbulb, TrendingUp, CheckCircle } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 
 export default function AboutPage() {
