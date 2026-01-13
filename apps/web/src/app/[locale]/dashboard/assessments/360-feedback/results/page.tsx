@@ -106,7 +106,7 @@ export default function Feedback360ResultsPage() {
       // Find the assessment to check its status
       const assessment = assessments.find((a) => a.id === id);
       
-      console.log('[360-Feedback Results] Assessment found:', assessment ? { id: assessment.id, type: assessment.assessment_type, status: assessment.status } : 'none');
+      console.log('[360-Feedback Results] Assessment found:', assessment ? { id: assessment.id, type: assessment.assessment_type, status: assessment.status, answer_count: assessment.answer_count, total_questions: assessment.total_questions } : 'none');
       
       if (!assessment) {
         // Assessment not found, redirect to assessments page
@@ -115,9 +115,21 @@ export default function Feedback360ResultsPage() {
         return;
       }
 
-      // Check if assessment is completed
-      const isCompleted = assessment.status === 'completed' || assessment.status === 'COMPLETED';
-      console.log('[360-Feedback Results] Assessment status check:', { status: assessment.status, isCompleted });
+      // Check if assessment is completed by status OR by having all answers
+      const isCompletedByStatus = assessment.status === 'completed' || assessment.status === 'COMPLETED';
+      const answerCount = assessment.answer_count ?? 0;
+      const totalQuestions = assessment.total_questions ?? 0;
+      const hasAllAnswers = totalQuestions > 0 && answerCount > 0 && answerCount === totalQuestions;
+      const isCompleted = isCompletedByStatus || hasAllAnswers;
+      
+      console.log('[360-Feedback Results] Assessment status check:', { 
+        status: assessment.status, 
+        isCompletedByStatus,
+        hasAllAnswers,
+        answerCount,
+        totalQuestions,
+        isCompleted 
+      });
       
       if (!isCompleted) {
         // If assessment is not completed, redirect to the assessment page instead of showing error
@@ -283,9 +295,9 @@ export default function Feedback360ResultsPage() {
           <Button
             variant="outline"
             onClick={() => router.push('/dashboard/assessments')}
-            className="mb-4 border-white text-white hover:bg-white/10"
+            className="mb-4 border-white text-white hover:bg-white/10 flex flex-row items-center gap-2"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
+            <ArrowLeft className="h-4 w-4" />
             Back to Assessments
           </Button>
 
@@ -321,8 +333,8 @@ export default function Feedback360ResultsPage() {
                     Statut des évaluateurs
                   </h3>
                   <Link href="/dashboard/evaluators">
-                    <Button variant="outline" size="sm" className="text-xs">
-                      <Eye className="h-4 w-4 mr-1" />
+                    <Button variant="outline" size="sm" className="text-xs flex flex-row items-center gap-2">
+                      <Eye className="h-4 w-4" />
                       Voir tous
                     </Button>
                   </Link>
