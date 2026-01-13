@@ -34,7 +34,7 @@ export function Step1_RoleSelection() {
 
   return (
     <div className="w-full max-w-4xl mx-auto p-6">
-      <div className="p-8">
+      <div className="bg-white rounded-lg shadow-xl p-8">
         <h2 className="text-3xl font-bold text-arise-deep-teal mb-8 text-center">
           Who are you?
         </h2>

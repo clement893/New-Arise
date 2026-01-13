@@ -21,7 +21,7 @@ export default function NewsPage() {
       date: t('articles.article1.date'),
       category: t('articles.article1.category'),
       icon: TrendingUp,
-      gradient: 'from-arise-deep-teal via-teal-600 to-arise-gold',
+      gradient: 'from-[#0F4C56] via-teal-500 to-[#D8B868]',
     },
     {
       id: 2,
@@ -31,7 +31,7 @@ export default function NewsPage() {
       date: t('articles.article2.date'),
       category: t('articles.article2.category'),
       icon: BookOpen,
-      gradient: 'from-blue-500 via-indigo-600 to-purple-600',
+      gradient: 'from-purple-700 via-indigo-600 to-blue-500',
     },
     {
       id: 3,
@@ -41,7 +41,7 @@ export default function NewsPage() {
       date: t('articles.article3.date'),
       category: t('articles.article3.category'),
       icon: Users,
-      gradient: 'from-orange-500 via-red-500 to-pink-500',
+      gradient: 'from-red-600 via-orange-500 to-pink-500',
     },
   ];
 
@@ -51,27 +51,27 @@ export default function NewsPage() {
       <main className="container mx-auto px-4 pt-24 pb-12 max-w-6xl">
         {/* Hero Section */}
         <MotionDiv variant="fade" duration="normal">
-          <div className="mb-16 rounded-2xl overflow-hidden" style={{ backgroundColor: '#0F4C56' }}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-0 items-stretch">
-              {/* Left Section - Text on Dark Teal Background (2/3) */}
-              <div className="md:col-span-2 relative z-10 p-8 md:p-12 lg:p-16 flex flex-col justify-center">
+          <div className="mb-16 relative flex items-center overflow-hidden rounded-2xl" style={{ backgroundColor: '#0F4C56', minHeight: '500px' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch w-full">
+              {/* Left Section - Text on Dark Teal Background */}
+              <div className="relative z-10 p-8 md:p-12 lg:p-16 flex flex-col justify-center" style={{ backgroundColor: '#0F4C56' }}>
                 <div className="text-left">
                   <h1 className="mb-6">
-                    <span className="block text-4xl md:text-5xl lg:text-6xl font-medium mb-2 text-white">
+                    <span className="block text-5xl md:text-6xl font-light mb-2" style={{ color: '#D8B868' }}>
                       Actualités
                     </span>
-                    <span className="block text-4xl md:text-5xl lg:text-6xl font-medium" style={{ color: '#D8B868' }}>
+                    <span className="block text-5xl md:text-6xl font-medium" style={{ color: '#D8B868' }}>
                       & Insights
                     </span>
                   </h1>
-                  <p className="text-lg md:text-xl text-white max-w-2xl leading-relaxed">
+                  <p className="text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed">
                     {t('subtitle')}
                   </p>
                 </div>
               </div>
               
-              {/* Right Section - Photo (1/3) */}
-              <div className="md:col-span-1 relative h-64 md:h-auto rounded-r-2xl overflow-hidden">
+              {/* Right Section - Photo */}
+              <div className="relative h-64 md:h-auto rounded-r-2xl overflow-hidden" style={{ borderLeft: '1px solid rgba(255, 255, 255, 0.1)' }}>
                 <div className="absolute inset-0">
                   <Image 
                     src="/images/news-hero.jpg" 
@@ -79,12 +79,17 @@ export default function NewsPage() {
                     fill
                     className="object-cover"
                     priority
+                    onError={() => {
+                      // Fallback handled by CSS
+                    }}
                   />
                   {/* Fallback gradient if image fails to load */}
                   <div className="absolute inset-0 bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                     <Newspaper className="text-white/30" size={120} />
                   </div>
                 </div>
+                {/* Subtle border around photo */}
+                <div className="absolute inset-0 border-2 border-black/10 rounded-r-2xl pointer-events-none"></div>
               </div>
             </div>
           </div>
@@ -97,9 +102,9 @@ export default function NewsPage() {
             return (
               <MotionDiv key={article.id} variant="slideUp" delay={index * 100}>
                 <Link href={`/news/${article.id}`} className="block h-full">
-                  <Card className="h-full flex flex-col overflow-hidden bg-white hover:shadow-xl transition-all duration-300 rounded-xl">
+                  <Card className="h-full flex flex-col overflow-hidden bg-white hover:shadow-lg transition-all duration-300 rounded-xl border-0 shadow-sm">
                     {/* Article Image Placeholder with Gradient */}
-                    <div className={`relative aspect-video bg-gradient-to-br ${article.gradient} overflow-hidden rounded-t-xl`}>
+                    <div className={`relative aspect-video bg-gradient-to-r ${article.gradient} overflow-hidden rounded-t-xl`}>
                       <div className="absolute inset-0 flex items-center justify-center">
                         <IconComponent className="text-white" size={64} strokeWidth={2} />
                       </div>
@@ -109,7 +114,7 @@ export default function NewsPage() {
                     <div className="flex-1 flex flex-col p-6">
                       {/* Category Badge */}
                       <div className="mb-3">
-                        <span className="inline-block px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide" style={{ backgroundColor: '#10B981', color: '#FFFFFF' }}>
+                        <span className="inline-block px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide" style={{ backgroundColor: '#9CA3AF', color: '#FFFFFF' }}>
                           {article.category}
                         </span>
                       </div>

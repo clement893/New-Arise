@@ -2,7 +2,6 @@
 
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
-import Button from '@/components/ui/Button';
 import { Card } from '@/components/ui';
 
 export function FinalCTASection() {
@@ -19,15 +18,13 @@ export function FinalCTASection() {
             <p className="text-lg md:text-xl text-gray-900 mb-10 max-w-2xl mx-auto leading-relaxed">
               {t('subtitle')}
             </p>
-            
-            <Button 
-              asChild 
-              size="lg"
-              className="font-semibold px-8 py-4 text-lg rounded-xl inline-flex items-center"
+            <Link 
+              href="/register"
+              className="font-semibold px-8 py-4 text-lg rounded-xl inline-flex items-center justify-center gap-2 transition-colors"
               style={{ backgroundColor: '#2E2E2E', color: '#FFFFFF' }}
             >
-              <Link href="/register">{t('getStarted')}</Link>
-            </Button>
+              {t('getStarted')}
+            </Link>
           </Card>
         </div>
       </div>

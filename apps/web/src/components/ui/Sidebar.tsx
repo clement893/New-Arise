@@ -4,7 +4,7 @@ import { ReactNode, useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { clsx } from 'clsx';
-import { ChevronRight, ChevronDown, Search, X, Home, LogOut } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ChevronDown, Search, X, Home, LogOut } from 'lucide-react';
 import Input from './Input';
 
 interface SidebarItem {
@@ -157,25 +157,29 @@ export default function Sidebar({
       <div key={item.label}>
         <div
           className={clsx(
-            'flex items-center justify-between px-lg py-md rounded-lg transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] min-h-[44px] relative', // Improved spacing and touch target (UX/UI improvements - Batch 8, 17)
+            'flex items-center justify-between rounded-lg transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] relative', // Improved spacing and touch target (UX/UI improvements - Batch 8, 17)
+            collapsed 
+              ? 'px-2 py-2 min-h-[40px] justify-center' 
+              : 'px-lg py-md min-h-[44px]',
             isActive
               ? 'bg-arise-button-primary text-white font-medium'
               : 'text-gray-700 hover:bg-gray-100',
-            level > 0 && 'ml-lg' // Increased indentation for nested items
+            level > 0 && !collapsed && 'ml-lg' // Increased indentation for nested items (only when not collapsed)
           )}
         >
           {item.href ? (
             <Link
               href={item.href}
               className={clsx(
-                "flex items-center flex-1 space-x-3 min-w-0",
+                "flex items-center min-w-0",
+                collapsed ? "justify-center w-full" : "flex-1 space-x-3",
                 isActive && "text-white"
               )}
               style={isActive ? { color: '#ffffff' } : undefined}
             >
               {item.icon && (
                 <span 
-                  className={clsx("flex-shrink-0 w-5 h-5", isActive && "text-white")}
+                  className={clsx("flex-shrink-0", collapsed ? "w-5 h-5" : "w-5 h-5", isActive && "text-white")}
                   style={isActive ? { color: '#ffffff' } : undefined}
                 >
                   {item.icon}
@@ -194,7 +198,8 @@ export default function Sidebar({
             <button
               onClick={item.onClick || (hasChildren ? () => toggleItem(item.label) : undefined)}
               className={clsx(
-                "flex items-center flex-1 space-x-3 text-left min-w-0",
+                "flex items-center text-left min-w-0",
+                collapsed ? "justify-center w-full" : "flex-1 space-x-3",
                 isActive && "text-white"
               )}
               style={isActive ? { color: '#ffffff' } : undefined}
@@ -203,7 +208,7 @@ export default function Sidebar({
             >
               {item.icon && (
                 <span 
-                  className={clsx("flex-shrink-0 w-5 h-5", isActive && "text-white")}
+                  className={clsx("flex-shrink-0", collapsed ? "w-5 h-5" : "w-5 h-5", isActive && "text-white")}
                   style={isActive ? { color: '#ffffff' } : undefined}
                 >
                   {item.icon}
@@ -268,13 +273,16 @@ export default function Sidebar({
   return (
     <aside
       className={clsx(
-        'bg-white border-r border-gray-200 h-full transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col',
+        'bg-white border-r border-gray-200 h-full transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col overflow-x-hidden',
         collapsed ? 'w-16' : 'w-51',
         className
       )}
     >
       {/* Header: ARISE Logo */}
-      <div className="p-lg border-b border-gray-200 flex-shrink-0">
+      <div className={clsx(
+        'border-b border-gray-200 flex-shrink-0',
+        collapsed ? 'p-2' : 'p-lg'
+      )}>
         <div className={clsx(
           'flex items-center justify-center',
           collapsed && 'justify-center'
@@ -283,19 +291,25 @@ export default function Sidebar({
             "text-2xl font-bold text-arise-deep-teal",
             collapsed && "text-xl"
           )}>
-            ARISE
+            {collapsed ? 'A' : 'ARISE'}
           </h1>
         </div>
       </div>
 
       {/* User info */}
       {user && (
-        <div className="p-lg border-b border-gray-200 flex-shrink-0">
+        <div className={clsx(
+          'border-b border-gray-200 flex-shrink-0',
+          collapsed ? 'p-2' : 'p-lg'
+        )}>
           <div className={clsx(
-            'flex items-center gap-3',
-            collapsed && 'justify-center'
+            'flex items-center',
+            collapsed ? 'justify-center' : 'gap-3'
           )}>
-            <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0 min-w-[44px] min-h-[44px]">
+            <div className={clsx(
+              "rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0",
+              collapsed ? "w-10 h-10" : "w-10 h-10 min-w-[44px] min-h-[44px]"
+            )}>
               <span className="text-sm font-medium text-primary-700">
                 {user.name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || 'U'}
               </span>
@@ -352,7 +366,10 @@ export default function Sidebar({
         </div>
       )}
       
-      <nav className="p-lg space-y-1 flex-1 overflow-y-auto">
+      <nav className={clsx(
+        'space-y-1 flex-1 overflow-y-auto overflow-x-hidden',
+        collapsed ? 'p-2' : 'p-lg'
+      )}>
         {filteredItems.length === 0 ? (
           <div className="px-lg py-md text-sm text-gray-500 text-center">
             Aucun résultat trouvé
@@ -364,7 +381,10 @@ export default function Sidebar({
       
       {/* Footer: Collapse, Close button (mobile), Home, Theme Toggle, Logout (bottom) */}
       {(onToggleCollapse || onClose || onHomeClick || themeToggleComponent || onLogoutClick) && (
-        <div className="p-lg border-t border-gray-200 flex-shrink-0">
+        <div className={clsx(
+          'border-t border-gray-200 flex-shrink-0',
+          collapsed ? 'p-2' : 'p-lg'
+        )}>
           <div className={clsx(
             'flex items-center gap-2',
             collapsed || isMobile ? 'justify-center flex-wrap' : 'justify-start'
@@ -376,12 +396,11 @@ export default function Sidebar({
                 aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
                 title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
               >
-                <ChevronRight
-                  className={clsx(
-                    'w-5 h-5 transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]',
-                    collapsed && 'rotate-180'
-                  )}
-                />
+                {collapsed ? (
+                  <ChevronRight className="w-5 h-5 transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]" />
+                ) : (
+                  <ChevronLeft className="w-5 h-5 transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]" />
+                )}
               </button>
             )}
             {onClose && (

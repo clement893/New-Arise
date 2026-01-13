@@ -453,7 +453,6 @@ function DashboardContent() {
                 bottom: 0,
                 left: '-7.5%',
                 right: '-7.5%',
-                width: 'calc(100% + 15%)',
                 zIndex: 0,
                 borderRadius: '24px',
               }}
@@ -621,7 +620,7 @@ function DashboardContent() {
                       return (
                         <Card 
                           key={index} 
-                          className={`group relative transition-all duration-300 ${evaluation.status === 'locked' ? 'opacity-60' : ''}`}
+                          className={`group relative transition-all duration-300 flex flex-col h-full ${evaluation.status === 'locked' ? 'opacity-60' : ''}`}
                           onMouseEnter={evaluation.status !== 'locked' ? (e: React.MouseEvent<HTMLDivElement>) => {
                             const cardElement = e.currentTarget;
                             cardElement.style.backgroundColor = 'rgba(15, 76, 86, 0.2)';
@@ -633,10 +632,11 @@ function DashboardContent() {
                             cardElement.style.removeProperty('--glassmorphism-card-background');
                           } : undefined}
                           style={{
-                            backgroundColor: evaluation.status === 'locked' ? undefined : 'transparent',
+                            backgroundColor: evaluation.status === 'locked' ? undefined : '#FFFFFF',
                           }}
                         >
-                          <Stack gap="normal">
+                          <div className="flex flex-col h-full">
+                            <Stack gap="normal" className="flex-1">
                             {/* Icon in upper left corner */}
                             <div 
                               className="absolute top-4 left-4 w-12 h-12 rounded-lg flex items-center justify-center z-10"
@@ -696,6 +696,7 @@ function DashboardContent() {
                               {getActionButton(evaluation)}
                             </div>
                           </Stack>
+                          </div>
                         </Card>
                       );
                     })}

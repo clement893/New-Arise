@@ -1103,7 +1103,6 @@ function AssessmentsContent() {
               bottom: 0,
               left: '-15%',
               right: '-15%',
-              width: 'calc(100% + 30%)',
               zIndex: 0,
               borderRadius: '24px',
             }}
@@ -1168,7 +1167,6 @@ function AssessmentsContent() {
             bottom: 0,
             left: '-7.5%',
             right: '-7.5%',
-            width: 'calc(100% + 15%)',
             zIndex: 0,
             borderRadius: '24px',
           }}

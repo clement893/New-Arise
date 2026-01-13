@@ -24,10 +24,6 @@ export function Step6_CompleteProfile() {
     setStep(7);
   };
 
-  const handleSkip = () => {
-    setStep(7);
-  };
-
   return (
     <div className="w-full max-w-2xl mx-auto p-6">
       <div className="bg-white rounded-lg shadow-xl p-8">
@@ -69,18 +65,10 @@ export function Step6_CompleteProfile() {
             />
           </div>
 
-          <div className="flex gap-4">
-            <Button
-              type="button"
-              onClick={handleSkip}
-              variant="outline"
-              className="flex-1 border-arise-deep-teal text-arise-deep-teal hover:bg-arise-deep-teal/10"
-            >
-              Skip
-            </Button>
+          <div>
             <Button
               type="submit"
-              className="flex-1 bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold"
+              className="w-full bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold"
             >
               Continue
             </Button>

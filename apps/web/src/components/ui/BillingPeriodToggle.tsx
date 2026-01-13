@@ -17,10 +17,10 @@ export default function BillingPeriodToggle({
         onClick={() => onChange('month')}
         variant="ghost"
         size="md"
-        className="px-6 rounded-lg"
+        className="px-6 rounded-lg font-medium"
         style={{
-          backgroundColor: value === 'month' ? '#0F4C56' : 'transparent',
-          color: value === 'month' ? '#FFFFFF' : '#6B7280',
+          backgroundColor: value === 'month' ? '#0F4C56' : '#E5E7EB',
+          color: value === 'month' ? '#FFFFFF' : '#374151',
         }}
       >
         Mensuel
@@ -29,10 +29,10 @@ export default function BillingPeriodToggle({
         onClick={() => onChange('year')}
         variant="ghost"
         size="md"
-        className="px-6 rounded-lg"
+        className="px-6 rounded-lg font-medium"
         style={{
-          backgroundColor: value === 'year' ? '#0F4C56' : 'transparent',
-          color: value === 'year' ? '#FFFFFF' : '#6B7280',
+          backgroundColor: value === 'year' ? '#0F4C56' : '#E5E7EB',
+          color: value === 'year' ? '#FFFFFF' : '#374151',
         }}
       >
         Annuel

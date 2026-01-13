@@ -143,42 +143,74 @@ function EvaluatorsContent() {
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
 
   // Load cached evaluators from localStorage (persists across sessions)
+  // CRITICAL: Never expire cache automatically - keep it forever until explicitly overwritten
+  // This ensures evaluators persist across sessions even if API fails
   const getCachedEvaluators = (assessmentId: number): EvaluatorStatus[] => {
-    if (typeof window === 'undefined') return [];
+    if (typeof window === 'undefined') {
+      console.log('[EvaluatorsPage] getCachedEvaluators - window undefined');
+      return [];
+    }
     try {
       const cacheKey = `evaluators_cache_${assessmentId}`;
+      console.log('[EvaluatorsPage] 🔍 getCachedEvaluators - Looking for cache key:', cacheKey);
+      
       const cached = localStorage.getItem(cacheKey);
       if (cached) {
+        console.log('[EvaluatorsPage] 🔍 getCachedEvaluators - Cache found, parsing...');
         const parsed = JSON.parse(cached);
-        // Check if cache is recent (less than 24 hours old) - longer persistence
-        if (parsed.timestamp && Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000) {
-          const cachedData = parsed.data || [];
-          console.log('[EvaluatorsPage] ✅ Loaded evaluators from cache:', cachedData.length, 'evaluators for assessment', assessmentId);
-          
-          // Log completed evaluators in cache
-          const completedInCache = cachedData.filter((e: EvaluatorStatus) => e.status?.toLowerCase() === 'completed');
-          if (completedInCache.length > 0) {
-            console.log('[EvaluatorsPage] ✅ Cache includes', completedInCache.length, 'completed evaluator(s):', completedInCache.map((e: EvaluatorStatus) => e.name));
-          }
-          
-          return cachedData;
-        } else {
-          // Cache expired, clear it
-          console.log('[EvaluatorsPage] Cache expired for assessment', assessmentId, '- clearing');
-          localStorage.removeItem(cacheKey);
+        
+        // CRITICAL: Don't expire cache automatically - keep it forever until explicitly overwritten
+        // This ensures evaluators persist across sessions even if API fails
+        const cachedData = parsed.data || [];
+        const cacheAge = parsed.timestamp ? Date.now() - parsed.timestamp : 0;
+        const cacheAgeHours = Math.floor(cacheAge / (60 * 60 * 1000));
+        
+        console.log('[EvaluatorsPage] ✅ Loaded evaluators from cache:', cachedData.length, 'evaluators for assessment', assessmentId, '(cache age:', cacheAgeHours, 'hours)');
+        
+        // Log completed evaluators in cache
+        const completedInCache = cachedData.filter((e: EvaluatorStatus) => e.status?.toLowerCase() === 'completed');
+        if (completedInCache.length > 0) {
+          console.log('[EvaluatorsPage] ✅ Cache includes', completedInCache.length, 'completed evaluator(s):', completedInCache.map((e: EvaluatorStatus) => e.name));
         }
+        
+        // Log all evaluators in cache for debugging
+        if (cachedData.length > 0) {
+          console.log('[EvaluatorsPage] 📋 All evaluators in cache:');
+          cachedData.forEach((e: EvaluatorStatus) => {
+            console.log('[EvaluatorsPage]   -', e.name, '| Status:', e.status, '| Email:', e.email);
+          });
+        }
+        
+        return cachedData;
       } else {
-        console.log('[EvaluatorsPage] No cache found for assessment', assessmentId);
+        console.log('[EvaluatorsPage] ⚠️ No cache found for assessment', assessmentId, '(key:', cacheKey, ')');
+        
+        // Debug: List all cache keys to see what's available
+        const allKeys = Object.keys(localStorage);
+        const cacheKeys = allKeys.filter(k => k.startsWith('evaluators_cache_'));
+        console.log('[EvaluatorsPage] 🔍 Available cache keys:', cacheKeys);
+        if (cacheKeys.length > 0) {
+          cacheKeys.forEach(key => {
+            const data = localStorage.getItem(key);
+            if (data) {
+              try {
+                const parsed = JSON.parse(data);
+                console.log('[EvaluatorsPage]   -', key, ':', parsed.data?.length || 0, 'evaluators, assessmentId:', parsed.assessmentId);
+              } catch (e) {
+                console.error('[EvaluatorsPage]   -', key, ': Error parsing');
+              }
+            }
+          });
+        }
       }
     } catch (e) {
-      console.error('[EvaluatorsPage] Error loading cache:', e);
-      // Clear corrupted cache
-      try {
-        const cacheKey = `evaluators_cache_${assessmentId}`;
-        localStorage.removeItem(cacheKey);
-      } catch (clearError) {
-        // Ignore clear errors
-      }
+      console.error('[EvaluatorsPage] ❌ Error loading cache:', e);
+      // Don't clear cache on error - it might be recoverable
+      console.error('[EvaluatorsPage] ❌ Cache error details:', {
+        assessmentId,
+        error: e instanceof Error ? e.message : String(e),
+        stack: e instanceof Error ? e.stack : undefined
+      });
     }
     return [];
   };
@@ -939,7 +971,9 @@ function EvaluatorsContent() {
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
     try {
-      return new Date(dateString).toLocaleDateString('fr-FR', {
+      // Convert to Montreal timezone (America/Montreal)
+      return new Date(dateString).toLocaleString('fr-FR', {
+        timeZone: 'America/Montreal',
         year: 'numeric',
         month: 'short',
         day: 'numeric',

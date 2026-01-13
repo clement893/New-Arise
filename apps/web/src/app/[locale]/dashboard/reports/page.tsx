@@ -625,7 +625,6 @@ function ResultsReportsContent() {
             bottom: 0,
             left: '-7.5%',
             right: '-7.5%',
-            width: 'calc(100% + 15%)',
             zIndex: 0,
             borderRadius: '24px',
           }}
@@ -717,7 +716,7 @@ function ResultsReportsContent() {
               </div>
             ) : assessments.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-gray-700">No completed assessments yet.</p>
+                <p style={{ color: '#FFFFFF' }}>No completed assessments yet.</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -896,7 +895,19 @@ function ResultsReportsContent() {
           </Card>
 
           {/* Ready to accelerate your growth? */}
-          <Card className="text-white border-0 p-8 overflow-hidden" style={{ backgroundColor: '#2E2E2E' }}>
+          <Card 
+            className="text-white border-0 overflow-hidden" 
+            style={{ 
+              backgroundColor: '#2E2E2E',
+              marginLeft: '-7.5%',
+              marginRight: '-7.5%',
+              borderRadius: '24px',
+              paddingLeft: 'calc(7.5% + 2rem)',
+              paddingRight: 'calc(7.5% + 2rem)',
+              paddingTop: '2rem',
+              paddingBottom: '2rem',
+            }}
+          >
             <div className="flex flex-col md:flex-row items-center gap-6">
               <div className="flex-1 min-w-0">
                 <h2 className="text-2xl font-bold mb-3">
