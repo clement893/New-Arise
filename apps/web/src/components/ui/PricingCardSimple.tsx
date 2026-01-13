@@ -37,16 +37,6 @@ export default function PricingCardSimple({
     return plan.price;
   };
 
-  const calculateYearlyPrice = () => {
-    if (plan.price === -1) {
-      return null; // Custom pricing
-    }
-    if (billingPeriod === 'year') {
-      return Math.round(plan.price * 12 * 0.8);
-    }
-    return null;
-  };
-
   const isCustomPricing = plan.price === -1;
 
   const displayPrice = calculatePrice();
