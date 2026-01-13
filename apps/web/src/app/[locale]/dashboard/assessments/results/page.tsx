@@ -202,7 +202,10 @@ function AssessmentResultsContent() {
         if (!questionsByPillar[q.pillar]) {
           questionsByPillar[q.pillar] = [];
         }
-        questionsByPillar[q.pillar].push(q);
+        const pillarQuestions = questionsByPillar[q.pillar];
+        if (pillarQuestions) {
+          pillarQuestions.push(q);
+        }
       });
 
       // Create detailed data rows
@@ -366,7 +369,10 @@ function AssessmentResultsContent() {
         if (!questionsByPillar[q.pillar]) {
           questionsByPillar[q.pillar] = [];
         }
-        questionsByPillar[q.pillar].push(q);
+        const pillarQuestions = questionsByPillar[q.pillar];
+        if (pillarQuestions) {
+          pillarQuestions.push(q);
+        }
       });
 
       const detailedRows: Array<Record<string, string>> = [];
