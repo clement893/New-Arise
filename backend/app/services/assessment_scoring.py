@@ -175,20 +175,36 @@ def calculate_360_score(answers: List[AssessmentAnswer]) -> Dict[str, Any]:
         raise ValueError("No answers provided for 360 feedback assessment")
     
     # Define capability question mappings
-    capability_questions = {
-        "communication": ["360_q1", "360_q2", "360_q3", "360_q4", "360_q5"],
-        "team_culture": ["360_q6", "360_q7", "360_q8", "360_q9", "360_q10"],
-        "leadership_style": ["360_q11", "360_q12", "360_q13", "360_q14", "360_q15"],
-        "change_management": ["360_q16", "360_q17", "360_q18", "360_q19", "360_q20"],
-        "problem_solving": ["360_q21", "360_q22", "360_q23", "360_q24", "360_q25"],
-        "stress_management": ["360_q26", "360_q27", "360_q28", "360_q29", "360_q30"],
+    # Frontend uses "360_1", "360_2", etc., but we also support "360_q1", "360_q2" for backward compatibility
+    capability_question_ranges = {
+        "communication": (1, 5),
+        "team_culture": (6, 10),
+        "leadership_style": (11, 15),
+        "change_management": (16, 20),
+        "problem_solving": (21, 25),
+        "stress_management": (26, 30),
     }
     
+    # Build question ID mappings for both formats
+    capability_questions = {}
+    for capability_name, (start, end) in capability_question_ranges.items():
+        question_ids = []
+        for num in range(start, end + 1):
+            # Support both "360_1" (frontend) and "360_q1" (legacy) formats
+            question_ids.extend([f"360_{num}", f"360_q{num}"])
+        capability_questions[capability_name] = question_ids
+    
     # Create answer lookup with error handling
+    # Normalize question IDs: convert "360_q1" to "360_1" for consistency
     answer_lookup = {}
     invalid_answers = []
     for answer in answers:
         try:
+            # Normalize question ID: "360_q1" -> "360_1"
+            question_id = answer.question_id
+            if question_id.startswith("360_q") and question_id[5:].isdigit():
+                question_id = f"360_{question_id[5:]}"
+            
             # Try to convert answer_value to int
             value = answer.answer_value
             if value is None or value == '':
@@ -199,7 +215,7 @@ def calculate_360_score(answers: List[AssessmentAnswer]) -> Dict[str, Any]:
             if int_value < 1 or int_value > 5:
                 invalid_answers.append(answer.question_id)
                 continue
-            answer_lookup[answer.question_id] = int_value
+            answer_lookup[question_id] = int_value
         except (ValueError, TypeError) as e:
             # Track invalid answers
             invalid_answers.append(answer.question_id)
@@ -221,8 +237,12 @@ def calculate_360_score(answers: List[AssessmentAnswer]) -> Dict[str, Any]:
     total_score = 0
     max_score = 150
     
-    for capability_name, question_ids in capability_questions.items():
-        capability_score = sum(answer_lookup.get(qid, 0) for qid in question_ids)
+    for capability_name, (start, end) in capability_question_ranges.items():
+        capability_score = 0
+        # Sum scores for questions in this capability range (using normalized IDs: "360_1", "360_2", etc.)
+        for num in range(start, end + 1):
+            question_id = f"360_{num}"
+            capability_score += answer_lookup.get(question_id, 0)
         capability_scores[capability_name] = capability_score
         total_score += capability_score
     

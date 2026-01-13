@@ -144,78 +144,120 @@ function EvaluatorsContent() {
       let id: number | null = currentParams?.get('id') ? parseInt(currentParams.get('id')!) : null;
       
       if (!id) {
-        const allAssessments = await getMyAssessments();
-        // Filter out evaluator assessments (360_evaluator) - these shouldn't appear in user's list
-        const assessments = allAssessments.filter(
-          (a) => {
-            const type = String(a.assessment_type).toLowerCase();
-            return type !== 'three_sixty_evaluator' && type !== '360_evaluator';
+        try {
+          const allAssessments = await getMyAssessments();
+          // Filter out evaluator assessments (360_evaluator) - these shouldn't appear in user's list
+          const assessments = allAssessments.filter(
+            (a) => {
+              const type = String(a.assessment_type).toLowerCase();
+              return type !== 'three_sixty_evaluator' && type !== '360_evaluator';
+            }
+          );
+          console.log('[EvaluatorsPage] Assessments loaded:', assessments);
+          const feedback360Assessment = assessments.find(
+            (a) => a.assessment_type === 'THREE_SIXTY_SELF'
+          );
+          if (!feedback360Assessment) {
+            // Try to get assessment ID from cache if API fails
+            const cacheKeys = Object.keys(localStorage).filter(k => k.startsWith('evaluators_cache_'));
+            if (cacheKeys.length > 0) {
+              const cacheKey = cacheKeys[0];
+              const cachedId = parseInt(cacheKey.replace('evaluators_cache_', ''));
+              if (!isNaN(cachedId)) {
+                console.log('[EvaluatorsPage] Using assessment ID from cache:', cachedId);
+                id = cachedId;
+              }
+            }
+            if (!id) {
+              if (!silent) {
+                setError('Aucun assessment de feedback 360° trouvé. Veuillez d\'abord démarrer un assessment 360° depuis la page Assessments.');
+                setIsLoading(false);
+              }
+              return;
+            }
+          } else {
+            id = feedback360Assessment.id;
+            console.log('[EvaluatorsPage] Found 360 assessment ID:', id);
           }
-        );
-        console.log('[EvaluatorsPage] Assessments loaded:', assessments);
-        const feedback360Assessment = assessments.find(
-          (a) => a.assessment_type === 'THREE_SIXTY_SELF'
-        );
-        if (!feedback360Assessment) {
-          if (!silent) {
-            setError('Aucun assessment de feedback 360° trouvé. Veuillez d\'abord démarrer un assessment 360° depuis la page Assessments.');
-            setIsLoading(false);
+        } catch (assessmentErr) {
+          // If getMyAssessments fails (e.g., 401), try to get ID from cache
+          console.warn('[EvaluatorsPage] Failed to load assessments, trying cache:', assessmentErr);
+          const cacheKeys = Object.keys(localStorage).filter(k => k.startsWith('evaluators_cache_'));
+          if (cacheKeys.length > 0) {
+            const cacheKey = cacheKeys[0];
+            const cachedId = parseInt(cacheKey.replace('evaluators_cache_', ''));
+            if (!isNaN(cachedId)) {
+              console.log('[EvaluatorsPage] Using assessment ID from cache after API failure:', cachedId);
+              id = cachedId;
+            }
           }
-          return;
+          if (!id) {
+            if (!silent) {
+              setError('Session expirée. Veuillez vous reconnecter.');
+              setIsLoading(false);
+            }
+            return;
+          }
         }
-        id = feedback360Assessment.id;
-        console.log('[EvaluatorsPage] Found 360 assessment ID:', id);
       }
 
       // Always update assessmentId (needed for polling)
       setAssessmentId(id);
       
-      // Try to load from cache first for instant display (only on initial load, not silent refresh)
-      if (!silent && id) {
+      // CRITICAL: Always try to load from cache first, even on refresh
+      if (id) {
         const cachedEvaluators = getCachedEvaluators(id);
         if (cachedEvaluators.length > 0) {
-          console.log('[EvaluatorsPage] Using cached evaluators for instant display:', cachedEvaluators.length);
+          console.log('[EvaluatorsPage] ✅ Loaded evaluators from cache:', cachedEvaluators.length, 'evaluators');
           setEvaluators(cachedEvaluators);
-          setIsLoading(false);
-          // Still load fresh data in background
+          if (!silent) {
+            setIsLoading(false);
+          }
+          // Still try to load fresh data in background, but don't fail if it errors
         }
       }
       
-      console.log('[EvaluatorsPage] Loading evaluators for assessment ID:', id);
-      const response = await get360Evaluators(id);
-      console.log('[EvaluatorsPage] Evaluators response:', response);
-      const evaluatorsList = response.evaluators || [];
-      console.log('[EvaluatorsPage] Evaluators list:', evaluatorsList.length, 'evaluators');
-      console.log('[EvaluatorsPage] Evaluators statuses:', evaluatorsList.map(e => ({ id: e.id, name: e.name, status: e.status })));
-      
-      // CRITICAL: Always save to cache after loading
-      // Only save if we got data, otherwise keep existing cache to prevent overwriting with empty list
-      if (id) {
-        if (evaluatorsList.length > 0) {
+      // Try to load fresh data from API
+      try {
+        console.log('[EvaluatorsPage] Loading evaluators from API for assessment ID:', id);
+        const response = await get360Evaluators(id);
+        console.log('[EvaluatorsPage] Evaluators response:', response);
+        const evaluatorsList = response.evaluators || [];
+        console.log('[EvaluatorsPage] Evaluators list from API:', evaluatorsList.length, 'evaluators');
+        console.log('[EvaluatorsPage] Evaluators statuses:', evaluatorsList.map(e => ({ id: e.id, name: e.name, status: e.status })));
+        
+        // CRITICAL: Always save to cache after loading
+        if (id && evaluatorsList.length > 0) {
           console.log('[EvaluatorsPage] Saving to cache:', evaluatorsList.length, 'evaluators for assessment', id);
           saveEvaluatorsToCache(id, evaluatorsList);
           // Verify cache was saved
           const verifyCache = getCachedEvaluators(id);
           console.log('[EvaluatorsPage] Cache verification - loaded from cache:', verifyCache.length, 'evaluators');
-        } else {
-          // If API returned empty list, check if we have cached data
+        }
+        
+        // Update state with fresh data
+        console.log('[EvaluatorsPage] Setting evaluators state from API:', evaluatorsList.length);
+        setEvaluators(evaluatorsList);
+      } catch (apiErr) {
+        console.error('[EvaluatorsPage] API call failed, using cache if available:', apiErr);
+        // If API fails but we have cache, keep using cache
+        if (id) {
           const cachedEvaluators = getCachedEvaluators(id);
           if (cachedEvaluators.length > 0) {
-            console.warn('[EvaluatorsPage] API returned empty list but cache has', cachedEvaluators.length, 'evaluators. Keeping cache.');
-            // Don't overwrite cache with empty list, but still update state with empty (user will see empty)
-            // Actually, let's use cached data if API returns empty
+            console.log('[EvaluatorsPage] ✅ API failed but using cached evaluators:', cachedEvaluators.length);
             setEvaluators(cachedEvaluators);
-            return; // Don't continue, use cached data
-          } else {
-            console.log('[EvaluatorsPage] API returned empty list and no cache. Saving empty list to cache.');
-            saveEvaluatorsToCache(id, evaluatorsList);
+            if (!silent) {
+              setIsLoading(false);
+              // Show a warning but don't block the UI
+              setError('Session expirée. Affichage des données en cache. Veuillez vous reconnecter pour actualiser.');
+              setTimeout(() => setError(null), 5000);
+            }
+            return;
           }
         }
+        // If no cache and API fails, throw the error
+        throw apiErr;
       }
-      
-      // Update state with fresh data
-      console.log('[EvaluatorsPage] Setting evaluators state:', evaluatorsList.length);
-      setEvaluators(evaluatorsList);
     } catch (err) {
       console.error('[EvaluatorsPage] Failed to load evaluators:', err);
       if (err instanceof Error) {
@@ -228,6 +270,24 @@ function EvaluatorsContent() {
         if (err.message.includes('404') || err.message.includes('not found')) {
           if (!silent) {
             setError('Assessment 360° non trouvé. Veuillez d\'abord démarrer un assessment 360° depuis la page Assessments.');
+          }
+        } else if (err.message.includes('401') || err.message.includes('Unauthorized')) {
+          // For 401, try to use cache
+          if (assessmentId) {
+            const cachedEvaluators = getCachedEvaluators(assessmentId);
+            if (cachedEvaluators.length > 0) {
+              console.log('[EvaluatorsPage] ✅ 401 error but using cached evaluators:', cachedEvaluators.length);
+              setEvaluators(cachedEvaluators);
+              if (!silent) {
+                setIsLoading(false);
+                setError('Session expirée. Affichage des données en cache. Veuillez vous reconnecter pour actualiser.');
+                setTimeout(() => setError(null), 5000);
+              }
+              return;
+            }
+          }
+          if (!silent) {
+            setError('Session expirée. Veuillez vous reconnecter.');
           }
         } else {
           if (!silent) {
@@ -250,12 +310,39 @@ function EvaluatorsContent() {
   // Load from cache on initial mount if available
   useEffect(() => {
     const loadFromCache = async () => {
-      try {
-        // Get assessment ID from URL params or find it from assessments
-        const currentParams = searchParams;
-        let id: number | null = currentParams?.get('id') ? parseInt(currentParams.get('id')!) : null;
-        
-        if (!id) {
+      // CRITICAL: Always try to load from cache first, even before API calls
+      // This ensures evaluators are visible even if API fails (401, network error, etc.)
+      
+      // First, try to get assessment ID from URL params
+      const currentParams = searchParams;
+      let id: number | null = currentParams?.get('id') ? parseInt(currentParams.get('id')!) : null;
+      
+      // If no ID in URL, try to get from cache
+      if (!id) {
+        const cacheKeys = Object.keys(localStorage).filter(k => k.startsWith('evaluators_cache_'));
+        if (cacheKeys.length > 0) {
+          // Get the most recent cache entry
+          const cacheEntries = cacheKeys.map(key => {
+            try {
+              const data = JSON.parse(localStorage.getItem(key) || '{}');
+              return { key, id: data.assessmentId || parseInt(key.replace('evaluators_cache_', '')), timestamp: data.timestamp || 0 };
+            } catch {
+              return { key, id: parseInt(key.replace('evaluators_cache_', '')), timestamp: 0 };
+            }
+          }).filter(e => !isNaN(e.id));
+          
+          if (cacheEntries.length > 0) {
+            // Sort by timestamp (most recent first) and get the first one
+            cacheEntries.sort((a, b) => b.timestamp - a.timestamp);
+            id = cacheEntries[0].id;
+            console.log('[EvaluatorsPage] Found assessment ID from cache:', id);
+          }
+        }
+      }
+      
+      // If still no ID, try API (but this might fail with 401)
+      if (!id) {
+        try {
           const allAssessments = await getMyAssessments();
           // Filter out evaluator assessments (360_evaluator) - these shouldn't appear in user's list
           const assessments = allAssessments.filter(
@@ -269,33 +356,38 @@ function EvaluatorsContent() {
           );
           if (feedback360Assessment) {
             id = feedback360Assessment.id;
+            console.log('[EvaluatorsPage] Found assessment ID from API:', id);
           }
+        } catch (apiErr) {
+          console.warn('[EvaluatorsPage] API failed to get assessment ID, will use cache only:', apiErr);
+          // Continue with cache-only approach
         }
-        
-        if (id) {
-          const cachedEvaluators = getCachedEvaluators(id);
-          console.log('[EvaluatorsPage] Cache check on mount - found', cachedEvaluators.length, 'cached evaluators for assessment', id);
-          if (cachedEvaluators.length > 0) {
-            console.log('[EvaluatorsPage] Loading from cache on mount:', cachedEvaluators.length, 'evaluators');
-            setEvaluators(cachedEvaluators);
-            setAssessmentId(id);
-            setIsLoading(false); // Don't show loading since we have cached data
-            // Still load fresh data in background but silently
-            setTimeout(() => {
-              console.log('[EvaluatorsPage] Starting background refresh after cache load');
-              loadEvaluators(true);
-            }, 100); // Small delay to let UI render first
-            return;
-          } else {
-            console.log('[EvaluatorsPage] No cached evaluators found for assessment', id, '- will load from API');
-          }
-        } else {
-          console.log('[EvaluatorsPage] No assessment ID found - cannot load from cache');
-        }
-      } catch (err) {
-        console.error('[EvaluatorsPage] Error loading from cache:', err);
       }
-      // If no cache, load normally
+      
+      // Load from cache if we have an ID
+      if (id) {
+        const cachedEvaluators = getCachedEvaluators(id);
+        console.log('[EvaluatorsPage] Cache check on mount - found', cachedEvaluators.length, 'cached evaluators for assessment', id);
+        if (cachedEvaluators.length > 0) {
+          console.log('[EvaluatorsPage] ✅ Loading from cache on mount:', cachedEvaluators.length, 'evaluators');
+          setEvaluators(cachedEvaluators);
+          setAssessmentId(id);
+          setIsLoading(false); // Don't show loading since we have cached data
+          // Still try to load fresh data in background but silently
+          setTimeout(() => {
+            console.log('[EvaluatorsPage] Starting background refresh after cache load');
+            loadEvaluators(true);
+          }, 100); // Small delay to let UI render first
+          return;
+        } else {
+          console.log('[EvaluatorsPage] No cached evaluators found for assessment', id, '- will try API');
+        }
+      } else {
+        console.log('[EvaluatorsPage] No assessment ID found - cannot load from cache');
+      }
+      
+      // If no cache or cache is empty, try to load from API
+      // This will also handle the case where API fails and fallback to cache
       loadEvaluators();
     };
     
