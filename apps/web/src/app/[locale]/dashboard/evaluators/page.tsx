@@ -147,7 +147,10 @@ function EvaluatorsContent() {
         const allAssessments = await getMyAssessments();
         // Filter out evaluator assessments (360_evaluator) - these shouldn't appear in user's list
         const assessments = allAssessments.filter(
-          (a) => a.assessment_type !== 'THREE_SIXTY_EVALUATOR' && a.assessment_type !== '360_evaluator'
+          (a) => {
+            const type = String(a.assessment_type).toLowerCase();
+            return type !== 'three_sixty_evaluator' && type !== '360_evaluator';
+          }
         );
         console.log('[EvaluatorsPage] Assessments loaded:', assessments);
         const feedback360Assessment = assessments.find(
@@ -256,7 +259,10 @@ function EvaluatorsContent() {
           const allAssessments = await getMyAssessments();
           // Filter out evaluator assessments (360_evaluator) - these shouldn't appear in user's list
           const assessments = allAssessments.filter(
-            (a) => a.assessment_type !== 'THREE_SIXTY_EVALUATOR' && a.assessment_type !== '360_evaluator'
+            (a) => {
+              const type = String(a.assessment_type).toLowerCase();
+              return type !== 'three_sixty_evaluator' && type !== '360_evaluator';
+            }
           );
           const feedback360Assessment = assessments.find(
             (a) => a.assessment_type === 'THREE_SIXTY_SELF'

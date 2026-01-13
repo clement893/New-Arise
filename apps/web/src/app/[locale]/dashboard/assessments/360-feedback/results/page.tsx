@@ -79,7 +79,10 @@ export default function Feedback360ResultsPage() {
         const allAssessments = await getMyAssessments();
         // Filter out evaluator assessments (360_evaluator) - these shouldn't appear in user's list
         assessments = allAssessments.filter(
-          (a) => a.assessment_type !== 'THREE_SIXTY_EVALUATOR' && a.assessment_type !== '360_evaluator'
+          (a) => {
+            const type = String(a.assessment_type).toLowerCase();
+            return type !== 'three_sixty_evaluator' && type !== '360_evaluator';
+          }
         );
         console.log('[360-Feedback Results] Loaded assessments:', assessments.length, assessments.map(a => ({ id: a.id, type: a.assessment_type, status: a.status })));
       } catch (assessmentListError: any) {

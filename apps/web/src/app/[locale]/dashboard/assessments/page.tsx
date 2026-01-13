@@ -441,7 +441,10 @@ function AssessmentsContent() {
       const allApiAssessments: ApiAssessment[] = await getMyAssessments();
       // Filter out evaluator assessments (360_evaluator) - these are created for each evaluator and shouldn't appear in user's list
       const apiAssessments = allApiAssessments.filter(
-        (a) => a.assessment_type !== 'THREE_SIXTY_EVALUATOR' && a.assessment_type !== '360_evaluator'
+        (a) => {
+          const type = String(a.assessment_type).toLowerCase();
+          return type !== 'three_sixty_evaluator' && type !== '360_evaluator';
+        }
       );
       
       // CRITICAL: Clean API data to ensure answer_count and total_questions are numbers, not objects
