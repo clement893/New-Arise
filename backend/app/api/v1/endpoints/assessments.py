@@ -1369,6 +1369,17 @@ async def get_360_evaluators_status(
     )
     evaluators = evaluators_result.scalars().all()
 
+    # Log for debugging
+    from app.core.logging import logger
+    logger.info(
+        f"Fetching evaluators for assessment {assessment_id}",
+        context={
+            "assessment_id": assessment_id,
+            "user_id": current_user.id,
+            "evaluators_count": len(evaluators)
+        }
+    )
+
     # Format response
     evaluators_list = []
     for evaluator in evaluators:
@@ -1384,6 +1395,26 @@ async def get_360_evaluators_status(
             "started_at": evaluator.started_at.isoformat() if evaluator.started_at else None,
             "completed_at": evaluator.completed_at.isoformat() if evaluator.completed_at else None,
         })
+        
+        # Log each evaluator status for debugging
+        logger.info(
+            f"Evaluator {evaluator.id} ({evaluator.evaluator_name}) - Status: {evaluator.status.value}",
+            context={
+                "evaluator_id": evaluator.id,
+                "evaluator_name": evaluator.evaluator_name,
+                "status": evaluator.status.value,
+                "completed_at": evaluator.completed_at.isoformat() if evaluator.completed_at else None
+            }
+        )
+
+    logger.info(
+        f"Returning {len(evaluators_list)} evaluators for assessment {assessment_id}",
+        context={
+            "assessment_id": assessment_id,
+            "evaluators_count": len(evaluators_list),
+            "completed_count": sum(1 for e in evaluators_list if e["status"].lower() == "completed")
+        }
+    )
 
     return {
         "assessment_id": assessment_id,

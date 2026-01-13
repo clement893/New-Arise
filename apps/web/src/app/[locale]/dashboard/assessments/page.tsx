@@ -397,14 +397,33 @@ function AssessmentsContent() {
         const evaluatorsList = evaluatorsResponse.evaluators || [];
         
         // Save to cache (localStorage for persistence)
+        // CRITICAL: Always save, but protect against overwriting with empty list
         if (typeof window !== 'undefined') {
           try {
             const cacheKey = `evaluators_cache_${threeSixtyAssessment.assessmentId}`;
+            // Check existing cache before overwriting
+            const existingCache = localStorage.getItem(cacheKey);
+            if (existingCache) {
+              try {
+                const existing = JSON.parse(existingCache);
+                const existingCount = existing.data?.length || 0;
+                // Don't overwrite cache with empty list if we have existing data
+                if (existingCount > 0 && evaluatorsList.length === 0) {
+                  console.warn('[AssessmentsPage] ⚠️ API returned empty list but cache has', existingCount, 'evaluators. Keeping cache.');
+                  return; // Don't update cache or state
+                }
+              } catch (e) {
+                // If can't parse existing cache, continue with save
+              }
+            }
+            
             localStorage.setItem(cacheKey, JSON.stringify({
               data: evaluatorsList,
               timestamp: Date.now(),
-              assessmentId: threeSixtyAssessment.assessmentId
+              assessmentId: threeSixtyAssessment.assessmentId,
+              count: evaluatorsList.length
             }));
+            console.log('[AssessmentsPage] ✅ Saved evaluators to cache:', evaluatorsList.length, 'evaluators');
           } catch (cacheErr) {
             console.error('[AssessmentsPage] Error saving cache in refresh:', cacheErr);
           }

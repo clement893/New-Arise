@@ -150,15 +150,48 @@ function DashboardContent() {
     let color = 'gray';
     
     if (assessment) {
-      if (assessment.status === 'COMPLETED') {
-        percentage = 100;
-        color = 'primary';
-      } else if (assessment.status === 'IN_PROGRESS' || assessment.status === 'NOT_STARTED') {
-        // Calculate percentage based on answers
-        const answerCount = assessment.answer_count || 0;
-        const totalQuestions = assessment.total_questions || 30;
-        percentage = totalQuestions > 0 ? Math.round((answerCount / totalQuestions) * 100) : 0;
-        color = percentage > 0 ? 'orange' : 'gray';
+      // Normalize status: backend returns "not_started", "in_progress", "completed" (lowercase)
+      const rawStatus = String(assessment.status);
+      const statusNormalized = rawStatus.toLowerCase().trim().replace(/[_-]/g, '');
+      
+      // SPECIAL CASE: MBTI is external assessment (no internal questions)
+      // Use backend status only
+      if (type === 'MBTI') {
+        if (statusNormalized === 'completed' || statusNormalized === 'complete') {
+          percentage = 100;
+          color = 'primary';
+        } else {
+          percentage = 0;
+          color = 'gray';
+        }
+      } else {
+        // For other assessments, calculate percentage based on answers
+        const answerCount = assessment.answer_count ?? 0;
+        const totalQuestions = assessment.total_questions ?? 0;
+        
+        // Check if completed: either status is completed OR all questions are answered
+        const isCompleted = (statusNormalized === 'completed' || statusNormalized === 'complete') ||
+                           (totalQuestions > 0 && answerCount === totalQuestions);
+        
+        if (isCompleted) {
+          percentage = 100;
+          color = 'primary';
+        } else if (totalQuestions > 0) {
+          // Calculate percentage based on answers
+          percentage = Math.round((answerCount / totalQuestions) * 100);
+          // Ensure percentage doesn't exceed 100
+          percentage = Math.min(percentage, 100);
+          color = percentage > 0 ? 'orange' : 'gray';
+        } else {
+          // No total questions available, use status
+          if (statusNormalized === 'inprogress' || statusNormalized === 'inprogress') {
+            percentage = 50; // Estimate if in progress
+            color = 'orange';
+          } else {
+            percentage = 0;
+            color = 'gray';
+          }
+        }
       }
     }
     
@@ -384,6 +417,7 @@ function DashboardContent() {
 
   const getProgressColor = (color: string) => {
     switch (color) {
+      case 'primary':
       case 'teal':
         return 'bg-arise-deep-teal';
       case 'orange':
