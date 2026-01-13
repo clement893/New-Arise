@@ -68,19 +68,19 @@ export function ThemeExportImport({ config, onImport, onExport }: ThemeExportImp
           </p>
           <div className="space-y-4">
             <div className="flex gap-2">
-              <Button variant="primary" onClick={onExport}>
-                <Download className="w-4 h-4 mr-2" />
+              <Button variant="primary" onClick={onExport} className="flex items-center gap-2">
+                <Download className="w-4 h-4" />
                 Download JSON
               </Button>
-              <Button variant="secondary" onClick={handleCopy}>
+              <Button variant="secondary" onClick={handleCopy} className="flex items-center gap-2">
                 {copied ? (
                   <>
-                    <Check className="w-4 h-4 mr-2" />
+                    <Check className="w-4 h-4" />
                     Copied!
                   </>
                 ) : (
                   <>
-                    <Copy className="w-4 h-4 mr-2" />
+                    <Copy className="w-4 h-4" />
                     Copy to Clipboard
                   </>
                 )}
@@ -116,8 +116,9 @@ export function ThemeExportImport({ config, onImport, onExport }: ThemeExportImp
               <Button
                 variant="secondary"
                 onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-2"
               >
-                <Upload className="w-4 h-4 mr-2" />
+                <Upload className="w-4 h-4" />
                 Import from File
               </Button>
             </div>

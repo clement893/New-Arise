@@ -475,11 +475,14 @@ export default function AdminOrganizationsContent() {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-md"
         />
-        <Button onClick={() => {
-          resetForm();
-          setShowCreateModal(true);
-        }}>
-          <Plus className="h-4 w-4 mr-2" />
+        <Button 
+          onClick={() => {
+            resetForm();
+            setShowCreateModal(true);
+          }}
+          className="flex items-center gap-2"
+        >
+          <Plus className="h-4 w-4" />
           Créer une organisation
         </Button>
       </div>

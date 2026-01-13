@@ -213,8 +213,9 @@ export default function AdminMediaContent() {
             onClick={() => fileInputRef.current?.click()}
             variant="primary"
             disabled={uploading}
+            className="flex items-center gap-2"
           >
-            <Upload className="w-4 h-4 mr-2" />
+            <Upload className="w-4 h-4" />
             {uploading ? 'Upload en cours...' : 'Uploader un fichier'}
           </Button>
           <Button onClick={loadMedia} variant="outline">

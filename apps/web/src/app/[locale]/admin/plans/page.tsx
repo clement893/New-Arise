@@ -337,16 +337,18 @@ function PlansPageContent() {
                           variant="primary"
                           size="sm"
                           onClick={() => handleSave(plan.id)}
+                          className="flex items-center gap-2"
                         >
-                          <Save className="w-4 h-4 mr-2" />
+                          <Save className="w-4 h-4" />
                           Enregistrer
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleCancel(plan.id)}
+                          className="flex items-center gap-2"
                         >
-                          <X className="w-4 h-4 mr-2" />
+                          <X className="w-4 h-4" />
                           Annuler
                         </Button>
                       </>
@@ -355,8 +357,9 @@ function PlansPageContent() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleEdit(plan)}
+                        className="flex items-center gap-2"
                       >
-                        <Edit2 className="w-4 h-4 mr-2" />
+                        <Edit2 className="w-4 h-4" />
                         Modifier
                       </Button>
                     )}
@@ -552,10 +555,11 @@ function PlansPageContent() {
               variant="primary"
               onClick={handleCreatePlan}
               disabled={creatingPlan || !newPlan.name || !newPlan.amount}
+              className="flex items-center gap-2"
             >
               {creatingPlan ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   Création...
                 </>
               ) : (

@@ -185,10 +185,12 @@ export default function TenancyContent() {
           <Card>
             <div className="space-y-6">
               <Alert variant="info" className="mb-4">
-                <Info className="h-4 w-4 mr-2" />
-                <span>
-                  {t('info.configNote') || 'Tenancy mode is configured via the TENANCY_MODE environment variable. Changes require server restart.'}
-                </span>
+                <div className="flex items-center gap-2">
+                  <Info className="h-4 w-4" />
+                  <span>
+                    {t('info.configNote') || 'Tenancy mode is configured via the TENANCY_MODE environment variable. Changes require server restart.'}
+                  </span>
+                </div>
               </Alert>
 
               <div>
@@ -292,12 +294,14 @@ export default function TenancyContent() {
               </div>
 
               <Alert variant="warning" className="mt-4">
-                <Settings className="h-4 w-4 mr-2" />
-                <div>
-                  <p className="font-medium mb-1">{t('warning.title') || 'Important'}</p>
-                  <p className="text-sm">
-                    {t('warning.message') || 'Changing tenancy mode requires database migrations and may affect existing data. Always backup your database before making changes.'}
-                  </p>
+                <div className="flex items-start gap-2">
+                  <Settings className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium mb-1">{t('warning.title') || 'Important'}</p>
+                    <p className="text-sm">
+                      {t('warning.message') || 'Changing tenancy mode requires database migrations and may affect existing data. Always backup your database before making changes.'}
+                    </p>
+                  </div>
                 </div>
               </Alert>
             </div>
