@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/lib/store';
@@ -72,26 +72,24 @@ export function Header() {
                   Admin
                 </Link>
                 <LanguageToggle />
-                <Button 
-                  asChild 
-                  className="text-white flex items-center gap-2 rounded-lg"
+                <Link 
+                  href="/register"
+                  className="text-white flex items-center gap-2 rounded-lg transition-colors"
                   style={{ 
                     backgroundColor: '#0F4C56',
                     padding: '12px 24px',
                     borderRadius: '8px'
                   }}
-                  onMouseEnter={(e) => {
+                  onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
                     e.currentTarget.style.backgroundColor = '#0d3d45';
                   }}
-                  onMouseLeave={(e) => {
+                  onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => {
                     e.currentTarget.style.backgroundColor = '#0F4C56';
                   }}
                 >
-                  <Link href="/register">
-                    {t('getStarted')}
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
-                </Button>
+                  {t('getStarted')}
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
               </>
             ) : (
               <>
@@ -99,26 +97,24 @@ export function Header() {
                   {t('signIn')}
                 </Link>
                 <LanguageToggle />
-                <Button 
-                  asChild 
-                  className="text-white flex items-center gap-2 rounded-lg"
+                <Link 
+                  href="/register"
+                  className="text-white flex items-center gap-2 rounded-lg transition-colors"
                   style={{ 
                     backgroundColor: '#0F4C56',
                     padding: '12px 24px',
                     borderRadius: '8px'
                   }}
-                  onMouseEnter={(e) => {
+                  onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
                     e.currentTarget.style.backgroundColor = '#0d3d45';
                   }}
-                  onMouseLeave={(e) => {
+                  onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => {
                     e.currentTarget.style.backgroundColor = '#0F4C56';
                   }}
                 >
-                  <Link href="/register">
-                    {t('getStarted')}
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
-                </Button>
+                  {t('getStarted')}
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
               </>
             )}
           </div>

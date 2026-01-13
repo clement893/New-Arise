@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTKIStore } from '@/stores/tkiStore';
 import { tkiQuestions, tkiModes } from '@/data/tkiQuestions';
@@ -231,8 +231,8 @@ export default function TKIAssessmentPage() {
                 onClick={() => router.push(`/dashboard/assessments/tki/results?id=${effectiveAssessmentId || assessmentId}`)}
                 className="text-white"
                 style={{ backgroundColor: '#0F4C56' }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.9)'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F4C56'}
+                onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.9)'}
+                onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => e.currentTarget.style.backgroundColor = '#0F4C56'}
               >
                 View Results
               </Button>

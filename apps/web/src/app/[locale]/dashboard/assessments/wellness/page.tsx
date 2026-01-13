@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Button } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
@@ -440,8 +440,8 @@ function WellnessAssessmentContent() {
                     }}
                     className="text-white"
                     style={{ backgroundColor: '#0F4C56' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.9)'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F4C56'}
+                    onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.9)'}
+                    onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => e.currentTarget.style.backgroundColor = '#0F4C56'}
                   >
                     View Results
                   </Button>
@@ -631,8 +631,8 @@ function WellnessAssessmentContent() {
                     disabled={!currentAnswer}
                     className="flex items-center gap-2 text-white"
                     style={{ backgroundColor: '#0F4C56' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.9)'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F4C56'}
+                    onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.9)'}
+                    onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => e.currentTarget.style.backgroundColor = '#0F4C56'}
                   >
                     {isLastQuestion ? 'Complete' : 'Next'}
                     <ArrowRight size={20} />
