@@ -398,37 +398,63 @@ function AssessmentResultsContent() {
     if (!assessmentId) return;
     
     try {
-      // For now, copy the current page URL with assessment ID
-      // In the future, this could be a shareable link with token
-      const currentUrl = window.location.href;
+      setIsDownloading(true);
       
-      await navigator.clipboard.writeText(currentUrl);
+      // Create a shareable link for the PDF
+      const response = await apiClient.post(
+        `/v1/pdf-export/${assessmentId}/share-link`
+      );
+      
+      const shareUrl = response.data.share_url;
+      
+      // Copy the shareable PDF link to clipboard
+      await navigator.clipboard.writeText(shareUrl);
       
       showToast({
-        message: 'Results page link copied to clipboard',
+        message: 'PDF share link copied to clipboard',
         type: 'success',
       });
       
       setShowShareDialog(false);
     } catch (err: unknown) {
       const errorMessage = formatError(err);
-      console.error('Error copying link:', errorMessage);
+      console.error('Error creating share link:', errorMessage);
       showToast({
-        message: 'Failed to copy link. Please try again.',
+        message: 'Failed to create share link. Please try again.',
         type: 'error',
       });
+    } finally {
+      setIsDownloading(false);
     }
   };
 
-  const handleEmailPDF = () => {
+  const handleEmailPDF = async () => {
     if (!assessmentId) return;
     
-    const currentUrl = window.location.href;
-    const subject = encodeURIComponent('Wellness Assessment Results');
-    const body = encodeURIComponent(`Please find my Wellness Assessment Results at the following link:\n\n${currentUrl}\n\nYou can view and download the detailed PDF report from this page.`);
-    
-    window.location.href = `mailto:?subject=${subject}&body=${body}`;
-    setShowShareDialog(false);
+    try {
+      setIsDownloading(true);
+      
+      // Create a shareable link for the PDF
+      const response = await apiClient.post(
+        `/v1/pdf-export/${assessmentId}/share-link`
+      );
+      
+      const shareUrl = response.data.share_url;
+      const subject = encodeURIComponent('Wellness Assessment Results');
+      const body = encodeURIComponent(`Please find my Wellness Assessment Results PDF at the following link:\n\n${shareUrl}\n\nThis link will allow you to view and download the detailed PDF report.`);
+      
+      window.location.href = `mailto:?subject=${subject}&body=${body}`;
+      setShowShareDialog(false);
+    } catch (err: unknown) {
+      const errorMessage = formatError(err);
+      console.error('Error creating share link:', errorMessage);
+      showToast({
+        message: 'Failed to create share link. Please try again.',
+        type: 'error',
+      });
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   if (isLoading) {
