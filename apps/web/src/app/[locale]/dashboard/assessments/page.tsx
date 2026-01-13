@@ -378,6 +378,44 @@ function AssessmentsContent() {
     };
   }, []);
 
+  // Auto-refresh evaluators status every 10 seconds for 360 assessments
+  useEffect(() => {
+    if (isLoading) {
+      return;
+    }
+
+    // Find 360 assessment
+    const threeSixtyAssessment = assessments.find(a => a.assessmentType === 'THREE_SIXTY_SELF' && a.assessmentId);
+    if (!threeSixtyAssessment?.assessmentId) {
+      return;
+    }
+
+    // Always poll to refresh status, even if all are completed (to show completed status)
+    const refreshEvaluators = async () => {
+      try {
+        const evaluatorsResponse = await get360Evaluators(threeSixtyAssessment.assessmentId!);
+        setEvaluators(prev => ({
+          ...prev,
+          [threeSixtyAssessment.assessmentId!]: evaluatorsResponse.evaluators || []
+        }));
+      } catch (err) {
+        // Silent fail - don't show error for background refresh
+        console.error('Failed to refresh evaluators:', err);
+      }
+    };
+
+    // Initial load
+    refreshEvaluators();
+
+    // Poll every 10 seconds to check for status updates
+    const interval = setInterval(() => {
+      refreshEvaluators();
+    }, 10000); // 10 seconds
+
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assessments, isLoading]); // Only depend on assessments and isLoading to avoid infinite loop
+
   const loadAssessments = async () => {
     try {
       setIsLoading(true);
@@ -1312,7 +1350,7 @@ function AssessmentsContent() {
                               return (
                                 <div className="flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
                                   <CheckCircle size={12} />
-                                  Completed
+                                  Test réalisé
                                 </div>
                               );
                             } else if (statusLower === 'in_progress' || statusLower === 'started') {
