@@ -72,7 +72,7 @@ export function ThemeListItem({
             variant="primary"
             size="sm"
             title="Activer ce thème"
-            className="flex items-center gap-2"
+            className="flex flex-row items-center gap-2"
           >
             <Power className="w-4 h-4" />
             Activer
@@ -83,7 +83,7 @@ export function ThemeListItem({
           variant="outline"
           size="sm"
           title="Éditer ce thème"
-          className="flex items-center gap-2"
+          className="flex flex-row items-center gap-2"
         >
           <Edit className="w-4 h-4" />
           Éditer
@@ -93,7 +93,7 @@ export function ThemeListItem({
           variant="outline"
           size="sm"
           title="Dupliquer ce thème"
-          className="flex items-center gap-2"
+          className="flex flex-row items-center gap-2"
         >
           <Copy className="w-4 h-4" />
           Dupliquer
@@ -104,7 +104,7 @@ export function ThemeListItem({
             variant="danger"
             size="sm"
             title="Supprimer ce thème"
-            className="flex items-center gap-2"
+            className="flex flex-row items-center gap-2"
           >
             <Trash2 className="w-4 h-4" />
             Supprimer

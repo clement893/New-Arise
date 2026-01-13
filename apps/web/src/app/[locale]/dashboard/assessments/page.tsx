@@ -394,9 +394,24 @@ function AssessmentsContent() {
     const refreshEvaluators = async () => {
       try {
         const evaluatorsResponse = await get360Evaluators(threeSixtyAssessment.assessmentId!);
+        const evaluatorsList = evaluatorsResponse.evaluators || [];
+        
+        // Save to cache
+        if (typeof window !== 'undefined') {
+          try {
+            const cacheKey = `evaluators_cache_${threeSixtyAssessment.assessmentId}`;
+            sessionStorage.setItem(cacheKey, JSON.stringify({
+              data: evaluatorsList,
+              timestamp: Date.now()
+            }));
+          } catch (cacheErr) {
+            // Ignore cache errors
+          }
+        }
+        
         setEvaluators(prev => ({
           ...prev,
-          [threeSixtyAssessment.assessmentId!]: evaluatorsResponse.evaluators || []
+          [threeSixtyAssessment.assessmentId!]: evaluatorsList
         }));
       } catch (err) {
         // Silent fail - don't show error for background refresh
@@ -626,10 +641,47 @@ function AssessmentsContent() {
       const threeSixtyAssessment = finalValidatedAssessments.find(a => a.assessmentType === 'THREE_SIXTY_SELF' && a.assessmentId);
       if (threeSixtyAssessment?.assessmentId) {
         try {
+          // Try to load from cache first for instant display
+          const cacheKey = `evaluators_cache_${threeSixtyAssessment.assessmentId}`;
+          if (typeof window !== 'undefined') {
+            try {
+              const cached = sessionStorage.getItem(cacheKey);
+              if (cached) {
+                const parsed = JSON.parse(cached);
+                if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) {
+                  const cachedEvaluators = parsed.data || [];
+                  if (cachedEvaluators.length > 0) {
+                    setEvaluators(prev => ({
+                      ...prev,
+                      [threeSixtyAssessment.assessmentId!]: cachedEvaluators
+                    }));
+                  }
+                }
+              }
+            } catch (cacheErr) {
+              // Ignore cache errors
+            }
+          }
+          
+          // Load fresh data
           const evaluatorsResponse = await get360Evaluators(threeSixtyAssessment.assessmentId);
+          const evaluatorsList = evaluatorsResponse.evaluators || [];
+          
+          // Save to cache
+          if (typeof window !== 'undefined') {
+            try {
+              sessionStorage.setItem(cacheKey, JSON.stringify({
+                data: evaluatorsList,
+                timestamp: Date.now()
+              }));
+            } catch (cacheErr) {
+              // Ignore cache errors
+            }
+          }
+          
           setEvaluators(prev => ({
             ...prev,
-            [threeSixtyAssessment.assessmentId!]: evaluatorsResponse.evaluators || []
+            [threeSixtyAssessment.assessmentId!]: evaluatorsList
           }));
         } catch (evaluatorsErr) {
           console.error('Failed to load evaluators:', formatError(evaluatorsErr));
@@ -1525,9 +1577,24 @@ function AssessmentsContent() {
               if (feedback360Assessment?.assessmentId) {
                 try {
                   const evaluatorsResponse = await get360Evaluators(feedback360Assessment.assessmentId);
+                  const evaluatorsList = evaluatorsResponse.evaluators || [];
+                  
+                  // Save to cache
+                  if (typeof window !== 'undefined') {
+                    try {
+                      const cacheKey = `evaluators_cache_${feedback360Assessment.assessmentId}`;
+                      sessionStorage.setItem(cacheKey, JSON.stringify({
+                        data: evaluatorsList,
+                        timestamp: Date.now()
+                      }));
+                    } catch (cacheErr) {
+                      // Ignore cache errors
+                    }
+                  }
+                  
                   setEvaluators(prev => ({
                     ...prev,
-                    [feedback360Assessment.assessmentId!]: evaluatorsResponse.evaluators || []
+                    [feedback360Assessment.assessmentId!]: evaluatorsList
                   }));
                 } catch (evaluatorsErr) {
                   console.error('Failed to reload evaluators:', formatError(evaluatorsErr));

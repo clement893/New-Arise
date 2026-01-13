@@ -191,7 +191,7 @@ export default function AdminArticlesContent() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="flex-1 min-w-[200px]"
           />
-          <Button onClick={handleCreate} variant="primary" className="flex items-center gap-2">
+          <Button onClick={handleCreate} variant="primary" className="flex flex-row items-center gap-2">
             <Plus className="w-4 h-4" />
             Créer un article
           </Button>
