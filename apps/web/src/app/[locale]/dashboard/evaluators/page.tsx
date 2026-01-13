@@ -212,7 +212,7 @@ function EvaluatorsContent() {
       return (
         <div className="flex items-center gap-2 px-3 py-1 bg-success-100 text-success-700 rounded-full text-sm font-medium">
           <CheckCircle size={16} />
-          Terminé
+          Test réalisé
         </div>
       );
     } else if (statusLower === 'in_progress' || statusLower === 'started') {
