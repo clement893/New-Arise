@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Badge } from '@/components/ui';
+import { Button } from '@/components/ui';
 
 interface BillingPeriodToggleProps {
   value: 'month' | 'year';
