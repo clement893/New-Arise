@@ -150,32 +150,10 @@ function AssessmentResultsContent() {
       const safePercentage = typeof scores?.percentage === 'number' ? scores.percentage : (typeof scores?.percentage === 'string' ? parseFloat(scores.percentage) : 0);
       const pillar_scores = scores?.pillar_scores || {};
 
-      // Prepare summary data with proper structure for PDF headers
-      const summaryRows: Array<Record<string, string>> = [
-        {
-          'Question #': 'SUMMARY',
-          'Pillar': '',
-          'Question': '',
-          'Answer': '',
-          'Score': '',
-        },
-        {
-          'Question #': 'Assessment Type',
-          'Pillar': 'Wellness Assessment',
-          'Question': '',
-          'Answer': '',
-          'Score': '',
-        },
-        {
-          'Question #': 'Overall Score',
-          'Pillar': `${isNaN(safeTotalScore) ? 0 : safeTotalScore} / ${isNaN(safeMaxScore) ? 150 : safeMaxScore}`,
-          'Question': `${isNaN(safePercentage) ? 0 : safePercentage.toFixed(1)}%`,
-          'Answer': new Date().toLocaleDateString('fr-FR'),
-          'Score': '',
-        },
-      ];
+      // Prepare summary data - pillars with scores
+      const summaryRows: Array<Record<string, string>> = [];
 
-      // Add pillar scores
+      // Add pillar scores (these will be in the Question column)
       if (pillar_scores) {
         Object.entries(pillar_scores).forEach(([pillarId, pillarData]) => {
           const pillar = wellnessPillars.find(p => p.id === pillarId);
@@ -184,14 +162,11 @@ function AssessmentResultsContent() {
           };
           const pillarScore = isPillarScoreObject(pillarData) ? pillarData.score : (typeof pillarData === 'number' ? pillarData : 0);
           const pillarPercentage = isPillarScoreObject(pillarData) ? pillarData.percentage : (pillarScore / 25) * 100;
-          const status = pillarPercentage >= 80 ? 'Excellent' : pillarPercentage >= 60 ? 'Good' : 'Needs Attention';
           
           summaryRows.push({
-            'Question #': pillar?.name || pillarId,
-            'Pillar': `${pillarScore} / 25`,
-            'Question': `${pillarPercentage.toFixed(1)}%`,
-            'Answer': status,
-            'Score': '',
+            'Question': pillar?.name || pillarId,
+            'Answer': '',
+            'Score': `${pillarScore} / 25 (${pillarPercentage.toFixed(1)}%)`,
           });
         });
       }
@@ -208,48 +183,23 @@ function AssessmentResultsContent() {
         }
       });
 
-      // Create detailed data rows
+      // Create detailed data rows with questions and answers
       const detailedRows: Array<Record<string, string>> = [];
-      
-      // Add section header
-      detailedRows.push({
-        'Question #': 'DETAILED QUESTIONS & ANSWERS',
-        'Pillar': '',
-        'Question': '',
-        'Answer': '',
-        'Score': '',
-      });
 
       // Add questions grouped by pillar
       Object.entries(questionsByPillar).forEach(([pillar, pillarQuestions]) => {
-        // Add pillar header
-        detailedRows.push({
-          'Question #': `--- ${pillar.toUpperCase()} ---`,
-          'Pillar': '',
-          'Question': '',
-          'Answer': '',
-          'Score': '',
-        });
-
         // Add questions for this pillar
         pillarQuestions.forEach((question) => {
           const answerValue = answers[question.id] || '0';
           const answerNum = parseInt(answerValue, 10) || 0;
           const answerLabel = wellnessScale.find(s => s.value === answerNum)?.label || 'Not Answered';
           
-          // Truncate long questions to fit in PDF (max 70 characters)
-          const truncatedQuestion = question.question.length > 70 
-            ? question.question.substring(0, 67) + '...'
+          // Truncate long questions to fit in PDF (max 80 characters)
+          const truncatedQuestion = question.question.length > 80 
+            ? question.question.substring(0, 77) + '...'
             : question.question;
           
-          // Truncate pillar name if too long
-          const truncatedPillar = pillar.length > 25
-            ? pillar.substring(0, 22) + '...'
-            : pillar;
-          
           detailedRows.push({
-            'Question #': question.id.replace('wellness_q', ''),
-            'Pillar': truncatedPillar,
             'Question': truncatedQuestion,
             'Answer': answerLabel,
             'Score': `${answerNum}/5`,
@@ -257,20 +207,24 @@ function AssessmentResultsContent() {
         });
       });
 
-      // Combine summary and detailed data
+      // Combine summary (pillars) and detailed (questions) data
       const exportData = [
         ...summaryRows,
         ...detailedRows,
       ];
 
-      // Call the export API with proper headers for questions/answers
+      // Prepare title with overall score
+      const overallScoreText = `${isNaN(safeTotalScore) ? 0 : safeTotalScore} / ${isNaN(safeMaxScore) ? 150 : safeMaxScore} (${isNaN(safePercentage) ? 0 : safePercentage.toFixed(1)}%)`;
+      const reportTitle = `Wellness Assessment Report - ${new Date().toLocaleDateString('fr-FR')}\nOverall Score: ${overallScoreText}`;
+
+      // Call the export API with simplified headers
       const response = await apiClient.post(
         '/v1/exports/export',
         {
           format: 'pdf',
           data: exportData,
-          headers: ['Question #', 'Pillar', 'Question', 'Answer', 'Score'],
-          title: `Wellness Assessment Report - ${new Date().toLocaleDateString('fr-FR')}`,
+          headers: ['Question', 'Answer', 'Score'],
+          title: reportTitle,
         },
         {
           responseType: 'blob',
@@ -330,30 +284,10 @@ function AssessmentResultsContent() {
       const safePercentage = typeof scores?.percentage === 'number' ? scores.percentage : (typeof scores?.percentage === 'string' ? parseFloat(scores.percentage) : 0);
       const pillar_scores = scores?.pillar_scores || {};
 
-      const summaryRows: Array<Record<string, string>> = [
-        {
-          'Question #': 'SUMMARY',
-          'Pillar': '',
-          'Question': '',
-          'Answer': '',
-          'Score': '',
-        },
-        {
-          'Question #': 'Assessment Type',
-          'Pillar': 'Wellness Assessment',
-          'Question': '',
-          'Answer': '',
-          'Score': '',
-        },
-        {
-          'Question #': 'Overall Score',
-          'Pillar': `${isNaN(safeTotalScore) ? 0 : safeTotalScore} / ${isNaN(safeMaxScore) ? 150 : safeMaxScore}`,
-          'Question': `${isNaN(safePercentage) ? 0 : safePercentage.toFixed(1)}%`,
-          'Answer': new Date().toLocaleDateString('fr-FR'),
-          'Score': '',
-        },
-      ];
+      // Prepare summary data - pillars with scores
+      const summaryRows: Array<Record<string, string>> = [];
 
+      // Add pillar scores (these will be in the Question column)
       if (pillar_scores) {
         Object.entries(pillar_scores).forEach(([pillarId, pillarData]) => {
           const pillar = wellnessPillars.find(p => p.id === pillarId);
@@ -362,14 +296,11 @@ function AssessmentResultsContent() {
           };
           const pillarScore = isPillarScoreObject(pillarData) ? pillarData.score : (typeof pillarData === 'number' ? pillarData : 0);
           const pillarPercentage = isPillarScoreObject(pillarData) ? pillarData.percentage : (pillarScore / 25) * 100;
-          const status = pillarPercentage >= 80 ? 'Excellent' : pillarPercentage >= 60 ? 'Good' : 'Needs Attention';
           
           summaryRows.push({
-            'Question #': pillar?.name || pillarId,
-            'Pillar': `${pillarScore} / 25`,
-            'Question': `${pillarPercentage.toFixed(1)}%`,
-            'Answer': status,
-            'Score': '',
+            'Question': pillar?.name || pillarId,
+            'Answer': '',
+            'Score': `${pillarScore} / 25 (${pillarPercentage.toFixed(1)}%)`,
           });
         });
       }
@@ -385,42 +316,23 @@ function AssessmentResultsContent() {
         }
       });
 
+      // Create detailed data rows with questions and answers
       const detailedRows: Array<Record<string, string>> = [];
-      detailedRows.push({
-        'Question #': 'DETAILED QUESTIONS & ANSWERS',
-        'Pillar': '',
-        'Question': '',
-        'Answer': '',
-        'Score': '',
-      });
 
+      // Add questions grouped by pillar
       Object.entries(questionsByPillar).forEach(([pillar, pillarQuestions]) => {
-        detailedRows.push({
-          'Question #': `--- ${pillar.toUpperCase()} ---`,
-          'Pillar': '',
-          'Question': '',
-          'Answer': '',
-          'Score': '',
-        });
-
+        // Add questions for this pillar
         pillarQuestions.forEach((question) => {
           const answerValue = answers[question.id] || '0';
           const answerNum = parseInt(answerValue, 10) || 0;
           const answerLabel = wellnessScale.find(s => s.value === answerNum)?.label || 'Not Answered';
           
-          // Truncate long questions to fit in PDF (max 70 characters)
-          const truncatedQuestion = question.question.length > 70 
-            ? question.question.substring(0, 67) + '...'
+          // Truncate long questions to fit in PDF (max 80 characters)
+          const truncatedQuestion = question.question.length > 80 
+            ? question.question.substring(0, 77) + '...'
             : question.question;
           
-          // Truncate pillar name if too long
-          const truncatedPillar = pillar.length > 25
-            ? pillar.substring(0, 22) + '...'
-            : pillar;
-          
           detailedRows.push({
-            'Question #': question.id.replace('wellness_q', ''),
-            'Pillar': truncatedPillar,
             'Question': truncatedQuestion,
             'Answer': answerLabel,
             'Score': `${answerNum}/5`,
@@ -428,18 +340,23 @@ function AssessmentResultsContent() {
         });
       });
 
+      // Combine summary (pillars) and detailed (questions) data
       const exportData = [
         ...summaryRows,
         ...detailedRows,
       ];
+
+      // Prepare title with overall score
+      const overallScoreText = `${isNaN(safeTotalScore) ? 0 : safeTotalScore} / ${isNaN(safeMaxScore) ? 150 : safeMaxScore} (${isNaN(safePercentage) ? 0 : safePercentage.toFixed(1)}%)`;
+      const reportTitle = `Wellness Assessment Report - ${new Date().toLocaleDateString('fr-FR')}\nOverall Score: ${overallScoreText}`;
 
       const response = await apiClient.post(
         '/v1/exports/export',
         {
           format: 'pdf',
           data: exportData,
-          headers: ['Question #', 'Pillar', 'Question', 'Answer', 'Score'],
-          title: `Wellness Assessment Report - ${new Date().toLocaleDateString('fr-FR')}`,
+          headers: ['Question', 'Answer', 'Score'],
+          title: reportTitle,
         },
         {
           responseType: 'blob',
