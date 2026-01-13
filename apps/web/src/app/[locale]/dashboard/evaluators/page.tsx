@@ -34,19 +34,22 @@ function EvaluatorsContent() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
 
-  // Load cached evaluators from sessionStorage
+  // Load cached evaluators from localStorage (persists across sessions)
   const getCachedEvaluators = (assessmentId: number): EvaluatorStatus[] => {
     if (typeof window === 'undefined') return [];
     try {
       const cacheKey = `evaluators_cache_${assessmentId}`;
-      const cached = sessionStorage.getItem(cacheKey);
+      const cached = localStorage.getItem(cacheKey);
       if (cached) {
         const parsed = JSON.parse(cached);
-        // Check if cache is recent (less than 5 minutes old)
-        if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) {
+        // Check if cache is recent (less than 24 hours old) - longer persistence
+        if (parsed.timestamp && Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000) {
           const cachedData = parsed.data || [];
-          console.log('[EvaluatorsPage] Loaded evaluators from cache:', cachedData.length);
+          console.log('[EvaluatorsPage] Loaded evaluators from cache:', cachedData.length, 'evaluators');
           return cachedData;
+        } else {
+          // Cache expired, clear it
+          localStorage.removeItem(cacheKey);
         }
       }
     } catch (e) {
@@ -54,7 +57,7 @@ function EvaluatorsContent() {
       // Clear corrupted cache
       try {
         const cacheKey = `evaluators_cache_${assessmentId}`;
-        sessionStorage.removeItem(cacheKey);
+        localStorage.removeItem(cacheKey);
       } catch (clearError) {
         // Ignore clear errors
       }
@@ -62,19 +65,44 @@ function EvaluatorsContent() {
     return [];
   };
 
-  // Save evaluators to cache
+  // Save evaluators to cache (localStorage for persistence across page refreshes)
   const saveEvaluatorsToCache = (assessmentId: number, evaluators: EvaluatorStatus[]) => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || !assessmentId) return;
     try {
       const cacheKey = `evaluators_cache_${assessmentId}`;
-      sessionStorage.setItem(cacheKey, JSON.stringify({
+      const cacheData = {
         data: evaluators,
-        timestamp: Date.now()
-      }));
-      console.log('[EvaluatorsPage] Saved evaluators to cache:', evaluators.length);
+        timestamp: Date.now(),
+        assessmentId: assessmentId
+      };
+      localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+      console.log('[EvaluatorsPage] Saved evaluators to cache:', evaluators.length, 'evaluators for assessment', assessmentId);
     } catch (e) {
       console.error('[EvaluatorsPage] Error saving cache:', e);
-      // Ignore cache errors
+      // If localStorage is full, try to clear old caches
+      try {
+        const keys = Object.keys(localStorage);
+        const evaluatorCacheKeys = keys.filter(k => k.startsWith('evaluators_cache_'));
+        // Remove oldest caches if we have more than 5
+        if (evaluatorCacheKeys.length > 5) {
+          const cacheEntries = evaluatorCacheKeys.map(key => {
+            try {
+              const data = JSON.parse(localStorage.getItem(key) || '{}');
+              return { key, timestamp: data.timestamp || 0 };
+            } catch {
+              return { key, timestamp: 0 };
+            }
+          }).sort((a, b) => a.timestamp - b.timestamp);
+          
+          // Remove oldest entries
+          const toRemove = cacheEntries.slice(0, cacheEntries.length - 5);
+          toRemove.forEach(entry => localStorage.removeItem(entry.key));
+        }
+        // Retry saving
+        localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+      } catch (retryError) {
+        console.error('[EvaluatorsPage] Failed to save cache after cleanup:', retryError);
+      }
     }
   };
 
@@ -115,6 +143,7 @@ function EvaluatorsContent() {
       if (!silent && id) {
         const cachedEvaluators = getCachedEvaluators(id);
         if (cachedEvaluators.length > 0) {
+          console.log('[EvaluatorsPage] Using cached evaluators for instant display:', cachedEvaluators.length);
           setEvaluators(cachedEvaluators);
           setIsLoading(false);
           // Still load fresh data in background
@@ -125,14 +154,15 @@ function EvaluatorsContent() {
       const response = await get360Evaluators(id);
       console.log('[EvaluatorsPage] Evaluators response:', response);
       const evaluatorsList = response.evaluators || [];
-      console.log('[EvaluatorsPage] Evaluators list:', evaluatorsList);
+      console.log('[EvaluatorsPage] Evaluators list:', evaluatorsList.length, 'evaluators');
       console.log('[EvaluatorsPage] Evaluators statuses:', evaluatorsList.map(e => ({ id: e.id, name: e.name, status: e.status })));
       
-      // Save to cache
+      // CRITICAL: Always save to cache after loading, even if empty list
       if (id) {
         saveEvaluatorsToCache(id, evaluatorsList);
       }
       
+      // Update state with fresh data
       setEvaluators(evaluatorsList);
     } catch (err) {
       console.error('[EvaluatorsPage] Failed to load evaluators:', err);
@@ -186,12 +216,17 @@ function EvaluatorsContent() {
         if (id) {
           const cachedEvaluators = getCachedEvaluators(id);
           if (cachedEvaluators.length > 0) {
-            console.log('[EvaluatorsPage] Loading from cache on mount:', cachedEvaluators.length);
+            console.log('[EvaluatorsPage] Loading from cache on mount:', cachedEvaluators.length, 'evaluators');
             setEvaluators(cachedEvaluators);
             setAssessmentId(id);
-            // Still load fresh data but don't show loading state
-            loadEvaluators(true);
+            setIsLoading(false); // Don't show loading since we have cached data
+            // Still load fresh data in background but silently
+            setTimeout(() => {
+              loadEvaluators(true);
+            }, 100); // Small delay to let UI render first
             return;
+          } else {
+            console.log('[EvaluatorsPage] No cached evaluators found for assessment', id);
           }
         }
       } catch (err) {
@@ -217,8 +252,13 @@ function EvaluatorsContent() {
     }
 
     // Always poll to refresh status, even if all are completed (to show completed evaluators)
-    const refreshEvaluators = () => {
-      loadEvaluators(true); // Silent refresh - don't show loading state
+    const refreshEvaluators = async () => {
+      try {
+        await loadEvaluators(true); // Silent refresh - don't show loading state
+        // Cache is automatically saved in loadEvaluators
+      } catch (err) {
+        console.error('[EvaluatorsPage] Error in background refresh:', err);
+      }
     };
 
     // Initial refresh after a short delay to ensure data is loaded
@@ -455,10 +495,10 @@ function EvaluatorsContent() {
             {assessmentId && (
               <Button
                 variant="arise-primary"
-                className="font-semibold"
+                className="font-semibold flex flex-row items-center gap-2"
                 onClick={() => setShowEvaluatorModal(true)}
               >
-                <Plus size={20} className="mr-2" />
+                <Plus size={20} />
                 Ajouter des évaluateurs
               </Button>
             )}
@@ -565,9 +605,9 @@ function EvaluatorsContent() {
                       <Button
                         variant="primary"
                         onClick={() => setShowEvaluatorModal(true)}
-                        className="font-semibold"
+                        className="font-semibold flex flex-row items-center gap-2"
                       >
-                        <Plus size={20} className="mr-2" />
+                        <Plus size={20} />
                         Ajouter des évaluateurs
                       </Button>
                     )}

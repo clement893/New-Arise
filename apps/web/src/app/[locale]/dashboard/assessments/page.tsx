@@ -50,7 +50,7 @@ import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { Brain, Target, Users, Heart, Upload, CheckCircle, Lock, type LucideIcon, Loader2, RefreshCw, Eye, Clock, Mail } from 'lucide-react';
-import { getMyAssessments, Assessment as ApiAssessment, AssessmentType, get360Evaluators, EvaluatorStatus } from '@/lib/api/assessments';
+import { getMyAssessments, Assessment as ApiAssessment, AssessmentType, get360Evaluators, EvaluatorStatus, submitAssessment } from '@/lib/api/assessments';
 import { startAssessment } from '@/lib/api/assessments';
 import InviteAdditionalEvaluatorsModal from '@/components/360/InviteAdditionalEvaluatorsModal';
 import { formatError } from '@/lib/utils/formatError';
@@ -396,16 +396,17 @@ function AssessmentsContent() {
         const evaluatorsResponse = await get360Evaluators(threeSixtyAssessment.assessmentId!);
         const evaluatorsList = evaluatorsResponse.evaluators || [];
         
-        // Save to cache
+        // Save to cache (localStorage for persistence)
         if (typeof window !== 'undefined') {
           try {
             const cacheKey = `evaluators_cache_${threeSixtyAssessment.assessmentId}`;
-            sessionStorage.setItem(cacheKey, JSON.stringify({
+            localStorage.setItem(cacheKey, JSON.stringify({
               data: evaluatorsList,
-              timestamp: Date.now()
+              timestamp: Date.now(),
+              assessmentId: threeSixtyAssessment.assessmentId
             }));
           } catch (cacheErr) {
-            // Ignore cache errors
+            console.error('[AssessmentsPage] Error saving cache in refresh:', cacheErr);
           }
         }
         
@@ -641,16 +642,18 @@ function AssessmentsContent() {
       const threeSixtyAssessment = finalValidatedAssessments.find(a => a.assessmentType === 'THREE_SIXTY_SELF' && a.assessmentId);
       if (threeSixtyAssessment?.assessmentId) {
         try {
-          // Try to load from cache first for instant display
+          // Try to load from cache first for instant display (localStorage for persistence)
           const cacheKey = `evaluators_cache_${threeSixtyAssessment.assessmentId}`;
           if (typeof window !== 'undefined') {
             try {
-              const cached = sessionStorage.getItem(cacheKey);
+              const cached = localStorage.getItem(cacheKey);
               if (cached) {
                 const parsed = JSON.parse(cached);
-                if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) {
+                // Check if cache is recent (less than 24 hours old)
+                if (parsed.timestamp && Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000) {
                   const cachedEvaluators = parsed.data || [];
                   if (cachedEvaluators.length > 0) {
+                    console.log('[AssessmentsPage] Loaded evaluators from cache:', cachedEvaluators.length);
                     setEvaluators(prev => ({
                       ...prev,
                       [threeSixtyAssessment.assessmentId!]: cachedEvaluators
@@ -667,15 +670,17 @@ function AssessmentsContent() {
           const evaluatorsResponse = await get360Evaluators(threeSixtyAssessment.assessmentId);
           const evaluatorsList = evaluatorsResponse.evaluators || [];
           
-          // Save to cache
+          // Save to cache (localStorage for persistence across refreshes)
           if (typeof window !== 'undefined') {
             try {
-              sessionStorage.setItem(cacheKey, JSON.stringify({
+              localStorage.setItem(cacheKey, JSON.stringify({
                 data: evaluatorsList,
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                assessmentId: threeSixtyAssessment.assessmentId
               }));
+              console.log('[AssessmentsPage] Saved evaluators to cache:', evaluatorsList.length);
             } catch (cacheErr) {
-              // Ignore cache errors
+              console.error('[AssessmentsPage] Error saving cache:', cacheErr);
             }
           }
           
@@ -835,7 +840,7 @@ function AssessmentsContent() {
         return (
           <Button 
             variant="outline" 
-            className="w-full rounded-full text-white"
+            className="w-full rounded-full text-white flex flex-row items-center gap-2"
             style={{ backgroundColor: '#0F454D', borderColor: '#0F454D' }}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 69, 77, 0.9)'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F454D'}
@@ -843,7 +848,7 @@ function AssessmentsContent() {
               router.push(`/dashboard/assessments/mbti/results?id=${safeAssessmentId}`);
             }}
           >
-            <Eye size={16} className="mr-2" />
+            <Eye size={16} />
             View Results
           </Button>
         );
@@ -883,24 +888,70 @@ function AssessmentsContent() {
     
     if (hasAllAnswers && safeAssessmentId && !isNaN(safeAssessmentId)) {
       // All questions answered: Show "View Results" button
+      // If status is already completed, redirect directly. Otherwise, submit first.
+      const isAlreadyCompleted = assessment.status === 'completed';
+      
       return (
         <Button 
           variant="outline" 
-          className="text-white"
+          className="text-white flex flex-row items-center gap-2"
           style={{ backgroundColor: '#0F454D', borderColor: '#0F454D' }}
           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 69, 77, 0.9)'}
           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F454D'}
-          onClick={() => {
-            if (assessment.assessmentType === 'TKI') {
-              router.push(`/dashboard/assessments/tki/results?id=${safeAssessmentId}`);
-            } else if (assessment.assessmentType === 'WELLNESS') {
-              router.push(`/dashboard/assessments/results?id=${safeAssessmentId}`);
-            } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
-              router.push(`/dashboard/assessments/360-feedback/results?id=${safeAssessmentId}`);
+          disabled={isStarting && !isAlreadyCompleted}
+          onClick={async () => {
+            if (isAlreadyCompleted) {
+              // Already completed, redirect directly
+              if (assessment.assessmentType === 'TKI') {
+                router.push(`/dashboard/assessments/tki/results?id=${safeAssessmentId}`);
+              } else if (assessment.assessmentType === 'WELLNESS') {
+                router.push(`/dashboard/assessments/results?id=${safeAssessmentId}`);
+              } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
+                router.push(`/dashboard/assessments/360-feedback/results?id=${safeAssessmentId}`);
+              }
+              return;
+            }
+            
+            // Not yet completed, submit first then redirect
+            try {
+              setStartingAssessment(assessment.assessmentType);
+              await submitAssessment(safeAssessmentId);
+              // Refresh assessments list to update status
+              loadAssessments().catch(err => {
+                console.error('Failed to refresh assessments after submission:', err);
+                // Continue anyway
+              });
+              // Then redirect to results
+              if (assessment.assessmentType === 'TKI') {
+                router.push(`/dashboard/assessments/tki/results?id=${safeAssessmentId}`);
+              } else if (assessment.assessmentType === 'WELLNESS') {
+                router.push(`/dashboard/assessments/results?id=${safeAssessmentId}`);
+              } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
+                router.push(`/dashboard/assessments/360-feedback/results?id=${safeAssessmentId}`);
+              }
+            } catch (err) {
+              console.error('Failed to submit assessment:', err);
+              // If submission fails, try to go to results anyway (might already be submitted)
+              if (assessment.assessmentType === 'TKI') {
+                router.push(`/dashboard/assessments/tki/results?id=${safeAssessmentId}`);
+              } else if (assessment.assessmentType === 'WELLNESS') {
+                router.push(`/dashboard/assessments/results?id=${safeAssessmentId}`);
+              } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
+                router.push(`/dashboard/assessments/360-feedback/results?id=${safeAssessmentId}`);
+              }
+            } finally {
+              setStartingAssessment(null);
             }
           }}
         >
-          View Results
+          {isStarting && !isAlreadyCompleted ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Submitting...
+            </>
+          ) : (
+            'View Results'
+          )}
         </Button>
       );
     }
@@ -1453,9 +1504,9 @@ function AssessmentsContent() {
                               <Button 
                                 variant="outline"
                                 size="sm"
-                                className="text-xs"
+                                className="text-xs flex flex-row items-center gap-2"
                               >
-                                <Eye size={14} className="mr-1" />
+                                <Eye size={14} />
                                 Voir tous
                               </Button>
                             </Link>
@@ -1579,16 +1630,17 @@ function AssessmentsContent() {
                   const evaluatorsResponse = await get360Evaluators(feedback360Assessment.assessmentId);
                   const evaluatorsList = evaluatorsResponse.evaluators || [];
                   
-                  // Save to cache
+                  // Save to cache (localStorage for persistence)
                   if (typeof window !== 'undefined') {
                     try {
                       const cacheKey = `evaluators_cache_${feedback360Assessment.assessmentId}`;
-                      sessionStorage.setItem(cacheKey, JSON.stringify({
+                      localStorage.setItem(cacheKey, JSON.stringify({
                         data: evaluatorsList,
-                        timestamp: Date.now()
+                        timestamp: Date.now(),
+                        assessmentId: feedback360Assessment.assessmentId
                       }));
                     } catch (cacheErr) {
-                      // Ignore cache errors
+                      console.error('[AssessmentsPage] Error saving cache after invite:', cacheErr);
                     }
                   }
                   

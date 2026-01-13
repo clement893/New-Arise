@@ -670,9 +670,9 @@ function ResultsReportsContent() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full mt-2 text-xs"
+                    className="w-full mt-2 text-xs flex flex-row items-center gap-2"
                   >
-                    <Eye size={14} className="mr-1" />
+                    <Eye size={14} />
                     View Evaluators
                   </Button>
                 </Link>
