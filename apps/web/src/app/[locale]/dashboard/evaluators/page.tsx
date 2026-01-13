@@ -67,25 +67,44 @@ function EvaluatorsContent() {
 
   // Save evaluators to cache (localStorage for persistence across page refreshes)
   const saveEvaluatorsToCache = (assessmentId: number, evaluators: EvaluatorStatus[]) => {
-    if (typeof window === 'undefined' || !assessmentId) return;
+    if (typeof window === 'undefined' || !assessmentId) {
+      console.warn('[EvaluatorsPage] Cannot save cache - window undefined or no assessmentId');
+      return;
+    }
     
     // Declare variables outside try-catch so they're accessible in catch block
     const cacheKey = `evaluators_cache_${assessmentId}`;
     const cacheData = {
       data: evaluators,
       timestamp: Date.now(),
-      assessmentId: assessmentId
+      assessmentId: assessmentId,
+      count: evaluators.length
     };
     
     try {
-      localStorage.setItem(cacheKey, JSON.stringify(cacheData));
-      console.log('[EvaluatorsPage] Saved evaluators to cache:', evaluators.length, 'evaluators for assessment', assessmentId);
+      const serialized = JSON.stringify(cacheData);
+      localStorage.setItem(cacheKey, serialized);
+      console.log('[EvaluatorsPage] ✅ Saved evaluators to cache:', evaluators.length, 'evaluators for assessment', assessmentId);
+      
+      // Verify it was saved
+      const verify = localStorage.getItem(cacheKey);
+      if (verify) {
+        try {
+          const parsed = JSON.parse(verify);
+          console.log('[EvaluatorsPage] ✅ Cache verification - saved', parsed.count || parsed.data?.length || 0, 'evaluators');
+        } catch (parseErr) {
+          console.error('[EvaluatorsPage] ❌ Cache verification failed - cannot parse:', parseErr);
+        }
+      } else {
+        console.error('[EvaluatorsPage] ❌ Cache verification failed - data not found after save!');
+      }
     } catch (e) {
       console.error('[EvaluatorsPage] Error saving cache:', e);
       // If localStorage is full, try to clear old caches
       try {
         const keys = Object.keys(localStorage);
         const evaluatorCacheKeys = keys.filter(k => k.startsWith('evaluators_cache_'));
+        console.log('[EvaluatorsPage] Found', evaluatorCacheKeys.length, 'existing cache entries');
         // Remove oldest caches if we have more than 5
         if (evaluatorCacheKeys.length > 5) {
           const cacheEntries = evaluatorCacheKeys.map(key => {
@@ -100,11 +119,13 @@ function EvaluatorsContent() {
           // Remove oldest entries
           const toRemove = cacheEntries.slice(0, cacheEntries.length - 5);
           toRemove.forEach(entry => localStorage.removeItem(entry.key));
+          console.log('[EvaluatorsPage] Cleaned up', toRemove.length, 'old cache entries');
         }
         // Retry saving
         localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+        console.log('[EvaluatorsPage] ✅ Retry save successful');
       } catch (retryError) {
-        console.error('[EvaluatorsPage] Failed to save cache after cleanup:', retryError);
+        console.error('[EvaluatorsPage] ❌ Failed to save cache after cleanup:', retryError);
       }
     }
   };
@@ -123,7 +144,11 @@ function EvaluatorsContent() {
       let id: number | null = currentParams?.get('id') ? parseInt(currentParams.get('id')!) : null;
       
       if (!id) {
-        const assessments = await getMyAssessments();
+        const allAssessments = await getMyAssessments();
+        // Filter out evaluator assessments (360_evaluator) - these shouldn't appear in user's list
+        const assessments = allAssessments.filter(
+          (a) => a.assessment_type !== 'THREE_SIXTY_EVALUATOR' && a.assessment_type !== '360_evaluator'
+        );
         console.log('[EvaluatorsPage] Assessments loaded:', assessments);
         const feedback360Assessment = assessments.find(
           (a) => a.assessment_type === 'THREE_SIXTY_SELF'
@@ -160,12 +185,33 @@ function EvaluatorsContent() {
       console.log('[EvaluatorsPage] Evaluators list:', evaluatorsList.length, 'evaluators');
       console.log('[EvaluatorsPage] Evaluators statuses:', evaluatorsList.map(e => ({ id: e.id, name: e.name, status: e.status })));
       
-      // CRITICAL: Always save to cache after loading, even if empty list
+      // CRITICAL: Always save to cache after loading
+      // Only save if we got data, otherwise keep existing cache to prevent overwriting with empty list
       if (id) {
-        saveEvaluatorsToCache(id, evaluatorsList);
+        if (evaluatorsList.length > 0) {
+          console.log('[EvaluatorsPage] Saving to cache:', evaluatorsList.length, 'evaluators for assessment', id);
+          saveEvaluatorsToCache(id, evaluatorsList);
+          // Verify cache was saved
+          const verifyCache = getCachedEvaluators(id);
+          console.log('[EvaluatorsPage] Cache verification - loaded from cache:', verifyCache.length, 'evaluators');
+        } else {
+          // If API returned empty list, check if we have cached data
+          const cachedEvaluators = getCachedEvaluators(id);
+          if (cachedEvaluators.length > 0) {
+            console.warn('[EvaluatorsPage] API returned empty list but cache has', cachedEvaluators.length, 'evaluators. Keeping cache.');
+            // Don't overwrite cache with empty list, but still update state with empty (user will see empty)
+            // Actually, let's use cached data if API returns empty
+            setEvaluators(cachedEvaluators);
+            return; // Don't continue, use cached data
+          } else {
+            console.log('[EvaluatorsPage] API returned empty list and no cache. Saving empty list to cache.');
+            saveEvaluatorsToCache(id, evaluatorsList);
+          }
+        }
       }
       
       // Update state with fresh data
+      console.log('[EvaluatorsPage] Setting evaluators state:', evaluatorsList.length);
       setEvaluators(evaluatorsList);
     } catch (err) {
       console.error('[EvaluatorsPage] Failed to load evaluators:', err);
@@ -207,7 +253,11 @@ function EvaluatorsContent() {
         let id: number | null = currentParams?.get('id') ? parseInt(currentParams.get('id')!) : null;
         
         if (!id) {
-          const assessments = await getMyAssessments();
+          const allAssessments = await getMyAssessments();
+          // Filter out evaluator assessments (360_evaluator) - these shouldn't appear in user's list
+          const assessments = allAssessments.filter(
+            (a) => a.assessment_type !== 'THREE_SIXTY_EVALUATOR' && a.assessment_type !== '360_evaluator'
+          );
           const feedback360Assessment = assessments.find(
             (a) => a.assessment_type === 'THREE_SIXTY_SELF'
           );
@@ -218,6 +268,7 @@ function EvaluatorsContent() {
         
         if (id) {
           const cachedEvaluators = getCachedEvaluators(id);
+          console.log('[EvaluatorsPage] Cache check on mount - found', cachedEvaluators.length, 'cached evaluators for assessment', id);
           if (cachedEvaluators.length > 0) {
             console.log('[EvaluatorsPage] Loading from cache on mount:', cachedEvaluators.length, 'evaluators');
             setEvaluators(cachedEvaluators);
@@ -225,12 +276,15 @@ function EvaluatorsContent() {
             setIsLoading(false); // Don't show loading since we have cached data
             // Still load fresh data in background but silently
             setTimeout(() => {
+              console.log('[EvaluatorsPage] Starting background refresh after cache load');
               loadEvaluators(true);
             }, 100); // Small delay to let UI render first
             return;
           } else {
-            console.log('[EvaluatorsPage] No cached evaluators found for assessment', id);
+            console.log('[EvaluatorsPage] No cached evaluators found for assessment', id, '- will load from API');
           }
+        } else {
+          console.log('[EvaluatorsPage] No assessment ID found - cannot load from cache');
         }
       } catch (err) {
         console.error('[EvaluatorsPage] Error loading from cache:', err);
@@ -283,26 +337,35 @@ function EvaluatorsContent() {
   }, [assessmentId, isLoading]); // Only depend on assessmentId and isLoading to avoid infinite loop
 
   const filterEvaluators = () => {
+    console.log('[EvaluatorsPage] Filtering evaluators. Total:', evaluators.length, 'Filter:', statusFilter);
     if (statusFilter === 'all') {
+      console.log('[EvaluatorsPage] Showing all evaluators:', evaluators.length);
       setFilteredEvaluators(evaluators);
       return;
     }
 
     const filtered = evaluators.filter((e) => {
       const statusLower = e.status?.toLowerCase() || '';
-      switch (statusFilter) {
-        case 'completed':
-          return statusLower === 'completed';
-        case 'in_progress':
-          return statusLower === 'in_progress' || statusLower === 'started';
-        case 'invited':
-          return statusLower === 'invited' || statusLower === 'not_started';
-        case 'pending':
-          return statusLower === 'pending' || statusLower === 'not_started' || statusLower === 'invited';
-        default:
-          return true;
+      const matches = (() => {
+        switch (statusFilter) {
+          case 'completed':
+            return statusLower === 'completed';
+          case 'in_progress':
+            return statusLower === 'in_progress' || statusLower === 'started';
+          case 'invited':
+            return statusLower === 'invited' || statusLower === 'not_started';
+          case 'pending':
+            return statusLower === 'pending' || statusLower === 'not_started' || statusLower === 'invited';
+          default:
+            return true;
+        }
+      })();
+      if (matches) {
+        console.log('[EvaluatorsPage] Evaluator matches filter:', e.name, 'status:', e.status);
       }
+      return matches;
     });
+    console.log('[EvaluatorsPage] Filtered evaluators:', filtered.length);
     setFilteredEvaluators(filtered);
   };
 

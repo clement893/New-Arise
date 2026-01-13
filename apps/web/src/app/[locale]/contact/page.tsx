@@ -26,7 +26,7 @@ export default function ContactPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev: typeof formData) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,13 +51,16 @@ export default function ContactPage() {
       } else {
         throw new Error(response.data?.message || 'Failed to send message');
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Contact form error:', error);
-      const errorMessage = error instanceof AxiosError 
-        ? error.response?.data?.detail || error.message || 'Failed to send message. Please try again.'
-        : error instanceof Error 
-        ? error.message 
-        : 'Failed to send message. Please try again.';
+      let errorMessage = 'Failed to send message. Please try again.';
+      
+      if (error instanceof AxiosError) {
+        const axiosError = error as AxiosError<{ detail?: string }>;
+        errorMessage = axiosError.response?.data?.detail || axiosError.message || errorMessage;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
       
       alert(errorMessage);
     } finally {
