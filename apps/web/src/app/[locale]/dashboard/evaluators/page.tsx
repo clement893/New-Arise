@@ -390,7 +390,7 @@ function EvaluatorsContent() {
                 if (cacheEntries.length > 0) {
                   cacheEntries.sort((a, b) => b.timestamp - a.timestamp);
                   const latestCache = cacheEntries[0];
-                  if (latestCache.data.length > 0) {
+                  if (latestCache && latestCache.data.length > 0) {
                     console.log('[EvaluatorsPage] ✅ Loading from latest cache entry:', latestCache.data.length, 'evaluators for assessment', latestCache.id);
                     setEvaluators(latestCache.data);
                     setAssessmentId(latestCache.id);
@@ -568,7 +568,7 @@ function EvaluatorsContent() {
           if (cacheEntries.length > 0) {
             cacheEntries.sort((a, b) => b.timestamp - a.timestamp);
             const latestCache = cacheEntries[0];
-            if (latestCache.data.length > 0) {
+            if (latestCache && latestCache.data.length > 0) {
               console.log('[EvaluatorsPage] ✅ Loading from latest cache entry:', latestCache.data.length, 'evaluators for assessment', latestCache.id);
               setEvaluators(latestCache.data);
               setAssessmentId(latestCache.id);
