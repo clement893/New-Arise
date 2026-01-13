@@ -23,11 +23,64 @@ type StatusFilter = 'all' | 'completed' | 'in_progress' | 'invited' | 'pending';
 function EvaluatorsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [evaluators, setEvaluators] = useState<EvaluatorStatus[]>([]);
+  
+  // CRITICAL: Load cache IMMEDIATELY on component initialization, before any state
+  // This ensures cache is available before any useEffect runs
+  let initialCacheLoaded = false;
+  let initialEvaluators: EvaluatorStatus[] = [];
+  let initialAssessmentId: number | null = null;
+  
+  if (typeof window !== 'undefined') {
+    const currentParams = searchParams;
+    let id: number | null = currentParams?.get('id') ? parseInt(currentParams.get('id')!) : null;
+    
+    // If no ID in URL, try to get from cache immediately
+    if (!id) {
+      const cacheKeys = Object.keys(localStorage).filter(k => k.startsWith('evaluators_cache_'));
+      if (cacheKeys.length > 0) {
+        const cacheEntries = cacheKeys.map(key => {
+          try {
+            const data = JSON.parse(localStorage.getItem(key) || '{}');
+            return { key, id: data.assessmentId || parseInt(key.replace('evaluators_cache_', '')), timestamp: data.timestamp || 0 };
+          } catch {
+            return { key, id: parseInt(key.replace('evaluators_cache_', '')), timestamp: 0 };
+          }
+        }).filter(e => !isNaN(e.id));
+        
+        if (cacheEntries.length > 0) {
+          cacheEntries.sort((a, b) => b.timestamp - a.timestamp);
+          const firstEntry = cacheEntries[0];
+          if (firstEntry) {
+            id = firstEntry.id;
+          }
+        }
+      }
+    }
+    
+    if (id) {
+      const cacheKey = `evaluators_cache_${id}`;
+      const rawCache = localStorage.getItem(cacheKey);
+      if (rawCache) {
+        try {
+          const parsed = JSON.parse(rawCache);
+          if (parsed.data && Array.isArray(parsed.data) && parsed.data.length > 0) {
+            initialEvaluators = parsed.data;
+            initialAssessmentId = id;
+            initialCacheLoaded = true;
+            console.log('[EvaluatorsPage] 🚀 SYNC CACHE LOAD - Found', initialEvaluators.length, 'evaluators in cache for assessment', id);
+          }
+        } catch (e) {
+          console.error('[EvaluatorsPage] ❌ Error parsing cache on init:', e);
+        }
+      }
+    }
+  }
+  
+  const [evaluators, setEvaluators] = useState<EvaluatorStatus[]>(initialEvaluators);
   const [filteredEvaluators, setFilteredEvaluators] = useState<EvaluatorStatus[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!initialCacheLoaded); // Don't show loading if we have cache
   const [error, setError] = useState<string | null>(null);
-  const [assessmentId, setAssessmentId] = useState<number | null>(null);
+  const [assessmentId, setAssessmentId] = useState<number | null>(initialAssessmentId);
   const [showEvaluatorModal, setShowEvaluatorModal] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -528,6 +581,27 @@ function EvaluatorsContent() {
     if (id) {
       const cachedEvaluators = getCachedEvaluators(id);
       console.log('[EvaluatorsPage] ✅ IMMEDIATE cache load - found', cachedEvaluators.length, 'cached evaluators for assessment', id);
+      
+      // Debug: Check what's actually in localStorage
+      if (typeof window !== 'undefined') {
+        const cacheKey = `evaluators_cache_${id}`;
+        const rawCache = localStorage.getItem(cacheKey);
+        console.log('[EvaluatorsPage] 🔍 Debug - Raw cache data for key', cacheKey, ':', rawCache ? 'EXISTS' : 'NOT FOUND');
+        if (rawCache) {
+          try {
+            const parsed = JSON.parse(rawCache);
+            console.log('[EvaluatorsPage] 🔍 Debug - Parsed cache:', {
+              assessmentId: parsed.assessmentId,
+              count: parsed.count,
+              dataLength: parsed.data?.length || 0,
+              timestamp: parsed.timestamp ? new Date(parsed.timestamp).toISOString() : 'N/A'
+            });
+          } catch (e) {
+            console.error('[EvaluatorsPage] ❌ Debug - Error parsing cache:', e);
+          }
+        }
+      }
+      
       if (cachedEvaluators.length > 0) {
         console.log('[EvaluatorsPage] ✅ Loading from cache IMMEDIATELY on mount:', cachedEvaluators.length, 'evaluators');
         
@@ -543,6 +617,8 @@ function EvaluatorsContent() {
         console.log('[EvaluatorsPage] ✅ Cache loaded and state set, evaluators should be visible now');
       } else {
         console.log('[EvaluatorsPage] ⚠️ No cached evaluators found for assessment', id, '- will try API');
+        // Even if cache is empty, make sure we don't stay in loading state
+        setIsLoading(false);
       }
     } else {
       console.log('[EvaluatorsPage] ⚠️ No assessment ID found - trying to find cache from any assessment');
