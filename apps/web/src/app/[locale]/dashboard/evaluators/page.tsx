@@ -71,6 +71,7 @@ function EvaluatorsContent() {
       console.log('[EvaluatorsPage] Evaluators response:', response);
       const evaluatorsList = response.evaluators || [];
       console.log('[EvaluatorsPage] Evaluators list:', evaluatorsList);
+      console.log('[EvaluatorsPage] Evaluators statuses:', evaluatorsList.map(e => ({ id: e.id, name: e.name, status: e.status })));
       setEvaluators(evaluatorsList);
     } catch (err) {
       console.error('[EvaluatorsPage] Failed to load evaluators:', err);
@@ -113,30 +114,35 @@ function EvaluatorsContent() {
     filterEvaluators();
   }, [evaluators, statusFilter]);
 
-  // Auto-refresh evaluators status every 10 seconds if there are pending/in-progress evaluators
+  // Auto-refresh evaluators status every 10 seconds
+  // Always poll to ensure completed evaluators are visible
   useEffect(() => {
     if (!assessmentId || isLoading) {
       return;
     }
 
-    // Only poll if there are evaluators that are not completed
-    const hasPendingEvaluators = evaluators.some(e => {
-      const status = e.status?.toLowerCase() || '';
-      return status !== 'completed';
-    });
+    // Always poll to refresh status, even if all are completed (to show completed evaluators)
+    const refreshEvaluators = () => {
+      loadEvaluators(true); // Silent refresh - don't show loading state
+    };
 
-    if (!hasPendingEvaluators) {
-      return; // Stop polling if all evaluators are completed
-    }
+    // Initial refresh after a short delay to ensure data is loaded
+    const initialTimeout = setTimeout(() => {
+      refreshEvaluators();
+    }, 2000); // 2 seconds after assessmentId is set
 
     // Poll every 10 seconds to check for status updates (silent refresh)
     const interval = setInterval(() => {
-      loadEvaluators(true); // Silent refresh - don't show loading state
+      refreshEvaluators();
     }, 10000); // 10 seconds
 
-    // Cleanup interval on unmount or when dependencies change
-    return () => clearInterval(interval);
-  }, [assessmentId, isLoading, loadEvaluators, evaluators]); // Include evaluators to detect status changes
+    // Cleanup interval and timeout on unmount or when dependencies change
+    return () => {
+      clearInterval(interval);
+      clearTimeout(initialTimeout);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assessmentId, isLoading]); // Only depend on assessmentId and isLoading to avoid infinite loop
 
   const filterEvaluators = () => {
     if (statusFilter === 'all') {
