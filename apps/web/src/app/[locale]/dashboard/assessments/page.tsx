@@ -885,7 +885,7 @@ function AssessmentsContent() {
         <div className="flex gap-2">
           <Button
             variant="outline"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 text-xs"
             onClick={() => {
               if (assessment.externalLink) {
                 window.open(assessment.externalLink, '_blank');
@@ -894,18 +894,20 @@ function AssessmentsContent() {
                 router.push('/dashboard/assessments/mbti');
               }
             }}
+          size="sm"
           >
-            <Brain size={16} />
+            <Brain size={12} />
             Take the test
           </Button>
           <Button
             variant="outline"
-            className="flex items-center gap-2"
+            size="sm"
+            className="flex items-center gap-2 text-xs"
             onClick={() => {
               router.push('/dashboard/assessments/mbti/upload');
             }}
           >
-            <Upload size={16} />
+            <Upload size={12} />
             Upload your test
           </Button>
         </div>
@@ -1026,7 +1028,8 @@ function AssessmentsContent() {
     return (
       <Button 
         variant="outline"
-        className="border-arise-button-primary text-white hover:bg-arise-button-primary hover:text-white"
+        size="sm"
+        className="border-arise-button-primary text-white hover:bg-arise-button-primary hover:text-white text-xs"
         disabled={isStarting}
         onClick={async () => {
           try {
@@ -1102,7 +1105,7 @@ function AssessmentsContent() {
               right: '-15%',
               width: 'calc(100% + 30%)',
               zIndex: 0,
-              borderRadius: '16px',
+              borderRadius: '24px',
             }}
           />
           <div className="relative z-10">
@@ -1143,7 +1146,7 @@ function AssessmentsContent() {
   return (
     <>
       <MotionDiv variant="fade" duration="normal">
-        <div className="mb-8 pb-6">
+        <div className="mb-8 pb-6 text-left">
           <h1 className="text-4xl font-bold mb-2">
             <span className="text-white">Vos </span>
             <span style={{ color: '#D5B667' }}>assessments</span>
@@ -1163,11 +1166,11 @@ function AssessmentsContent() {
             backgroundColor: '#D5DEE0',
             top: '-20px',
             bottom: 0,
-            left: '-15%',
-            right: '-15%',
-            width: 'calc(100% + 30%)',
+            left: '-7.5%',
+            right: '-7.5%',
+            width: 'calc(100% + 15%)',
             zIndex: 0,
-            borderRadius: '16px',
+            borderRadius: '24px',
           }}
         />
         
@@ -1196,9 +1199,10 @@ function AssessmentsContent() {
                 loadAssessments();
               }}
               disabled={isLoading}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-xs"
+              style={{ border: 'none', padding: '2px 4px' }}
             >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-3 w-3 ${isLoading ? 'animate-spin' : ''}`} />
               <span>Actualiser</span>
             </Button>
           </div>
@@ -1530,9 +1534,10 @@ function AssessmentsContent() {
                               <Button 
                                 variant="outline"
                                 size="sm"
-                                className="text-xs flex flex-row items-center gap-2"
+                                className="text-xs flex flex-row items-center gap-1"
+                                style={{ padding: '4px 8px' }}
                               >
-                                <Eye size={14} />
+                                <Eye size={12} />
                                 Voir tous
                               </Button>
                             </Link>
@@ -1541,7 +1546,7 @@ function AssessmentsContent() {
                             variant="primary"
                             size="sm"
                             className="!bg-arise-gold !text-white hover:!bg-arise-gold/90 text-xs"
-                            style={{ backgroundColor: '#d8b868', color: '#000000' }}
+                            style={{ backgroundColor: '#d8b868', color: '#000000', padding: '4px 8px' }}
                             onClick={() => setShowEvaluatorModal(true)}
                           >
                             Ajouter

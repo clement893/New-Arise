@@ -23,29 +23,29 @@ export function Step7_Welcome() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-6">
-      <div className="bg-white rounded-lg shadow-xl p-8 text-center">
+    <div className="w-full max-w-2xl mx-auto p-6" style={{ paddingTop: '120px', paddingBottom: '120px' }}>
+      <div className="p-8 text-center">
         <div className="w-20 h-20 bg-arise-gold rounded-full flex items-center justify-center mx-auto mb-6">
           <CheckCircle className="w-12 h-12 text-white" />
         </div>
 
-        <h2 className="text-4xl font-bold text-arise-deep-teal mb-4">
+        <h2 className="text-4xl font-bold text-white mb-4">
           Welcome to ARISE!
         </h2>
         
-        <p className="text-xl text-gray-700 mb-2">
+        <p className="text-xl text-white mb-2">
           Hi {userInfo.firstName},
         </p>
         
-        <p className="text-gray-600 mb-8 max-w-md mx-auto">
+        <p className="text-white mb-8 max-w-md mx-auto">
           Your account has been successfully created. You're ready to begin your leadership development journey.
         </p>
 
-        <div className="bg-arise-light-beige rounded-lg p-6 mb-8">
-          <h3 className="font-semibold text-arise-deep-teal mb-4">
+        <div className="rounded-lg p-6 mb-8" style={{ backgroundColor: 'rgba(0, 0, 0, 0.1)', backdropFilter: 'blur(40px)' }}>
+          <h3 className="font-semibold text-white mb-4">
             What's next?
           </h3>
-          <ul className="text-left space-y-3 text-gray-700">
+          <ul className="text-left space-y-3 text-white">
             <li className="flex items-start gap-2">
               <span className="text-arise-gold font-bold">1.</span>
               <span>Complete your first assessment</span>

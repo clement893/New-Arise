@@ -387,7 +387,7 @@ export default function Start360FeedbackPage() {
             </Card>
           )}
 
-          <Card className="p-8">
+          <Card className="p-8" style={{ backgroundColor: '#D5DEE0', borderRadius: '24px' }}>
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="mb-6 rounded-lg bg-primary-50 p-4">
                 <div className="flex items-start gap-3">
@@ -422,7 +422,7 @@ export default function Start360FeedbackPage() {
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-arise-teal text-sm font-semibold text-white">
                           {index + 1}
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900">
+                        <h3 className="text-lg font-semibold text-gray-900 text-left">
                           Évaluateur {index + 1}
                         </h3>
                       </div>
@@ -509,25 +509,35 @@ export default function Start360FeedbackPage() {
                 ))}
               </div>
 
-              <div className="flex justify-center border-t border-gray-200 pt-4">
+              <div className="flex justify-center border-t border-gray-200 pt-2">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={addEvaluator}
                   className="flex items-center gap-2"
+                  style={{ 
+                    border: '1px solid #D8B868',
+                    color: '#D8B868',
+                    padding: '3px 6px'
+                  }}
                 >
                   <Plus className="h-4 w-4" />
                   Ajouter un évaluateur
                 </Button>
               </div>
 
-              <div className="flex justify-between gap-4 border-t border-gray-200 pt-6">
-                <div className="flex gap-4">
+              <div className="flex justify-between gap-4 border-t border-gray-200 pt-3">
+                <div className="flex gap-2">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => router.push('/dashboard/assessments')}
                     disabled={isSubmitting}
+                    style={{ 
+                      border: '1px solid #D8B868',
+                      color: '#D8B868',
+                      padding: '6px 12px'
+                    }}
                   >
                     Cancel
                   </Button>
@@ -536,6 +546,11 @@ export default function Start360FeedbackPage() {
                     variant="outline"
                     onClick={handleSkip}
                     disabled={isSubmitting}
+                    style={{ 
+                      border: '1px solid #D8B868',
+                      color: '#D8B868',
+                      padding: '6px 12px'
+                    }}
                   >
                     {isSubmitting ? (
                       <>Processing...</>

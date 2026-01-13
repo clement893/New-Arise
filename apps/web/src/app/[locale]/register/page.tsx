@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRegistrationStore } from '@/stores/registrationStore';
 import { Step1_RoleSelection } from '@/components/register/Step1_RoleSelection';
+import { Step1_5_DiscoverPlans } from '@/components/register/Step1_5_DiscoverPlans';
 import { Step2_PlanSelection } from '@/components/register/Step2_PlanSelection';
 import { Step3_CreateAccount } from '@/components/register/Step3_CreateAccount';
 import { Step4_ReviewConfirm } from '@/components/register/Step4_ReviewConfirm';
@@ -55,6 +56,8 @@ export default function RegisterPage() {
     switch (step) {
       case 1:
         return <Step1_RoleSelection />;
+      case 1.5:
+        return <Step1_5_DiscoverPlans />;
       case 2:
         return <Step2_PlanSelection />;
       case 3:
@@ -92,11 +95,13 @@ export default function RegisterPage() {
 
       {/* Progress Bar */}
       {step < 7 && (
-        <div className="relative z-10 container mx-auto px-4 pt-24 mb-8">
+        <div className="relative z-10 container mx-auto px-4 pt-96 mb-8">
           <div className="flex justify-center items-center gap-2 mb-2">
-            {Array.from({ length: 7 }, (_, index) => {
+            {Array.from({ length: 8 }, (_, index) => {
               const stepNumber = index + 1;
-              const isActive = stepNumber <= step;
+              // Map step 1.5 to visual step 2
+              const visualStep = step === 1.5 ? 2 : step;
+              const isActive = stepNumber <= visualStep;
               return (
                 <div
                   key={stepNumber}
@@ -112,7 +117,7 @@ export default function RegisterPage() {
             })}
           </div>
           <div className="text-white text-sm font-medium text-center">
-            Step {step} of 7
+            Step {step === 1.5 ? 2 : step} of 8
           </div>
         </div>
       )}
@@ -121,6 +126,7 @@ export default function RegisterPage() {
       <div className="relative z-10 container mx-auto px-4 py-8">
         {renderStep()}
       </div>
+      <div className="h-96"></div>
       <Footer />
     </div>
   );

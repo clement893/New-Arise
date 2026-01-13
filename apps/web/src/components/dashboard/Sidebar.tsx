@@ -25,7 +25,7 @@ export function Sidebar() {
   const isActive = (href: string) => pathname === href;
 
   return (
-    <div className="w-64 bg-white h-screen fixed left-0 top-0 flex flex-col shadow-lg">
+    <div className="w-51 bg-white h-screen fixed left-0 top-0 flex flex-col shadow-lg" style={{ width: '204px' }}>
       {/* Logo */}
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center gap-3">

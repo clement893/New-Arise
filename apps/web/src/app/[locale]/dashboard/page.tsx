@@ -404,6 +404,7 @@ function DashboardContent() {
     return (
       <Button 
         variant="primary" 
+        size="sm"
         className="w-full !bg-arise-gold-alt !text-arise-deep-teal-alt hover:!bg-arise-gold-alt/90 font-semibold"
         style={{ backgroundColor: 'var(--color-arise-gold-alt, #F4B860)', color: 'var(--color-arise-deep-teal-alt, #1B5E6B)' }}
         onClick={() => {
@@ -432,7 +433,7 @@ function DashboardContent() {
           {/* Welcome Header */}
           <MotionDiv variant="fade" duration="normal">
             <div className="mb-8 pb-6">
-              <h1 className="text-4xl font-bold mb-2">
+              <h1 className="text-4xl font-medium mb-2">
                 <span className="text-white">Welcome</span> <span style={{ color: '#D5B667' }}>{user?.name?.split(' ')[0] || 'User'}</span>
               </h1>
               <p className="text-white text-lg">
@@ -450,11 +451,11 @@ function DashboardContent() {
                 backgroundColor: '#D5DEE0',
                 top: '-20px',
                 bottom: 0,
-                left: '-15%',
-                right: '-15%',
-                width: 'calc(100% + 30%)',
+                left: '-7.5%',
+                right: '-7.5%',
+                width: 'calc(100% + 15%)',
                 zIndex: 0,
-                borderRadius: '16px',
+                borderRadius: '24px',
               }}
             />
             
@@ -472,7 +473,7 @@ function DashboardContent() {
                         <Info className="text-arise-deep-teal" size={20} />
                       </div>
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900 mb-1">
+                      <h3 className="text-lg font-medium text-gray-900 mb-1">
                         Add Your 360° Feedback: Evaluators
                       </h3>
                       <p className="text-sm text-gray-900">
@@ -488,9 +489,10 @@ function DashboardContent() {
                       if (feedback360Assessment?.id) {
                         return (
                           <Link href={`/dashboard/evaluators?id=${feedback360Assessment.id}`}>
-                            <Button 
-                              variant="outline" 
-                              className="whitespace-nowrap font-semibold transition-colors flex flex-row items-center gap-2"
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="whitespace-nowrap font-semibold transition-colors flex flex-row items-center gap-2 text-sm"
                               style={{ color: '#0F444C', borderColor: '#0F444C' }}
                               onMouseEnter={(e) => {
                                 e.currentTarget.style.backgroundColor = 'rgba(15, 68, 76, 0.1)';
@@ -509,7 +511,8 @@ function DashboardContent() {
                     })()}
                     <Button 
                       variant="arise-primary"
-                      className="whitespace-nowrap font-semibold"
+                      size="sm"
+                      className="whitespace-nowrap font-semibold text-sm"
                       onClick={() => {
                         // Check if a 360° feedback assessment already exists
                         const feedback360Assessment = assessments.find(
@@ -540,8 +543,8 @@ function DashboardContent() {
                 >
                   <div className="flex justify-between items-start mb-6 gap-8">
                     <div className="flex-1">
-                      <h2 className="text-2xl font-bold mb-2 text-white">Your Progress</h2>
-                      <div className="text-6xl font-bold mb-2" style={{ color: '#d5b667' }}>{progressData.overall} %</div>
+                      <h2 className="text-2xl font-medium mb-2 text-white">Your Progress</h2>
+                      <div className="text-6xl font-medium mb-2" style={{ color: '#d5b667' }}>{progressData.overall} %</div>
                       <p className="text-white/90 mb-1">
                         You are making good progress in your holistic leadership journey. Keep it up!
                       </p>
@@ -591,6 +594,15 @@ function DashboardContent() {
                         borderColor: '#799ba1',
                         color: '#FFFFFF',
                       }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(121, 155, 161, 0.1)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                      style={{
+                        backgroundColor: 'transparent',
+                      }}
                       onClick={() => router.push('/dashboard/results')}
                     >
                       View Reports
@@ -601,9 +613,9 @@ function DashboardContent() {
 
               {/* Evaluations Section */}
               <MotionDiv variant="slideUp" delay={300}>
-                <div className="mb-8">
+                <div className="mb-32">
                   <div className="flex items-center justify-start mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900">Your evaluations</h2>
+                    <h2 className="text-2xl font-medium text-gray-900">Your evaluations</h2>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {evaluations.map((evaluation, index) => {
@@ -614,14 +626,17 @@ function DashboardContent() {
                           className={`group relative transition-all duration-300 ${evaluation.status === 'locked' ? 'opacity-60' : ''}`}
                           onMouseEnter={evaluation.status !== 'locked' ? (e) => {
                             const cardElement = e.currentTarget;
-                            cardElement.style.backgroundColor = '#6f949a';
-                            cardElement.style.setProperty('--glassmorphism-card-background', '#6f949a');
+                            cardElement.style.backgroundColor = 'rgba(15, 76, 86, 0.2)';
+                            cardElement.style.setProperty('--glassmorphism-card-background', 'rgba(15, 76, 86, 0.2)');
                           } : undefined}
                           onMouseLeave={evaluation.status !== 'locked' ? (e) => {
                             const cardElement = e.currentTarget;
                             cardElement.style.backgroundColor = '';
                             cardElement.style.removeProperty('--glassmorphism-card-background');
                           } : undefined}
+                          style={{
+                            backgroundColor: evaluation.status === 'locked' ? undefined : 'transparent',
+                          }}
                         >
                           <Stack gap="normal">
                             {/* Icon in upper left corner */}
@@ -659,7 +674,7 @@ function DashboardContent() {
                             <div className="pt-12">
                               {/* Title and Description */}
                               <div>
-                                <h3 className="text-lg font-bold text-gray-900 mb-2">
+                                <h3 className="text-lg font-medium text-gray-900 mb-2">
                                   {evaluation.title}
                                 </h3>
                                 <p className="text-sm text-gray-900 mb-4">
@@ -679,7 +694,7 @@ function DashboardContent() {
                             )}
 
                             {/* Action Button */}
-                            <div className="mt-auto">
+                            <div className="mt-auto flex items-end">
                               {getActionButton(evaluation)}
                             </div>
                           </Stack>
@@ -698,19 +713,19 @@ function DashboardContent() {
               className="text-white border-0 overflow-hidden" 
               style={{ 
                 backgroundColor: '#2E2E2E',
-                marginLeft: '-15%',
-                marginRight: '-15%',
-                width: 'calc(100% + 30%)',
-                borderRadius: '16px',
-                paddingLeft: 'calc(15% + 2rem)',
-                paddingRight: 'calc(15% + 2rem)',
+                marginLeft: '-7.5%',
+                marginRight: '-7.5%',
+                width: 'calc(100% + 15%)',
+                borderRadius: '24px',
+                paddingLeft: 'calc(7.5% + 2rem)',
+                paddingRight: 'calc(7.5% + 2rem)',
                 paddingTop: '2rem',
                 paddingBottom: '2rem',
               }}
             >
               <div className="flex flex-col md:flex-row items-center gap-6">
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-2xl font-bold mb-3">
+                  <h2 className="text-2xl font-medium mb-3">
                     Ready to accelerate your growth?
                   </h2>
                   <p className="text-white/90 mb-4 break-words">

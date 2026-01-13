@@ -531,10 +531,10 @@ function ResultsReportsContent() {
       <div className="mb-8 pb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2">
-              Results & Reports
+            <h1 className="text-4xl font-bold text-white mb-2 text-left">
+              Results & <span style={{ color: '#D8B868' }}>Reports</span>
             </h1>
-            <p className="text-white">
+            <p className="text-white text-left">
               View your assessment results and comprehensive leadership profile
             </p>
           </div>
@@ -623,11 +623,11 @@ function ResultsReportsContent() {
             backgroundColor: '#D5DEE0',
             top: '-20px',
             bottom: 0,
-            left: '-15%',
-            right: '-15%',
-            width: 'calc(100% + 30%)',
+            left: '-7.5%',
+            right: '-7.5%',
+            width: 'calc(100% + 15%)',
             zIndex: 0,
-            borderRadius: '16px',
+            borderRadius: '24px',
           }}
         />
         
@@ -681,11 +681,11 @@ function ResultsReportsContent() {
           </div>
 
           {/* Assessment Results */}
-          <Card className="p-6 text-white border-0" style={{ backgroundColor: '#10454D' }}>
-            <div className="flex items-center justify-between mb-6">
+          <Card className="p-3 text-white border-0" style={{ backgroundColor: '#10454D' }}>
+            <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
-                  <FileText className="text-arise-deep-teal" size={24} />
+                <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(15, 76, 86, 0.1)' }}>
+                  <FileText className="text-white" size={24} />
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-white">

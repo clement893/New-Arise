@@ -201,7 +201,7 @@ export function Step2_PlanSelection() {
                       </ul>
                     )}
                   </div>
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ml-4 ${
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ml-4 self-center ${
                     selectedPlan === plan.id
                       ? 'border-arise-gold bg-arise-gold'
                       : 'border-gray-300'

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button, Card, Badge } from '@/components/ui';
-import { Check } from 'lucide-react';
+import { Check, ArrowRight } from 'lucide-react';
 import clsx from 'clsx';
 
 interface Plan {
@@ -49,12 +49,16 @@ export default function PricingCardSimple({
 
   const isCustomPricing = plan.price === -1;
 
+  const displayPrice = calculatePrice();
+  const priceString = displayPrice ? displayPrice.toLocaleString('fr-FR') : null;
+
   return (
     <Card
       className={clsx(
-        'relative',
+        'relative rounded-xl',
         plan.popular && 'border-2 border-blue-500 shadow-xl scale-105'
       )}
+      style={{ backgroundColor: '#F3F4F6' }}
     >
       {plan.popular && (
         <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
@@ -64,50 +68,56 @@ export default function PricingCardSimple({
         </div>
       )}
       <div className="p-8">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-          {plan.name === 'Test' ? 'test pour la plateforme' : plan.name}
-        </h2>
-        <p className="text-gray-900 dark:text-gray-100 mb-6">{plan.description}</p>
+        {/* Price */}
         <div className="mb-6">
           {isCustomPricing ? (
             <div>
-              <span className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+              <span className="text-4xl font-bold" style={{ color: '#0F4C56' }}>
                 Sur devis
               </span>
             </div>
           ) : (
-            <>
-              <span className="text-4xl font-bold text-black">
-                {calculatePrice()}€
+            <div className="flex items-baseline gap-2">
+              <span className="text-4xl md:text-5xl font-bold" style={{ color: '#0F4C56' }}>
+                {priceString}€
               </span>
-              <span className="text-black">/mois</span>
-              {billingPeriod === 'year' && calculateYearlyPrice() && (
-                <div className="text-sm text-gray-900 dark:text-gray-100 mt-1">
-                  {calculateYearlyPrice()}€/an
-                </div>
-              )}
-            </>
+              <span className="text-lg md:text-xl" style={{ color: '#6B7280' }}>
+                /mois
+              </span>
+            </div>
           )}
         </div>
+
+        {/* Title */}
+        <h2 className="text-xl md:text-2xl font-bold mb-2" style={{ color: '#374151' }}>
+          {plan.name}
+        </h2>
+
+        {/* Description */}
+        <p className="text-base mb-6" style={{ color: '#374151' }}>
+          {plan.description || 'test pour la plateforme'}
+        </p>
+
+        {/* Button */}
         <Link href={`/subscriptions?plan=${plan.id}&period=${billingPeriod}`}>
           <Button
-            className={clsx(
-              'w-full mb-6',
-              plan.popular && 'bg-blue-600 hover:bg-blue-700'
-            )}
-            variant={plan.popular ? 'primary' : 'outline'}
+            className="w-full rounded-lg flex items-center justify-center gap-2"
+            style={{ 
+              backgroundColor: '#D8B868', 
+              color: '#374151',
+              border: 'none'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#C9A85A';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#D8B868';
+            }}
           >
             {plan.buttonText}
+            <ArrowRight size={18} />
           </Button>
         </Link>
-        <ul className="space-y-3">
-          {plan.features.map((feature, index) => (
-            <li key={index} className="flex items-start">
-              <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-              <span className="text-gray-900 dark:text-gray-100">{feature}</span>
-            </li>
-          ))}
-        </ul>
       </div>
     </Card>
   );

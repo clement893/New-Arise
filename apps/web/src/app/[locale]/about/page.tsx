@@ -1,12 +1,13 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
 import { Card } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { Target, Eye, Heart, Award, ArrowRight, Users, Lightbulb, TrendingUp } from 'lucide-react';
+import { Target, Eye, Heart, Award, ArrowRight, Users, Lightbulb, TrendingUp, CheckCircle } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 
 export default function AboutPage() {
@@ -17,40 +18,45 @@ export default function AboutPage() {
       <main className="container mx-auto px-4 pt-24 pb-12">
         {/* Hero Section */}
         <MotionDiv variant="fade" duration="normal">
-          <div className="mb-16 relative flex items-center bg-arise-deep-teal overflow-hidden rounded-lg min-h-[400px] md:min-h-[500px]">
-            {/* Background Image */}
-            <div 
-              className="absolute inset-0 bg-cover bg-center opacity-10"
-              style={{
-                backgroundImage: 'url(/images/dashboard-bg.jpg)',
-              }}
-            />
-            {/* Vertical lines texture */}
-            <div 
-              className="absolute inset-0 opacity-20"
-              style={{
-                backgroundImage: `repeating-linear-gradient(
-                  90deg,
-                  transparent,
-                  transparent 3px,
-                  rgba(255, 255, 255, 0.08) 3px,
-                  rgba(255, 255, 255, 0.08) 4px
-                )`
-              }}
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center relative z-10 p-8 md:p-12 w-full">
-              <div className="pt-8">
-                <h1 className="text-5xl font-bold text-white mb-4">
-                  {t('title')}
-                </h1>
-                <p className="text-xl text-white/90 max-w-3xl">
-                  {t('subtitle')}
-                </p>
-              </div>
-              <div className="relative h-64 md:h-96 rounded-lg overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 flex items-center justify-center">
-                  <Users className="text-white/30" size={120} />
+          <div className="mb-16 relative flex items-center overflow-hidden rounded-2xl" style={{ backgroundColor: '#0F4C56', minHeight: '500px' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch w-full">
+              {/* Left Section - Text on Dark Teal Background */}
+              <div className="relative z-10 p-8 md:p-12 lg:p-16 flex flex-col justify-center" style={{ backgroundColor: '#0F4C56' }}>
+                <div className="text-left">
+                  <h1 className="mb-6">
+                    <span className="block text-5xl md:text-6xl font-light mb-2" style={{ color: '#D8B868' }}>
+                      Notre
+                    </span>
+                    <span className="block text-5xl md:text-6xl font-medium" style={{ color: '#D8B868' }}>
+                      histoire
+                    </span>
+                  </h1>
+                  <p className="text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed">
+                    {t('subtitle')}
+                  </p>
                 </div>
+              </div>
+              
+              {/* Right Section - Photo */}
+              <div className="relative h-64 md:h-auto rounded-r-2xl overflow-hidden" style={{ borderLeft: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                <div className="absolute inset-0">
+                  <Image 
+                    src="/images/about-hero.jpg" 
+                    alt="Notre histoire"
+                    fill
+                    className="object-cover"
+                    priority
+                    onError={() => {
+                      // Fallback handled by CSS
+                    }}
+                  />
+                  {/* Fallback gradient if image fails to load */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                    <Users className="text-white/30" size={120} />
+                  </div>
+                </div>
+                {/* Subtle border around photo */}
+                <div className="absolute inset-0 border-2 border-black/10 rounded-r-2xl pointer-events-none"></div>
               </div>
             </div>
           </div>
@@ -58,24 +64,42 @@ export default function AboutPage() {
 
         {/* Mission Section */}
         <div className="mb-16">
-          <Card className="p-6 md:p-8 border border-[#D8B868]">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-              <div>
-                <div className="flex items-center gap-3 mb-4">
-                  <Users className="text-arise-deep-teal" size={32} />
-                  <h2 className="text-3xl font-bold text-gray-900">{t('mission.title')}</h2>
-                </div>
-                <p className="text-lg text-gray-700 mb-4">
-                  {t('mission.text1')}
-                </p>
-                <p className="text-gray-700">
-                  {t('mission.text2')}
-                </p>
-              </div>
-              <div className="relative h-64 md:h-80 rounded-lg overflow-hidden bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20">
-                <div className="absolute inset-0 flex items-center justify-center">
+          <Card className="p-0 border border-[#D8B868] rounded-2xl overflow-hidden bg-white">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch">
+              {/* Image Left */}
+              <div className="relative h-64 md:h-auto rounded-l-2xl overflow-hidden">
+                <Image 
+                  src="/images/about-mission.jpg" 
+                  alt="Notre mission"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+                {/* Fallback gradient if image fails to load */}
+                <div className="absolute inset-0 bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                   <Target className="text-arise-deep-teal/30" size={120} />
                 </div>
+                {/* Rounded right edge where image meets text */}
+                <div className="absolute right-0 top-0 bottom-0 w-4 bg-white rounded-r-full"></div>
+              </div>
+              
+              {/* Content Right */}
+              <div className="p-6 md:p-8 lg:p-12">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(216, 184, 104, 0.2)' }}>
+                    <Eye className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
+                  </div>
+                  <h2 className="text-3xl md:text-4xl">
+                    <span className="font-light" style={{ color: '#D8B868' }}>Notre </span>
+                    <span className="font-medium" style={{ color: '#D8B868' }}>mission</span>
+                  </h2>
+                </div>
+                <p className="text-base md:text-lg text-gray-900 mb-4 leading-relaxed">
+                  {t('mission.text1')}
+                </p>
+                <p className="text-base md:text-lg text-gray-900 leading-relaxed">
+                  {t('mission.text2')}
+                </p>
               </div>
             </div>
           </Card>
@@ -83,22 +107,40 @@ export default function AboutPage() {
 
         {/* Vision Section */}
         <div className="mb-16">
-          <Card className="p-6 md:p-8 border border-[#D8B868] bg-gradient-to-br from-arise-deep-teal/5 to-white">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-              <div className="order-2 md:order-1 relative h-64 md:h-80 rounded-lg overflow-hidden bg-gradient-to-br from-arise-gold/20 to-arise-deep-teal/20">
-                <div className="absolute inset-0 flex items-center justify-center">
+          <Card className="p-0 border border-[#D8B868] rounded-2xl overflow-hidden bg-white">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch">
+              {/* Image Left */}
+              <div className="relative h-64 md:h-auto rounded-l-2xl overflow-hidden">
+                <Image 
+                  src="/images/about-vision.jpg" 
+                  alt="Notre vision"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+                {/* Fallback gradient if image fails to load */}
+                <div className="absolute inset-0 bg-gradient-to-br from-arise-gold/20 to-arise-deep-teal/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                   <Eye className="text-arise-gold/30" size={120} />
                 </div>
+                {/* Rounded right edge where image meets text */}
+                <div className="absolute right-0 top-0 bottom-0 w-4 bg-white rounded-r-full"></div>
               </div>
-              <div className="order-1 md:order-2">
-                <div className="flex items-center gap-3 mb-4">
-                  <Eye className="text-arise-gold" size={32} />
-                  <h2 className="text-3xl font-bold text-gray-900">{t('vision.title')}</h2>
+              
+              {/* Content Right */}
+              <div className="p-6 md:p-8 lg:p-12">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(216, 184, 104, 0.2)' }}>
+                    <Eye className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
+                  </div>
+                  <h2 className="text-3xl md:text-4xl">
+                    <span className="font-light" style={{ color: '#D8B868' }}>Notre </span>
+                    <span className="font-medium" style={{ color: '#D8B868' }}>vision</span>
+                  </h2>
                 </div>
-                <p className="text-lg text-gray-700 mb-4">
+                <p className="text-base md:text-lg text-gray-900 mb-4 leading-relaxed">
                   {t('vision.text1')}
                 </p>
-                <p className="text-gray-700">
+                <p className="text-base md:text-lg text-gray-900 leading-relaxed">
                   {t('vision.text2')}
                 </p>
               </div>
@@ -107,58 +149,60 @@ export default function AboutPage() {
         </div>
 
         {/* Values Section */}
-        <div className="mb-16 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-tr from-[#0F0F0F] via-[#0F4C56] to-transparent opacity-50" style={{ background: 'linear-gradient(to top right, #0F0F0F 0%, #0F4C56 50%, transparent 100%)' }}></div>
-          <div className="relative z-10 bg-arise-deep-teal py-20 px-4">
+        <div className="mb-16 relative overflow-hidden rounded-2xl" style={{ backgroundColor: '#0F4C56' }}>
+          <div className="relative z-10 py-16 md:py-20 px-4 md:px-8">
             <MotionDiv variant="fade" duration="normal">
               <div className="text-center mb-12">
-                <div className="flex items-center justify-center gap-3 mb-4">
-                  <Heart className="text-white" size={32} />
-                  <h2 className="text-3xl font-bold text-white">{t('values.title')}</h2>
-                </div>
-                <p className="text-lg text-white/80 max-w-2xl mx-auto">
+                <h2 className="text-4xl md:text-5xl font-medium text-white mb-4">
+                  {t('values.title')}
+                </h2>
+                <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto">
                   {t('values.subtitle')}
                 </p>
               </div>
             </MotionDiv>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-              <Card className="p-6 text-center bg-transparent border-2 border-arise-gold">
-                <div className="w-16 h-16 bg-arise-deep-teal/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Heart className="text-white" size={32} />
+              {/* Authenticité */}
+              <Card className="p-6 text-left rounded-xl" style={{ backgroundColor: '#10454D' }}>
+                <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(216, 184, 104, 0.15)', border: '1px solid #D8B868' }}>
+                  <CheckCircle className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">{t('values.authenticity.title')}</h3>
-                <p className="text-white/80">
+                <h3 className="text-xl md:text-2xl font-medium text-white mb-3">{t('values.authenticity.title')}</h3>
+                <p className="text-base md:text-lg text-white/80 leading-relaxed">
                   {t('values.authenticity.text')}
                 </p>
               </Card>
 
-              <Card className="p-6 text-center bg-transparent border-2 border-arise-gold">
-                <div className="w-16 h-16 bg-arise-gold/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <TrendingUp className="text-white" size={32} />
+              {/* Croissance */}
+              <Card className="p-6 text-left rounded-xl" style={{ backgroundColor: '#10454D' }}>
+                <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(216, 184, 104, 0.15)', border: '1px solid #D8B868' }}>
+                  <TrendingUp className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">{t('values.growth.title')}</h3>
-                <p className="text-white/80">
+                <h3 className="text-xl md:text-2xl font-medium text-white mb-3">{t('values.growth.title')}</h3>
+                <p className="text-base md:text-lg text-white/80 leading-relaxed">
                   {t('values.growth.text')}
                 </p>
               </Card>
 
-              <Card className="p-6 text-center bg-transparent border-2 border-arise-gold">
-                <div className="w-16 h-16 bg-arise-deep-teal/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Lightbulb className="text-white" size={32} />
+              {/* Innovation */}
+              <Card className="p-6 text-left rounded-xl" style={{ backgroundColor: '#10454D' }}>
+                <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(216, 184, 104, 0.15)', border: '1px solid #D8B868' }}>
+                  <Lightbulb className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">{t('values.innovation.title')}</h3>
-                <p className="text-white/80">
+                <h3 className="text-xl md:text-2xl font-medium text-white mb-3">{t('values.innovation.title')}</h3>
+                <p className="text-base md:text-lg text-white/80 leading-relaxed">
                   {t('values.innovation.text')}
                 </p>
               </Card>
 
-              <Card className="p-6 text-center bg-transparent border-2 border-arise-gold">
-                <div className="w-16 h-16 bg-arise-gold/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Award className="text-white" size={32} />
+              {/* Excellence */}
+              <Card className="p-6 text-left rounded-xl" style={{ backgroundColor: '#10454D' }}>
+                <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(216, 184, 104, 0.15)', border: '1px solid #D8B868' }}>
+                  <Award className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">{t('values.excellence.title')}</h3>
-                <p className="text-white/80">
+                <h3 className="text-xl md:text-2xl font-medium text-white mb-3">{t('values.excellence.title')}</h3>
+                <p className="text-base md:text-lg text-white/80 leading-relaxed">
                   {t('values.excellence.text')}
                 </p>
               </Card>
@@ -168,79 +212,91 @@ export default function AboutPage() {
 
         {/* Timeline Section */}
         <div className="mb-16">
-          <Card className="p-8 md:p-12">
+          <Card className="p-8 md:p-12 bg-white">
             <MotionDiv variant="fade" duration="normal">
-              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">{t('journey.title')}</h2>
+              <h2 className="text-3xl md:text-4xl font-medium text-center mb-12" style={{ color: '#D8B868' }}>
+                {t('journey.title')}
+              </h2>
             </MotionDiv>
 
-            <div className="space-y-8">
-              <div className="flex gap-6">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-arise-deep-teal rounded-full flex items-center justify-center text-white font-bold">
-                    1
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{t('journey.2020.title')}</h3>
-                  <p className="text-gray-700">
-                    {t('journey.2020.text')}
-                  </p>
-                </div>
-              </div>
+            <div className="relative max-w-3xl mx-auto">
+              {/* Vertical timeline line */}
+              <div className="absolute left-6 top-0 bottom-0 w-0.5" style={{ backgroundColor: 'rgba(0, 0, 0, 0.1)' }}></div>
 
-              <div className="flex gap-6">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-arise-gold rounded-full flex items-center justify-center text-white font-bold">
-                    2
+              <div className="space-y-8">
+                {/* 2020 */}
+                <div className="flex gap-6 relative">
+                  <div className="flex-shrink-0 relative z-10">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-medium" style={{ backgroundColor: '#0F4C56' }}>
+                      01
+                    </div>
+                  </div>
+                  <div className="flex-1 pt-1">
+                    <h3 className="text-lg md:text-xl font-medium text-gray-900 mb-2">{t('journey.2020.title')}</h3>
+                    <p className="text-base md:text-lg text-gray-700 leading-relaxed">
+                      {t('journey.2020.text')}
+                    </p>
                   </div>
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{t('journey.2021.title')}</h3>
-                  <p className="text-gray-700">
-                    {t('journey.2021.text')}
-                  </p>
-                </div>
-              </div>
 
-              <div className="flex gap-6">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-arise-deep-teal rounded-full flex items-center justify-center text-white font-bold">
-                    3
+                {/* 2021 */}
+                <div className="flex gap-6 relative">
+                  <div className="flex-shrink-0 relative z-10">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-medium" style={{ backgroundColor: '#0F4C56' }}>
+                      02
+                    </div>
+                  </div>
+                  <div className="flex-1 pt-1">
+                    <h3 className="text-lg md:text-xl font-medium text-gray-900 mb-2">{t('journey.2021.title')}</h3>
+                    <p className="text-base md:text-lg text-gray-700 leading-relaxed">
+                      {t('journey.2021.text')}
+                    </p>
                   </div>
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{t('journey.2022.title')}</h3>
-                  <p className="text-gray-700">
-                    {t('journey.2022.text')}
-                  </p>
-                </div>
-              </div>
 
-              <div className="flex gap-6">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-arise-gold rounded-full flex items-center justify-center text-white font-bold">
-                    4
+                {/* 2022 */}
+                <div className="flex gap-6 relative">
+                  <div className="flex-shrink-0 relative z-10">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-medium" style={{ backgroundColor: '#0F4C56' }}>
+                      03
+                    </div>
+                  </div>
+                  <div className="flex-1 pt-1">
+                    <h3 className="text-lg md:text-xl font-medium text-gray-900 mb-2">{t('journey.2022.title')}</h3>
+                    <p className="text-base md:text-lg text-gray-700 leading-relaxed">
+                      {t('journey.2022.text')}
+                    </p>
                   </div>
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{t('journey.2023.title')}</h3>
-                  <p className="text-gray-700">
-                    {t('journey.2023.text')}
-                  </p>
-                </div>
-              </div>
 
-              <div className="flex gap-6">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-arise-deep-teal rounded-full flex items-center justify-center text-white font-bold">
-                    5
+                {/* 2023 */}
+                <div className="flex gap-6 relative">
+                  <div className="flex-shrink-0 relative z-10">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-medium" style={{ backgroundColor: '#0F4C56' }}>
+                      04
+                    </div>
+                  </div>
+                  <div className="flex-1 pt-1">
+                    <h3 className="text-lg md:text-xl font-medium text-gray-900 mb-2">{t('journey.2023.title')}</h3>
+                    <p className="text-base md:text-lg text-gray-700 leading-relaxed">
+                      {t('journey.2023.text')}
+                    </p>
                   </div>
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{t('journey.2024.title')}</h3>
-                  <p className="text-gray-700">
-                    {t('journey.2024.text')}
-                  </p>
+
+                {/* 2024 */}
+                <div className="flex gap-6 relative">
+                  <div className="flex-shrink-0 relative z-10">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-medium" style={{ backgroundColor: '#0F4C56' }}>
+                      05
+                    </div>
+                  </div>
+                  <div className="flex-1 pt-1">
+                    <h3 className="text-lg md:text-xl font-medium text-gray-900 mb-2">{t('journey.2024.title')}</h3>
+                    <p className="text-base md:text-lg text-gray-700 leading-relaxed">
+                      {t('journey.2024.text')}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -249,18 +305,20 @@ export default function AboutPage() {
 
         {/* CTA Section */}
         <MotionDiv variant="fade" duration="normal">
-          <Card className="p-8 md:p-12 bg-gradient-to-r from-arise-deep-teal to-arise-deep-teal/90 text-white text-center">
-            <h2 className="text-3xl font-bold mb-4">{t('cta.title')}</h2>
-            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+          <Card className="p-8 md:p-12 text-center rounded-2xl" style={{ backgroundColor: '#D8B868' }}>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
+              {t('cta.title')}
+            </h2>
+            <p className="text-lg md:text-xl text-gray-900 mb-10 max-w-2xl mx-auto leading-relaxed">
               {t('cta.subtitle')}
             </p>
             <Button
               asChild
-              className="!bg-[#D8B868] hover:!bg-[#D8B868]/90 !text-arise-deep-teal font-semibold px-8 py-4 text-lg inline-flex items-center gap-2 rounded-2xl"
+              className="font-medium px-8 py-4 text-lg rounded-xl inline-flex items-center gap-2"
+              style={{ backgroundColor: '#2E2E2E', color: '#FFFFFF' }}
             >
               <Link href="/register">
                 {t('cta.getStarted')}
-                <ArrowRight size={20} />
               </Link>
             </Button>
           </Card>
