@@ -162,10 +162,12 @@ function EvaluatorsContent() {
             const cacheKeys = Object.keys(localStorage).filter(k => k.startsWith('evaluators_cache_'));
             if (cacheKeys.length > 0) {
               const cacheKey = cacheKeys[0];
-              const cachedId = parseInt(cacheKey.replace('evaluators_cache_', ''));
-              if (!isNaN(cachedId)) {
-                console.log('[EvaluatorsPage] Using assessment ID from cache:', cachedId);
-                id = cachedId;
+              if (cacheKey) {
+                const cachedId = parseInt(cacheKey.replace('evaluators_cache_', ''));
+                if (!isNaN(cachedId)) {
+                  console.log('[EvaluatorsPage] Using assessment ID from cache:', cachedId);
+                  id = cachedId;
+                }
               }
             }
             if (!id) {
