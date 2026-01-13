@@ -237,10 +237,20 @@ function AssessmentResultsContent() {
           const answerNum = parseInt(answerValue, 10) || 0;
           const answerLabel = wellnessScale.find(s => s.value === answerNum)?.label || 'Not Answered';
           
+          // Truncate long questions to fit in PDF (max 70 characters)
+          const truncatedQuestion = question.question.length > 70 
+            ? question.question.substring(0, 67) + '...'
+            : question.question;
+          
+          // Truncate pillar name if too long
+          const truncatedPillar = pillar.length > 25
+            ? pillar.substring(0, 22) + '...'
+            : pillar;
+          
           detailedRows.push({
             'Question #': question.id.replace('wellness_q', ''),
-            'Pillar': pillar,
-            'Question': question.question,
+            'Pillar': truncatedPillar,
+            'Question': truncatedQuestion,
             'Answer': answerLabel,
             'Score': `${answerNum}/5`,
           });
@@ -398,10 +408,20 @@ function AssessmentResultsContent() {
           const answerNum = parseInt(answerValue, 10) || 0;
           const answerLabel = wellnessScale.find(s => s.value === answerNum)?.label || 'Not Answered';
           
+          // Truncate long questions to fit in PDF (max 70 characters)
+          const truncatedQuestion = question.question.length > 70 
+            ? question.question.substring(0, 67) + '...'
+            : question.question;
+          
+          // Truncate pillar name if too long
+          const truncatedPillar = pillar.length > 25
+            ? pillar.substring(0, 22) + '...'
+            : pillar;
+          
           detailedRows.push({
             'Question #': question.id.replace('wellness_q', ''),
-            'Pillar': pillar,
-            'Question': question.question,
+            'Pillar': truncatedPillar,
+            'Question': truncatedQuestion,
             'Answer': answerLabel,
             'Score': `${answerNum}/5`,
           });
