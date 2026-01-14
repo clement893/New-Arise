@@ -5,6 +5,7 @@ import { useRegistrationStore } from '@/stores/registrationStore';
 import { Check, Loader2, ArrowLeft } from 'lucide-react';
 import { subscriptionsAPI } from '@/lib/api';
 import { Alert } from '@/components/ui';
+import { useLocale } from 'next-intl';
 
 interface Plan {
   id: number;
@@ -24,6 +25,7 @@ export function Step2_PlanSelection() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const locale = useLocale();
 
   useEffect(() => {
     const loadPlans = async () => {
@@ -171,7 +173,7 @@ export function Step2_PlanSelection() {
                 className={`p-6 border-2 rounded-lg cursor-pointer transition-all duration-300 ${
                   selectedPlan === plan.id
                     ? 'border-arise-gold bg-arise-light-beige'
-                    : 'border-gray-200 hover:border-arise-deep-teal'
+                    : 'border-gray-200 hover:border-arise-deep-teal hover:rounded-lg'
                 } ${plan.is_popular ? 'ring-2 ring-arise-gold' : ''}`}
               >
                 <div className="flex items-start justify-between">
@@ -226,7 +228,7 @@ export function Step2_PlanSelection() {
             className="text-white text-sm flex items-center gap-2 hover:text-white/80 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Retour
+            {locale === 'fr' ? 'Retour' : 'Back'}
           </button>
         </div>
       </div>
