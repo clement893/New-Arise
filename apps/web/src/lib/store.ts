@@ -56,10 +56,18 @@ interface AuthState {
   /** JWT refresh token or null if not available */
   refreshToken: string | null;
   /** 
-   * Checks if user is currently authenticated
-   * @returns True if both token and user are present
+   * Checks if user is currently authenticated (synchronous check)
+   * @returns True if user is present in store
+   * 
+   * NOTE: This is a synchronous check that only verifies user presence in store.
+   * For a complete check including httpOnly cookies, use checkAuthentication().
    */
   isAuthenticated: () => boolean;
+  /** 
+   * Checks authentication status including httpOnly cookies (async)
+   * @returns Promise<boolean> - True if both user and tokens in cookies are present
+   */
+  checkAuthentication: () => Promise<boolean>;
   /** 
    * Logs in a user with tokens
    * @param user - User data
@@ -106,8 +114,16 @@ export const useAuthStore = create<AuthState>()(
       refreshToken: null, // Not used anymore - tokens are in httpOnly cookies
       error: null,
 
-      isAuthenticated: async () => {
-        // Check authentication via API (tokens are in httpOnly cookies)
+      isAuthenticated: () => {
+        // SECURITY: Synchronous check - only verifies user presence in store
+        // For complete check including httpOnly cookies, use checkAuthentication()
+        const state = get();
+        return !!state.user;
+      },
+
+      checkAuthentication: async () => {
+        // SECURITY: Complete async check including httpOnly cookies
+        // This verifies both user in store AND tokens in httpOnly cookies
         const hasTokens = await TokenStorage.hasTokensInCookies();
         const state = get();
         return hasTokens && !!state.user;

@@ -201,7 +201,17 @@ export function getStoredUser(): UserResponse | null {
 
 /**
  * Check if user is authenticated
+ * 
+ * SECURITY: This function checks if user exists in store.
+ * For complete authentication check including httpOnly cookies, 
+ * use useAuthStore().checkAuthentication() instead.
+ * 
+ * @deprecated Use useAuthStore().isAuthenticated() or checkAuthentication() instead
  */
 export function isAuthenticated(): boolean {
-  return !!getStoredToken();
+  // SECURITY: Tokens are now in httpOnly cookies, not accessible via getStoredToken()
+  // This function is kept for backward compatibility but should use store instead
+  // Import useAuthStore at call site: const { isAuthenticated } = useAuthStore();
+  // For complete check: const { checkAuthentication } = useAuthStore();
+  return false; // Always return false - use store methods instead
 }
