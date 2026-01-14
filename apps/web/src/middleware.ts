@@ -154,7 +154,7 @@ export async function middleware(request: NextRequest) {
   // Client components will check the auth store and redirect if needed
   
   // Add security headers to response
-  const isProduction = process.env.NODE_ENV === 'production';
+  // Note: isProduction is already declared above, reuse it
   
   // Force no-cache for reports page to ensure updates are visible immediately
   if (pathnameWithoutLocale === '/dashboard/reports' || pathnameWithoutLocale.startsWith('/dashboard/reports')) {
