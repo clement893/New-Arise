@@ -190,7 +190,7 @@ export default function TKIResultsPage() {
               variant="outline"
               className="mb-6"
             >
-              <ArrowLeft size={16} className="mr-2" />
+              <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Assessments
             </Button>
 

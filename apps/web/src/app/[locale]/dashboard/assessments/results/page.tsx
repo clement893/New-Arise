@@ -371,7 +371,7 @@ function AssessmentResultsContent() {
               onClick={() => router.push('/dashboard/assessments')}
               className="mb-4"
             >
-              <ArrowLeft className="mr-2" size={16} />
+              <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Assessments
             </Button>
             <h1 className="text-4xl font-bold text-white mb-2">
@@ -403,12 +403,12 @@ function AssessmentResultsContent() {
                   >
                     {isDownloading ? (
                       <>
-                        <Loader2 className="mr-2 animate-spin" size={16} />
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                         Generating...
                       </>
                     ) : (
                       <>
-                        <Download className="mr-2" size={16} />
+                        <Download className="w-4 h-4 mr-2" />
                         Download Report
                       </>
                     )}

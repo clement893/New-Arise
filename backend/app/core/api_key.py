@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.logging import logger
+from app.core.timing_attack_protection import constant_time_compare
 from app.models.user import User
 
 
@@ -37,8 +38,16 @@ def hash_api_key(api_key: str) -> str:
 
 
 def verify_api_key(api_key: str, hashed_key: str) -> bool:
-    """Verify an API key against its hash"""
-    return hash_api_key(api_key) == hashed_key
+    """
+    Verify an API key against its hash using constant-time comparison.
+    
+    SECURITY: Uses constant-time comparison (hmac.compare_digest) to prevent timing attacks.
+    This prevents attackers from determining which characters are correct by measuring response times.
+    """
+    computed_hash = hash_api_key(api_key)
+    
+    # SECURITY: Use constant-time comparison to prevent timing attacks
+    return constant_time_compare(computed_hash, hashed_key)
 
 
 async def get_api_key(

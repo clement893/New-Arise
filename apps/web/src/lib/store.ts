@@ -93,22 +93,31 @@ interface AuthState {
   setError: (error: string | null) => void;
 }
 
+/**
+ * SECURITY: Tokens are no longer persisted in localStorage.
+ * Tokens are stored in httpOnly cookies only, which cannot be accessed by JavaScript.
+ * Only user data is persisted (not tokens) for UX purposes.
+ */
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: null,
-      token: null,
-      refreshToken: null,
+      token: null, // Not used anymore - tokens are in httpOnly cookies
+      refreshToken: null, // Not used anymore - tokens are in httpOnly cookies
       error: null,
 
-      isAuthenticated: () => {
+      isAuthenticated: async () => {
+        // Check authentication via API (tokens are in httpOnly cookies)
+        const hasTokens = await TokenStorage.hasTokensInCookies();
         const state = get();
-        return !!state.token && !!state.user;
+        return hasTokens && !!state.user;
       },
 
       login: async (user: User, token: string, refreshToken?: string) => {
+        // Store tokens in httpOnly cookies only (not in Zustand store)
         await TokenStorage.setToken(token, refreshToken);
-        set({ user, token, refreshToken: refreshToken || null, error: null });
+        // Only persist user data (not tokens) for UX
+        set({ user, token: null, refreshToken: null, error: null });
       },
 
       logout: async () => {
@@ -121,14 +130,18 @@ export const useAuthStore = create<AuthState>()(
       },
 
       setToken: async (token: string) => {
+        // Store token in httpOnly cookies only
         await TokenStorage.setToken(token);
-        set({ token });
+        // Don't store token in Zustand (security)
+        set({ token: null });
       },
 
       setRefreshToken: async (refreshToken: string) => {
-        const currentToken = get().token;
-        await TokenStorage.setToken(currentToken || '', refreshToken);
-        set({ refreshToken });
+        // Store refresh token in httpOnly cookies only
+        const currentToken = get().token || '';
+        await TokenStorage.setToken(currentToken, refreshToken);
+        // Don't store refresh token in Zustand (security)
+        set({ refreshToken: null });
       },
 
       setError: (error: string | null) => {
@@ -137,10 +150,13 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
+      // SECURITY: Only persist user data, NOT tokens
+      // Tokens are stored in httpOnly cookies only
       partialize: (state) => ({
         user: state.user,
-        token: state.token,
-        refreshToken: state.refreshToken,
+        // Explicitly exclude tokens from persistence
+        // token: state.token,
+        // refreshToken: state.refreshToken,
       }),
     }
   )

@@ -163,6 +163,7 @@ Extrayez les informations suivantes au format JSON strict (sans markdown, juste 
     "Unpredictable": "Description de la faiblesse",
     ...
   },
+  "challenges": ["Fiercely Independent", "Unpredictable", ...] (identique à weaknesses si disponible, sinon null),
   "research_insight": "Insight de recherche si disponible"
 }
 
@@ -761,7 +762,8 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                 "strengths_descriptions": extracted_data.get("strengths_descriptions", {}),
                 "weaknesses": extracted_data.get("weaknesses", []),
                 "weaknesses_descriptions": extracted_data.get("weaknesses_descriptions", {}),
-                "challenges": extracted_data.get("challenges", []),  # Keep for backward compatibility
+                # Map weaknesses to challenges if challenges not present
+                "challenges": extracted_data.get("challenges") or extracted_data.get("weaknesses", []),  # Use challenges if available, otherwise use weaknesses
                 "research_insight": extracted_data.get("research_insight")
             }
             

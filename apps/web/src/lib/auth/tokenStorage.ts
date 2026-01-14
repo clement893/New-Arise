@@ -2,52 +2,44 @@ import { logger } from '@/lib/logger';
 /**
  * Secure Token Storage
  * 
- * Uses httpOnly cookies for maximum security (set via API route)
- * Falls back to sessionStorage for backward compatibility during migration
+ * SECURITY: Uses httpOnly cookies ONLY for maximum security.
+ * Tokens are NOT accessible to JavaScript, preventing XSS attacks.
  * 
  * Security improvements:
  * - Tokens stored in httpOnly cookies (not accessible to JavaScript)
  * - Prevents XSS attacks from accessing tokens
- * - Cookies are automatically sent with requests
+ * - Cookies are automatically sent with requests via withCredentials
+ * 
+ * IMPORTANT: This class no longer uses localStorage or sessionStorage for tokens.
+ * All token storage is done via httpOnly cookies set by the API route.
  */
 
-const TOKEN_KEY = 'token';
-const REFRESH_TOKEN_KEY = 'refreshToken';
 const TOKEN_API_ENDPOINT = '/api/auth/token';
 
 /**
  * Secure token storage with httpOnly cookie support
  * 
- * For maximum security, tokens are stored in httpOnly cookies via API routes.
+ * For maximum security, tokens are stored ONLY in httpOnly cookies via API routes.
  * This prevents JavaScript access, protecting against XSS attacks.
+ * 
+ * Note: httpOnly cookies cannot be read by JavaScript, so getToken() and getRefreshToken()
+ * will return null. Tokens are automatically sent with requests via withCredentials: true.
  */
 export class TokenStorage {
   /**
    * Set access token (and optionally refresh token) via httpOnly cookies
-   * This is the secure method that stores tokens server-side
    * 
-   * IMPORTANT: Both access token and refresh token are stored in localStorage to persist across browser sessions.
-   * This prevents users from being logged out when they close the browser tab.
-   * Access token is also stored in sessionStorage for backward compatibility.
+   * SECURITY: Tokens are stored ONLY in httpOnly cookies, not in localStorage/sessionStorage.
+   * This prevents XSS attacks from accessing tokens.
    */
   static async setToken(token: string, refreshToken?: string): Promise<void> {
     if (typeof window === 'undefined') {
       return; // Server-side, skip
     }
 
-    // Store access token in both localStorage (persists) and sessionStorage (for compatibility)
-    localStorage.setItem(TOKEN_KEY, token);
-    sessionStorage.setItem(TOKEN_KEY, token);
-    
-    // Store refresh token in localStorage (persists across sessions - needed for "remember me")
-    // This prevents users from being logged out when they close the browser tab
-    if (refreshToken) {
-      localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-    }
-
     try {
-      // Set tokens via API route (httpOnly cookies) - this is async but token is already in sessionStorage
-      await fetch(TOKEN_API_ENDPOINT, {
+      // Set tokens via API route (httpOnly cookies only)
+      const response = await fetch(TOKEN_API_ENDPOINT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,59 +47,49 @@ export class TokenStorage {
         body: JSON.stringify({ accessToken: token, refreshToken }),
         credentials: 'include', // Important: include cookies
       });
-    } catch (error) {
-      // Token is already in sessionStorage, so API call failure is not critical
-      // Log error but don't throw - token is still available for immediate use
-      if (process.env.NODE_ENV === 'development') {
-        logger.warn('Failed to set token via API route, but token is stored in sessionStorage:', error);
+
+      if (!response.ok) {
+        throw new Error(`Failed to set tokens: ${response.statusText}`);
       }
+    } catch (error) {
+      logger.error('Failed to set token via API route', error instanceof Error ? error : new Error(String(error)));
+      throw error; // Fail fast - tokens must be set securely
     }
   }
 
   /**
    * Get access token
    * 
-   * Checks localStorage first (persistent storage), then sessionStorage as fallback.
-   * This ensures tokens persist across browser sessions while maintaining backward compatibility.
+   * SECURITY: httpOnly cookies cannot be read by JavaScript.
+   * This method returns null because tokens are stored in httpOnly cookies.
    * 
-   * Note: With httpOnly cookies, tokens are automatically sent with requests.
-   * For new code, rely on cookies being sent automatically.
+   * Tokens are automatically sent with requests via withCredentials: true in axios.
+   * To check if user is authenticated, use hasTokensInCookies() or verify via API.
+   * 
+   * @returns null (tokens are in httpOnly cookies, not accessible to JS)
    */
   static getToken(): string | null {
-    if (typeof window !== 'undefined') {
-      // Check localStorage first (persistent across sessions)
-      const tokenFromLocalStorage = localStorage.getItem(TOKEN_KEY);
-      if (tokenFromLocalStorage) {
-        return tokenFromLocalStorage;
-      }
-      // Fallback to sessionStorage for backward compatibility
-      return sessionStorage.getItem(TOKEN_KEY);
-    }
+    // httpOnly cookies cannot be read by JavaScript
+    // Tokens are automatically sent with requests via withCredentials: true
     return null;
   }
-
 
   /**
    * Get refresh token
    * 
-   * Note: Refresh token is stored in localStorage to persist across browser sessions.
-   * This allows users to stay logged in even after closing the browser tab.
+   * SECURITY: httpOnly cookies cannot be read by JavaScript.
+   * This method returns null because tokens are stored in httpOnly cookies.
+   * 
+   * @returns null (tokens are in httpOnly cookies, not accessible to JS)
    */
   static getRefreshToken(): string | null {
-    if (typeof window !== 'undefined') {
-      // Check localStorage first (persistent storage)
-      const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
-      if (refreshToken) {
-        return refreshToken;
-      }
-      // Fallback to sessionStorage for backward compatibility during migration
-      return sessionStorage.getItem(REFRESH_TOKEN_KEY);
-    }
+    // httpOnly cookies cannot be read by JavaScript
+    // Tokens are automatically sent with requests via withCredentials: true
     return null;
   }
 
   /**
-   * Remove all tokens (both cookies, localStorage, and sessionStorage)
+   * Remove all tokens (clears httpOnly cookies)
    */
   static async removeTokens(): Promise<void> {
     if (typeof window === 'undefined') {
@@ -121,30 +103,28 @@ export class TokenStorage {
         credentials: 'include',
       });
     } catch (error) {
-      // Continue even if API call fails
-    }
-
-    // Also clear localStorage and sessionStorage
-    if (typeof window !== 'undefined') {
-      // Clear access token from both storage locations
-      localStorage.removeItem(TOKEN_KEY);
-      sessionStorage.removeItem(TOKEN_KEY);
-      // Clear refresh token from both localStorage and sessionStorage
-      localStorage.removeItem(REFRESH_TOKEN_KEY);
-      sessionStorage.removeItem(REFRESH_TOKEN_KEY);
+      // Log but don't throw - cleanup should be best effort
+      logger.warn('Failed to remove tokens via API route', error instanceof Error ? error : new Error(String(error)));
     }
   }
 
   /**
    * Check if tokens exist
-   * Checks both localStorage and sessionStorage (access token) and localStorage (refresh token)
+   * 
+   * SECURITY: Since tokens are in httpOnly cookies, we cannot check them directly.
+   * This method checks via API to see if cookies exist.
+   * 
+   * @returns Promise<boolean> - true if tokens exist in cookies
    */
-  static hasTokens(): boolean {
-    return this.getToken() !== null || this.getRefreshToken() !== null;
+  static async hasTokens(): Promise<boolean> {
+    return this.hasTokensInCookies();
   }
 
   /**
    * Check token status via API (for httpOnly cookie tokens)
+   * 
+   * This is the secure way to check if tokens exist, since httpOnly cookies
+   * cannot be read by JavaScript.
    */
   static async hasTokensInCookies(): Promise<boolean> {
     if (typeof window === 'undefined') {
@@ -156,6 +136,11 @@ export class TokenStorage {
         method: 'GET',
         credentials: 'include',
       });
+      
+      if (!response.ok) {
+        return false;
+      }
+      
       const data = await response.json();
       return data.hasToken === true || data.hasRefreshToken === true;
     } catch (error) {

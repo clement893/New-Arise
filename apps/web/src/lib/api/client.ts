@@ -37,16 +37,13 @@ class ApiClient {
   }
 
   private setupInterceptors(): void {
-    // Request interceptor - Add authentication token
+    // Request interceptor - Tokens are sent automatically via httpOnly cookies
+    // withCredentials: true ensures cookies are included in requests
     this.client.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
-        // Add authentication token if available
-        if (typeof window !== 'undefined' && config.headers) {
-          const token = TokenStorage.getToken();
-          if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-          }
-        }
+        // Note: Tokens are in httpOnly cookies and sent automatically via withCredentials: true
+        // We don't need to manually add Authorization header if backend reads from cookies
+        // However, some endpoints may still require Bearer token in header for compatibility
         
         logger.debug('API request', {
           method: config.method,
@@ -81,36 +78,37 @@ class ApiClient {
           // Mark request as retried to prevent infinite loop
           originalRequest._retry = true;
           
-          const refreshToken = TokenStorage.getRefreshToken();
+          // Check if we have tokens in cookies (httpOnly cookies cannot be read by JS)
+          const hasTokens = await TokenStorage.hasTokensInCookies();
           
-          if (refreshToken && typeof window !== 'undefined') {
+          if (hasTokens && typeof window !== 'undefined') {
             try {
               // Try to refresh the token
+              // Refresh token should be in httpOnly cookies, backend will read it
               // Use a separate axios instance to avoid interceptors recursion
               const refreshAxios = axios.create({
                 baseURL: this.client.defaults.baseURL,
                 timeout: 10000,
-                withCredentials: true,
+                withCredentials: true, // Include httpOnly cookies
               });
               
+              // Backend should read refresh token from httpOnly cookies
+              // If backend requires it in body, we need to modify backend to accept from cookies
               const refreshResponse = await refreshAxios.post(
                 '/v1/auth/refresh',
-                { refresh_token: refreshToken }
+                {} // Empty body - refresh token should be in httpOnly cookies
               );
               
               // FastAPI returns data directly, not wrapped in ApiResponse
               const responseData = refreshResponse.data;
               const access_token = responseData?.access_token || responseData?.accessToken;
+              const refresh_token = responseData?.refresh_token || responseData?.refreshToken;
               
               if (access_token) {
-                // Update token in storage
-                await TokenStorage.setToken(access_token, refreshToken);
+                // Update tokens in httpOnly cookies
+                await TokenStorage.setToken(access_token, refresh_token);
                 
-                // Update authorization header
-                originalRequest.headers = originalRequest.headers || {};
-                originalRequest.headers.Authorization = `Bearer ${access_token}`;
-                
-                // Retry the original request
+                // Retry the original request (cookies will be sent automatically)
                 return this.client.request(originalRequest);
               } else {
                 throw new Error('No access_token in refresh response');

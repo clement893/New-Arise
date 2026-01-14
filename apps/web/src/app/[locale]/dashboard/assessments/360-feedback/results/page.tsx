@@ -344,9 +344,9 @@ export default function Feedback360ResultsPage() {
           <Button
             variant="outline"
             onClick={() => router.push('/dashboard/assessments')}
-            className="mb-4 border-white text-white hover:bg-white/10 flex flex-row items-center gap-2"
+            className="mb-4 border-white text-white hover:bg-white/10"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Assessments
           </Button>
 
