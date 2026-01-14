@@ -8,7 +8,7 @@ interface FAQItemProps {
 export default function FAQItem({ question, answer }: FAQItemProps) {
   return (
     <Card className="mx-0">
-      <div className="p-6">
+      <div className="p-0 md:p-6">
         <h3 className="text-lg font-semibold text-black mb-2">
           {question}
         </h3>

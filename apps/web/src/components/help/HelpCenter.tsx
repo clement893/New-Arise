@@ -106,8 +106,8 @@ export default function HelpCenter({
     <div className={className}>
       {/* Search Bar */}
       <Card className="mb-8">
-        <form onSubmit={handleSearch} className="flex items-center gap-4">
-          <Search className="w-5 h-5 text-gray-500" />
+        <form onSubmit={handleSearch} className="flex md:flex-row flex-col items-center gap-4">
+          <Search className="w-5 h-5 text-gray-500 md:display-block display-none" />
           <input
             type="text"
             placeholder="Rechercher de l'aide..."
@@ -134,7 +134,7 @@ export default function HelpCenter({
                 hover
                 className={`h-full ${category.color} border-2 transition-all`}
               >
-                <div className="flex flex-col items-center text-center p-6">
+                <div className="flex flex-col items-center text-center p-0 md:p-6">
                   <div className="mb-4 text-arise-deep-teal">
                     {category.icon}
                   </div>

@@ -35,7 +35,7 @@ export default function PrivacyPolicyPage() {
 
         <div className="space-y-8">
           {/* Introduction */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('introduction.title')}</h2>
             <p className="text-gray-700 mb-4">
               {t('introduction.text1')}
@@ -46,7 +46,7 @@ export default function PrivacyPolicyPage() {
           </Card>
 
           {/* Information We Collect */}
-          <Card className="p-6">
+          <Card>
             <div className="flex items-center gap-3 mb-4">
               <FileText className="text-arise-deep-teal" size={24} />
               <h2 className="text-2xl font-bold text-gray-900">{t('informationWeCollect.title')}</h2>
@@ -83,7 +83,7 @@ export default function PrivacyPolicyPage() {
           </Card>
 
           {/* How We Use Your Information */}
-          <Card className="p-6">
+          <Card>
             <div className="flex items-center gap-3 mb-4">
               <Eye className="text-arise-deep-teal" size={24} />
               <h2 className="text-2xl font-bold text-gray-900">{t('howWeUse.title')}</h2>
@@ -98,7 +98,7 @@ export default function PrivacyPolicyPage() {
           </Card>
 
           {/* Information Sharing */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('informationSharing.title')}</h2>
             
             <div className="space-y-4">
@@ -133,7 +133,7 @@ export default function PrivacyPolicyPage() {
           </Card>
 
           {/* Your Rights */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('yourRights.title')}</h2>
             
             <p className="text-gray-700 mb-4">{t('yourRights.text')}</p>
@@ -150,7 +150,7 @@ export default function PrivacyPolicyPage() {
           </Card>
 
           {/* Data Security */}
-          <Card className="p-6">
+          <Card>
             <div className="flex items-center gap-3 mb-4">
               <Lock className="text-arise-deep-teal" size={24} />
               <h2 className="text-2xl font-bold text-gray-900">{t('dataSecurity.title')}</h2>
@@ -172,7 +172,7 @@ export default function PrivacyPolicyPage() {
           </Card>
 
           {/* Data Retention */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('dataRetention.title')}</h2>
             <p className="text-gray-700">
               {t('dataRetention.text')}
@@ -180,7 +180,7 @@ export default function PrivacyPolicyPage() {
           </Card>
 
           {/* Cookies */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('cookies.title')}</h2>
             <p className="text-gray-700 mb-4">
               {t('cookies.text')} <Link href="/cookies" className="text-arise-deep-teal hover:underline">{t('cookies.title')}</Link>.
@@ -188,7 +188,7 @@ export default function PrivacyPolicyPage() {
           </Card>
 
           {/* Children's Privacy */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('childrensPrivacy.title')}</h2>
             <p className="text-gray-700">
               {t('childrensPrivacy.text')}
@@ -196,7 +196,7 @@ export default function PrivacyPolicyPage() {
           </Card>
 
           {/* International Transfers */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('internationalTransfers.title')}</h2>
             <p className="text-gray-700">
               {t('internationalTransfers.text')}
@@ -204,7 +204,7 @@ export default function PrivacyPolicyPage() {
           </Card>
 
           {/* Changes to Policy */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('changesToPolicy.title')}</h2>
             <p className="text-gray-700 mb-4">
               {t('changesToPolicy.text1')}
@@ -215,7 +215,7 @@ export default function PrivacyPolicyPage() {
           </Card>
 
           {/* Contact */}
-          <Card className="p-6 bg-arise-deep-teal/5">
+          <Card className="bg-arise-deep-teal/5">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('contact.title')}</h2>
             <p className="text-gray-700 mb-4">
               {t('contact.text')}

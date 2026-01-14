@@ -34,7 +34,7 @@ export default function CookiePolicyPage() {
 
         <div className="space-y-8">
           {/* What Are Cookies */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('whatAreCookies.title')}</h2>
             <p className="text-gray-700 mb-4">
               {t('whatAreCookies.text1')}
@@ -45,7 +45,7 @@ export default function CookiePolicyPage() {
           </Card>
 
           {/* Types of Cookies */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('types.title')}</h2>
             
             <div className="space-y-6">
@@ -118,7 +118,7 @@ export default function CookiePolicyPage() {
           </Card>
 
           {/* Cookie Table */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('cookieTable.title')}</h2>
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
@@ -167,7 +167,7 @@ export default function CookiePolicyPage() {
           </Card>
 
           {/* Third-Party Cookies */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('thirdParty.title')}</h2>
             <p className="text-gray-700 mb-4">
               {t('thirdParty.text')}
@@ -192,7 +192,7 @@ export default function CookiePolicyPage() {
           </Card>
 
           {/* Managing Cookies */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('managingCookies.title')}</h2>
             
             <div className="space-y-4">
@@ -239,7 +239,7 @@ export default function CookiePolicyPage() {
           </Card>
 
           {/* Do Not Track */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('doNotTrack.title')}</h2>
             <p className="text-gray-700">
               {t('doNotTrack.text')}
@@ -247,7 +247,7 @@ export default function CookiePolicyPage() {
           </Card>
 
           {/* Updates */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('updates.title')}</h2>
             <p className="text-gray-700 mb-4">
               {t('updates.text1')}
@@ -258,7 +258,7 @@ export default function CookiePolicyPage() {
           </Card>
 
           {/* Contact */}
-          <Card className="p-6 bg-arise-deep-teal/5">
+          <Card className="bg-arise-deep-teal/5">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('contact.title')}</h2>
             <p className="text-gray-700 mb-4">
               {t('contact.text')}

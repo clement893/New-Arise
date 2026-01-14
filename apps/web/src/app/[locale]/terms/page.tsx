@@ -34,7 +34,7 @@ export default function TermsOfServicePage() {
 
         <div className="space-y-8">
           {/* Acceptance of Terms */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('acceptance.title')}</h2>
             <p className="text-gray-700 mb-4">
               {t('acceptance.text1')}
@@ -45,7 +45,7 @@ export default function TermsOfServicePage() {
           </Card>
 
           {/* Description of Service */}
-          <Card className="p-6">
+          <Card>
             <div className="flex items-center gap-3 mb-4">
               <FileText className="text-arise-deep-teal" size={24} />
               <h2 className="text-2xl font-bold text-gray-900">{t('description.title')}</h2>
@@ -61,7 +61,7 @@ export default function TermsOfServicePage() {
           </Card>
 
           {/* User Accounts */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('userAccounts.title')}</h2>
             
             <div className="space-y-4">
@@ -89,7 +89,7 @@ export default function TermsOfServicePage() {
           </Card>
 
           {/* Use of Service */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('useOfService.title')}</h2>
             
             <div className="space-y-4">
@@ -116,7 +116,7 @@ export default function TermsOfServicePage() {
           </Card>
 
           {/* Intellectual Property */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('intellectualProperty.title')}</h2>
             
             <div className="space-y-4">
@@ -147,7 +147,7 @@ export default function TermsOfServicePage() {
           </Card>
 
           {/* Payment Terms */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('paymentTerms.title')}</h2>
             
             <div className="space-y-4">
@@ -175,7 +175,7 @@ export default function TermsOfServicePage() {
           </Card>
 
           {/* Limitation of Liability */}
-          <Card className="p-6">
+          <Card>
             <div className="flex items-center gap-3 mb-4">
               <AlertCircle className="text-arise-deep-teal" size={24} />
               <h2 className="text-2xl font-bold text-gray-900">{t('limitationOfLiability.title')}</h2>
@@ -212,7 +212,7 @@ export default function TermsOfServicePage() {
           </Card>
 
           {/* Indemnification */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('indemnification.title')}</h2>
             <p className="text-gray-700">
               {t('indemnification.text')}
@@ -220,7 +220,7 @@ export default function TermsOfServicePage() {
           </Card>
 
           {/* Termination */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('termination.title')}</h2>
             
             <div className="space-y-4">
@@ -248,7 +248,7 @@ export default function TermsOfServicePage() {
           </Card>
 
           {/* Governing Law */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('governingLaw.title')}</h2>
             <p className="text-gray-700">
               {t('governingLaw.text')}
@@ -256,7 +256,7 @@ export default function TermsOfServicePage() {
           </Card>
 
           {/* Changes to Terms */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('changesToTerms.title')}</h2>
             <p className="text-gray-700 mb-4">
               {t('changesToTerms.text1')}
@@ -267,7 +267,7 @@ export default function TermsOfServicePage() {
           </Card>
 
           {/* Severability */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('severability.title')}</h2>
             <p className="text-gray-700">
               {t('severability.text')}
@@ -275,7 +275,7 @@ export default function TermsOfServicePage() {
           </Card>
 
           {/* Entire Agreement */}
-          <Card className="p-6">
+          <Card>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('entireAgreement.title')}</h2>
             <p className="text-gray-700">
               {t('entireAgreement.text')}
@@ -283,7 +283,7 @@ export default function TermsOfServicePage() {
           </Card>
 
           {/* Contact */}
-          <Card className="p-6 bg-arise-deep-teal/5">
+          <Card className="bg-arise-deep-teal/5">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('contact.title')}</h2>
             <p className="text-gray-700 mb-4">
               {t('contact.text')}

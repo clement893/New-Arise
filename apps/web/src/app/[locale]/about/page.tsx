@@ -67,7 +67,7 @@ export default function AboutPage() {
             className="p-0 border border-[#D8B868] rounded-2xl overflow-hidden bg-white"
             style={{ borderColor: '#D8B868' }}
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch p-8">
               {/* Image Left */}
               <div className="relative h-64 md:h-auto rounded-l-2xl overflow-hidden">
                 <Image 
@@ -86,7 +86,7 @@ export default function AboutPage() {
               </div>
               
               {/* Content Right */}
-              <div className="p-6 md:p-8 lg:p-12">
+              <div className="">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(216, 184, 104, 0.2)' }}>
                     <Target className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
@@ -113,7 +113,7 @@ export default function AboutPage() {
             className="p-0 border border-[#D8B868] rounded-2xl overflow-hidden bg-white"
             style={{ borderColor: '#D8B868' }}
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch p-8">
               {/* Image Left */}
               <div className="relative h-64 md:h-auto rounded-l-2xl overflow-hidden">
                 <Image 
@@ -132,7 +132,7 @@ export default function AboutPage() {
               </div>
               
               {/* Content Right */}
-              <div className="p-6 md:p-8 lg:p-12">
+              <div className="">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(216, 184, 104, 0.2)' }}>
                     <Eye className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />

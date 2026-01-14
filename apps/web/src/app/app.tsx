@@ -30,7 +30,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
   const isLandingPage = pathname === '/' || pathname === '/fr' || pathname === '/en' || 
                         (pathname?.match(/^\/[a-z]{2}$/) !== null);
   
-  // Check if it's a page with its own ARISE Header and Footer (team, about, contact, privacy, terms, cookies, careers, register, login, news)
+  // Check if it's a page with its own ARISE Header and Footer (team, about, contact, privacy, terms, cookies, careers, register, login, news, pricing, help, faq, 360-evaluator)
   const isArisePage = pathname?.includes('/team') || 
                       pathname?.includes('/about') || 
                       pathname?.includes('/contact') || 
@@ -39,7 +39,11 @@ function AppContent({ children }: { children: React.ReactNode }) {
                       pathname?.includes('/cookies') || 
                       pathname?.includes('/register') ||
                       pathname?.includes('/login') ||
-                      pathname?.includes('/news');
+                      pathname?.includes('/news') ||
+                      pathname?.includes('/pricing') ||
+                      pathname?.includes('/help') ||
+                      pathname?.includes('/faq') ||
+                      pathname?.includes('/360-evaluator');
 
   useEffect(() => {
     // Track page views
