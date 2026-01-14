@@ -46,7 +46,7 @@ export default function   PricingCardSimple({
       className="relative rounded-xl border-0 shadow-none"
       style={{ backgroundColor: '#F3F4F6' }}
     >
-      <div className="">
+      <div className="p-lg h-full">
         {/* Price */}
         <div className="mb-16">
           {isCustomPricing ? (
