@@ -89,7 +89,7 @@ function DevelopmentPlanContent() {
       </div>
 
       {/* Your Development Goals */}
-      <Card className="p-6 bg-white">
+      <Card className="bg-white">
         <div className="flex items-center justify-start mb-6">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(15, 76, 86, 0.1)' }}>
@@ -108,8 +108,9 @@ function DevelopmentPlanContent() {
 
         <div className="space-y-4">
           {goals.map((goal) => (
-            <Card key={goal.id} className="p-4 border border-gray-200 hover:border-arise-deep-teal/30 transition-colors bg-white">
-              <div className="flex items-start justify-between mb-3">
+            <Card key={goal.id} className="border border-gray-200 hover:border-arise-deep-teal/30 transition-colors bg-white" padding={false}>
+              <div className="p-4">
+                <div className="flex flex-col sm:flex-row sm:gap-0 gap-4 items-start justify-between mb-3">
                 <div className="flex items-start gap-3 flex-1">
                   {goal.status === 'in_progress' ? (
                     <Circle className="text-arise-gold mt-1" size={20} />
@@ -139,9 +140,10 @@ function DevelopmentPlanContent() {
                     </div>
                   </div>
                 </div>
-                <div className="text-right ml-4">
-                  <p className="text-sm text-gray-600">Due date</p>
-                  <p className="text-sm font-semibold text-gray-900">{goal.dueDate}</p>
+                  <div className="text-right sm:ml-4 ml-0">
+                    <p className="text-sm text-gray-600">Due date</p>
+                    <p className="text-sm font-semibold text-gray-900">{goal.dueDate}</p>
+                  </div>
                 </div>
               </div>
             </Card>
@@ -150,7 +152,7 @@ function DevelopmentPlanContent() {
       </Card>
 
       {/* Recommended Resources */}
-      <Card className="p-6 bg-white">
+      <Card className="bg-white">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(15, 76, 86, 0.1)' }}>
             <BookOpen className="text-arise-deep-teal" size={24} style={{ color: '#0F4C56' }} />
@@ -169,8 +171,9 @@ function DevelopmentPlanContent() {
           {resources.map((resource) => {
             const Icon = resource.icon;
             return (
-              <Card key={resource.id} className="p-4 border border-gray-200 hover:border-arise-deep-teal/30 transition-colors bg-white cursor-pointer" onClick={() => router.push(`/dashboard/development-plan/resources/${resource.id}`)}>
-                <div className="flex items-start gap-3">
+              <Card key={resource.id} className="border border-gray-200 hover:border-arise-deep-teal/30 transition-colors bg-white cursor-pointer" padding={false} onClick={() => router.push(`/dashboard/development-plan/resources/${resource.id}`)}>
+                <div className="p-4">
+                  <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(15, 76, 86, 0.1)' }}>
                     <Icon className="text-arise-deep-teal" size={20} style={{ color: '#0F4C56' }} />
                   </div>
@@ -204,6 +207,7 @@ function DevelopmentPlanContent() {
                       </Button>
                     </div>
                   </div>
+                  </div>
                 </div>
               </Card>
             );
@@ -212,7 +216,7 @@ function DevelopmentPlanContent() {
       </Card>
 
       {/* Your Progress */}
-      <Card className="p-6 bg-white">
+      <Card className="bg-white">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(15, 76, 86, 0.1)' }}>
             <TrendingUp className="text-arise-deep-teal" size={24} style={{ color: '#0F4C56' }} />
@@ -244,7 +248,7 @@ function DevelopmentPlanContent() {
       </Card>
 
       {/* Ready to accelerate your growth? */}
-      <Card className="text-white border-0 p-8 overflow-hidden" style={{ backgroundColor: '#2E2E2E' }}>
+      <Card className="text-white border-0 overflow-hidden" padding={false} style={{ backgroundColor: '#2E2E2E', padding: '2rem calc(7.5% + 2rem)' }}>
         <div className="flex flex-col md:flex-row items-center gap-6">
           <div className="flex-1 min-w-0">
             <h2 className="text-2xl font-bold mb-3">

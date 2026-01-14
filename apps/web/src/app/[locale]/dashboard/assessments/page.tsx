@@ -1323,8 +1323,8 @@ function AssessmentsContent() {
                     className="hover:shadow-lg transition-shadow"
                     style={is360Feedback ? { backgroundColor: 'rgb(255, 255, 255)' } : undefined}
                   >
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-4 flex-1">
+                    <div className="flex items-center sm:flex-row flex-col sm:gap-0 gap-4 justify-between mb-4">
+                      <div className="flex flex-col sm:flex-row items-center gap-2 flex-1">
                         <div 
                           className="w-16 h-16 rounded-lg flex items-center justify-center flex-shrink-0"
                           style={{ backgroundColor: '#e7eeef' }}
@@ -1449,7 +1449,7 @@ function AssessmentsContent() {
                     {/* 360 Feedback Evaluators Section - integrated in the same Card */}
                     {safeAssessment.assessmentType === 'THREE_SIXTY_SELF' && safeAssessment.assessmentId && (
                       <div className="mt-6 pt-6 border-t border-gray-300">
-                        <div className="flex items-center justify-between mb-3">
+                        <div className="flex flex-col sm:flex-row items-center sm:gap-0 gap-4 justify-between mb-3">
                           <div className="flex items-center gap-4">
                             <div 
                               className="w-12 h-12 rounded-full flex items-center justify-center"

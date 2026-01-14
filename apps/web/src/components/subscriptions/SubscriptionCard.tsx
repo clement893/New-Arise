@@ -50,7 +50,7 @@ export default function SubscriptionCard({
   };
 
   return (
-    <Card className="mb-8">
+    <Card className="mb-8" padding={false}>
       <div className="p-6">
         <div className="flex justify-between items-start mb-6">
           <div>
