@@ -8,6 +8,18 @@ interface PageContainerProps {
 }
 
 export default function PageContainer({ children, className }: PageContainerProps) {
-  return <Container className={clsx('py-8', className)}>{children}</Container>;
+  return (
+    <Container 
+      className={clsx('py-8', className)}
+      center={false}
+      maxWidth="full"
+      style={{
+        width: '100%',
+        maxWidth: '100%',
+      }}
+    >
+      {children}
+    </Container>
+  );
 }
 

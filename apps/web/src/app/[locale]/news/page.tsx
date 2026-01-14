@@ -48,7 +48,7 @@ export default function NewsPage() {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-      <main className="container mx-auto px-4 pt-24 pb-12 max-w-6xl">
+      <main className="container mx-auto px-4 pt-24 pb-12">
         {/* Hero Section */}
         <MotionDiv variant="fade" duration="normal">
           <div className="mb-16 relative flex items-center overflow-hidden rounded-2xl" style={{ backgroundColor: '#0F4C56', minHeight: '500px' }}>
@@ -96,62 +96,64 @@ export default function NewsPage() {
         </MotionDiv>
 
         {/* Articles Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {articles.map((article, index) => {
-            const IconComponent = article.icon;
-            return (
-              <MotionDiv key={article.id} variant="slideUp" delay={index * 100}>
-                <Link href={`/news/${article.id}`} className="block h-full">
-                  <Card className="h-full flex flex-col overflow-hidden bg-white hover:shadow-lg transition-all duration-300 rounded-xl border-0 shadow-sm">
-                    {/* Article Image Placeholder with Gradient */}
-                    <div className={`relative aspect-video bg-gradient-to-r ${article.gradient} overflow-hidden rounded-t-xl`}>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <IconComponent className="text-white" size={64} strokeWidth={2} />
-                      </div>
-                    </div>
-
-                    {/* Article Content */}
-                    <div className="flex-1 flex flex-col p-6">
-                      {/* Category Badge */}
-                      <div className="mb-3">
-                        <span className="inline-block px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide" style={{ backgroundColor: '#9CA3AF', color: '#FFFFFF' }}>
-                          {article.category}
-                        </span>
-                      </div>
-
-                      {/* Title */}
-                      <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 line-clamp-2">
-                        {article.title}
-                      </h2>
-
-                      {/* Excerpt */}
-                      <p className="text-base text-gray-900 mb-4 line-clamp-3 flex-1 leading-relaxed">
-                        {article.excerpt}
-                      </p>
-
-                      {/* Meta Information */}
-                      <div className="flex items-center gap-4 text-sm text-gray-900 mb-4">
-                        <div className="flex items-center gap-1.5">
-                          <User className="w-4 h-4" />
-                          <span className="font-medium">{article.author}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <Calendar className="w-4 h-4" />
-                          <span>{article.date}</span>
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {articles.map((article, index) => {
+              const IconComponent = article.icon;
+              return (
+                <MotionDiv key={article.id} variant="slideUp" delay={index * 100}>
+                  <Link href={`/news/${article.id}`} className="block h-full">
+                    <Card className="h-full flex flex-col overflow-hidden bg-white hover:shadow-lg transition-all duration-300 rounded-xl border-0 shadow-sm">
+                      {/* Article Image Placeholder with Gradient */}
+                      <div className={`relative aspect-video bg-gradient-to-r ${article.gradient} overflow-hidden rounded-t-xl`}>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <IconComponent className="text-white" size={64} strokeWidth={2} />
                         </div>
                       </div>
 
-                      {/* Read More Link */}
-                      <div className="inline-flex items-center gap-2 text-gray-900 font-semibold mt-auto">
-                        {t('readMore')}
-                        <ArrowRight className="w-4 h-4" />
+                      {/* Article Content */}
+                      <div className="flex-1 flex flex-col p-6">
+                        {/* Category Badge */}
+                        <div className="mb-3">
+                          <span className="inline-block px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide" style={{ backgroundColor: '#9CA3AF', color: '#FFFFFF' }}>
+                            {article.category}
+                          </span>
+                        </div>
+
+                        {/* Title */}
+                        <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 line-clamp-2">
+                          {article.title}
+                        </h2>
+
+                        {/* Excerpt */}
+                        <p className="text-base text-gray-900 mb-4 line-clamp-3 flex-1 leading-relaxed">
+                          {article.excerpt}
+                        </p>
+
+                        {/* Meta Information */}
+                        <div className="flex items-center gap-4 text-sm text-gray-900 mb-4">
+                          <div className="flex items-center gap-1.5">
+                            <User className="w-4 h-4" />
+                            <span className="font-medium">{article.author}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <Calendar className="w-4 h-4" />
+                            <span>{article.date}</span>
+                          </div>
+                        </div>
+
+                        {/* Read More Link */}
+                        <div className="inline-flex items-center gap-2 text-gray-900 font-semibold mt-auto">
+                          {t('readMore')}
+                          <ArrowRight className="w-4 h-4" />
+                        </div>
                       </div>
-                    </div>
-                  </Card>
-                </Link>
-              </MotionDiv>
-            );
+                    </Card>
+                  </Link>
+                </MotionDiv>
+              );
           })}
+          </div>
         </div>
       </main>
       <Footer />

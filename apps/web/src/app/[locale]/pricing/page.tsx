@@ -14,6 +14,8 @@ import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
 import Loading from '@/components/ui/Loading';
 import Alert from '@/components/ui/Alert';
+import MotionDiv from '@/components/motion/MotionDiv';
+import { Users } from 'lucide-react';
 import { subscriptionsAPI } from '@/lib/api';
 import { handleApiError } from '@/lib/errors/api';
 import { logger } from '@/lib/logger';
@@ -242,39 +244,50 @@ export default function PricingPage() {
       <Container className="py-12" padding={false}>
         <div className="px-[11px]">
         {/* Hero Section */}
-        <div className="mb-16 rounded-2xl overflow-hidden">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 items-stretch">
-            {/* Left Section - Text on Dark Teal Background (2/3) */}
-            <div className="md:col-span-2 relative z-10 p-8 md:p-12 lg:p-16 flex flex-col justify-center" style={{ backgroundColor: '#0F4C56' }}>
-              <div className="text-left">
-                <h1 className="mb-4 md:mb-6">
-                  <span className="block text-4xl md:text-5xl lg:text-6xl font-light mb-1 md:mb-2" style={{ color: '#D8B868' }}>
+        <MotionDiv variant="fade" duration="normal">
+          <div className="mb-16 relative flex items-center overflow-hidden rounded-2xl" style={{ backgroundColor: '#0F4C56', minHeight: '500px' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch w-full">
+              {/* Left Section - Text on Dark Teal Background */}
+              <div className="relative z-10 p-8 md:p-12 lg:p-16 flex flex-col justify-center" style={{ backgroundColor: '#0F4C56' }}>
+                <div className="text-left">
+                  <h1 className="mb-6">
+                    <span className="block text-5xl md:text-6xl font-light mb-2" style={{ color: '#D8B868' }}>
                     Choose
-                  </span>
-                  <span className="block text-4xl md:text-5xl lg:text-6xl font-medium" style={{ color: '#D8B868' }}>
+                    </span>
+                    <span className="block text-5xl md:text-6xl font-medium" style={{ color: '#D8B868' }}>
                     your plan
-                  </span>
-                </h1>
-                <p className="text-base md:text-lg text-white/90 leading-relaxed">
+                    </span>
+                  </h1>
+                  <p className="text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed">
                   Autonomiser des leaders authentiques grâce à une évaluation et un développement holistiques
-                </p>
+                  </p>
+                </div>
+              </div>
+              
+              {/* Right Section - Photo */}
+              <div className="relative h-64 md:h-auto rounded-r-2xl overflow-hidden" style={{ borderLeft: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                <div className="absolute inset-0">
+                  <Image 
+                    src="/images/pricing-hero.jpg" 
+                    alt="Choose your plan"
+                    fill
+                    className="object-cover"
+                    priority
+                    onError={() => {
+                      // Fallback handled by CSS
+                    }}
+                  />
+                  {/* Fallback gradient if image fails to load */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                    <Users className="text-white/30" size={120} />
+                  </div>
+                </div>
+                {/* Subtle border around photo */}
+                <div className="absolute inset-0 border-2 border-black/10 rounded-r-2xl pointer-events-none"></div>
               </div>
             </div>
-            
-            {/* Right Section - Photo (1/3) */}
-            <div className="md:col-span-1 relative h-64 md:h-auto rounded-r-2xl overflow-hidden">
-              <Image 
-                src="/images/pricing-hero.jpg" 
-                alt="Choose your plan"
-                fill
-                className="object-cover"
-                priority
-              />
-              {/* Fallback gradient if image fails to load */}
-              <div className="absolute inset-0 bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 opacity-0" />
-            </div>
           </div>
-        </div>
+        </MotionDiv>
 
         <div className="text-center mb-12">
           <BillingPeriodToggle value={billingPeriod} onChange={setBillingPeriod} />
@@ -291,16 +304,17 @@ export default function PricingPage() {
             <Loading />
           </div>
         ) : plans.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row md:flex-wrap gap-8 max-w-6xl mx-auto">
             {plans.map((plan) => (
-              <PricingCardSimple
-                key={plan.id}
-                plan={plan}
-                billingPeriod={billingPeriod}
-                onSelect={(_planId, _period) => {
-                  // Navigation is handled by the PricingCardSimple component
-                }}
-              />
+              <div key={plan.id} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.33rem)]">
+                <PricingCardSimple
+                  plan={plan}
+                  billingPeriod={billingPeriod}
+                  onSelect={(_planId, _period) => {
+                    // Navigation is handled by the PricingCardSimple component
+                  }}
+                />
+              </div>
             ))}
           </div>
         ) : (

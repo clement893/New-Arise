@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/store';
-import { Card, Button, LoadingSkeleton, Stack } from '@/components/ui';
+import { Card, Button, LoadingSkeleton } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
 import Image from 'next/image';
@@ -635,8 +635,7 @@ function DashboardContent() {
                             backgroundColor: evaluation.status === 'locked' ? undefined : '#FFFFFF',
                           }}
                         >
-                          <div className="flex flex-col h-full">
-                            <Stack gap="normal" className="flex-1">
+                          <div className="flex flex-col h-full p-6">
                             {/* Icon in upper left corner */}
                             <div 
                               className="absolute top-4 left-4 w-12 h-12 rounded-lg flex items-center justify-center z-10"
@@ -645,7 +644,7 @@ function DashboardContent() {
                               <Icon className="text-arise-deep-teal" size={24} />
                             </div>
                             {/* Status badges */}
-                            <div className="flex items-start justify-end">
+                            <div className="flex items-start justify-end mb-4">
                               {/* Badges based on assessment type */}
                               {evaluation.assessmentType === 'MBTI' && evaluation.externalLink && (
                                 <span className="inline-block px-3 py-1 border border-arise-deep-teal text-arise-deep-teal text-xs rounded-full font-medium">
@@ -669,33 +668,34 @@ function DashboardContent() {
                               )}
                             </div>
                             {/* Add padding top to account for icon */}
-                            <div className="pt-12">
+                            <div className="pt-12 flex-1 flex flex-col">
                               {/* Title and Description */}
-                              <div>
+                              <div className="mb-4">
                                 <h3 className="text-lg font-medium text-gray-900 mb-2">
                                   {evaluation.title}
                                 </h3>
-                                <p className="text-sm text-gray-900 mb-4">
+                                <p className="text-sm text-gray-900">
                                   {evaluation.description}
                                 </p>
                               </div>
-                            </div>
 
-                            {/* Status Badge */}
-                            {evaluation.status === 'locked' ? (
-                              <div className="flex items-center gap-2">
-                                <Lock className="w-4 h-4 text-gray-400" />
-                                <span className="text-xs text-gray-500">Locked</span>
+                              {/* Status Badge */}
+                              <div className="mb-4">
+                                {evaluation.status === 'locked' ? (
+                                  <div className="flex items-center gap-2">
+                                    <Lock className="w-4 h-4 text-gray-400" />
+                                    <span className="text-xs text-gray-500">Locked</span>
+                                  </div>
+                                ) : (
+                                  getStatusBadge(evaluation.status, evaluation.answerCount, evaluation.totalQuestions)
+                                )}
                               </div>
-                            ) : (
-                              getStatusBadge(evaluation.status, evaluation.answerCount, evaluation.totalQuestions)
-                            )}
 
-                            {/* Action Button */}
-                            <div className="mt-auto flex items-end">
-                              {getActionButton(evaluation)}
+                              {/* Action Button - pushed to bottom */}
+                              <div className="mt-auto">
+                                {getActionButton(evaluation)}
+                              </div>
                             </div>
-                          </Stack>
                           </div>
                         </Card>
                       );
