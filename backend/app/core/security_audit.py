@@ -19,6 +19,7 @@ class SecurityEventType(str, Enum):
     LOGIN_SUCCESS = "login_success"
     LOGIN_FAILURE = "login_failure"
     LOGOUT = "logout"
+    TOKEN_REFRESHED = "token_refreshed"
     PASSWORD_CHANGE = "password_change"
     PASSWORD_RESET_REQUEST = "password_reset_request"
     PASSWORD_RESET_COMPLETE = "password_reset_complete"

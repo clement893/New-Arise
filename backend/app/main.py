@@ -5,6 +5,7 @@ Configured with OpenAPI/Swagger auto-generation
 
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
+from datetime import datetime, timezone
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -252,13 +253,20 @@ def create_app() -> FastAPI:
     )
     
     # Add a simple root route that doesn't require any dependencies
+    # SECURITY: Public endpoint for health checks, no authentication required
     @app.get("/")
     async def root():
-        """Root endpoint - simple health check"""
+        """
+        Root endpoint - simple health check
+        
+        SECURITY: Public endpoint, no authentication required.
+        Used by Railway health checks and deployment verification.
+        """
         return {
             "status": "ok",
             "service": settings.PROJECT_NAME,
             "version": settings.VERSION,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     # CORS Middleware - MUST be added FIRST to handle preflight requests

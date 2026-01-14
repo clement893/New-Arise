@@ -659,43 +659,73 @@ async def refresh_token(
         return response
         
     except jwt.ExpiredSignatureError:
-        # Token is expired, but we can still refresh it if user exists
-        # This allows refreshing expired tokens
+        # SECURITY: Refresh token is expired - log and reject
         try:
-            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM], options={"verify_exp": False})
-            username = payload.get("sub")
-            if username:
-                result = await db.execute(
-                    select(User).where(User.email == username)
-                )
-                user = result.scalar_one_or_none()
-                if user and user.is_active:
-                    # Create new access token
-                    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-                    access_token = create_access_token(
-                        data={"sub": user.email, "type": "access"},
-                        expires_delta=access_token_expires,
-                    )
-                    logger.info(f"Expired token refreshed for user {user.email}")
-                    # Return JSONResponse explicitly to work with rate limiting middleware
-                    token_data = Token(access_token=access_token, token_type="bearer")
-                    return JSONResponse(
-                        status_code=status.HTTP_200_OK,
-                        content=token_data.model_dump()
-                    )
+            await SecurityAuditLogger.log_event(
+                db=db,
+                event_type=SecurityEventType.INVALID_TOKEN,
+                description="Expired refresh token used in refresh attempt",
+                ip_address=request.client.host if request.client else None,
+                user_agent=request.headers.get("user-agent"),
+                request_method=request.method,
+                request_path=str(request.url.path),
+                severity="warning",
+                success="failure",
+            )
         except Exception:
             pass
         
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token expired and cannot be refreshed",
+            detail="Refresh token expired",
             headers={"WWW-Authenticate": "Bearer"},
         )
     except jwt.JWTError as e:
+        # SECURITY: Invalid JWT token - log and reject
         logger.warning(f"JWT error during refresh: {e}")
+        try:
+            await SecurityAuditLogger.log_event(
+                db=db,
+                event_type=SecurityEventType.INVALID_TOKEN,
+                description=f"Invalid refresh token: {str(e)}",
+                ip_address=request.client.host if request.client else None,
+                user_agent=request.headers.get("user-agent"),
+                request_method=request.method,
+                request_path=str(request.url.path),
+                severity="warning",
+                success="failure",
+                metadata={"error": str(e)}
+            )
+        except Exception:
+            pass
+        
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token",
+            detail="Invalid refresh token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except Exception as e:
+        # SECURITY: Unexpected error - log and reject
+        logger.error(f"Unexpected error during token refresh: {e}", exc_info=True)
+        try:
+            await SecurityAuditLogger.log_event(
+                db=db,
+                event_type=SecurityEventType.INVALID_TOKEN,
+                description=f"Unexpected error during refresh: {str(e)}",
+                ip_address=request.client.host if request.client else None,
+                user_agent=request.headers.get("user-agent"),
+                request_method=request.method,
+                request_path=str(request.url.path),
+                severity="error",
+                success="failure",
+                metadata={"error": str(e), "error_type": type(e).__name__}
+            )
+        except Exception:
+            pass
+        
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error during token refresh",
             headers={"WWW-Authenticate": "Bearer"},
         )
 

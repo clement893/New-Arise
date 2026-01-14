@@ -183,10 +183,21 @@ echo "=========================================="
 echo "Starting Uvicorn on 0.0.0.0:$PORT..."
 echo "=========================================="
 echo "Application will be available at http://0.0.0.0:$PORT"
-echo "Health check endpoint: http://0.0.0.0:$PORT/api/v1/health"
+echo "Health check endpoint: http://0.0.0.0:$PORT/api/v1/health/"
+echo "Root endpoint: http://0.0.0.0:$PORT/"
 echo "=========================================="
 
+# SECURITY: Start with proper error handling
 # Use exec to replace shell process with uvicorn
 # This ensures signals are properly handled
-exec python -m uvicorn app.main:app --host 0.0.0.0 --port "$PORT" --log-level info --access-log
+# Add --timeout-keep-alive to prevent connection issues
+# Add --limit-concurrency to prevent resource exhaustion
+exec python -m uvicorn app.main:app \
+    --host 0.0.0.0 \
+    --port "$PORT" \
+    --log-level info \
+    --access-log \
+    --timeout-keep-alive 30 \
+    --limit-concurrency 1000 \
+    --backlog 2048
 

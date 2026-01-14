@@ -20,11 +20,15 @@ router = APIRouter()
 
 # Simple health check that always returns success (for Railway healthcheck)
 # This endpoint should be lightweight and not depend on database/cache
+# SECURITY: This endpoint is public and doesn't require authentication
 @router.get("/health", response_model=Dict[str, Any])
+@router.get("/health/", response_model=Dict[str, Any])  # Support both with and without trailing slash
 async def simple_health_check() -> Dict[str, Any]:
     """
     Simple health check endpoint for Railway/deployment healthchecks
     Always returns success - does not check database/cache
+    
+    SECURITY: Public endpoint, no authentication required for health checks
     
     Returns:
         Status and timestamp
@@ -42,6 +46,8 @@ async def health_check() -> Dict[str, Any]:
     """
     Basic health check endpoint
     
+    SECURITY: Public endpoint, no authentication required for health checks
+    
     Returns:
         Status and timestamp
     """
@@ -53,13 +59,13 @@ async def health_check() -> Dict[str, Any]:
             "environment": os.getenv("ENVIRONMENT", "development"),
         }
     except Exception as e:
-        # Fallback response even if something fails
+        # Fallback response even if something fails - always return success for health check
+        # SECURITY: Don't expose error details in health check response
         return {
             "status": "healthy",
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "version": "1.0.0",
             "environment": "unknown",
-            "error": str(e)
         }
 
 
