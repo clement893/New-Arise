@@ -112,9 +112,14 @@ class PDFOCRService:
         """Encode image bytes to base64 string for OpenAI API"""
         return base64.b64encode(image_bytes).decode('utf-8')
 
-    async def _extract_text_from_image(self, image_bytes: bytes, page_num: int) -> Dict[str, Any]:
+    async def _extract_text_from_image(self, image_bytes: bytes, page_num: int, image_format: str = "png") -> Dict[str, Any]:
         """
         Extract text and structured data from a single PDF page image using OpenAI Vision
+        
+        Args:
+            image_bytes: The image file bytes
+            page_num: Page number (for logging)
+            image_format: The image format for MIME type (png, jpeg, gif, webp). Defaults to "png"
         """
         try:
             # Encode image to base64
@@ -125,16 +130,40 @@ class PDFOCRService:
 Extrayez les informations suivantes au format JSON strict (sans markdown, juste le JSON):
 
 {
-  "mbti_type": "INTJ" ou "ENFP" etc. (4 lettres uniquement),
+  "mbti_type": "INTJ" ou "ENFP" etc. (4 lettres uniquement, peut inclure -T ou -A),
+  "personality_name": "ADVENTURER" ou "ARCHITECT" etc. (nom du type de personnalité),
+  "variant": "TURBULENT" ou "ASSERTIVE" (si disponible),
+  "role": "EXPLORER" ou autre (si disponible),
+  "role_description": "Description du rôle si disponible",
+  "strategy": "CONSTANT IMPROVEMENT" ou autre (si disponible),
+  "strategy_description": "Description de la stratégie si disponible",
   "dimension_preferences": {
     "EI": {"E": 45, "I": 55},
     "SN": {"S": 30, "N": 70},
     "TF": {"T": 65, "F": 35},
     "JP": {"J": 75, "P": 25}
   },
-  "description": "Description du type de personnalité si disponible",
-  "strengths": ["Force 1", "Force 2", ...],
-  "challenges": ["Défi 1", "Défi 2", ...]
+  "traits": {
+    "Introverted": "Description si disponible",
+    "Observant": "Description si disponible",
+    "Feeling": "Description si disponible",
+    "Prospecting": "Description si disponible",
+    "Turbulent": "Description si disponible (ou Assertive)"
+  },
+  "description": "Description générale du type de personnalité si disponible",
+  "strengths": ["Charming", "Sensitive to Others", ...],
+  "strengths_descriptions": {
+    "Charming": "Description de la force",
+    "Sensitive to Others": "Description de la force",
+    ...
+  },
+  "weaknesses": ["Fiercely Independent", "Unpredictable", ...],
+  "weaknesses_descriptions": {
+    "Fiercely Independent": "Description de la faiblesse",
+    "Unpredictable": "Description de la faiblesse",
+    ...
+  },
+  "research_insight": "Insight de recherche si disponible"
 }
 
 Si une information n'est pas disponible, utilisez null ou une valeur par défaut.
@@ -154,7 +183,7 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                             {
                                 "type": "image_url",
                                 "image_url": {
-                                    "url": f"data:image/png;base64,{base64_image}"
+                                    "url": f"data:image/{image_format};base64,{base64_image}"
                                 }
                             }
                         ]
@@ -631,6 +660,82 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
         except Exception as e:
             logger.error(f"Error extracting MBTI results from PDF: {str(e)}", exc_info=True)
             raise ValueError(f"Failed to extract MBTI results from PDF: {str(e)}")
+
+    async def extract_mbti_results_from_image(self, image_bytes: bytes, image_format: str = "png") -> Dict[str, Any]:
+        """
+        Extract MBTI results directly from an image (screenshot)
+        Returns structured data with MBTI type, dimensions, and insights
+        
+        Args:
+            image_bytes: The image file bytes
+            image_format: The image format (png, jpeg, jpg, gif, webp). Defaults to "png"
+        """
+        try:
+            if not image_bytes:
+                raise ValueError("Image bytes are empty")
+            
+            logger.info(f"Extracting MBTI results from image (size: {len(image_bytes)} bytes, format: {image_format})")
+            
+            # Normalize image format for MIME type
+            format_map = {
+                "png": "png",
+                "jpg": "jpeg",
+                "jpeg": "jpeg",
+                "gif": "gif",
+                "webp": "webp"
+            }
+            mime_format = format_map.get(image_format.lower(), "png")
+            
+            # Extract data from the image
+            extracted_data = await self._extract_text_from_image(image_bytes, 1, mime_format)
+            
+            # Validate extracted data
+            if not extracted_data.get("mbti_type"):
+                raise ValueError("Could not extract MBTI type from image. Please ensure the image contains MBTI results from 16Personalities.")
+            
+            # Clean MBTI type (remove -T or -A suffix if present, keep it in a separate field)
+            mbti_type = str(extracted_data.get("mbti_type", "")).upper().strip()
+            variant = None
+            if len(mbti_type) > 4:
+                # Check if it ends with -T or -A
+                if mbti_type.endswith("-T") or mbti_type.endswith("-A"):
+                    variant = mbti_type[-1]  # T or A
+                    mbti_type = mbti_type[:-2]  # Remove -T or -A
+            
+            # Ensure dimension_preferences is properly structured
+            dimension_preferences = extracted_data.get("dimension_preferences", {})
+            required_dimensions = ["EI", "SN", "TF", "JP"]
+            for dim in required_dimensions:
+                if dim not in dimension_preferences:
+                    logger.warning(f"Missing dimension {dim} in extracted data, using default values")
+                    dimension_preferences[dim] = {}
+            
+            # Build result structure
+            result = {
+                "mbti_type": mbti_type,
+                "variant": variant or extracted_data.get("variant"),
+                "personality_name": extracted_data.get("personality_name"),
+                "role": extracted_data.get("role"),
+                "role_description": extracted_data.get("role_description"),
+                "strategy": extracted_data.get("strategy"),
+                "strategy_description": extracted_data.get("strategy_description"),
+                "dimension_preferences": dimension_preferences,
+                "traits": extracted_data.get("traits", {}),
+                "description": extracted_data.get("description"),
+                "strengths": extracted_data.get("strengths", []),
+                "strengths_descriptions": extracted_data.get("strengths_descriptions", {}),
+                "weaknesses": extracted_data.get("weaknesses", []),
+                "weaknesses_descriptions": extracted_data.get("weaknesses_descriptions", {}),
+                "challenges": extracted_data.get("challenges", []),  # Keep for backward compatibility
+                "research_insight": extracted_data.get("research_insight")
+            }
+            
+            logger.info(f"Successfully extracted MBTI results from image: {result['mbti_type']}")
+            return result
+
+        except Exception as e:
+            logger.error(f"Error extracting MBTI results from image: {str(e)}", exc_info=True)
+            raise ValueError(f"Failed to extract MBTI results from image: {str(e)}")
 
     async def _download_pdf_with_playwright(self, url: str, profile_id: str) -> Optional[bytes]:
         """

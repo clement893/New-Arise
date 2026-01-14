@@ -2231,6 +2231,401 @@ async def upload_mbti_pdf(
         )
 
 
+@router.post("/mbti/upload-image")
+async def upload_mbti_image(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Upload MBTI screenshot/image results from 16Personalities and extract results using OCR
+    Accepts image files (PNG, JPG, JPEG)
+    """
+    import logging
+    from app.services.pdf_ocr_service import PDFOCRService
+    
+    logger = logging.getLogger(__name__)
+    
+    # Validate file
+    if not file.filename:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No file provided"
+        )
+    
+    # Check file extension - accept common image formats
+    allowed_extensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp']
+    file_ext = None
+    for ext in allowed_extensions:
+        if file.filename.lower().endswith(ext):
+            file_ext = ext
+            break
+    
+    if not file_ext:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid file type. Only image files are accepted: {', '.join(allowed_extensions)}"
+        )
+    
+    # Check file size (max 10MB)
+    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+    file_content = await file.read()
+    if len(file_content) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=f"File too large. Maximum size is {MAX_FILE_SIZE / (1024 * 1024):.0f}MB"
+        )
+    
+    if len(file_content) == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File is empty"
+        )
+    
+    try:
+        logger.info(f"Starting MBTI image upload for user {current_user.id}")
+        
+        # Check if OCR service is configured
+        logger.debug("Checking if OCR service is configured...")
+        try:
+            is_configured = PDFOCRService.is_configured()
+            logger.debug(f"OCR service configured check result: {is_configured}")
+        except Exception as config_check_error:
+            logger.error(f"Error checking OCR service configuration: {config_check_error}", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=f"Error checking OCR service configuration: {str(config_check_error)}"
+            )
+        
+        if not is_configured:
+            logger.error("OCR service is not configured")
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="OCR service is not configured. Please configure OPENAI_API_KEY and install required dependencies (PyMuPDF, Pillow)."
+            )
+        
+        logger.debug("OCR service is configured, initializing...")
+        # Initialize OCR service
+        try:
+            ocr_service = PDFOCRService()
+            logger.debug("OCR service initialized successfully")
+        except Exception as init_error:
+            logger.error(f"Failed to initialize OCR service: {init_error}", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=f"Failed to initialize OCR service: {str(init_error)}. Please check OPENAI_API_KEY and ensure PyMuPDF and Pillow are installed."
+            )
+        
+        logger.info(f"Extracting MBTI results from image for user {current_user.id} (image size: {len(file_content)} bytes)")
+        # Extract MBTI results from image
+        try:
+            # Determine image format from file extension
+            image_format = file_ext.lstrip('.').lower() if file_ext else 'png'
+            extracted_data = await ocr_service.extract_mbti_results_from_image(file_content, image_format)
+            logger.info(f"Successfully extracted MBTI data: {extracted_data.get('mbti_type', 'unknown')}")
+        except Exception as extract_error:
+            logger.error(f"Failed to extract MBTI results from image: {extract_error}", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Failed to extract MBTI results from image: {str(extract_error)}"
+            )
+        
+        # Validate extracted data
+        logger.debug(f"Validating extracted data: {extracted_data}")
+        mbti_type = extracted_data.get("mbti_type")
+        if not mbti_type or len(str(mbti_type)) != 4:
+            logger.error(f"Invalid MBTI type extracted: {mbti_type}")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Could not extract valid MBTI type from image. Extracted: {mbti_type}. Please ensure the image contains valid MBTI results from 16Personalities."
+            )
+        
+        # Convert extracted data to assessment scores format
+        dimension_preferences = extracted_data.get("dimension_preferences", {})
+        
+        # Create score structure compatible with assessment_scoring
+        scores = {
+            "mbti_type": mbti_type.upper(),
+            "variant": extracted_data.get("variant"),
+            "personality_name": extracted_data.get("personality_name"),
+            "role": extracted_data.get("role"),
+            "role_description": extracted_data.get("role_description"),
+            "strategy": extracted_data.get("strategy"),
+            "strategy_description": extracted_data.get("strategy_description"),
+            "dimension_preferences": dimension_preferences,
+            "traits": extracted_data.get("traits", {}),
+            "description": extracted_data.get("description"),
+            "strengths": extracted_data.get("strengths", []),
+            "strengths_descriptions": extracted_data.get("strengths_descriptions", {}),
+            "weaknesses": extracted_data.get("weaknesses", []),
+            "weaknesses_descriptions": extracted_data.get("weaknesses_descriptions", {}),
+            "challenges": extracted_data.get("challenges", []),  # Keep for backward compatibility
+            "research_insight": extracted_data.get("research_insight")
+        }
+        
+        # Find or create MBTI assessment
+        result = await db.execute(
+            select(Assessment)
+            .where(
+                Assessment.user_id == current_user.id,
+                Assessment.assessment_type == AssessmentType.MBTI
+            )
+            .order_by(Assessment.created_at.desc())
+        )
+        assessment = result.scalar_one_or_none()
+        
+        if assessment:
+            # Update existing assessment
+            assessment.status = AssessmentStatus.COMPLETED
+            assessment.completed_at = datetime.now(timezone.utc)
+            assessment.processed_score = scores
+            assessment.raw_score = {"source": "image_ocr", "extracted_data": extracted_data}
+        else:
+            # Create new assessment
+            assessment = Assessment(
+                user_id=current_user.id,
+                assessment_type=AssessmentType.MBTI,
+                status=AssessmentStatus.COMPLETED,
+                started_at=datetime.now(timezone.utc),
+                completed_at=datetime.now(timezone.utc),
+                processed_score=scores,
+                raw_score={"source": "image_ocr", "extracted_data": extracted_data}
+            )
+            db.add(assessment)
+        
+        try:
+            await db.commit()
+            await db.refresh(assessment)
+            logger.debug(f"Assessment saved/updated successfully: {assessment.id}")
+        except Exception as commit_error:
+            logger.error(f"Failed to commit assessment: {commit_error}", exc_info=True)
+            await db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to save assessment: {str(commit_error)}"
+            )
+        
+        # Create or update assessment result using raw SQL to handle both 'scores' and 'result_data' columns
+        logger.debug(f"Creating/updating assessment result for assessment {assessment.id}")
+        try:
+            # First check if result exists
+            check_result = await db.execute(
+                text("""
+                    SELECT id FROM assessment_results
+                    WHERE assessment_id = :assessment_id
+                """),
+                {"assessment_id": assessment.id}
+            )
+            existing_result = check_result.first()
+            
+            insights_json = json.dumps({
+                "description": extracted_data.get("description"),
+                "personality_name": extracted_data.get("personality_name"),
+                "role": extracted_data.get("role"),
+                "role_description": extracted_data.get("role_description"),
+                "strategy": extracted_data.get("strategy"),
+                "strategy_description": extracted_data.get("strategy_description"),
+                "traits": extracted_data.get("traits", {}),
+                "strengths": extracted_data.get("strengths", []),
+                "strengths_descriptions": extracted_data.get("strengths_descriptions", {}),
+                "weaknesses": extracted_data.get("weaknesses", []),
+                "weaknesses_descriptions": extracted_data.get("weaknesses_descriptions", {}),
+                "challenges": extracted_data.get("challenges", []),
+                "research_insight": extracted_data.get("research_insight"),
+                "dimensions": extracted_data.get("dimension_preferences", {})
+            })
+            recommendations_json = json.dumps({})
+            scores_json = json.dumps(scores)
+            
+            # Check which column exists in the database (result_data or scores)
+            # Try to detect column name by checking table structure
+            column_check = await db.execute(
+                text("""
+                    SELECT column_name 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'assessment_results' 
+                    AND column_name IN ('scores', 'result_data', 'generated_at', 'created_at', 'insights', 'recommendations')
+                """)
+            )
+            columns = {row[0] for row in column_check.fetchall()}
+            scores_column = 'scores' if 'scores' in columns else 'result_data'
+            
+            if existing_result:
+                # Update existing result
+                logger.debug(f"Updating existing assessment result using column '{scores_column}'")
+                if scores_column == 'scores' and 'insights' in columns and 'recommendations' in columns:
+                    await db.execute(
+                        text(f"""
+                            UPDATE assessment_results
+                            SET {scores_column} = CAST(:scores AS jsonb),
+                                insights = CAST(:insights AS jsonb),
+                                recommendations = CAST(:recommendations AS jsonb),
+                                updated_at = :updated_at
+                            WHERE assessment_id = :assessment_id
+                        """),
+                        {
+                            "assessment_id": assessment.id,
+                            "scores": scores_json,
+                            "insights": insights_json,
+                            "recommendations": recommendations_json,
+                            "updated_at": datetime.now(timezone.utc)
+                        }
+                    )
+                elif scores_column == 'scores':
+                    await db.execute(
+                        text(f"""
+                            UPDATE assessment_results
+                            SET {scores_column} = CAST(:scores AS jsonb),
+                                updated_at = :updated_at
+                            WHERE assessment_id = :assessment_id
+                        """),
+                        {
+                            "assessment_id": assessment.id,
+                            "scores": scores_json,
+                            "updated_at": datetime.now(timezone.utc)
+                        }
+                    )
+                else:
+                    await db.execute(
+                        text(f"""
+                            UPDATE assessment_results
+                            SET {scores_column} = CAST(:scores AS jsonb)
+                            WHERE assessment_id = :assessment_id
+                        """),
+                        {
+                            "assessment_id": assessment.id,
+                            "scores": scores_json
+                        }
+                    )
+            else:
+                # Create new result
+                logger.debug(f"Creating new assessment result using column '{scores_column}'")
+                if scores_column == 'scores' and 'insights' in columns and 'generated_at' in columns:
+                    # New schema with all columns
+                    await db.execute(
+                        text(f"""
+                            INSERT INTO assessment_results (assessment_id, user_id, {scores_column}, insights, recommendations, generated_at, updated_at)
+                            VALUES (:assessment_id, :user_id, CAST(:scores AS jsonb), CAST(:insights AS jsonb), CAST(:recommendations AS jsonb), :generated_at, :updated_at)
+                        """),
+                        {
+                            "assessment_id": assessment.id,
+                            "user_id": current_user.id,
+                            "scores": scores_json,
+                            "insights": insights_json,
+                            "recommendations": recommendations_json,
+                            "generated_at": datetime.now(timezone.utc),
+                            "updated_at": datetime.now(timezone.utc)
+                        }
+                    )
+                elif scores_column == 'scores' and 'generated_at' in columns:
+                    # Schema with scores and generated_at (but no insights/recommendations)
+                    await db.execute(
+                        text(f"""
+                            INSERT INTO assessment_results (assessment_id, user_id, {scores_column}, generated_at, updated_at)
+                            VALUES (:assessment_id, :user_id, CAST(:scores AS jsonb), :generated_at, :updated_at)
+                        """),
+                        {
+                            "assessment_id": assessment.id,
+                            "user_id": current_user.id,
+                            "scores": scores_json,
+                            "generated_at": datetime.now(timezone.utc),
+                            "updated_at": datetime.now(timezone.utc)
+                        }
+                    )
+                elif scores_column == 'scores' and 'created_at' in columns:
+                    # Transitional schema with scores but created_at instead of generated_at
+                    await db.execute(
+                        text(f"""
+                            INSERT INTO assessment_results (assessment_id, user_id, {scores_column}, created_at, updated_at)
+                            VALUES (:assessment_id, :user_id, CAST(:scores AS jsonb), :created_at, :updated_at)
+                        """),
+                        {
+                            "assessment_id": assessment.id,
+                            "user_id": current_user.id,
+                            "scores": scores_json,
+                            "created_at": datetime.now(timezone.utc),
+                            "updated_at": datetime.now(timezone.utc)
+                        }
+                    )
+                else:
+                    # Fallback to result_data column
+                    await db.execute(
+                        text(f"""
+                            INSERT INTO assessment_results (assessment_id, user_id, {scores_column})
+                            VALUES (:assessment_id, :user_id, CAST(:scores AS jsonb))
+                        """),
+                        {
+                            "assessment_id": assessment.id,
+                            "user_id": current_user.id,
+                            "scores": scores_json
+                        }
+                    )
+            
+            await db.commit()
+            logger.debug(f"Assessment result saved/updated successfully")
+        except Exception as result_error:
+            logger.error(f"Failed to save assessment result: {result_error}", exc_info=True)
+            await db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to save assessment result: {str(result_error)}"
+            )
+        
+        logger.info(f"Successfully extracted MBTI results from image: {mbti_type} for user {current_user.id}")
+        
+        # Return response
+        return {
+            "assessment_id": assessment.id,
+            "mbti_type": mbti_type.upper(),
+            "scores": scores,
+            "message": "Image uploaded and results extracted successfully"
+        }
+        
+    except HTTPException:
+        raise
+    except ValueError as e:
+        logger.error(f"Error extracting MBTI results from image: {str(e)}", exc_info=True)
+        try:
+            await db.rollback()
+        except Exception:
+            pass
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to extract MBTI results from image: {str(e)}"
+        )
+    except Exception as e:
+        error_type = type(e).__name__
+        error_message = str(e)
+        
+        # Log full error details
+        try:
+            logger.error(
+                f"Error processing MBTI image: {error_type}: {error_message}",
+                exc_info=True,
+                extra={
+                    "user_id": current_user.id if current_user else None,
+                    "filename": file.filename if file and hasattr(file, 'filename') else None,
+                    "file_size": len(file_content) if file_content else 0,
+                    "error_type": error_type,
+                    "error_message": error_message
+                }
+            )
+        except Exception as log_error:
+            # If logging fails, at least print to stderr
+            print(f"CRITICAL: Failed to log error. Original error: {error_type}: {error_message}")
+            print(f"Logging error: {log_error}")
+        
+        try:
+            await db.rollback()
+        except Exception:
+            pass
+        
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred while processing the image: {error_message}"
+        )
+
+
 @router.delete("/my-assessments/all", status_code=status.HTTP_200_OK)
 async def delete_all_my_assessments(
     current_user: User = Depends(get_current_user),

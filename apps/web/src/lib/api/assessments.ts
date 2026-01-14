@@ -481,6 +481,28 @@ export const uploadMBTIPDFFromURL = async (profileUrl: string): Promise<{ assess
 };
 
 /**
+ * Upload MBTI image (screenshot) and extract results using OCR
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
+ */
+export const uploadMBTIImage = async (file: File): Promise<{ assessment_id: number; mbti_type: string; scores: any; message: string }> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await apiClient.post(
+    `/v1/assessments/mbti/upload-image`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      timeout: 120000, // 120 seconds timeout for OCR processing (can take time)
+    }
+  );
+  
+  return response.data;
+};
+
+/**
  * Delete all assessments for the current user (superadmin only)
  * Uses apiClient to benefit from automatic token refresh on 401 errors
  */
@@ -614,6 +636,7 @@ export const assessmentsApi = {
   getAssessment,
   uploadMBTIPDF,
   uploadMBTIPDFFromURL,
+  uploadMBTIImage,
 };
 
 export default assessmentsApi;

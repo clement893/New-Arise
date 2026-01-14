@@ -11,15 +11,15 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import MotionDiv from '@/components/motion/MotionDiv';
 import FileUploadWithPreview from '@/components/ui/FileUploadWithPreview';
-import { ArrowLeft, Upload, Loader2, CheckCircle, AlertCircle, FileText, Link as LinkIcon } from 'lucide-react';
-import { uploadMBTIPDF, uploadMBTIPDFFromURL } from '@/lib/api/assessments';
+import { ArrowLeft, Upload, Loader2, CheckCircle, AlertCircle, FileText, Link as LinkIcon, Image as ImageIcon } from 'lucide-react';
+import { uploadMBTIPDF, uploadMBTIPDFFromURL, uploadMBTIImage } from '@/lib/api/assessments';
 import { formatError } from '@/lib/utils/formatError';
 
 export default function MBTIPDFUploadPage() {
   const router = useRouter();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [profileUrl, setProfileUrl] = useState<string>('');
-  const [inputMode, setInputMode] = useState<'file' | 'url'>('file');
+  const [inputMode, setInputMode] = useState<'file' | 'url' | 'image'>('file');
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -32,12 +32,29 @@ export default function MBTIPDFUploadPage() {
         setError('Aucun fichier sélectionné');
         return;
       }
-      // Validate file
-      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-        setError('Veuillez sélectionner un fichier PDF valide');
-        setSelectedFile(null);
-        return;
+      
+      // Validate file based on input mode
+      if (inputMode === 'file') {
+        // PDF validation
+        if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+          setError('Veuillez sélectionner un fichier PDF valide');
+          setSelectedFile(null);
+          return;
+        }
+      } else if (inputMode === 'image') {
+        // Image validation
+        const allowedImageTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'];
+        const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp'];
+        const hasValidType = allowedImageTypes.includes(file.type);
+        const hasValidExtension = allowedExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
+        
+        if (!hasValidType && !hasValidExtension) {
+          setError('Veuillez sélectionner une image valide (PNG, JPG, JPEG, GIF, WEBP)');
+          setSelectedFile(null);
+          return;
+        }
       }
+      
       if (file.size > 10 * 1024 * 1024) { // 10MB
         setError('Le fichier est trop volumineux. Taille maximale : 10MB');
         setSelectedFile(null);
@@ -61,8 +78,8 @@ export default function MBTIPDFUploadPage() {
 
   const handleUpload = async () => {
     // Validate inputs BEFORE starting upload process
-    if (inputMode === 'file' && !selectedFile) {
-      setError('Veuillez sélectionner un fichier PDF');
+    if ((inputMode === 'file' || inputMode === 'image') && !selectedFile) {
+      setError(inputMode === 'file' ? 'Veuillez sélectionner un fichier PDF' : 'Veuillez sélectionner une image');
       return;
     }
     
@@ -109,6 +126,8 @@ export default function MBTIPDFUploadPage() {
           result = await uploadMBTIPDF(selectedFile);
         } else if (inputMode === 'url' && profileUrl.trim()) {
           result = await uploadMBTIPDFFromURL(profileUrl.trim());
+        } else if (inputMode === 'image' && selectedFile) {
+          result = await uploadMBTIImage(selectedFile);
         } else {
           throw new Error('Mode d\'upload invalide');
         }
@@ -181,10 +200,10 @@ export default function MBTIPDFUploadPage() {
           <Button
             variant="ghost"
             onClick={() => router.push('/dashboard/assessments/mbti')}
-            className="mb-6 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+            className="mb-6 text-gray-400 hover:text-gray-600 hover:bg-gray-100 flex items-center gap-8"
             disabled={isUploading}
           >
-            <ArrowLeft size={16} className="mr-2" />
+            <ArrowLeft size={16} />
             Retour
           </Button>
 
@@ -223,11 +242,12 @@ export default function MBTIPDFUploadPage() {
                     setInputMode('file');
                     setError(null);
                     setProfileUrl('');
+                    setSelectedFile(null);
                   }}
-                  className="flex-1"
+                  className="flex-1 flex items-center gap-8"
                   style={inputMode === 'file' ? { backgroundColor: '#D5B667', color: '#000000' } : undefined}
                 >
-                  <FileText size={18} className="mr-2" />
+                  <FileText size={18} />
                   Upload a PDF
                 </Button>
                 <Button
@@ -237,11 +257,25 @@ export default function MBTIPDFUploadPage() {
                     setError(null);
                     setSelectedFile(null);
                   }}
-                  className="flex-1"
+                  className="flex-1 flex items-center gap-8"
                   style={inputMode === 'url' ? { backgroundColor: '#D5B667', color: '#000000' } : undefined}
                 >
-                  <LinkIcon size={18} className="mr-2" />
+                  <LinkIcon size={18} />
                   Importer depuis URL
+                </Button>
+                <Button
+                  variant={inputMode === 'image' ? 'primary' : 'outline'}
+                  onClick={() => {
+                    setInputMode('image');
+                    setError(null);
+                    setProfileUrl('');
+                    setSelectedFile(null);
+                  }}
+                  className="flex-1 flex items-center gap-8"
+                  style={inputMode === 'image' ? { backgroundColor: '#D5B667', color: '#000000' } : undefined}
+                >
+                  <ImageIcon size={18} />
+                  Importer depuis une image
                 </Button>
               </div>
 
@@ -255,12 +289,20 @@ export default function MBTIPDFUploadPage() {
                     <li>• Le fichier sera analysé avec l'intelligence artificielle pour extraire vos résultats</li>
                     <li>• Le processus peut prendre 10-30 secondes</li>
                   </ul>
-                ) : (
+                ) : inputMode === 'url' ? (
                   <ul className="text-sm text-gray-700 space-y-1">
                     <li>• Collez l'URL de votre profil 16Personalities (ex: https://www.16personalities.com/profiles/6d65d1ec09592)</li>
                     <li>• Le système téléchargera automatiquement le PDF depuis cette URL</li>
                     <li>• Le PDF sera analysé avec l'intelligence artificielle pour extraire vos résultats</li>
                     <li>• Le processus peut prendre 15-45 secondes</li>
+                  </ul>
+                ) : (
+                  <ul className="text-sm text-gray-700 space-y-1">
+                    <li>• Formats acceptés : PNG, JPG, JPEG, GIF, WEBP</li>
+                    <li>• Taille maximale : 10MB</li>
+                    <li>• Prenez un screenshot de votre page de résultats 16Personalities</li>
+                    <li>• L'image sera analysée avec l'intelligence artificielle pour extraire vos résultats</li>
+                    <li>• Le processus peut prendre 10-30 secondes</li>
                   </ul>
                 )}
               </div>
@@ -275,6 +317,19 @@ export default function MBTIPDFUploadPage() {
                     onFileSelect={handleFileSelect}
                     maxSize={10}
                     helperText="Taille maximale : 10MB • Format : PDF uniquement"
+                    fullWidth
+                    error={error || undefined}
+                  />
+                </div>
+              ) : inputMode === 'image' ? (
+                <div className="mb-6">
+                  <FileUploadWithPreview
+                    label="Sélectionner votre image (screenshot)"
+                    accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,.png,.jpg,.jpeg,.gif,.webp"
+                    multiple={false}
+                    onFileSelect={handleFileSelect}
+                    maxSize={10}
+                    helperText="Taille maximale : 10MB • Formats : PNG, JPG, JPEG, GIF, WEBP"
                     fullWidth
                     error={error || undefined}
                   />
@@ -302,7 +357,7 @@ export default function MBTIPDFUploadPage() {
               )}
 
               {/* Selected File or URL Display */}
-              {inputMode === 'file' && selectedFile && !isUploading && (
+              {(inputMode === 'file' || inputMode === 'image') && selectedFile && !isUploading && (
                 <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                   <div className="flex items-center gap-3">
                     <CheckCircle className="text-green-600 flex-shrink-0" size={24} />
@@ -380,11 +435,11 @@ export default function MBTIPDFUploadPage() {
                   variant="primary"
                   onClick={handleUpload}
                   disabled={
-                    (inputMode === 'file' && !selectedFile) || 
+                    ((inputMode === 'file' || inputMode === 'image') && !selectedFile) || 
                     (inputMode === 'url' && (!profileUrl.trim() || !validateProfileUrl(profileUrl))) ||
                     isUploading
                   }
-                  className="flex-1 flex items-center justify-center gap-2"
+                  className="flex-1 flex items-center justify-center gap-8"
                   style={{ backgroundColor: '#D5B667', color: '#000000' }}
                 >
                   {isUploading ? (
@@ -394,8 +449,8 @@ export default function MBTIPDFUploadPage() {
                     </>
                   ) : (
                     <>
-                      {inputMode === 'url' ? <LinkIcon size={20} /> : <Upload size={20} />}
-                      {inputMode === 'url' ? 'Importer depuis URL' : 'Analyser mon PDF'}
+                      {inputMode === 'url' ? <LinkIcon size={20} /> : inputMode === 'image' ? <ImageIcon size={20} /> : <Upload size={20} />}
+                      {inputMode === 'url' ? 'Importer depuis URL' : inputMode === 'image' ? 'Analyser mon image' : 'Analyser mon PDF'}
                     </>
                   )}
                 </Button>
@@ -427,6 +482,16 @@ export default function MBTIPDFUploadPage() {
                     <li>Connectez-vous à votre compte</li>
                     <li>Téléchargez votre PDF de résultats depuis votre profil</li>
                     <li>Revenez ici et uploadez le fichier PDF</li>
+                  </ol>
+                </div>
+                <div>
+                  <p className="font-medium mb-2">Option 3 : Importer depuis une image (Recommandé pour les screenshots)</p>
+                  <ol className="space-y-1 ml-4 list-decimal">
+                    <li>Allez sur votre page de résultats sur <a href="https://www.16personalities.com" target="_blank" rel="noopener noreferrer" className="underline font-medium">16Personalities</a></li>
+                    <li>Prenez un screenshot de votre page de résultats (toute la page)</li>
+                    <li>Revenez ici et sélectionnez "Importer depuis une image"</li>
+                    <li>Uploadez votre screenshot</li>
+                    <li>Le système extraira automatiquement toutes les informations de votre profil</li>
                   </ol>
                 </div>
               </div>
