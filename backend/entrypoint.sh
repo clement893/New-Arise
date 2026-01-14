@@ -215,22 +215,27 @@ echo "Testing application import..."
 IMPORT_OUTPUT=$(python -c "from app.main import app; print('✓ Application imported successfully')" 2>&1)
 IMPORT_EXIT=$?
 if [ $IMPORT_EXIT -ne 0 ]; then
-    echo "❌ ERROR: Failed to import application!" >&2
-    echo "Import error output:" >&2
-    echo "$IMPORT_OUTPUT" >&2
-    echo "This usually means there's a syntax error or import error in the code." >&2
+    echo "❌ ERROR: Failed to import application!"
+    echo "Import error output:"
+    echo "$IMPORT_OUTPUT"
+    echo "This usually means there's a syntax error or import error in the code."
     exit 1
 fi
 echo "$IMPORT_OUTPUT"
 
 echo "✓ Application import test passed"
-echo "Starting Uvicorn server..."
+echo ""
 echo "=========================================="
+echo "🚀 Starting Uvicorn server..."
+echo "=========================================="
+echo "Configuration:"
+echo "  - Host: 0.0.0.0"
+echo "  - Port: $PORT"
+echo "  - Health endpoint: http://0.0.0.0:$PORT/api/v1/health/"
+echo "  - Root endpoint: http://0.0.0.0:$PORT/"
 echo ""
-echo "🚀 Server starting - health endpoint will be available at:"
-echo "   http://0.0.0.0:$PORT/api/v1/health/"
-echo ""
-echo "If healthcheck fails, check the logs above for errors."
+echo "The server will start now. All output will be visible below."
+echo "If the healthcheck fails, check for errors in the logs below."
 echo "=========================================="
 echo ""
 
@@ -238,6 +243,32 @@ echo ""
 # Use exec to replace shell process with uvicorn
 # This ensures signals are properly handled
 # Note: All uvicorn output will go to stdout/stderr and be captured by Railway
+
+# Verify PORT is set and valid
+if [ -z "$PORT" ]; then
+    echo "ERROR: PORT environment variable is not set!"
+    exit 1
+fi
+
+# Verify PORT is a number
+if ! echo "$PORT" | grep -qE '^[0-9]+$'; then
+    echo "ERROR: PORT must be a number, got: $PORT"
+    exit 1
+fi
+
+echo "Final verification before starting server:"
+echo "  - PORT: $PORT"
+echo "  - Python: $(which python)"
+echo "  - Uvicorn: $(python -c 'import uvicorn; print(uvicorn.__file__)' 2>&1)"
+echo "  - App module: app.main:app"
+echo ""
+echo "Starting Uvicorn server..."
+echo "This may take a few seconds..."
+echo ""
+
+# Start server - use exec to replace shell process
+# This ensures signals are properly handled and Railway can manage the process
+# All output from uvicorn will be visible in Railway logs
 exec python -m uvicorn app.main:app \
     --host 0.0.0.0 \
     --port "$PORT" \
