@@ -6,7 +6,6 @@ export const dynamicParams = true;
 
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import Container from '@/components/ui/Container';
 import PricingCardSimple from '@/components/ui/PricingCardSimple';
 import BillingPeriodToggle from '@/components/ui/BillingPeriodToggle';
 import FAQItem from '@/components/ui/FAQItem';
