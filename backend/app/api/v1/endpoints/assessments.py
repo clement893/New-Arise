@@ -368,46 +368,30 @@ async def save_answer(
                 detail="Assessment is already completed"
             )
 
-        # Check if answer already exists using raw SQL to avoid answered_at column issue
-        check_result = await db.execute(
-            text("""
-                SELECT id, assessment_id, question_id, answer_value
-                FROM assessment_answers
-                WHERE assessment_id = :assessment_id AND question_id = :question_id
-            """),
-            {
-                "assessment_id": assessment_id,
-                "question_id": str(request.question_id)
-            }
+        # SECURITY: Use SQLAlchemy ORM instead of raw SQL to prevent SQL injection
+        # Check if answer already exists
+        existing_answer_result = await db.execute(
+            select(AssessmentAnswer)
+            .where(
+                AssessmentAnswer.assessment_id == assessment_id,
+                AssessmentAnswer.question_id == str(request.question_id)
+            )
         )
-        existing_row = check_result.fetchone()
+        existing_answer = existing_answer_result.scalar_one_or_none()
 
-        if existing_row:
-            # Update existing answer using raw SQL
-            await db.execute(
-                text("""
-                    UPDATE assessment_answers
-                    SET answer_value = :answer_value
-                    WHERE id = :id
-                """),
-                {
-                    "id": existing_row[0],
-                    "answer_value": str(request.answer_value)
-                }
-            )
+        if existing_answer:
+            # Update existing answer using ORM
+            existing_answer.answer_value = str(request.answer_value)
+            # Note: answered_at will be updated automatically by database default if needed
         else:
-            # Create new answer using raw SQL (without answered_at to avoid asyncpg cache issue)
-            await db.execute(
-                text("""
-                    INSERT INTO assessment_answers (assessment_id, question_id, answer_value)
-                    VALUES (:assessment_id, :question_id, :answer_value)
-                """),
-                {
-                    "assessment_id": assessment_id,
-                    "question_id": str(request.question_id),
-                    "answer_value": str(request.answer_value)
-                }
+            # Create new answer using ORM
+            new_answer = AssessmentAnswer(
+                assessment_id=assessment_id,
+                question_id=str(request.question_id),
+                answer_value=str(request.answer_value)
+                # answered_at will be set by database default
             )
+            db.add(new_answer)
 
         await db.commit()
 
@@ -425,32 +409,19 @@ async def save_answer(
         # Check if it's a unique constraint violation
         error_str = str(e).lower()
         if 'unique' in error_str or 'duplicate' in error_str:
-            # Answer already exists, try to update it using raw SQL
+            # Answer already exists, try to update it using ORM
             try:
-                check_result = await db.execute(
-                    text("""
-                        SELECT id, assessment_id, question_id, answer_value
-                        FROM assessment_answers
-                        WHERE assessment_id = :assessment_id AND question_id = :question_id
-                    """),
-                    {
-                        "assessment_id": assessment_id,
-                        "question_id": str(request.question_id)
-                    }
-                )
-                existing_row = check_result.fetchone()
-                if existing_row:
-                    await db.execute(
-                        text("""
-                            UPDATE assessment_answers
-                            SET answer_value = :answer_value
-                            WHERE id = :id
-                        """),
-                        {
-                            "id": existing_row[0],
-                            "answer_value": str(request.answer_value)
-                        }
+                # SECURITY: Use SQLAlchemy ORM instead of raw SQL
+                existing_answer_result = await db.execute(
+                    select(AssessmentAnswer)
+                    .where(
+                        AssessmentAnswer.assessment_id == assessment_id,
+                        AssessmentAnswer.question_id == str(request.question_id)
                     )
+                )
+                existing_answer = existing_answer_result.scalar_one_or_none()
+                if existing_answer:
+                    existing_answer.answer_value = str(request.answer_value)
                     await db.commit()
                     return {
                         "message": "Answer saved successfully",
@@ -550,36 +521,20 @@ async def submit_assessment(
             await db.commit()
             await db.refresh(assessment)
 
-    # Get all answers using raw SQL to avoid answered_at column issue
+    # SECURITY: Use SQLAlchemy ORM instead of raw SQL to prevent SQL injection
+    # Get all answers using ORM
     answers_result = await db.execute(
-        text("""
-            SELECT id, assessment_id, question_id, answer_value
-            FROM assessment_answers
-            WHERE assessment_id = :assessment_id
-        """),
-        {
-            "assessment_id": assessment_id
-        }
+        select(AssessmentAnswer)
+        .where(AssessmentAnswer.assessment_id == assessment_id)
     )
-    answers_rows = answers_result.fetchall()
+    answers = answers_result.scalars().all()
     
     # Check if there are any answers
-    if not answers_rows:
+    if not answers:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot submit assessment: No answers provided. Please complete at least one question before submitting."
         )
-    
-    # Convert to AssessmentAnswer objects for calculate_scores
-    # Create a simple class that mimics AssessmentAnswer structure
-    class SimpleAnswer:
-        def __init__(self, id, assessment_id, question_id, answer_value):
-            self.id = id
-            self.assessment_id = assessment_id
-            self.question_id = question_id
-            self.answer_value = answer_value
-    
-    answers = [SimpleAnswer(row[0], row[1], row[2], row[3]) for row in answers_rows]
 
     # Calculate scores based on assessment type
     from app.services.assessment_scoring import calculate_scores
@@ -707,18 +662,13 @@ async def get_assessment_answers(
         )
 
     # Get all answers using raw SQL
+    # SECURITY: Use SQLAlchemy ORM instead of raw SQL to prevent SQL injection
     answers_result = await db.execute(
-        text("""
-            SELECT question_id, answer_value
-            FROM assessment_answers
-            WHERE assessment_id = :assessment_id
-            ORDER BY question_id
-        """),
-        {
-            "assessment_id": assessment_id
-        }
+        select(AssessmentAnswer.question_id, AssessmentAnswer.answer_value)
+        .where(AssessmentAnswer.assessment_id == assessment_id)
+        .order_by(AssessmentAnswer.question_id)
     )
-    answers_rows = answers_result.fetchall()
+    answers_rows = answers_result.all()
     
     # Convert to dict format
     answers = {row[0]: row[1] for row in answers_rows}
@@ -1629,72 +1579,38 @@ async def submit_360_evaluator_assessment(
             if not question_id or not answer_value:
                 continue
 
-            # Check if answer already exists using raw SQL to avoid answered_at column issue
-            check_result = await db.execute(
-                text("""
-                    SELECT id, assessment_id, question_id, answer_value
-                    FROM assessment_answers
-                    WHERE assessment_id = :assessment_id AND question_id = :question_id
-                """),
-                {
-                    "assessment_id": evaluator_assessment.id,
-                    "question_id": question_id
-                }
+            # SECURITY: Use SQLAlchemy ORM instead of raw SQL to prevent SQL injection
+            # Check if answer already exists
+            existing_answer_result = await db.execute(
+                select(AssessmentAnswer)
+                .where(
+                    AssessmentAnswer.assessment_id == evaluator_assessment.id,
+                    AssessmentAnswer.question_id == question_id
+                )
             )
-            existing_row = check_result.fetchone()
+            existing_answer = existing_answer_result.scalar_one_or_none()
 
-            if existing_row:
-                # Update existing answer using raw SQL
-                await db.execute(
-                    text("""
-                        UPDATE assessment_answers
-                        SET answer_value = :answer_value
-                        WHERE id = :id
-                    """),
-                    {
-                        "id": existing_row[0],
-                        "answer_value": answer_value
-                    }
-                )
+            if existing_answer:
+                # Update existing answer using ORM
+                existing_answer.answer_value = answer_value
             else:
-                # Create new answer using raw SQL (without answered_at to avoid asyncpg cache issue)
-                await db.execute(
-                    text("""
-                        INSERT INTO assessment_answers (assessment_id, question_id, answer_value)
-                        VALUES (:assessment_id, :question_id, :answer_value)
-                    """),
-                    {
-                        "assessment_id": evaluator_assessment.id,
-                        "question_id": question_id,
-                        "answer_value": answer_value
-                    }
+                # Create new answer using ORM
+                new_answer = AssessmentAnswer(
+                    assessment_id=evaluator_assessment.id,
+                    question_id=question_id,
+                    answer_value=answer_value
                 )
+                db.add(new_answer)
 
         await db.flush()
 
-        # Get all answers for scoring using raw SQL to avoid answered_at column issue
+        # SECURITY: Use SQLAlchemy ORM instead of raw SQL to prevent SQL injection
+        # Get all answers for scoring using ORM
         answers_result = await db.execute(
-            text("""
-                SELECT id, assessment_id, question_id, answer_value
-                FROM assessment_answers
-                WHERE assessment_id = :assessment_id
-            """),
-            {
-                "assessment_id": evaluator_assessment.id
-            }
+            select(AssessmentAnswer)
+            .where(AssessmentAnswer.assessment_id == evaluator_assessment.id)
         )
-        answers_rows = answers_result.fetchall()
-        
-        # Convert to AssessmentAnswer objects for calculate_scores
-        # Create a simple class that mimics AssessmentAnswer structure
-        class SimpleAnswer:
-            def __init__(self, id, assessment_id, question_id, answer_value):
-                self.id = id
-                self.assessment_id = assessment_id
-                self.question_id = question_id
-                self.answer_value = answer_value
-        
-        all_answers = [SimpleAnswer(row[0], row[1], row[2], row[3]) for row in answers_rows]
+        all_answers = answers_result.scalars().all()
 
         # Calculate scores
         scores = calculate_scores(

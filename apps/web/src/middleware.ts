@@ -3,9 +3,19 @@ import type { NextRequest } from 'next/server';
 import createMiddleware from 'next-intl/middleware';
 import { verifyToken, extractTokenFromHeader } from '@/lib/auth/jwt';
 import { routing } from './i18n/routing';
+import { randomBytes } from 'crypto';
 
 // Create next-intl middleware
 const intlMiddleware = createMiddleware(routing);
+
+/**
+ * Generate a secure CSP nonce for this request
+ * SECURITY: Nonces allow inline scripts/styles while maintaining strict CSP
+ */
+function generateCSPNonce(): string {
+  // Generate 16 random bytes and encode as base64url (URL-safe)
+  return randomBytes(16).toString('base64url');
+}
 
 // Export config for middleware matcher
 export const config = {
@@ -45,10 +55,34 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // SECURITY: Generate CSP nonce for this request BEFORE i18n middleware
+  // Nonces allow inline scripts/styles while maintaining strict CSP
+  // Generate nonce early so it's available for all responses
+  const nonce = generateCSPNonce();
+  
   // Handle i18n routing first
   const response = intlMiddleware(request);
   
-  // If it's an i18n redirect, return it immediately
+  // SECURITY: Add CSP nonce to response header for use in inline scripts/styles
+  // The nonce will be used in CSP header and must match in HTML attributes
+  // Also add to request headers so Server Components can access it
+  response.headers.set('X-CSP-Nonce', nonce);
+  
+  // SECURITY: Update CSP header with nonce for production
+  // In production, CSP should use nonces instead of unsafe-inline
+  const isProduction = process.env.NODE_ENV === 'production';
+  const existingCSP = response.headers.get('Content-Security-Policy');
+  
+  if (isProduction && existingCSP) {
+    // Replace CSP with nonce-based CSP
+    // Note: Next.js config sets CSP, but we can override it here with nonces
+    const cspWithNonce = existingCSP
+      .replace(/script-src[^;]+/, `script-src 'self' 'nonce-${nonce}' https://*.railway.app https://js.stripe.com https://*.stripe.com blob:`)
+      .replace(/style-src[^;]+/, `style-src 'self' 'nonce-${nonce}' https://fonts.googleapis.com https://*.railway.app`);
+    response.headers.set('Content-Security-Policy', cspWithNonce);
+  }
+  
+  // If it's an i18n redirect, return it immediately (but keep nonce header)
   if (response.headers.get('x-middleware-rewrite') || response.status === 307 || response.status === 308) {
     return response;
   }

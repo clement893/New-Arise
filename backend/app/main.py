@@ -417,16 +417,21 @@ def create_app() -> FastAPI:
         # Content Security Policy (strict in production, relaxed in development)
         environment = os.getenv("ENVIRONMENT", "development")
         
+        # SECURITY: Generate nonce for this request (unique per request)
+        # Nonces allow inline scripts/styles while maintaining strict CSP
+        import secrets
+        nonce = secrets.token_urlsafe(16)  # 16 bytes = 22 base64 characters
+        
+        # Store nonce in response header for frontend to use
+        response.headers["X-CSP-Nonce"] = nonce
+        
         if environment == "production":
-            # Strict CSP for production - no unsafe-inline or unsafe-eval
-            # 
-            # SECURITY: Production CSP is strict (no unsafe-inline/unsafe-eval)
-            # Use nonces for inline scripts/styles in production
-            # See: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
+            # SECURITY: Strict CSP with nonces for production
+            # Nonces allow inline scripts/styles while maintaining strict CSP
             csp_policy = (
                 "default-src 'self'; "
-                "script-src 'self'; "  # Strict: no unsafe-inline/eval (use nonces)
-                "style-src 'self'; "  # Strict: no unsafe-inline (use nonces)
+                f"script-src 'self' 'nonce-{nonce}'; "  # Nonce allows specific inline scripts
+                f"style-src 'self' 'nonce-{nonce}'; "  # Nonce allows specific inline styles
                 "img-src 'self' data: https:; "
                 "font-src 'self' data:; "
                 "connect-src 'self' https://api.stripe.com; "
@@ -435,15 +440,13 @@ def create_app() -> FastAPI:
                 "form-action 'self';"
             )
         else:
-            # Relaxed CSP for development
-            # 
-            # SECURITY: CSP is relaxed in development (unsafe-inline/unsafe-eval)
-            # This is acceptable for dev but MUST be tightened in production using nonces
-            # See: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
+            # Relaxed CSP for development (nonces optional)
+            # In development, we can use unsafe-inline for convenience
+            # but still provide nonces for testing
             csp_policy = (
                 "default-src 'self'; "
-                "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "  # Development only
-                "style-src 'self' 'unsafe-inline'; "  # Development only
+                f"script-src 'self' 'unsafe-inline' 'unsafe-eval' 'nonce-{nonce}'; "  # Development: allow both
+                f"style-src 'self' 'unsafe-inline' 'nonce-{nonce}'; "  # Development: allow both
                 "img-src 'self' data: https:; "
                 "font-src 'self' data:; "
                 "connect-src 'self' https://api.stripe.com; "
