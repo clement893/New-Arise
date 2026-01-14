@@ -627,6 +627,8 @@ function ResultsReportsContent() {
             right: '-7.5%',
             zIndex: 0,
             borderRadius: '24px',
+            width: 'calc(100% + 4%)',
+            margin: 'auto',
           }}
         />
         

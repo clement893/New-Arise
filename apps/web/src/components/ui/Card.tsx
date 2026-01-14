@@ -130,7 +130,7 @@ export default function Card({
   // Get card padding - use theme config if available, otherwise use defaults
   const getCardPadding = () => {
     if (!cardPaddingConfig) {
-      return 'p-lg'; // Default padding: 24px (UX/UI improvements - Batch 5)
+      return 'p-lg h-full'; // Default padding: 24px (UX/UI improvements - Batch 5)
     }
     // Use theme padding (sm, md, lg)
     const paddingSize = 'md'; // Default to md
@@ -188,7 +188,7 @@ export default function Card({
         <div 
           className={clsx(
             'border-b border-[var(--color-border)]',
-            !useThemePadding && 'px-lg py-md'
+            !useThemePadding && 'py-md'
           )}
           style={useThemePadding ? {
             paddingLeft: cardPadding,
