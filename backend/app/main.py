@@ -75,7 +75,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     print("✓ FastAPI Application Ready - Starting server", file=sys.stderr)
     print(f"  Environment: {os.getenv('ENVIRONMENT', 'development')}", file=sys.stderr)
     print(f"  Port: {os.getenv('PORT', '8000')}", file=sys.stderr)
-    print("  Health endpoint available at: /api/v1/health", file=sys.stderr)
+    print("  Health endpoint available at: /api/v1/health/", file=sys.stderr)
+    print("  Root endpoint available at: /", file=sys.stderr)
     print("=" * 50, file=sys.stderr)
     
     # Background initialization tasks - these run after the app has started serving requests

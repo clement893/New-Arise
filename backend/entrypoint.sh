@@ -25,7 +25,9 @@ if ! python -c "import uvicorn" 2>/dev/null; then
     exit 1
 fi
 
-# Run database migrations before starting the server (non-blocking with timeout)
+# SECURITY: Start server first, then run migrations in background
+# This ensures health endpoint is available immediately for Railway healthchecks
+# Run database migrations in background (non-blocking)
 # Use timeout to prevent migrations from blocking startup indefinitely
 if [ -n "$DATABASE_URL" ]; then
     echo "=========================================="
@@ -114,64 +116,71 @@ if [ -n "$DATABASE_URL" ]; then
         fi
     fi
     
-    if [ "$MIGRATION_STATUS" = "success" ]; then
-        echo "✅ Alembic migrations completed successfully"
-        
-        # Run SQL migrations from migrations/ directory
-        echo "=========================================="
-        echo "Running SQL migrations..."
-        echo "=========================================="
-        if [ -f "scripts/run_migrations.py" ]; then
-            echo "Executing SQL migration scripts..."
-            python scripts/run_migrations.py || {
-                echo "⚠️  Warning: SQL migrations failed, but continuing startup..."
-            }
+    # Run migrations in background to not block server startup
+    # This allows health endpoint to be available immediately
+    (
+        if [ "$MIGRATION_STATUS" = "success" ]; then
+            echo "✅ Alembic migrations completed successfully"
+            
+            # Run SQL migrations from migrations/ directory
+            echo "=========================================="
+            echo "Running SQL migrations..."
+            echo "=========================================="
+            if [ -f "scripts/run_migrations.py" ]; then
+                echo "Executing SQL migration scripts..."
+                python scripts/run_migrations.py || {
+                    echo "⚠️  Warning: SQL migrations failed, but continuing startup..."
+                }
+            else
+                echo "⚠️  Warning: run_migrations.py not found, skipping SQL migrations"
+            fi
+            echo "=========================================="
+            
+            # Verify avatar column migration was applied
+            echo "=========================================="
+            echo "Verifying avatar column migration..."
+            echo "=========================================="
+            if command -v timeout >/dev/null 2>&1; then
+                timeout 30 python scripts/ensure_avatar_migration.py 2>&1 || echo "⚠️  Avatar column verification skipped (will be created by auto-migration if needed)"
+            else
+                python scripts/ensure_avatar_migration.py 2>&1 || echo "⚠️  Avatar column verification skipped (will be created by auto-migration if needed)"
+            fi
+            
+            # Import assessment questions after migration (with timeout)
+            echo "=========================================="
+            echo "Importing assessment questions..."
+            echo "=========================================="
+            if command -v timeout >/dev/null 2>&1; then
+                timeout 60 python scripts/import_assessment_questions_auto.py 2>&1 || echo "⚠️  Could not import questions (will be imported on next startup or manually)"
+            else
+                python scripts/import_assessment_questions_auto.py 2>&1 || echo "⚠️  Could not import questions (will be imported on next startup or manually)"
+            fi
+            
+            # Ensure default theme exists after migrations (with timeout)
+            echo "=========================================="
+            echo "Ensuring default theme exists..."
+            echo "=========================================="
+            if command -v timeout >/dev/null 2>&1; then
+                timeout 30 python scripts/create_default_theme.py 2>&1 || echo "⚠️  Could not ensure default theme (will be created on first API call)"
+            else
+                python scripts/create_default_theme.py 2>&1 || echo "⚠️  Could not ensure default theme (will be created on first API call)"
+            fi
         else
-            echo "⚠️  Warning: run_migrations.py not found, skipping SQL migrations"
+            echo "⚠️  Database migrations failed, timed out, or skipped!"
+            echo "This may be due to:"
+            echo "  - Database connection issues"
+            echo "  - Migration conflicts"
+            echo "  - Missing database permissions"
+            echo "  - Migration timeout (taking too long)"
+            echo ""
+            echo "Continuing startup anyway - the application will attempt to start."
+            echo "Database operations may fail until migrations are resolved."
+            echo "Migrations will be retried on next startup or can be run manually."
         fi
-        echo "=========================================="
-        
-        # Verify avatar column migration was applied
-        echo "=========================================="
-        echo "Verifying avatar column migration..."
-        echo "=========================================="
-        if command -v timeout >/dev/null 2>&1; then
-            timeout 30 python scripts/ensure_avatar_migration.py 2>&1 || echo "⚠️  Avatar column verification skipped (will be created by auto-migration if needed)"
-        else
-            python scripts/ensure_avatar_migration.py 2>&1 || echo "⚠️  Avatar column verification skipped (will be created by auto-migration if needed)"
-        fi
-        
-        # Import assessment questions after migration (with timeout)
-        echo "=========================================="
-        echo "Importing assessment questions..."
-        echo "=========================================="
-        if command -v timeout >/dev/null 2>&1; then
-            timeout 60 python scripts/import_assessment_questions_auto.py 2>&1 || echo "⚠️  Could not import questions (will be imported on next startup or manually)"
-        else
-            python scripts/import_assessment_questions_auto.py 2>&1 || echo "⚠️  Could not import questions (will be imported on next startup or manually)"
-        fi
-        
-        # Ensure default theme exists after migrations (with timeout)
-        echo "=========================================="
-        echo "Ensuring default theme exists..."
-        echo "=========================================="
-        if command -v timeout >/dev/null 2>&1; then
-            timeout 30 python scripts/create_default_theme.py 2>&1 || echo "⚠️  Could not ensure default theme (will be created on first API call)"
-        else
-            python scripts/create_default_theme.py 2>&1 || echo "⚠️  Could not ensure default theme (will be created on first API call)"
-        fi
-    else
-        echo "⚠️  Database migrations failed, timed out, or skipped!"
-        echo "This may be due to:"
-        echo "  - Database connection issues"
-        echo "  - Migration conflicts"
-        echo "  - Missing database permissions"
-        echo "  - Migration timeout (taking too long)"
-        echo ""
-        echo "Continuing startup anyway - the application will attempt to start."
-        echo "Database operations may fail until migrations are resolved."
-        echo "Migrations will be retried on next startup or can be run manually."
-    fi
+    ) &
+    MIGRATION_PID=$!
+    echo "ℹ️  Migrations running in background (PID: $MIGRATION_PID)"
+    echo "ℹ️  Server will start immediately - health endpoint will be available"
 else
     echo "⚠️  Warning: DATABASE_URL not set, skipping migrations..."
     echo "The application will start but database operations may fail."
