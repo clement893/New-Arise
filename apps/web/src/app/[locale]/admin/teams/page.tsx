@@ -180,14 +180,14 @@ export default function TeamsPage() {
   }
 
   return (
-    <div className="py-12">
+    <div className="py-4 sm:py-6 md:py-8 lg:py-12">
       <Container>
-      <div className="mb-8 flex justify-between items-center">
+      <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-4xl font-bold text-foreground mb-2">Gestion des Équipes</h1>
-          <p className="text-muted-foreground">Administration des équipes</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">Gestion des Équipes</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Administration des équipes</p>
         </div>
-        <Button onClick={() => setShowCreateModal(true)}>
+        <Button onClick={() => setShowCreateModal(true)} className="w-full sm:w-auto text-sm sm:text-base">
           Créer une équipe
         </Button>
       </div>
@@ -209,8 +209,8 @@ export default function TeamsPage() {
           {/* Teams List */}
           <div className="lg:col-span-1">
             <Card>
-              <div className="p-6">
-                <h2 className="text-xl font-bold text-foreground mb-4">Équipes</h2>
+              <div className="p-4 sm:p-6">
+                <h2 className="text-lg sm:text-xl font-bold text-foreground mb-4">Équipes</h2>
                 <div className="space-y-2">
                   {teams.map((team) => (
                     <Button
@@ -239,28 +239,28 @@ export default function TeamsPage() {
           <div className="lg:col-span-2">
             {selectedTeam ? (
               <Card>
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-6">
-                    <div>
-                      <h2 className="text-2xl font-bold text-foreground">{selectedTeam.name}</h2>
+                <div className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
+                    <div className="flex-1">
+                      <h2 className="text-xl sm:text-2xl font-bold text-foreground">{selectedTeam.name}</h2>
                       {selectedTeam.description && (
-                        <p className="text-muted-foreground mt-2">{selectedTeam.description}</p>
+                        <p className="text-sm sm:text-base text-muted-foreground mt-2">{selectedTeam.description}</p>
                       )}
                     </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
+                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                      <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs sm:text-sm">
                         Modifier
                       </Button>
-                      <Button variant="outline" size="sm" className="border-red-500 text-red-600 hover:bg-red-50">
+                      <Button variant="outline" size="sm" className="w-full sm:w-auto border-red-500 text-red-600 hover:bg-red-50 text-xs sm:text-sm">
                         Supprimer
                       </Button>
                     </div>
                   </div>
 
                   <div className="mb-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-foreground">Membres</h3>
-                      <Button size="sm">Ajouter un membre</Button>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+                      <h3 className="text-base sm:text-lg font-semibold text-foreground">Membres</h3>
+                      <Button size="sm" className="w-full sm:w-auto text-xs sm:text-sm">Ajouter un membre</Button>
                     </div>
                     <div className="space-y-2">
                       {teamMembers.map((member) => (
@@ -308,7 +308,7 @@ export default function TeamsPage() {
         title="Créer une nouvelle équipe"
         size="md"
         footer={
-          <>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto sm:justify-end">
             <Button
               variant="outline"
               onClick={() => {
@@ -316,13 +316,14 @@ export default function TeamsPage() {
                 setNewTeamName('');
                 setNewTeamDescription('');
               }}
+              className="w-full sm:w-auto text-sm sm:text-base"
             >
               Annuler
             </Button>
-            <Button onClick={handleCreateTeam}>
+            <Button onClick={handleCreateTeam} className="w-full sm:w-auto text-sm sm:text-base">
               Créer
             </Button>
-          </>
+          </div>
         }
       >
         <div className="space-y-4">

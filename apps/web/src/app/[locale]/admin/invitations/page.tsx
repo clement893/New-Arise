@@ -291,9 +291,9 @@ export default function InvitationsPage() {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 mb-6">
         {Object.entries(statusCounts).map(([status, count]) => (
           <Card key={status}>
-            <div className="p-4 text-center">
-              <div className="text-2xl font-bold text-foreground">{count}</div>
-              <div className="text-sm text-muted-foreground capitalize">{status === 'all' ? 'Total' : getStatusLabel(status)}</div>
+            <div className="p-3 sm:p-4 text-center">
+              <div className="text-xl sm:text-2xl font-bold text-foreground">{count}</div>
+              <div className="text-xs sm:text-sm text-muted-foreground capitalize">{status === 'all' ? 'Total' : getStatusLabel(status)}</div>
             </div>
           </Card>
         ))}

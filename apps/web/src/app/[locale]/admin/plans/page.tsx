@@ -531,7 +531,7 @@ function PlansPageContent() {
         title="Créer un nouveau plan"
         size="lg"
         footer={
-          <div className="flex justify-end gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 justify-end">
             <Button
               variant="outline"
               onClick={() => {
@@ -548,6 +548,7 @@ function PlansPageContent() {
                 });
                 setError(null);
               }}
+              className="w-full sm:w-auto text-sm sm:text-base"
             >
               Annuler
             </Button>
@@ -555,7 +556,7 @@ function PlansPageContent() {
               variant="primary"
               onClick={handleCreatePlan}
               disabled={creatingPlan || !newPlan.name || !newPlan.amount}
-              className="flex flex-row items-center gap-2"
+              className="flex flex-row items-center gap-2 w-full sm:w-auto text-sm sm:text-base"
             >
               {creatingPlan ? (
                 <>

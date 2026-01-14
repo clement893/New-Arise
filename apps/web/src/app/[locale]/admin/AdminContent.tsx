@@ -49,99 +49,99 @@ export default function AdminContent() {
 
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <Card title="Invitations" className="flex flex-col">
-          <p className="text-muted-foreground mb-4">
+          <p className="text-sm sm:text-base text-muted-foreground mb-4">
             Gérer les invitations utilisateurs et les accès au système.
           </p>
           <Link href="/admin/invitations">
-            <Button variant="primary" className="w-full">
+            <Button variant="primary" className="w-full text-sm sm:text-base">
               Gérer les invitations
             </Button>
           </Link>
         </Card>
 
         <Card title="Utilisateurs" className="flex flex-col">
-          <p className="text-muted-foreground mb-4">
+          <p className="text-sm sm:text-base text-muted-foreground mb-4">
             Consulter et gérer les utilisateurs du système.
           </p>
           <Link href="/admin/users">
-            <Button variant="primary" className="w-full">
+            <Button variant="primary" className="w-full text-sm sm:text-base">
               Gérer les utilisateurs
             </Button>
           </Link>
         </Card>
 
         <Card title="Organisations" className="flex flex-col">
-          <p className="text-muted-foreground mb-4">
+          <p className="text-sm sm:text-base text-muted-foreground mb-4">
             Gérer les organisations et leurs paramètres.
           </p>
           <Link href="/admin/organizations">
-            <Button variant="primary" className="w-full">
+            <Button variant="primary" className="w-full text-sm sm:text-base">
               Gérer les organisations
             </Button>
           </Link>
         </Card>
 
         <Card title="Thèmes" className="flex flex-col">
-          <p className="text-muted-foreground mb-4">
+          <p className="text-sm sm:text-base text-muted-foreground mb-4">
             Créez, modifiez et activez les thèmes de la plateforme.
           </p>
           <Link href="/admin/themes">
-            <Button variant="primary" className="w-full">
+            <Button variant="primary" className="w-full text-sm sm:text-base">
               Gérer les thèmes
             </Button>
           </Link>
         </Card>
 
         <Card title="Plans d'abonnement" className="flex flex-col">
-          <p className="text-muted-foreground mb-4">
+          <p className="text-sm sm:text-base text-muted-foreground mb-4">
             Gérez les plans d'abonnement, modifiez les prix et descriptions.
           </p>
           <Link href="/admin/plans">
-            <Button variant="primary" className="w-full">
+            <Button variant="primary" className="w-full text-sm sm:text-base">
               Gérer les plans
             </Button>
           </Link>
         </Card>
 
         <Card title="Paramètres" className="flex flex-col">
-          <p className="text-muted-foreground mb-4">
+          <p className="text-sm sm:text-base text-muted-foreground mb-4">
             Configuration générale du système.
           </p>
           <Link href="/admin/settings">
-            <Button variant="primary" className="w-full">
+            <Button variant="primary" className="w-full text-sm sm:text-base">
               Configurer
             </Button>
           </Link>
         </Card>
 
         <Card title="Logs" className="flex flex-col">
-          <p className="text-muted-foreground mb-4">
+          <p className="text-sm sm:text-base text-muted-foreground mb-4">
             Consulter les logs système et les activités.
           </p>
           <Link href="/admin-logs/testing">
-            <Button variant="primary" className="w-full">
+            <Button variant="primary" className="w-full text-sm sm:text-base">
               Voir les logs
             </Button>
           </Link>
         </Card>
 
         <Card title="Statistiques" className="flex flex-col">
-          <p className="text-muted-foreground mb-4">
+          <p className="text-sm sm:text-base text-muted-foreground mb-4">
             Visualiser les statistiques et métriques du système.
           </p>
           <Link href="/admin/statistics">
-            <Button variant="primary" className="w-full">
+            <Button variant="primary" className="w-full text-sm sm:text-base">
               Voir les statistiques
             </Button>
           </Link>
         </Card>
 
         <Card title="Clés API" className="flex flex-col">
-          <p className="text-muted-foreground mb-4">
+          <p className="text-sm sm:text-base text-muted-foreground mb-4">
             Consulter et gérer toutes les clés API du système.
           </p>
           <Link href="/admin/api-keys">
-            <Button variant="primary" className="w-full">
+            <Button variant="primary" className="w-full text-sm sm:text-base">
               Gérer les clés API
             </Button>
           </Link>
@@ -152,13 +152,13 @@ export default function AdminContent() {
       {/* Service Tests Section */}
       <MotionDiv variant="slideUp" delay={300} className="mt-8">
         <Card className="hover:shadow-xl transition-all duration-300">
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
             <div className="p-3 bg-info-100 dark:bg-info-900/30 rounded-lg">
-              <Sparkles className="w-6 h-6 text-info-600 dark:text-info-400" />
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-info-600 dark:text-info-400" />
             </div>
-            <div>
-              <h3 className="text-xl font-semibold text-foreground">Service Tests</h3>
-              <p className="text-sm text-muted-foreground">Test and verify the configuration of integrated services</p>
+            <div className="flex-1">
+              <h3 className="text-lg sm:text-xl font-semibold text-foreground">Service Tests</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground">Test and verify the configuration of integrated services</p>
             </div>
           </div>
           {/* Service test pages removed - no longer needed */}
@@ -178,28 +178,28 @@ export default function AdminContent() {
 
       <Section title="Statut du système" className="mt-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="p-4 border rounded-lg bg-secondary-100 dark:bg-secondary-900 border-secondary-200 dark:border-secondary-800">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-secondary-900 dark:text-secondary-100">
+          <div className="p-4 sm:p-6 border rounded-lg bg-secondary-100 dark:bg-secondary-900 border-secondary-200 dark:border-secondary-800">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <span className="text-xs sm:text-sm font-medium text-secondary-900 dark:text-secondary-100">
                 API Backend
               </span>
-              <Badge variant="success">En ligne</Badge>
+              <Badge variant="success" className="text-xs sm:text-sm">En ligne</Badge>
             </div>
           </div>
-          <div className="p-4 border rounded-lg bg-secondary-100 dark:bg-secondary-900 border-secondary-200 dark:border-secondary-800">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-secondary-900 dark:text-secondary-100">
+          <div className="p-4 sm:p-6 border rounded-lg bg-secondary-100 dark:bg-secondary-900 border-secondary-200 dark:border-secondary-800">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <span className="text-xs sm:text-sm font-medium text-secondary-900 dark:text-secondary-100">
                 Base de données
               </span>
-              <Badge variant="success">Connectée</Badge>
+              <Badge variant="success" className="text-xs sm:text-sm">Connectée</Badge>
             </div>
           </div>
-          <div className="p-4 border rounded-lg bg-secondary-100 dark:bg-secondary-900 border-secondary-200 dark:border-secondary-800">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-secondary-900 dark:text-secondary-100">
+          <div className="p-4 sm:p-6 border rounded-lg bg-secondary-100 dark:bg-secondary-900 border-secondary-200 dark:border-secondary-800">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <span className="text-xs sm:text-sm font-medium text-secondary-900 dark:text-secondary-100">
                 Services
               </span>
-              <Badge variant="success">Opérationnels</Badge>
+              <Badge variant="success" className="text-xs sm:text-sm">Opérationnels</Badge>
             </div>
           </div>
         </div>

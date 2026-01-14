@@ -140,8 +140,8 @@ export default function RBACPage() {
           {/* Roles List */}
           <div className="lg:col-span-1 order-2 lg:order-1">
             <Card>
-              <div className="p-6">
-                <h2 className="text-xl font-bold text-foreground mb-4">Rôles</h2>
+              <div className="p-4 sm:p-6">
+                <h2 className="text-lg sm:text-xl font-bold text-foreground mb-4">Rôles</h2>
                 {loading ? (
                   <div className="text-center py-8">
                     <Loading />
@@ -190,33 +190,33 @@ export default function RBACPage() {
           <div className="lg:col-span-2 order-1 lg:order-2">
             {selectedRole ? (
               <Card>
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="text-xl sm:text-2xl font-bold text-foreground">{selectedRole.name}</h2>
+                        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground">{selectedRole.name}</h2>
                         {selectedRole.is_system && (
-                          <Badge variant="info">Système</Badge>
+                          <Badge variant="info" className="text-xs sm:text-sm">Système</Badge>
                         )}
                         {!selectedRole.is_active && (
-                          <Badge variant="warning">Inactif</Badge>
+                          <Badge variant="warning" className="text-xs sm:text-sm">Inactif</Badge>
                         )}
                       </div>
                       {selectedRole.description && (
-                        <p className="text-muted-foreground mt-2">{selectedRole.description}</p>
+                        <p className="text-sm sm:text-base text-muted-foreground mt-2">{selectedRole.description}</p>
                       )}
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Slug: <code className="bg-muted px-1 py-0.5 rounded">{selectedRole.slug}</code>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                        Slug: <code className="bg-muted px-1 py-0.5 rounded text-xs sm:text-sm">{selectedRole.slug}</code>
                       </p>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-col sm:flex-row flex-wrap gap-2 w-full sm:w-auto">
                       {!selectedRole.is_system && (
                         <>
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setShowEditModal(true)}
-                            className="flex-1 sm:flex-initial"
+                            className="w-full sm:w-auto text-xs sm:text-sm"
                           >
                             Modifier
                           </Button>
@@ -224,7 +224,7 @@ export default function RBACPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => setShowDeleteModal(true)}
-                            className="flex-1 sm:flex-initial"
+                            className="w-full sm:w-auto text-xs sm:text-sm"
                           >
                             Supprimer
                           </Button>
@@ -234,7 +234,7 @@ export default function RBACPage() {
                   </div>
 
                   <div className="mb-6">
-                    <h3 className="text-lg font-semibold text-foreground mb-4">Permissions</h3>
+                    <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4">Permissions</h3>
                     <RolePermissionsEditor
                       role={selectedRole}
                       onUpdate={handlePermissionsUpdate}
@@ -303,7 +303,7 @@ export default function RBACPage() {
           title="Supprimer le rôle"
           size="sm"
           footer={
-            <>
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto sm:justify-end">
               <Button
                 variant="outline"
                 onClick={() => {
@@ -311,6 +311,7 @@ export default function RBACPage() {
                   setError(null);
                 }}
                 disabled={deleting}
+                className="w-full sm:w-auto text-sm sm:text-base"
               >
                 Annuler
               </Button>
@@ -318,10 +319,11 @@ export default function RBACPage() {
                 variant="danger"
                 onClick={handleDeleteRole}
                 disabled={deleting}
+                className="w-full sm:w-auto text-sm sm:text-base"
               >
                 {deleting ? 'Suppression...' : 'Supprimer'}
               </Button>
-            </>
+            </div>
           }
         >
           <p className="text-foreground">

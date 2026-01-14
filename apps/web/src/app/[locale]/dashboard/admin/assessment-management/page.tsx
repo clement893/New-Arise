@@ -410,70 +410,70 @@ export default function AdminAssessmentManagementPage() {
   const renderAssessmentsTab = () => (
     <>
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <MotionDiv variant="slideUp" duration="normal" delay={0}>
-          <Card className="p-6 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 border-primary-200 dark:border-primary-800">
+          <Card className="p-4 sm:p-6 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 border-primary-200 dark:border-primary-800">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-primary-600 dark:text-primary-400 mb-1">Total des tests</p>
-                <p className="text-3xl font-bold text-primary-900 dark:text-primary-100">{totalAssessments}</p>
+                <p className="text-xs sm:text-sm font-medium text-primary-600 dark:text-primary-400 mb-1">Total des tests</p>
+                <p className="text-2xl sm:text-3xl font-bold text-primary-900 dark:text-primary-100">{totalAssessments}</p>
               </div>
-              <div className="p-3 bg-primary-200 dark:bg-primary-800 rounded-full">
-                <ClipboardList className="w-6 h-6 text-primary-700 dark:text-primary-300" />
+              <div className="p-2 sm:p-3 bg-primary-200 dark:bg-primary-800 rounded-full">
+                <ClipboardList className="w-5 h-5 sm:w-6 sm:h-6 text-primary-700 dark:text-primary-300" />
               </div>
             </div>
           </Card>
         </MotionDiv>
 
         <MotionDiv variant="slideUp" duration="normal" delay={100}>
-          <Card className="p-6 bg-gradient-to-br from-success-50 to-success-100 dark:from-success-900/20 dark:to-success-800/20 border-success-200 dark:border-success-800">
+          <Card className="p-4 sm:p-6 bg-gradient-to-br from-success-50 to-success-100 dark:from-success-900/20 dark:to-success-800/20 border-success-200 dark:border-success-800">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-success-600 dark:text-success-400 mb-1">Terminés</p>
-                <p className="text-3xl font-bold text-success-900 dark:text-success-100">{completedAssessments}</p>
+                <p className="text-xs sm:text-sm font-medium text-success-600 dark:text-success-400 mb-1">Terminés</p>
+                <p className="text-2xl sm:text-3xl font-bold text-success-900 dark:text-success-100">{completedAssessments}</p>
                 {totalAssessments > 0 && (
                   <p className="text-xs text-success-700 dark:text-success-300 mt-1">
                     {Math.round((completedAssessments / totalAssessments) * 100)}%
                   </p>
                 )}
               </div>
-              <div className="p-3 bg-success-200 dark:bg-success-800 rounded-full">
-                <CheckCircle className="w-6 h-6 text-success-700 dark:text-success-300" />
+              <div className="p-2 sm:p-3 bg-success-200 dark:bg-success-800 rounded-full">
+                <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-success-700 dark:text-success-300" />
               </div>
             </div>
           </Card>
         </MotionDiv>
 
         <MotionDiv variant="slideUp" duration="normal" delay={200}>
-          <Card className="p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 border-yellow-200 dark:border-yellow-800">
+          <Card className="p-4 sm:p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 border-yellow-200 dark:border-yellow-800">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400 mb-1">En cours</p>
-                <p className="text-3xl font-bold text-yellow-900 dark:text-yellow-100">{inProgressAssessments}</p>
+                <p className="text-xs sm:text-sm font-medium text-yellow-600 dark:text-yellow-400 mb-1">En cours</p>
+                <p className="text-2xl sm:text-3xl font-bold text-yellow-900 dark:text-yellow-100">{inProgressAssessments}</p>
                 {totalAssessments > 0 && (
                   <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
                     {Math.round((inProgressAssessments / totalAssessments) * 100)}%
                   </p>
                 )}
               </div>
-              <div className="p-3 bg-yellow-200 dark:bg-yellow-800 rounded-full">
-                <Clock className="w-6 h-6 text-yellow-700 dark:text-yellow-300" />
+              <div className="p-2 sm:p-3 bg-yellow-200 dark:bg-yellow-800 rounded-full">
+                <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-700 dark:text-yellow-300" />
               </div>
             </div>
           </Card>
         </MotionDiv>
 
         <MotionDiv variant="slideUp" duration="normal" delay={300}>
-          <Card className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
+          <Card className="p-4 sm:p-6 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-purple-600 dark:text-purple-400 mb-1">Score moyen</p>
-                <p className="text-3xl font-bold text-purple-900 dark:text-purple-100">
+                <p className="text-xs sm:text-sm font-medium text-purple-600 dark:text-purple-400 mb-1">Score moyen</p>
+                <p className="text-2xl sm:text-3xl font-bold text-purple-900 dark:text-purple-100">
                   {averageScore > 0 ? averageScore.toFixed(0) : '-'}%
                 </p>
               </div>
-              <div className="p-3 bg-purple-200 dark:bg-purple-800 rounded-full">
-                <TrendingUp className="w-6 h-6 text-purple-700 dark:text-purple-300" />
+              <div className="p-2 sm:p-3 bg-purple-200 dark:bg-purple-800 rounded-full">
+                <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-purple-700 dark:text-purple-300" />
               </div>
             </div>
           </Card>
@@ -481,24 +481,24 @@ export default function AdminAssessmentManagementPage() {
       </div>
 
       {/* Search and Filters */}
-      <Card className="mb-6">
-        <div className="flex flex-col md:flex-row gap-4 items-center">
+      <Card className="mb-6 p-4 sm:p-6">
+        <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
           <div className="flex-1 relative w-full">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black w-4 h-4 sm:w-5 sm:h-5" />
             <Input
               placeholder="Rechercher par email utilisateur, nom ou type de test..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 text-sm sm:text-base"
             />
           </div>
-          <div className="flex gap-2 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
             <div className="relative flex-1 md:flex-none">
               <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black w-4 h-4 pointer-events-none" />
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-arise-teal w-full md:w-auto"
+                className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-arise-teal w-full md:w-auto text-sm sm:text-base"
               >
                 <option value="all">Tous les types</option>
                 {Object.entries(ASSESSMENT_TYPE_LABELS).map(([value, label]) => (
@@ -511,7 +511,7 @@ export default function AdminAssessmentManagementPage() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-arise-teal w-full md:w-auto"
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-arise-teal w-full md:w-auto text-sm sm:text-base"
             >
               <option value="all">Tous les statuts</option>
               {Object.entries(STATUS_LABELS).map(([value, config]) => (
@@ -525,7 +525,7 @@ export default function AdminAssessmentManagementPage() {
               size="sm"
               onClick={fetchAssessments}
               disabled={loading}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 w-full sm:w-auto text-xs sm:text-sm"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               Actualiser
@@ -533,7 +533,7 @@ export default function AdminAssessmentManagementPage() {
             <Button
               variant="outline"
               size="sm"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 w-full sm:w-auto text-xs sm:text-sm"
             >
               <Download className="w-4 h-4" />
               Exporter
@@ -1519,17 +1519,17 @@ export default function AdminAssessmentManagementPage() {
   };
 
   return (
-    <Container className="py-8">
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-3">
+    <Container className="py-4 sm:py-6 md:py-8">
+      <div className="mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <div className="flex-1">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-2 sm:gap-3">
               <div className="p-2 bg-arise-teal/10 rounded-lg">
-                <ClipboardList className="w-8 h-8 text-arise-teal" />
+                <ClipboardList className="w-6 h-6 sm:w-8 sm:h-8 text-arise-teal" />
               </div>
               Gestion des Évaluations
             </h1>
-            <p className="text-gray-900 dark:text-gray-100 ml-14">
+            <p className="text-sm sm:text-base text-gray-900 dark:text-gray-100 ml-0 sm:ml-14">
               Gérez les évaluations, questions et règles de calcul des réponses
             </p>
           </div>

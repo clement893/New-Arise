@@ -476,14 +476,14 @@ export default function AdminOrganizationsContent() {
           placeholder="Rechercher une organisation..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full sm:max-w-md"
+          className="w-full sm:max-w-md text-sm sm:text-base"
         />
         <Button 
           onClick={() => {
             resetForm();
             setShowCreateModal(true);
           }}
-          className="flex flex-row items-center gap-2 w-full sm:w-auto justify-center sm:justify-start"
+          className="flex flex-row items-center gap-2 w-full sm:w-auto justify-center sm:justify-start text-sm sm:text-base"
         >
           <Plus className="h-4 w-4" />
           <span className="whitespace-nowrap">Créer une organisation</span>
@@ -516,23 +516,25 @@ export default function AdminOrganizationsContent() {
         title="Créer une nouvelle organisation"
         size="lg"
         footer={
-          <>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto sm:justify-end">
             <Button
               variant="outline"
               onClick={() => {
                 setShowCreateModal(false);
                 resetForm();
               }}
+              className="w-full sm:w-auto text-sm sm:text-base"
             >
               Annuler
             </Button>
             <Button 
               onClick={() => handleCreateTeam(formData)} 
               disabled={loading || !formData.name.trim()}
+              className="w-full sm:w-auto text-sm sm:text-base"
             >
               Créer
             </Button>
-          </>
+          </div>
         }
       >
         <div className="max-h-[70vh] overflow-y-auto">
@@ -571,7 +573,7 @@ export default function AdminOrganizationsContent() {
         title={`Modifier l'organisation: ${editingTeam?.name || ''}`}
         size="lg"
         footer={
-          <>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto sm:justify-end">
             <Button
               variant="outline"
               onClick={() => {
@@ -579,16 +581,18 @@ export default function AdminOrganizationsContent() {
                 setEditingTeam(null);
                 resetForm();
               }}
+              className="w-full sm:w-auto text-sm sm:text-base"
             >
               Annuler
             </Button>
             <Button 
               onClick={() => handleUpdateTeam(formData)} 
               disabled={loading || !formData.name.trim()}
+              className="w-full sm:w-auto text-sm sm:text-base"
             >
               Enregistrer
             </Button>
-          </>
+          </div>
         }
       >
         <div className="max-h-[70vh] overflow-y-auto">
@@ -628,15 +632,18 @@ export default function AdminOrganizationsContent() {
         title={`Détails de l'organisation: ${selectedTeam?.name || ''}`}
         size="lg"
         footer={
-          <Button
-            variant="outline"
-            onClick={() => {
-              setShowViewModal(false);
-              setSelectedTeam(null);
-            }}
-          >
-            Fermer
-          </Button>
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowViewModal(false);
+                setSelectedTeam(null);
+              }}
+              className="w-full sm:w-auto text-sm sm:text-base"
+            >
+              Fermer
+            </Button>
+          </div>
         }
       >
         {selectedTeam && (

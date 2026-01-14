@@ -515,18 +515,18 @@ export default function AdminStatisticsContent() {
           <Section title="Vue d'ensemble" className="mt-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {statCards.map((stat, index) => (
-                <Card key={index} className="p-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-muted-foreground">
+                <Card key={index} className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                    <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">
                       {stat.title}
                     </h3>
-                    <Badge variant={stat.variant}>{stat.value.toLocaleString('fr-FR')}</Badge>
+                    <Badge variant={stat.variant} className="text-xs sm:text-sm">{stat.value.toLocaleString('fr-FR')}</Badge>
                   </div>
                   <div className="mt-2">
-                    <p className="text-3xl font-bold text-foreground">
+                    <p className="text-2xl sm:text-3xl font-bold text-foreground">
                       {stat.value.toLocaleString('fr-FR')}
                     </p>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                       {stat.description}
                     </p>
                   </div>
@@ -546,25 +546,25 @@ export default function AdminStatisticsContent() {
               <div className="space-y-6">
                 {/* RBAC Metrics */}
                 <Card className="p-4 sm:p-6">
-                  <h3 className="text-lg font-semibold mb-4">Statistiques RBAC</h3>
+                  <h3 className="text-base sm:text-lg font-semibold mb-4">Statistiques RBAC</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-muted-foreground">Total des rôles</span>
-                        <Badge variant="info">{detailedMetrics.rbac.total_roles}</Badge>
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                        <span className="text-xs sm:text-sm text-muted-foreground">Total des rôles</span>
+                        <Badge variant="info" className="text-xs sm:text-sm">{detailedMetrics.rbac.total_roles}</Badge>
                       </div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-muted-foreground">Total des permissions</span>
-                        <Badge variant="info">{detailedMetrics.rbac.total_permissions}</Badge>
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                        <span className="text-xs sm:text-sm text-muted-foreground">Total des permissions</span>
+                        <Badge variant="info" className="text-xs sm:text-sm">{detailedMetrics.rbac.total_permissions}</Badge>
                       </div>
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium mb-3">Permissions par ressource</h4>
+                      <h4 className="text-xs sm:text-sm font-medium mb-3">Permissions par ressource</h4>
                       <div className="space-y-2">
                         {Object.entries(detailedMetrics.rbac.permissions_by_resource).map(([resource, count]) => (
-                          <div key={resource} className="flex items-center justify-between">
-                            <span className="text-sm text-muted-foreground capitalize">{resource}</span>
-                            <Badge variant="default">{count}</Badge>
+                          <div key={resource} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                            <span className="text-xs sm:text-sm text-muted-foreground capitalize">{resource}</span>
+                            <Badge variant="default" className="text-xs sm:text-sm">{count}</Badge>
                           </div>
                         ))}
                       </div>
@@ -574,55 +574,55 @@ export default function AdminStatisticsContent() {
 
                 {/* User Metrics */}
                 <Card className="p-4 sm:p-6">
-                  <h3 className="text-lg font-semibold mb-4">Statistiques des utilisateurs</h3>
+                  <h3 className="text-base sm:text-lg font-semibold mb-4">Statistiques des utilisateurs</h3>
                   <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <div className="text-sm text-muted-foreground mb-1">Nouveaux (7 jours)</div>
-                      <div className="text-2xl font-bold">{detailedMetrics.users.new_users_last_7_days}</div>
+                    <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+                      <div className="text-xs sm:text-sm text-muted-foreground mb-1">Nouveaux (7 jours)</div>
+                      <div className="text-xl sm:text-2xl font-bold">{detailedMetrics.users.new_users_last_7_days}</div>
                     </div>
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <div className="text-sm text-muted-foreground mb-1">Nouveaux (30 jours)</div>
-                      <div className="text-2xl font-bold">{detailedMetrics.users.new_users_last_30_days}</div>
+                    <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+                      <div className="text-xs sm:text-sm text-muted-foreground mb-1">Nouveaux (30 jours)</div>
+                      <div className="text-xl sm:text-2xl font-bold">{detailedMetrics.users.new_users_last_30_days}</div>
                     </div>
-                    <div className="p-4 bg-success/10 rounded-lg">
-                      <div className="text-sm text-muted-foreground mb-1">Utilisateurs actifs</div>
-                      <div className="text-2xl font-bold text-success">{detailedMetrics.users.users_by_status.active}</div>
+                    <div className="p-3 sm:p-4 bg-success/10 rounded-lg">
+                      <div className="text-xs sm:text-sm text-muted-foreground mb-1">Utilisateurs actifs</div>
+                      <div className="text-xl sm:text-2xl font-bold text-success">{detailedMetrics.users.users_by_status.active}</div>
                     </div>
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <div className="text-sm text-muted-foreground mb-1">Utilisateurs inactifs</div>
-                      <div className="text-2xl font-bold">{detailedMetrics.users.users_by_status.inactive}</div>
+                    <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+                      <div className="text-xs sm:text-sm text-muted-foreground mb-1">Utilisateurs inactifs</div>
+                      <div className="text-xl sm:text-2xl font-bold">{detailedMetrics.users.users_by_status.inactive}</div>
                     </div>
                   </div>
                 </Card>
 
                 {/* Activity Metrics */}
                 <Card className="p-4 sm:p-6">
-                  <h3 className="text-lg font-semibold mb-4">Statistiques d'activité</h3>
+                  <h3 className="text-base sm:text-lg font-semibold mb-4">Statistiques d'activité</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div>
-                      <h4 className="text-sm font-medium mb-3">Activités par type</h4>
+                      <h4 className="text-xs sm:text-sm font-medium mb-3">Activités par type</h4>
                       <div className="space-y-2">
                         {Object.entries(detailedMetrics.activity.activities_by_type).map(([type, count]) => (
-                          <div key={type} className="flex items-center justify-between">
-                            <span className="text-sm text-muted-foreground capitalize">{type}</span>
-                            <Badge variant="default">{count}</Badge>
+                          <div key={type} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                            <span className="text-xs sm:text-sm text-muted-foreground capitalize">{type}</span>
+                            <Badge variant="default" className="text-xs sm:text-sm">{count}</Badge>
                           </div>
                         ))}
                         {Object.keys(detailedMetrics.activity.activities_by_type).length === 0 && (
-                          <p className="text-sm text-muted-foreground">Aucune activité enregistrée</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground">Aucune activité enregistrée</p>
                         )}
                       </div>
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium mb-3">Activités par jour (7 derniers jours)</h4>
+                      <h4 className="text-xs sm:text-sm font-medium mb-3">Activités par jour (7 derniers jours)</h4>
                       <div className="space-y-2">
                         {detailedMetrics.activity.activities_by_day.map(({ date, count }) => {
                           const dateObj = new Date(date);
                           const dayName = dateObj.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
                           return (
-                            <div key={date} className="flex items-center justify-between">
-                              <span className="text-sm text-muted-foreground">{dayName}</span>
-                              <Badge variant={count > 0 ? 'success' : 'default'}>{count}</Badge>
+                            <div key={date} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                              <span className="text-xs sm:text-sm text-muted-foreground">{dayName}</span>
+                              <Badge variant={count > 0 ? 'success' : 'default'} className="text-xs sm:text-sm">{count}</Badge>
                             </div>
                           );
                         })}
@@ -633,31 +633,31 @@ export default function AdminStatisticsContent() {
 
                 {/* System Metrics */}
                 <Card className="p-4 sm:p-6">
-                  <h3 className="text-lg font-semibold mb-4">Statistiques système</h3>
+                  <h3 className="text-base sm:text-lg font-semibold mb-4">Statistiques système</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div>
-                      <h4 className="text-sm font-medium mb-3">Logs par niveau</h4>
+                      <h4 className="text-xs sm:text-sm font-medium mb-3">Logs par niveau</h4>
                       <div className="space-y-2">
                         {Object.entries(detailedMetrics.system.logs_by_level).map(([level, count]) => {
                           const variant = level === 'error' || level === 'critical' ? 'error' : 
                                          level === 'warning' ? 'warning' : 
                                          level === 'info' ? 'info' : 'default';
                           return (
-                            <div key={level} className="flex items-center justify-between">
-                              <span className="text-sm text-muted-foreground capitalize">{level}</span>
-                              <Badge variant={variant}>{count}</Badge>
+                            <div key={level} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                              <span className="text-xs sm:text-sm text-muted-foreground capitalize">{level}</span>
+                              <Badge variant={variant} className="text-xs sm:text-sm">{count}</Badge>
                             </div>
                           );
                         })}
                         {Object.keys(detailedMetrics.system.logs_by_level).length === 0 && (
-                          <p className="text-sm text-muted-foreground">Aucun log disponible</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground">Aucun log disponible</p>
                         )}
                       </div>
                     </div>
                     <div>
-                      <div className="p-4 bg-error/10 rounded-lg">
-                        <div className="text-sm text-muted-foreground mb-1">Erreurs récentes (7 jours)</div>
-                        <div className="text-2xl font-bold text-error">{detailedMetrics.system.recent_errors}</div>
+                      <div className="p-3 sm:p-4 bg-error/10 rounded-lg">
+                        <div className="text-xs sm:text-sm text-muted-foreground mb-1">Erreurs récentes (7 jours)</div>
+                        <div className="text-xl sm:text-2xl font-bold text-error">{detailedMetrics.system.recent_errors}</div>
                       </div>
                     </div>
                   </div>
@@ -665,23 +665,23 @@ export default function AdminStatisticsContent() {
 
                 {/* Organizations Metrics */}
                 <Card className="p-4 sm:p-6">
-                  <h3 className="text-lg font-semibold mb-4">Statistiques des organisations</h3>
+                  <h3 className="text-base sm:text-lg font-semibold mb-4">Statistiques des organisations</h3>
                   <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <div className="text-sm text-muted-foreground mb-1">Total</div>
-                      <div className="text-2xl font-bold">{detailedMetrics.organizations.total}</div>
+                    <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+                      <div className="text-xs sm:text-sm text-muted-foreground mb-1">Total</div>
+                      <div className="text-xl sm:text-2xl font-bold">{detailedMetrics.organizations.total}</div>
                     </div>
-                    <div className="p-4 bg-success/10 rounded-lg">
-                      <div className="text-sm text-muted-foreground mb-1">Actives</div>
-                      <div className="text-2xl font-bold text-success">{detailedMetrics.organizations.active}</div>
+                    <div className="p-3 sm:p-4 bg-success/10 rounded-lg">
+                      <div className="text-xs sm:text-sm text-muted-foreground mb-1">Actives</div>
+                      <div className="text-xl sm:text-2xl font-bold text-success">{detailedMetrics.organizations.active}</div>
                     </div>
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <div className="text-sm text-muted-foreground mb-1">Nouvelles (7 jours)</div>
-                      <div className="text-2xl font-bold">{detailedMetrics.organizations.new_last_7_days}</div>
+                    <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+                      <div className="text-xs sm:text-sm text-muted-foreground mb-1">Nouvelles (7 jours)</div>
+                      <div className="text-xl sm:text-2xl font-bold">{detailedMetrics.organizations.new_last_7_days}</div>
                     </div>
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <div className="text-sm text-muted-foreground mb-1">Nouvelles (30 jours)</div>
-                      <div className="text-2xl font-bold">{detailedMetrics.organizations.new_last_30_days}</div>
+                    <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+                      <div className="text-xs sm:text-sm text-muted-foreground mb-1">Nouvelles (30 jours)</div>
+                      <div className="text-xl sm:text-2xl font-bold">{detailedMetrics.organizations.new_last_30_days}</div>
                     </div>
                   </div>
                 </Card>
@@ -689,33 +689,33 @@ export default function AdminStatisticsContent() {
                 {/* Subscriptions Metrics */}
                 {detailedMetrics.subscriptions.total > 0 && (
                   <Card className="p-4 sm:p-6">
-                    <h3 className="text-lg font-semibold mb-4">Statistiques des abonnements</h3>
+                    <h3 className="text-base sm:text-lg font-semibold mb-4">Statistiques des abonnements</h3>
                     <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                      <div className="p-4 bg-muted/50 rounded-lg">
-                        <div className="text-sm text-muted-foreground mb-1">Total</div>
-                        <div className="text-2xl font-bold">{detailedMetrics.subscriptions.total}</div>
+                      <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+                        <div className="text-xs sm:text-sm text-muted-foreground mb-1">Total</div>
+                        <div className="text-xl sm:text-2xl font-bold">{detailedMetrics.subscriptions.total}</div>
                       </div>
-                      <div className="p-4 bg-success/10 rounded-lg">
-                        <div className="text-sm text-muted-foreground mb-1">Actifs</div>
-                        <div className="text-2xl font-bold text-success">{detailedMetrics.subscriptions.active}</div>
+                      <div className="p-3 sm:p-4 bg-success/10 rounded-lg">
+                        <div className="text-xs sm:text-sm text-muted-foreground mb-1">Actifs</div>
+                        <div className="text-xl sm:text-2xl font-bold text-success">{detailedMetrics.subscriptions.active}</div>
                       </div>
-                      <div className="p-4 bg-muted/50 rounded-lg">
-                        <div className="text-sm text-muted-foreground mb-1">Nouveaux (7 jours)</div>
-                        <div className="text-2xl font-bold">{detailedMetrics.subscriptions.new_last_7_days}</div>
+                      <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+                        <div className="text-xs sm:text-sm text-muted-foreground mb-1">Nouveaux (7 jours)</div>
+                        <div className="text-xl sm:text-2xl font-bold">{detailedMetrics.subscriptions.new_last_7_days}</div>
                       </div>
-                      <div className="p-4 bg-muted/50 rounded-lg">
-                        <div className="text-sm text-muted-foreground mb-1">Nouveaux (30 jours)</div>
-                        <div className="text-2xl font-bold">{detailedMetrics.subscriptions.new_last_30_days}</div>
+                      <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+                        <div className="text-xs sm:text-sm text-muted-foreground mb-1">Nouveaux (30 jours)</div>
+                        <div className="text-xl sm:text-2xl font-bold">{detailedMetrics.subscriptions.new_last_30_days}</div>
                       </div>
                     </div>
                     {Object.keys(detailedMetrics.subscriptions.by_status).length > 0 && (
                       <div className="mt-4">
-                        <h4 className="text-sm font-medium mb-3">Par statut</h4>
+                        <h4 className="text-xs sm:text-sm font-medium mb-3">Par statut</h4>
                         <div className="space-y-2">
                           {Object.entries(detailedMetrics.subscriptions.by_status).map(([status, count]) => (
-                            <div key={status} className="flex items-center justify-between">
-                              <span className="text-sm text-muted-foreground capitalize">{status}</span>
-                              <Badge variant="default">{count}</Badge>
+                            <div key={status} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                              <span className="text-xs sm:text-sm text-muted-foreground capitalize">{status}</span>
+                              <Badge variant="default" className="text-xs sm:text-sm">{count}</Badge>
                             </div>
                           ))}
                         </div>
@@ -726,18 +726,18 @@ export default function AdminStatisticsContent() {
 
                 {/* Content Metrics */}
                 <Card className="p-4 sm:p-6">
-                  <h3 className="text-lg font-semibold mb-4">Statistiques du contenu</h3>
+                  <h3 className="text-base sm:text-lg font-semibold mb-4">Statistiques du contenu</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div>
-                      <h4 className="text-sm font-medium mb-3">Articles de blog</h4>
+                      <h4 className="text-xs sm:text-sm font-medium mb-3">Articles de blog</h4>
                       <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Total</span>
-                          <Badge variant="default">{detailedMetrics.content.total_posts}</Badge>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                          <span className="text-xs sm:text-sm text-muted-foreground">Total</span>
+                          <Badge variant="default" className="text-xs sm:text-sm">{detailedMetrics.content.total_posts}</Badge>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Publiés</span>
-                          <Badge variant="success">{detailedMetrics.content.published_posts}</Badge>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                          <span className="text-xs sm:text-sm text-muted-foreground">Publiés</span>
+                          <Badge variant="success" className="text-xs sm:text-sm">{detailedMetrics.content.published_posts}</Badge>
                         </div>
                         {detailedMetrics.content.total_posts > 0 && (
                           <div className="mt-2">
@@ -755,15 +755,15 @@ export default function AdminStatisticsContent() {
                       </div>
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium mb-3">Pages</h4>
+                      <h4 className="text-xs sm:text-sm font-medium mb-3">Pages</h4>
                       <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Total</span>
-                          <Badge variant="default">{detailedMetrics.content.total_pages}</Badge>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                          <span className="text-xs sm:text-sm text-muted-foreground">Total</span>
+                          <Badge variant="default" className="text-xs sm:text-sm">{detailedMetrics.content.total_pages}</Badge>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Publiées</span>
-                          <Badge variant="success">{detailedMetrics.content.published_pages}</Badge>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                          <span className="text-xs sm:text-sm text-muted-foreground">Publiées</span>
+                          <Badge variant="success" className="text-xs sm:text-sm">{detailedMetrics.content.published_pages}</Badge>
                         </div>
                         {detailedMetrics.content.total_pages > 0 && (
                           <div className="mt-2">
@@ -786,25 +786,25 @@ export default function AdminStatisticsContent() {
                 {/* Projects Metrics */}
                 {detailedMetrics.projects.total > 0 && (
                   <Card className="p-4 sm:p-6">
-                    <h3 className="text-lg font-semibold mb-4">Statistiques des projets</h3>
+                    <h3 className="text-base sm:text-lg font-semibold mb-4">Statistiques des projets</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                       <div>
-                        <div className="p-4 bg-muted/50 rounded-lg mb-4">
-                          <div className="text-sm text-muted-foreground mb-1">Total des projets</div>
-                          <div className="text-2xl font-bold">{detailedMetrics.projects.total}</div>
+                        <div className="p-3 sm:p-4 bg-muted/50 rounded-lg mb-4">
+                          <div className="text-xs sm:text-sm text-muted-foreground mb-1">Total des projets</div>
+                          <div className="text-xl sm:text-2xl font-bold">{detailedMetrics.projects.total}</div>
                         </div>
                       </div>
                       <div>
-                        <h4 className="text-sm font-medium mb-3">Par statut</h4>
+                        <h4 className="text-xs sm:text-sm font-medium mb-3">Par statut</h4>
                         <div className="space-y-2">
                           {Object.entries(detailedMetrics.projects.by_status).map(([status, count]) => {
                             const variant = status === 'completed' ? 'success' : 
                                          status === 'in_progress' ? 'info' : 
                                          status === 'cancelled' ? 'error' : 'default';
                             return (
-                              <div key={status} className="flex items-center justify-between">
-                                <span className="text-sm text-muted-foreground capitalize">{status}</span>
-                                <Badge variant={variant}>{count}</Badge>
+                              <div key={status} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                <span className="text-xs sm:text-sm text-muted-foreground capitalize">{status}</span>
+                                <Badge variant={variant} className="text-xs sm:text-sm">{count}</Badge>
                               </div>
                             );
                           })}

@@ -150,7 +150,7 @@ export default function AdminSettingsContent() {
         </Section>
 
         <div className="mt-6 flex justify-end">
-          <Button type="submit" variant="primary" loading={loading} className="w-full sm:w-auto">
+          <Button type="submit" variant="primary" loading={loading} className="w-full sm:w-auto text-sm sm:text-base">
             Enregistrer les paramètres
           </Button>
         </div>
