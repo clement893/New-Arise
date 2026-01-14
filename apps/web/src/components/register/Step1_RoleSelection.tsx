@@ -1,7 +1,7 @@
 'use client';
 
 import { useRegistrationStore } from '@/stores/registrationStore';
-import { User, Users, Building2 } from 'lucide-react';
+import { User, Users, Building2, ArrowLeft } from 'lucide-react';
 
 export function Step1_RoleSelection() {
   const { setRole, setStep } = useRegistrationStore();
@@ -38,24 +38,45 @@ export function Step1_RoleSelection() {
         Who are you?
       </h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {roles.map((role) => (
           <button
             key={role.id}
             onClick={() => handleRoleSelect(role.id)}
-            className="group bg-white rounded-lg shadow-xl px-6 pb-6 pt-4 border-2 border-gray-200 hover:border-arise-gold hover:bg-arise-light-beige transition-all duration-300 text-left flex flex-col"
+            className="group relative bg-white rounded-lg shadow-xl p-4 border-2 border-gray-200 hover:border-arise-gold transition-all duration-300 text-left flex flex-col overflow-hidden"
           >
-            <div className="w-16 h-16 bg-arise-deep-teal group-hover:bg-arise-gold rounded-lg flex items-center justify-center mb-4 transition-colors">
-              <role.icon className="w-8 h-8 text-white" />
+            {/* Hover overlay */}
+            <div className="absolute inset-0 bg-black/10 backdrop-blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+            
+            {/* Content with relative z-index */}
+            <div className="relative z-20 flex flex-col">
+              <div 
+                className="w-16 h-16 rounded-lg flex items-center justify-center mb-8 transition-colors"
+                style={{ backgroundColor: 'rgba(15, 76, 86, 0.05)' }}
+              >
+                <role.icon className="w-8 h-8" style={{ color: '#0F4C56' }} />
+              </div>
+              <h3 className="text-xl font-bold text-arise-deep-teal mb-2 group-hover:text-white transition-colors duration-300">
+                {role.title}
+              </h3>
+              <p className="text-gray-600 group-hover:text-white transition-colors duration-300">
+                {role.description}
+              </p>
             </div>
-            <h3 className="text-xl font-bold text-arise-deep-teal mb-2">
-              {role.title}
-            </h3>
-            <p className="text-gray-600">
-              {role.description}
-            </p>
           </button>
         ))}
+      </div>
+
+      {/* Back button */}
+      <div className="flex justify-center mt-8">
+        <button
+          onClick={() => {/* Can't go back from step 1 */}}
+          className="text-white text-sm flex items-center gap-2 opacity-50 cursor-not-allowed"
+          disabled
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Retour
+        </button>
       </div>
     </div>
   );

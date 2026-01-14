@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRegistrationStore } from '@/stores/registrationStore';
 import Button from '@/components/ui/Button';
-import { ArrowRight, Plus } from 'lucide-react';
+import { ArrowRight, Plus, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 
 interface PlanTab {
@@ -123,20 +123,23 @@ export function Step1_5_DiscoverPlans() {
                 <div
                   key={feature.id}
                   onClick={() => toggleFeature(feature.id)}
-                  className={`bg-white rounded-lg p-5 cursor-pointer transition-all duration-200 flex items-center justify-between ${
+                  className={`group relative bg-white rounded-lg p-4 cursor-pointer transition-all duration-200 flex items-center justify-between overflow-hidden ${
                     isSelected ? 'ring-2 ring-[#D8B868] shadow-md' : 'hover:shadow-md'
                   }`}
                 >
-                  <div className="flex-grow pr-4">
-                    <h3 className="text-base font-bold text-gray-900 mb-1.5">
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 bg-black/10 backdrop-blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+                  
+                  <div className="relative z-20 flex-grow pr-4">
+                    <h3 className="text-base font-bold text-gray-900 mb-2 group-hover:text-white transition-colors duration-300">
                       {feature.title}
                     </h3>
-                    <p className="text-gray-700 text-sm leading-relaxed">
+                    <p className="text-gray-700 text-sm leading-relaxed group-hover:text-white transition-colors duration-300">
                       {feature.description}
                     </p>
                   </div>
                   <div
-                    className={`ml-2 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
+                    className={`relative z-20 ml-2 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
                       isSelected
                         ? 'bg-[#D8B868] text-white'
                         : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
@@ -157,19 +160,30 @@ export function Step1_5_DiscoverPlans() {
           <div className="flex items-center justify-between pt-6 border-t border-white/20">
             <button
               onClick={handleBack}
-              className="text-white hover:text-[#D8B868] transition-colors font-medium"
+              className="text-white text-sm hover:text-white/80 transition-colors"
             >
               Back
             </button>
             <Button
               onClick={handleContinue}
-              className="bg-[#D8B868] hover:bg-[#D8B868]/90 text-gray-900 font-semibold rounded-lg px-8 py-3 flex items-center gap-2"
+              className="bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold rounded-lg px-8 py-3 flex items-center gap-2"
             >
               Continue
               <ArrowRight className="w-5 h-5" />
             </Button>
           </div>
         </div>
+      </div>
+
+      {/* Back button */}
+      <div className="flex justify-center mt-8">
+        <button
+          onClick={handleBack}
+          className="text-white text-sm flex items-center gap-2 hover:text-white/80 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Retour
+        </button>
       </div>
     </div>
   );

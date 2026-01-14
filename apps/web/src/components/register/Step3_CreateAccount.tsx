@@ -9,6 +9,7 @@ import { useAuthStore } from '@/lib/store';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { register as registerUser, login } from '@/lib/api/auth';
+import { ArrowLeft } from 'lucide-react';
 
 const createAccountSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -202,24 +203,35 @@ export function Step3_CreateAccount() {
           </div>
 
           <div className="flex justify-between items-center pt-4">
-            <Button
+            <button
               type="button"
-              variant="secondary"
               onClick={() => setStep(2)}
               disabled={isLoading}
+              className="text-white text-sm hover:text-white/80 transition-colors disabled:opacity-50"
             >
               Back
-            </Button>
+            </button>
             <Button
               type="submit"
-              variant="primary"
               loading={isLoading}
               disabled={isLoading}
+              className="bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold"
             >
               {isLoading ? 'Creating Account...' : 'Continue'}
             </Button>
           </div>
         </form>
+
+        {/* Back button */}
+        <div className="flex justify-center mt-8">
+          <button
+            onClick={() => setStep(2)}
+            className="text-white text-sm flex items-center gap-2 hover:text-white/80 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Retour
+          </button>
+        </div>
       </div>
     </div>
   );
