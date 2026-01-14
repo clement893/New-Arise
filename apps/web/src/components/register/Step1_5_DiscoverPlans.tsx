@@ -54,13 +54,19 @@ export function Step1_5_DiscoverPlans() {
   const toggleFeature = (featureId: string) => {
     setSelectedFeatures((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(featureId)) {
+      const wasSelected = newSet.has(featureId);
+      if (wasSelected) {
         newSet.delete(featureId);
       } else {
         newSet.add(featureId);
       }
       return newSet;
     });
+    
+    // Automatically advance to next step when a feature is selected (not when deselected)
+    if (!selectedFeatures.has(featureId)) {
+      setStep(2);
+    }
   };
 
   const handlePlanTabSelect = (planId: string) => {
