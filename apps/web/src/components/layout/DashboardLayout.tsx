@@ -426,9 +426,11 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
               zIndex: 10,
               marginLeft: '7.5%',
               marginRight: '5%',
+              width: 'calc(100% - 7.5% - 5%)',
               scrollbarWidth: 'none', // Firefox
               msOverflowStyle: 'none', // IE and Edge
-            }}
+              '--admin-content-width': 'calc(100% - 7.5% - 5%)',
+            } as React.CSSProperties & { '--admin-content-width'?: string }}
           >
             {children}
           </main>

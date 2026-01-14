@@ -9,6 +9,8 @@ interface ContainerProps {
   className?: string;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
   padding?: boolean;
+  style?: React.CSSProperties;
+  center?: boolean; // Allow disabling auto-centering for admin pages
 }
 
 export default function Container({
@@ -16,6 +18,8 @@ export default function Container({
   className,
   maxWidth = 'xl',
   padding = true,
+  style,
+  center = true, // Default to centering, but allow disabling for admin pages
 }: ContainerProps) {
   const { getContainerWidth } = useLayout();
   
@@ -31,16 +35,21 @@ export default function Container({
   
   // Use theme container width if available and size matches theme sizes
   const useThemeWidth = ['sm', 'md', 'lg', 'xl'].includes(maxWidth);
-  const containerStyle = useThemeWidth
+  const themeStyle = useThemeWidth
     ? { maxWidth: getContainerWidth(maxWidth as 'sm' | 'md' | 'lg' | 'xl') }
     : undefined;
   
   const maxWidthClass = useThemeWidth ? undefined : defaultMaxWidths[maxWidth];
 
+  // Merge custom style with theme style, custom style takes precedence
+  const containerStyle = style 
+    ? { ...themeStyle, ...style }
+    : themeStyle;
+
   return (
     <div
       className={clsx(
-        'mx-auto',
+        center && 'mx-auto',
         maxWidthClass,
         padding && 'px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12',
         className

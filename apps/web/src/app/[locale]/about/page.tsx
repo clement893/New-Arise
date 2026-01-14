@@ -224,7 +224,7 @@ export default function AboutPage() {
               </h2>
             </MotionDiv>
 
-            <div className="relative max-w-3xl mx-auto">
+            <div className="relative max-w-6xl mx-auto">
               {/* Vertical timeline line */}
               <div className="absolute left-6 top-0 bottom-0 w-0.5" style={{ backgroundColor: 'rgba(0, 0, 0, 0.1)' }}></div>
 
