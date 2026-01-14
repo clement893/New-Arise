@@ -149,9 +149,11 @@ class Settings(BaseSettings):
     def validate_secret_key(cls, v: str) -> str:
         """Validate SECRET_KEY is set and secure"""
         import os
+        import warnings
         env = os.getenv("ENVIRONMENT", "development")
+        default_key = "change-this-secret-key-in-production"
         
-        if not v or v == "change-this-secret-key-in-production":
+        if not v or v == default_key:
             if env == "production":
                 raise ValueError(
                     "SECRET_KEY must be set to a secure value in production. "
@@ -159,6 +161,22 @@ class Settings(BaseSettings):
                 )
         elif len(v) < 32:
             raise ValueError("SECRET_KEY must be at least 32 characters long")
+        
+        # Check entropy (at least 20 unique characters) - warn in dev, error in prod
+        unique_chars = len(set(v))
+        if unique_chars < 20:
+            if env == "production":
+                raise ValueError(
+                    "SECRET_KEY must have sufficient entropy (at least 20 unique characters). "
+                    "Generate a stronger key with: python -c 'import secrets; print(secrets.token_urlsafe(32))'"
+                )
+            else:
+                # Warn in development but don't block
+                warnings.warn(
+                    f"SECRET_KEY has low entropy ({unique_chars} unique characters, minimum 20 recommended). "
+                    "Consider generating a stronger key with: python -c 'import secrets; print(secrets.token_urlsafe(32))'",
+                    UserWarning
+                )
         
         return v
 

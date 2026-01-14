@@ -1,4 +1,4 @@
-﻿"""Security and authentication utilities."""
+"""Security and authentication utilities."""
 
 import os
 from datetime import datetime, timedelta, timezone
@@ -18,7 +18,7 @@ def get_secret_key() -> str:
     
     Retrieves the secret key from environment variables and validates it.
     In production, raises an error if SECRET_KEY is not set, is too short,
-    or is the default value. In development, uses a default key with a warning.
+    or is the default value. In development, validates but allows default key with warning.
     
     Returns:
         str: The secret key (minimum 32 characters)
@@ -39,23 +39,34 @@ def get_secret_key() -> str:
             )
         secret_key = default_key
     
-    # Validation stricte de la longueur
+    # Validation stricte de la longueur (tous environnements)
     if len(secret_key) < 32:
         raise ValueError("SECRET_KEY must be at least 32 characters long")
     
-    # VÃ©rifier que ce n'est pas la clÃ© par dÃ©faut en production
+    # Vérifier que ce n'est pas la clé par défaut en production
     if env == "production" and secret_key == default_key:
         raise ValueError(
             "SECRET_KEY must be changed from default value in production. "
             "Generate one with: python -c 'import secrets; print(secrets.token_urlsafe(32))'"
         )
     
-    # VÃ©rifier l'entropie (au moins 20 caractÃ¨res uniques) en production
-    if env == "production" and len(set(secret_key)) < 20:
-        raise ValueError(
-            "SECRET_KEY must have sufficient entropy (at least 20 unique characters). "
-            "Generate a stronger key with: python -c 'import secrets; print(secrets.token_urlsafe(32))'"
-        )
+    # Vérifier l'entropie (au moins 20 caractères uniques) - maintenant aussi en développement
+    # Cela encourage l'utilisation de clés sécurisées même en développement
+    unique_chars = len(set(secret_key))
+    if unique_chars < 20:
+        if env == "production":
+            raise ValueError(
+                "SECRET_KEY must have sufficient entropy (at least 20 unique characters). "
+                "Generate a stronger key with: python -c 'import secrets; print(secrets.token_urlsafe(32))'"
+            )
+        else:
+            # En développement, avertir mais ne pas bloquer
+            import warnings
+            warnings.warn(
+                f"SECRET_KEY has low entropy ({unique_chars} unique characters, minimum 20 recommended). "
+                "Consider generating a stronger key with: python -c 'import secrets; print(secrets.token_urlsafe(32))'",
+                UserWarning
+            )
     
     return secret_key
 

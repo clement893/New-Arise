@@ -7,6 +7,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import { Card } from '@/components/ui';
 import Button from '@/components/ui/Button';
+import { SafeHTML } from '@/components/ui/SafeHTML';
 import { ArrowLeft, BookOpen, Video, FileText, Users, Clock, CheckCircle2, PlayCircle } from 'lucide-react';
 
 // Resources data - This could be moved to a separate file or fetched from an API
@@ -440,9 +441,9 @@ function ResourceDetailContent() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             <Card className="p-8 bg-white">
-              <div 
+              <SafeHTML 
+                html={resource.content}
                 className="text-lg text-gray-700 leading-relaxed [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-gray-900 [&_h2]:mt-8 [&_h2]:mb-4 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-gray-900 [&_h3]:mt-6 [&_h3]:mb-3 [&_p]:mb-4 [&_p]:leading-relaxed [&_ul]:mb-4 [&_ul]:pl-6 [&_ul]:list-disc [&_li]:mb-2 [&_li]:leading-relaxed [&_strong]:font-semibold [&_strong]:text-gray-900 [&_a]:text-arise-deep-teal [&_a]:no-underline hover:[&_a]:underline"
-                dangerouslySetInnerHTML={{ __html: resource.content }}
               />
             </Card>
           </div>

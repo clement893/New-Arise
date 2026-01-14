@@ -84,6 +84,7 @@ export default async function LocaleLayout({
       <head>
         {/* CRITICAL: Apply theme script FIRST, before any CSS, to prevent flash */}
         {/* This script MUST execute synchronously and block rendering until theme is applied */}
+        {/* SECURITY: themeCacheInlineScript is static content generated at build time, safe to use dangerouslySetInnerHTML */}
         <script
           dangerouslySetInnerHTML={{
             __html: themeCacheInlineScript,
@@ -91,6 +92,7 @@ export default async function LocaleLayout({
         />
         
         {/* CSS structure with default colors - applied AFTER script sets theme */}
+        {/* SECURITY: Static CSS content, safe to use dangerouslySetInnerHTML */}
         <style
           dangerouslySetInnerHTML={{
             __html: `
@@ -171,6 +173,7 @@ export default async function LocaleLayout({
         />
         
         {/* Add loaded class to body after initial render to enable transitions */}
+        {/* SECURITY: Static JavaScript content, safe to use dangerouslySetInnerHTML */}
         <script
           dangerouslySetInnerHTML={{
             __html: `

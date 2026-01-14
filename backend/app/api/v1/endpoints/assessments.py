@@ -2423,6 +2423,14 @@ async def upload_mbti_image(
             )
             existing_result = check_result.first()
             
+            # Map weaknesses to challenges for consistency with PDF extraction
+            # Use weaknesses if available, otherwise use challenges, otherwise empty list
+            weaknesses = extracted_data.get("weaknesses", [])
+            challenges = extracted_data.get("challenges", [])
+            # If we have weaknesses but no challenges, use weaknesses as challenges
+            if weaknesses and not challenges:
+                challenges = weaknesses
+            
             insights_json = json.dumps({
                 "description": extracted_data.get("description"),
                 "personality_name": extracted_data.get("personality_name"),
@@ -2433,9 +2441,9 @@ async def upload_mbti_image(
                 "traits": extracted_data.get("traits", {}),
                 "strengths": extracted_data.get("strengths", []),
                 "strengths_descriptions": extracted_data.get("strengths_descriptions", {}),
-                "weaknesses": extracted_data.get("weaknesses", []),
+                "weaknesses": weaknesses,
                 "weaknesses_descriptions": extracted_data.get("weaknesses_descriptions", {}),
-                "challenges": extracted_data.get("challenges", []),
+                "challenges": challenges,  # Use mapped challenges (from weaknesses if needed)
                 "research_insight": extracted_data.get("research_insight"),
                 "dimensions": extracted_data.get("dimension_preferences", {})
             })

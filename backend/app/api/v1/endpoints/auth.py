@@ -3,8 +3,9 @@ Authentication Endpoints
 """
 
 from datetime import datetime, timedelta, timezone
-from typing import Annotated
+from typing import Annotated, Optional
 from urllib.parse import urlencode
+import os
 
 import httpx
 import bcrypt
@@ -20,7 +21,7 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.core.rate_limit import rate_limit_decorator
 from app.core.logging import logger
-from app.core.security import create_refresh_token
+from app.core.security import create_refresh_token, create_access_token
 from app.core.security_audit import SecurityAuditLogger, SecurityEventType
 from app.models.user import User
 from app.schemas.auth import Token, TokenData, UserCreate, UserResponse, RefreshTokenRequest, TokenWithUser
@@ -482,43 +483,82 @@ async def login(
 @rate_limit_decorator("10/minute")  # Rate limit: 10 requests per minute
 async def refresh_token(
     request: Request,
-    refresh_data: RefreshTokenRequest,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    refresh_data: Optional[RefreshTokenRequest] = None,
+    db: Annotated[AsyncSession, Depends(get_db)] = Depends(get_db),
 ) -> Token:
     """
     Refresh access token
     
-    Accepts either:
-    - An expired access token (if still valid for refresh)
-    - A refresh token (if refresh tokens are implemented)
+    SECURITY: Accepts refresh token from:
+    1. httpOnly cookies (preferred, most secure)
+    2. Request body (for backward compatibility)
     
     Args:
-        refresh_data: Request with either "token" (expired access token) or "refresh_token"
+        request: FastAPI request object (to access cookies)
+        refresh_data: Optional request body with refresh_token (for backward compatibility)
         db: Database session
         
     Returns:
-        New access token
+        New access token and refresh token
     """
-    # Try to get token from refresh_data
-    token = refresh_data.token or refresh_data.refresh_token
+    # SECURITY: Prefer reading refresh token from httpOnly cookies (most secure)
+    refresh_token = request.cookies.get("refresh_token")
     
-    if not token:
+    # Fallback to request body for backward compatibility
+    if not refresh_token and refresh_data:
+        refresh_token = refresh_data.token or refresh_data.refresh_token
+    
+    if not refresh_token:
+        # Log security event
+        try:
+            await SecurityAuditLogger.log_event(
+                db=db,
+                event_type=SecurityEventType.INVALID_TOKEN,
+                description="Refresh token missing in refresh attempt",
+                ip_address=request.client.host if request.client else None,
+                user_agent=request.headers.get("user-agent"),
+                request_method=request.method,
+                request_path=str(request.url.path),
+                severity="warning",
+                success="failure",
+            )
+        except Exception:
+            pass  # Don't fail if audit logging fails
+        
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Token or refresh_token is required",
+            detail="Refresh token is required (in cookie or request body)",
+            headers={"WWW-Authenticate": "Bearer"},
         )
     
     try:
-        # Try to decode the token (even if expired, we can still read the payload)
-        # Use verify_exp=False to read expired tokens
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM], options={"verify_exp": False})
+        # SECURITY: Decode refresh token (must be type "refresh")
+        # Use verify_exp=False to read expired tokens for validation
+        payload = jwt.decode(refresh_token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM], options={"verify_exp": False})
         
-        # Verify token type
-        token_type = payload.get("type", "access")
-        if token_type not in ("access", "refresh"):
+        # SECURITY: Verify token type - must be "refresh" for refresh endpoint
+        token_type = payload.get("type")
+        if token_type != "refresh":
+            # Log security event for invalid token type
+            try:
+                await SecurityAuditLogger.log_event(
+                    db=db,
+                    event_type=SecurityEventType.INVALID_TOKEN,
+                    description=f"Invalid token type in refresh attempt: {token_type}",
+                    ip_address=request.client.host if request.client else None,
+                    user_agent=request.headers.get("user-agent"),
+                    request_method=request.method,
+                    request_path=str(request.url.path),
+                    severity="warning",
+                    success="failure",
+                    metadata={"token_type": token_type, "expected": "refresh"}
+                )
+            except Exception:
+                pass
+            
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token type",
+                detail="Invalid token type. Refresh token required.",
                 headers={"WWW-Authenticate": "Bearer"},
             )
         
@@ -551,21 +591,72 @@ async def refresh_token(
                 headers={"WWW-Authenticate": "Bearer"},
             )
         
-        # Create new access token
+        # SECURITY: Create new access token and refresh token (token rotation)
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
             data={"sub": user.email, "type": "access"},
             expires_delta=access_token_expires,
         )
         
+        # SECURITY: Generate new refresh token (token rotation for security)
+        new_refresh_token = create_refresh_token(data={"sub": user.email})
+        
+        # Log successful refresh
+        try:
+            await SecurityAuditLogger.log_event(
+                db=db,
+                event_type=SecurityEventType.TOKEN_REFRESHED,
+                description="Access token refreshed successfully",
+                user_id=user.id,
+                user_email=user.email,
+                ip_address=request.client.host if request.client else None,
+                user_agent=request.headers.get("user-agent"),
+                request_method=request.method,
+                request_path=str(request.url.path),
+                severity="info",
+                success="success",
+            )
+        except Exception:
+            pass
+        
         logger.info(f"Token refreshed for user {user.email}")
         
-        # Return JSONResponse explicitly to work with rate limiting middleware
-        token_data = Token(access_token=access_token, token_type="bearer")
-        return JSONResponse(
+        # Return JSONResponse with both tokens
+        # SECURITY: Frontend should store new tokens in httpOnly cookies
+        token_data = Token(
+            access_token=access_token,
+            refresh_token=new_refresh_token,  # Include new refresh token for rotation
+            token_type="bearer"
+        )
+        
+        response = JSONResponse(
             status_code=status.HTTP_200_OK,
             content=token_data.model_dump()
         )
+        
+        # SECURITY: Optionally set tokens in httpOnly cookies server-side
+        # This provides defense in depth - tokens in both response body and cookies
+        is_production = os.getenv("ENVIRONMENT", "development").lower() == "production"
+        response.set_cookie(
+            key="access_token",
+            value=access_token,
+            httponly=True,
+            secure=is_production,
+            samesite="strict",
+            max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+            path="/",
+        )
+        response.set_cookie(
+            key="refresh_token",
+            value=new_refresh_token,
+            httponly=True,
+            secure=is_production,
+            samesite="strict",
+            max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+            path="/",
+        )
+        
+        return response
         
     except jwt.ExpiredSignatureError:
         # Token is expired, but we can still refresh it if user exists
