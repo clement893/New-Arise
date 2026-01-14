@@ -87,13 +87,6 @@ export function Step2_PlanSelection() {
     loadPlans();
   }, []);
 
-  const handleContinue = () => {
-    if (selectedPlan) {
-      setPlanId(selectedPlan.toString());
-      setStep(3);
-    }
-  };
-
   const handlePlanSelect = (planId: number) => {
     setSelectedPlan(planId);
     setPlanId(planId.toString());
