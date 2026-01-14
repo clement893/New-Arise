@@ -901,8 +901,6 @@ function ResultsReportsContent() {
             className="text-white border-0 overflow-hidden" 
             style={{ 
               backgroundColor: '#2E2E2E',
-              marginLeft: '-7.5%',
-              marginRight: '-7.5%',
               borderRadius: '24px',
               paddingLeft: 'calc(7.5% + 2rem)',
               paddingRight: 'calc(7.5% + 2rem)',
