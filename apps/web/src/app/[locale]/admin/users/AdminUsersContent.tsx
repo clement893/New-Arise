@@ -177,12 +177,12 @@ export default function AdminUsersContent() {
   }
 
   return (
-    <Container className="py-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-foreground mb-2">
+    <Container className="py-4 sm:py-6 md:py-8">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">
           Gestion des Utilisateurs
         </h1>
-        <p className="text-muted-foreground">
+        <p className="text-sm sm:text-base text-muted-foreground">
           Gérez tous les utilisateurs de la plateforme
         </p>
       </div>
@@ -194,12 +194,12 @@ export default function AdminUsersContent() {
       )}
 
       <Card className="mb-6">
-        <div className="flex flex-col sm:flex-row gap-4 mb-4">
+        <div className="flex flex-col sm:flex-row gap-4 mb-4 p-4 sm:p-6">
           <Input
             placeholder="Rechercher par email ou nom..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 w-full"
+            className="flex-1 w-full text-sm sm:text-base"
           />
         </div>
 
@@ -272,17 +272,18 @@ export default function AdminUsersContent() {
           Êtes-vous sûr de vouloir supprimer l'utilisateur{' '}
           <strong>{selectedUser?.email}</strong> ?
         </p>
-        <div className="flex gap-2 justify-end">
+        <div className="flex flex-col sm:flex-row gap-2 justify-end">
           <Button
             variant="ghost"
             onClick={() => {
               setDeleteModalOpen(false);
               setSelectedUser(null);
             }}
+            className="w-full sm:w-auto text-sm sm:text-base"
           >
             Annuler
           </Button>
-          <Button variant="danger" onClick={handleDelete}>
+          <Button variant="danger" onClick={handleDelete} className="w-full sm:w-auto text-sm sm:text-base">
             Supprimer
           </Button>
         </div>

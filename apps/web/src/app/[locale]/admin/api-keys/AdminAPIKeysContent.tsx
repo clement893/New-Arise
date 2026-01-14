@@ -235,9 +235,9 @@ export default function AdminAPIKeysContent() {
                 placeholder="Filtrer par ID utilisateur"
                 value={userIdFilter}
                 onChange={(e) => setUserIdFilter(e.target.value)}
-                className="w-full sm:w-40"
+                className="w-full sm:w-40 text-sm sm:text-base"
               />
-              <label className="flex items-center gap-2 px-4 py-2 border rounded cursor-pointer hover:bg-muted whitespace-nowrap">
+              <label className="flex items-center gap-2 px-3 sm:px-4 py-2 border rounded cursor-pointer hover:bg-muted whitespace-nowrap text-xs sm:text-sm">
                 <input
                   type="checkbox"
                   checked={includeInactive}
@@ -246,7 +246,7 @@ export default function AdminAPIKeysContent() {
                 />
                 Inclure inactives
               </label>
-              <Button variant="outline" onClick={fetchAPIKeys} className="w-full sm:w-auto">
+              <Button variant="outline" onClick={fetchAPIKeys} className="w-full sm:w-auto text-sm sm:text-base">
                 Actualiser
               </Button>
             </div>
@@ -295,17 +295,18 @@ export default function AdminAPIKeysContent() {
             <p className="text-sm text-muted-foreground">
               Cette action est irréversible. La clé API sera immédiatement désactivée.
             </p>
-            <div className="flex justify-end gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 justify-end">
               <Button
                 variant="ghost"
                 onClick={() => {
                   setDeleteModalOpen(false);
                   setSelectedKey(null);
                 }}
+                className="w-full sm:w-auto text-sm sm:text-base"
               >
                 Annuler
               </Button>
-              <Button variant="danger" onClick={handleDelete}>
+              <Button variant="danger" onClick={handleDelete} className="w-full sm:w-auto text-sm sm:text-base">
                 Révoquer
               </Button>
             </div>
