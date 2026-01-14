@@ -129,7 +129,7 @@ export default function AdminUsersContent() {
       key: 'actions',
       label: 'Actions',
       render: (_value, row) => (
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button
             size="sm"
             variant="outline"
@@ -137,6 +137,7 @@ export default function AdminUsersContent() {
               setSelectedUser(row);
               setRolesModalOpen(true);
             }}
+            className="text-xs sm:text-sm"
           >
             Rôles
           </Button>
@@ -147,6 +148,7 @@ export default function AdminUsersContent() {
               setSelectedUser(row);
               setPermissionsModalOpen(true);
             }}
+            className="text-xs sm:text-sm"
           >
             Permissions
           </Button>
@@ -157,6 +159,7 @@ export default function AdminUsersContent() {
               setSelectedUser(row);
               setDeleteModalOpen(true);
             }}
+            className="text-xs sm:text-sm"
           >
             Supprimer
           </Button>
@@ -191,12 +194,12 @@ export default function AdminUsersContent() {
       )}
 
       <Card className="mb-6">
-        <div className="flex gap-4 mb-4">
+        <div className="flex flex-col sm:flex-row gap-4 mb-4">
           <Input
             placeholder="Rechercher par email ou nom..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1"
+            className="flex-1 w-full"
           />
         </div>
 

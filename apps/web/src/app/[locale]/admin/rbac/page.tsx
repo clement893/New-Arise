@@ -118,14 +118,14 @@ export default function RBACPage() {
   const loading = rolesLoading || permissionsLoading;
 
   return (
-    <div className="py-12">
+    <div className="py-4 sm:py-6 md:py-8 lg:py-12">
       <Container>
-        <div className="mb-8 flex justify-between items-center">
+        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-foreground mb-2">Gestion RBAC</h1>
-            <p className="text-muted-foreground">Gestion des rôles et permissions</p>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">Gestion RBAC</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">Gestion des rôles et permissions</p>
           </div>
-          <Button onClick={() => setShowCreateModal(true)}>
+          <Button onClick={() => setShowCreateModal(true)} className="w-full sm:w-auto">
             Créer un rôle
           </Button>
         </div>
@@ -136,9 +136,9 @@ export default function RBACPage() {
           </Alert>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Roles List */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 order-2 lg:order-1">
             <Card>
               <div className="p-6">
                 <h2 className="text-xl font-bold text-foreground mb-4">Rôles</h2>
@@ -187,14 +187,14 @@ export default function RBACPage() {
           </div>
 
           {/* Role Details */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 order-1 lg:order-2">
             {selectedRole ? (
               <Card>
                 <div className="p-6">
-                  <div className="flex justify-between items-start mb-6">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h2 className="text-2xl font-bold text-foreground">{selectedRole.name}</h2>
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="text-xl sm:text-2xl font-bold text-foreground">{selectedRole.name}</h2>
                         {selectedRole.is_system && (
                           <Badge variant="info">Système</Badge>
                         )}
@@ -209,13 +209,14 @@ export default function RBACPage() {
                         Slug: <code className="bg-muted px-1 py-0.5 rounded">{selectedRole.slug}</code>
                       </p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       {!selectedRole.is_system && (
                         <>
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setShowEditModal(true)}
+                            className="flex-1 sm:flex-initial"
                           >
                             Modifier
                           </Button>
@@ -223,6 +224,7 @@ export default function RBACPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => setShowDeleteModal(true)}
+                            className="flex-1 sm:flex-initial"
                           >
                             Supprimer
                           </Button>

@@ -137,17 +137,8 @@ function DataTable<T extends Record<string, unknown>>({
 
       {/* Table - Responsive wrapper for horizontal scroll on mobile */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-        {/* Scroll hint for mobile users */}
-        <div className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 md:hidden">
-          <span className="inline-flex items-center gap-1">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
-            </svg>
-            Swipe horizontally to view all columns
-          </span>
-        </div>
         {/* Table component already has overflow-x-auto, but we add an extra wrapper for better mobile UX */}
-        <div className="overflow-x-auto relative">
+        <div className="overflow-x-auto relative -mx-2 sm:mx-0">
           {/* Horizontal scroll indicator - shows on mobile when content overflows */}
           <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white dark:from-gray-800 to-transparent pointer-events-none z-10 md:hidden" aria-hidden="true" />
           <Table>

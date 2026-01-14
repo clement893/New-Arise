@@ -79,9 +79,9 @@ export default function AdminSettingsContent() {
 
       <form onSubmit={handleSubmit}>
         <Section title="Général" className="mt-6">
-          <Card className="p-6 space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
+          <Card className="p-4 sm:p-6 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex-1">
                 <label className="text-sm font-medium text-foreground">
                   Mode maintenance
                 </label>
@@ -95,8 +95,8 @@ export default function AdminSettingsContent() {
               />
             </div>
 
-            <div className="flex items-center justify-between">
-              <div>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex-1">
                 <label className="text-sm font-medium text-foreground">
                   Inscriptions activées
                 </label>
@@ -110,8 +110,8 @@ export default function AdminSettingsContent() {
               />
             </div>
 
-            <div className="flex items-center justify-between">
-              <div>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex-1">
                 <label className="text-sm font-medium text-foreground">
                   Vérification email requise
                 </label>
@@ -128,7 +128,7 @@ export default function AdminSettingsContent() {
         </Section>
 
         <Section title="Sécurité" className="mt-6">
-          <Card className="p-6 space-y-6">
+          <Card className="p-4 sm:p-6 space-y-6">
             <Input
               label="Limite de taux API (requêtes/minute)"
               type="number"
@@ -150,7 +150,7 @@ export default function AdminSettingsContent() {
         </Section>
 
         <div className="mt-6 flex justify-end">
-          <Button type="submit" variant="primary" loading={loading}>
+          <Button type="submit" variant="primary" loading={loading} className="w-full sm:w-auto">
             Enregistrer les paramètres
           </Button>
         </div>

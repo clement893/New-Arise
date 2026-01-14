@@ -513,7 +513,7 @@ export default function AdminStatisticsContent() {
       ) : (
         <>
           <Section title="Vue d'ensemble" className="mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {statCards.map((stat, index) => (
                 <Card key={index} className="p-6">
                   <div className="flex items-center justify-between mb-2">
@@ -545,9 +545,9 @@ export default function AdminStatisticsContent() {
             ) : detailedMetrics ? (
               <div className="space-y-6">
                 {/* RBAC Metrics */}
-                <Card className="p-6">
+                <Card className="p-4 sm:p-6">
                   <h3 className="text-lg font-semibold mb-4">Statistiques RBAC</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm text-muted-foreground">Total des rôles</span>
@@ -573,9 +573,9 @@ export default function AdminStatisticsContent() {
                 </Card>
 
                 {/* User Metrics */}
-                <Card className="p-6">
+                <Card className="p-4 sm:p-6">
                   <h3 className="text-lg font-semibold mb-4">Statistiques des utilisateurs</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                     <div className="p-4 bg-muted/50 rounded-lg">
                       <div className="text-sm text-muted-foreground mb-1">Nouveaux (7 jours)</div>
                       <div className="text-2xl font-bold">{detailedMetrics.users.new_users_last_7_days}</div>
@@ -596,9 +596,9 @@ export default function AdminStatisticsContent() {
                 </Card>
 
                 {/* Activity Metrics */}
-                <Card className="p-6">
+                <Card className="p-4 sm:p-6">
                   <h3 className="text-lg font-semibold mb-4">Statistiques d'activité</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div>
                       <h4 className="text-sm font-medium mb-3">Activités par type</h4>
                       <div className="space-y-2">
@@ -632,9 +632,9 @@ export default function AdminStatisticsContent() {
                 </Card>
 
                 {/* System Metrics */}
-                <Card className="p-6">
+                <Card className="p-4 sm:p-6">
                   <h3 className="text-lg font-semibold mb-4">Statistiques système</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div>
                       <h4 className="text-sm font-medium mb-3">Logs par niveau</h4>
                       <div className="space-y-2">
@@ -664,9 +664,9 @@ export default function AdminStatisticsContent() {
                 </Card>
 
                 {/* Organizations Metrics */}
-                <Card className="p-6">
+                <Card className="p-4 sm:p-6">
                   <h3 className="text-lg font-semibold mb-4">Statistiques des organisations</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                     <div className="p-4 bg-muted/50 rounded-lg">
                       <div className="text-sm text-muted-foreground mb-1">Total</div>
                       <div className="text-2xl font-bold">{detailedMetrics.organizations.total}</div>
@@ -688,9 +688,9 @@ export default function AdminStatisticsContent() {
 
                 {/* Subscriptions Metrics */}
                 {detailedMetrics.subscriptions.total > 0 && (
-                  <Card className="p-6">
+                  <Card className="p-4 sm:p-6">
                     <h3 className="text-lg font-semibold mb-4">Statistiques des abonnements</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                       <div className="p-4 bg-muted/50 rounded-lg">
                         <div className="text-sm text-muted-foreground mb-1">Total</div>
                         <div className="text-2xl font-bold">{detailedMetrics.subscriptions.total}</div>
@@ -725,9 +725,9 @@ export default function AdminStatisticsContent() {
                 )}
 
                 {/* Content Metrics */}
-                <Card className="p-6">
+                <Card className="p-4 sm:p-6">
                   <h3 className="text-lg font-semibold mb-4">Statistiques du contenu</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div>
                       <h4 className="text-sm font-medium mb-3">Articles de blog</h4>
                       <div className="space-y-2">
@@ -785,9 +785,9 @@ export default function AdminStatisticsContent() {
 
                 {/* Projects Metrics */}
                 {detailedMetrics.projects.total > 0 && (
-                  <Card className="p-6">
+                  <Card className="p-4 sm:p-6">
                     <h3 className="text-lg font-semibold mb-4">Statistiques des projets</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                       <div>
                         <div className="p-4 bg-muted/50 rounded-lg mb-4">
                           <div className="text-sm text-muted-foreground mb-1">Total des projets</div>

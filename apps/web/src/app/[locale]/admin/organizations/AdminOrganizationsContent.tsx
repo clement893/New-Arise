@@ -419,12 +419,13 @@ export default function AdminOrganizationsContent() {
       key: 'actions',
       label: 'Actions',
       render: (_value, team) => (
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => openViewModal(team)}
             title="Voir les détails"
+            className="min-w-[44px] min-h-[44px] p-2"
           >
             <Eye className="h-4 w-4" />
           </Button>
@@ -433,6 +434,7 @@ export default function AdminOrganizationsContent() {
             size="sm"
             onClick={() => openEditModal(team)}
             title="Modifier"
+            className="min-w-[44px] min-h-[44px] p-2"
           >
             <Edit2 className="h-4 w-4" />
           </Button>
@@ -441,6 +443,7 @@ export default function AdminOrganizationsContent() {
             size="sm"
             onClick={() => handleDeleteTeam(team)}
             title="Supprimer"
+            className="min-w-[44px] min-h-[44px] p-2"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -467,23 +470,23 @@ export default function AdminOrganizationsContent() {
         </Alert>
       )}
 
-      <div className="mt-6 flex justify-between items-center mb-4">
+      <div className="mt-6 flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center mb-4">
         <Input
           type="text"
           placeholder="Rechercher une organisation..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-md"
+          className="w-full sm:max-w-md"
         />
         <Button 
           onClick={() => {
             resetForm();
             setShowCreateModal(true);
           }}
-          className="flex flex-row items-center gap-2"
+          className="flex flex-row items-center gap-2 w-full sm:w-auto justify-center sm:justify-start"
         >
           <Plus className="h-4 w-4" />
-          Créer une organisation
+          <span className="whitespace-nowrap">Créer une organisation</span>
         </Button>
       </div>
 
@@ -638,7 +641,7 @@ export default function AdminOrganizationsContent() {
       >
         {selectedTeam && (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Nom</label>
                 <p className="text-sm font-medium">{selectedTeam.name}</p>
@@ -665,7 +668,7 @@ export default function AdminOrganizationsContent() {
               return (
                 <div className="border-t pt-4 space-y-4">
                   <h3 className="font-semibold">Informations de contact</h3>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {settings.email && (
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">Email</label>
@@ -735,7 +738,7 @@ export default function AdminOrganizationsContent() {
             </div>
 
             <div className="border-t pt-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Membres</label>
                   <p className="text-sm"><Badge>{selectedTeam.member_count || 0}</Badge></p>
