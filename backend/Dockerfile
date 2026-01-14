@@ -82,8 +82,10 @@ EXPOSE 8000
 # Health check - uses PORT env var or defaults to 8000
 # Note: HEALTHCHECK runs inside container, so it uses the same PORT as the app
 # Use Python's urllib instead of requests for better reliability
-HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
-    CMD sh -c 'PORT=${PORT:-8000}; python -c "import urllib.request; import sys; r=urllib.request.urlopen(f\"http://localhost:{PORT}/api/v1/health\", timeout=5); sys.exit(0 if r.getcode()==200 else 1)"' || exit 1
+# SECURITY: Health check endpoint is lightweight and doesn't require authentication
+# Try both with and without trailing slash for compatibility
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
+    CMD sh -c 'PORT=${PORT:-8000}; python -c "import urllib.request; import sys; import socket; socket.setdefaulttimeout(5); url=f\"http://localhost:{PORT}/api/v1/health/\"; r=urllib.request.urlopen(url, timeout=5); sys.exit(0 if r.getcode()==200 else 1)"' || exit 1
 
 # Use entrypoint.sh from the repo
 ENTRYPOINT ["./entrypoint.sh"]

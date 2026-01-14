@@ -12,6 +12,7 @@ class Token(BaseModel):
     """Token response schema"""
     access_token: str = Field(..., description="JWT access token")
     token_type: str = Field(default="bearer", description="Token type")
+    refresh_token: Optional[str] = Field(None, description="JWT refresh token (for token rotation)")
 
 
 class RefreshTokenRequest(BaseModel):
