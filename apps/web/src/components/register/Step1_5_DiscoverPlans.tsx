@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRegistrationStore } from '@/stores/registrationStore';
-import Button from '@/components/ui/Button';
 import { Plus, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 
