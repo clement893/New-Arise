@@ -406,10 +406,22 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
             <div className="px-4 py-3 flex items-center justify-between">
               <Link 
                 href="/dashboard" 
-                className="text-lg font-semibold text-white hover:text-arise-gold transition-colors cursor-pointer"
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                 title="Retour au dashboard"
               >
-                ARISE
+                {/* Logo ARISE */}
+                <div className="w-8 h-8 bg-arise-deep-teal rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg viewBox="0 0 40 40" className="w-5 h-5 text-white" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M20 5 C 15 5, 10 10, 10 15 C 10 20, 15 25, 20 25 C 25 25, 30 20, 30 15 C 30 10, 25 5, 20 5 M 20 15 L 20 35"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      fill="none"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </div>
+                <span className="text-lg font-semibold text-white">ARISE</span>
               </Link>
               <button
                 onClick={handleMobileMenuToggle}

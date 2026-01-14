@@ -446,26 +446,26 @@ function DashboardContent() {
           <div className="relative mb-8" style={{ paddingBottom: '32px' }}>
             {/* Background color block behind the 3 sections - starts a bit higher */}
             <div 
-              className="absolute"
+              className="absolute md:left-[-7.5%] md:right-[-7.5%] md:w-[calc(100%+15%)]"
               style={{ 
                 backgroundColor: '#D5DEE0',
                 top: '-20px',
                 bottom: 0,
-                left: '-7.5%',
-                right: '-7.5%',
+                left: '0',
+                right: '0',
                 zIndex: 0,
                 borderRadius: '24px',
-                width: 'calc(100% + 4%)',
+                width: '100%',
                 margin: 'auto',
               }}
             />
             
             {/* Content sections with relative positioning */}
-            <div className="relative z-10">
+            <div className="relative z-10 w-full md:w-auto mx-auto px-2 sm:px-4">
               {/* Feedback Banner */}
               <MotionDiv variant="slideUp" delay={100}>
                 <Card className="mb-8">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div className="flex items-start gap-4">
                       <div 
                         className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
@@ -473,27 +473,27 @@ function DashboardContent() {
                       >
                         <Info className="text-arise-deep-teal" size={20} />
                       </div>
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-1">
-                        Add Your 360° Feedback: Evaluators
-                      </h3>
-                      <p className="text-sm text-gray-900">
-                        Get comprehensive feedback by inviting colleagues to evaluate your leadership.
-                      </p>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-1">
+                          Add Your 360° Feedback: Evaluators
+                        </h3>
+                        <p className="text-xs sm:text-sm text-gray-900">
+                          Get comprehensive feedback by inviting colleagues to evaluate your leadership.
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
                     {(() => {
                       const feedback360Assessment = assessments.find(
                         a => a.assessment_type === 'THREE_SIXTY_SELF'
                       );
                       if (feedback360Assessment?.id) {
                         return (
-                          <Link href={`/dashboard/evaluators?id=${feedback360Assessment.id}`}>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="whitespace-nowrap font-semibold transition-colors flex flex-row items-center gap-2 text-sm"
+                          <Link href={`/dashboard/evaluators?id=${feedback360Assessment.id}`} className="w-full sm:w-auto">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="w-full sm:w-auto whitespace-nowrap font-semibold transition-colors flex flex-row items-center justify-center gap-2 text-xs sm:text-sm"
                               style={{ color: '#0F444C', borderColor: '#0F444C' }}
                               onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                                 e.currentTarget.style.backgroundColor = 'rgba(15, 68, 76, 0.1)';
@@ -503,7 +503,7 @@ function DashboardContent() {
                               }}
                             >
                               <Eye size={16} />
-                              {evaluators.length > 0 ? `View Evaluators (${evaluators.length})` : 'View Evaluators'}
+                              <span className="truncate">{evaluators.length > 0 ? `View Evaluators (${evaluators.length})` : 'View Evaluators'}</span>
                             </Button>
                           </Link>
                         );
@@ -513,7 +513,7 @@ function DashboardContent() {
                     <Button 
                       variant="arise-primary"
                       size="sm"
-                      className="whitespace-nowrap font-semibold text-sm"
+                      className="w-full sm:w-auto whitespace-nowrap font-semibold text-xs sm:text-sm"
                       onClick={() => {
                         // Check if a 360° feedback assessment already exists
                         const feedback360Assessment = assessments.find(
@@ -542,17 +542,17 @@ function DashboardContent() {
                   className="mb-8 text-white border-0"
                   style={{ backgroundColor: '#0F454D' }}
                 >
-                  <div className="flex justify-between items-start mb-6 gap-8">
-                    <div className="flex-1">
-                      <h2 className="text-2xl font-medium mb-2 text-white">Your Progress</h2>
-                      <div className="text-6xl font-medium mb-2" style={{ color: '#d5b667' }}>{progressData.overall} %</div>
-                      <p className="text-white/90 mb-1">
+                  <div className="flex md:flex-row flex-col md:justify-between md:items-start md:mb-6 md:gap-8 gap-4">
+                    <div className="flex-1 w-full">
+                      <h2 className="text-xl sm:text-2xl font-medium mb-2 text-white">Your Progress</h2>
+                      <div className="text-4xl sm:text-6xl font-medium mb-2" style={{ color: '#d5b667' }}>{progressData.overall} %</div>
+                      <p className="text-sm sm:text-base text-white/90 mb-1">
                         You are making good progress in your holistic leadership journey. Keep it up!
                       </p>
                     </div>
                     
                     {/* Progress Bars - Right side */}
-                    <div className="flex-1 space-y-4 min-w-[200px]">
+                    <div className="flex-1 w-full md:min-w-[200px] space-y-4">
                     {progressData.items.map((item, index) => (
                       <div key={index}>
                         <div className="flex justify-between items-center mb-2">
@@ -571,10 +571,10 @@ function DashboardContent() {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex gap-4">
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 md:mt-0 mt-4">
                     <Button 
                       variant="primary" 
-                      className="font-semibold"
+                      className="w-full sm:w-auto font-semibold px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base"
                       style={{ backgroundColor: '#d5b667', color: '#000000' }}
                       onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                         e.currentTarget.style.backgroundColor = '#d5b667';
@@ -590,7 +590,7 @@ function DashboardContent() {
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="bg-arise-button-primary border-2 font-semibold"
+                      className="w-full sm:w-auto bg-arise-button-primary border-2 font-semibold px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base"
                       style={{ 
                         borderColor: '#799ba1',
                         color: '#FFFFFF',
@@ -612,9 +612,9 @@ function DashboardContent() {
 
               {/* Evaluations Section */}
               <MotionDiv variant="slideUp" delay={300}>
-                <div className="mb-32">
-                  <div className="flex items-center justify-start mb-6">
-                    <h2 className="text-2xl font-medium text-gray-900">Your evaluations</h2>
+                <div className="mb-8 sm:mb-16 md:mb-32">
+                  <div className="flex items-center justify-start mb-4 sm:mb-6">
+                    <h2 className="text-xl sm:text-2xl font-medium text-gray-900">Your evaluations</h2>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {evaluations.map((evaluation, index) => {
@@ -670,7 +670,7 @@ function DashboardContent() {
                               )}
                             </div>
                             {/* Add padding top to account for icon */}
-                            <div className="pt-12 flex-1 flex flex-col">
+                            <div className="md:pt-12 pt-6 flex-1 flex flex-col">
                               {/* Title and Description */}
                               <div className="mb-4">
                                 <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -711,33 +711,30 @@ function DashboardContent() {
           {/* Coaching Section */}
           <MotionDiv variant="slideUp" delay={400}>
             <Card 
-              className="text-white border-0 overflow-hidden" 
+              className="text-white border-0 overflow-hidden p-4 sm:p-6 md:pl-[calc(7.5%+2rem)] md:pr-[calc(7.5%+2rem)] md:pt-8 md:pb-8" 
               style={{ 
                 backgroundColor: '#2E2E2E',
                 borderRadius: '24px',
-                paddingLeft: 'calc(7.5% + 2rem)',
-                paddingRight: 'calc(7.5% + 2rem)',
-                paddingTop: '2rem',
-                paddingBottom: '2rem',
               }}
             >
-              <div className="flex flex-col md:flex-row items-center gap-6">
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-2xl font-medium mb-3">
+              <div className="flex flex-col md:flex-row items-center gap-4 sm:gap-6">
+                <div className="flex-1 min-w-0 w-full">
+                  <h2 className="text-xl sm:text-2xl font-medium mb-2 sm:mb-3">
                     Ready to accelerate your growth?
                   </h2>
-                  <p className="text-white/90 mb-4 break-words">
+                  <p className="text-sm sm:text-base text-white/90 mb-4 break-words">
                     Connect with expert ARISE coaches who specialize in leadership development. 
                     Schedule your FREE coaching session to debrief your results and build a personalized development plan.
                   </p>
                   <Button 
                     variant="arise-primary"
+                    className="w-full sm:w-auto text-sm sm:text-base"
                     onClick={() => router.push('/dashboard/coaching-options')}
                   >
                     Explore coaching options →
                   </Button>
                 </div>
-                <div className="relative w-48 h-48 flex-shrink-0">
+                <div className="relative w-full sm:w-48 h-48 flex-shrink-0 mt-4 md:mt-0">
                   <Image
                     src="/images/leader-4.jpg"
                     alt="Coaching session"
