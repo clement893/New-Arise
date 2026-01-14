@@ -88,5 +88,8 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
     CMD sh -c 'PORT=${PORT:-8000}; python -c "import urllib.request; import sys; import socket; socket.setdefaulttimeout(5); url=f\"http://localhost:{PORT}/api/v1/health/\"; r=urllib.request.urlopen(url, timeout=5); sys.exit(0 if r.getcode()==200 else 1)"' || exit 1
 
 # Use entrypoint.sh from the repo
+# Note: Railway will use startCommand from railway.json if set
+# This ENTRYPOINT is a fallback if railway.json is not used
 ENTRYPOINT ["./entrypoint.sh"]
+CMD ["./entrypoint.sh"]
 
