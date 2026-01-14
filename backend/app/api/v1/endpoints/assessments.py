@@ -2320,7 +2320,12 @@ async def upload_mbti_image(
         # Extract MBTI results from image
         try:
             # Determine image format from file extension
-            image_format = file_ext.lstrip('.').lower() if file_ext else 'png'
+            image_format = None
+            if file_ext:
+                image_format = file_ext.lstrip('.').lower()
+            # Default to png if not found
+            if not image_format:
+                image_format = 'png'
             extracted_data = await ocr_service.extract_mbti_results_from_image(file_content, image_format)
             logger.info(f"Successfully extracted MBTI data: {extracted_data.get('mbti_type', 'unknown')}")
         except Exception as extract_error:

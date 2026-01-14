@@ -195,22 +195,40 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
 
             # Extract response text
             response_text = response.choices[0].message.content
+            if not response_text:
+                raise ValueError("OpenAI API returned empty response. Please try again.")
+            
             logger.info(f"OpenAI response for page {page_num}: {response_text[:200]}...")
 
             # Parse JSON from response (may have markdown code blocks)
             import json
             try:
                 # Try to extract JSON from markdown code blocks if present
-                if "```json" in response_text:
+                if response_text and "```json" in response_text:
                     json_start = response_text.find("```json") + 7
                     json_end = response_text.find("```", json_start)
-                    response_text = response_text[json_start:json_end].strip()
-                elif "```" in response_text:
+                    if json_end > json_start:
+                        response_text = response_text[json_start:json_end].strip()
+                    else:
+                        # Malformed markdown, try to extract anyway
+                        response_text = response_text[json_start:].strip()
+                elif response_text and "```" in response_text:
                     json_start = response_text.find("```") + 3
                     json_end = response_text.find("```", json_start)
-                    response_text = response_text[json_start:json_end].strip()
+                    if json_end > json_start:
+                        response_text = response_text[json_start:json_end].strip()
+                    else:
+                        # Malformed markdown, try to extract anyway
+                        response_text = response_text[json_start:].strip()
+
+                if not response_text:
+                    raise ValueError("Could not extract JSON from OpenAI response. Response was empty after parsing.")
 
                 extracted_data = json.loads(response_text)
+                if extracted_data is None:
+                    raise ValueError("OpenAI API returned null/None data. Please try again.")
+                if not isinstance(extracted_data, dict):
+                    raise ValueError(f"OpenAI API returned invalid data type. Expected dict, got {type(extracted_data)}")
                 return extracted_data
             except json.JSONDecodeError as e:
                 logger.error(f"Failed to parse JSON from OpenAI response: {e}")
@@ -677,6 +695,8 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
             logger.info(f"Extracting MBTI results from image (size: {len(image_bytes)} bytes, format: {image_format})")
             
             # Normalize image format for MIME type
+            if not image_format:
+                image_format = "png"
             format_map = {
                 "png": "png",
                 "jpg": "jpeg",
@@ -684,17 +704,28 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                 "gif": "gif",
                 "webp": "webp"
             }
-            mime_format = format_map.get(image_format.lower(), "png")
+            mime_format = format_map.get(image_format.lower() if image_format else "png", "png")
             
             # Extract data from the image
             extracted_data = await self._extract_text_from_image(image_bytes, 1, mime_format)
             
+            # Validate that we got data
+            if not extracted_data:
+                raise ValueError("Failed to extract any data from image. Please ensure the image contains MBTI results from 16Personalities.")
+            
+            if not isinstance(extracted_data, dict):
+                raise ValueError(f"Invalid data format extracted from image. Expected dict, got {type(extracted_data)}")
+            
             # Validate extracted data
-            if not extracted_data.get("mbti_type"):
+            raw_mbti_type = extracted_data.get("mbti_type")
+            if not raw_mbti_type:
                 raise ValueError("Could not extract MBTI type from image. Please ensure the image contains MBTI results from 16Personalities.")
             
             # Clean MBTI type (remove -T or -A suffix if present, keep it in a separate field)
-            mbti_type = str(extracted_data.get("mbti_type", "")).upper().strip()
+            mbti_type = str(raw_mbti_type).upper().strip()
+            if not mbti_type or mbti_type == "NONE":
+                raise ValueError("Invalid MBTI type extracted from image. Please ensure the image contains valid MBTI results from 16Personalities.")
+            
             variant = None
             if len(mbti_type) > 4:
                 # Check if it ends with -T or -A
@@ -704,6 +735,10 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
             
             # Ensure dimension_preferences is properly structured
             dimension_preferences = extracted_data.get("dimension_preferences", {})
+            if not isinstance(dimension_preferences, dict):
+                logger.warning("dimension_preferences is not a dict, using empty dict")
+                dimension_preferences = {}
+            
             required_dimensions = ["EI", "SN", "TF", "JP"]
             for dim in required_dimensions:
                 if dim not in dimension_preferences:
