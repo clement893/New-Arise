@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRegistrationStore } from '@/stores/registrationStore';
 import Button from '@/components/ui/Button';
-import { ArrowRight, Plus, ArrowLeft } from 'lucide-react';
+import { Plus, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 
 interface PlanTab {
@@ -64,7 +64,9 @@ export function Step1_5_DiscoverPlans() {
     });
   };
 
-  const handleContinue = () => {
+  const handlePlanTabSelect = (planId: string) => {
+    setSelectedPlanTab(planId);
+    // Automatically advance to next step when a plan tab is selected
     setStep(2);
   };
 
@@ -103,7 +105,7 @@ export function Step1_5_DiscoverPlans() {
             {planTabs.map((plan) => (
               <button
                 key={plan.id}
-                onClick={() => setSelectedPlanTab(plan.id)}
+                onClick={() => handlePlanTabSelect(plan.id)}
                 className={`px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200 ${
                   selectedPlanTab === plan.id
                     ? 'bg-gray-300 text-gray-900'
@@ -157,33 +159,16 @@ export function Step1_5_DiscoverPlans() {
           </div>
 
           {/* Navigation Buttons */}
-          <div className="flex items-center justify-between pt-6 border-t border-white/20">
+          <div className="flex items-center justify-center pt-6 border-t border-white/20">
             <button
               onClick={handleBack}
-              className="text-white text-sm hover:text-white/80 transition-colors"
+              className="text-white text-sm flex items-center gap-2 hover:text-white/80 transition-colors"
             >
-              Back
+              <ArrowLeft className="w-4 h-4" />
+              Retour
             </button>
-            <Button
-              onClick={handleContinue}
-              className="bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold rounded-lg px-8 py-3 flex items-center gap-2"
-            >
-              Continue
-              <ArrowRight className="w-5 h-5" />
-            </Button>
           </div>
         </div>
-      </div>
-
-      {/* Back button */}
-      <div className="flex justify-center mt-8">
-        <button
-          onClick={handleBack}
-          className="text-white text-sm flex items-center gap-2 hover:text-white/80 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Retour
-        </button>
       </div>
     </div>
   );

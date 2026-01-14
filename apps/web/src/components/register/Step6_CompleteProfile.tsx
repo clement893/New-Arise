@@ -70,7 +70,7 @@ export function Step6_CompleteProfile() {
               type="submit"
               className="w-full bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold"
             >
-              Continue
+              Complete Profile
             </Button>
           </div>
         </form>

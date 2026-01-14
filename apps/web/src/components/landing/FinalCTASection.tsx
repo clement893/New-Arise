@@ -11,7 +11,7 @@ export function FinalCTASection() {
     <section className="py-20 bg-white relative">
       <div className="container mx-auto px-[11px] relative z-10">
         <div className="mx-auto">
-          <Card className="p-8 md:p-12 text-center rounded-2xl" style={{ backgroundColor: '#D8B868' }}>
+          <Card className="p-8 md:p-12 text-center rounded-2xl" padding={false} style={{ backgroundColor: '#D8B868' }}>
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
               {t('title')}
             </h2>
