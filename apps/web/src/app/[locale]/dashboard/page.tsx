@@ -637,7 +637,7 @@ function DashboardContent() {
                             backgroundColor: evaluation.status === 'locked' ? undefined : '#FFFFFF',
                           }}
                         >
-                          <div className="flex flex-col h-full p-6">
+                          <div className="flex flex-col h-full">
                             {/* Icon in upper left corner */}
                             <div 
                               className="absolute top-4 left-4 w-12 h-12 rounded-lg flex items-center justify-center z-10"

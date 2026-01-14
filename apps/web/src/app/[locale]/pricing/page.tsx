@@ -241,7 +241,7 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-muted dark:to-muted">
       <Header />
-      <Container className="py-12" maxWidth="2xl">
+      <main className="container mx-auto px-4 pt-24 pb-12">
         {/* Hero Section */}
         <MotionDiv variant="fade" duration="normal">
           <div className="mb-16 relative flex items-center overflow-hidden rounded-2xl" style={{ backgroundColor: '#0F4C56', minHeight: '500px' }}>
@@ -342,7 +342,7 @@ export default function PricingPage() {
             />
           </div>
         </div>
-      </Container>
+      </main>
       <Footer />
     </div>
   );
