@@ -69,6 +69,24 @@ export default async function LocaleLayout({
   // Providing all messages to the client
   // side is the easiest way to get started
   const messages = await getMessages();
+  
+  // SECURITY: Get CSP nonce from request headers (set by middleware)
+  // Nonces allow inline scripts/styles while maintaining strict CSP
+  // Note: In Next.js, middleware headers are available via request headers
+  // For Server Components, we need to get it from the incoming request
+  let cspNonce: string | undefined;
+  try {
+    // Try to get nonce from headers (available in Server Components)
+    // The middleware sets X-CSP-Nonce header which should be available
+    const { headers } = await import('next/headers');
+    const headersList = await headers();
+    // Check both lowercase and original case
+    cspNonce = headersList.get('x-csp-nonce') || headersList.get('X-CSP-Nonce') || undefined;
+  } catch (error) {
+    // If headers() is not available (e.g., in static generation), nonce will be undefined
+    // In that case, CSP will fall back to strict mode without nonces
+    // This is acceptable as static pages don't need dynamic nonces
+  }
 
   // Get API URL for resource hints
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_DEFAULT_API_URL || 'http://localhost:8000';
@@ -85,7 +103,9 @@ export default async function LocaleLayout({
         {/* CRITICAL: Apply theme script FIRST, before any CSS, to prevent flash */}
         {/* This script MUST execute synchronously and block rendering until theme is applied */}
         {/* SECURITY: themeCacheInlineScript is static content generated at build time, safe to use dangerouslySetInnerHTML */}
+        {/* SECURITY: Use CSP nonce if available for strict CSP compliance */}
         <script
+          nonce={cspNonce}
           dangerouslySetInnerHTML={{
             __html: themeCacheInlineScript,
           }}
@@ -93,7 +113,9 @@ export default async function LocaleLayout({
         
         {/* CSS structure with default colors - applied AFTER script sets theme */}
         {/* SECURITY: Static CSS content, safe to use dangerouslySetInnerHTML */}
+        {/* SECURITY: Use CSP nonce if available for strict CSP compliance */}
         <style
+          nonce={cspNonce}
           dangerouslySetInnerHTML={{
             __html: `
               /* Base structure - default colors prevent flash before theme loads */
@@ -174,7 +196,9 @@ export default async function LocaleLayout({
         
         {/* Add loaded class to body after initial render to enable transitions */}
         {/* SECURITY: Static JavaScript content, safe to use dangerouslySetInnerHTML */}
+        {/* SECURITY: Use CSP nonce if available for strict CSP compliance */}
         <script
+          nonce={cspNonce}
           dangerouslySetInnerHTML={{
             __html: `
               (function() {

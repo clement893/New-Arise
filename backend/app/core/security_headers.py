@@ -1,8 +1,9 @@
-﻿"""
+"""
 Security Headers Middleware
 Adds security headers to all HTTP responses
 """
 
+import secrets
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
@@ -54,21 +55,25 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                 "max-age=31536000; includeSubDomains; preload"
             )
         
-        # Content Security Policy
+        # Content Security Policy with Nonces
         # 
-        # SECURITY: CSP is relaxed in development (unsafe-inline/unsafe-eval)
-        # In production, use strict CSP without unsafe-inline/unsafe-eval
+        # SECURITY: CSP with nonces allows inline scripts/styles while maintaining strict security
+        # Each request gets a unique nonce that must match between CSP header and HTML
         # See: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
         # 
-        # For production, consider using nonces:
-        # script-src 'self' 'nonce-{nonce}';
-        # style-src 'self' 'nonce-{nonce}';
+        # SECURITY: Generate nonce for this request (unique per request)
+        nonce = secrets.token_urlsafe(16)  # 16 bytes = 22 base64 characters
+        
+        # Store nonce in response header for frontend to use
+        response.headers["X-CSP-Nonce"] = nonce
+        
         if settings.ENVIRONMENT == "production":
-            # Strict CSP for production
+            # SECURITY: Strict CSP with nonces for production
+            # Nonces allow inline scripts/styles while maintaining strict CSP
             csp_policy = (
                 "default-src 'self'; "
-                "script-src 'self'; "  # No unsafe-inline/unsafe-eval in production
-                "style-src 'self'; "  # No unsafe-inline in production
+                f"script-src 'self' 'nonce-{nonce}'; "  # Nonce allows specific inline scripts
+                f"style-src 'self' 'nonce-{nonce}'; "  # Nonce allows specific inline styles
                 "img-src 'self' data: https:; "
                 "font-src 'self' data:; "
                 "connect-src 'self' https:; "
@@ -79,11 +84,13 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                 "upgrade-insecure-requests"
             )
         else:
-            # Relaxed CSP for development
+            # Relaxed CSP for development (nonces optional)
+            # In development, we can use unsafe-inline for convenience
+            # but still provide nonces for testing
             csp_policy = (
                 "default-src 'self'; "
-                "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "  # Development only
-                "style-src 'self' 'unsafe-inline'; "  # Development only
+                f"script-src 'self' 'unsafe-inline' 'unsafe-eval' 'nonce-{nonce}'; "  # Development: allow both
+                f"style-src 'self' 'unsafe-inline' 'nonce-{nonce}'; "  # Development: allow both
                 "img-src 'self' data: https:; "
                 "font-src 'self' data:; "
                 "connect-src 'self'; "

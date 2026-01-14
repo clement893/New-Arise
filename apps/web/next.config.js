@@ -242,21 +242,42 @@ const nextConfig = {
       ? [`'self'`, apiUrl, apiUrlWss, 'https://*.sentry.io', 'wss://*.sentry.io']
       : [`'self'`, apiUrl, apiUrlWss, 'http://localhost:8000', 'ws://localhost:8000', 'https://*.sentry.io', 'wss://*.sentry.io'];
     
-    const cspDirectives = [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.railway.app https://js.stripe.com https://*.stripe.com blob:", // Required for Next.js dev mode, Sentry workers, and Stripe
-      "worker-src 'self' blob:", // Required for Sentry workers and web workers
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.railway.app", // Required for Tailwind CSS
-      "font-src 'self' https://fonts.gstatic.com data:",
-      "img-src 'self' data: https: blob:",
-      "connect-src " + connectSrcUrls.join(' ') + " https://*.stripe.com", // Add Stripe API endpoints
-      "frame-src 'self' https://*.stripe.com https://js.stripe.com", // Allow Stripe checkout iframes
-      "object-src 'none'",
-      "base-uri 'self'",
-      "form-action 'self'",
-      "frame-ancestors 'none'",
-      ...(isProduction ? ["upgrade-insecure-requests"] : []),
-    ].filter(Boolean).join('; ');
+    // SECURITY: CSP with nonces for production
+    // In production, use nonces to allow inline scripts/styles while maintaining strict CSP
+    // Nonces are generated per-request and must match between CSP header and HTML attributes
+    // Note: Next.js headers() function doesn't support dynamic nonces per request
+    // For full nonce support, use middleware.ts to generate nonces per request
+    // For now, we use a strict CSP in production without unsafe-inline
+    const cspDirectives = isProduction
+      ? [
+          "default-src 'self'",
+          "script-src 'self' https://*.railway.app https://js.stripe.com https://*.stripe.com blob:", // Production: strict, no unsafe-inline
+          "worker-src 'self' blob:", // Required for Sentry workers and web workers
+          "style-src 'self' https://fonts.googleapis.com https://*.railway.app", // Production: strict, no unsafe-inline
+          "font-src 'self' https://fonts.gstatic.com data:",
+          "img-src 'self' data: https: blob:",
+          "connect-src " + connectSrcUrls.join(' ') + " https://*.stripe.com",
+          "frame-src 'self' https://*.stripe.com https://js.stripe.com",
+          "object-src 'none'",
+          "base-uri 'self'",
+          "form-action 'self'",
+          "frame-ancestors 'none'",
+          "upgrade-insecure-requests",
+        ].filter(Boolean).join('; ')
+      : [
+          "default-src 'self'",
+          "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.railway.app https://js.stripe.com https://*.stripe.com blob:", // Development: allow unsafe-inline for Next.js dev
+          "worker-src 'self' blob:",
+          "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.railway.app", // Development: allow unsafe-inline for Tailwind
+          "font-src 'self' https://fonts.gstatic.com data:",
+          "img-src 'self' data: https: blob:",
+          "connect-src " + connectSrcUrls.join(' ') + " https://*.stripe.com",
+          "frame-src 'self' https://*.stripe.com https://js.stripe.com",
+          "object-src 'none'",
+          "base-uri 'self'",
+          "form-action 'self'",
+          "frame-ancestors 'none'",
+        ].filter(Boolean).join('; ');
 
     return [
       {
