@@ -47,7 +47,7 @@ export default function AdminContent() {
         ]} 
       />
 
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <Card title="Invitations" className="flex flex-col">
           <p className="text-muted-foreground mb-4">
             Gérer les invitations utilisateurs et les accès au système.
@@ -177,7 +177,7 @@ export default function AdminContent() {
       </MotionDiv>
 
       <Section title="Statut du système" className="mt-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="p-4 border rounded-lg bg-secondary-100 dark:bg-secondary-900 border-secondary-200 dark:border-secondary-800">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-secondary-900 dark:text-secondary-100">

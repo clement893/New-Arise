@@ -252,17 +252,17 @@ export default function InvitationsPage() {
       key: 'actions',
       label: 'Actions',
       render: (_value: unknown, invitation: Invitation) => (
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {invitation.status === 'pending' && (
             <>
-              <Button size="sm" variant="outline" onClick={() => handleResendInvitation(invitation.id)}>
+              <Button size="sm" variant="outline" onClick={() => handleResendInvitation(invitation.id)} className="text-xs sm:text-sm">
                 Réenvoyer
               </Button>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => handleCancelInvitation(invitation.id)}
-                className="border-danger-500 text-danger-600 hover:bg-danger-50"
+                className="border-danger-500 text-danger-600 hover:bg-danger-50 text-xs sm:text-sm"
               >
                 Annuler
               </Button>
@@ -275,20 +275,20 @@ export default function InvitationsPage() {
 
   return (
     <ProtectedSuperAdminRoute>
-      <div className="py-12">
+      <div className="py-4 sm:py-6 md:py-8 lg:py-12">
         <Container>
-      <div className="mb-8 flex justify-between items-center">
+      <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-4xl font-bold text-foreground mb-2">Gestion des Invitations</h1>
-          <p className="text-muted-foreground">Gérer les invitations envoyées aux utilisateurs</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">Gestion des Invitations</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Gérer les invitations envoyées aux utilisateurs</p>
         </div>
-        <Button onClick={() => setShowCreateModal(true)}>
+        <Button onClick={() => setShowCreateModal(true)} className="w-full sm:w-auto">
           Inviter un utilisateur
         </Button>
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 mb-6">
         {Object.entries(statusCounts).map(([status, count]) => (
           <Card key={status}>
             <div className="p-4 text-center">
@@ -300,7 +300,7 @@ export default function InvitationsPage() {
       </div>
 
       {/* Filters */}
-      <div className="mb-6 flex flex-wrap gap-2">
+      <div className="mb-6 flex flex-wrap gap-2 overflow-x-auto pb-2 -mx-2 px-2">
         {(['all', 'pending', 'accepted', 'expired', 'cancelled'] as const).map((status) => (
           <Button
             key={status}

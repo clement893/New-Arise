@@ -15,6 +15,7 @@
 
 import { useState, useMemo, memo, useCallback, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuthStore } from '@/lib/store';
 import { useAuth } from '@/hooks/useAuth';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
@@ -403,9 +404,13 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
           {/* Mobile Header with Hamburger Menu */}
           <header className="lg:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30 flex-shrink-0">
             <div className="px-4 py-3 flex items-center justify-between">
-              <h1 className="text-lg font-semibold text-white">
+              <Link 
+                href="/dashboard" 
+                className="text-lg font-semibold text-white hover:text-arise-gold transition-colors cursor-pointer"
+                title="Retour au dashboard"
+              >
                 ARISE
-              </h1>
+              </Link>
               <button
                 onClick={handleMobileMenuToggle}
                 className="inline-flex items-center justify-center p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors min-h-[44px] min-w-[44px]"
@@ -420,16 +425,13 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
           {/* Page Content - This is the only part that updates on navigation */}
           <main 
             key={pathname} 
-            className="flex-1 overflow-y-auto px-2 sm:px-3 md:px-4 xl:px-6 2xl:px-8 py-4 sm:py-6 2xl:py-8 relative"
+            className="flex-1 overflow-y-auto px-2 sm:px-3 md:px-4 xl:px-6 2xl:px-8 py-4 sm:py-6 2xl:py-8 relative lg:ml-[7.5%] lg:mr-[5%] lg:w-[calc(100%-7.5%-5%)] w-full"
             style={{
               animation: 'fadeInSlideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
               zIndex: 10,
-              marginLeft: '7.5%',
-              marginRight: '5%',
-              width: 'calc(100% - 7.5% - 5%)',
               scrollbarWidth: 'none', // Firefox
               msOverflowStyle: 'none', // IE and Edge
-              '--admin-content-width': 'calc(100% - 7.5% - 5%)',
+              '--admin-content-width': '100%',
             } as React.CSSProperties & { '--admin-content-width'?: string }}
           >
             {children}

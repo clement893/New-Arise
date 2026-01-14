@@ -283,17 +283,22 @@ export default function Sidebar({
         'border-b border-gray-200 flex-shrink-0',
         collapsed ? 'p-2' : 'p-lg'
       )}>
-        <div className={clsx(
-          'flex items-center justify-center',
-          collapsed && 'justify-center'
-        )}>
+        <Link 
+          href="/dashboard"
+          className={clsx(
+            'flex items-center justify-center',
+            collapsed && 'justify-center',
+            'hover:opacity-80 transition-opacity cursor-pointer'
+          )}
+          title="Retour au dashboard"
+        >
           <h1 className={clsx(
             "text-2xl font-bold text-arise-deep-teal",
             collapsed && "text-xl"
           )}>
             {collapsed ? 'A' : 'ARISE'}
           </h1>
-        </div>
+        </Link>
       </div>
 
       {/* User info */}

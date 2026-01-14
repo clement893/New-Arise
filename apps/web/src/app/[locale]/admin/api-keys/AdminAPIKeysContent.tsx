@@ -188,6 +188,8 @@ export default function AdminAPIKeysContent() {
               setDeleteModalOpen(true);
             }}
             disabled={!key.is_active}
+            className="min-w-[44px] min-h-[44px] p-2"
+            title="Révoquer la clé"
           >
             <Trash2 className="w-4 h-4" />
           </Button>
@@ -218,8 +220,8 @@ export default function AdminAPIKeysContent() {
 
       <Section title="Clés API" className="mt-6">
         <Card>
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1">
+          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <div className="flex-1 w-full">
               <Input
                 placeholder="Rechercher par nom, email, préfixe..."
                 value={searchTerm}
@@ -227,15 +229,15 @@ export default function AdminAPIKeysContent() {
                 leftIcon={<Search className="w-4 h-4" />}
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Input
                 type="number"
                 placeholder="Filtrer par ID utilisateur"
                 value={userIdFilter}
                 onChange={(e) => setUserIdFilter(e.target.value)}
-                className="w-40"
+                className="w-full sm:w-40"
               />
-              <label className="flex items-center gap-2 px-4 py-2 border rounded cursor-pointer hover:bg-muted">
+              <label className="flex items-center gap-2 px-4 py-2 border rounded cursor-pointer hover:bg-muted whitespace-nowrap">
                 <input
                   type="checkbox"
                   checked={includeInactive}
@@ -244,7 +246,7 @@ export default function AdminAPIKeysContent() {
                 />
                 Inclure inactives
               </label>
-              <Button variant="outline" onClick={fetchAPIKeys}>
+              <Button variant="outline" onClick={fetchAPIKeys} className="w-full sm:w-auto">
                 Actualiser
               </Button>
             </div>

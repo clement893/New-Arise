@@ -67,7 +67,7 @@ export default function AboutPage() {
             className="p-0 border border-[#D8B868] rounded-2xl overflow-hidden bg-white"
             style={{ borderColor: '#D8B868' }}
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch md:p-8 p-0">
               {/* Image Left */}
               <div className="relative h-64 md:h-auto rounded-l-2xl overflow-hidden">
                 <Image 
@@ -113,7 +113,7 @@ export default function AboutPage() {
             className="p-0 border border-[#D8B868] rounded-2xl overflow-hidden bg-white"
             style={{ borderColor: '#D8B868' }}
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch md:p-8 p-0">
               {/* Image Left */}
               <div className="relative h-64 md:h-auto rounded-l-2xl overflow-hidden">
                 <Image 

@@ -306,21 +306,21 @@ function PlansPageContent() {
           const features = parseFeatures(editedPlan.features || plan.features);
 
           return (
-            <Card key={plan.id} className="p-6">
+            <Card key={plan.id} className="p-4 sm:p-6">
               <div className="space-y-4">
                 {/* Header */}
-                <div className="flex items-start justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                   <div className="flex-1">
                     {isEditing ? (
                       <Input
                         value={editedPlan.name || ''}
                         onChange={(e) => handleChange(plan.id, 'name', e.target.value)}
                         placeholder="Nom du plan"
-                        className="text-2xl font-bold"
+                        className="text-xl sm:text-2xl font-bold"
                       />
                     ) : (
-                      <div className="flex items-center gap-3">
-                        <h3 className="text-2xl font-bold text-foreground">{plan.name}</h3>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <h3 className="text-xl sm:text-2xl font-bold text-foreground">{plan.name}</h3>
                         {plan.is_popular && (
                           <Badge variant="info">Le plus populaire</Badge>
                         )}
@@ -330,7 +330,7 @@ function PlansPageContent() {
                       </div>
                     )}
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     {isEditing ? (
                       <>
                         <Button
@@ -381,7 +381,7 @@ function PlansPageContent() {
                 </div>
 
                 {/* Price and Details */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
                     <label className="text-sm font-medium text-muted-foreground mb-1 block">
                       Prix
@@ -456,7 +456,7 @@ function PlansPageContent() {
                 </div>
 
                 {/* Stripe Configuration */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-muted-foreground mb-2 block">
                       Stripe Price ID
@@ -589,7 +589,7 @@ function PlansPageContent() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Prix (€) *</label>
               <Input
@@ -615,7 +615,7 @@ function PlansPageContent() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Intervalle</label>
               <select
