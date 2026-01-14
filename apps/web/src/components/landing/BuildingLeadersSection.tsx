@@ -11,7 +11,7 @@ export function BuildingLeadersSection() {
       <div className="container mx-auto px-[11px]">
         <div className="mx-auto">
           <div className="mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-arise-deep-teal mb-4">
+            <h2 className="text-4xl md:text-5xl font-semibold text-arise-deep-teal mb-4">
               {t('title')}
             </h2>
             <p className="text-lg text-gray-700 max-w-3xl">
