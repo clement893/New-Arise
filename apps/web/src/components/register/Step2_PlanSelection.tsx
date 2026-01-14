@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRegistrationStore } from '@/stores/registrationStore';
-import Button from '@/components/ui/Button';
 import { Check, Loader2, ArrowLeft } from 'lucide-react';
 import { subscriptionsAPI } from '@/lib/api';
 import { Alert } from '@/components/ui';
