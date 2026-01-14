@@ -187,15 +187,11 @@ export default function Card({
       {(title || subtitle || header) && (
         <div 
           className={clsx(
-            'border-b border-[var(--color-border)]',
-            !useThemePadding && 'py-md'
+            'border-b border-[var(--color-border)]'
           )}
-          style={useThemePadding ? {
-            paddingLeft: cardPadding,
-            paddingRight: cardPadding,
-            paddingTop: cardPadding,
-            paddingBottom: cardPadding,
-          } : undefined}
+          style={{
+            padding: '10px'
+          }}
         >
           {header || (
             <>

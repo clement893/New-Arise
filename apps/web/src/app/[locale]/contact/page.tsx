@@ -106,7 +106,7 @@ export default function ContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Contact Information */}
           <div className="lg:col-span-1 space-y-6">
-            <Card className="p-6">
+            <Card>
               <h2 className="text-xl font-bold text-gray-900 mb-6">{t('getInTouch.title')}</h2>
               
               <div className="space-y-6">
@@ -166,7 +166,7 @@ export default function ContactPage() {
             </Card>
 
             {/* Quick FAQ */}
-            <Card className="p-6 bg-arise-gold/5">
+            <Card className="bg-arise-gold/5">
               <h2 className="text-xl font-bold text-gray-900 mb-4">{t('quickLinks.title')}</h2>
               <ul className="space-y-2">
                 <li>
@@ -195,7 +195,7 @@ export default function ContactPage() {
 
           {/* Contact Form */}
           <div className="lg:col-span-2">
-            <Card className="p-8">
+            <Card>
               <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -287,9 +287,6 @@ export default function ContactPage() {
                         </>
                       )}
                     </Button>
-                    <p className="text-sm text-gray-500">
-                      * {t('form.requiredFields')}
-                    </p>
                   </div>
                 </form>
             </Card>
