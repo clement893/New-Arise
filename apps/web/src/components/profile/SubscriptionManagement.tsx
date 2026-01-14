@@ -333,7 +333,7 @@ export default function SubscriptionManagement() {
 
       {/* Loading State */}
       {loading ? (
-        <Card className="p-6">
+        <Card>
           <div className="py-12 text-center">
             <Loading />
             <p className="text-gray-600 dark:text-gray-400 mt-4">Loading subscription information...</p>
@@ -342,8 +342,9 @@ export default function SubscriptionManagement() {
       ) : subscription ? (
         <>
           {/* Subscription Card with Manage Button */}
-          <Card className="p-6">
-            <div className="flex items-start justify-between mb-4">
+          <Card>
+            <div className="p-4">
+              <div className="flex flex-col sm:flex-row sm:gap-0 gap-4 items-start justify-between mb-4">
               <div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                   Manage My Subscription

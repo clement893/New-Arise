@@ -636,7 +636,7 @@ function ResultsReportsContent() {
         <div className="relative z-10 space-y-8">
           {/* Overview Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card className="p-6 text-center bg-white">
+            <Card className="text-center bg-white">
               <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center mx-auto mb-3">
                 <FileText className="text-arise-deep-teal" size={24} />
               </div>
@@ -644,7 +644,7 @@ function ResultsReportsContent() {
               <p className="text-gray-700 text-sm">Assessments Completed</p>
             </Card>
 
-            <Card className="p-6 text-center bg-white">
+            <Card className="text-center bg-white">
               <div className="w-12 h-12 bg-arise-gold/10 rounded-lg flex items-center justify-center mx-auto mb-3">
                 <TrendingUp className="text-arise-gold" size={24} />
               </div>
@@ -652,7 +652,7 @@ function ResultsReportsContent() {
               <p className="text-gray-700 text-sm">Average Score</p>
             </Card>
 
-            <Card className="p-6 text-center bg-white">
+            <Card className="text-center bg-white">
               <div className="w-12 h-12 bg-primary-500/10 rounded-lg flex items-center justify-center mx-auto mb-3">
                 <Target className="text-primary-500" size={24} />
               </div>
@@ -660,7 +660,7 @@ function ResultsReportsContent() {
               <p className="text-gray-700 text-sm">Development Goals</p>
             </Card>
 
-            <Card className="p-6 text-center bg-white relative group hover:shadow-lg transition-shadow">
+            <Card className="text-center bg-white relative group hover:shadow-lg transition-shadow">
               <div className="w-12 h-12 bg-success-500/10 rounded-lg flex items-center justify-center mx-auto mb-3">
                 <Users className="text-success-500" size={24} />
               </div>
@@ -767,7 +767,7 @@ function ResultsReportsContent() {
           </Card>
 
           {/* Key Insights */}
-          <Card className="p-6 bg-white">
+          <Card className="bg-white">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
                 <Brain className="text-arise-deep-teal" size={24} />
@@ -805,7 +805,7 @@ function ResultsReportsContent() {
                 </Card>
               ))
               ) : (
-                <div className="col-span-2 text-center py-8 text-gray-500">
+                <div className="col-span-2 text-center sm:py-8 py-2 text-gray-500">
                   <p>Complete assessments to see your key insights</p>
                 </div>
               )}
@@ -813,7 +813,7 @@ function ResultsReportsContent() {
           </Card>
 
           {/* Comprehensive Leadership Profile */}
-          <Card className="p-6 bg-white">
+          <Card className="bg-white">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
                 <Target className="text-arise-deep-teal" size={24} />
@@ -899,6 +899,7 @@ function ResultsReportsContent() {
           {/* Ready to accelerate your growth? */}
           <Card 
             className="text-white border-0 overflow-hidden" 
+            padding={false}
             style={{ 
               backgroundColor: '#2E2E2E',
               borderRadius: '24px',
