@@ -216,7 +216,9 @@ export default function Card({
 
       <div 
         className={clsx(
-          padding && !useThemePadding && cardPadding
+          'h-full',
+          padding && !useThemePadding && cardPadding,
+          padding && useThemePadding && 'p-lg'
         )}
         style={padding && useThemePadding ? {
           padding: cardPadding,

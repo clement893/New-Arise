@@ -2,7 +2,7 @@
 
 import { useRegistrationStore } from '@/stores/registrationStore';
 import Button from '@/components/ui/Button';
-import { Edit2 } from 'lucide-react';
+import { Edit2, ArrowLeft } from 'lucide-react';
 
 export function Step4_ReviewConfirm() {
   const { role, planId, userInfo, setStep } = useRegistrationStore();
@@ -78,6 +78,17 @@ export function Step4_ReviewConfirm() {
         >
           Continue to Payment
         </Button>
+
+        {/* Back button */}
+        <div className="flex justify-center mt-8">
+          <button
+            onClick={() => setStep(3)}
+            className="text-white text-sm flex items-center gap-2 hover:text-white/80 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Retour
+          </button>
+        </div>
       </div>
     </div>
   );

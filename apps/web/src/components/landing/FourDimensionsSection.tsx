@@ -36,6 +36,15 @@ export function FourDimensionsSection() {
   return (
     <section className="py-20 bg-arise-deep-teal relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-tr from-[#0F0F0F] via-[#0F4C56] to-transparent opacity-50" style={{ background: 'linear-gradient(to top right, #0F0F0F 0%, #0F4C56 50%, transparent 100%)' }}></div>
+      {/* Diagonal gradient from bottom-right to middle */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          background: 'linear-gradient(to top left, transparent 0%, transparent 30%, #0F0F0F 50%, #0F4C56 70%, transparent 100%)',
+          backgroundPosition: 'bottom right',
+          opacity: 0.5,
+        }}
+      ></div>
       <div className="container mx-auto px-[11px] relative z-10">
         <div className="max-w-4xl mx-auto text-center mb-16">
           <p className="text-arise-gold text-sm uppercase tracking-widest mb-4">

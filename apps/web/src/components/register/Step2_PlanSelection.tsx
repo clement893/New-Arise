@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRegistrationStore } from '@/stores/registrationStore';
 import Button from '@/components/ui/Button';
-import { Check, Loader2 } from 'lucide-react';
+import { Check, Loader2, ArrowLeft } from 'lucide-react';
 import { subscriptionsAPI } from '@/lib/api';
 import { Alert } from '@/components/ui';
 
@@ -95,6 +95,17 @@ export function Step2_PlanSelection() {
     }
   };
 
+  const handlePlanSelect = (planId: number) => {
+    setSelectedPlan(planId);
+    setPlanId(planId.toString());
+    // Automatically advance to next step
+    setStep(3);
+  };
+
+  const handleBack = () => {
+    setStep(1.5);
+  };
+
   const formatPrice = (plan: Plan) => {
     if (!plan.amount || plan.amount === 0) return 'Free';
     const price = (plan.amount / 100).toFixed(2);
@@ -164,7 +175,7 @@ export function Step2_PlanSelection() {
             return (
               <div
                 key={plan.id}
-                onClick={() => setSelectedPlan(plan.id)}
+                onClick={() => handlePlanSelect(plan.id)}
                 className={`p-6 border-2 rounded-lg cursor-pointer transition-all duration-300 ${
                   selectedPlan === plan.id
                     ? 'border-arise-gold bg-arise-light-beige'
@@ -216,13 +227,16 @@ export function Step2_PlanSelection() {
           })}
         </div>
 
-        <Button
-          onClick={handleContinue}
-          disabled={!selectedPlan || plans.length === 0}
-          className="w-full bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold disabled:opacity-50"
-        >
-          Continue
-        </Button>
+        {/* Back button */}
+        <div className="flex justify-center mt-8">
+          <button
+            onClick={handleBack}
+            className="text-white text-sm flex items-center gap-2 hover:text-white/80 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Retour
+          </button>
+        </div>
       </div>
     </div>
   );
