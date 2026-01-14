@@ -1340,7 +1340,7 @@ function AssessmentsContent() {
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4">
+                      <div className="flex flex-col sm:flex-row gap-4 items-center">
                         {(() => {
                           // CRITICAL: Wrap status badge in try-catch to prevent React error #130
                           try {
