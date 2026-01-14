@@ -1,15 +1,20 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useRegistrationStore } from '@/stores/registrationStore';
-import Button from '@/components/ui/Button';
 import { Edit2, ArrowLeft } from 'lucide-react';
 
 export function Step4_ReviewConfirm() {
   const { role, planId, userInfo, setStep } = useRegistrationStore();
 
-  const handleContinue = () => {
-    setStep(5);
-  };
+  // Automatically advance to payment step after a short delay
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setStep(5);
+    }, 2000); // 2 seconds to review
+
+    return () => clearTimeout(timer);
+  }, [setStep]);
 
   return (
     <div className="w-full max-w-2xl mx-auto p-6">
@@ -71,13 +76,6 @@ export function Step4_ReviewConfirm() {
             </div>
           </div>
         </div>
-
-        <Button
-          onClick={handleContinue}
-          className="w-full mt-8 bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold"
-        >
-          Continue to Payment
-        </Button>
 
         {/* Back button */}
         <div className="flex justify-center mt-8">

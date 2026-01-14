@@ -169,7 +169,7 @@ export default function AboutPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
               {/* Authenticité */}
-              <Card className="p-6 text-left rounded-xl" style={{ backgroundColor: '#10454D' }}>
+              <Card className="p-6 text-left rounded-xl" padding={false} style={{ backgroundColor: '#10454D' }}>
                 <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(216, 184, 104, 0.15)', border: '1px solid #D8B868' }}>
                   <CheckCircle className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
                 </div>
@@ -180,7 +180,7 @@ export default function AboutPage() {
               </Card>
 
               {/* Croissance */}
-              <Card className="p-6 text-left rounded-xl" style={{ backgroundColor: '#10454D' }}>
+              <Card className="p-6 text-left rounded-xl" padding={false} style={{ backgroundColor: '#10454D' }}>
                 <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(216, 184, 104, 0.15)', border: '1px solid #D8B868' }}>
                   <TrendingUp className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
                 </div>
@@ -191,7 +191,7 @@ export default function AboutPage() {
               </Card>
 
               {/* Innovation */}
-              <Card className="p-6 text-left rounded-xl" style={{ backgroundColor: '#10454D' }}>
+              <Card className="p-6 text-left rounded-xl" padding={false} style={{ backgroundColor: '#10454D' }}>
                 <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(216, 184, 104, 0.15)', border: '1px solid #D8B868' }}>
                   <Lightbulb className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
                 </div>
@@ -202,7 +202,7 @@ export default function AboutPage() {
               </Card>
 
               {/* Excellence */}
-              <Card className="p-6 text-left rounded-xl" style={{ backgroundColor: '#10454D' }}>
+              <Card className="p-6 text-left rounded-xl" padding={false} style={{ backgroundColor: '#10454D' }}>
                 <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(216, 184, 104, 0.15)', border: '1px solid #D8B868' }}>
                   <Award className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
                 </div>
@@ -310,7 +310,7 @@ export default function AboutPage() {
 
         {/* CTA Section */}
         <MotionDiv variant="fade" duration="normal">
-          <Card className="p-8 md:p-12 text-center rounded-2xl" style={{ backgroundColor: '#D8B868' }}>
+          <Card className="p-8 md:p-12 text-center rounded-2xl" padding={false} style={{ backgroundColor: '#D8B868' }}>
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
               {t('cta.title')}
             </h2>

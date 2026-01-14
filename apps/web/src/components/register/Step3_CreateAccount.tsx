@@ -207,9 +207,10 @@ export function Step3_CreateAccount() {
               type="button"
               onClick={() => setStep(2)}
               disabled={isLoading}
-              className="text-white text-sm hover:text-white/80 transition-colors disabled:opacity-50"
+              className="text-white text-sm flex items-center gap-2 hover:text-white/80 transition-colors disabled:opacity-50"
             >
-              Back
+              <ArrowLeft className="w-4 h-4" />
+              Retour
             </button>
             <Button
               type="submit"
@@ -217,21 +218,10 @@ export function Step3_CreateAccount() {
               disabled={isLoading}
               className="bg-arise-gold hover:bg-arise-gold/90 text-arise-deep-teal font-semibold"
             >
-              {isLoading ? 'Creating Account...' : 'Continue'}
+              {isLoading ? 'Creating Account...' : 'Create Account'}
             </Button>
           </div>
         </form>
-
-        {/* Back button */}
-        <div className="flex justify-center mt-8">
-          <button
-            onClick={() => setStep(2)}
-            className="text-white text-sm flex items-center gap-2 hover:text-white/80 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Retour
-          </button>
-        </div>
       </div>
     </div>
   );
