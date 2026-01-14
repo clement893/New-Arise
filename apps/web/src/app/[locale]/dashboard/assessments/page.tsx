@@ -1105,6 +1105,8 @@ function AssessmentsContent() {
               right: '-15%',
               zIndex: 0,
               borderRadius: '24px',
+              width: 'calc(100% + 4%)',
+              margin: 'auto',
             }}
           />
           <div className="relative z-10">

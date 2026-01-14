@@ -2,7 +2,6 @@
 
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
-import Button from '@/components/ui/Button';
 
 export function FourDimensionsSection() {
   const t = useTranslations('landing.fourDimensions');
@@ -50,7 +49,7 @@ export function FourDimensionsSection() {
           </h3>
         </div>
 
-        <div className="max-w-3xl mx-auto space-y-6">
+        <div className="max-w-5xl mx-auto space-y-6">
           {dimensions.map((dimension) => (
             <div 
               key={dimension.number}
@@ -77,27 +76,24 @@ export function FourDimensionsSection() {
         </div>
 
         <div className="max-w-3xl mx-auto mt-12 text-center">
-          <p className="text-xl text-white/90">
+          <p className="text-3xl text-white/90">
             {t('integration')} <span className="text-arise-gold font-semibold">{t('integrationHighlight')}</span> {t('integrationText')}{' '}
             <span className="text-arise-gold font-semibold">{t('profileHighlight')}</span>.
           </p>
-          <p className="text-lg text-white/70 mt-4">
+          <p className="text-xl text-white/70 mt-4">
             {t('insights')}
           </p>
           
           <div className="mt-8">
-            <Button 
-              asChild 
-              size="lg"
-              className="bg-white hover:bg-white/90 text-arise-deep-teal font-semibold px-8 py-6 text-lg inline-flex items-center gap-2"
+            <Link 
+              href="/register"
+              className="inline-flex items-center gap-2 bg-white hover:bg-white/90 text-arise-deep-teal font-semibold px-8 py-6 text-lg rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2"
             >
-              <Link href="/register">
-                {t('startNow')}
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </Button>
+              {t('startNow')}
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
           </div>
         </div>
       </div>

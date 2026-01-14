@@ -714,7 +714,6 @@ function DashboardContent() {
               className="text-white border-0 overflow-hidden" 
               style={{ 
                 backgroundColor: '#2E2E2E',
-                width: 'calc(100% + 4%)',
                 borderRadius: '24px',
                 paddingLeft: 'calc(7.5% + 2rem)',
                 paddingRight: 'calc(7.5% + 2rem)',

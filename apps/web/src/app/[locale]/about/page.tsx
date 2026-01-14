@@ -161,7 +161,7 @@ export default function AboutPage() {
                 <h2 className="text-4xl md:text-5xl font-medium text-white mb-4">
                   {t('values.title')}
                 </h2>
-                <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto">
+                <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto" style={{ lineHeight: 'normal' }}>
                   {t('values.subtitle')}
                 </p>
               </div>
@@ -174,7 +174,7 @@ export default function AboutPage() {
                   <CheckCircle className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
                 </div>
                 <h3 className="text-xl md:text-2xl font-medium text-white mb-3">{t('values.authenticity.title')}</h3>
-                <p className="text-base md:text-lg text-white/80 leading-relaxed">
+                <p className="text-base md:text-lg text-white/80" style={{ lineHeight: 'normal' }}>
                   {t('values.authenticity.text')}
                 </p>
               </Card>
@@ -185,7 +185,7 @@ export default function AboutPage() {
                   <TrendingUp className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
                 </div>
                 <h3 className="text-xl md:text-2xl font-medium text-white mb-3">{t('values.growth.title')}</h3>
-                <p className="text-base md:text-lg text-white/80 leading-relaxed">
+                <p className="text-base md:text-lg text-white/80" style={{ lineHeight: 'normal' }}>
                   {t('values.growth.text')}
                 </p>
               </Card>
@@ -196,7 +196,7 @@ export default function AboutPage() {
                   <Lightbulb className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
                 </div>
                 <h3 className="text-xl md:text-2xl font-medium text-white mb-3">{t('values.innovation.title')}</h3>
-                <p className="text-base md:text-lg text-white/80 leading-relaxed">
+                <p className="text-base md:text-lg text-white/80" style={{ lineHeight: 'normal' }}>
                   {t('values.innovation.text')}
                 </p>
               </Card>
@@ -207,7 +207,7 @@ export default function AboutPage() {
                   <Award className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
                 </div>
                 <h3 className="text-xl md:text-2xl font-medium text-white mb-3">{t('values.excellence.title')}</h3>
-                <p className="text-base md:text-lg text-white/80 leading-relaxed">
+                <p className="text-base md:text-lg text-white/80" style={{ lineHeight: 'normal' }}>
                   {t('values.excellence.text')}
                 </p>
               </Card>
