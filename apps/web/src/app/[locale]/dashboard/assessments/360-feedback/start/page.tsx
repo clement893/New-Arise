@@ -290,7 +290,7 @@ export default function Start360FeedbackPage() {
       />
 
       <Container className="py-8">
-        <div className="mx-auto max-w-4xl">
+        <div className="mx-auto max-w-6xl">
           {/* Existing Evaluators Section */}
           {existingEvaluators.length > 0 && (
             <Card className="mb-6 p-6">

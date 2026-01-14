@@ -21,7 +21,7 @@ interface PricingCardSimpleProps {
   onSelect: (planId: string, period: 'month' | 'year') => void;
 }
 
-export default function PricingCardSimple({
+export default function   PricingCardSimple({
   plan,
   billingPeriod,
   onSelect: _onSelect,
@@ -46,9 +46,9 @@ export default function PricingCardSimple({
       className="relative rounded-xl border-0 shadow-none"
       style={{ backgroundColor: '#F3F4F6' }}
     >
-      <div className="p-8">
+      <div className="">
         {/* Price */}
-        <div className="mb-6">
+        <div className="mb-16">
           {isCustomPricing ? (
             <div>
               <span className="text-4xl md:text-5xl font-bold" style={{ color: '#0F4C56' }}>

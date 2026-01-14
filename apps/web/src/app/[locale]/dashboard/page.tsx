@@ -455,6 +455,8 @@ function DashboardContent() {
                 right: '-7.5%',
                 zIndex: 0,
                 borderRadius: '24px',
+                width: 'calc(100% + 4%)',
+                margin: 'auto',
               }}
             />
             
@@ -712,9 +714,7 @@ function DashboardContent() {
               className="text-white border-0 overflow-hidden" 
               style={{ 
                 backgroundColor: '#2E2E2E',
-                marginLeft: '-7.5%',
-                marginRight: '-7.5%',
-                width: 'calc(100% + 15%)',
+                width: 'calc(100% + 4%)',
                 borderRadius: '24px',
                 paddingLeft: 'calc(7.5% + 2rem)',
                 paddingRight: 'calc(7.5% + 2rem)',

@@ -103,49 +103,54 @@ export default function NewsPage() {
               return (
                 <MotionDiv key={article.id} variant="slideUp" delay={index * 100}>
                   <Link href={`/news/${article.id}`} className="block h-full">
-                    <Card className="h-full flex flex-col overflow-hidden bg-white hover:shadow-lg transition-all duration-300 rounded-xl border-0 shadow-sm">
-                      {/* Article Image Placeholder with Gradient */}
-                      <div className={`relative aspect-video bg-gradient-to-r ${article.gradient} overflow-hidden rounded-t-xl`}>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <IconComponent className="text-white" size={64} strokeWidth={2} />
+                    <Card
+                      padding={false}
+                      className="h-full flex flex-col overflow-hidden rounded-[22px] border border-gray-200 bg-white shadow-[0_18px_48px_rgba(15,76,86,0.08)] transition-transform duration-300 hover:-translate-y-1"
+                    >
+                      <div className="flex h-full flex-col">
+                        {/* Article Image Placeholder with Gradient */}
+                        <div className={`relative h-56 bg-gradient-to-br ${article.gradient}`}>
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <IconComponent className="text-white" size={70} strokeWidth={2.2} />
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Article Content */}
-                      <div className="flex-1 flex flex-col p-6">
-                        {/* Category Badge */}
-                        <div className="mb-3">
-                          <span className="inline-block px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide" style={{ backgroundColor: '#9CA3AF', color: '#FFFFFF' }}>
+                        {/* Article Content */}
+                        <div className="flex flex-1 flex-col gap-4 px-7 py-6">
+                          {/* Category Badge */}
+                          <span className="w-fit rounded-full bg-gray-200 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-700">
                             {article.category}
                           </span>
-                        </div>
 
-                        {/* Title */}
-                        <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 line-clamp-2">
-                          {article.title}
-                        </h2>
+                          {/* Title */}
+                          <h2 className="text-2xl font-extrabold leading-tight text-gray-900">
+                            {article.title}
+                          </h2>
 
-                        {/* Excerpt */}
-                        <p className="text-base text-gray-900 mb-4 line-clamp-3 flex-1 leading-relaxed">
-                          {article.excerpt}
-                        </p>
+                          {/* Excerpt */}
+                          <p className="flex-1 text-base leading-relaxed text-gray-700">
+                            {article.excerpt}
+                          </p>
 
-                        {/* Meta Information */}
-                        <div className="flex items-center gap-4 text-sm text-gray-900 mb-4">
-                          <div className="flex items-center gap-1.5">
-                            <User className="w-4 h-4" />
-                            <span className="font-medium">{article.author}</span>
+                          <div className="h-px bg-gray-200" />
+
+                          {/* Meta Information */}
+                          <div className="flex items-center gap-6 text-sm text-gray-600">
+                            <div className="flex items-center gap-1.5">
+                              <User className="h-4 w-4" />
+                              <span className="font-medium">{article.author}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <Calendar className="h-4 w-4" />
+                              <span>{article.date}</span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <Calendar className="w-4 h-4" />
-                            <span>{article.date}</span>
-                          </div>
-                        </div>
 
-                        {/* Read More Link */}
-                        <div className="inline-flex items-center gap-2 text-gray-900 font-semibold mt-auto">
-                          {t('readMore')}
-                          <ArrowRight className="w-4 h-4" />
+                          {/* Read More Link */}
+                          <div className="inline-flex items-center gap-2 pt-1 text-gray-900 font-semibold">
+                            {t('readMore')}
+                            <ArrowRight className="h-4 w-4" />
+                          </div>
                         </div>
                       </div>
                     </Card>
