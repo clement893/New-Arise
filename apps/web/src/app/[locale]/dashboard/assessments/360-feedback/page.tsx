@@ -125,7 +125,7 @@ export default function Feedback360Page() {
   if (screen === 'intro') {
     return (
       <div className="min-h-screen bg-arise-teal p-8">
-        <div className="mx-auto max-w-4xl">
+        <div className="mx-auto">
           <MotionDiv
             variant="slideUp"
             duration="normal"
