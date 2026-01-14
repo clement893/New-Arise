@@ -89,7 +89,7 @@ export default function AboutPage() {
               <div className="p-6 md:p-8 lg:p-12">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(216, 184, 104, 0.2)' }}>
-                    <Eye className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
+                    <Target className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
                   </div>
                   <h2 className="text-3xl md:text-4xl">
                     <span className="font-light" style={{ color: '#D8B868' }}>Notre </span>
