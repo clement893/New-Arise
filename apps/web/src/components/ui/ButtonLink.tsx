@@ -60,16 +60,14 @@ const variants: Record<string, string> = {
   ),
   outline: [
     'border-2',
-    'border-primary-600',
-    'dark:border-primary-500',
-    'text-primary-600',
-    'dark:text-primary-400',
-    'hover:bg-primary-50',
-    'dark:hover:bg-primary-900/20',
-    'focus:ring-primary-500',
-    'dark:focus:ring-primary-400',
-    '[border-color:var(--color-primary-500)]',
-    '[color:var(--color-primary-500)]',
+    'bg-transparent',
+    'focus:ring-2',
+    'focus:ring-offset-2',
+    '[border-color:#0F4C56]',
+    '[color:#0F4C56]',
+    'hover:[background-color:rgba(15,76,86,0.1)]',
+    'focus:[ring-color:#0F4C56]',
+    'transition-colors',
   ].join(' '),
   ghost: [
     'text-gray-700',
@@ -146,6 +144,20 @@ export default function ButtonLink({
     className
   );
 
+  // Apply standard colors for primary and outline variants using inline styles
+  // This ensures the color is applied even if CSS variables are not set
+  const standardStyles: React.CSSProperties = {};
+  if (variant === 'primary') {
+    standardStyles.backgroundColor = '#0F4C56';
+    standardStyles.color = '#FFFFFF';
+    // Add hover effect via CSS class
+    buttonClasses += ' hover:opacity-90';
+  } else if (variant === 'outline') {
+    standardStyles.borderColor = '#0F4C56';
+    standardStyles.color = '#0F4C56';
+    standardStyles.backgroundColor = 'transparent';
+  }
+
   const content = loading ? (
     <span className="flex items-center gap-2">
       <svg
@@ -182,17 +194,33 @@ export default function ButtonLink({
         target={target}
         rel={linkRel}
         className={buttonClasses}
+        style={standardStyles}
+        onMouseEnter={(e) => {
+          if (variant === 'primary') {
+            e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.9)';
+          } else if (variant === 'outline') {
+            e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.1)';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (variant === 'primary') {
+            e.currentTarget.style.backgroundColor = '#0F4C56';
+          } else if (variant === 'outline') {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }
+        }}
       >
         {content}
       </a>
     );
   }
 
-  // Use next-intl Link for internal links
+  // Use next-intl Link for internal links - wrap in span for style support
   return (
     <Link
       href={href}
       className={buttonClasses}
+      style={standardStyles}
     >
       {content}
     </Link>

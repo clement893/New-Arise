@@ -81,16 +81,14 @@ const variants = {
   ),
   outline: [
     'border-2',
-    'border-primary-600',
-    'dark:border-primary-500',
-    'text-primary-600',
-    'dark:text-primary-400',
-    'hover:bg-primary-50',
-    'dark:hover:bg-primary-900/20',
-    'focus:ring-primary-500',
-    'dark:focus:ring-primary-400',
-    '[border-color:var(--color-primary-500)]',
-    '[color:var(--color-primary-500)]',
+    'bg-transparent',
+    'focus:ring-2',
+    'focus:ring-offset-2',
+    '[border-color:#0F4C56]',
+    '[color:#0F4C56]',
+    'hover:[background-color:rgba(15,76,86,0.1)]',
+    'focus:[ring-color:#0F4C56]',
+    'transition-colors',
   ].join(' '),
   ghost: [
     'text-foreground',
@@ -184,12 +182,24 @@ function Button({
   const variantStyles = variantConfig
     ? applyVariantConfigAsStyles(variantConfig)
     : {};
-  
+
+  // Apply standard colors for primary and outline variants
+  const standardVariantStyles: React.CSSProperties = {};
+  if (variant === 'primary' && !variantConfig) {
+    standardVariantStyles.backgroundColor = '#0F4C56';
+    standardVariantStyles.color = '#FFFFFF';
+  } else if (variant === 'outline' && !variantConfig) {
+    standardVariantStyles.borderColor = '#0F4C56';
+    standardVariantStyles.color = '#0F4C56';
+    standardVariantStyles.backgroundColor = 'transparent';
+  }
+
   const buttonClasses = clsx(
     baseStyles,
     variantClasses,
     sizeClasses,
     fullWidth && 'w-full',
+    variant === 'primary' && !variantConfig && 'hover:opacity-90',
     className
   );
 
@@ -201,10 +211,26 @@ function Button({
   return (
     <button
       className={buttonClasses}
-      style={{ ...sizeStyle, ...variantStyles, ...props.style }}
+      style={{ ...sizeStyle, ...variantStyles, ...standardVariantStyles, ...props.style }}
       disabled={disabled || loading}
       aria-busy={loading}
       aria-disabled={disabled || loading}
+      onMouseEnter={(e) => {
+        if (variant === 'primary' && !variantConfig) {
+          e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.9)';
+        } else if (variant === 'outline' && !variantConfig) {
+          e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.1)';
+        }
+        props.onMouseEnter?.(e);
+      }}
+      onMouseLeave={(e) => {
+        if (variant === 'primary' && !variantConfig) {
+          e.currentTarget.style.backgroundColor = '#0F4C56';
+        } else if (variant === 'outline' && !variantConfig) {
+          e.currentTarget.style.backgroundColor = 'transparent';
+        }
+        props.onMouseLeave?.(e);
+      }}
       {...props}
     >
       {loading ? (
