@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { PageHeader, PageContainer, Section } from '@/components/layout';
 import { Card, Button, Badge, LoadingSkeleton, ServiceTestCard } from '@/components/ui';
 import Link from 'next/link';
@@ -8,6 +9,7 @@ import { Sparkles } from 'lucide-react';
 import MotionDiv from '@/components/motion/MotionDiv';
 
 export default function AdminContent() {
+  const t = useTranslations('admin.main');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -22,11 +24,11 @@ export default function AdminContent() {
     return (
       <PageContainer>
         <PageHeader 
-          title="Administration" 
-          description="Panneau d'administration du système"
+          title={t('title')} 
+          description={t('description')}
           breadcrumbs={[
-            { label: 'Accueil', href: '/' },
-            { label: 'Administration' }
+            { label: t('breadcrumbs.home'), href: '/' },
+            { label: t('breadcrumbs.admin') }
           ]} 
         />
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -39,110 +41,110 @@ export default function AdminContent() {
   return (
     <PageContainer>
       <PageHeader 
-        title="Administration" 
-        description="Panneau d'administration du système"
+        title={t('title')} 
+        description={t('description')}
         breadcrumbs={[
-          { label: 'Accueil', href: '/' },
-          { label: 'Administration' }
+          { label: t('breadcrumbs.home'), href: '/' },
+          { label: t('breadcrumbs.admin') }
         ]} 
       />
 
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        <Card title="Invitations" className="flex flex-col">
+        <Card title={t('cards.invitations.title')} className="flex flex-col">
           <p className="text-sm sm:text-base text-muted-foreground mb-4">
-            Gérer les invitations utilisateurs et les accès au système.
+            {t('cards.invitations.description')}
           </p>
           <Link href="/admin/invitations">
             <Button variant="primary" className="w-full text-sm sm:text-base">
-              Gérer les invitations
+              {t('cards.invitations.button')}
             </Button>
           </Link>
         </Card>
 
-        <Card title="Utilisateurs" className="flex flex-col">
+        <Card title={t('cards.users.title')} className="flex flex-col">
           <p className="text-sm sm:text-base text-muted-foreground mb-4">
-            Consulter et gérer les utilisateurs du système.
+            {t('cards.users.description')}
           </p>
           <Link href="/admin/users">
             <Button variant="primary" className="w-full text-sm sm:text-base">
-              Gérer les utilisateurs
+              {t('cards.users.button')}
             </Button>
           </Link>
         </Card>
 
-        <Card title="Organisations" className="flex flex-col">
+        <Card title={t('cards.organizations.title')} className="flex flex-col">
           <p className="text-sm sm:text-base text-muted-foreground mb-4">
-            Gérer les organisations et leurs paramètres.
+            {t('cards.organizations.description')}
           </p>
           <Link href="/admin/organizations">
             <Button variant="primary" className="w-full text-sm sm:text-base">
-              Gérer les organisations
+              {t('cards.organizations.button')}
             </Button>
           </Link>
         </Card>
 
-        <Card title="Thèmes" className="flex flex-col">
+        <Card title={t('cards.themes.title')} className="flex flex-col">
           <p className="text-sm sm:text-base text-muted-foreground mb-4">
-            Créez, modifiez et activez les thèmes de la plateforme.
+            {t('cards.themes.description')}
           </p>
           <Link href="/admin/themes">
             <Button variant="primary" className="w-full text-sm sm:text-base">
-              Gérer les thèmes
+              {t('cards.themes.button')}
             </Button>
           </Link>
         </Card>
 
-        <Card title="Plans d'abonnement" className="flex flex-col">
+        <Card title={t('cards.plans.title')} className="flex flex-col">
           <p className="text-sm sm:text-base text-muted-foreground mb-4">
-            Gérez les plans d'abonnement, modifiez les prix et descriptions.
+            {t('cards.plans.description')}
           </p>
           <Link href="/admin/plans">
             <Button variant="primary" className="w-full text-sm sm:text-base">
-              Gérer les plans
+              {t('cards.plans.button')}
             </Button>
           </Link>
         </Card>
 
-        <Card title="Paramètres" className="flex flex-col">
+        <Card title={t('cards.settings.title')} className="flex flex-col">
           <p className="text-sm sm:text-base text-muted-foreground mb-4">
-            Configuration générale du système.
+            {t('cards.settings.description')}
           </p>
           <Link href="/admin/settings">
             <Button variant="primary" className="w-full text-sm sm:text-base">
-              Configurer
+              {t('cards.settings.button')}
             </Button>
           </Link>
         </Card>
 
-        <Card title="Logs" className="flex flex-col">
+        <Card title={t('cards.logs.title')} className="flex flex-col">
           <p className="text-sm sm:text-base text-muted-foreground mb-4">
-            Consulter les logs système et les activités.
+            {t('cards.logs.description')}
           </p>
           <Link href="/admin-logs/testing">
             <Button variant="primary" className="w-full text-sm sm:text-base">
-              Voir les logs
+              {t('cards.logs.button')}
             </Button>
           </Link>
         </Card>
 
-        <Card title="Statistiques" className="flex flex-col">
+        <Card title={t('cards.statistics.title')} className="flex flex-col">
           <p className="text-sm sm:text-base text-muted-foreground mb-4">
-            Visualiser les statistiques et métriques du système.
+            {t('cards.statistics.description')}
           </p>
           <Link href="/admin/statistics">
             <Button variant="primary" className="w-full text-sm sm:text-base">
-              Voir les statistiques
+              {t('cards.statistics.button')}
             </Button>
           </Link>
         </Card>
 
-        <Card title="Clés API" className="flex flex-col">
+        <Card title={t('cards.apiKeys.title')} className="flex flex-col">
           <p className="text-sm sm:text-base text-muted-foreground mb-4">
-            Consulter et gérer toutes les clés API du système.
+            {t('cards.apiKeys.description')}
           </p>
           <Link href="/admin/api-keys">
             <Button variant="primary" className="w-full text-sm sm:text-base">
-              Gérer les clés API
+              {t('cards.apiKeys.button')}
             </Button>
           </Link>
         </Card>
@@ -176,30 +178,30 @@ export default function AdminContent() {
         </Card>
       </MotionDiv>
 
-      <Section title="Statut du système" className="mt-8">
+      <Section title={t('systemStatus.title')} className="mt-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="p-4 sm:p-6 border rounded-lg bg-secondary-100 dark:bg-secondary-900 border-secondary-200 dark:border-secondary-800">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <span className="text-xs sm:text-sm font-medium text-secondary-900 dark:text-secondary-100">
-                API Backend
+                {t('systemStatus.apiBackend')}
               </span>
-              <Badge variant="success" className="text-xs sm:text-sm">En ligne</Badge>
+              <Badge variant="success" className="text-xs sm:text-sm">{t('systemStatus.online')}</Badge>
             </div>
           </div>
           <div className="p-4 sm:p-6 border rounded-lg bg-secondary-100 dark:bg-secondary-900 border-secondary-200 dark:border-secondary-800">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <span className="text-xs sm:text-sm font-medium text-secondary-900 dark:text-secondary-100">
-                Base de données
+                {t('systemStatus.database')}
               </span>
-              <Badge variant="success" className="text-xs sm:text-sm">Connectée</Badge>
+              <Badge variant="success" className="text-xs sm:text-sm">{t('systemStatus.connected')}</Badge>
             </div>
           </div>
           <div className="p-4 sm:p-6 border rounded-lg bg-secondary-100 dark:bg-secondary-900 border-secondary-200 dark:border-secondary-800">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <span className="text-xs sm:text-sm font-medium text-secondary-900 dark:text-secondary-100">
-                Services
+                {t('systemStatus.services')}
               </span>
-              <Badge variant="success" className="text-xs sm:text-sm">Opérationnels</Badge>
+              <Badge variant="success" className="text-xs sm:text-sm">{t('systemStatus.operational')}</Badge>
             </div>
           </div>
         </div>

@@ -763,6 +763,347 @@
         "createTitle": "Create a new plan",
         "cancel": "Cancel"
       }
+    },
+    "apiKeys": {
+      "title": "API Keys Management",
+      "description": "View and manage all API keys in the system",
+      "breadcrumbs": {
+        "home": "Home",
+        "admin": "Administration",
+        "apiKeys": "API Keys"
+      },
+      "sectionTitle": "API Keys",
+      "searchPlaceholder": "Search by name, email, prefix...",
+      "userIdFilterPlaceholder": "Filter by user ID",
+      "includeInactive": "Include inactive",
+      "refreshButton": "Refresh",
+      "columns": {
+        "id": "ID",
+        "name": "Name",
+        "user": "User",
+        "prefix": "Prefix",
+        "status": "Status",
+        "rotation": "Rotation",
+        "usage": "Usage",
+        "created": "Created",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "expired": "Expired",
+        "expires": "Expires {date}"
+      },
+      "usage": {
+        "count": "{count} use{plural}",
+        "lastUsed": "Last: {date}"
+      },
+      "rotation": {
+        "count": "{count} rotation{plural}"
+      },
+      "actions": {
+        "revoke": "Revoke key"
+      },
+      "empty": {
+        "noKeys": "No API keys found",
+        "noMatch": "No API keys match your search"
+      },
+      "deleteModal": {
+        "title": "Revoke API Key",
+        "message": "Are you sure you want to revoke the API key {name} from {email}?",
+        "warning": "This action is irreversible. The API key will be immediately disabled.",
+        "cancel": "Cancel",
+        "revoke": "Revoke"
+      },
+      "errors": {
+        "loadFailed": "Error loading API keys",
+        "revokeFailed": "Error revoking API key"
+      }
+    },
+    "media": {
+      "title": "Media Management",
+      "description": "Manage site media files",
+      "breadcrumbs": {
+        "home": "Home",
+        "admin": "Administration",
+        "media": "Media"
+      },
+      "searchPlaceholder": "Search for a file...",
+      "uploadButton": "Upload a file",
+      "uploading": "Uploading...",
+      "refreshButton": "Refresh",
+      "columns": {
+        "file": "File",
+        "path": "Path",
+        "size": "Size",
+        "type": "Type",
+        "visibility": "Visibility",
+        "created": "Created",
+        "actions": "Actions"
+      },
+      "visibility": {
+        "public": "Public",
+        "private": "Private"
+      },
+      "actions": {
+        "delete": "Delete file"
+      },
+      "emptyMessage": "No media file found",
+      "deleteModal": {
+        "title": "Delete file",
+        "message": "Are you sure you want to delete the file {filename}?",
+        "warning": "This action is irreversible.",
+        "cancel": "Cancel",
+        "delete": "Delete"
+      },
+      "errors": {
+        "loadFailed": "Error loading media files",
+        "deleteFailed": "Error deleting file",
+        "uploadFailed": "Error uploading file"
+      }
+    },
+    "main": {
+      "title": "Administration",
+      "description": "System administration panel",
+      "breadcrumbs": {
+        "home": "Home",
+        "admin": "Administration"
+      },
+      "cards": {
+        "invitations": {
+          "title": "Invitations",
+          "description": "Manage user invitations and system access.",
+          "button": "Manage invitations"
+        },
+        "users": {
+          "title": "Users",
+          "description": "View and manage system users.",
+          "button": "Manage users"
+        },
+        "organizations": {
+          "title": "Organizations",
+          "description": "Manage organizations and their settings.",
+          "button": "Manage organizations"
+        },
+        "themes": {
+          "title": "Themes",
+          "description": "Create, edit and activate platform themes.",
+          "button": "Manage themes"
+        },
+        "plans": {
+          "title": "Subscription Plans",
+          "description": "Manage subscription plans, modify prices and descriptions.",
+          "button": "Manage plans"
+        },
+        "settings": {
+          "title": "Settings",
+          "description": "General system configuration.",
+          "button": "Configure"
+        },
+        "logs": {
+          "title": "Logs",
+          "description": "View system logs and activities.",
+          "button": "View logs"
+        },
+        "statistics": {
+          "title": "Statistics",
+          "description": "View system statistics and metrics.",
+          "button": "View statistics"
+        },
+        "apiKeys": {
+          "title": "API Keys",
+          "description": "View and manage all API keys in the system.",
+          "button": "Manage API keys"
+        }
+      },
+      "users": {
+        "title": "User Management",
+        "description": "Manage all platform users",
+        "searchPlaceholder": "Search by email or name...",
+        "columns": {
+          "email": "Email",
+          "name": "Name",
+          "status": "Status",
+          "roles": "Roles",
+          "actions": "Actions"
+        },
+        "status": {
+          "active": "Active",
+          "inactive": "Inactive"
+        },
+        "actions": {
+          "roles": "Roles",
+          "permissions": "Permissions",
+          "delete": "Delete"
+        },
+        "roles": {
+          "loading": "Loading...",
+          "noRoles": "No roles"
+        },
+        "rolesModal": {
+          "title": "Manage roles - {email}"
+        },
+        "permissionsModal": {
+          "title": "Manage permissions - {email}"
+        },
+        "deleteModal": {
+          "title": "Confirm deletion",
+          "message": "Are you sure you want to delete the user {email}?",
+          "cancel": "Cancel",
+          "delete": "Delete"
+        },
+        "errors": {
+          "loadFailed": "Error loading users",
+          "deleteFailed": "Error deleting user"
+        }
+      },
+      "systemStatus": {
+        "title": "System Status",
+        "apiBackend": "API Backend",
+        "database": "Database",
+        "services": "Services",
+        "online": "Online",
+        "connected": "Connected",
+        "operational": "Operational"
+      }
+    },
+    "invitations": {
+      "title": "Invitation Management",
+      "description": "Manage user invitations and system access",
+      "breadcrumbs": {
+        "home": "Home",
+        "admin": "Administration",
+        "invitations": "Invitations"
+      },
+      "status": {
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "expired": "Expired",
+        "cancelled": "Cancelled"
+      },
+      "columns": {
+        "email": "Email",
+        "role": "Role",
+        "organization": "Organization",
+        "status": "Status",
+        "invitedAt": "Invited on",
+        "expiresAt": "Expires on",
+        "actions": "Actions"
+      },
+      "actions": {
+        "resend": "Resend",
+        "cancel": "Cancel"
+      },
+      "empty": {
+        "noInvitations": "No invitations",
+        "noMatch": "No {status} invitations"
+      },
+      "searchPlaceholder": "Search by email...",
+      "emptyMessage": "No invitation found",
+      "deleteModal": {
+        "title": "Cancel Invitation",
+        "message": "Are you sure you want to cancel the invitation for {email}?",
+        "warning": "This action is irreversible.",
+        "cancel": "Cancel",
+        "confirm": "Cancel Invitation"
+      },
+      "createButton": "Invite a user",
+      "createModal": {
+        "title": "Invite a user",
+        "emailLabel": "Email *",
+        "emailPlaceholder": "user@example.com",
+        "roleLabel": "Role *",
+        "roles": {
+          "user": "User",
+          "manager": "Manager",
+          "admin": "Administrator"
+        },
+        "cancel": "Cancel",
+        "send": "Send invitation"
+      },
+      "total": "Total",
+      "all": "All"
+    },
+    "teams": {
+      "title": "Team Management",
+      "description": "Manage teams and team members",
+      "actions": {
+        "createTeam": "Create a team",
+        "members": "Members",
+        "edit": "Edit"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "info": {
+        "slug": "Slug",
+        "members": "Members",
+        "owner": "Owner"
+      },
+      "empty": {
+        "noTeams": "No teams yet",
+        "createFirstTeam": "Create your first team"
+      },
+      "success": {
+        "teamCreated": "Team created successfully",
+        "teamUpdated": "Team updated successfully",
+        "teamDeleted": "Team deleted successfully",
+        "memberAdded": "Member added successfully",
+        "memberRoleUpdated": "Member role updated successfully",
+        "memberRemoved": "Member removed successfully"
+      },
+      "errors": {
+        "validationError": "Team data validation error. Please contact support.",
+        "loadFailed": "Error loading teams",
+        "loadMembersFailed": "Error loading members",
+        "saveFailed": "Error saving team",
+        "deleteFailed": "Error deleting team",
+        "selectUserAndRole": "Please select a user and a role",
+        "addMemberFailed": "Error adding member",
+        "updateRoleFailed": "Error updating role",
+        "removeMemberFailed": "Error removing member"
+      },
+      "modals": {
+        "cancel": "Cancel",
+        "team": {
+          "createTitle": "Create a team",
+          "editTitle": "Edit team",
+          "nameLabel": "Team name",
+          "namePlaceholder": "Ex: Marketing Team",
+          "slugLabel": "Slug",
+          "slugPlaceholder": "Ex: marketing-team (auto-generated if empty)",
+          "slugHelper": "Unique identifier for the team (auto-generated from name if empty)",
+          "descriptionLabel": "Description",
+          "descriptionPlaceholder": "Team description...",
+          "create": "Create",
+          "save": "Save"
+        },
+        "members": {
+          "title": "Team members: {teamName}",
+          "addButton": "Add a member",
+          "empty": "No members in this team",
+          "addFirst": "Add the first member"
+        },
+        "addMember": {
+          "title": "Add a member",
+          "userLabel": "User",
+          "userPlaceholder": "Select a user",
+          "roleLabel": "Role",
+          "rolePlaceholder": "Select a role",
+          "add": "Add"
+        },
+        "deleteTeam": {
+          "title": "Delete team",
+          "message": "Are you sure you want to delete this team? This action is irreversible.",
+          "delete": "Delete"
+        },
+        "removeMember": {
+          "title": "Remove member",
+          "message": "Are you sure you want to remove this member from the team?",
+          "remove": "Remove"
+        }
+      }
     }
   },
   "Dashboard": {

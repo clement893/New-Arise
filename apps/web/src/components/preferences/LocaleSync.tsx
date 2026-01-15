@@ -93,6 +93,14 @@ export function LocaleSync({ children }: LocaleSyncProps) {
         return;
       }
       
+      // Skip locale sync on root path (/) - always serve English at root
+      // This ensures https://domain.com/ always shows English, not user preference
+      // Users can still access /fr, /ar, /he explicitly via language switcher
+      if (actualPathname === '/' || actualPathname.match(/^\/(en|fr|ar|he)$/)) {
+        // Don't sync locale preference on root/homepage - let it stay as default (English)
+        return;
+      }
+      
       // Skip if we've already checked this exact combination in this render cycle
       const checkKey = `${currentLocale}_${actualPathname}`;
       if (hasCheckedRef.current === checkKey && !userChanged && !tokenChanged && !pathnameChanged) {

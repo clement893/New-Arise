@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { getErrorMessage } from '@/lib/errors';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -28,6 +29,7 @@ interface User extends Record<string, unknown> {
 }
 
 export default function AdminUsersContent() {
+  const t = useTranslations('admin.users');
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -67,7 +69,7 @@ export default function AdminUsersContent() {
       
       setUsers(usersData);
     } catch (err) {
-      setError(getErrorMessage(err, 'Erreur lors du chargement des utilisateurs'));
+      setError(getErrorMessage(err, t('errors.loadFailed')));
     } finally {
       setLoading(false);
     }
@@ -87,7 +89,7 @@ export default function AdminUsersContent() {
       // Clear any previous errors
       setError(null);
     } catch (err) {
-      const errorMessage = getErrorMessage(err, 'Erreur lors de la suppression de l\'utilisateur');
+      const errorMessage = getErrorMessage(err, t('errors.deleteFailed'));
       setError(errorMessage);
     }
   };
@@ -100,26 +102,26 @@ export default function AdminUsersContent() {
   const columns: Column<User>[] = [
     {
       key: 'email',
-      label: 'Email',
+      label: t('columns.email'),
       sortable: true,
     },
     {
       key: 'name',
-      label: 'Nom',
+      label: t('columns.name'),
       sortable: true,
     },
     {
       key: 'is_active',
-      label: 'Statut',
+      label: t('columns.status'),
       render: (value) => (
         <Badge variant={value ? 'success' : 'default'}>
-          {value ? 'Actif' : 'Inactif'}
+          {value ? t('status.active') : t('status.inactive')}
         </Badge>
       ),
     },
     {
       key: 'roles',
-      label: 'Rôles',
+      label: t('columns.roles'),
       render: (_value, row) => {
         // This will be populated by UserRolesDisplay component
         return <UserRolesDisplay userId={parseInt(row.id)} />;
@@ -127,7 +129,7 @@ export default function AdminUsersContent() {
     },
     {
       key: 'actions',
-      label: 'Actions',
+      label: t('columns.actions'),
       render: (_value, row) => (
         <div className="flex flex-wrap gap-2">
           <Button
@@ -139,7 +141,7 @@ export default function AdminUsersContent() {
             }}
             className="text-xs sm:text-sm"
           >
-            Rôles
+            {t('actions.roles')}
           </Button>
           <Button
             size="sm"
@@ -150,7 +152,7 @@ export default function AdminUsersContent() {
             }}
             className="text-xs sm:text-sm"
           >
-            Permissions
+            {t('actions.permissions')}
           </Button>
           <Button
             size="sm"
@@ -161,7 +163,7 @@ export default function AdminUsersContent() {
             }}
             className="text-xs sm:text-sm"
           >
-            Supprimer
+            {t('actions.delete')}
           </Button>
         </div>
       ),
@@ -180,10 +182,10 @@ export default function AdminUsersContent() {
     <Container className="py-4 sm:py-6 md:py-8">
       <div className="mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">
-          Gestion des Utilisateurs
+          {t('title')}
         </h1>
         <p className="text-sm sm:text-base text-muted-foreground">
-          Gérez tous les utilisateurs de la plateforme
+          {t('description')}
         </p>
       </div>
 
@@ -196,7 +198,7 @@ export default function AdminUsersContent() {
       <Card className="mb-6">
         <div className="flex flex-col sm:flex-row gap-4 mb-4 p-4 sm:p-6">
           <Input
-            placeholder="Rechercher par email ou nom..."
+            placeholder={t('searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="flex-1 w-full text-sm sm:text-base"
@@ -226,7 +228,7 @@ export default function AdminUsersContent() {
           setRolesModalOpen(false);
           setSelectedUser(null);
         }}
-        title={`Gérer les rôles - ${selectedUser?.email}`}
+        title={t('rolesModal.title', { email: selectedUser?.email ?? '' })}
         size="lg"
       >
         {selectedUser && (
@@ -246,7 +248,7 @@ export default function AdminUsersContent() {
           setPermissionsModalOpen(false);
           setSelectedUser(null);
         }}
-        title={`Gérer les permissions - ${selectedUser?.email}`}
+        title={t('permissionsModal.title', { email: selectedUser?.email ?? '' })}
         size="lg"
       >
         {selectedUser && (
@@ -266,11 +268,10 @@ export default function AdminUsersContent() {
           setDeleteModalOpen(false);
           setSelectedUser(null);
         }}
-        title="Confirmer la suppression"
+        title={t('deleteModal.title')}
       >
         <p className="mb-4">
-          Êtes-vous sûr de vouloir supprimer l'utilisateur{' '}
-          <strong>{selectedUser?.email}</strong> ?
+          {t('deleteModal.message', { email: selectedUser?.email ?? '' })}
         </p>
         <div className="flex flex-col sm:flex-row gap-2 justify-end">
           <Button
@@ -281,10 +282,10 @@ export default function AdminUsersContent() {
             }}
             className="w-full sm:w-auto text-sm sm:text-base"
           >
-            Annuler
+            {t('deleteModal.cancel')}
           </Button>
           <Button variant="danger" onClick={handleDelete} className="w-full sm:w-auto text-sm sm:text-base">
-            Supprimer
+            {t('deleteModal.delete')}
           </Button>
         </div>
       </Modal>
@@ -294,14 +295,15 @@ export default function AdminUsersContent() {
 
 // Component to display user roles in table
 function UserRolesDisplay({ userId }: { userId: number }) {
+  const t = useTranslations('admin.users');
   const { roles, loading } = useUserRoles(userId);
 
   if (loading) {
-    return <span className="text-muted-foreground">Chargement...</span>;
+    return <span className="text-muted-foreground">{t('roles.loading')}</span>;
   }
 
   if (roles.length === 0) {
-    return <span className="text-muted-foreground">Aucun rôle</span>;
+    return <span className="text-muted-foreground">{t('roles.noRoles')}</span>;
   }
 
   return (
