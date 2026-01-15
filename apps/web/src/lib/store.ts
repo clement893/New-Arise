@@ -129,10 +129,11 @@ export const useAuthStore = create<AuthState>()(
         return hasTokens && !!state.user;
       },
 
-      login: async (user: User, token: string, refreshToken?: string) => {
+      login: async (user: User, _token: string, _refreshToken?: string) => {
         // SECURITY: Tokens are stored in httpOnly cookies by the backend during login
         // TokenStorage.setToken() is a no-op - backend handles cookie setting
         // Only persist user data (not tokens) for UX
+        // Parameters _token and _refreshToken are kept for API compatibility but not used
         set({ user, token: null, refreshToken: null, error: null });
       },
 
