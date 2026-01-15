@@ -3,7 +3,6 @@ import type { NextRequest } from 'next/server';
 import createMiddleware from 'next-intl/middleware';
 import { verifyToken, extractTokenFromHeader } from '@/lib/auth/jwt';
 import { routing } from './i18n/routing';
-import { randomBytes } from 'crypto';
 
 // Create next-intl middleware
 const intlMiddleware = createMiddleware(routing);
@@ -11,10 +10,28 @@ const intlMiddleware = createMiddleware(routing);
 /**
  * Generate a secure CSP nonce for this request
  * SECURITY: Nonces allow inline scripts/styles while maintaining strict CSP
+ * 
+ * Uses Web Crypto API (available in Edge Runtime) instead of Node.js crypto module
  */
 function generateCSPNonce(): string {
-  // Generate 16 random bytes and encode as base64url (URL-safe)
-  return randomBytes(16).toString('base64url');
+  // Generate 16 random bytes using Web Crypto API (Edge Runtime compatible)
+  const array = new Uint8Array(16);
+  crypto.getRandomValues(array);
+  
+  // Convert bytes to string for btoa (Edge Runtime supports btoa)
+  let binary = '';
+  for (let i = 0; i < array.length; i++) {
+    binary += String.fromCharCode(array[i]);
+  }
+  
+  // Convert to base64url (URL-safe base64)
+  // Base64url encoding: replace + with -, / with _, and remove padding =
+  const base64 = btoa(binary)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+  
+  return base64;
 }
 
 // Export config for middleware matcher
