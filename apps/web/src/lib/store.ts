@@ -140,7 +140,16 @@ export const useAuthStore = create<AuthState>()(
 
       logout: async () => {
         await TokenStorage.removeTokens();
+        // Clear all state including persisted user data
         set({ user: null, token: null, refreshToken: null, error: null });
+        // Force clear persisted storage to ensure user data is removed from localStorage
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.removeItem('auth-storage');
+          } catch (e) {
+            // Ignore errors if localStorage is not available
+          }
+        }
       },
 
       setUser: (user: User) => {

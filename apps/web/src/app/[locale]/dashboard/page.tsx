@@ -60,8 +60,13 @@ function DashboardContent() {
   const [evaluators, setEvaluators] = useState<EvaluatorStatus[]>([]);
 
   useEffect(() => {
-    loadAssessments();
-  }, []);
+    // Only load assessments if user is authenticated
+    if (user) {
+      loadAssessments();
+    } else {
+      setIsLoading(false);
+    }
+  }, [user]);
 
   useEffect(() => {
     // Load evaluators if user has a 360 feedback assessment
