@@ -71,9 +71,9 @@ RUN mkdir -p /app/scripts && \
 # Change ownership
 RUN chown -R appuser:appuser /app
 
-# Ensure entrypoint.sh is executable
-RUN chmod +x entrypoint.sh && \
-    chown appuser:appuser entrypoint.sh
+# Ensure entrypoint.sh and start.py are executable
+RUN chmod +x entrypoint.sh start.py 2>/dev/null || true && \
+    chown appuser:appuser entrypoint.sh start.py 2>/dev/null || true
 
 USER appuser
 
