@@ -150,7 +150,9 @@ apiClient.interceptors.response.use(
     const appError = handleApiError(error);
 
     // Handle 401 Unauthorized - try to refresh token or logout
-    if (error.response?.status === 401) {
+    // Ignore 401 errors for logout endpoint - it's expected during logout
+    const isLogoutEndpoint = error.config?.url?.includes('/v1/auth/logout');
+    if (error.response?.status === 401 && !isLogoutEndpoint) {
       const refreshToken = TokenStorage.getRefreshToken();
       
       // Try to refresh token if available

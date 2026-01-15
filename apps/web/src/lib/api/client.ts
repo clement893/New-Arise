@@ -81,7 +81,9 @@ class ApiClient {
         const originalRequest = error.config;
         
         // Handle 401 Unauthorized - try to refresh token
-        if (status === 401 && originalRequest && !originalRequest._retry) {
+        // Ignore 401 errors for logout endpoint - it's expected during logout
+        const isLogoutEndpoint = url?.includes('/v1/auth/logout');
+        if (status === 401 && !isLogoutEndpoint && originalRequest && !originalRequest._retry) {
           // Mark request as retried to prevent infinite loop
           originalRequest._retry = true;
           
