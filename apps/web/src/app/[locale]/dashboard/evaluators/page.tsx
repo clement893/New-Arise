@@ -908,10 +908,24 @@ function EvaluatorsContent() {
           onClose={() => setShowEvaluatorModal(false)}
           assessmentId={assessmentId}
           onSuccess={async () => {
-            // Immediately reload evaluators to show the newly added ones
+            // Close modal first
+            setShowEvaluatorModal(false);
+            
+            // Reload evaluators to show the newly added ones
             try {
-              await loadEvaluators(false); // false = silent reload to avoid showing loading state
-              // Cache is automatically saved in loadEvaluators
+              // Force reload from API to get the new evaluators
+              if (assessmentId) {
+                const response = await get360Evaluators(assessmentId);
+                const evaluatorsList = response.evaluators || [];
+                
+                // Save to cache
+                if (evaluatorsList.length > 0) {
+                  saveEvaluatorsToCache(assessmentId, evaluatorsList);
+                }
+                
+                // Update state
+                setEvaluators(evaluatorsList);
+              }
             } catch (err) {
               console.error('[EvaluatorsPage] Error reloading evaluators after add:', err);
               // Even if API fails, try to reload from cache
@@ -922,6 +936,7 @@ function EvaluatorsContent() {
                 }
               }
             }
+            
             // Set filter to all to show all evaluators including newly added
             setStatusFilter('all');
             setSuccessMessage('Les évaluateurs ont été ajoutés avec succès et apparaissent dans la liste');
