@@ -229,7 +229,7 @@ export default function AdminPagesContent() {
       >
         <div className="space-y-4">
           <p className="text-foreground">
-            {t('deleteModal.message', { title: selectedPage?.title })}
+            {t('deleteModal.message', { title: selectedPage?.title ?? '' })}
           </p>
           <p className="text-sm text-muted-foreground">
             {t('deleteModal.warning')}
