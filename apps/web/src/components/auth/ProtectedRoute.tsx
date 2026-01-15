@@ -172,6 +172,14 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
                   // Continue with token check - don't redirect yet
                 } else {
                   // Still no user, token is likely invalid
+                  // Don't redirect if already on login page
+                  const isOnLoginPage = pathname.includes('/login') || pathname.includes('/auth/login');
+                  if (isOnLoginPage) {
+                    checkingRef.current = false;
+                    setIsChecking(false);
+                    setIsAuthorized(false);
+                    return;
+                  }
                   if (typeof window !== 'undefined') {
                     TokenStorage.removeTokens();
                   }
@@ -183,13 +191,21 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
                 }
               } else {
                 // Token is invalid, clear it and redirect
+                // Don't redirect if already on login page
+                const isOnLoginPage = pathname.includes('/login') || pathname.includes('/auth/login');
+                if (isOnLoginPage) {
+                  checkingRef.current = false;
+                  setIsChecking(false);
+                  setIsAuthorized(false);
+                  return;
+                }
                 if (typeof window !== 'undefined') {
                   TokenStorage.removeTokens();
                 }
                 checkingRef.current = false;
                 setIsChecking(false);
                 setIsAuthorized(false);
-                router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}`);
+                router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
                 return;
               }
             }
@@ -255,6 +271,16 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
           }
         }
         
+        // Don't redirect if already on login page to prevent redirect loops
+        const isOnLoginPage = pathname.includes('/login') || pathname.includes('/auth/login');
+        if (isOnLoginPage) {
+          logger.debug('Already on login page, skipping redirect', { pathname });
+          checkingRef.current = false;
+          setIsChecking(false);
+          setIsAuthorized(false);
+          return;
+        }
+        
         logger.debug('Not authenticated, redirecting to login', { pathname, justLoggedIn });
         checkingRef.current = false;
         setIsChecking(false);
@@ -318,6 +344,14 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
                 hasTokensInCookies: finalHasTokens,
                 userEmail: userForAdminCheck?.email
               });
+              // Don't redirect if already on login page
+              const isOnLoginPage = pathname.includes('/login') || pathname.includes('/auth/login');
+              if (isOnLoginPage) {
+                checkingRef.current = false;
+                setIsChecking(false);
+                setIsAuthorized(false);
+                return;
+              }
               checkingRef.current = false;
               setIsChecking(false);
               setIsAuthorized(false);
