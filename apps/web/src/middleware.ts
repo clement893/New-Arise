@@ -149,6 +149,7 @@ export async function middleware(request: NextRequest) {
     '/',
     '/auth/login',
     '/auth/register',
+    '/register', // Registration flow page
     '/auth/callback', // OAuth callback - needs to be public to receive token
     '/auth/google/testing', // Google OAuth test page
     '/auth/forgot-password',
