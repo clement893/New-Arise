@@ -194,10 +194,10 @@ export default function CoacheePage() {
                 onChange={(e) => setSelectedStatus(e.target.value as typeof selectedStatus)}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-arise-deep-teal focus:border-transparent"
               >
-                <option value="all">Tous les statuts</option>
-                <option value="active">Actifs</option>
-                <option value="inactive">Inactifs</option>
-                <option value="pending">En attente</option>
+                <option value="all">All statuses</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="pending">Pending</option>
               </select>
 
               <Button
@@ -206,7 +206,7 @@ export default function CoacheePage() {
                 className="flex items-center gap-2"
               >
                 <UserPlus size={20} />
-                Ajouter un coachee
+                Add a coachee
               </Button>
             </div>
           </div>
@@ -217,12 +217,12 @@ export default function CoacheePage() {
           <Card className="p-12 text-center">
             <Users className="mx-auto mb-4 text-gray-400" size={48} />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              Aucun coachee trouvé
+              No coachee found
             </h3>
             <p className="text-gray-600 mb-6">
               {searchQuery || selectedStatus !== 'all'
-                ? 'Aucun coachee ne correspond à vos critères de recherche.'
-                : 'Commencez par ajouter votre premier coachee.'}
+                ? 'No coachee matches your search criteria.'
+                : 'Start by adding your first coachee.'}
             </p>
             {!searchQuery && selectedStatus === 'all' && (
               <Button variant="primary" onClick={handleAddCoachee}>
@@ -256,30 +256,30 @@ export default function CoacheePage() {
 
                 <div className="space-y-2 mb-4 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Assessments complétés:</span>
+                    <span className="text-gray-600">Completed assessments:</span>
                     <span className="font-semibold text-gray-900">
                       {coachee.assessmentsCompleted}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Membre depuis:</span>
+                    <span className="text-gray-600">Member since:</span>
                     <span className="text-gray-900">
-                      {new Date(coachee.joinedDate).toLocaleDateString('fr-FR')}
+                      {new Date(coachee.joinedDate).toLocaleDateString('en-US')}
                     </span>
                   </div>
                   {coachee.lastSession && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Dernière session:</span>
+                      <span className="text-gray-600">Last session:</span>
                       <span className="text-gray-900">
-                        {new Date(coachee.lastSession).toLocaleDateString('fr-FR')}
+                        {new Date(coachee.lastSession).toLocaleDateString('en-US')}
                       </span>
                     </div>
                   )}
                   {coachee.nextSession && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Prochaine session:</span>
+                      <span className="text-gray-600">Next session:</span>
                       <span className="font-semibold text-arise-deep-teal">
-                        {new Date(coachee.nextSession).toLocaleDateString('fr-FR')}
+                        {new Date(coachee.nextSession).toLocaleDateString('en-US')}
                       </span>
                     </div>
                   )}
@@ -293,13 +293,13 @@ export default function CoacheePage() {
                     className="flex-1 flex items-center justify-center gap-2"
                   >
                     <Eye size={16} />
-                    Voir détails
+                    View details
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
                     className="flex items-center justify-center"
-                    title="Modifier"
+                    title="Edit"
                   >
                     <Edit size={16} />
                   </Button>
@@ -307,7 +307,7 @@ export default function CoacheePage() {
                     variant="outline"
                     size="sm"
                     className="flex items-center justify-center text-red-600 hover:text-red-700 hover:border-red-300"
-                    title="Supprimer"
+                    title="Delete"
                   >
                     <Trash2 size={16} />
                   </Button>

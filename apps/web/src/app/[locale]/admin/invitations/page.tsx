@@ -234,7 +234,7 @@ export default function InvitationsPage() {
       sortable: true,
       render: (_value: unknown, invitation: Invitation) => (
         <span className="text-sm text-muted-foreground">
-          {new Date(invitation.invited_at).toLocaleDateString('fr-FR')}
+          {new Date(invitation.invited_at).toLocaleDateString('en-US')}
         </span>
       ),
     },
@@ -244,7 +244,7 @@ export default function InvitationsPage() {
       sortable: true,
       render: (_value: unknown, invitation: Invitation) => (
         <span className="text-sm text-muted-foreground">
-          {new Date(invitation.expires_at).toLocaleDateString('fr-FR')}
+          {new Date(invitation.expires_at).toLocaleDateString('en-US')}
         </span>
       ),
     },

@@ -128,7 +128,7 @@ function ResultsReportsContent() {
       const transformedAssessments: AssessmentDisplay[] = await Promise.all(
         sortedAssessments.map(async (assessment: ApiAssessment) => {
           const completedDate = assessment.completed_at 
-            ? new Date(assessment.completed_at).toLocaleDateString('fr-FR')
+            ? new Date(assessment.completed_at).toLocaleDateString('en-US')
             : 'N/A';
           
           // Try to load detailed result for insights
@@ -500,7 +500,7 @@ function ResultsReportsContent() {
 
   const handleDeleteAllAssessments = async () => {
     if (!isSuperAdmin) {
-      setError('Seuls les super admins peuvent supprimer tous leurs assessments.');
+      setError('Only super admins can delete all their assessments.');
       return;
     }
 
@@ -514,10 +514,10 @@ function ResultsReportsContent() {
       await loadAssessments();
       
       setShowDeleteConfirm(false);
-      alert(`Tous vos assessments ont été supprimés avec succès. (${result.deleted_count} assessments supprimés)`);
+      alert(`All your assessments have been successfully deleted. (${result.deleted_count} assessments deleted)`);
     } catch (err: any) {
       console.error('Failed to delete all assessments:', err);
-      const errorMessage = err?.response?.data?.detail || err?.message || 'Échec de la suppression des assessments';
+      const errorMessage = err?.response?.data?.detail || err?.message || 'Failed to delete assessments';
       setError(errorMessage);
       setShowDeleteConfirm(false);
     } finally {
@@ -564,14 +564,14 @@ function ResultsReportsContent() {
               </h2>
             </div>
             <p className="text-gray-700 mb-6">
-              Êtes-vous sûr de vouloir supprimer <strong>TOUS</strong> vos assessments ? 
-              Cette action est <strong>irréversible</strong> et supprimera définitivement :
+              Are you sure you want to delete <strong>ALL</strong> your assessments? 
+              This action is <strong>irreversible</strong> and will permanently delete:
             </p>
             <ul className="list-disc list-inside text-gray-700 mb-6 space-y-1 ml-4">
-              <li>Tous vos assessments ({assessments.length} assessments)</li>
-              <li>Toutes vos réponses</li>
-              <li>Tous vos résultats</li>
-              <li>Tous les évaluateurs 360° associés</li>
+              <li>All your assessments ({assessments.length} assessments)</li>
+              <li>All your responses</li>
+              <li>All your results</li>
+              <li>All associated 360° evaluators</li>
             </ul>
             <div className="flex gap-3">
               <Button

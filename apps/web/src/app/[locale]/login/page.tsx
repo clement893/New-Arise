@@ -54,10 +54,10 @@ export default function LoginPage() {
       
       // Translate common error codes to user-friendly messages
       const errorMessages: Record<string, string> = {
-        'unauthorized': 'Votre session a expiré ou vous n\'êtes pas autorisé. Veuillez vous reconnecter.',
-        'session_expired': 'Votre session a expiré. Veuillez vous reconnecter.',
-        'unauthorized_superadmin': 'Vous devez être superadmin pour accéder à cette page.',
-        'forbidden': 'Accès refusé. Vous n\'avez pas les permissions nécessaires.',
+        'unauthorized': 'Your session has expired or you are not authorized. Please log in again.',
+        'session_expired': 'Your session has expired. Please log in again.',
+        'unauthorized_superadmin': 'You must be a superadmin to access this page.',
+        'forbidden': 'Access denied. You do not have the necessary permissions.',
       };
       
       if (errorMessages[errorParam]) {

@@ -148,7 +148,7 @@ export default function AdminMediaContent() {
       label: 'Créé le',
       render: (_value, media) => (
         <span className="text-sm text-muted-foreground">
-          {new Date(media.created_at).toLocaleDateString('fr-FR')}
+          {new Date(media.created_at).toLocaleDateString('en-US')}
         </span>
       ),
     },
@@ -164,8 +164,8 @@ export default function AdminMediaContent() {
               setSelectedMedia(media);
               setDeleteModalOpen(true);
             }}
-            aria-label="Supprimer le fichier"
-            title="Supprimer le fichier"
+            aria-label="Delete file"
+            title="Delete file"
             className="text-danger-600 hover:text-danger-700 dark:text-danger-400 dark:hover:text-danger-300"
           >
             <Trash2 className="w-4 h-4" />
@@ -178,12 +178,12 @@ export default function AdminMediaContent() {
   return (
     <PageContainer>
       <PageHeader
-        title="Gestion des médias"
-        description="Gérer les fichiers média du site"
+        title="Media Management"
+        description="Manage site media files"
         breadcrumbs={[
-          { label: 'Accueil', href: '/' },
+          { label: 'Home', href: '/' },
           { label: 'Administration', href: '/admin' },
-          { label: 'Médias' },
+          { label: 'Media' },
         ]}
       />
 
@@ -197,7 +197,7 @@ export default function AdminMediaContent() {
         <div className="flex gap-4 items-center flex-wrap">
           <Input
             type="text"
-            placeholder="Rechercher un fichier..."
+            placeholder="Search for a file..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="flex-1 min-w-[200px]"
@@ -216,10 +216,10 @@ export default function AdminMediaContent() {
             className="flex flex-row items-center gap-2"
           >
             <Upload className="w-4 h-4" />
-            {uploading ? 'Upload en cours...' : 'Uploader un fichier'}
+            {uploading ? 'Uploading...' : 'Upload a file'}
           </Button>
           <Button onClick={loadMedia} variant="outline">
-            Actualiser
+            Refresh
           </Button>
         </div>
 
@@ -234,7 +234,7 @@ export default function AdminMediaContent() {
             <DataTable
               data={filteredMedia as unknown as Record<string, unknown>[]}
               columns={columns as unknown as Column<Record<string, unknown>>[]}
-              emptyMessage="Aucun fichier média trouvé"
+              emptyMessage="No media file found"
             />
           </Card>
         )}
@@ -251,10 +251,10 @@ export default function AdminMediaContent() {
       >
         <div className="space-y-4">
           <p className="text-foreground">
-            Êtes-vous sûr de vouloir supprimer le fichier <strong>{selectedMedia?.filename}</strong> ?
+            Are you sure you want to delete the file <strong>{selectedMedia?.filename}</strong>?
           </p>
           <p className="text-sm text-muted-foreground">
-            Cette action est irréversible.
+            This action is irreversible.
           </p>
           <div className="flex gap-3 justify-end">
             <Button
@@ -264,10 +264,10 @@ export default function AdminMediaContent() {
                 setSelectedMedia(null);
               }}
             >
-              Annuler
+              Cancel
             </Button>
             <Button variant="danger" onClick={handleDelete}>
-              Supprimer
+              Delete
             </Button>
           </div>
         </div>

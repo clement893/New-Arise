@@ -287,6 +287,9 @@ export const authAPI = {
     const params = redirectUrl ? { redirect: redirectUrl } : {};
     return apiClient.get('/v1/auth/google', { params });
   },
+  forgotPassword: (email: string) => {
+    return apiClient.post('/v1/auth/forgot-password', { email });
+  },
 };
 
 export const usersAPI = {

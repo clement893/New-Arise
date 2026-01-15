@@ -54,7 +54,7 @@ export default function CompanyDetailPage() {
 
   const handleEdit = () => {
     if (company) {
-      const locale = params?.locale as string || 'fr';
+      const locale = params?.locale as string || 'en';
       router.push(`/${locale}/dashboard/reseau/entreprises/${company.id}/edit`);
     }
   };
@@ -71,7 +71,7 @@ export default function CompanyDetailPage() {
         message: 'Entreprise supprimée avec succès',
         type: 'success',
       });
-      const locale = params?.locale as string || 'fr';
+      const locale = params?.locale as string || 'en';
       router.push(`/${locale}/dashboard/reseau/entreprises`);
     } catch (err) {
       const appError = handleApiError(err);

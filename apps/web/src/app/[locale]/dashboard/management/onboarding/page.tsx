@@ -119,7 +119,7 @@ export default function ManagementOnboardingPage() {
               onChange={(e) => setFilterStatus(e.target.value)}
               className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-arise-teal"
             >
-              <option value="all">Tous les statuts</option>
+              <option value="all">All statuses</option>
               {Object.entries(STATUS_LABELS).map(([value, config]) => (
                 <option key={value} value={value}>
                   {config.label}
@@ -141,13 +141,13 @@ export default function ManagementOnboardingPage() {
             <UserPlus className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-600 dark:text-gray-400 text-lg font-medium mb-2">
               {users.length === 0 
-                ? 'Aucun utilisateur en onboarding' 
-                : 'Aucun utilisateur ne correspond aux filtres'}
+                ? 'No users in onboarding' 
+                : 'No users match the filters'}
             </p>
             <p className="text-gray-500 dark:text-gray-500 text-sm">
               {users.length === 0
-                ? 'Les utilisateurs en cours d\'onboarding apparaîtront ici une fois qu\'un endpoint admin sera configuré.'
-                : 'Essayez de modifier vos critères de recherche ou de filtrage.'}
+                ? 'Users in onboarding will appear here once an admin endpoint is configured.'
+                : 'Try modifying your search or filter criteria.'}
             </p>
           </div>
         ) : (
@@ -156,13 +156,13 @@ export default function ManagementOnboardingPage() {
               <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                    Utilisateur
+                    User
                   </th>
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                    Statut
+                    Status
                   </th>
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                    Étape
+                    Step
                   </th>
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
                     Dates
@@ -204,13 +204,13 @@ export default function ManagementOnboardingPage() {
                           {user.started_at && (
                             <div className="flex items-center gap-1 mb-1">
                               <Clock className="w-3 h-3" />
-                              Début: {new Date(user.started_at).toLocaleDateString('fr-FR')}
+                              Start: {new Date(user.started_at).toLocaleDateString('en-US')}
                             </div>
                           )}
                           {user.completed_at && (
                             <div className="flex items-center gap-1">
                               <CheckCircle className="w-3 h-3" />
-                              Fin: {new Date(user.completed_at).toLocaleDateString('fr-FR')}
+                              End: {new Date(user.completed_at).toLocaleDateString('en-US')}
                             </div>
                           )}
                         </div>
@@ -223,7 +223,7 @@ export default function ManagementOnboardingPage() {
                             onClick={() => {
                               // View user onboarding details
                             }}
-                            title="Voir les détails"
+                            title="View details"
                           >
                             <Eye className="w-4 h-4" />
                           </Button>

@@ -22,7 +22,7 @@ export default function ContactEditPage() {
   const [error, setError] = useState<string | null>(null);
 
   const contactId = params?.id ? parseInt(String(params.id)) : null;
-  const locale = params?.locale as string || 'fr';
+  const locale = params?.locale as string || 'en';
 
   useEffect(() => {
     if (!contactId) {

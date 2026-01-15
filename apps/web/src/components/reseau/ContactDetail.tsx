@@ -77,7 +77,7 @@ export default function ContactDetail({ contact, onEdit, onDelete }: ContactDeta
             {contact.birthday && (
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-muted-foreground" />
-                <span>{new Date(contact.birthday).toLocaleDateString('fr-FR')}</span>
+                <span>{new Date(contact.birthday).toLocaleDateString('en-US')}</span>
               </div>
             )}
 

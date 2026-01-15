@@ -119,7 +119,7 @@ export default function AdminArticlesContent() {
       label: 'Créé le',
       render: (_value, article) => (
         <span className="text-sm text-muted-foreground">
-          {new Date(article.created_at).toLocaleDateString('fr-FR')}
+          {new Date(article.created_at).toLocaleDateString('en-US')}
         </span>
       ),
     },

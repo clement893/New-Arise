@@ -40,7 +40,7 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <html lang="fr">
+    <html lang="en">
       <body>
         <ErrorDisplay
           error={error}

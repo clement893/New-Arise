@@ -545,10 +545,18 @@ function AssessmentsContent() {
       // Create a map of existing assessments by type
       const existingAssessmentsMap = new Map<AssessmentType, ApiAssessment>();
       cleanedApiAssessments.forEach(assessment => {
-        const existing = existingAssessmentsMap.get(assessment.assessment_type);
+        // Ensure assessment_type is valid and properly converted
+        if (!assessment.assessment_type) {
+          console.warn('[Assessments] Assessment missing assessment_type:', assessment);
+          return;
+        }
+        
+        // Normalize the type to ensure it matches the expected format
+        const normalizedType = String(assessment.assessment_type).toUpperCase() as AssessmentType;
+        const existing = existingAssessmentsMap.get(normalizedType);
         // Keep the most recent assessment of each type
         if (!existing || new Date(assessment.created_at) > new Date(existing.created_at)) {
-          existingAssessmentsMap.set(assessment.assessment_type, assessment);
+          existingAssessmentsMap.set(normalizedType, { ...assessment, assessment_type: normalizedType });
         }
       });
       

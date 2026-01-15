@@ -224,7 +224,7 @@ export default function Feedback360Page() {
               <Button
                 variant="outline"
                 onClick={() => router.push('/dashboard/assessments')}
-                className="flex-1"
+                className="flex-1 flex align-center gap-8"
               >
                 Back to Assessments
               </Button>

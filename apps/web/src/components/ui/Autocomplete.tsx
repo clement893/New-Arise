@@ -265,7 +265,7 @@ const Autocomplete = forwardRef<HTMLInputElement, AutocompleteProps>(
               'px-4 py-2 text-gray-500 dark:text-gray-400 text-sm'
             )}
           >
-            Aucun résultat trouvé
+            No results found
           </div>
         )}
       </div>

@@ -784,7 +784,7 @@ function EvaluatorsContent() {
                     : 'Aucun évaluateur ne correspond au filtre sélectionné.'}
                 </p>
                 {evaluators.length === 0 && (
-                  <div className="space-y-3">
+                  <div className="space-y-3 flex-col flex align-center justify-center">
                     <p className="text-gray-500 text-sm mb-4">
                       Pour recevoir des retours sur votre leadership, ajoutez des évaluateurs qui vous connaissent professionnellement (collègues, managers, collaborateurs directs, etc.).
                     </p>

@@ -132,7 +132,7 @@ export default function AdminLogsContent() {
       label: 'Date/Heure',
       render: (_value, log) => (
         <span className="text-sm text-muted-foreground">
-          {new Date(log.timestamp).toLocaleString('fr-FR')}
+          {new Date(log.timestamp).toLocaleString('en-US')}
         </span>
       ),
     },

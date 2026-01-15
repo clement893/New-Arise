@@ -28,7 +28,7 @@ export interface RichTextEditorProps {
 export default function RichTextEditor({
   value = '',
   onChange,
-  placeholder = 'Tapez votre texte...',
+  placeholder = 'Type your text...',
   label,
   error,
   helperText,
@@ -294,7 +294,7 @@ export default function RichTextEditor({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               }
-              label="Supprimer le formatage"
+              label="Remove formatting"
             />
           </div>
         )}
@@ -374,7 +374,7 @@ export default function RichTextEditor({
                 size="sm"
                 onClick={handleRemoveLink}
               >
-                Supprimer le lien
+                Remove link
               </Button>
             )}
             <Button

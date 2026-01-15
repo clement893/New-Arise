@@ -214,7 +214,7 @@ function AssessmentResultsContent() {
 
       // Prepare title with overall score
       const overallScoreText = `${isNaN(safeTotalScore) ? 0 : safeTotalScore} / ${isNaN(safeMaxScore) ? 150 : safeMaxScore} (${isNaN(safePercentage) ? 0 : safePercentage.toFixed(1)}%)`;
-      const reportTitle = `Wellness Assessment Report - ${new Date().toLocaleDateString('fr-FR')}\nOverall Score: ${overallScoreText}`;
+      const reportTitle = `Wellness Assessment Report - ${new Date().toLocaleDateString('en-US')}\nOverall Score: ${overallScoreText}`;
 
       // Call the export API with simplified headers
       const response = await apiClient.post(
@@ -300,7 +300,7 @@ function AssessmentResultsContent() {
                 Continue Assessment
               </Button>
             )}
-            <Button onClick={() => router.push('/dashboard/assessments')} variant="outline">
+            <Button onClick={() => router.push('/dashboard/assessments')} variant="outline" className="flex align-center gap-8">
               Back to Assessments
             </Button>
           </div>
@@ -369,7 +369,7 @@ function AssessmentResultsContent() {
             <Button
               variant="outline"
               onClick={() => router.push('/dashboard/assessments')}
-              className="mb-4"
+              className="mb-4 flex align-center gap-8"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Assessments

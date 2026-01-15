@@ -274,7 +274,7 @@ export default function Feedback360ResultsPage() {
           </h2>
           <p className="mb-6 text-gray-600">{errorString}</p>
           <div className="flex gap-4 justify-center">
-            <Button onClick={() => router.push('/dashboard/assessments')} variant="outline">
+            <Button onClick={() => router.push('/dashboard/assessments')} variant="outline" className="flex align-center gap-8">
               Back to Assessments
             </Button>
             {isNotCompletedError && (
@@ -344,7 +344,7 @@ export default function Feedback360ResultsPage() {
           <Button
             variant="outline"
             onClick={() => router.push('/dashboard/assessments')}
-            className="mb-4 border-white text-white hover:bg-white/10"
+            className="mb-4 border-white text-white hover:bg-white/10 flex align-center gap-8"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Assessments
@@ -363,13 +363,13 @@ export default function Feedback360ResultsPage() {
               <div className="flex items-center gap-2 text-gray-600">
                 <Users className="h-5 w-5" />
                 <span>
-                  Basé sur votre auto-évaluation et le feedback de {results.evaluator_count} collègue{results.evaluator_count !== 1 ? 's' : ''}
+                  Based on your self-assessment and feedback from {results.evaluator_count} colleague{results.evaluator_count !== 1 ? 's' : ''}
                 </span>
               </div>
             ) : (
               <div className="rounded-lg bg-primary-50 p-4">
                 <p className="text-sm text-primary-800">
-                  <strong>Note:</strong> Ces résultats sont basés uniquement sur votre auto-évaluation. Invitez des collègues pour obtenir une vue 360° complète.
+                  <strong>Note:</strong> These results are based solely on your self-assessment. Invite colleagues to get a complete 360° view.
                 </p>
               </div>
             )}
@@ -379,12 +379,12 @@ export default function Feedback360ResultsPage() {
               <div className="mt-6 rounded-lg border border-gray-200 p-4">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-gray-900">
-                    Statut des évaluateurs
+                    Evaluator Status
                   </h3>
                   <Link href="/dashboard/evaluators">
                     <Button variant="outline" size="sm" className="text-xs flex flex-row items-center gap-2">
                       <Eye className="h-4 w-4" />
-                      Voir tous
+                      View All
                     </Button>
                   </Link>
                 </div>
@@ -407,7 +407,7 @@ export default function Feedback360ResultsPage() {
                       </div>
                       <div className="ml-3 flex-shrink-0">
                         {evaluator.status === 'completed' || evaluator.status === 'COMPLETED' ? (
-                          <div className="flex items-center gap-1 text-success-600" title="Complété">
+                          <div className="flex items-center gap-1 text-success-600" title="Completed">
                             <CheckCircle className="h-5 w-5" />
                           </div>
                         ) : evaluator.status === 'in_progress' || evaluator.status === 'IN_PROGRESS' ? (
@@ -591,16 +591,16 @@ export default function Feedback360ResultsPage() {
             {!results.has_evaluator_responses && evaluators.length === 0 && (
               <div className="rounded-lg bg-primary-50 p-6">
                 <h3 className="mb-2 font-semibold text-primary-900">
-                  Complétez votre vue 360°
+                  Complete Your 360° View
                 </h3>
                 <p className="mb-4 text-sm text-primary-800">
-                  Invitez des collègues, managers et collaborateurs à partager leur perspective sur votre leadership. Cela vous donnera une vue complète de la façon dont les autres perçoivent vos capacités.
+                  Invite colleagues, managers, and collaborators to share their perspective on your leadership. This will give you a complete view of how others perceive your capabilities.
                 </p>
                 <Button
                   onClick={() => router.push('/dashboard/assessments/360-feedback/start')}
                   className="bg-arise-gold hover:bg-arise-gold/90"
                 >
-                  Inviter des évaluateurs
+                  Invite Evaluators
                 </Button>
               </div>
             )}
