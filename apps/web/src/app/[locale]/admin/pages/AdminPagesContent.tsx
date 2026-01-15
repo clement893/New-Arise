@@ -13,7 +13,6 @@ import { logger } from '@/lib/logger';
 
 export default function AdminPagesContent() {
   const t = useTranslations('admin.pages');
-  const tCommon = useTranslations('common');
   const router = useRouter();
   const [pages, setPages] = useState<Page[]>([]);
   const [loading, setLoading] = useState(true);
