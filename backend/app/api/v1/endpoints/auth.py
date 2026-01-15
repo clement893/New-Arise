@@ -124,8 +124,8 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
 
 async def get_current_user(
     request: Request,
-    token: Annotated[str | None, Depends(oauth2_scheme)] = None,
     db: Annotated[AsyncSession, Depends(get_db)],
+    token: Annotated[str | None, Depends(oauth2_scheme)] = None,
 ) -> User:
     """
     Get current authenticated user
