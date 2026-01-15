@@ -169,10 +169,16 @@ export default function InviteAdditionalEvaluatorsModal({
       console.log('✅ API call successful', result);
 
       setSuccess(true);
+      setIsSubmitting(false);
       
       // Immediately call onSuccess to refresh the evaluators list, then close modal after a short delay
       if (onSuccess) {
-        await onSuccess();
+        try {
+          await onSuccess();
+        } catch (onSuccessErr) {
+          console.error('[InviteAdditionalEvaluatorsModal] Error in onSuccess callback:', onSuccessErr);
+          // Don't block modal closing if onSuccess fails
+        }
       }
       
       // Close modal after a short delay to show success message
@@ -180,6 +186,7 @@ export default function InviteAdditionalEvaluatorsModal({
         handleClose();
       }, 1500);
     } catch (err: unknown) {
+      setIsSubmitting(false);
       // Extract error message safely
       let errorMessage = 'Une erreur est survenue lors de l\'invitation des évaluateurs';
       
@@ -215,9 +222,6 @@ export default function InviteAdditionalEvaluatorsModal({
       }
       
       setError(errorMessage);
-    } finally {
-      setIsSubmitting(false);
-      console.log('🟢 Setting isSubmitting to false');
     }
   };
 
