@@ -52,6 +52,10 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
+// Force dynamic rendering to ensure headers() is available
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+
 export default async function LocaleLayout({
   children,
   params,
@@ -78,14 +82,18 @@ export default async function LocaleLayout({
   try {
     // Try to get nonce from headers (available in Server Components)
     // The middleware sets X-CSP-Nonce header which should be available
+    // SECURITY: headers() may throw in some contexts (static generation, build time)
+    // Wrap in try-catch to prevent 500 errors
     const { headers } = await import('next/headers');
     const headersList = await headers();
     // Check both lowercase and original case
     cspNonce = headersList.get('x-csp-nonce') || headersList.get('X-CSP-Nonce') || undefined;
   } catch (error) {
-    // If headers() is not available (e.g., in static generation), nonce will be undefined
+    // If headers() is not available (e.g., in static generation or build time), nonce will be undefined
     // In that case, CSP will fall back to strict mode without nonces
     // This is acceptable as static pages don't need dynamic nonces
+    // SECURITY: Silently fail to prevent 500 errors - CSP will still work without nonces
+    cspNonce = undefined;
   }
 
   // Get API URL for resource hints
