@@ -117,8 +117,11 @@ export class TokenStorage {
   /**
    * Check token status via API (for httpOnly cookie tokens)
    * 
-   * This is the secure way to check if tokens exist, since httpOnly cookies
-   * cannot be read by JavaScript.
+   * SECURITY: Since tokens are in httpOnly cookies set by the backend FastAPI,
+   * we cannot check them directly via JavaScript. Instead, we verify authentication
+   * by making a lightweight API call to the backend. If the call succeeds, tokens exist.
+   * 
+   * Note: Cookies set by the backend are automatically sent with requests via withCredentials: true
    */
   static async hasTokensInCookies(): Promise<boolean> {
     if (typeof window === 'undefined') {
@@ -126,18 +129,24 @@ export class TokenStorage {
     }
 
     try {
-      const response = await fetch(TOKEN_API_ENDPOINT, {
+      // Check authentication by calling the backend API directly
+      // This verifies that cookies are present and valid
+      const { getApiUrl } = await import('../api');
+      const apiUrl = getApiUrl();
+      
+      const response = await fetch(`${apiUrl}/api/v1/auth/me`, {
         method: 'GET',
-        credentials: 'include',
+        credentials: 'include', // Important: include cookies
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
       
-      if (!response.ok) {
-        return false;
-      }
-      
-      const data = await response.json();
-      return data.hasToken === true || data.hasRefreshToken === true;
+      // If we get a 200, tokens exist and are valid
+      // If we get 401/403, tokens don't exist or are invalid
+      return response.ok;
     } catch (error) {
+      // Network error or other issue - assume no tokens
       return false;
     }
   }
