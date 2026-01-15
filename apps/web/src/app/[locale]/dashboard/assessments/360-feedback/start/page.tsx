@@ -144,19 +144,19 @@ export default function Start360FeedbackPage() {
     for (let i = 0; i < evaluators.length; i++) {
       const evaluator = evaluators[i];
       if (!evaluator) {
-        setError(`L'évaluateur ${i + 1} est invalide`);
+        setError(`Evaluator ${i + 1} is invalid`);
         return false;
       }
       if (!evaluator.name.trim()) {
-        setError(`Le nom de l'évaluateur ${i + 1} est requis`);
+        setError(`Evaluator ${i + 1} name is required`);
         return false;
       }
       if (!evaluator.email.trim()) {
-        setError(`L'email de l'évaluateur ${i + 1} est requis`);
+        setError(`Evaluator ${i + 1} email is required`);
         return false;
       }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(evaluator.email)) {
-        setError(`L'email de l'évaluateur ${i + 1} n'est pas valide`);
+        setError(`Evaluator ${i + 1} email is not valid`);
         return false;
       }
     }
@@ -165,7 +165,7 @@ export default function Start360FeedbackPage() {
     const emails = evaluators.filter((e): e is EvaluatorForm => e !== undefined).map((e) => e.email.toLowerCase());
     const uniqueEmails = new Set(emails);
     if (uniqueEmails.size !== emails.length) {
-      setError('Les emails des évaluateurs doivent être uniques');
+      setError('Evaluator emails must be unique');
       return false;
     }
 
@@ -264,7 +264,7 @@ export default function Start360FeedbackPage() {
           <Card className="p-8 text-center">
             <CheckCircle className="mx-auto mb-4 h-16 w-16 text-success-500" />
             <h1 className="mb-4 text-3xl font-bold text-gray-900">
-              Invitations envoyées !
+              Invitations Sent!
             </h1>
             <p className="mb-8 text-gray-600">
               {submittedEvaluatorsCount > 0
@@ -369,12 +369,12 @@ export default function Start360FeedbackPage() {
                             {isCopied ? (
                               <>
                                 <Check className="h-4 w-4 text-success-600" />
-                                Copié
+                                Copied
                               </>
                             ) : (
                               <>
                                 <Copy className="h-4 w-4" />
-                                Copier
+                                Copy
                               </>
                             )}
                           </Button>
@@ -399,7 +399,7 @@ export default function Start360FeedbackPage() {
                     <p className="mt-1 text-sm text-primary-800">
                       Invitez des personnes qui vous connaissent bien dans votre contexte professionnel (optionnel). 
                       Choisissez des personnes ayant des relations différentes avec vous (collègue, manager, collaborateur, client, etc.).
-                      Vous pouvez ajouter des évaluateurs maintenant ou plus tard depuis votre dashboard.
+                      You can add evaluators now or later from your dashboard.
                     </p>
                   </div>
                 </div>
@@ -423,7 +423,7 @@ export default function Start360FeedbackPage() {
                           {index + 1}
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 text-left">
-                          Évaluateur {index + 1}
+                          Evaluator {index + 1}
                         </h3>
                       </div>
                       {evaluators.length > 1 && (
@@ -431,7 +431,7 @@ export default function Start360FeedbackPage() {
                           type="button"
                           onClick={() => removeEvaluator(index)}
                           className="rounded p-1 text-red-600 hover:bg-red-50"
-                          title="Supprimer cet évaluateur"
+                          title="Remove this evaluator"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -444,7 +444,7 @@ export default function Start360FeedbackPage() {
                           htmlFor={`name-${index}`}
                           className="mb-2 block text-sm font-medium text-gray-700"
                         >
-                          Nom complet *
+                          Full name *
                         </label>
                         <Input
                           id={`name-${index}`}
@@ -522,7 +522,7 @@ export default function Start360FeedbackPage() {
                   }}
                 >
                   <Plus className="h-4 w-4" />
-                  Ajouter un évaluateur
+                  Add an evaluator
                 </Button>
               </div>
 

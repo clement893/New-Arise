@@ -117,6 +117,53 @@
       "errors": {
         "loadFailed": "Failed to load insights. Please try again."
       }
+    },
+    "assessments": {
+      "titlePrefix": "Your",
+      "titleSuffix": "Assessments",
+      "title": "Your Assessments",
+      "description": "Track and manage your leadership assessments",
+      "refresh": "Refresh",
+      "refreshing": "Refreshing...",
+      "retry": "Retry",
+      "refreshPage": "Refresh Page",
+      "status": {
+        "completed": "Completed",
+        "inProgress": "In Progress",
+        "locked": "Locked",
+        "available": "Available",
+        "notStarted": "Not started"
+      },
+      "progress": {
+        "label": "Progress: {count}/{total} questions",
+        "responses": "Progress: {count} responses",
+        "notAvailable": "Progress not available"
+      },
+      "actions": {
+        "viewResults": "View Results",
+        "takeTest": "Take the test",
+        "uploadTest": "Upload your test",
+        "continue": "Continue",
+        "start": "Start",
+        "submitting": "Submitting...",
+        "loading": "Loading..."
+      },
+      "evaluators": {
+        "title": "360° Evaluators",
+        "description": "Invite colleagues to provide 360° feedback on your leadership",
+        "noEvaluators": "No evaluators added yet",
+        "viewAll": "View all",
+        "add": "Add",
+        "status": {
+          "completed": "Test completed",
+          "inProgress": "In Progress",
+          "invited": "Invited"
+        }
+      },
+      "errors": {
+        "displayError": "Display error. Please refresh the page.",
+        "refresh": "Refresh"
+      }
     }
   },
   "language": {
@@ -507,6 +554,214 @@
       "errors": {
         "loadFailed": "Failed to load configuration. Please try again.",
         "saveFailed": "Failed to save configuration. Please try again."
+      }
+    },
+    "settings": {
+      "title": "System Settings",
+      "description": "General system configuration",
+      "breadcrumbs": {
+        "home": "Home",
+        "admin": "Administration",
+        "settings": "Settings"
+      },
+      "sections": {
+        "general": {
+          "title": "General",
+          "maintenanceMode": {
+            "label": "Maintenance Mode",
+            "description": "Enable maintenance mode to restrict system access"
+          },
+          "registrationEnabled": {
+            "label": "Registration Enabled",
+            "description": "Allow new users to register"
+          },
+          "emailVerificationRequired": {
+            "label": "Email Verification Required",
+            "description": "Users must verify their email to activate their account"
+          }
+        },
+        "security": {
+          "title": "Security",
+          "apiRateLimit": {
+            "label": "API Rate Limit (requests/minute)"
+          },
+          "sessionTimeout": {
+            "label": "Session Timeout (seconds)"
+          }
+        }
+      },
+      "saveButton": "Save Settings",
+      "success": {
+        "updated": "Settings updated successfully"
+      },
+      "errors": {
+        "saveFailed": "Error saving settings"
+      }
+    },
+    "pages": {
+      "title": "Page Management",
+      "description": "Manage site content pages",
+      "breadcrumbs": {
+        "home": "Home",
+        "admin": "Administration",
+        "pages": "Pages"
+      },
+      "searchPlaceholder": "Search for a page...",
+      "createButton": "Create a page",
+      "refreshButton": "Refresh",
+      "emptyMessage": "No page found",
+      "columns": {
+        "title": "Title",
+        "slug": "Slug",
+        "status": "Status",
+        "created": "Created",
+        "actions": "Actions"
+      },
+      "status": {
+        "published": "Published",
+        "draft": "Draft",
+        "archived": "Archived"
+      },
+      "actions": {
+        "view": "View page",
+        "edit": "Edit page",
+        "delete": "Delete page"
+      },
+      "deleteModal": {
+        "title": "Delete page",
+        "message": "Are you sure you want to delete the page {title}?",
+        "warning": "This action is irreversible.",
+        "cancel": "Cancel",
+        "delete": "Delete"
+      },
+      "errors": {
+        "loadFailed": "Error loading pages",
+        "deleteFailed": "Error deleting page"
+      }
+    },
+    "articles": {
+      "title": "Article Management",
+      "description": "Manage site blog articles",
+      "breadcrumbs": {
+        "home": "Home",
+        "admin": "Administration",
+        "articles": "Articles"
+      },
+      "searchPlaceholder": "Search for an article...",
+      "createButton": "Create an article",
+      "refreshButton": "Refresh",
+      "emptyMessage": "No article found",
+      "columns": {
+        "title": "Title",
+        "slug": "Slug",
+        "status": "Status",
+        "created": "Created",
+        "actions": "Actions"
+      },
+      "status": {
+        "published": "Published",
+        "draft": "Draft",
+        "archived": "Archived"
+      },
+      "actions": {
+        "view": "View article",
+        "edit": "Edit article",
+        "delete": "Delete article"
+      },
+      "deleteModal": {
+        "title": "Delete article",
+        "message": "Are you sure you want to delete the article {title}?",
+        "warning": "This action is irreversible.",
+        "cancel": "Cancel",
+        "delete": "Delete"
+      },
+      "errors": {
+        "loadFailed": "Error loading articles",
+        "deleteFailed": "Error deleting article"
+      }
+    },
+    "plans": {
+      "title": "Subscription Plans",
+      "description": "Manage subscription plans and pricing",
+      "breadcrumbs": {
+        "home": "Home",
+        "admin": "Administration",
+        "plans": "Plans"
+      },
+      "empty": {
+        "title": "No subscription plans available",
+        "description": "There are currently no subscription plans in the database.",
+        "instructions": {
+          "title": "To create plans:",
+          "step1": "Connect to your backend server (Railway, SSH, etc.)",
+          "step2": "Navigate to the {directory} directory",
+          "step3": "Execute the seed script: {command}",
+          "step4": "Refresh this page"
+        },
+        "defaultPlans": {
+          "title": "The script will create 3 default plans:",
+          "basic": "Basic : 49€/month",
+          "professional": "Professional : 99€/month",
+          "enterprise": "Enterprise : On request"
+        }
+      },
+      "form": {
+        "name": {
+          "label": "Plan name *",
+          "placeholder": "Example: Basic, Professional, Enterprise"
+        },
+        "description": {
+          "label": "Description *",
+          "placeholder": "Description of the plan"
+        },
+        "price": {
+          "label": "Price (€) *",
+          "placeholder": "Price in euros"
+        },
+        "currency": {
+          "label": "Currency"
+        },
+        "interval": {
+          "label": "Interval",
+          "options": {
+            "month": "Monthly",
+            "year": "Yearly",
+            "week": "Weekly",
+            "day": "Daily"
+          }
+        },
+        "intervalCount": {
+          "label": "Number of intervals"
+        },
+        "isPopular": {
+          "label": "Mark as popular"
+        },
+        "features": {
+          "label": "Features (JSON)",
+          "helper": "Optional JSON format for the plan features"
+        },
+        "stripePriceId": {
+          "label": "Stripe Price ID",
+          "helper": "Stripe price ID (starts with price_)",
+          "notConfigured": "Not configured"
+        },
+        "stripeProductId": {
+          "label": "Stripe Product ID",
+          "helper": "Stripe product ID (starts with prod_)",
+          "notConfigured": "Not configured"
+        }
+      },
+      "actions": {
+        "edit": "Edit",
+        "save": "Save",
+        "cancel": "Cancel",
+        "create": "Create plan",
+        "creating": "Creating...",
+        "popular": "Most popular"
+      },
+      "modal": {
+        "createTitle": "Create a new plan",
+        "cancel": "Cancel"
       }
     }
   },

@@ -91,7 +91,8 @@ export function Sidebar() {
       <div className="p-4 border-t border-gray-200">
         <button
           onClick={logout}
-          className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors w-full"
+          className="flex items-center gap-3 px-4 py-3 rounded-lg text-white transition-colors w-full hover:opacity-90"
+          style={{ backgroundColor: '#0f454d', color: '#fff' }}
         >
           <LogOut size={20} />
           <span className="text-sm font-medium">Logout</span>

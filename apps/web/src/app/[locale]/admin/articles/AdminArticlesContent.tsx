@@ -31,7 +31,7 @@ export default function AdminArticlesContent() {
       logger.debug('[AdminArticles] Loaded articles', { count: articlesData.length });
       setArticles(articlesData);
     } catch (err: unknown) {
-      const errorMessage = getErrorMessage(err, 'Erreur lors du chargement des articles');
+      const errorMessage = getErrorMessage(err, 'Error loading articles');
       logger.error('[AdminArticles] Error loading articles', err instanceof Error ? err : new Error(String(err)));
       setError(errorMessage);
     } finally {
@@ -50,7 +50,7 @@ export default function AdminArticlesContent() {
       setDeleteModalOpen(false);
       setSelectedArticle(null);
     } catch (err: unknown) {
-      const errorMessage = getErrorMessage(err, 'Erreur lors de la suppression de l\'article');
+      const errorMessage = getErrorMessage(err, 'Error deleting article');
       logger.error('[AdminArticles] Error deleting article', err instanceof Error ? err : new Error(String(err)));
       setError(errorMessage);
     }
@@ -90,7 +90,7 @@ export default function AdminArticlesContent() {
   const columns: Column<BlogPost>[] = [
     {
       key: 'title',
-      label: 'Titre',
+      label: 'Title',
       render: (_value, article) => (
         <div className="flex items-center gap-2">
           <FileText className="w-4 h-4 text-muted-foreground" />
@@ -107,16 +107,16 @@ export default function AdminArticlesContent() {
     },
     {
       key: 'status',
-      label: 'Statut',
+      label: 'Status',
       render: (_value, article) => (
         <Badge variant={getStatusBadgeVariant(article.status)}>
-          {article.status === 'published' ? 'Publié' : article.status === 'draft' ? 'Brouillon' : 'Archivé'}
+          {article.status === 'published' ? 'Published' : article.status === 'draft' ? 'Draft' : 'Archived'}
         </Badge>
       ),
     },
     {
       key: 'created_at',
-      label: 'Créé le',
+      label: 'Created',
       render: (_value, article) => (
         <span className="text-sm text-muted-foreground">
           {new Date(article.created_at).toLocaleDateString('en-US')}
@@ -132,8 +132,8 @@ export default function AdminArticlesContent() {
             variant="ghost"
             size="sm"
             onClick={() => handleView(article)}
-            aria-label="Voir l'article"
-            title="Voir l'article"
+            aria-label="View article"
+            title="View article"
           >
             <Eye className="w-4 h-4" />
           </Button>
@@ -141,8 +141,8 @@ export default function AdminArticlesContent() {
             variant="ghost"
             size="sm"
             onClick={() => handleEdit(article)}
-            aria-label="Modifier l'article"
-            title="Modifier l'article"
+            aria-label="Edit article"
+            title="Edit article"
           >
             <Edit2 className="w-4 h-4" />
           </Button>
@@ -153,8 +153,8 @@ export default function AdminArticlesContent() {
               setSelectedArticle(article);
               setDeleteModalOpen(true);
             }}
-            aria-label="Supprimer l'article"
-            title="Supprimer l'article"
+            aria-label="Delete article"
+            title="Delete article"
             className="text-danger-600 hover:text-danger-700 dark:text-danger-400 dark:hover:text-danger-300"
           >
             <Trash2 className="w-4 h-4" />
@@ -167,10 +167,10 @@ export default function AdminArticlesContent() {
   return (
     <PageContainer>
       <PageHeader
-        title="Gestion des articles"
-        description="Gérer les articles de blog du site"
+        title="Article Management"
+        description="Manage site blog articles"
         breadcrumbs={[
-          { label: 'Accueil', href: '/' },
+          { label: 'Home', href: '/' },
           { label: 'Administration', href: '/admin' },
           { label: 'Articles' },
         ]}
@@ -186,17 +186,17 @@ export default function AdminArticlesContent() {
         <div className="flex gap-4 items-center flex-wrap">
           <Input
             type="text"
-            placeholder="Rechercher un article..."
+            placeholder="Search for an article..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="flex-1 min-w-[200px]"
           />
           <Button onClick={handleCreate} variant="primary" className="flex flex-row items-center gap-2">
             <Plus className="w-4 h-4" />
-            Créer un article
+            Create an article
           </Button>
           <Button onClick={loadArticles} variant="outline">
-            Actualiser
+            Refresh
           </Button>
         </div>
 
@@ -211,7 +211,7 @@ export default function AdminArticlesContent() {
             <DataTable
               data={filteredArticles as unknown as Record<string, unknown>[]}
               columns={columns as unknown as Column<Record<string, unknown>>[]}
-              emptyMessage="Aucun article trouvé"
+              emptyMessage="No article found"
             />
           </Card>
         )}
@@ -224,14 +224,14 @@ export default function AdminArticlesContent() {
           setDeleteModalOpen(false);
           setSelectedArticle(null);
         }}
-        title="Supprimer l'article"
+        title="Delete article"
       >
         <div className="space-y-4">
           <p className="text-foreground">
-            Êtes-vous sûr de vouloir supprimer l'article <strong>{selectedArticle?.title}</strong> ?
+            Are you sure you want to delete the article <strong>{selectedArticle?.title}</strong>?
           </p>
           <p className="text-sm text-muted-foreground">
-            Cette action est irréversible.
+            This action is irreversible.
           </p>
           <div className="flex gap-3 justify-end">
             <Button
@@ -241,10 +241,10 @@ export default function AdminArticlesContent() {
                 setSelectedArticle(null);
               }}
             >
-              Annuler
+              Cancel
             </Button>
             <Button variant="danger" onClick={handleDelete}>
-              Supprimer
+              Delete
             </Button>
           </div>
         </div>

@@ -19,7 +19,7 @@ export default function CompanyRowActions({ company, onView, onEdit, onDelete }:
         variant="ghost"
         onClick={onView}
         className="h-8 w-8 p-0"
-        aria-label={`Voir ${company.name}`}
+        aria-label={`View ${company.name}`}
       >
         <Eye className="w-4 h-4" />
       </Button>

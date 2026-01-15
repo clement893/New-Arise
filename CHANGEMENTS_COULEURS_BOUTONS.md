@@ -8,8 +8,9 @@
 
 Tous les boutons des pages admin et dashboard utilisent maintenant la couleur `#0F4C56` :
 
-1. **Boutons `primary`** : Background color `#0F4C56` avec texte blanc
+1. **Boutons `primary`** : Background color `#0F4C56` avec texte blanc (#FFF)
 2. **Boutons `outline`** : Border et texte en `#0F4C56` avec background transparent
+3. **Tous les boutons avec background** : Texte en blanc (#FFF) pour `primary`, `secondary`, `danger`, et `arise-primary`
 
 ---
 
@@ -41,11 +42,14 @@ outline: [
 // Styles inline appliqués
 if (variant === 'primary' && !variantConfig) {
   standardVariantStyles.backgroundColor = '#0F4C56';
-  standardVariantStyles.color = '#FFFFFF';
+  standardVariantStyles.color = '#FFFFFF'; // Texte blanc
 } else if (variant === 'outline' && !variantConfig) {
   standardVariantStyles.borderColor = '#0F4C56';
   standardVariantStyles.color = '#0F4C56';
   standardVariantStyles.backgroundColor = 'transparent';
+} else if ((variant === 'secondary' || variant === 'danger' || variant === 'arise-primary') && !variantConfig) {
+  // Tous les variants avec background doivent avoir le texte blanc (#FFF)
+  standardVariantStyles.color = '#FFFFFF';
 }
 ```
 
@@ -64,11 +68,13 @@ if (variant === 'primary' && !variantConfig) {
 ### Avant
 - Boutons `primary` : Utilisaient les couleurs du thème (primary-600, etc.)
 - Boutons `outline` : Utilisaient les couleurs du thème (primary-600, etc.)
+- Texte des boutons avec background : Parfois pas en blanc
 - Incohérence entre les différentes pages
 
 ### Après
-- **Tous les boutons `primary`** : Background `#0F4C56` uniforme
+- **Tous les boutons `primary`** : Background `#0F4C56` avec texte blanc (#FFF)
 - **Tous les boutons `outline`** : Border et texte `#0F4C56` uniforme
+- **Tous les boutons avec background** : Texte blanc (#FFF) garanti pour `primary`, `secondary`, `danger`, `arise-primary`
 - **Cohérence** : Tous les boutons des pages admin/dashboard utilisent la même couleur
 
 ---
@@ -76,9 +82,10 @@ if (variant === 'primary' && !variantConfig) {
 ## 📊 Impact
 
 Selon l'audit réalisé :
-- **136 boutons avec background** → Tous utilisent maintenant `#0F4C56`
+- **136 boutons avec background** → Tous utilisent maintenant `#0F4C56` avec texte blanc (#FFF)
 - **141 boutons avec border** → Tous utilisent maintenant `#0F4C56` pour border et texte
 - **34 boutons ghost** → Non affectés (pas de couleur spécifique)
+- **Garantie** : Tous les variants avec background (`primary`, `secondary`, `danger`, `arise-primary`) ont maintenant le texte en blanc (#FFF)
 
 ---
 
@@ -87,8 +94,9 @@ Selon l'audit réalisé :
 1. **Styles inline** : Utilisés pour garantir que la couleur est appliquée même si les variables CSS du thème ne sont pas définies
 2. **Compatibilité** : Les styles inline sont combinés avec les classes Tailwind pour maintenir la compatibilité
 3. **Hover effects** : 
-   - `primary` : Opacité réduite à 90% au hover
+   - `primary` : Opacité réduite à 90% au hover, texte reste blanc (#FFF)
    - `outline` : Background rgba(15,76,86,0.1) au hover
+   - `secondary`, `danger`, `arise-primary` : Texte reste blanc (#FFF) au hover
 4. **Thème personnalisé** : Si un variant config est défini dans le thème, il prendra priorité sur les styles standards
 
 ---

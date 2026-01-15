@@ -12,19 +12,19 @@ function TemoignagesContent() {
   return (
     <MotionDiv variant="slideUp" duration="normal" className="space-y-2xl">
       <PageHeader
-        title="Témoignages"
-        description="Gérez les témoignages clients"
+        title="Testimonials"
+        description="Manage client testimonials"
         breadcrumbs={[
           { label: 'Dashboard', href: '/dashboard' },
-          { label: 'Module Réseau', href: '/dashboard/reseau' },
-          { label: 'Témoignages' },
+          { label: 'Network Module', href: '/dashboard/reseau' },
+          { label: 'Testimonials' },
         ]}
       />
 
       <Card>
         <div className="p-6">
           <h2 className="text-2xl font-bold text-foreground">
-            Témoignages
+            Testimonials
           </h2>
         </div>
       </Card>

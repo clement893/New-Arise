@@ -14,11 +14,11 @@ function ReseauContent() {
   return (
     <MotionDiv variant="slideUp" duration="normal" className="space-y-2xl">
       <PageHeader
-        title="Module Réseau"
-        description="Gérez vos contacts, entreprises et témoignages"
+        title="Network Module"
+        description="Manage your contacts, companies and testimonials"
         breadcrumbs={[
           { label: 'Dashboard', href: '/dashboard' },
-          { label: 'Module Réseau' },
+          { label: 'Network Module' },
         ]}
       />
 
@@ -32,7 +32,7 @@ function ReseauContent() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-foreground">Contacts</h3>
-                  <p className="text-sm text-muted-foreground">Gérez vos contacts</p>
+                  <p className="text-sm text-muted-foreground">Manage your contacts</p>
                 </div>
                 <ArrowRight className="w-5 h-5 text-muted-foreground" />
               </div>
@@ -48,8 +48,8 @@ function ReseauContent() {
                   <Building2 className="w-8 h-8 text-primary-600 dark:text-primary-400" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-foreground">Entreprises</h3>
-                  <p className="text-sm text-muted-foreground">Gérez vos entreprises</p>
+                  <h3 className="text-lg font-semibold text-foreground">Companies</h3>
+                  <p className="text-sm text-muted-foreground">Manage your companies</p>
                 </div>
                 <ArrowRight className="w-5 h-5 text-muted-foreground" />
               </div>
@@ -65,8 +65,8 @@ function ReseauContent() {
                   <MessageSquare className="w-8 h-8 text-primary-600 dark:text-primary-400" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-foreground">Témoignages</h3>
-                  <p className="text-sm text-muted-foreground">Gérez vos témoignages</p>
+                  <h3 className="text-lg font-semibold text-foreground">Testimonials</h3>
+                  <p className="text-sm text-muted-foreground">Manage your testimonials</p>
                 </div>
                 <ArrowRight className="w-5 h-5 text-muted-foreground" />
               </div>
@@ -78,10 +78,10 @@ function ReseauContent() {
       <Card>
         <div className="p-6">
           <h2 className="text-2xl font-bold text-foreground mb-4">
-            Module Réseau
+            Network Module
           </h2>
           <p className="text-muted-foreground">
-            Bienvenue dans le Module Réseau. Utilisez le menu latéral pour accéder aux différentes sections.
+            Welcome to the Network Module. Use the side menu to access different sections.
           </p>
         </div>
       </Card>

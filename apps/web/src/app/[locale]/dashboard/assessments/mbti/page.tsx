@@ -35,7 +35,7 @@ export default function MBTIAssessmentPage() {
             className="mb-6"
           >
             <ArrowLeft size={16} className="mr-2" />
-            Retour aux assessments
+            Back to Assessments
           </Button>
 
           <div className="mb-8 pb-6">
@@ -87,7 +87,7 @@ export default function MBTIAssessmentPage() {
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="flex-shrink-0 w-6 h-6 bg-arise-gold text-white rounded-full flex items-center justify-center text-sm font-bold">4</span>
-                    <span>Revenez ici et uploadez votre PDF pour voir vos résultats dans ARISE</span>
+                    <span>Come back here and upload your PDF to see your results in ARISE</span>
                   </li>
                 </ol>
               </div>

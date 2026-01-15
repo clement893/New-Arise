@@ -183,7 +183,7 @@ function Button({
     ? applyVariantConfigAsStyles(variantConfig)
     : {};
 
-  // Apply standard colors for primary and outline variants
+  // Apply standard colors for variants with background (text must be white)
   const standardVariantStyles: React.CSSProperties = {};
   if (variant === 'primary' && !variantConfig) {
     standardVariantStyles.backgroundColor = '#0F4C56';
@@ -192,6 +192,9 @@ function Button({
     standardVariantStyles.borderColor = '#0F4C56';
     standardVariantStyles.color = '#0F4C56';
     standardVariantStyles.backgroundColor = 'transparent';
+  } else if ((variant === 'secondary' || variant === 'danger' || variant === 'arise-primary') && !variantConfig) {
+    // All variants with background must have white text (#FFF)
+    standardVariantStyles.color = '#FFFFFF';
   }
 
   const buttonClasses = clsx(
@@ -218,16 +221,24 @@ function Button({
       onMouseEnter={(e) => {
         if (variant === 'primary' && !variantConfig) {
           e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.9)';
+          e.currentTarget.style.color = '#FFFFFF';
         } else if (variant === 'outline' && !variantConfig) {
           e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.1)';
+        } else if ((variant === 'secondary' || variant === 'danger' || variant === 'arise-primary') && !variantConfig) {
+          // Ensure text stays white on hover for all background variants
+          e.currentTarget.style.color = '#FFFFFF';
         }
         props.onMouseEnter?.(e);
       }}
       onMouseLeave={(e) => {
         if (variant === 'primary' && !variantConfig) {
           e.currentTarget.style.backgroundColor = '#0F4C56';
+          e.currentTarget.style.color = '#FFFFFF';
         } else if (variant === 'outline' && !variantConfig) {
           e.currentTarget.style.backgroundColor = 'transparent';
+        } else if ((variant === 'secondary' || variant === 'danger' || variant === 'arise-primary') && !variantConfig) {
+          // Ensure text stays white on hover leave for all background variants
+          e.currentTarget.style.color = '#FFFFFF';
         }
         props.onMouseLeave?.(e);
       }}

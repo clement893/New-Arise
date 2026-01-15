@@ -26,7 +26,7 @@ export default function ContactEditPage() {
 
   useEffect(() => {
     if (!contactId) {
-      setError('ID de contact invalide');
+      setError('Invalid contact ID');
       setLoading(false);
       return;
     }
@@ -44,9 +44,9 @@ export default function ContactEditPage() {
       setContact(data);
     } catch (err) {
       const appError = handleApiError(err);
-      setError(appError.message || 'Erreur lors du chargement du contact');
+      setError(appError.message || 'Error loading contact');
       showToast({
-        message: appError.message || 'Erreur lors du chargement du contact',
+        message: appError.message || 'Error loading contact',
         type: 'error',
       });
     } finally {
@@ -62,15 +62,15 @@ export default function ContactEditPage() {
       setError(null);
       await reseauContactsAPI.update(contactId, data as ContactUpdate);
       showToast({
-        message: 'Contact modifié avec succès',
+        message: 'Contact updated successfully',
         type: 'success',
       });
       router.push(`/${locale}/dashboard/reseau/contacts/${contactId}`);
     } catch (err) {
       const appError = handleApiError(err);
-      setError(appError.message || 'Erreur lors de la modification du contact');
+      setError(appError.message || 'Error updating contact');
       showToast({
-        message: appError.message || 'Erreur lors de la modification du contact',
+        message: appError.message || 'Error updating contact',
         type: 'error',
       });
     } finally {
@@ -103,16 +103,16 @@ export default function ContactEditPage() {
           title="Erreur"
           breadcrumbs={[
             { label: 'Dashboard', href: `/${locale}/dashboard` },
-            { label: 'Module Réseau', href: `/${locale}/dashboard/reseau` },
+            { label: 'Network Module', href: `/${locale}/dashboard/reseau` },
             { label: 'Contacts', href: `/${locale}/dashboard/reseau/contacts` },
-            { label: 'Modification' },
+            { label: 'Edit' },
           ]}
         />
         <Alert variant="error">{typeof error === 'string' ? error : String(error || 'An error occurred')}</Alert>
         <div className="mt-4">
           <Button variant="outline" onClick={handleCancel}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Retour
+            Back
           </Button>
         </div>
       </PageContainer>
@@ -123,26 +123,26 @@ export default function ContactEditPage() {
     return (
       <PageContainer>
         <PageHeader
-          title="Contact non trouvé"
+          title="Contact not found"
           breadcrumbs={[
             { label: 'Dashboard', href: `/${locale}/dashboard` },
-            { label: 'Module Réseau', href: `/${locale}/dashboard/reseau` },
+            { label: 'Network Module', href: `/${locale}/dashboard/reseau` },
             { label: 'Contacts', href: `/${locale}/dashboard/reseau/contacts` },
-            { label: 'Modification' },
+            { label: 'Edit' },
           ]}
         />
-        <Alert variant="error">Le contact demandé n'existe pas.</Alert>
+        <Alert variant="error">The requested contact does not exist.</Alert>
         <div className="mt-4">
           <Button variant="outline" onClick={handleCancel}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Retour aux contacts
+            Back to contacts
           </Button>
         </div>
       </PageContainer>
     );
   }
 
-  // Mock data pour les entreprises et employés (à remplacer par des appels API réels si nécessaire)
+  // Mock data for companies and employees (to be replaced with real API calls if needed)
   const companies: Array<{ id: number; name: string }> = [];
   const employees: Array<{ id: number; name: string }> = [];
   const circles = ['client', 'prospect', 'partenaire', 'fournisseur', 'autre'];
@@ -150,13 +150,13 @@ export default function ContactEditPage() {
   return (
     <PageContainer>
       <PageHeader
-        title={`Modifier ${contact.first_name} ${contact.last_name}`}
+        title={`Edit ${contact.first_name} ${contact.last_name}`}
         breadcrumbs={[
           { label: 'Dashboard', href: `/${locale}/dashboard` },
-          { label: 'Module Réseau', href: `/${locale}/dashboard/reseau` },
+          { label: 'Network Module', href: `/${locale}/dashboard/reseau` },
           { label: 'Contacts', href: `/${locale}/dashboard/reseau/contacts` },
           { label: contact.first_name + ' ' + contact.last_name, href: `/${locale}/dashboard/reseau/contacts/${contact.id}` },
-          { label: 'Modification' },
+          { label: 'Edit' },
         ]}
       />
 

@@ -26,11 +26,11 @@ export default function CompanyFilterBadges({ filters, onRemoveFilter, onClearAl
     <div className="flex flex-wrap items-center gap-2">
       {filters.country?.map((country) => (
         <Badge key={country} className="flex items-center gap-1 bg-muted">
-          Pays: {country}
+          Country: {country}
           <button
             onClick={() => onRemoveFilter('country', country)}
             className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
-            aria-label={`Retirer le filtre pays ${country}`}
+            aria-label={`Remove country filter ${country}`}
           >
             <X className="w-3 h-3" />
           </button>

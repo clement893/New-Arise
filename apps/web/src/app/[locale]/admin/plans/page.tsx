@@ -273,24 +273,24 @@ function PlansPageContent() {
       {plans.length === 0 && !isLoading && (
         <Card className="mt-6 p-8">
           <div className="text-center">
-            <h3 className="text-xl font-semibold mb-4">Aucun plan disponible</h3>
+            <h3 className="text-xl font-semibold mb-4">No subscription plans available</h3>
             <p className="text-muted-foreground mb-6">
-              Il n'y a actuellement aucun plan d'abonnement dans la base de données.
+              There are currently no subscription plans in the database.
             </p>
             <div className="bg-muted p-6 rounded-lg text-left max-w-2xl mx-auto">
-              <h4 className="font-semibold mb-3">Pour créer des plans :</h4>
+              <h4 className="font-semibold mb-3">To create plans:</h4>
               <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
-                <li>Connectez-vous à votre serveur backend (Railway, SSH, etc.)</li>
-                <li>Naviguez vers le dossier <code className="bg-background px-2 py-1 rounded">backend</code></li>
-                <li>Exécutez le script de seed : <code className="bg-background px-2 py-1 rounded">python scripts/seed_plans.py</code></li>
-                <li>Rechargez cette page</li>
+                <li>Connect to your backend server (Railway, SSH, etc.)</li>
+                <li>Navigate to the <code className="bg-background px-2 py-1 rounded">backend</code> directory</li>
+                <li>Execute the seed script: <code className="bg-background px-2 py-1 rounded">python scripts/seed_plans.py</code></li>
+                <li>Refresh this page</li>
               </ol>
               <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <p className="text-sm font-medium mb-2">Le script créera 3 plans par défaut :</p>
+                <p className="text-sm font-medium mb-2">The script will create 3 default plans:</p>
                 <ul className="list-disc list-inside space-y-1 text-sm">
-                  <li><strong>Basic</strong> : 49€/mois</li>
-                  <li><strong>Professional</strong> : 99€/mois (Le plus populaire)</li>
-                  <li><strong>Enterprise</strong> : Sur devis</li>
+                  <li><strong>Basic</strong> : 49€/month</li>
+                  <li><strong>Professional</strong> : 99€/month</li>
+                  <li><strong>Enterprise</strong> : On request</li>
                 </ul>
               </div>
             </div>
@@ -315,14 +315,14 @@ function PlansPageContent() {
                       <Input
                         value={editedPlan.name || ''}
                         onChange={(e) => handleChange(plan.id, 'name', e.target.value)}
-                        placeholder="Nom du plan"
+                        placeholder="Plan name"
                         className="text-xl sm:text-2xl font-bold"
                       />
                     ) : (
                       <div className="flex flex-wrap items-center gap-3">
                         <h3 className="text-xl sm:text-2xl font-bold text-foreground">{plan.name}</h3>
                         {plan.is_popular && (
-                          <Badge variant="info">Le plus populaire</Badge>
+                          <Badge variant="info">Most popular</Badge>
                         )}
                         <Badge variant={plan.status === 'ACTIVE' ? 'success' : 'default'}>
                           {plan.status}
@@ -340,7 +340,7 @@ function PlansPageContent() {
                           className="flex flex-row items-center gap-2"
                         >
                           <Save className="w-4 h-4" />
-                          Enregistrer
+                          Save
                         </Button>
                         <Button
                           variant="outline"
@@ -349,7 +349,7 @@ function PlansPageContent() {
                           className="flex flex-row items-center gap-2"
                         >
                           <X className="w-4 h-4" />
-                          Annuler
+                          Cancel
                         </Button>
                       </>
                     ) : (
@@ -360,7 +360,7 @@ function PlansPageContent() {
                         className="flex flex-row items-center gap-2"
                       >
                         <Edit2 className="w-4 h-4" />
-                        Modifier
+                        Edit
                       </Button>
                     )}
                   </div>
@@ -372,11 +372,11 @@ function PlansPageContent() {
                     <Textarea
                       value={editedPlan.description || ''}
                       onChange={(e) => handleChange(plan.id, 'description', e.target.value)}
-                      placeholder="Description du plan"
+                      placeholder="Plan description"
                       rows={2}
                     />
                   ) : (
-                    <p className="text-muted-foreground">{plan.description || 'Aucune description'}</p>
+                    <p className="text-muted-foreground">{plan.description || 'No description'}</p>
                   )}
                 </div>
 
@@ -384,7 +384,7 @@ function PlansPageContent() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
                     <label className="text-sm font-medium text-muted-foreground mb-1 block">
-                      Prix
+                      Price
                     </label>
                     {isEditing ? (
                       <Input
@@ -395,7 +395,7 @@ function PlansPageContent() {
                           const value = parseFloat(e.target.value) || 0;
                           handleChange(plan.id, 'amount', Math.round(value * 100));
                         }}
-                        placeholder="Prix en euros"
+                        placeholder="Price in euros"
                       />
                     ) : (
                       <p className="text-lg font-semibold text-foreground">
@@ -406,14 +406,14 @@ function PlansPageContent() {
 
                   <div>
                     <label className="text-sm font-medium text-muted-foreground mb-1 block">
-                      Devise
+                      Currency
                     </label>
                     <p className="text-foreground uppercase">{plan.currency}</p>
                   </div>
 
                   <div>
                     <label className="text-sm font-medium text-muted-foreground mb-1 block">
-                      Plan populaire
+                      Popular plan
                     </label>
                     {isEditing ? (
                       <div className="flex items-center gap-2">
@@ -423,11 +423,11 @@ function PlansPageContent() {
                           onChange={(e) => handleChange(plan.id, 'is_popular', e.target.checked)}
                           className="w-4 h-4"
                         />
-                        <span className="text-sm text-muted-foreground">Marquer comme populaire</span>
+                        <span className="text-sm text-muted-foreground">Mark as popular</span>
                       </div>
                     ) : (
                       <p className="text-foreground">
-                        {plan.is_popular ? 'Oui' : 'Non'}
+                        {plan.is_popular ? 'Yes' : 'No'}
                       </p>
                     )}
                   </div>
@@ -436,7 +436,7 @@ function PlansPageContent() {
                 {/* Features */}
                 <div>
                   <label className="text-sm font-medium text-muted-foreground mb-2 block">
-                    Fonctionnalités (JSON)
+                    Features (JSON)
                   </label>
                   {isEditing ? (
                     <Textarea
@@ -470,11 +470,11 @@ function PlansPageContent() {
                       />
                     ) : (
                       <p className="text-foreground font-mono text-sm">
-                        {plan.stripe_price_id || <span className="text-muted-foreground italic">Non configuré</span>}
+                        {plan.stripe_price_id || <span className="text-muted-foreground italic">Not configured</span>}
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground mt-1">
-                      ID du prix Stripe (commence par price_)
+                      Stripe price ID (starts with price_)
                     </p>
                   </div>
 
@@ -491,11 +491,11 @@ function PlansPageContent() {
                       />
                     ) : (
                       <p className="text-foreground font-mono text-sm">
-                        {plan.stripe_product_id || <span className="text-muted-foreground italic">Non configuré</span>}
+                        {plan.stripe_product_id || <span className="text-muted-foreground italic">Not configured</span>}
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground mt-1">
-                      ID du produit Stripe (commence par prod_)
+                      Stripe product ID (starts with prod_)
                     </p>
                   </div>
                 </div>
@@ -528,7 +528,7 @@ function PlansPageContent() {
           });
           setError(null);
         }}
-        title="Créer un nouveau plan"
+        title="Create a new plan"
         size="lg"
         footer={
           <div className="flex flex-col sm:flex-row gap-2 justify-end">
@@ -550,7 +550,7 @@ function PlansPageContent() {
               }}
               className="w-full sm:w-auto text-sm sm:text-base"
             >
-              Annuler
+              Cancel
             </Button>
             <Button
               variant="primary"
@@ -561,10 +561,10 @@ function PlansPageContent() {
               {creatingPlan ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Création...
+                  Creating...
                 </>
               ) : (
-                'Créer le plan'
+                'Create plan'
               )}
             </Button>
           </div>
@@ -572,27 +572,27 @@ function PlansPageContent() {
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Nom du plan *</label>
+            <label className="block text-sm font-medium mb-1">Plan name *</label>
             <Input
               value={newPlan.name}
               onChange={(e) => setNewPlan({ ...newPlan, name: e.target.value })}
-              placeholder="Ex: Basic, Professional, Enterprise"
+              placeholder="Example: Basic, Professional, Enterprise"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Description</label>
+            <label className="block text-sm font-medium mb-1">Description *</label>
             <Textarea
               value={newPlan.description}
               onChange={(e) => setNewPlan({ ...newPlan, description: e.target.value })}
-              placeholder="Description du plan"
+              placeholder="Description of the plan"
               rows={2}
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Prix (€) *</label>
+              <label className="block text-sm font-medium mb-1">Price (€) *</label>
               <Input
                 type="number"
                 step="0.01"
@@ -603,7 +603,7 @@ function PlansPageContent() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Devise</label>
+              <label className="block text-sm font-medium mb-1">Currency</label>
               <select
                 value={newPlan.currency}
                 onChange={(e) => setNewPlan({ ...newPlan, currency: e.target.value })}
@@ -618,21 +618,21 @@ function PlansPageContent() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Intervalle</label>
+              <label className="block text-sm font-medium mb-1">Interval</label>
               <select
                 value={newPlan.interval}
                 onChange={(e) => setNewPlan({ ...newPlan, interval: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600"
               >
-                <option value="month">Mensuel</option>
-                <option value="year">Annuel</option>
-                <option value="week">Hebdomadaire</option>
-                <option value="day">Quotidien</option>
+                <option value="month">Monthly</option>
+                <option value="year">Yearly</option>
+                <option value="week">Weekly</option>
+                <option value="day">Daily</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Nombre d'intervalles</label>
+              <label className="block text-sm font-medium mb-1">Number of intervals</label>
               <Input
                 type="number"
                 min="1"
@@ -650,12 +650,12 @@ function PlansPageContent() {
                 onChange={(e) => setNewPlan({ ...newPlan, is_popular: e.target.checked })}
                 className="w-4 h-4"
               />
-              <span className="text-sm font-medium">Marquer comme populaire</span>
+              <span className="text-sm font-medium">Mark as popular</span>
             </label>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Fonctionnalités (JSON)</label>
+            <label className="block text-sm font-medium mb-1">Features (JSON)</label>
             <Textarea
               value={newPlan.features}
               onChange={(e) => setNewPlan({ ...newPlan, features: e.target.value })}
@@ -664,7 +664,7 @@ function PlansPageContent() {
               className="font-mono text-sm"
             />
             <p className="text-xs text-muted-foreground mt-1">
-              Format JSON optionnel pour les fonctionnalités du plan
+              Optional JSON format for the plan features
             </p>
           </div>
         </div>

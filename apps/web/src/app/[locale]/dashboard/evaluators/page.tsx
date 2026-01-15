@@ -12,10 +12,10 @@ import { ArrowLeft, CheckCircle, Clock, Mail, User, Plus, Trash2, Copy, RefreshC
 import { get360Evaluators, EvaluatorStatus, getMyAssessments, remove360Evaluator } from '@/lib/api/assessments';
 
 const ROLE_LABELS: Record<string, string> = {
-  PEER: 'Pair / Collègue',
-  MANAGER: 'Manager / Supérieur',
-  DIRECT_REPORT: 'Rapport direct / Collaborateur',
-  STAKEHOLDER: 'Partie prenante / Client',
+  PEER: 'Peer / Colleague',
+  MANAGER: 'Manager / Superior',
+  DIRECT_REPORT: 'Direct Report / Collaborator',
+  STAKEHOLDER: 'Stakeholder / Client',
 };
 
 type StatusFilter = 'all' | 'completed' | 'in_progress' | 'invited' | 'pending';
@@ -151,7 +151,7 @@ function EvaluatorsContent() {
             }
             if (!id) {
               if (!silent) {
-                setError('Aucun assessment de feedback 360° trouvé. Veuillez d\'abord démarrer un assessment 360° depuis la page Assessments.');
+                setError('No 360° feedback assessment found. Please start a 360° assessment from the Assessments page first.');
                 setIsLoading(false);
               }
               return;
@@ -237,7 +237,7 @@ function EvaluatorsContent() {
               setIsLoading(false);
               const is401 = apiErr?.response?.status === 401 || apiErr?.message?.includes('401') || apiErr?.message?.includes('Unauthorized');
               if (is401) {
-                setError('Session expirée. Affichage des données en cache. Veuillez vous reconnecter pour actualiser.');
+                setError('Session expired. Displaying cached data. Please log in again to refresh.');
                 setTimeout(() => setError(null), 5000);
               }
             }
@@ -248,7 +248,7 @@ function EvaluatorsContent() {
         // If no cache and API fails, show error but don't block
         if (!silent) {
           setIsLoading(false);
-          setError('Impossible de charger les évaluateurs. Veuillez réessayer.');
+          setError('Unable to load evaluators. Please try again.');
         } else {
           setIsLoading(false);
         }
@@ -259,7 +259,7 @@ function EvaluatorsContent() {
         setIsLoading(false);
         if (err instanceof Error) {
           if (err.message.includes('404') || err.message.includes('not found')) {
-            setError('Assessment 360° non trouvé. Veuillez d\'abord démarrer un assessment 360° depuis la page Assessments.');
+            setError('360° assessment not found. Please start a 360° assessment from the Assessments page first.');
           } else if (err.message.includes('401') || err.message.includes('Unauthorized')) {
             // For 401, try to use cache
             const currentId = assessmentId || (searchParams?.get('id') ? parseInt(searchParams.get('id')!) : null);
@@ -267,17 +267,17 @@ function EvaluatorsContent() {
               const cachedEvaluators = getCachedEvaluators(currentId);
               if (cachedEvaluators.length > 0) {
                 setEvaluators(cachedEvaluators);
-                setError('Session expirée. Affichage des données en cache. Veuillez vous reconnecter pour actualiser.');
+                setError('Session expired. Displaying cached data. Please log in again to refresh.');
                 setTimeout(() => setError(null), 5000);
                 return;
               }
             }
-            setError('Session expirée. Veuillez vous reconnecter.');
+            setError('Session expired. Please log in again.');
           } else {
-            setError(`Échec du chargement des évaluateurs: ${err instanceof Error ? err.message : 'Erreur inconnue'}`);
+            setError(`Failed to load evaluators: ${err instanceof Error ? err.message : 'Unknown error'}`);
           }
         } else {
-          setError('Échec du chargement des évaluateurs. Veuillez réessayer.');
+          setError('Failed to load evaluators. Please try again.');
         }
       } else {
         setIsLoading(false);
@@ -487,7 +487,7 @@ function EvaluatorsContent() {
     if (!assessmentId) return;
     
     const confirmed = window.confirm(
-      `Êtes-vous sûr de vouloir supprimer l'évaluateur "${evaluatorName}" ? Cette action est irréversible.`
+      `Are you sure you want to delete the evaluator "${evaluatorName}"? This action is irreversible.`
     );
     
     if (!confirmed) return;
@@ -495,12 +495,12 @@ function EvaluatorsContent() {
     try {
       setDeletingId(evaluatorId);
       await remove360Evaluator(assessmentId, evaluatorId);
-      setSuccessMessage(`L'évaluateur "${evaluatorName}" a été supprimé avec succès`);
+      setSuccessMessage(`Evaluator "${evaluatorName}" has been successfully deleted`);
       await loadEvaluators();
       setTimeout(() => setSuccessMessage(null), 5000);
     } catch (err) {
       console.error('Failed to delete evaluator:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Échec de la suppression de l\'évaluateur';
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete evaluator';
       setError(errorMessage);
       setTimeout(() => setError(null), 5000);
     } finally {
@@ -514,14 +514,14 @@ function EvaluatorsContent() {
       const invitationUrl = `${baseUrl}/360-evaluator/${token}`;
       await navigator.clipboard.writeText(invitationUrl);
       setCopiedToken(token);
-      setSuccessMessage('Lien d\'invitation copié dans le presse-papiers');
+      setSuccessMessage('Invitation link copied to clipboard');
       setTimeout(() => {
         setCopiedToken(null);
         setSuccessMessage(null);
       }, 3000);
     } catch (err) {
       console.error('Failed to copy link:', err);
-      setError('Échec de la copie du lien');
+      setError('Failed to copy link');
       setTimeout(() => setError(null), 3000);
     }
   };
@@ -533,28 +533,28 @@ function EvaluatorsContent() {
       return (
         <div className="flex items-center gap-2 px-3 py-1 bg-success-100 text-success-700 rounded-full text-sm font-medium">
           <CheckCircle size={16} />
-          Test réalisé
+          Completed
         </div>
       );
     } else if (statusLower === 'in_progress' || statusLower === 'started') {
       return (
         <div className="flex items-center gap-2 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
           <Clock size={16} />
-          En cours
+          In Progress
         </div>
       );
     } else if (statusLower === 'invited' || statusLower === 'not_started') {
       return (
         <div className="flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">
           <Mail size={16} />
-          Invitation en attente
+          Invitation Pending
         </div>
       );
     } else {
       return (
         <div className="flex items-center gap-2 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
           <Clock size={16} />
-          En attente
+          Pending
         </div>
       );
     }
@@ -564,7 +564,7 @@ function EvaluatorsContent() {
     if (!dateString) return 'N/A';
     try {
       // Convert to Montreal timezone (America/Montreal)
-      return new Date(dateString).toLocaleString('fr-FR', {
+      return new Date(dateString).toLocaleString('en-US', {
         timeZone: 'America/Montreal',
         year: 'numeric',
         month: 'short',
@@ -665,17 +665,17 @@ function EvaluatorsContent() {
               disabled={isLoading}
             >
               <RefreshCw size={12} className={isLoading ? 'animate-spin' : ''} />
-              Actualiser
+              Refresh
             </Button>
           </div>
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-2">
-                <span className="text-white">Mes </span>
-                <span style={{ color: '#D5B667' }}>Évaluateurs</span>
+                <span className="text-white">My </span>
+                <span style={{ color: '#D5B667' }}>Evaluators</span>
               </h1>
               <p className="text-white text-lg">
-                Visualisez et gérez vos évaluateurs de feedback 360°
+                View and manage your 360° feedback evaluators
               </p>
             </div>
             {assessmentId && (
@@ -686,7 +686,7 @@ function EvaluatorsContent() {
                 style={{ width: 'fit-content' }}
               >
                 <Plus size={16} style={{ marginRight: '4px' }} />
-                Ajouter des évaluateurs
+                Add evaluators
               </Button>
             )}
           </div>
@@ -723,19 +723,19 @@ function EvaluatorsContent() {
               <div className="text-3xl font-bold text-success-600 mb-1">
                 {completedCount}
               </div>
-              <div className="text-sm text-gray-600">Terminés</div>
+              <div className="text-sm text-gray-600">Completed</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-primary-600 mb-1">
                 {inProgressCount}
               </div>
-              <div className="text-sm text-gray-600">En cours</div>
+              <div className="text-sm text-gray-600">In Progress</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-yellow-600 mb-1">
                 {invitedCount + pendingCount}
               </div>
-              <div className="text-sm text-gray-600">En attente</div>
+              <div className="text-sm text-gray-600">Pending</div>
             </div>
           </div>
         </Card>
@@ -748,7 +748,7 @@ function EvaluatorsContent() {
             <div className="flex items-center gap-4 flex-wrap">
               <div className="flex items-center gap-2">
                 <Filter size={16} className="text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">Filtrer par statut:</span>
+                <span className="text-sm font-medium text-gray-700">Filter by status:</span>
               </div>
               <div className="flex gap-2 flex-wrap">
                 {(['all', 'completed', 'in_progress', 'invited', 'pending'] as StatusFilter[]).map((filter) => (
@@ -759,11 +759,11 @@ function EvaluatorsContent() {
                     onClick={() => setStatusFilter(filter)}
                     className="text-xs"
                   >
-                    {filter === 'all' && 'Tous'}
-                    {filter === 'completed' && 'Terminés'}
-                    {filter === 'in_progress' && 'En cours'}
-                    {filter === 'invited' && 'Invités'}
-                    {filter === 'pending' && 'Invitation en attente'}
+                    {filter === 'all' && 'All'}
+                    {filter === 'completed' && 'Completed'}
+                    {filter === 'in_progress' && 'In Progress'}
+                    {filter === 'invited' && 'Invited'}
+                    {filter === 'pending' && 'Invitation Pending'}
                   </Button>
                 ))}
               </div>
@@ -780,13 +780,13 @@ function EvaluatorsContent() {
               <div className="max-w-md mx-auto">
                 <p className="text-gray-600 mb-4 text-lg">
                   {evaluators.length === 0 
-                    ? 'Aucun évaluateur ajouté pour le moment.' 
-                    : 'Aucun évaluateur ne correspond au filtre sélectionné.'}
+                    ? 'No evaluators added yet.' 
+                    : 'No evaluators match the selected filter.'}
                 </p>
                 {evaluators.length === 0 && (
                   <div className="space-y-3 flex-col flex align-center justify-center">
                     <p className="text-gray-500 text-sm mb-4">
-                      Pour recevoir des retours sur votre leadership, ajoutez des évaluateurs qui vous connaissent professionnellement (collègues, managers, collaborateurs directs, etc.).
+                      To receive feedback on your leadership, add evaluators who know you professionally (colleagues, managers, direct reports, etc.).
                     </p>
                     {assessmentId && (
                       <Button
@@ -795,7 +795,7 @@ function EvaluatorsContent() {
                         className="font-semibold flex flex-row items-center gap-2"
                       >
                         <Plus size={20} />
-                        Ajouter des évaluateurs
+                        Add evaluators
                       </Button>
                     )}
                   </div>
@@ -826,13 +826,13 @@ function EvaluatorsContent() {
                         </p>
                         {evaluator.role && (
                           <p className="text-xs text-gray-500 mb-3">
-                            Relation: {ROLE_LABELS[evaluator.role] || evaluator.role}
+                            Relationship: {ROLE_LABELS[evaluator.role] || evaluator.role}
                           </p>
                         )}
                         <div className="flex flex-wrap gap-4 text-xs text-gray-500 mb-2">
                           {evaluator.invitation_sent_at && (
                             <div>
-                              <span className="font-medium">Invité:</span>{' '}
+                              <span className="font-medium">Invited:</span>{' '}
                               {formatDate(evaluator.invitation_sent_at)}
                               {getTimeElapsed(evaluator.invitation_sent_at) && (
                                 <span className="text-gray-400 ml-1">
@@ -843,19 +843,19 @@ function EvaluatorsContent() {
                           )}
                           {evaluator.invitation_opened_at && (
                             <div>
-                              <span className="font-medium">Ouvert:</span>{' '}
+                              <span className="font-medium">Opened:</span>{' '}
                               {formatDate(evaluator.invitation_opened_at)}
                             </div>
                           )}
                           {evaluator.started_at && (
                             <div>
-                              <span className="font-medium">Commencé:</span>{' '}
+                              <span className="font-medium">Started:</span>{' '}
                               {formatDate(evaluator.started_at)}
                             </div>
                           )}
                           {evaluator.completed_at && (
                             <div>
-                              <span className="font-medium">Terminé:</span>{' '}
+                              <span className="font-medium">Completed:</span>{' '}
                               {formatDate(evaluator.completed_at)}
                             </div>
                           )}
@@ -869,7 +869,7 @@ function EvaluatorsContent() {
                               className="text-xs flex flex-row items-center gap-2"
                             >
                               <Copy size={14} />
-                              {copiedToken === evaluator.invitation_token ? 'Copié!' : 'Copier le lien'}
+                              {copiedToken === evaluator.invitation_token ? 'Copied!' : 'Copy link'}
                             </Button>
                           </div>
                         )}
@@ -939,7 +939,7 @@ function EvaluatorsContent() {
             
             // Set filter to all to show all evaluators including newly added
             setStatusFilter('all');
-            setSuccessMessage('Les évaluateurs ont été ajoutés avec succès et apparaissent dans la liste');
+            setSuccessMessage('Evaluators have been successfully added and appear in the list');
             setTimeout(() => setSuccessMessage(null), 5000);
           }}
         />

@@ -169,7 +169,11 @@ function DashboardLayoutContent({
                 </Button>
                 <NotificationBellConnected />
                 {/* Dark mode toggle removed */}
-                <Button variant="danger" onClick={handleLogout}>
+                <Button 
+                  variant="primary" 
+                  onClick={handleLogout}
+                  style={{ backgroundColor: '#0f454d', color: '#fff' }}
+                >
                   <LogOut className="w-4 h-4 mr-2" />
                   Logout
                 </Button>

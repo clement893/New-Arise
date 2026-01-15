@@ -51,6 +51,55 @@
     "currentLanguage": "Langue actuelle",
     "selectLanguage": "Sélectionner une langue"
   },
+  "dashboard": {
+    "assessments": {
+      "titlePrefix": "Vos",
+      "titleSuffix": "assessments",
+      "title": "Vos assessments",
+      "description": "Suivez et gérez vos assessments de leadership",
+      "refresh": "Actualiser",
+      "refreshing": "Actualisation...",
+      "retry": "Réessayer",
+      "refreshPage": "Actualiser la page",
+      "status": {
+        "completed": "Complété",
+        "inProgress": "En cours",
+        "locked": "Verrouillé",
+        "available": "Disponible",
+        "notStarted": "Non commencé"
+      },
+      "progress": {
+        "label": "Progression : {count}/{total} questions",
+        "responses": "Progression : {count} réponses",
+        "notAvailable": "Progression non disponible"
+      },
+      "actions": {
+        "viewResults": "Voir les résultats",
+        "takeTest": "Passer le test",
+        "uploadTest": "Télécharger votre test",
+        "continue": "Continuer",
+        "start": "Commencer",
+        "submitting": "Soumission...",
+        "loading": "Chargement..."
+      },
+      "evaluators": {
+        "title": "Évaluateurs 360°",
+        "description": "Invitez des collègues à fournir un feedback 360° sur votre leadership",
+        "noEvaluators": "Aucun évaluateur ajouté pour le moment",
+        "viewAll": "Voir tous",
+        "add": "Ajouter",
+        "status": {
+          "completed": "Test réalisé",
+          "inProgress": "En cours",
+          "invited": "Invité"
+        }
+      },
+      "errors": {
+        "displayError": "Erreur d'affichage. Veuillez actualiser la page.",
+        "refresh": "Rafraîchir"
+      }
+    }
+  },
   "errors": {
     "somethingWentWrong": "Quelque chose s'est mal passé",
     "tryAgain": "Réessayer",
@@ -419,6 +468,214 @@
         "errors": {
           "saveFailed": "Échec de l'enregistrement des permissions. Veuillez réessayer."
         }
+      }
+    },
+    "settings": {
+      "title": "Paramètres système",
+      "description": "Configuration générale du système",
+      "breadcrumbs": {
+        "home": "Accueil",
+        "admin": "Administration",
+        "settings": "Paramètres"
+      },
+      "sections": {
+        "general": {
+          "title": "Général",
+          "maintenanceMode": {
+            "label": "Mode maintenance",
+            "description": "Active le mode maintenance pour restreindre l'accès au système"
+          },
+          "registrationEnabled": {
+            "label": "Inscriptions activées",
+            "description": "Permet aux nouveaux utilisateurs de s'inscrire"
+          },
+          "emailVerificationRequired": {
+            "label": "Vérification email requise",
+            "description": "Les utilisateurs doivent vérifier leur email pour activer leur compte"
+          }
+        },
+        "security": {
+          "title": "Sécurité",
+          "apiRateLimit": {
+            "label": "Limite de taux API (requêtes/minute)"
+          },
+          "sessionTimeout": {
+            "label": "Timeout de session (secondes)"
+          }
+        }
+      },
+      "saveButton": "Enregistrer les paramètres",
+      "success": {
+        "updated": "Paramètres mis à jour avec succès"
+      },
+      "errors": {
+        "saveFailed": "Erreur lors de la sauvegarde des paramètres"
+      }
+    },
+    "pages": {
+      "title": "Gestion des pages",
+      "description": "Gérer les pages de contenu du site",
+      "breadcrumbs": {
+        "home": "Accueil",
+        "admin": "Administration",
+        "pages": "Pages"
+      },
+      "searchPlaceholder": "Rechercher une page...",
+      "createButton": "Créer une page",
+      "refreshButton": "Actualiser",
+      "emptyMessage": "Aucune page trouvée",
+      "columns": {
+        "title": "Titre",
+        "slug": "Slug",
+        "status": "Statut",
+        "created": "Créé le",
+        "actions": "Actions"
+      },
+      "status": {
+        "published": "Publié",
+        "draft": "Brouillon",
+        "archived": "Archivé"
+      },
+      "actions": {
+        "view": "Voir la page",
+        "edit": "Modifier la page",
+        "delete": "Supprimer la page"
+      },
+      "deleteModal": {
+        "title": "Supprimer la page",
+        "message": "Êtes-vous sûr de vouloir supprimer la page {title} ?",
+        "warning": "Cette action est irréversible.",
+        "cancel": "Annuler",
+        "delete": "Supprimer"
+      },
+      "errors": {
+        "loadFailed": "Erreur lors du chargement des pages",
+        "deleteFailed": "Erreur lors de la suppression de la page"
+      }
+    },
+    "articles": {
+      "title": "Gestion des articles",
+      "description": "Gérer les articles de blog du site",
+      "breadcrumbs": {
+        "home": "Accueil",
+        "admin": "Administration",
+        "articles": "Articles"
+      },
+      "searchPlaceholder": "Rechercher un article...",
+      "createButton": "Créer un article",
+      "refreshButton": "Actualiser",
+      "emptyMessage": "Aucun article trouvé",
+      "columns": {
+        "title": "Titre",
+        "slug": "Slug",
+        "status": "Statut",
+        "created": "Créé le",
+        "actions": "Actions"
+      },
+      "status": {
+        "published": "Publié",
+        "draft": "Brouillon",
+        "archived": "Archivé"
+      },
+      "actions": {
+        "view": "Voir l'article",
+        "edit": "Modifier l'article",
+        "delete": "Supprimer l'article"
+      },
+      "deleteModal": {
+        "title": "Supprimer l'article",
+        "message": "Êtes-vous sûr de vouloir supprimer l'article {title} ?",
+        "warning": "Cette action est irréversible.",
+        "cancel": "Annuler",
+        "delete": "Supprimer"
+      },
+      "errors": {
+        "loadFailed": "Erreur lors du chargement des articles",
+        "deleteFailed": "Erreur lors de la suppression de l'article"
+      }
+    },
+    "plans": {
+      "title": "Plans d'abonnement",
+      "description": "Gérer les plans d'abonnement et la tarification",
+      "breadcrumbs": {
+        "home": "Accueil",
+        "admin": "Administration",
+        "plans": "Plans"
+      },
+      "empty": {
+        "title": "Aucun plan disponible",
+        "description": "Il n'y a actuellement aucun plan d'abonnement dans la base de données.",
+        "instructions": {
+          "title": "Pour créer des plans :",
+          "step1": "Connectez-vous à votre serveur backend (Railway, SSH, etc.)",
+          "step2": "Naviguez vers le dossier {directory}",
+          "step3": "Exécutez le script de seed : {command}",
+          "step4": "Rechargez cette page"
+        },
+        "defaultPlans": {
+          "title": "Le script créera 3 plans par défaut :",
+          "basic": "Basic : 49€/mois",
+          "professional": "Professional : 99€/mois (Le plus populaire)",
+          "enterprise": "Enterprise : Sur devis"
+        }
+      },
+      "form": {
+        "name": {
+          "label": "Nom du plan *",
+          "placeholder": "Ex: Basic, Professional, Enterprise"
+        },
+        "description": {
+          "label": "Description",
+          "placeholder": "Description du plan"
+        },
+        "price": {
+          "label": "Prix (€) *",
+          "placeholder": "Prix en euros"
+        },
+        "currency": {
+          "label": "Devise"
+        },
+        "interval": {
+          "label": "Intervalle",
+          "options": {
+            "month": "Mensuel",
+            "year": "Annuel",
+            "week": "Hebdomadaire",
+            "day": "Quotidien"
+          }
+        },
+        "intervalCount": {
+          "label": "Nombre d'intervalles"
+        },
+        "isPopular": {
+          "label": "Marquer comme populaire"
+        },
+        "features": {
+          "label": "Fonctionnalités (JSON)",
+          "helper": "Format JSON optionnel pour les fonctionnalités du plan"
+        },
+        "stripePriceId": {
+          "label": "ID du prix Stripe",
+          "helper": "ID du prix Stripe (commence par price_)",
+          "notConfigured": "Non configuré"
+        },
+        "stripeProductId": {
+          "label": "ID du produit Stripe",
+          "helper": "ID du produit Stripe (commence par prod_)",
+          "notConfigured": "Non configuré"
+        }
+      },
+      "actions": {
+        "edit": "Modifier",
+        "save": "Enregistrer",
+        "cancel": "Annuler",
+        "create": "Créer le plan",
+        "creating": "Création...",
+        "popular": "Le plus populaire"
+      },
+      "modal": {
+        "createTitle": "Créer un nouveau plan",
+        "cancel": "Annuler"
       }
     }
   },

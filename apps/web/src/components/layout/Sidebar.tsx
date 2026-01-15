@@ -217,9 +217,10 @@ export default function Sidebar({ isOpen: controlledIsOpen, onClose }: SidebarPr
           {/* Dark mode toggle removed */}
           <Button
             size="sm"
-            variant="ghost"
+            variant="primary"
             onClick={logout}
             className="flex-1"
+            style={{ backgroundColor: '#0f454d', color: '#fff' }}
           >
             Déconnexion
           </Button>

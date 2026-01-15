@@ -140,13 +140,13 @@ function CompaniesContent() {
       await createCompanyMutation.mutateAsync(data as CompanyCreate);
       setShowCreateModal(false);
       showToast({
-        message: 'Entreprise créée avec succès',
+        message: 'Company created successfully',
         type: 'success',
       });
     } catch (err) {
       const appError = handleApiError(err);
       showToast({
-        message: appError.message || 'Erreur lors de la création de l\'entreprise',
+        message: appError.message || 'Error creating company',
         type: 'error',
       });
     }
@@ -164,13 +164,13 @@ function CompaniesContent() {
       setShowEditModal(false);
       setSelectedCompany(null);
       showToast({
-        message: 'Entreprise modifiée avec succès',
+        message: 'Company updated successfully',
         type: 'success',
       });
     } catch (err) {
       const appError = handleApiError(err);
       showToast({
-        message: appError.message || 'Erreur lors de la modification de l\'entreprise',
+        message: appError.message || 'Error updating company',
         type: 'error',
       });
     }
@@ -205,23 +205,23 @@ function CompaniesContent() {
     const count = companies.length;
     if (count === 0) {
       showToast({
-        message: 'Aucune entreprise à supprimer',
+        message: 'No companies to delete',
         type: 'info',
       });
       return;
     }
 
     const confirmed = confirm(
-      `⚠️ ATTENTION: Vous êtes sur le point de supprimer TOUTES les ${count} entreprise(s) de la base de données.\n\nCette action est irréversible. Êtes-vous sûr de vouloir continuer ?`
+      `⚠️ WARNING: You are about to delete ALL ${count} compan${count !== 1 ? 'ies' : 'y'} from the database.\n\nThis action is irreversible. Are you sure you want to continue?`
     );
-
+    
     if (!confirmed) {
       return;
     }
-
+    
     // Double confirmation
     const doubleConfirmed = confirm(
-      '⚠️ DERNIÈRE CONFIRMATION: Toutes les entreprises seront définitivement supprimées. Tapez OK pour confirmer.'
+      '⚠️ FINAL CONFIRMATION: All companies will be permanently deleted. Type OK to confirm.'
     );
 
     if (!doubleConfirmed) {
@@ -232,13 +232,13 @@ function CompaniesContent() {
       const result = await deleteAllCompaniesMutation.mutateAsync();
       setSelectedCompany(null);
       showToast({
-        message: result.message || `${result.deleted_count} entreprise(s) supprimée(s) avec succès`,
+        message: result.message || `${result.deleted_count} compan${result.deleted_count !== 1 ? 'ies' : 'y'} deleted successfully`,
         type: 'success',
       });
     } catch (err) {
       const appError = handleApiError(err);
       showToast({
-        message: appError.message || 'Erreur lors de la suppression des entreprises',
+        message: appError.message || 'Error deleting companies',
         type: 'error',
       });
     }
@@ -256,19 +256,19 @@ function CompaniesContent() {
         // Invalidate companies query to refetch after import
         queryClient.invalidateQueries({ queryKey: ['companies'] });
         
-        const logosMsg = result.logos_uploaded && result.logos_uploaded > 0 ? ` (${result.logos_uploaded} logo(s) uploadé(s))` : '';
+        const logosMsg = result.logos_uploaded && result.logos_uploaded > 0 ? ` (${result.logos_uploaded} logo${result.logos_uploaded !== 1 ? 's' : ''} uploaded)` : '';
         showToast({
-          message: `${result.valid_rows} entreprise(s) importée(s) avec succès${logosMsg}`,
+          message: `${result.valid_rows} compan${result.valid_rows !== 1 ? 'ies' : 'y'} imported successfully${logosMsg}`,
           type: 'success',
         });
       }
       
       if (result.warnings && result.warnings.length > 0) {
         const warningsText = result.warnings
-          .map((w: { row: number; message: string }) => `Ligne ${w.row}: ${w.message}`)
+          .map((w: { row: number; message: string }) => `Row ${w.row}: ${w.message}`)
           .join('\n');
         showToast({
-          message: `Avertissements d'import:\n${warningsText}`,
+          message: `Import warnings:\n${warningsText}`,
           type: 'warning',
           duration: 8000,
         });
@@ -276,14 +276,14 @@ function CompaniesContent() {
       
       if (result.invalid_rows > 0) {
         showToast({
-          message: `${result.invalid_rows} ligne(s) avec erreur(s)`,
+          message: `${result.invalid_rows} row${result.invalid_rows !== 1 ? 's' : ''} with error${result.invalid_rows !== 1 ? 's' : ''}`,
           type: 'warning',
         });
       }
     } catch (err) {
       const appError = handleApiError(err);
       showToast({
-        message: appError.message || 'Erreur lors de l\'import',
+        message: appError.message || 'Error importing',
         type: 'error',
       });
     }
@@ -302,13 +302,13 @@ function CompaniesContent() {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       showToast({
-        message: 'Export réussi',
+        message: 'Export successful',
         type: 'success',
       });
     } catch (err) {
       const appError = handleApiError(err);
       showToast({
-        message: appError.message || 'Erreur lors de l\'export',
+        message: appError.message || 'Error exporting',
         type: 'error',
       });
     }
