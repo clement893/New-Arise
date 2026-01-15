@@ -39,13 +39,12 @@ interface ProtectedRouteProps {
 export default function ProtectedRoute({ children, requireAdmin = false }: ProtectedRouteProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, token, setUser } = useAuthStore();
+  const { user, setUser } = useAuthStore();
   const isHydrated = useHydrated();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
   const checkingRef = useRef(false);
   const lastUserRef = useRef(user);
-  const lastTokenRef = useRef(token);
   const lastPathnameRef = useRef<string>(pathname);
 
   useEffect(() => {
@@ -335,7 +334,7 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
 
     // Check immediately
     checkAuth();
-  }, [isHydrated, user, token, requireAdmin, isAuthorized]);
+  }, [isHydrated, user, requireAdmin, isAuthorized]);
 
   // Show loader during verification
   if (isChecking || !isAuthorized) {
