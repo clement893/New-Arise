@@ -78,6 +78,13 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     print("  Health endpoint available at: /api/v1/health/", file=sys.stderr)
     print("  Root endpoint available at: /", file=sys.stderr)
     print("=" * 50, file=sys.stderr)
+    # Also print to stdout for Railway visibility
+    print("=" * 50)
+    print("✓ FastAPI Application Ready - Server is starting")
+    print(f"  Environment: {os.getenv('ENVIRONMENT', 'development')}")
+    print(f"  Port: {os.getenv('PORT', '8000')}")
+    print("  Health endpoint: http://0.0.0.0:{}/api/v1/health/".format(os.getenv('PORT', '8000')))
+    print("=" * 50)
     
     # Background initialization tasks - these run after the app has started serving requests
     # This allows healthchecks to succeed even if initialization takes time
