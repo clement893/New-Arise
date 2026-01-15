@@ -9,10 +9,8 @@ exec 2>&1
 # Python unbuffered mode
 export PYTHONUNBUFFERED=1
 
-# Flush output immediately (for Alpine/busybox compatibility)
-if command -v stdbuf >/dev/null 2>&1; then
-    exec stdbuf -oL -eL "$0" "$@"
-fi
+# Note: stdbuf may not be available in all environments
+# We'll rely on PYTHONUNBUFFERED and exec 2>&1 for log visibility
 
 # Print immediate startup message so we know the script is running
 # Use multiple methods to ensure visibility
