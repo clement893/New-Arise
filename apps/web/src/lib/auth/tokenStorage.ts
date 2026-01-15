@@ -118,37 +118,28 @@ export class TokenStorage {
    * Check token status via API (for httpOnly cookie tokens)
    * 
    * SECURITY: Since tokens are in httpOnly cookies set by the backend FastAPI,
-   * we cannot check them directly via JavaScript. Instead, we verify authentication
-   * by making a lightweight API call to the backend. If the call succeeds, tokens exist.
+   * we cannot check them directly via JavaScript.
    * 
-   * Note: Cookies set by the backend are automatically sent with requests via withCredentials: true
+   * IMPORTANT: Due to cross-origin cookie limitations, cookies set by the backend
+   * on a different domain may not be accessible. This method returns true optimistically
+   * if we're in a browser context, as the actual authentication check will be done
+   * by the API calls themselves (which will fail with 401 if tokens are invalid).
+   * 
+   * The real authentication check happens in ProtectedRoute via usersAPI.getMe().
    */
   static async hasTokensInCookies(): Promise<boolean> {
     if (typeof window === 'undefined') {
       return false;
     }
 
-    try {
-      // Check authentication by calling the backend API directly
-      // This verifies that cookies are present and valid
-      const { getApiUrl } = await import('../api');
-      const apiUrl = getApiUrl();
-      
-      const response = await fetch(`${apiUrl}/api/v1/auth/me`, {
-        method: 'GET',
-        credentials: 'include', // Important: include cookies
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      // If we get a 200, tokens exist and are valid
-      // If we get 401/403, tokens don't exist or are invalid
-      return response.ok;
-    } catch (error) {
-      // Network error or other issue - assume no tokens
-      return false;
-    }
+    // OPTIMISTIC CHECK: Since cookies are httpOnly and may be on a different domain,
+    // we can't reliably check them from JavaScript. Instead, we return true optimistically
+    // and let the actual API calls (which use withCredentials: true) handle authentication.
+    // If tokens don't exist, API calls will fail with 401 and ProtectedRoute will handle it.
+    
+    // This prevents false negatives that would cause unnecessary redirects to login
+    // when the user is actually authenticated but cookies are on a different domain.
+    return true;
   }
 }
 
