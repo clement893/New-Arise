@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { getErrorMessage } from '@/lib/errors';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -18,6 +19,7 @@ import { logger } from '@/lib/logger';
 import { Key, Search, Trash2 } from 'lucide-react';
 
 export default function AdminAPIKeysContent() {
+  const t = useTranslations('admin.apiKeys');
   const [apiKeys, setApiKeys] = useState<AdminAPIKeyListResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +45,7 @@ export default function AdminAPIKeysContent() {
       const keys = await apiKeysAPI.adminList(includeInactive, userId);
       setApiKeys(keys);
     } catch (err) {
-      const errorMessage = getErrorMessage(err, 'Erreur lors du chargement des clés API');
+      const errorMessage = getErrorMessage(err, t('errors.loadFailed'));
       setError(errorMessage);
       logger.error('Failed to load API keys', err instanceof Error ? err : new Error(String(err)));
     } finally {
@@ -61,7 +63,7 @@ export default function AdminAPIKeysContent() {
       setSelectedKey(null);
       setError(null);
     } catch (err) {
-      const errorMessage = getErrorMessage(err, 'Erreur lors de la révocation de la clé API');
+      const errorMessage = getErrorMessage(err, t('errors.revokeFailed'));
       setError(errorMessage);
       logger.error('Failed to revoke API key', err instanceof Error ? err : new Error(String(err)));
     }
@@ -84,19 +86,19 @@ export default function AdminAPIKeysContent() {
   const columns: Column<AdminAPIKeyListResponse>[] = [
     {
       key: 'id',
-      label: 'ID',
+      label: t('columns.id'),
       render: (_value, key) => <span className="font-mono text-sm">{key.id}</span>,
     },
     {
       key: 'name',
-      label: 'Nom',
+      label: t('columns.name'),
       render: (_value, key) => (
         <div className="font-medium">{key.name}</div>
       ),
     },
     {
       key: 'user_email',
-      label: 'Utilisateur',
+      label: t('columns.user'),
       render: (_value, key) => (
         <div>
           <div className="font-medium">{key.user_email}</div>
@@ -109,7 +111,7 @@ export default function AdminAPIKeysContent() {
     },
     {
       key: 'key_prefix',
-      label: 'Préfixe',
+      label: t('columns.prefix'),
       render: (_value, key) => (
         <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
           {key.key_prefix}••••••••
@@ -118,20 +120,20 @@ export default function AdminAPIKeysContent() {
     },
     {
       key: 'is_active',
-      label: 'Statut',
+      label: t('columns.status'),
       render: (_value, key) => (
         <div className="flex flex-col gap-1">
           {key.is_active ? (
-            <Badge variant="success">Actif</Badge>
+            <Badge variant="success">{t('status.active')}</Badge>
           ) : (
-            <Badge variant="error">Inactif</Badge>
+            <Badge variant="error">{t('status.inactive')}</Badge>
           )}
           {isExpired(key.expires_at) && (
-            <Badge variant="error" className="text-xs">Expiré</Badge>
+            <Badge variant="error" className="text-xs">{t('status.expired')}</Badge>
           )}
           {key.expires_at && !isExpired(key.expires_at) && (
             <Badge variant="warning" className="text-xs">
-              Expire {new Date(key.expires_at).toLocaleDateString()}
+              {t('status.expires', { date: new Date(key.expires_at).toLocaleDateString() })}
             </Badge>
           )}
         </div>
@@ -139,25 +141,25 @@ export default function AdminAPIKeysContent() {
     },
     {
       key: 'rotation_policy',
-      label: 'Rotation',
+      label: t('columns.rotation'),
       render: (_value, key) => (
         <div className="text-sm">
           <div>{key.rotation_policy}</div>
           <div className="text-xs text-muted-foreground">
-            {key.rotation_count} rotation{key.rotation_count !== 1 ? 's' : ''}
+            {t('rotation.count', { count: key.rotation_count, plural: key.rotation_count !== 1 ? 's' : '' })}
           </div>
         </div>
       ),
     },
     {
       key: 'usage_count',
-      label: 'Utilisation',
+      label: t('columns.usage'),
       render: (_value, key) => (
         <div className="text-sm">
-          <div>{key.usage_count} utilisation{key.usage_count !== 1 ? 's' : ''}</div>
+          <div>{t('usage.count', { count: key.usage_count, plural: key.usage_count !== 1 ? 's' : '' })}</div>
           {key.last_used_at && (
             <div className="text-xs text-muted-foreground">
-              Dernière: {new Date(key.last_used_at).toLocaleDateString()}
+              {t('usage.lastUsed', { date: new Date(key.last_used_at).toLocaleDateString() })}
             </div>
           )}
         </div>
@@ -165,7 +167,7 @@ export default function AdminAPIKeysContent() {
     },
     {
       key: 'created_at',
-      label: 'Créé le',
+      label: t('columns.created'),
       render: (_value, key) => (
         <div className="text-sm">
           {new Date(key.created_at).toLocaleDateString()}
@@ -177,7 +179,7 @@ export default function AdminAPIKeysContent() {
     },
     {
       key: 'actions',
-      label: 'Actions',
+      label: t('columns.actions'),
       render: (_value, key) => (
         <div className="flex gap-2">
           <Button
@@ -189,7 +191,7 @@ export default function AdminAPIKeysContent() {
             }}
             disabled={!key.is_active}
             className="min-w-[44px] min-h-[44px] p-2"
-            title="Révoquer la clé"
+            title={t('actions.revoke')}
           >
             <Trash2 className="w-4 h-4" />
           </Button>
@@ -201,12 +203,12 @@ export default function AdminAPIKeysContent() {
   return (
     <PageContainer>
       <PageHeader
-        title="Gestion des Clés API"
-        description="Consulter et gérer toutes les clés API du système"
+        title={t('title')}
+        description={t('description')}
         breadcrumbs={[
-          { label: 'Accueil', href: '/' },
-          { label: 'Administration', href: '/admin' },
-          { label: 'Clés API' },
+          { label: t('breadcrumbs.home'), href: '/' },
+          { label: t('breadcrumbs.admin'), href: '/admin' },
+          { label: t('breadcrumbs.apiKeys') },
         ]}
       />
 
@@ -218,12 +220,12 @@ export default function AdminAPIKeysContent() {
         </div>
       )}
 
-      <Section title="Clés API" className="mt-6">
+      <Section title={t('sectionTitle')} className="mt-6">
         <Card>
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="flex-1 w-full">
               <Input
-                placeholder="Rechercher par nom, email, préfixe..."
+                placeholder={t('searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 leftIcon={<Search className="w-4 h-4" />}
@@ -232,7 +234,7 @@ export default function AdminAPIKeysContent() {
             <div className="flex flex-col sm:flex-row gap-2">
               <Input
                 type="number"
-                placeholder="Filtrer par ID utilisateur"
+                placeholder={t('userIdFilterPlaceholder')}
                 value={userIdFilter}
                 onChange={(e) => setUserIdFilter(e.target.value)}
                 className="w-full sm:w-40 text-sm sm:text-base"
@@ -244,10 +246,10 @@ export default function AdminAPIKeysContent() {
                   onChange={(e) => setIncludeInactive(e.target.checked)}
                   className="mr-2"
                 />
-                Inclure inactives
+                {t('includeInactive')}
               </label>
               <Button variant="outline" onClick={fetchAPIKeys} className="w-full sm:w-auto text-sm sm:text-base">
-                Actualiser
+                {t('refreshButton')}
               </Button>
             </div>
           </div>
@@ -261,8 +263,8 @@ export default function AdminAPIKeysContent() {
               <Key className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground">
                 {apiKeys.length === 0
-                  ? 'Aucune clé API trouvée'
-                  : 'Aucune clé API ne correspond à votre recherche'}
+                  ? t('empty.noKeys')
+                  : t('empty.noMatch')}
               </p>
             </div>
           ) : (
@@ -283,17 +285,16 @@ export default function AdminAPIKeysContent() {
           setDeleteModalOpen(false);
           setSelectedKey(null);
         }}
-        title="Révoquer la clé API"
+        title={t('deleteModal.title')}
         size="md"
       >
         {selectedKey && (
           <div className="space-y-4">
             <p>
-              Êtes-vous sûr de vouloir révoquer la clé API <strong>{selectedKey.name}</strong> de{' '}
-              <strong>{selectedKey.user_email}</strong> ?
+              {t('deleteModal.message', { name: selectedKey.name, email: selectedKey.user_email })}
             </p>
             <p className="text-sm text-muted-foreground">
-              Cette action est irréversible. La clé API sera immédiatement désactivée.
+              {t('deleteModal.warning')}
             </p>
             <div className="flex flex-col sm:flex-row gap-2 justify-end">
               <Button
@@ -304,10 +305,10 @@ export default function AdminAPIKeysContent() {
                 }}
                 className="w-full sm:w-auto text-sm sm:text-base"
               >
-                Annuler
+                {t('deleteModal.cancel')}
               </Button>
               <Button variant="danger" onClick={handleDelete} className="w-full sm:w-auto text-sm sm:text-base">
-                Révoquer
+                {t('deleteModal.revoke')}
               </Button>
             </div>
           </div>

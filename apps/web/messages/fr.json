@@ -677,6 +677,266 @@
         "createTitle": "Créer un nouveau plan",
         "cancel": "Annuler"
       }
+    },
+    "apiKeys": {
+      "title": "Gestion des Clés API",
+      "description": "Consulter et gérer toutes les clés API du système",
+      "breadcrumbs": {
+        "home": "Accueil",
+        "admin": "Administration",
+        "apiKeys": "Clés API"
+      },
+      "sectionTitle": "Clés API",
+      "searchPlaceholder": "Rechercher par nom, email, préfixe...",
+      "userIdFilterPlaceholder": "Filtrer par ID utilisateur",
+      "includeInactive": "Inclure inactives",
+      "refreshButton": "Actualiser",
+      "columns": {
+        "id": "ID",
+        "name": "Nom",
+        "user": "Utilisateur",
+        "prefix": "Préfixe",
+        "status": "Statut",
+        "rotation": "Rotation",
+        "usage": "Utilisation",
+        "created": "Créé le",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Actif",
+        "inactive": "Inactif",
+        "expired": "Expiré",
+        "expires": "Expire {date}"
+      },
+      "usage": {
+        "count": "{count} utilisation{plural}",
+        "lastUsed": "Dernière: {date}"
+      },
+      "rotation": {
+        "count": "{count} rotation{plural}"
+      },
+      "actions": {
+        "revoke": "Révoquer la clé"
+      },
+      "empty": {
+        "noKeys": "Aucune clé API trouvée",
+        "noMatch": "Aucune clé API ne correspond à votre recherche"
+      },
+      "deleteModal": {
+        "title": "Révoquer la clé API",
+        "message": "Êtes-vous sûr de vouloir révoquer la clé API {name} de {email} ?",
+        "warning": "Cette action est irréversible. La clé API sera immédiatement désactivée.",
+        "cancel": "Annuler",
+        "revoke": "Révoquer"
+      },
+      "errors": {
+        "loadFailed": "Erreur lors du chargement des clés API",
+        "revokeFailed": "Erreur lors de la révocation de la clé API"
+      }
+    },
+    "media": {
+      "title": "Gestion des médias",
+      "description": "Gérer les fichiers média du site",
+      "breadcrumbs": {
+        "home": "Accueil",
+        "admin": "Administration",
+        "media": "Médias"
+      },
+      "searchPlaceholder": "Rechercher un fichier...",
+      "uploadButton": "Uploader un fichier",
+      "uploading": "Upload en cours...",
+      "refreshButton": "Actualiser",
+      "columns": {
+        "file": "Fichier",
+        "path": "Chemin",
+        "size": "Taille",
+        "type": "Type",
+        "visibility": "Visibilité",
+        "created": "Créé le",
+        "actions": "Actions"
+      },
+      "visibility": {
+        "public": "Public",
+        "private": "Privé"
+      },
+      "actions": {
+        "delete": "Supprimer le fichier"
+      },
+      "emptyMessage": "Aucun fichier média trouvé",
+      "deleteModal": {
+        "title": "Supprimer le fichier",
+        "message": "Êtes-vous sûr de vouloir supprimer le fichier {filename} ?",
+        "warning": "Cette action est irréversible.",
+        "cancel": "Annuler",
+        "delete": "Supprimer"
+      },
+      "errors": {
+        "loadFailed": "Erreur lors du chargement des fichiers média",
+        "deleteFailed": "Erreur lors de la suppression du fichier",
+        "uploadFailed": "Erreur lors de l'upload du fichier"
+      }
+    },
+    "main": {
+      "title": "Administration",
+      "description": "Panneau d'administration du système",
+      "breadcrumbs": {
+        "home": "Accueil",
+        "admin": "Administration"
+      },
+      "cards": {
+        "invitations": {
+          "title": "Invitations",
+          "description": "Gérer les invitations utilisateurs et les accès au système.",
+          "button": "Gérer les invitations"
+        },
+        "users": {
+          "title": "Utilisateurs",
+          "description": "Consulter et gérer les utilisateurs du système.",
+          "button": "Gérer les utilisateurs"
+        },
+        "organizations": {
+          "title": "Organisations",
+          "description": "Gérer les organisations et leurs paramètres.",
+          "button": "Gérer les organisations"
+        },
+        "themes": {
+          "title": "Thèmes",
+          "description": "Créez, modifiez et activez les thèmes de la plateforme.",
+          "button": "Gérer les thèmes"
+        },
+        "plans": {
+          "title": "Plans d'abonnement",
+          "description": "Gérez les plans d'abonnement, modifiez les prix et descriptions.",
+          "button": "Gérer les plans"
+        },
+        "settings": {
+          "title": "Paramètres",
+          "description": "Configuration générale du système.",
+          "button": "Configurer"
+        },
+        "logs": {
+          "title": "Logs",
+          "description": "Consulter les logs système et les activités.",
+          "button": "Voir les logs"
+        },
+        "statistics": {
+          "title": "Statistiques",
+          "description": "Visualiser les statistiques et métriques du système.",
+          "button": "Voir les statistiques"
+        },
+        "apiKeys": {
+          "title": "Clés API",
+          "description": "Consulter et gérer toutes les clés API du système.",
+          "button": "Gérer les clés API"
+        }
+      },
+      "users": {
+        "title": "Gestion des Utilisateurs",
+        "description": "Gérez tous les utilisateurs de la plateforme",
+        "searchPlaceholder": "Rechercher par email ou nom...",
+        "columns": {
+          "email": "Email",
+          "name": "Nom",
+          "status": "Statut",
+          "roles": "Rôles",
+          "actions": "Actions"
+        },
+        "status": {
+          "active": "Actif",
+          "inactive": "Inactif"
+        },
+        "actions": {
+          "roles": "Rôles",
+          "permissions": "Permissions",
+          "delete": "Supprimer"
+        },
+        "roles": {
+          "loading": "Chargement...",
+          "noRoles": "Aucun rôle"
+        },
+        "rolesModal": {
+          "title": "Gérer les rôles - {email}"
+        },
+        "permissionsModal": {
+          "title": "Gérer les permissions - {email}"
+        },
+        "deleteModal": {
+          "title": "Confirmer la suppression",
+          "message": "Êtes-vous sûr de vouloir supprimer l'utilisateur {email} ?",
+          "cancel": "Annuler",
+          "delete": "Supprimer"
+        },
+        "errors": {
+          "loadFailed": "Erreur lors du chargement des utilisateurs",
+          "deleteFailed": "Erreur lors de la suppression de l'utilisateur"
+        }
+      },
+      "systemStatus": {
+        "title": "Statut du système",
+        "apiBackend": "API Backend",
+        "database": "Base de données",
+        "services": "Services",
+        "online": "En ligne",
+        "connected": "Connectée",
+        "operational": "Opérationnels"
+      }
+    },
+    "invitations": {
+      "title": "Gestion des invitations",
+      "description": "Gérer les invitations utilisateurs et les accès au système",
+      "breadcrumbs": {
+        "home": "Accueil",
+        "admin": "Administration",
+        "invitations": "Invitations"
+      },
+      "status": {
+        "pending": "En attente",
+        "accepted": "Acceptée",
+        "expired": "Expirée",
+        "cancelled": "Annulée"
+      },
+      "columns": {
+        "email": "Email",
+        "role": "Rôle",
+        "organization": "Organisation",
+        "status": "Statut",
+        "invitedAt": "Invitée le",
+        "expiresAt": "Expire le",
+        "actions": "Actions"
+      },
+      "actions": {
+        "resend": "Réenvoyer",
+        "cancel": "Annuler"
+      },
+      "empty": {
+        "noInvitations": "Aucune invitation",
+        "noMatch": "Aucune invitation {status}"
+      },
+      "searchPlaceholder": "Rechercher par email...",
+      "emptyMessage": "Aucune invitation trouvée",
+      "deleteModal": {
+        "title": "Annuler l'invitation",
+        "message": "Êtes-vous sûr de vouloir annuler l'invitation pour {email} ?",
+        "warning": "Cette action est irréversible.",
+        "cancel": "Annuler",
+        "confirm": "Annuler l'invitation"
+      },
+      "createButton": "Inviter un utilisateur",
+      "createModal": {
+        "title": "Inviter un utilisateur",
+        "emailLabel": "Email *",
+        "emailPlaceholder": "user@example.com",
+        "roleLabel": "Rôle *",
+        "roles": {
+          "user": "Utilisateur",
+          "manager": "Manager",
+          "admin": "Administrateur"
+        },
+        "cancel": "Annuler",
+        "send": "Envoyer l'invitation"
+      },
+      "total": "Total",
+      "all": "Tous"
     }
   },
   "Dashboard": {

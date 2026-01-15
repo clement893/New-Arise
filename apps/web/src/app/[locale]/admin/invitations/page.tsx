@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/lib/store';
 import { getErrorMessage, getErrorDetail } from '@/lib/errors';
 import ProtectedSuperAdminRoute from '@/components/auth/ProtectedSuperAdminRoute';
@@ -34,6 +35,7 @@ interface Invitation extends Record<string, unknown> {
 }
 
 export default function InvitationsPage() {
+  const t = useTranslations('admin.invitations');
   const { isAuthenticated, user } = useAuthStore();
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -127,7 +129,7 @@ export default function InvitationsPage() {
   };
 
   const handleCancelInvitation = async (invitationId: string) => {
-    if (!confirm('Are you sure you want to cancel this invitation?')) {
+    if (!confirm(t('deleteModal.message', { email: '' }))) {
       return;
     }
 
@@ -185,10 +187,10 @@ export default function InvitationsPage() {
 
   const getStatusLabel = (status: string) => {
     const labels: Record<string, string> = {
-      pending: 'En attente',
-      accepted: 'Acceptée',
-      expired: 'Expirée',
-      cancelled: 'Annulée',
+      pending: t('status.pending'),
+      accepted: t('status.accepted'),
+      expired: t('status.expired'),
+      cancelled: t('status.cancelled'),
     };
     return labels[status] || status;
   };
@@ -196,7 +198,7 @@ export default function InvitationsPage() {
   const columns: Column<Invitation>[] = [
     {
       key: 'email',
-      label: 'Email',
+      label: t('columns.email'),
       sortable: true,
       render: (_value: unknown, invitation: Invitation) => (
         <div className="font-medium text-foreground">{invitation.email}</div>
@@ -204,7 +206,7 @@ export default function InvitationsPage() {
     },
     {
       key: 'role',
-      label: 'Rôle',
+      label: t('columns.role'),
       sortable: true,
       render: (_value: unknown, invitation: Invitation) => (
         <Badge>{invitation.role}</Badge>
@@ -212,7 +214,7 @@ export default function InvitationsPage() {
     },
     {
       key: 'organization_name',
-      label: 'Organisation',
+      label: t('columns.organization'),
       sortable: true,
       render: (_value: unknown, invitation: Invitation) => (
         <div className="text-sm text-muted-foreground">{invitation.organization_name}</div>
@@ -220,7 +222,7 @@ export default function InvitationsPage() {
     },
     {
       key: 'status',
-      label: 'Statut',
+      label: t('columns.status'),
       sortable: true,
       render: (_value: unknown, invitation: Invitation) => (
         <Badge variant={getStatusBadge(invitation.status)}>
@@ -230,33 +232,33 @@ export default function InvitationsPage() {
     },
     {
       key: 'invited_at',
-      label: 'Invitée le',
+      label: t('columns.invitedAt'),
       sortable: true,
       render: (_value: unknown, invitation: Invitation) => (
         <span className="text-sm text-muted-foreground">
-          {new Date(invitation.invited_at).toLocaleDateString('en-US')}
+          {new Date(invitation.invited_at).toLocaleDateString()}
         </span>
       ),
     },
     {
       key: 'expires_at',
-      label: 'Expire le',
+      label: t('columns.expiresAt'),
       sortable: true,
       render: (_value: unknown, invitation: Invitation) => (
         <span className="text-sm text-muted-foreground">
-          {new Date(invitation.expires_at).toLocaleDateString('en-US')}
+          {new Date(invitation.expires_at).toLocaleDateString()}
         </span>
       ),
     },
     {
       key: 'actions',
-      label: 'Actions',
+      label: t('columns.actions'),
       render: (_value: unknown, invitation: Invitation) => (
         <div className="flex flex-wrap gap-2">
           {invitation.status === 'pending' && (
             <>
               <Button size="sm" variant="outline" onClick={() => handleResendInvitation(invitation.id)} className="text-xs sm:text-sm">
-                Réenvoyer
+                {t('actions.resend')}
               </Button>
               <Button
                 size="sm"
@@ -264,7 +266,7 @@ export default function InvitationsPage() {
                 onClick={() => handleCancelInvitation(invitation.id)}
                 className="border-danger-500 text-danger-600 hover:bg-danger-50 text-xs sm:text-sm"
               >
-                Annuler
+                {t('actions.cancel')}
               </Button>
             </>
           )}
@@ -279,11 +281,11 @@ export default function InvitationsPage() {
         <Container>
       <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">Gestion des Invitations</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">Gérer les invitations envoyées aux utilisateurs</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">{t('title')}</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">{t('description')}</p>
         </div>
         <Button onClick={() => setShowCreateModal(true)} className="w-full sm:w-auto">
-          Inviter un utilisateur
+          {t('createButton')}
         </Button>
       </div>
 
@@ -293,7 +295,7 @@ export default function InvitationsPage() {
           <Card key={status}>
             <div className="p-3 sm:p-4 text-center">
               <div className="text-xl sm:text-2xl font-bold text-foreground">{count}</div>
-              <div className="text-xs sm:text-sm text-muted-foreground capitalize">{status === 'all' ? 'Total' : getStatusLabel(status)}</div>
+              <div className="text-xs sm:text-sm text-muted-foreground capitalize">{status === 'all' ? t('total') : getStatusLabel(status)}</div>
             </div>
           </Card>
         ))}
@@ -308,7 +310,7 @@ export default function InvitationsPage() {
             variant={filterStatus === status ? 'primary' : 'ghost'}
             size="sm"
           >
-            {status === 'all' ? 'Tous' : getStatusLabel(status)}
+            {status === 'all' ? t('all') : getStatusLabel(status)}
           </Button>
         ))}
       </div>
@@ -329,7 +331,7 @@ export default function InvitationsPage() {
         <Card>
           <div className="py-12 text-center">
             <p className="text-muted-foreground">
-              {filterStatus === 'all' ? 'Aucune invitation' : `Aucune invitation ${getStatusLabel(filterStatus).toLowerCase()}`}
+              {filterStatus === 'all' ? t('empty.noInvitations') : t('empty.noMatch', { status: getStatusLabel(filterStatus).toLowerCase() })}
             </p>
           </div>
         </Card>
@@ -339,11 +341,11 @@ export default function InvitationsPage() {
             data={filteredInvitations}
             columns={columns}
             searchable={true}
-            searchPlaceholder="Rechercher par email..."
+            searchPlaceholder={t('searchPlaceholder')}
             filterable={false}
             sortable={true}
             pageSize={10}
-            emptyMessage="Aucune invitation trouvée"
+            emptyMessage={t('emptyMessage')}
             loading={loading}
           />
         </Card>
@@ -357,7 +359,7 @@ export default function InvitationsPage() {
           setNewInvitationEmail('');
           setNewInvitationRole('user');
         }}
-        title="Inviter un utilisateur"
+        title={t('createModal.title')}
         size="md"
         footer={
           <div className="flex flex-wrap gap-2 w-full sm:w-auto sm:justify-end">
@@ -370,13 +372,13 @@ export default function InvitationsPage() {
               }}
               className="flex-1 sm:flex-initial"
             >
-              Annuler
+              {t('createModal.cancel')}
             </Button>
             <Button 
               onClick={handleCreateInvitation}
               className="flex-1 sm:flex-initial"
             >
-              Envoyer l'invitation
+              {t('createModal.send')}
             </Button>
           </div>
         }
@@ -384,24 +386,24 @@ export default function InvitationsPage() {
         <div className="space-y-4">
           <div>
             <Input
-              label="Email *"
+              label={t('createModal.emailLabel')}
               type="email"
               value={newInvitationEmail}
               onChange={(e) => setNewInvitationEmail(e.target.value)}
-              placeholder="user@example.com"
+              placeholder={t('createModal.emailPlaceholder')}
               fullWidth
             />
           </div>
           <div>
             <Select
-              label="Rôle *"
+              label={t('createModal.roleLabel')}
               value={newInvitationRole}
               onChange={(e) => setNewInvitationRole(e.target.value)}
               fullWidth
               options={[
-                { value: 'user', label: 'Utilisateur' },
-                { value: 'manager', label: 'Manager' },
-                { value: 'admin', label: 'Administrateur' },
+                { value: 'user', label: t('createModal.roles.user') },
+                { value: 'manager', label: t('createModal.roles.manager') },
+                { value: 'admin', label: t('createModal.roles.admin') },
               ]}
             />
           </div>

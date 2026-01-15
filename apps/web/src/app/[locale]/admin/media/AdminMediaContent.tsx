@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { PageHeader, PageContainer } from '@/components/layout';
 import { getErrorMessage } from '@/lib/errors';
 import { Button, Card, Badge, Alert, Input, Loading, Modal, DataTable } from '@/components/ui';
@@ -10,6 +11,7 @@ import { mediaAPI, type Media } from '@/lib/api/media';
 import { logger } from '@/lib/logger';
 
 export default function AdminMediaContent() {
+  const t = useTranslations('admin.media');
   const [mediaFiles, setMediaFiles] = useState<Media[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +33,7 @@ export default function AdminMediaContent() {
       logger.debug('[AdminMedia] Loaded media files', { count: mediaData.length });
       setMediaFiles(mediaData);
     } catch (err: unknown) {
-      const errorMessage = getErrorMessage(err, 'Erreur lors du chargement des fichiers média');
+      const errorMessage = getErrorMessage(err, t('errors.loadFailed'));
       logger.error('[AdminMedia] Error loading media', err instanceof Error ? err : new Error(String(err)));
       setError(errorMessage);
     } finally {
@@ -50,7 +52,7 @@ export default function AdminMediaContent() {
       setDeleteModalOpen(false);
       setSelectedMedia(null);
     } catch (err: unknown) {
-      const errorMessage = getErrorMessage(err, 'Erreur lors de la suppression du fichier');
+      const errorMessage = getErrorMessage(err, t('errors.deleteFailed'));
       logger.error('[AdminMedia] Error deleting media', err instanceof Error ? err : new Error(String(err)));
       setError(errorMessage);
     }
@@ -71,7 +73,7 @@ export default function AdminMediaContent() {
         fileInputRef.current.value = '';
       }
     } catch (err: unknown) {
-      const errorMessage = getErrorMessage(err, 'Erreur lors de l\'upload du fichier');
+      const errorMessage = getErrorMessage(err, t('errors.uploadFailed'));
       logger.error('[AdminMedia] Error uploading media', err instanceof Error ? err : new Error(String(err)));
       setError(errorMessage);
     } finally {
@@ -105,7 +107,7 @@ export default function AdminMediaContent() {
   const columns: Column<Media>[] = [
     {
       key: 'filename',
-      label: 'Fichier',
+      label: t('columns.file'),
       render: (_value, media) => (
         <div className="flex items-center gap-2">
           {getMediaIcon(media.mime_type)}
@@ -115,46 +117,46 @@ export default function AdminMediaContent() {
     },
     {
       key: 'file_path',
-      label: 'Chemin',
+      label: t('columns.path'),
       render: (_value, media) => (
         <span className="text-sm text-muted-foreground font-mono">{media.file_path}</span>
       ),
     },
     {
       key: 'file_size',
-      label: 'Taille',
+      label: t('columns.size'),
       render: (_value, media) => (
         <span className="text-sm text-muted-foreground">{formatFileSize(media.file_size)}</span>
       ),
     },
     {
       key: 'mime_type',
-      label: 'Type',
+      label: t('columns.type'),
       render: (_value, media) => (
         <span className="text-sm text-muted-foreground">{media.mime_type || 'N/A'}</span>
       ),
     },
     {
       key: 'is_public',
-      label: 'Visibilité',
+      label: t('columns.visibility'),
       render: (_value, media) => (
         <Badge variant={media.is_public ? 'success' : 'default'}>
-          {media.is_public ? 'Public' : 'Privé'}
+          {media.is_public ? t('visibility.public') : t('visibility.private')}
         </Badge>
       ),
     },
     {
       key: 'created_at',
-      label: 'Créé le',
+      label: t('columns.created'),
       render: (_value, media) => (
         <span className="text-sm text-muted-foreground">
-          {new Date(media.created_at).toLocaleDateString('en-US')}
+          {new Date(media.created_at).toLocaleDateString()}
         </span>
       ),
     },
     {
       key: 'actions',
-      label: 'Actions',
+      label: t('columns.actions'),
       render: (_value, media) => (
         <div className="flex items-center gap-2">
           <Button
@@ -164,8 +166,8 @@ export default function AdminMediaContent() {
               setSelectedMedia(media);
               setDeleteModalOpen(true);
             }}
-            aria-label="Delete file"
-            title="Delete file"
+            aria-label={t('actions.delete')}
+            title={t('actions.delete')}
             className="text-danger-600 hover:text-danger-700 dark:text-danger-400 dark:hover:text-danger-300"
           >
             <Trash2 className="w-4 h-4" />
@@ -178,12 +180,12 @@ export default function AdminMediaContent() {
   return (
     <PageContainer>
       <PageHeader
-        title="Media Management"
-        description="Manage site media files"
+        title={t('title')}
+        description={t('description')}
         breadcrumbs={[
-          { label: 'Home', href: '/' },
-          { label: 'Administration', href: '/admin' },
-          { label: 'Media' },
+          { label: t('breadcrumbs.home'), href: '/' },
+          { label: t('breadcrumbs.admin'), href: '/admin' },
+          { label: t('breadcrumbs.media') },
         ]}
       />
 
@@ -197,7 +199,7 @@ export default function AdminMediaContent() {
         <div className="flex gap-4 items-center flex-wrap">
           <Input
             type="text"
-            placeholder="Search for a file..."
+            placeholder={t('searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="flex-1 min-w-[200px]"
@@ -216,10 +218,10 @@ export default function AdminMediaContent() {
             className="flex flex-row items-center gap-2"
           >
             <Upload className="w-4 h-4" />
-            {uploading ? 'Uploading...' : 'Upload a file'}
+            {uploading ? t('uploading') : t('uploadButton')}
           </Button>
           <Button onClick={loadMedia} variant="outline">
-            Refresh
+            {t('refreshButton')}
           </Button>
         </div>
 
@@ -234,7 +236,7 @@ export default function AdminMediaContent() {
             <DataTable
               data={filteredMedia as unknown as Record<string, unknown>[]}
               columns={columns as unknown as Column<Record<string, unknown>>[]}
-              emptyMessage="No media file found"
+              emptyMessage={t('emptyMessage')}
             />
           </Card>
         )}
@@ -247,14 +249,14 @@ export default function AdminMediaContent() {
           setDeleteModalOpen(false);
           setSelectedMedia(null);
         }}
-        title="Supprimer le fichier"
+        title={t('deleteModal.title')}
       >
         <div className="space-y-4">
           <p className="text-foreground">
-            Are you sure you want to delete the file <strong>{selectedMedia?.filename}</strong>?
+            {t('deleteModal.message', { filename: selectedMedia?.filename ?? '' })}
           </p>
           <p className="text-sm text-muted-foreground">
-            This action is irreversible.
+            {t('deleteModal.warning')}
           </p>
           <div className="flex gap-3 justify-end">
             <Button
@@ -264,10 +266,10 @@ export default function AdminMediaContent() {
                 setSelectedMedia(null);
               }}
             >
-              Cancel
+              {t('deleteModal.cancel')}
             </Button>
             <Button variant="danger" onClick={handleDelete}>
-              Delete
+              {t('deleteModal.delete')}
             </Button>
           </div>
         </div>
