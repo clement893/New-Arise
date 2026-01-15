@@ -178,7 +178,7 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
                   checkingRef.current = false;
                   setIsChecking(false);
                   setIsAuthorized(false);
-                  router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}`);
+                  router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
                   return;
                 }
               } else {
@@ -259,7 +259,7 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
         checkingRef.current = false;
         setIsChecking(false);
         setIsAuthorized(false);
-        router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}`);
+        router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
         return;
       }
 

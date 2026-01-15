@@ -77,7 +77,7 @@ export default function ProtectedSuperAdminRoute({ children }: ProtectedSuperAdm
       
       if (!isAuth) {
         logger.debug('Not authenticated, redirecting to login', { pathname });
-        router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}`);
+        router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
         return;
       }
 
@@ -88,7 +88,7 @@ export default function ProtectedSuperAdminRoute({ children }: ProtectedSuperAdm
           
           if (!authToken) {
             logger.warn('No token available for superadmin check', { email: user.email });
-            router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}`);
+            router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
             return;
           }
           
