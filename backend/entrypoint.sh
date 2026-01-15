@@ -2,14 +2,17 @@
 # Don't use set -e to allow graceful error handling
 
 # CRITICAL: Force immediate output visibility
-# Write to both stdout and stderr, and also to a log file as backup
-LOG_FILE="/tmp/entrypoint.log"
-exec > >(tee -a "$LOG_FILE" 2>&1)
+# Redirect stderr to stdout so Railway captures everything
 exec 2>&1
 
 # Force unbuffered output for immediate visibility
 # Python unbuffered mode
 export PYTHONUNBUFFERED=1
+
+# Flush output immediately (for Alpine/busybox compatibility)
+if command -v stdbuf >/dev/null 2>&1; then
+    exec stdbuf -oL -eL "$0" "$@"
+fi
 
 # Print immediate startup message so we know the script is running
 # Use multiple methods to ensure visibility
