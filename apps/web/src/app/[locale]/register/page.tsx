@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRegistrationStore } from '@/stores/registrationStore';
 import { Step1_RoleSelection } from '@/components/register/Step1_RoleSelection';
 import { Step1_5_DiscoverPlans } from '@/components/register/Step1_5_DiscoverPlans';
@@ -14,6 +15,7 @@ import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
 
 export default function RegisterPage() {
+  const t = useTranslations('register');
   const step = useRegistrationStore((state) => state.step);
   const [prevStep, setPrevStep] = useState(step);
   const [keepStep5Mounted, setKeepStep5Mounted] = useState(false);
@@ -117,7 +119,7 @@ export default function RegisterPage() {
             })}
           </div>
           <div className="text-white text-sm font-medium text-center">
-            Step {step === 1.5 ? 2 : step} of 8
+            {t('stepIndicator', { step: step === 1.5 ? 2 : step, total: 8 })}
           </div>
         </div>
       )}

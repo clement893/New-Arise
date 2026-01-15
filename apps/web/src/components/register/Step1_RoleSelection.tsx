@@ -1,29 +1,31 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useRegistrationStore } from '@/stores/registrationStore';
 import { User, Users, Building2, ArrowLeft } from 'lucide-react';
 
 export function Step1_RoleSelection() {
+  const t = useTranslations('register.step1');
   const { setRole, setStep } = useRegistrationStore();
 
   const roles = [
     {
       id: 'individual' as const,
       icon: User,
-      title: 'Individual',
-      description: 'I want to develop my personal leadership skills'
+      title: t('roles.individual.title'),
+      description: t('roles.individual.description')
     },
     {
       id: 'coach' as const,
       icon: Users,
-      title: 'Coach',
-      description: 'I guide leaders through their development journey'
+      title: t('roles.coach.title'),
+      description: t('roles.coach.description')
     },
     {
       id: 'business' as const,
       icon: Building2,
-      title: 'Business',
-      description: 'I want to develop leadership talent in my organization'
+      title: t('roles.business.title'),
+      description: t('roles.business.description')
     }
   ];
 
@@ -35,7 +37,7 @@ export function Step1_RoleSelection() {
   return (
     <div className="w-full max-w-4xl mx-auto p-6">
       <h2 className="text-3xl font-bold text-white mb-8 text-center">
-        Who are you?
+        {t('title')}
       </h2>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -75,7 +77,7 @@ export function Step1_RoleSelection() {
           disabled
         >
           <ArrowLeft className="w-4 h-4" />
-          Retour
+          {t('back')}
         </button>
       </div>
     </div>

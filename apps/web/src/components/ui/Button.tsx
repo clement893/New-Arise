@@ -205,12 +205,20 @@ function Button({
     standardVariantStyles.color = '#FFFFFF';
   }
 
+  // Check if outline variant has background color to add special class
+  const hasOutlineBackground = variant === 'outline' && !variantConfig && 
+    props.style && typeof props.style === 'object' && 'backgroundColor' in props.style &&
+    (props.style as React.CSSProperties).backgroundColor &&
+    (props.style as React.CSSProperties).backgroundColor !== 'transparent' &&
+    (props.style as React.CSSProperties).backgroundColor !== 'rgba(0, 0, 0, 0)';
+
   const buttonClasses = clsx(
     baseStyles,
     variantClasses,
     sizeClasses,
     fullWidth && 'w-full',
     variant === 'primary' && !variantConfig && 'hover:opacity-90',
+    hasOutlineBackground && '[color:#FFFFFF]', // Force white text when outline has background
     className
   );
 
@@ -219,10 +227,30 @@ function Button({
     return <>{children}</>;
   }
 
+  // Final check: if outline variant has backgroundColor, force text to white
+  // Merge all styles first - props.style last to ensure it has priority
+  const mergedStyle: React.CSSProperties = { ...sizeStyle, ...variantStyles, ...standardVariantStyles, ...props.style };
+  
+  // If outline variant has a background color, ensure text is white
+  // This must be done AFTER merging to override any color from props.style or classes
+  if (variant === 'outline' && !variantConfig) {
+    const bgColor = mergedStyle.backgroundColor;
+    // Check if background color is set and not transparent
+    const hasBackground = bgColor && 
+        bgColor !== 'transparent' && 
+        bgColor !== 'rgba(0, 0, 0, 0)' &&
+        (typeof bgColor === 'string' ? bgColor.trim() !== '' : true);
+    
+    if (hasBackground) {
+      // Force white text - this will override CSS classes because inline styles have higher specificity
+      mergedStyle.color = '#FFFFFF';
+    }
+  }
+
   return (
     <button
       className={buttonClasses}
-      style={{ ...sizeStyle, ...variantStyles, ...standardVariantStyles, ...props.style }}
+      style={mergedStyle}
       disabled={disabled || loading}
       aria-busy={loading}
       aria-disabled={disabled || loading}

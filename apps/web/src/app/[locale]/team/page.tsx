@@ -11,72 +11,72 @@ import Image from 'next/image';
 export default function TeamPage() {
   const t = useTranslations('team');
 
-// Team members data - to be replaced with real data
-const teamMembers = [
-  {
-    id: 1,
-    name: 'Dr. Sarah Johnson',
-    role: 'CEO & Co-Founder',
-    bio: 'Leadership development expert with 20+ years of experience in organizational psychology.',
-    expertise: 'Organizational Psychology, Leadership Development',
-    education: 'Ph.D. in Psychology, Harvard University',
-    image: '/images/team/placeholder.jpg',
-    linkedin: 'https://linkedin.com',
-    email: 'sarah@arise.com',
-  },
-  {
-    id: 2,
-    name: 'Michael Chen',
-    role: 'CTO & Co-Founder',
-    bio: 'Technology visionary passionate about using data science to transform leadership assessment.',
-    expertise: 'Data Science, Platform Architecture',
-    education: 'M.S. in Computer Science, MIT',
-    image: '/images/team/placeholder.jpg',
-    linkedin: 'https://linkedin.com',
-    email: 'michael@arise.com',
-  },
-  {
-    id: 3,
-    name: 'Dr. Emily Rodriguez',
-    role: 'Head of Assessment',
-    bio: 'Psychometrician specializing in personality and behavioral assessments.',
-    expertise: 'Psychometrics, Assessment Design',
-    education: 'Ph.D. in Measurement, Stanford University',
-    image: '/images/team/placeholder.jpg',
-    linkedin: 'https://linkedin.com',
-    email: 'emily@arise.com',
-  },
-  {
-    id: 4,
-    name: 'David Thompson',
-    role: 'Head of Coaching',
-    bio: 'Executive coach with extensive experience helping leaders unlock their potential.',
-    expertise: 'Executive Coaching, Leadership Development',
-    education: 'M.A. in Organizational Development, Columbia University',
-    image: '/images/team/placeholder.jpg',
-    linkedin: 'https://linkedin.com',
-    email: 'david@arise.com',
-  },
-];
+  // Team members data - translated
+  const teamMembers = [
+    {
+      id: 1,
+      name: 'Dr. Sarah Johnson',
+      role: t('members.sarah.role'),
+      bio: t('members.sarah.bio'),
+      expertise: t('members.sarah.expertise'),
+      education: t('members.sarah.education'),
+      image: '/images/team/placeholder.jpg',
+      linkedin: 'https://linkedin.com',
+      email: 'sarah@arise.com',
+    },
+    {
+      id: 2,
+      name: 'Michael Chen',
+      role: t('members.michael.role'),
+      bio: t('members.michael.bio'),
+      expertise: t('members.michael.expertise'),
+      education: t('members.michael.education'),
+      image: '/images/team/placeholder.jpg',
+      linkedin: 'https://linkedin.com',
+      email: 'michael@arise.com',
+    },
+    {
+      id: 3,
+      name: 'Dr. Emily Rodriguez',
+      role: t('members.emily.role'),
+      bio: t('members.emily.bio'),
+      expertise: t('members.emily.expertise'),
+      education: t('members.emily.education'),
+      image: '/images/team/placeholder.jpg',
+      linkedin: 'https://linkedin.com',
+      email: 'emily@arise.com',
+    },
+    {
+      id: 4,
+      name: 'David Thompson',
+      role: t('members.david.role'),
+      bio: t('members.david.bio'),
+      expertise: t('members.david.expertise'),
+      education: t('members.david.education'),
+      image: '/images/team/placeholder.jpg',
+      linkedin: 'https://linkedin.com',
+      email: 'david@arise.com',
+    },
+  ];
 
-const advisoryBoard = [
-  {
-    id: 1,
-    name: 'Prof. James Wilson',
-    role: 'Advisory Board Member',
-    bio: 'Renowned leadership researcher and author.',
-    expertise: 'Leadership Research, Academic',
-    image: '/images/team/placeholder.jpg',
-  },
-  {
-    id: 2,
-    name: 'Dr. Lisa Anderson',
-    role: 'Advisory Board Member',
-    bio: 'Expert in organizational behavior and team dynamics.',
-    expertise: 'Organizational Behavior, Research',
-    image: '/images/team/placeholder.jpg',
-  },
-];
+  const advisoryBoard = [
+    {
+      id: 1,
+      name: 'Prof. James Wilson',
+      role: t('advisory.members.james.role'),
+      bio: t('advisory.members.james.bio'),
+      expertise: t('advisory.members.james.expertise'),
+      image: '/images/team/placeholder.jpg',
+    },
+    {
+      id: 2,
+      name: 'Dr. Lisa Anderson',
+      role: t('advisory.members.lisa.role'),
+      bio: t('advisory.members.lisa.bio'),
+      expertise: t('advisory.members.lisa.expertise'),
+      image: '/images/team/placeholder.jpg',
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-white">

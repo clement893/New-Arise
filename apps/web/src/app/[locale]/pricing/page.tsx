@@ -92,12 +92,20 @@ export default function PricingPage() {
         : priceInEuros;
     }
 
+    // If description is empty or contains the default test text, use empty string
+    // so PricingCardSimple can use the translated defaultDescription
+    const description = apiPlan.description && 
+      !apiPlan.description.toLowerCase().includes('test pour la plateforme') &&
+      !apiPlan.description.toLowerCase().includes('test for the platform')
+      ? apiPlan.description 
+      : '';
+
     return {
       id: String(apiPlan.id),
       name: apiPlan.name,
       price: displayPrice,
       period: billingPeriod,
-      description: apiPlan.description || '',
+      description: description,
       features: parseFeatures(apiPlan.features),
       popular: apiPlan.is_popular,
       buttonText: priceInEuros === -1 ? t('card.contactUs') : t('card.getStarted'),
