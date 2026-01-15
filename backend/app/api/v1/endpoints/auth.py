@@ -484,7 +484,7 @@ async def login(
 async def refresh_token(
     request: Request,
     refresh_data: Optional[RefreshTokenRequest] = None,
-    db: Annotated[AsyncSession, Depends(get_db)] = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> Token:
     """
     Refresh access token
