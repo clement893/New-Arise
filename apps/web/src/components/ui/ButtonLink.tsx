@@ -136,27 +136,26 @@ export default function ButtonLink({
   // For external links, use regular anchor tag
   const isExternal = href.startsWith('http://') || href.startsWith('https://') || href.startsWith('//');
   
-  const buttonClasses = clsx(
-    baseStyles,
-    variants[variant],
-    sizes[size],
-    fullWidth && 'w-full',
-    className
-  );
-
   // Apply standard colors for primary and outline variants using inline styles
   // This ensures the color is applied even if CSS variables are not set
   const standardStyles: React.CSSProperties = {};
   if (variant === 'primary') {
     standardStyles.backgroundColor = '#0F4C56';
     standardStyles.color = '#FFFFFF';
-    // Add hover effect via CSS class
-    buttonClasses += ' hover:opacity-90';
   } else if (variant === 'outline') {
     standardStyles.borderColor = '#0F4C56';
     standardStyles.color = '#0F4C56';
     standardStyles.backgroundColor = 'transparent';
   }
+
+  const buttonClasses = clsx(
+    baseStyles,
+    variants[variant],
+    sizes[size],
+    fullWidth && 'w-full',
+    variant === 'primary' && 'hover:opacity-90',
+    className
+  );
 
   const content = loading ? (
     <span className="flex items-center gap-2">
