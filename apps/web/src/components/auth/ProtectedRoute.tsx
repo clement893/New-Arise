@@ -54,18 +54,18 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
       return;
     }
 
-    // If user or token changed, update refs but only reset if going from authenticated to unauthenticated
+    // If user changed, update refs but only reset if going from authenticated to unauthenticated
     const userChanged = lastUserRef.current !== user;
-    const tokenChanged = lastTokenRef.current !== token;
     const pathnameChanged = lastPathnameRef.current !== pathname;
     
     // Detect authentication state transitions
-    const wasAuthenticated = !!lastUserRef.current && !!lastTokenRef.current;
-    const isNowAuthenticated = !!user && !!token;
+    // SECURITY: Tokens are in httpOnly cookies, so we check user only
+    // Token check will be done asynchronously in checkAuth()
+    const wasAuthenticated = !!lastUserRef.current;
+    const isNowAuthenticated = !!user;
     
-    if (userChanged || tokenChanged) {
+    if (userChanged) {
       lastUserRef.current = user;
-      lastTokenRef.current = token;
       
       // Only reset if we lost authentication (not if we gained it)
       if (wasAuthenticated && !isNowAuthenticated) {
@@ -86,13 +86,13 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
     }
 
     // If already authorized and only pathname changed (navigation), skip check
-    if (isAuthorized && isNowAuthenticated && !userChanged && !tokenChanged && pathnameChanged) {
+    if (isAuthorized && isNowAuthenticated && !userChanged && pathnameChanged) {
       setIsChecking(false);
       return;
     }
 
     // If already authorized and we're still authenticated, don't check again
-    if (isAuthorized && isNowAuthenticated && !userChanged && !tokenChanged) {
+    if (isAuthorized && isNowAuthenticated && !userChanged) {
       setIsChecking(false);
       return;
     }
@@ -101,20 +101,21 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
       checkingRef.current = true;
       setIsChecking(true);
       
-      // Check authentication - prioritize sessionStorage if store not hydrated yet
-      const tokenFromStorage = typeof window !== 'undefined' ? TokenStorage.getToken() : null;
-      const currentToken = token || tokenFromStorage;
+      // SECURITY: Tokens are in httpOnly cookies, so getToken() always returns null
+      // We must use hasTokensInCookies() to check if tokens exist
+      const hasTokensInCookies = typeof window !== 'undefined' 
+        ? await TokenStorage.hasTokensInCookies() 
+        : false;
       const currentUser = user;
       const hasUser = !!currentUser;
-      const hasToken = !!currentToken;
       
       // Check if we just logged in (to avoid premature redirects)
       const justLoggedIn = typeof window !== 'undefined' && sessionStorage.getItem('just_logged_in') === 'true';
       
-      // If we have a token but no user, try to fetch user from API
-      // This handles the case where Zustand persist hasn't hydrated yet but token exists
+      // If we have tokens in cookies but no user, try to fetch user from API
+      // This handles the case where Zustand persist hasn't hydrated yet but tokens exist
       let fetchedUser = currentUser;
-      if (hasToken && !hasUser && typeof window !== 'undefined') {
+      if (hasTokensInCookies && !hasUser && typeof window !== 'undefined') {
         // If we just logged in, wait longer for store to hydrate
         const waitTime = justLoggedIn ? 300 : 100;
         await new Promise(resolve => setTimeout(resolve, waitTime));
@@ -198,13 +199,14 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
       }
       
       // Final auth check with potentially fetched user
+      // SECURITY: Check both user in store AND tokens in httpOnly cookies
       const finalHasUser = !!fetchedUser;
-      const isAuth = finalHasUser && hasToken;
+      const finalHasTokens = hasTokensInCookies;
+      const isAuth = finalHasUser && finalHasTokens;
       
       if (process.env.NODE_ENV === 'development') {
         logger.debug('ProtectedRoute auth check', {
-          hasToken: !!tokenFromStorage,
-          hasTokenFromStore: !!token,
+          hasTokensInCookies: finalHasTokens,
           hasUser: !!user,
           fetchedUser: !!fetchedUser,
           isAuth,
@@ -242,86 +244,58 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
         
         // If not admin, check if user is superadmin
         if (!isAdmin) {
-          const authToken = currentToken;
           try {
-            if (authToken) {
-              logger.debug('Checking superadmin status', {
-                hasToken: !!authToken,
-                tokenLength: authToken.length,
-                userEmail: userForAdminCheck?.email,
-                is_admin: userForAdminCheck?.is_admin
+            // SECURITY: Tokens are in httpOnly cookies, so apiClient will use them automatically
+            // No need to pass token - checkMySuperAdminStatus will use cookies via apiClient
+            logger.debug('Checking superadmin status', {
+              hasTokensInCookies: finalHasTokens,
+              userEmail: userForAdminCheck?.email,
+              is_admin: userForAdminCheck?.is_admin
+            });
+            const status = await checkMySuperAdminStatus(); // No token needed - uses httpOnly cookies
+            logger.debug('Superadmin status check result', {
+              is_superadmin: status.is_superadmin,
+              email: status.email,
+              user_id: status.user_id,
+              is_active: status.is_active,
+              userEmail: userForAdminCheck?.email
+            });
+            isAdmin = status.is_superadmin === true;
+            if (isAdmin) {
+              logger.info('User is superadmin, granting admin access', { 
+                email: status.email || userForAdminCheck?.email 
               });
-              const status = await checkMySuperAdminStatus(authToken);
-              logger.debug('Superadmin status check result', {
-                is_superadmin: status.is_superadmin,
-                email: status.email,
-                user_id: status.user_id,
-                is_active: status.is_active,
-                userEmail: userForAdminCheck?.email
-              });
-              isAdmin = status.is_superadmin === true;
-              if (isAdmin) {
-                logger.info('User is superadmin, granting admin access', { 
-                  email: status.email || userForAdminCheck?.email 
-                });
-              } else {
-                logger.warn('User is not superadmin', { 
-                  userEmail: userForAdminCheck?.email,
-                  is_admin: userForAdminCheck?.is_admin,
-                  apiResponse: status
-                });
-              }
             } else {
-              logger.warn('No token available for superadmin check', {
-                hasTokenFromStorage: !!tokenFromStorage,
-                hasTokenFromStore: !!token,
-                userEmail: userForAdminCheck?.email
+              logger.warn('User is not superadmin', { 
+                userEmail: userForAdminCheck?.email,
+                is_admin: userForAdminCheck?.is_admin,
+                apiResponse: status
               });
             }
           } catch (err: unknown) {
-            // If superadmin check fails with 401/422, token might be invalid or expired
+            // If superadmin check fails with 401/422, tokens might be invalid or expired
             const statusCode = getErrorStatus(err);
             logger.warn('Superadmin check failed', {
               status: statusCode,
-              hasToken: !!authToken,
+              hasTokensInCookies: finalHasTokens,
               error: err instanceof Error ? err.message : String(err),
               userEmail: userForAdminCheck?.email
             });
             
             if (statusCode === 401 || statusCode === 422) {
-              // Authentication error - try to refresh token
-              const freshToken = TokenStorage.getToken();
-              if (freshToken && freshToken !== authToken) {
-                logger.debug('Found fresh token, retrying superadmin check');
-                try {
-                  const retryStatus = await checkMySuperAdminStatus(freshToken);
-                  isAdmin = retryStatus.is_superadmin;
-                  if (retryStatus.is_superadmin) {
-                    logger.debug('User is superadmin after retry, granting admin access');
-                  } else {
-                    logger.debug('User is not superadmin after retry', { 
-                      userEmail: userForAdminCheck?.email,
-                      is_admin: userForAdminCheck?.is_admin 
-                    });
-                  }
-                } catch (retryErr: unknown) {
-                  logger.warn('Retry also failed, redirecting to login', { 
-                    error: retryErr instanceof Error ? retryErr.message : String(retryErr) 
-                  });
-                  checkingRef.current = false;
-                  setIsChecking(false);
-                  setIsAuthorized(false);
-                  router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}&error=unauthorized`);
-                  return;
-                }
-              } else {
-                logger.warn('No valid token available, redirecting to login');
-                checkingRef.current = false;
-                setIsChecking(false);
-                setIsAuthorized(false);
-                router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}&error=unauthorized`);
-                return;
-              }
+              // Authentication error - tokens may be invalid or expired
+              // SECURITY: Tokens are in httpOnly cookies, apiClient should handle refresh automatically
+              // If refresh fails, tokens are invalid - redirect to login
+              logger.warn('Superadmin check failed with auth error, tokens may be invalid', {
+                statusCode,
+                hasTokensInCookies: finalHasTokens,
+                userEmail: userForAdminCheck?.email
+              });
+              checkingRef.current = false;
+              setIsChecking(false);
+              setIsAuthorized(false);
+              router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}&error=unauthorized`);
+              return;
             } else if (statusCode === 403) {
               // 403 means user is authenticated but doesn't have permission
               // This shouldn't happen for check-my-superadmin-status endpoint, but handle it
