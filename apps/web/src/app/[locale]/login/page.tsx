@@ -167,7 +167,7 @@ export default function LoginPage() {
                 <span className="ml-2 text-sm text-gray-600">Remember me</span>
               </label>
               <Link 
-                href="/forgot-password" 
+                href="/auth/forgot-password" 
                 className="text-sm text-arise-deep-teal hover:text-arise-gold transition-colors"
               >
                 Forgot password?
