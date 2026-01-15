@@ -6,7 +6,9 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { useRouter } from '@/i18n/routing';
+import { useSearchParams } from 'next/navigation';
 import { getAssessmentResults, AssessmentResult } from '@/lib/api/assessments';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -19,6 +21,7 @@ import { ArrowLeft, Download, Heart } from 'lucide-react';
 import { formatError } from '@/lib/utils/formatError';
 
 export default function WellnessResultsPage() {
+  const t = useTranslations('dashboard.assessments.wellness.results');
   const router = useRouter();
   const searchParams = useSearchParams();
   const assessmentId = searchParams.get('id');
@@ -56,12 +59,12 @@ export default function WellnessResultsPage() {
   };
 
   const pillarNames: Record<string, string> = {
-    sleep: 'Sleep',
-    nutrition: 'Nutrition',
-    hydration: 'Hydration',
-    movement: 'Movement',
-    stress_management: 'Stress Management',
-    social_connection: 'Social Connection',
+    sleep: t('pillars.sleep'),
+    nutrition: t('pillars.nutrition'),
+    hydration: t('pillars.hydration'),
+    movement: t('pillars.movement'),
+    stress_management: t('pillars.stressManagement'),
+    social_connection: t('pillars.socialConnection'),
   };
 
   const pillarEmojis: Record<string, string> = {
@@ -80,7 +83,7 @@ export default function WellnessResultsPage() {
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading your results...</p>
+            <p className="text-gray-600">{t('loading')}</p>
           </div>
         </div>
       </div>
@@ -89,7 +92,7 @@ export default function WellnessResultsPage() {
 
   if (error || !results) {
     // Ensure error is always a string before rendering
-    const errorString = typeof error === 'string' ? error : formatError(error || 'Results not found');
+    const errorString = typeof error === 'string' ? error : formatError(error || t('errors.notFound'));
     return (
       <div className="min-h-screen bg-gray-50 flex">
         <Sidebar />
@@ -97,8 +100,8 @@ export default function WellnessResultsPage() {
           <Card className="max-w-md">
             <div className="p-6 text-center">
               <p className="text-red-600 mb-4">{errorString}</p>
-              <Button onClick={() => router.push('/dashboard/assessments')} className="flex align-center gap-8">
-                Back to Assessments
+              <Button onClick={() => router.push('/dashboard/assessments')} className="flex items-center gap-4">
+                {t('backToAssessments')}
               </Button>
             </div>
           </Card>
@@ -141,24 +144,24 @@ export default function WellnessResultsPage() {
             <Button
               variant="ghost"
               onClick={() => router.push('/dashboard/assessments')}
-              className="mb-4 flex align-center gap-8"
+              className="mb-4 flex items-center gap-4"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Assessments
+              {t('backToAssessments')}
             </Button>
 
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  Your Wellness Assessment Results
+                  {t('title')}
                 </h1>
                 <p className="text-gray-600">
-                  A comprehensive view of your well-being across 6 key pillars
+                  {t('subtitle')}
                 </p>
               </div>
               <Button variant="outline">
                 <Download className="w-4 h-4 mr-2" />
-                Export PDF
+                {t('exportPdf')}
               </Button>
             </div>
           </MotionDiv>
@@ -170,7 +173,7 @@ export default function WellnessResultsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                      Overall Wellness Score
+                      {t('overallScore.title')}
                     </h2>
                     <div className="flex items-baseline gap-2">
                       <span className="text-5xl font-bold text-primary-700">{totalScore}</span>
@@ -182,13 +185,13 @@ export default function WellnessResultsPage() {
                 </div>
                 <div className="mt-4 flex gap-4">
                   <div className="flex-1">
-                    <p className="text-sm text-gray-600 mb-1">Strongest Pillar</p>
+                    <p className="text-sm text-gray-600 mb-1">{t('overallScore.strongestPillar')}</p>
                     <p className="font-semibold text-gray-900">
                       {pillarEmojis[strongestPillar]} {pillarNames[strongestPillar]}
                     </p>
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm text-gray-600 mb-1">Area for Growth</p>
+                    <p className="text-sm text-gray-600 mb-1">{t('overallScore.areaForGrowth')}</p>
                     <p className="font-semibold text-gray-900">
                       {pillarEmojis[weakestPillar]} {pillarNames[weakestPillar]}
                     </p>
@@ -202,7 +205,7 @@ export default function WellnessResultsPage() {
           <MotionDiv variant="slideUp" duration="normal" delay={200} className="mb-8">
             <Card>
               <div className="p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Wellness Profile</h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('profile.title')}</h2>
                 <WellnessBarChart scores={pillarScores} />
               </div>
             </Card>
@@ -210,7 +213,7 @@ export default function WellnessResultsPage() {
 
           {/* Insights */}
           <MotionDiv variant="slideUp" duration="normal" delay={300} className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Detailed Insights by Pillar</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('insights.title')}</h2>
             <div className="grid gap-4">
               {Object.entries(pillarScores).map(([pillar, score], index) => {
                 const level = getPillarLevel(score as number);
@@ -243,7 +246,7 @@ export default function WellnessResultsPage() {
           {recommendations.length > 0 && (
             <MotionDiv variant="slideUp" duration="normal" delay={900} className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Personalized Recommendations
+                {t('recommendations.title')}
               </h2>
               <div className="grid gap-4">
                 {recommendations.map((rec: any, index: number) => (

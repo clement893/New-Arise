@@ -3,7 +3,8 @@
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
+import { useParams } from 'next/navigation';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import { Card } from '@/components/ui';
 import Button from '@/components/ui/Button';

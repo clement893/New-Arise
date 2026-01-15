@@ -3,7 +3,9 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { useRouter, usePathname } from '@/i18n/routing';
+import { useSearchParams } from 'next/navigation';
 import { Card, Button } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
@@ -15,6 +17,7 @@ import { formatError } from '@/lib/utils/formatError';
 import { useToast } from '@/components/ui';
 
 function AssessmentResultsContent() {
+  const t = useTranslations('dashboard.assessments.results');
   const router = useRouter();
   const searchParams = useSearchParams();
   // Ensure assessmentId is always a string or null, never an object
@@ -46,7 +49,7 @@ function AssessmentResultsContent() {
       const assessment = assessments.find(a => a.id === id);
       
       if (!assessment) {
-        setError('Assessment not found. You may not have permission to view this assessment.');
+        setError(t('errors.notFound'));
         setIsLoading(false);
         return;
       }
@@ -214,7 +217,7 @@ function AssessmentResultsContent() {
 
       // Prepare title with overall score
       const overallScoreText = `${isNaN(safeTotalScore) ? 0 : safeTotalScore} / ${isNaN(safeMaxScore) ? 150 : safeMaxScore} (${isNaN(safePercentage) ? 0 : safePercentage.toFixed(1)}%)`;
-      const reportTitle = `Wellness Assessment Report - ${new Date().toLocaleDateString('en-US')}\nOverall Score: ${overallScoreText}`;
+      const reportTitle = `${t('report.title')} - ${new Date().toLocaleDateString('en-US')}\n${t('report.overallScore')}: ${overallScoreText}`;
 
       // Call the export API with simplified headers
       const response = await apiClient.post(
@@ -273,7 +276,7 @@ function AssessmentResultsContent() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-arise-deep-teal mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your results...</p>
+          <p className="text-gray-600">{t('loading')}</p>
         </div>
       </div>
     );
@@ -300,7 +303,7 @@ function AssessmentResultsContent() {
                 Continue Assessment
               </Button>
             )}
-            <Button onClick={() => router.push('/dashboard/assessments')} variant="outline" className="flex align-center gap-8">
+            <Button onClick={() => router.push('/dashboard/assessments')} variant="outline" className="flex items-center gap-4">
               Back to Assessments
             </Button>
           </div>
@@ -369,16 +372,16 @@ function AssessmentResultsContent() {
             <Button
               variant="outline"
               onClick={() => router.push('/dashboard/assessments')}
-              className="mb-4 flex align-center gap-8"
+              className="mb-4 flex items-center gap-4"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Assessments
+              {t('backToAssessments')}
             </Button>
             <h1 className="text-4xl font-bold text-white mb-2">
-              Wellness Assessment Results
+              {t('title')}
             </h1>
             <p className="text-white">
-              Your comprehensive wellness profile across six key pillars
+              {t('subtitle')}
             </p>
           </div>
 
@@ -390,9 +393,9 @@ function AssessmentResultsContent() {
                   <TrendingUp size={48} className="mr-4" />
                   <div className="text-7xl font-bold">{isNaN(safePercentage) ? 0 : safePercentage.toFixed(0)}%</div>
                 </div>
-                <h2 className="text-2xl font-bold mb-2">Overall Wellness Score</h2>
+                <h2 className="text-2xl font-bold mb-2">{t('overallScore.title')}</h2>
                 <p className="text-white/90 text-lg">
-                  {isNaN(safeTotalScore) ? 0 : safeTotalScore} out of {isNaN(safeMaxScore) ? 150 : safeMaxScore} points
+                  {t('overallScore.points', { score: isNaN(safeTotalScore) ? 0 : safeTotalScore, max: isNaN(safeMaxScore) ? 150 : safeMaxScore })}
                 </p>
                 <div className="mt-6 flex justify-center">
                   <Button 
@@ -404,12 +407,12 @@ function AssessmentResultsContent() {
                     {isDownloading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Generating...
+                        {t('generating')}
                       </>
                     ) : (
                       <>
                         <Download className="w-4 h-4 mr-2" />
-                        Download Report
+                        {t('downloadReport')}
                       </>
                     )}
                   </Button>
@@ -484,7 +487,7 @@ function AssessmentResultsContent() {
                     {/* Progress Bar */}
                     <div className="mb-3">
                       <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-600">Score</span>
+                        <span className="text-gray-600">{t('pillarScore.label')}</span>
                         <span className="font-bold text-arise-deep-teal">
                           {pillarScore} / 25
                         </span>
@@ -504,9 +507,9 @@ function AssessmentResultsContent() {
                         pillarPercentage >= 60 ? 'bg-yellow-100 text-yellow-800' :
                         'bg-red-100 text-red-800'
                       }`}>
-                        {pillarPercentage >= 80 ? 'Excellent' :
-                         pillarPercentage >= 60 ? 'Good' :
-                         'Needs Attention'}
+                        {pillarPercentage >= 80 ? t('performance.excellent') :
+                         pillarPercentage >= 60 ? t('performance.good') :
+                         t('performance.needsAttention')}
                       </span>
                     </div>
                   </Card>
@@ -519,57 +522,55 @@ function AssessmentResultsContent() {
           <MotionDiv variant="fade" duration="normal">
             <Card className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Key Insights
+                {t('insights.title')}
               </h2>
               <div className="space-y-4">
                 <div className="p-4 bg-success-50 rounded-lg">
-                  <h3 className="font-bold text-success-900 mb-2">Strengths</h3>
+                  <h3 className="font-bold text-success-900 mb-2">{t('insights.strengths.title')}</h3>
                   <p className="text-success-800">
-                    Your strongest pillar is {(() => {
-                      // CRITICAL: Ensure all scores are numbers before comparison
-                      const getPillarScore = (data: number | PillarScore | undefined): number => {
-                        if (typeof data === 'number') return data;
-                        if (typeof data === 'object' && data !== null && 'score' in data) {
-                          const scoreValue = data.score;
-                          return typeof scoreValue === 'number' ? scoreValue : (typeof scoreValue === 'string' ? parseFloat(scoreValue) : 0);
-                        }
-                        return 0;
-                      };
-                      
-                      const strongestPillar = wellnessPillars.find(p => {
-                        const data = pillar_scores?.[p.id];
-                        const score = getPillarScore(data);
-                        const allScores = Object.values(pillar_scores || {}).map(d => getPillarScore(d));
-                        return allScores.length > 0 && !isNaN(score) && score === Math.max(...allScores.filter(s => !isNaN(s)));
-                      });
-                      return strongestPillar?.name || 'N/A';
-                    })()}.
-                    Keep up the excellent work in this area!
+                    {t('insights.strengths.description', { 
+                      pillar: (() => {
+                        const getPillarScore = (data: number | PillarScore | undefined): number => {
+                          if (typeof data === 'number') return data;
+                          if (typeof data === 'object' && data !== null && 'score' in data) {
+                            const scoreValue = data.score;
+                            return typeof scoreValue === 'number' ? scoreValue : (typeof scoreValue === 'string' ? parseFloat(scoreValue) : 0);
+                          }
+                          return 0;
+                        };
+                        const strongestPillar = wellnessPillars.find(p => {
+                          const data = pillar_scores?.[p.id];
+                          const score = getPillarScore(data);
+                          const allScores = Object.values(pillar_scores || {}).map(d => getPillarScore(d));
+                          return allScores.length > 0 && !isNaN(score) && score === Math.max(...allScores.filter(s => !isNaN(s)));
+                        });
+                        return strongestPillar?.name || 'N/A';
+                      })()
+                    })}
                   </p>
                 </div>
                 <div className="p-4 bg-yellow-50 rounded-lg">
-                  <h3 className="font-bold text-yellow-900 mb-2">Areas for Growth</h3>
+                  <h3 className="font-bold text-yellow-900 mb-2">{t('insights.growth.title')}</h3>
                   <p className="text-yellow-800">
-                    Consider focusing on {(() => {
-                      // CRITICAL: Ensure all scores are numbers before comparison
-                      const getPillarScore = (data: number | PillarScore | undefined): number => {
-                        if (typeof data === 'number') return data;
-                        if (typeof data === 'object' && data !== null && 'score' in data) {
-                          const scoreValue = data.score;
-                          return typeof scoreValue === 'number' ? scoreValue : (typeof scoreValue === 'string' ? parseFloat(scoreValue) : 0);
-                        }
-                        return 0;
-                      };
-                      
-                      const weakestPillar = wellnessPillars.find(p => {
-                        const data = pillar_scores?.[p.id];
-                        const score = getPillarScore(data);
-                        const allScores = Object.values(pillar_scores || {}).map(d => getPillarScore(d));
-                        return allScores.length > 0 && !isNaN(score) && score === Math.min(...allScores.filter(s => !isNaN(s)));
-                      });
-                      return weakestPillar?.name || 'N/A';
-                    })()} 
-                    to achieve a more balanced wellness profile.
+                    {t('insights.growth.description', { 
+                      pillar: (() => {
+                        const getPillarScore = (data: number | PillarScore | undefined): number => {
+                          if (typeof data === 'number') return data;
+                          if (typeof data === 'object' && data !== null && 'score' in data) {
+                            const scoreValue = data.score;
+                            return typeof scoreValue === 'number' ? scoreValue : (typeof scoreValue === 'string' ? parseFloat(scoreValue) : 0);
+                          }
+                          return 0;
+                        };
+                        const weakestPillar = wellnessPillars.find(p => {
+                          const data = pillar_scores?.[p.id];
+                          const score = getPillarScore(data);
+                          const allScores = Object.values(pillar_scores || {}).map(d => getPillarScore(d));
+                          return allScores.length > 0 && !isNaN(score) && score === Math.min(...allScores.filter(s => !isNaN(s)));
+                        });
+                        return weakestPillar?.name || 'N/A';
+                      })()
+                    })}
                   </p>
                 </div>
               </div>
@@ -580,7 +581,7 @@ function AssessmentResultsContent() {
           <MotionDiv variant="fade" duration="normal">
             <Card>
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Next Steps
+                {t('nextSteps.title')}
               </h2>
               <ul className="space-y-3">
                 <li className="flex items-start">
@@ -588,7 +589,7 @@ function AssessmentResultsContent() {
                     <span className="text-white text-sm font-bold">1</span>
                   </div>
                   <p className="text-gray-700">
-                    Review your results with a wellness coach to create a personalized action plan
+                    {t('nextSteps.step1')}
                   </p>
                 </li>
                 <li className="flex items-start">
@@ -596,7 +597,7 @@ function AssessmentResultsContent() {
                     <span className="text-white text-sm font-bold">2</span>
                   </div>
                   <p className="text-gray-700">
-                    Complete the TKI and 360° Feedback assessments for a complete leadership profile
+                    {t('nextSteps.step2')}
                   </p>
                 </li>
                 <li className="flex items-start">
@@ -604,7 +605,7 @@ function AssessmentResultsContent() {
                     <span className="text-white text-sm font-bold">3</span>
                   </div>
                   <p className="text-gray-700">
-                    Retake this assessment in 3 months to track your progress
+                    {t('nextSteps.step3')}
                   </p>
                 </li>
               </ul>
@@ -613,13 +614,13 @@ function AssessmentResultsContent() {
                   variant="primary"
                   onClick={() => router.push('/dashboard/assessments')}
                 >
-                  Continue to Other Assessments
+                  {t('nextSteps.continueButton')}
                 </Button>
                 <Button 
                   variant="outline"
                   onClick={() => router.push('/dashboard')}
                 >
-                  Back to Dashboard
+                  {t('nextSteps.backToDashboard')}
                 </Button>
               </div>
             </Card>

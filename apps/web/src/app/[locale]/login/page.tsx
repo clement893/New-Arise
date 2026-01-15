@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -17,19 +18,13 @@ import { AxiosError } from 'axios';
 import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
 
-const loginSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(1, 'Password is required'),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
-
 interface ApiErrorResponse {
   detail?: string;
   message?: string;
 }
 
 export default function LoginPage() {
+  const t = useTranslations('auth.login');
   const router = useRouter();
   const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
@@ -37,6 +32,14 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const { login: loginToStore, setError: setStoreError, error: storeError } = useAuthStore();
   const errorProcessedRef = useRef<string | null>(null);
+
+  // Create schema with translated messages
+  const loginSchema = z.object({
+    email: z.string().email(t('validation.emailInvalid')),
+    password: z.string().min(1, t('validation.passwordRequired')),
+  });
+
+  type LoginFormData = z.infer<typeof loginSchema>;
 
   // Read error from URL query parameter or store
   useEffect(() => {
@@ -54,10 +57,10 @@ export default function LoginPage() {
       
       // Translate common error codes to user-friendly messages
       const errorMessages: Record<string, string> = {
-        'unauthorized': 'Your session has expired or you are not authorized. Please log in again.',
-        'session_expired': 'Your session has expired. Please log in again.',
-        'unauthorized_superadmin': 'You must be a superadmin to access this page.',
-        'forbidden': 'Access denied. You do not have the necessary permissions.',
+        'unauthorized': t('errors.unauthorized'),
+        'session_expired': t('errors.sessionExpired'),
+        'unauthorized_superadmin': t('errors.unauthorizedSuperadmin'),
+        'forbidden': t('errors.forbidden'),
       };
       
       if (errorMessages[errorParam]) {
@@ -125,7 +128,7 @@ export default function LoginPage() {
       router.push(redirectUrl); // Will automatically use current locale
     } catch (err) {
       const axiosError = err as AxiosError<ApiErrorResponse>;
-      const message = axiosError.response?.data?.detail || 'Login failed. Please try again.';
+      const message = axiosError.response?.data?.detail || t('errors.loginFailed');
       setError(message);
     } finally {
       setIsLoading(false);
@@ -167,10 +170,10 @@ export default function LoginPage() {
               ARISE
             </h1>
             <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-              Welcome back
+              {t('welcomeBack')}
             </h2>
             <p className="text-gray-600">
-              Sign in to continue your leadership journey
+              {t('subtitle')}
             </p>
           </div>
 
@@ -185,12 +188,12 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email address *
+                {t('emailLabel')} *
               </label>
               <Input
                 id="email"
                 type="email"
-                placeholder="Enter your email"
+                placeholder={t('emailPlaceholder')}
                 {...register('email')}
                 error={errors.email?.message}
                 disabled={isLoading}
@@ -199,13 +202,13 @@ export default function LoginPage() {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password *
+                {t('passwordLabel')} *
               </label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Create a strong password"
+                  placeholder={t('passwordPlaceholder')}
                   {...register('password')}
                   error={errors.password?.message}
                   disabled={isLoading}
@@ -227,13 +230,13 @@ export default function LoginPage() {
                   type="checkbox"
                   className="rounded border-gray-300 text-arise-deep-teal focus:ring-arise-deep-teal"
                 />
-                <span className="ml-2 text-sm text-gray-600">Remember me</span>
+                <span className="ml-2 text-sm text-gray-600">{t('rememberMe')}</span>
               </label>
               <Link 
                 href="/auth/forgot-password" 
                 className="text-sm text-arise-deep-teal hover:text-arise-gold transition-colors"
               >
-                Forgot password?
+                {t('forgotPassword')}
               </Link>
             </div>
 
@@ -245,7 +248,7 @@ export default function LoginPage() {
               disabled={isLoading}
               className="bg-arise-gold hover:bg-arise-gold/90 text-white"
             >
-              {isLoading ? 'Signing in...' : 'Sign in →'}
+              {isLoading ? t('signingIn') : t('signInButton')}
             </Button>
           </form>
 
@@ -253,12 +256,12 @@ export default function LoginPage() {
           {/* Sign Up Link */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+              {t('noAccount')}{' '}
               <Link 
                 href="/register" 
                 className="text-arise-deep-teal hover:text-arise-gold font-semibold transition-colors"
               >
-                Create account
+                {t('createAccount')}
               </Link>
             </p>
           </div>

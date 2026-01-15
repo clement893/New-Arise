@@ -10,7 +10,7 @@
 
 import { Card, Button } from '@/components/ui';
 import { CheckCircle, ArrowRight } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 
 export interface OnboardingCompleteProps {
   onFinish?: () => void;

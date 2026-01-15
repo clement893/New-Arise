@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 import { useAuthStore } from '@/lib/store';
 import { getErrorMessage, getErrorDetail } from '@/lib/errors';
 import Button from '@/components/ui/Button';

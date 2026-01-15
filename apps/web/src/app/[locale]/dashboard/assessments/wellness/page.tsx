@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 import { Card, Button } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
@@ -479,7 +479,7 @@ function WellnessAssessmentContent() {
                 router.push('/dashboard/assessments');
               }
             }}>View Results</Button>
-            <Button variant="outline" onClick={() => router.push('/dashboard/assessments')} className="flex align-center gap-8">
+            <Button variant="outline" onClick={() => router.push('/dashboard/assessments')} className="flex items-center gap-4">
               Back to Assessments
             </Button>
           </div>

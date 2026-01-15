@@ -36,24 +36,35 @@
     "confirmPassword": "Confirm password",
     "login": {
       "title": "Login",
+      "welcomeBack": "Welcome back",
+      "subtitle": "Sign in to continue your leadership journey",
       "errorTitle": "Error",
-      "emailLabel": "Email",
-      "emailPlaceholder": "you@example.com",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "Enter your email",
       "passwordLabel": "Password",
-      "passwordPlaceholder": "••••••••",
+      "passwordPlaceholder": "Create a strong password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "signInButton": "Sign in →",
+      "signingIn": "Signing in...",
       "loginButton": "Login",
       "loggingIn": "Logging in...",
       "orContinueWith": "Or continue with",
       "continueWithGoogle": "Continue with Google",
       "noAccount": "Don't have an account?",
+      "createAccount": "Create account",
       "registerLink": "Register",
       "loading": "Loading...",
+      "validation": {
+        "emailInvalid": "Please enter a valid email address",
+        "passwordRequired": "Password is required"
+      },
       "errors": {
         "unauthorized": "Your session has expired or you are not authorized. Please log in again.",
         "sessionExpired": "Your session has expired. Please log in again.",
         "unauthorizedSuperadmin": "You must be a superadmin to access this page.",
         "forbidden": "Access denied. You do not have the necessary permissions.",
-        "loginFailed": "Login failed",
+        "loginFailed": "Login failed. Please try again.",
         "corsError": "Server connection error. Please check that the backend is accessible and CORS is configured correctly.",
         "connectionError": "Server connection error. Please try again later.",
         "serverUnavailable": "The backend server is temporarily unavailable. Please try again later.",
@@ -186,9 +197,331 @@
           "invited": "Invited"
         }
       },
+      "config": {
+        "mbti": {
+          "title": "MBTI Personality",
+          "description": "Understanding your natural preferences"
+        },
+        "tki": {
+          "title": "TKI Conflict Style",
+          "description": "Explore your conflict management approach"
+        },
+        "wellness": {
+          "title": "Wellness",
+          "description": "Your overall well-being"
+        },
+        "360_self": {
+          "title": "360° Feedback",
+          "description": "Multi-faceted leadership perspectives"
+        },
+        "360_evaluator": {
+          "title": "360° Feedback (Evaluator)",
+          "description": "Provide feedback for a colleague"
+        }
+      },
+      "roles": {
+        "peer": "Peer / Colleague",
+        "manager": "Manager / Superior",
+        "directReport": "Direct Report / Collaborator",
+        "stakeholder": "Stakeholder / Client"
+      },
       "errors": {
         "displayError": "Display error. Please refresh the page.",
-        "refresh": "Refresh"
+        "refresh": "Refresh",
+        "loadFailed": "Failed to load assessments",
+        "invalidIcon": "Error: Invalid icon for {title}",
+        "assessmentFallback": "Assessment"
+      },
+      "tki": {
+        "results": {
+          "loading": "Loading your results...",
+          "title": "TKI Conflict Style Results",
+          "subtitle": "Your conflict management profile",
+          "backToAssessments": "Back to Assessments",
+          "dominantMode": "Dominant Mode",
+          "secondaryMode": "Secondary Mode",
+          "responsesCount": "{count} out of {total} responses",
+          "responses": "{count} responses",
+          "levels": {
+            "high": "High",
+            "moderate": "Moderate",
+            "low": "Low"
+          },
+          "profile": {
+            "title": "Your Conflict Management Profile"
+          },
+          "recommendations": {
+            "title": "Recommendations",
+            "leverage": {
+              "title": "Leverage your strengths:",
+              "description": "Your dominant {mode} style can be very effective in appropriate situations. Continue to use it when it serves you well."
+            },
+            "flexibility": {
+              "title": "Develop flexibility:",
+              "description": "Consider situations where your less-used modes might be more effective. Expanding your conflict management repertoire will make you a more adaptable leader."
+            },
+            "context": {
+              "title": "Context matters:",
+              "description": "No single conflict mode is best in all situations. The most effective leaders can flex between different approaches based on the context, relationship, and importance of the issue."
+            }
+          },
+          "insights": {
+            "competing": {
+              "high": "You tend to pursue your own concerns assertively, which can be effective in emergencies or when quick decisions are needed.",
+              "moderate": "You use competing when necessary, balancing it with other approaches.",
+              "low": "You rarely use a competing approach, preferring more collaborative or accommodating styles."
+            },
+            "collaborating": {
+              "high": "You excel at finding win-win solutions that fully satisfy both parties. This is ideal for complex issues requiring diverse perspectives.",
+              "moderate": "You use collaboration when appropriate, though you may also rely on other conflict modes.",
+              "low": "You may benefit from developing your collaborative skills to find more integrative solutions."
+            },
+            "compromising": {
+              "high": "You frequently seek middle-ground solutions, which can be efficient when time is limited or when goals are moderately important.",
+              "moderate": "You use compromise as one of several conflict management tools in your repertoire.",
+              "low": "You tend to favor other approaches over compromise, which may mean you seek more complete solutions."
+            },
+            "avoiding": {
+              "high": "You often postpone or withdraw from conflicts. While useful for trivial issues, overuse may leave important matters unresolved.",
+              "moderate": "You strategically avoid conflicts when appropriate, such as when emotions are high or more information is needed.",
+              "low": "You rarely avoid conflicts, preferring to address issues directly."
+            },
+            "accommodating": {
+              "high": "You frequently yield to others' concerns. This builds goodwill but may lead to your needs being overlooked if overused.",
+              "moderate": "You accommodate others when it makes sense, balancing their needs with your own.",
+              "low": "You rarely accommodate others, which may indicate a strong focus on your own goals."
+            }
+          },
+          "errors": {
+            "notFound": "No results found"
+          }
+        }
+      },
+      "wellness": {
+        "results": {
+          "loading": "Loading your results...",
+          "title": "Your Wellness Assessment Results",
+          "subtitle": "A comprehensive view of your well-being across 6 key pillars",
+          "backToAssessments": "Back to Assessments",
+          "exportPdf": "Export PDF",
+          "overallScore": {
+            "title": "Overall Wellness Score",
+            "strongestPillar": "Strongest Pillar",
+            "areaForGrowth": "Area for Growth"
+          },
+          "pillars": {
+            "sleep": "Sleep",
+            "nutrition": "Nutrition",
+            "hydration": "Hydration",
+            "movement": "Movement",
+            "stressManagement": "Stress Management",
+            "socialConnection": "Social Connection"
+          },
+          "profile": {
+            "title": "Your Wellness Profile"
+          },
+          "insights": {
+            "title": "Detailed Insights by Pillar",
+            "defaultDescription": "Your {pillar} score indicates {level} performance in this area."
+          },
+          "recommendations": {
+            "title": "Personalized Recommendations"
+          },
+          "nextSteps": {
+            "title": "Continue Your Leadership Journey",
+            "description": "Explore other assessments to gain deeper insights into your leadership style",
+            "takeTKI": "Take TKI Assessment",
+            "try360": "Try 360° Feedback"
+          },
+          "errors": {
+            "notFound": "Results not found"
+          }
+        }
+      },
+      "360": {
+        "results": {
+          "loading": "Loading results...",
+          "title": "360° Feedback Results",
+          "backToAssessments": "Back to Assessments",
+          "note": "Note:",
+          "selfAssessmentOnly": "These results are based solely on your self-assessment. Invite colleagues to get a complete 360° view.",
+          "basedOnFeedback": "Based on your self-assessment and feedback from {count} colleague{count, plural, one {} other {s}}",
+          "evaluatorStatus": {
+            "title": "Evaluator Status",
+            "viewAll": "View All",
+            "completed": "Completed",
+            "inProgress": "In Progress",
+            "invitationOpened": "Invitation opened",
+            "invitationSent": "Invitation sent",
+            "notInvited": "Not yet invited"
+          },
+          "overallScore": {
+            "title": "Overall Leadership Score",
+            "points": "{score} out of {max} points"
+          },
+          "capabilities": {
+            "title": "Leadership Capabilities",
+            "selfAssessment": "Self-Assessment",
+            "othersAverage": "Others' Average"
+          },
+          "gap": {
+            "selfHigher": "Self-rating higher",
+            "othersHigher": "Others rate higher",
+            "aligned": "Aligned"
+          },
+          "insights": {
+            "selfOnly": {
+              "high": "You rate yourself highly in {capability}. Consider inviting colleagues to validate this strength.",
+              "moderate": "You rate yourself moderately in {capability}. Feedback from others will provide additional perspective.",
+              "low": "You've identified {capability} as an area for development. This self-awareness is valuable for growth."
+            },
+            "withEvaluators": {
+              "selfHigher": "You rate yourself higher than others in {capability}. This may indicate a blind spot or an opportunity to better demonstrate your capabilities.",
+              "othersHigher": "Others rate you higher than you rate yourself in {capability}. This suggests you may be underestimating your impact in this area.",
+              "aligned": "Your self-assessment aligns well with others' perceptions of your {capability}. This indicates strong self-awareness."
+            }
+          },
+          "recommendations": {
+            "title": "Recommendations",
+            "complete360": {
+              "title": "Complete Your 360° View",
+              "description": "Invite colleagues, managers, and collaborators to share their perspective on your leadership. This will give you a complete view of how others perceive your capabilities.",
+              "button": "Invite Evaluators"
+            },
+            "developmentPlan": {
+              "title": "Create Your Development Plan",
+              "description": "Use these insights to create a personalized development plan focusing on your growth areas while leveraging your strengths."
+            },
+            "coaching": {
+              "title": "Schedule Coaching",
+              "description": "Work with an ARISE coach to dive deeper into your results and create actionable strategies for leadership development."
+            }
+          },
+          "errors": {
+            "sessionExpired": "Your session has expired. Please log in again.",
+            "notFound": "Assessment results not found. The assessment may not be completed yet. Please complete and submit the assessment first.",
+            "noResults": "No results found",
+            "notCompleted": {
+              "title": "Assessment Not Completed",
+              "completeButton": "Complete Assessment"
+            },
+            "unableToLoad": {
+              "title": "Unable to Load Results"
+            }
+          }
+        }
+      },
+      "results": {
+        "loading": "Loading your results...",
+        "title": "Wellness Assessment Results",
+        "subtitle": "Your comprehensive wellness profile across six key pillars",
+        "backToAssessments": "Back to Assessments",
+        "overallScore": {
+          "title": "Overall Wellness Score",
+          "points": "{score} out of {max} points"
+        },
+        "downloading": "Downloading...",
+        "generating": "Generating...",
+        "exportPdf": "Export PDF",
+        "downloadReport": "Download Report",
+        "pillarScore": {
+          "label": "Score"
+        },
+        "performance": {
+          "excellent": "Excellent",
+          "good": "Good",
+          "needsAttention": "Needs Attention"
+        },
+        "insights": {
+          "title": "Key Insights",
+          "strengths": {
+            "title": "Strengths",
+            "description": "Your strongest pillar is {pillar}. Keep up the excellent work in this area!"
+          },
+          "growth": {
+            "title": "Areas for Growth",
+            "description": "Consider focusing on {pillar} to achieve a more balanced wellness profile."
+          }
+        },
+        "nextSteps": {
+          "title": "Next Steps",
+          "step1": "Review your results with a wellness coach to create a personalized action plan",
+          "step2": "Complete the TKI and 360° Feedback assessments for a complete leadership profile",
+          "step3": "Retake this assessment in 3 months to track your progress",
+          "continueButton": "Continue to Other Assessments",
+          "backToDashboard": "Back to Dashboard"
+        },
+        "report": {
+          "title": "Wellness Assessment Report",
+          "overallScore": "Overall Score"
+        },
+        "toast": {
+          "downloadSuccess": "PDF downloaded successfully",
+          "downloadFailed": "Failed to download PDF report. Please try again."
+        },
+        "errors": {
+          "noId": "No assessment ID provided",
+          "notFound": "Assessment not found. You may not have permission to view this assessment.",
+          "notCompleted": {
+            "title": "Assessment Not Completed",
+            "description": "This assessment is not completed yet. Please complete all questions first.{progress}",
+            "continueButton": "Continue Assessment"
+          },
+          "questionsAnswered": "questions answered",
+          "noResults": "Results not found",
+          "error": "Error"
+        }
+      },
+      "mbti": {
+        "results": {
+          "loading": "Loading your results...",
+          "title": "Your MBTI Personality Type",
+          "subtitle": "Understanding your unique personality profile",
+          "backToAssessments": "Back to Assessments",
+          "exportPdf": "Export PDF",
+          "ocrBadge": "Results extracted from PDF via OCR",
+          "unknownType": "Unknown Type",
+          "unknownTypeDescription": "Type description not available.",
+          "dimensions": {
+            "title": "Your Personality Dimensions",
+            "energySource": "Energy Source",
+            "informationGathering": "Information Gathering",
+            "decisionMaking": "Decision Making",
+            "lifestyle": "Lifestyle"
+          },
+          "preferences": {
+            "extraversion": "Extraversion",
+            "introversion": "Introversion",
+            "sensing": "Sensing",
+            "intuition": "Intuition",
+            "thinking": "Thinking",
+            "feeling": "Feeling",
+            "judging": "Judging",
+            "perceiving": "Perceiving"
+          },
+          "strengths": {
+            "title": "Strengths & Growth Areas",
+            "yourStrengths": "Your Strengths",
+            "growthAreas": "Growth Areas"
+          },
+          "recommendations": {
+            "title": "Personalized Development Recommendations"
+          },
+          "nextSteps": {
+            "title": "Continue Your Leadership Journey",
+            "description": "Explore other assessments to gain deeper insights",
+            "takeTKI": "Take TKI Assessment",
+            "tryWellness": "Try Wellness Assessment"
+          },
+          "notFound": {
+            "title": "No MBTI Results Found",
+            "description": "You haven't uploaded your MBTI score from 16Personalities yet. Upload your PDF or share your profile URL to view your results.",
+            "uploadButton": "Upload My MBTI Score"
+          },
+          "errors": {
+            "notFound": "Results not found"
+          }
+        }
       }
     },
     "main": {
@@ -257,6 +590,38 @@
         "loadFailed": "Failed to load assessments",
         "tryAgain": "Try Again"
       }
+    },
+    "navigation": {
+      "items": {
+        "dashboard": "Dashboard",
+        "assessments": "Assessments",
+        "resultsReports": "Results & Reports",
+        "developmentPlan": "Development plan",
+        "profile": "Profile",
+        "coachee": "Coachee",
+        "agenda": "Agenda",
+        "employees": "Employees",
+        "manageUsers": "Manage Users",
+        "manageTests": "Manage Tests"
+      },
+      "groups": {
+        "individual": "Individual",
+        "admin": "Admin",
+        "coach": "Coach",
+        "business": "Business"
+      },
+      "logout": "Logout",
+      "user": "User",
+      "backToDashboard": "Back to dashboard",
+      "backToHome": "Back to home",
+      "closeMenu": "Close menu",
+      "openMenu": "Open menu",
+      "expandSidebar": "Expand sidebar",
+      "collapseSidebar": "Collapse sidebar",
+      "searchPlaceholder": "Search...",
+      "searchAriaLabel": "Search in navigation",
+      "clearSearch": "Clear search",
+      "noResults": "No results found"
     },
     "coachingOptions": {
       "title": {
@@ -450,7 +815,74 @@
     "serverError": "Server error"
   },
   "profile": {
-    "title": "Profile",
+    "title": {
+      "part1": "Your",
+      "part2": "profile"
+    },
+    "subtitle": "Update my profile information & Subscription",
+    "tabs": {
+      "profile": "Profile",
+      "subscription": "Subscription"
+    },
+    "userFallback": "User",
+    "nameFallback": "John Doe",
+    "planLabel": "Revelation plan",
+    "sections": {
+      "personalInfo": {
+        "title": "Personal Information",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "email": "Email address",
+        "password": "Password"
+      },
+      "additionalInfo": {
+        "title": "Additional Information",
+        "gender": {
+          "label": "Gender",
+          "male": "Male",
+          "female": "Female"
+        },
+        "age": {
+          "label": "Age",
+          "placeholder": "Enter your age"
+        },
+        "degree": {
+          "label": "Highest degree attained",
+          "options": {
+            "highSchool": "High School",
+            "bachelor": "Bachelor's Degree",
+            "master": "Master's Degree",
+            "phd": "PhD"
+          }
+        },
+        "goal": {
+          "label": "What is your main goal with a leadership development plan?",
+          "options": {
+            "improveLeadership": "Improve Leadership Skills",
+            "careerAdvancement": "Career Advancement",
+            "teamManagement": "Team Management",
+            "personalGrowth": "Personal Growth"
+          }
+        },
+        "coach": {
+          "label": "Have you ever worked with a leadership coach?"
+        },
+        "choice": "Choice"
+      },
+      "companyInfo": {
+        "title": "Company Information",
+        "organizationName": "Organization name",
+        "position": "Position"
+      }
+    },
+    "saveButton": {
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "toast": {
+      "saveSuccess": "Profile updated successfully",
+      "partialSave": "Profile updated, but some additional information could not be saved"
+    },
     "description": "Manage your profile information and account settings",
     "breadcrumbs": {
       "dashboard": "Dashboard",
@@ -470,7 +902,7 @@
       "updateSuccess": "Profile updated successfully"
     },
     "errors": {
-      "loadFailed": "Failed to load profile. Please try again.",
+      "loadFailed": "Failed to load profile data",
       "updateFailed": "Failed to update profile. Please try again."
     },
     "settings": {

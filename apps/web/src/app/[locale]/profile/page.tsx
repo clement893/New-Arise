@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
 import { Card } from '@/components/ui';
@@ -13,6 +14,7 @@ import { useToast } from '@/lib/toast';
 import { transformApiUserToStoreUser, type ApiUserResponse } from '@/lib/auth/userTransform';
 
 export default function ProfilePage() {
+  const t = useTranslations('profile');
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, setUser } = useAuthStore();
@@ -88,7 +90,7 @@ export default function ProfilePage() {
       } catch (error) {
         console.error('Failed to load user data:', error);
         showToast({
-          message: 'Failed to load profile data',
+          message: t('errors.loadFailed'),
           type: 'error',
         });
       } finally {
@@ -201,14 +203,14 @@ export default function ProfilePage() {
           console.error('Failed to save preferences:', prefError);
           // Don't fail the whole save if preferences fail
           showToast({
-            message: 'Profile updated, but some additional information could not be saved',
+            message: t('toast.partialSave'),
             type: 'warning',
           });
           return; // Return early to avoid showing success message
         }
 
         showToast({
-          message: 'Profile updated successfully',
+          message: t('toast.saveSuccess'),
           type: 'success',
         });
       } else {
@@ -216,7 +218,7 @@ export default function ProfilePage() {
       }
     } catch (error: any) {
       console.error('Failed to save profile:', error);
-      const errorMessage = error?.response?.data?.detail || error?.message || 'Failed to update profile. Please try again.';
+      const errorMessage = error?.response?.data?.detail || error?.message || t('errors.updateFailed');
       showToast({
         message: errorMessage,
         type: 'error',
@@ -230,8 +232,8 @@ export default function ProfilePage() {
     <div className="relative">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-white mb-2">Your <span style={{ color: '#D8B868' }}>profile</span></h1>
-        <p className="text-white/90 text-lg mb-6">Update my profile information & Subscription</p>
+        <h1 className="text-4xl font-bold text-white mb-2">{t('title.part1')} <span style={{ color: '#D8B868' }}>{t('title.part2')}</span></h1>
+        <p className="text-white/90 text-lg mb-6">{t('subtitle')}</p>
         
         {/* Tabs */}
         <div className="flex gap-2">
@@ -244,7 +246,7 @@ export default function ProfilePage() {
                 : 'bg-white/20 text-white/80 hover:bg-white/30 hover:text-white'
             )}
           >
-            Profile
+            {t('tabs.profile')}
           </button>
           <button
             onClick={() => handleTabChange('subscription')}
@@ -255,7 +257,7 @@ export default function ProfilePage() {
                 : 'bg-white/20 text-white/80 hover:bg-white/30 hover:text-white'
             )}
           >
-            Subscription
+            {t('tabs.subscription')}
           </button>
         </div>
       </div>
@@ -269,7 +271,7 @@ export default function ProfilePage() {
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
                 {user?.avatar_url ? (
-                  <img src={user.avatar_url} alt={user.name || 'User'} className="w-full h-full object-cover" />
+                  <img src={user.avatar_url} alt={user.name || t('userFallback')} className="w-full h-full object-cover" />
                 ) : (
                   <span className="text-2xl font-semibold text-gray-600">
                     {(user?.name?.[0] || 'J').toUpperCase()}
@@ -277,9 +279,9 @@ export default function ProfilePage() {
                 )}
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900">{user?.name || 'John Doe'}</h3>
+                <h3 className="text-xl font-bold text-gray-900">{user?.name || t('nameFallback')}</h3>
                 <span className="inline-block px-3 py-1 bg-arise-deep-teal-alt/10 text-arise-deep-teal-alt rounded-full text-xs font-medium mt-1">
-                  Revelation plan
+                  {t('planLabel')}
                 </span>
               </div>
             </div>
@@ -287,11 +289,11 @@ export default function ProfilePage() {
 
           {/* Personal Information Section */}
           <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">Personal Information</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">{t('sections.personalInfo.title')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  First name
+                  {t('sections.personalInfo.firstName')}
                 </label>
                 <Input
                   type="text"
@@ -303,7 +305,7 @@ export default function ProfilePage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Last name
+                  {t('sections.personalInfo.lastName')}
                 </label>
                 <Input
                   type="text"
@@ -315,7 +317,7 @@ export default function ProfilePage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email address
+                  {t('sections.personalInfo.email')}
                 </label>
                 <Input
                   type="email"
@@ -327,7 +329,7 @@ export default function ProfilePage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Password
+                  {t('sections.personalInfo.password')}
                 </label>
                 <Input
                   type="password"
@@ -343,11 +345,11 @@ export default function ProfilePage() {
 
           {/* Additional Information Section */}
           <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">Additional Information</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">{t('sections.additionalInfo.title')}</h2>
             <div className="space-y-6">
               {/* Gender */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">Gender</label>
+                <label className="block text-sm font-medium text-gray-700 mb-3">{t('sections.additionalInfo.gender.label')}</label>
                 <div className="flex gap-6">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -358,7 +360,7 @@ export default function ProfilePage() {
                       onChange={handleInputChange}
                       className="w-4 h-4 text-arise-deep-teal-alt focus:ring-arise-deep-teal-alt"
                     />
-                    <span className="text-gray-700">Male</span>
+                    <span className="text-gray-700">{t('sections.additionalInfo.gender.male')}</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -369,7 +371,7 @@ export default function ProfilePage() {
                       onChange={handleInputChange}
                       className="w-4 h-4 text-arise-deep-teal-alt focus:ring-arise-deep-teal-alt"
                     />
-                    <span className="text-gray-700">Female</span>
+                    <span className="text-gray-700">{t('sections.additionalInfo.gender.female')}</span>
                   </label>
                 </div>
               </div>
@@ -377,14 +379,14 @@ export default function ProfilePage() {
               {/* Age */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Age
+                  {t('sections.additionalInfo.age.label')}
                 </label>
                 <Input
                   type="number"
                   name="age"
                   value={formData.age}
                   onChange={handleInputChange}
-                  placeholder="Enter your age"
+                  placeholder={t('sections.additionalInfo.age.placeholder')}
                   className="w-full"
                 />
               </div>
@@ -392,7 +394,7 @@ export default function ProfilePage() {
               {/* Highest degree */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Highest degree attained
+                  {t('sections.additionalInfo.degree.label')}
                 </label>
                 <select
                   name="highestDegree"
@@ -400,18 +402,18 @@ export default function ProfilePage() {
                   onChange={handleInputChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-arise-deep-teal-alt focus:border-transparent"
                 >
-                  <option value="">Choice</option>
-                  <option value="high_school">High School</option>
-                  <option value="bachelor">Bachelor's Degree</option>
-                  <option value="master">Master's Degree</option>
-                  <option value="phd">PhD</option>
+                  <option value="">{t('sections.additionalInfo.choice')}</option>
+                  <option value="high_school">{t('sections.additionalInfo.degree.options.highSchool')}</option>
+                  <option value="bachelor">{t('sections.additionalInfo.degree.options.bachelor')}</option>
+                  <option value="master">{t('sections.additionalInfo.degree.options.master')}</option>
+                  <option value="phd">{t('sections.additionalInfo.degree.options.phd')}</option>
                 </select>
               </div>
 
               {/* Main goal */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  What is your main goal with a leadership development plan?
+                  {t('sections.additionalInfo.goal.label')}
                 </label>
                 <select
                   name="mainGoal"
@@ -419,11 +421,11 @@ export default function ProfilePage() {
                   onChange={handleInputChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-arise-deep-teal-alt focus:border-transparent"
                 >
-                  <option value="">Choice</option>
-                  <option value="improve_leadership">Improve Leadership Skills</option>
-                  <option value="career_advancement">Career Advancement</option>
-                  <option value="team_management">Team Management</option>
-                  <option value="personal_growth">Personal Growth</option>
+                  <option value="">{t('sections.additionalInfo.choice')}</option>
+                  <option value="improve_leadership">{t('sections.additionalInfo.goal.options.improveLeadership')}</option>
+                  <option value="career_advancement">{t('sections.additionalInfo.goal.options.careerAdvancement')}</option>
+                  <option value="team_management">{t('sections.additionalInfo.goal.options.teamManagement')}</option>
+                  <option value="personal_growth">{t('sections.additionalInfo.goal.options.personalGrowth')}</option>
                 </select>
               </div>
 
@@ -437,7 +439,7 @@ export default function ProfilePage() {
                     onChange={handleInputChange}
                     className="w-4 h-4 text-arise-deep-teal-alt focus:ring-arise-deep-teal-alt rounded"
                   />
-                  <span className="text-gray-700">Have you ever worked with a leadership coach?</span>
+                  <span className="text-gray-700">{t('sections.additionalInfo.coach.label')}</span>
                 </label>
               </div>
             </div>
@@ -445,11 +447,11 @@ export default function ProfilePage() {
 
           {/* Company Information Section */}
           <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">Company Information</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">{t('sections.companyInfo.title')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Organization name
+                  {t('sections.companyInfo.organizationName')}
                 </label>
                 <Input
                   type="text"
@@ -461,7 +463,7 @@ export default function ProfilePage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Position
+                  {t('sections.companyInfo.position')}
                 </label>
                 <Input
                   type="text"
@@ -482,7 +484,7 @@ export default function ProfilePage() {
               className="!bg-arise-gold-alt !text-arise-deep-teal-alt hover:!bg-arise-gold-alt/90 font-semibold px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ backgroundColor: 'var(--color-arise-gold-alt, #F4B860)', color: 'var(--color-arise-deep-teal-alt, #1B5E6B)' }}
             >
-              {isSaving ? 'Saving...' : <span style={{ color: '#2E2E2E' }}>Save</span>}
+              {isSaving ? t('saveButton.saving') : <span style={{ color: '#2E2E2E' }}>{t('saveButton.save')}</span>}
             </Button>
           </div>
           </div>

@@ -256,8 +256,6 @@ function LoginContent() {
 }
 
 export default function LoginPage() {
-  const t = useTranslations('auth.login');
-  
   return (
     <Suspense fallback={
       <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 dark:from-muted dark:to-muted">
@@ -265,7 +263,7 @@ export default function LoginPage() {
           <Card>
             <div className="text-center py-8">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mb-4"></div>
-              <p className="text-muted-foreground">{t('loading')}</p>
+              <p className="text-muted-foreground">Loading...</p>
             </div>
           </Card>
         </Container>

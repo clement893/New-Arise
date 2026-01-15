@@ -1,6 +1,7 @@
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { usePathname, useRouter } from '@/i18n/routing';
 import { useAuthStore } from '@/lib/store';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
@@ -18,16 +19,17 @@ interface DashboardCustomLayoutProps {
 }
 
 export default function DashboardCustomLayout({ children }: DashboardCustomLayoutProps) {
+  const t = useTranslations('dashboard.navigation');
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAuthStore();
   const { logout } = useAuth();
 
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Assessments', href: '/dashboard/assessments', icon: ClipboardList },
-    { name: 'Results & Reports', href: '/dashboard/results', icon: FileText },
-    { name: 'Development plan', href: '/dashboard/development-plan', icon: TrendingUp },
+    { name: t('items.dashboard'), href: '/dashboard', icon: LayoutDashboard },
+    { name: t('items.assessments'), href: '/dashboard/assessments', icon: ClipboardList },
+    { name: t('items.resultsReports'), href: '/dashboard/results', icon: FileText },
+    { name: t('items.developmentPlan'), href: '/dashboard/development-plan', icon: TrendingUp },
   ];
 
   const isActive = (href: string) => {
@@ -122,7 +124,7 @@ export default function DashboardCustomLayout({ children }: DashboardCustomLayou
             style={{ backgroundColor: '#0f454d', color: '#fff' }}
           >
             <LogOut className="w-5 h-5" />
-            <span className="text-sm">Logout</span>
+            <span className="text-sm">{t('logout')}</span>
           </button>
         </div>
       </aside>

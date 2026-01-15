@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 import Link from 'next/link';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import { Card, Loading } from '@/components/ui';
