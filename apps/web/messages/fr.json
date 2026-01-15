@@ -1830,10 +1830,22 @@
     }
   },
   "pricing": {
+    "hero": {
+      "title": "Choisissez votre plan",
+      "titlePart1": "Choisissez",
+      "titlePart2": "votre plan",
+      "subtitle": "Autonomisez des leaders authentiques grâce à une évaluation et un développement holistiques"
+    },
+    "billingPeriod": {
+      "monthly": "Mensuel",
+      "yearly": "Annuel"
+    },
     "card": {
       "customPricing": "Sur devis",
       "perMonth": "/mois",
-      "defaultDescription": "test pour la plateforme"
+      "defaultDescription": "test pour la plateforme",
+      "contactUs": "Nous contacter",
+      "getStarted": "Commencer"
     },
     "errors": {
       "plansNotActive": "Les plans existent mais ne sont pas marqués comme ACTIVE. Veuillez aller sur la page Admin > Plans pour marquer les plans comme ACTIVE (statut: ACTIVE).",

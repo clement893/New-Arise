@@ -1916,10 +1916,22 @@
     }
   },
   "pricing": {
+    "hero": {
+      "title": "Choose your plan",
+      "titlePart1": "Choose",
+      "titlePart2": "your plan",
+      "subtitle": "Empower authentic leaders through holistic assessment and development"
+    },
+    "billingPeriod": {
+      "monthly": "Monthly",
+      "yearly": "Yearly"
+    },
     "card": {
       "customPricing": "On quote",
       "perMonth": "/month",
-      "defaultDescription": "Test for the platform"
+      "defaultDescription": "Test for the platform",
+      "contactUs": "Contact us",
+      "getStarted": "Get Started"
     },
     "errors": {
       "plansNotActive": "Plans exist but are not marked as ACTIVE. Please go to Admin > Plans page to mark plans as ACTIVE (status: ACTIVE).",

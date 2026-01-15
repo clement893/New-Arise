@@ -32,13 +32,9 @@ export default function LanguageSwitcher() {
     setIsOpen(false);
     
     // pathname from usePathname() already excludes the locale prefix
-    // So we can directly use it to build the new path
-    const newPath = newLocale === 'en' 
-      ? pathname 
-      : `/${newLocale}${pathname === '/' ? '' : pathname}`;
-    
-    // Use next-intl's router for locale-aware navigation
-    router.push(newPath);
+    // Use next-intl's router.push with locale option to properly handle locale switching
+    // This automatically handles adding/removing locale prefixes based on routing config
+    router.push(pathname, { locale: newLocale });
   };
 
   return (

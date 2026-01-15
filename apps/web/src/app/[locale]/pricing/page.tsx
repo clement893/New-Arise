@@ -100,7 +100,7 @@ export default function PricingPage() {
       description: apiPlan.description || '',
       features: parseFeatures(apiPlan.features),
       popular: apiPlan.is_popular,
-      buttonText: priceInEuros === -1 ? 'Nous contacter' : 'Commencer',
+      buttonText: priceInEuros === -1 ? t('card.contactUs') : t('card.getStarted'),
     };
   }, [billingPeriod]);
 
@@ -252,14 +252,14 @@ export default function PricingPage() {
                 <div className="text-left">
                   <h1 className="mb-6">
                     <span className="block text-5xl md:text-6xl font-light mb-2" style={{ color: '#D8B868' }}>
-                    Choose
+                    {t('hero.titlePart1')}
                     </span>
                     <span className="block text-5xl md:text-6xl font-medium" style={{ color: '#D8B868' }}>
-                    your plan
+                    {t('hero.titlePart2')}
                     </span>
                   </h1>
                   <p className="text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed">
-                  Empower authentic leaders through holistic assessment and development
+                  {t('hero.subtitle')}
                   </p>
                 </div>
               </div>
@@ -269,7 +269,7 @@ export default function PricingPage() {
                 <div className="absolute inset-0">
                   <Image 
                     src="/images/pricing-hero.jpg" 
-                    alt="Choose your plan"
+                    alt={t('hero.title')}
                     fill
                     className="object-cover"
                     priority

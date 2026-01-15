@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui';
 
 interface BillingPeriodToggleProps {
@@ -11,6 +12,7 @@ export default function BillingPeriodToggle({
   value,
   onChange,
 }: BillingPeriodToggleProps) {
+  const t = useTranslations('pricing.billingPeriod');
   return (
     <div className="inline-flex items-center bg-white dark:bg-gray-800 rounded-lg p-1 shadow-md">
       <Button
@@ -23,7 +25,7 @@ export default function BillingPeriodToggle({
           color: value === 'month' ? '#FFFFFF' : '#374151',
         }}
       >
-        Mensuel
+        {t('monthly')}
       </Button>
       <Button
         onClick={() => onChange('year')}
@@ -35,7 +37,7 @@ export default function BillingPeriodToggle({
           color: value === 'year' ? '#FFFFFF' : '#374151',
         }}
       >
-        Annuel
+        {t('yearly')}
       </Button>
     </div>
   );
