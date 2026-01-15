@@ -52,10 +52,6 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-// Force dynamic rendering to ensure headers() is available
-export const dynamic = 'force-dynamic';
-export const dynamicParams = true;
-
 export default async function LocaleLayout({
   children,
   params,
@@ -74,27 +70,13 @@ export default async function LocaleLayout({
   // side is the easiest way to get started
   const messages = await getMessages();
   
-  // SECURITY: Get CSP nonce from request headers (set by middleware)
-  // Nonces allow inline scripts/styles while maintaining strict CSP
-  // Note: In Next.js, middleware headers are available via request headers
-  // For Server Components, we need to get it from the incoming request
-  let cspNonce: string | undefined;
-  try {
-    // Try to get nonce from headers (available in Server Components)
-    // The middleware sets X-CSP-Nonce header which should be available
-    // SECURITY: headers() may throw in some contexts (static generation, build time)
-    // Wrap in try-catch to prevent 500 errors
-    const { headers } = await import('next/headers');
-    const headersList = await headers();
-    // Check both lowercase and original case
-    cspNonce = headersList.get('x-csp-nonce') || headersList.get('X-CSP-Nonce') || undefined;
-  } catch (error) {
-    // If headers() is not available (e.g., in static generation or build time), nonce will be undefined
-    // In that case, CSP will fall back to strict mode without nonces
-    // This is acceptable as static pages don't need dynamic nonces
-    // SECURITY: Silently fail to prevent 500 errors - CSP will still work without nonces
-    cspNonce = undefined;
-  }
+  // SECURITY: CSP nonce handling
+  // Note: In Next.js App Router, accessing headers() in layouts with generateStaticParams()
+  // can cause errors. We'll rely on the middleware to set CSP headers directly.
+  // The nonce is optional - if not available, CSP will work without it (slightly less strict)
+  // SECURITY: For now, we don't use nonces in the layout to prevent 500 errors
+  // The middleware already sets CSP headers with nonces in the response
+  const cspNonce: string | undefined = undefined;
 
   // Get API URL for resource hints
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_DEFAULT_API_URL || 'http://localhost:8000';
