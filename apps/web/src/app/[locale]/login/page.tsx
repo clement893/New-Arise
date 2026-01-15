@@ -5,12 +5,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { Link } from '@/i18n/routing';
-import { useRouter } from 'next/navigation';
+import { Link, useRouter } from '@/i18n/routing';
+import { useSearchParams } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
-import { useState } from 'react';
-import { login } from '@/lib/api/auth';
+import { useState, useEffect, useRef } from 'react';
+import { authAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store';
+import { transformApiUserToStoreUser } from '@/lib/auth/userTransform';
+import { TokenStorage } from '@/lib/auth/tokenStorage';
+import { AxiosError } from 'axios';
 import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
 
@@ -21,12 +24,60 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
+interface ApiErrorResponse {
+  detail?: string;
+  message?: string;
+}
+
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { login: loginToStore } = useAuthStore();
+  const { login: loginToStore, setError: setStoreError, error: storeError } = useAuthStore();
+  const errorProcessedRef = useRef<string | null>(null);
+
+  // Read error from URL query parameter or store
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    
+    if (errorParam) {
+      // Prevent processing the same error multiple times
+      if (errorProcessedRef.current === errorParam) {
+        return;
+      }
+      
+      errorProcessedRef.current = errorParam;
+      
+      let errorMessage = decodeURIComponent(errorParam);
+      
+      // Translate common error codes to user-friendly messages
+      const errorMessages: Record<string, string> = {
+        'unauthorized': 'Votre session a expiré ou vous n\'êtes pas autorisé. Veuillez vous reconnecter.',
+        'session_expired': 'Votre session a expiré. Veuillez vous reconnecter.',
+        'unauthorized_superadmin': 'Vous devez être superadmin pour accéder à cette page.',
+        'forbidden': 'Accès refusé. Vous n\'avez pas les permissions nécessaires.',
+      };
+      
+      if (errorMessages[errorParam]) {
+        errorMessage = errorMessages[errorParam];
+      }
+      
+      setError(errorMessage);
+      setStoreError(errorMessage);
+    } else if (storeError) {
+      // Show store error if no URL error param
+      setError(storeError);
+    } else {
+      // Clear error if no error param in URL and no store error
+      if (errorProcessedRef.current !== null) {
+        errorProcessedRef.current = null;
+        setError(null);
+        setStoreError(null);
+      }
+    }
+  }, [searchParams, storeError, setStoreError]);
   
   const {
     register,
@@ -41,29 +92,41 @@ export default function LoginPage() {
     setError(null);
     
     try {
-      // Call the backend API to login
-      const authResponse = await login({
-        email: data.email,
-        password: data.password,
-      });
+      // Call the backend API to login (uses withCredentials: true for cookies)
+      const response = await authAPI.login(data.email, data.password);
+      const { access_token, refresh_token, user } = response.data;
 
-      // Save auth data to Zustand store
-      await loginToStore(
-        {
-          id: authResponse.user.id.toString(),
-          email: authResponse.user.email,
-          name: authResponse.user.full_name,
-          is_active: authResponse.user.is_active,
-          is_verified: true,
-          is_admin: authResponse.user.is_superuser,
-        },
-        authResponse.access_token
-      );
+      // Transform user data to store format
+      const userForStore = transformApiUserToStoreUser(user);
 
-      // Redirect to dashboard
-      router.push('/dashboard');
+      // SECURITY: Backend FastAPI sets tokens in httpOnly cookies during login.
+      // We also store tokens in sessionStorage as fallback for Authorization header
+      // to support cross-origin requests where cookies may not be shared.
+      await TokenStorage.setToken(access_token, refresh_token);
+      await loginToStore(userForStore, access_token, refresh_token);
+      
+      // Set a flag to indicate we just logged in (for ProtectedRoute to detect)
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('just_logged_in', 'true');
+        // Clear flag after 5 seconds (enough time for ProtectedRoute to detect it and complete auth check)
+        setTimeout(() => {
+          sessionStorage.removeItem('just_logged_in');
+        }, 5000);
+      }
+      
+      // Wait a bit longer to ensure store is hydrated, tokens are stored, and ProtectedRoute can detect auth
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Get redirect URL from query params or default to dashboard
+      // Remove locale prefix if present (next-intl will add it automatically)
+      let redirectUrl = searchParams.get('redirect') || '/dashboard';
+      // Remove locale prefix if present (e.g., /fr/dashboard -> /dashboard)
+      redirectUrl = redirectUrl.replace(/^\/(en|fr|ar|he)\//, '/');
+      router.push(redirectUrl); // Will automatically use current locale
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
+      const axiosError = err as AxiosError<ApiErrorResponse>;
+      const message = axiosError.response?.data?.detail || 'Login failed. Please try again.';
+      setError(message);
     } finally {
       setIsLoading(false);
     }
