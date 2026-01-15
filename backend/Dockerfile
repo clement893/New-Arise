@@ -90,11 +90,9 @@ ENV PYTHONUNBUFFERED=1
 HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
     CMD sh -c 'PORT=${PORT:-8000}; python -c "import urllib.request; import sys; import socket; socket.setdefaulttimeout(5); url=f\"http://localhost:{PORT}/api/v1/health/\"; r=urllib.request.urlopen(url, timeout=5); sys.exit(0 if r.getcode()==200 else 1)"' || exit 1
 
-# Use entrypoint.sh from the repo
-# IMPORTANT: Railway prioritizes startCommand from railway.json over ENTRYPOINT
-# But if railway.json is not detected, Railway will use ENTRYPOINT/CMD
-# We set both to ensure entrypoint.sh runs in all cases
-# Use shell form to ensure proper execution and log visibility
-ENTRYPOINT ["/bin/sh", "-c", "echo '=== DOCKERFILE ENTRYPOINT EXECUTED ===' && ./entrypoint.sh"]
-CMD ["/bin/sh", "-c", "echo '=== DOCKERFILE CMD EXECUTED ===' && ./entrypoint.sh"]
+# IMPORTANT: Railway will use startCommand from railway.json
+# We do NOT set ENTRYPOINT/CMD here to allow Railway to use startCommand
+# If ENTRYPOINT is set, Railway may ignore startCommand from railway.json
+# The startCommand in railway.json will start Uvicorn directly
+# Migrations will be handled by FastAPI lifespan (background initialization)
 
