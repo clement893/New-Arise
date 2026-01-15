@@ -111,10 +111,11 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
       // Check if we just logged in (to avoid premature redirects)
       const justLoggedIn = typeof window !== 'undefined' && sessionStorage.getItem('just_logged_in') === 'true';
       
-      // If we have tokens in cookies but no user, try to fetch user from API
+      // If we have tokens (from sessionStorage) but no user, try to fetch user from API
       // This handles the case where Zustand persist hasn't hydrated yet but tokens exist
+      // Also check if we just logged in - in that case, user should be in store soon
       let fetchedUser = currentUser;
-      if (hasTokensInCookies && !hasUser && typeof window !== 'undefined') {
+      if ((hasTokensInCookies || justLoggedIn) && !hasUser && typeof window !== 'undefined') {
         // If we just logged in, wait longer for store to hydrate
         const waitTime = justLoggedIn ? 300 : 100;
         await new Promise(resolve => setTimeout(resolve, waitTime));
@@ -198,9 +199,19 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
       }
       
       // Final auth check with potentially fetched user
-      // SECURITY: Check both user in store AND tokens in httpOnly cookies
+      // SECURITY: Check both user in store AND tokens (from sessionStorage or cookies)
       const finalHasUser = !!fetchedUser;
       const finalHasTokens = hasTokensInCookies;
+      
+      // If we just logged in, be more lenient - user might be in store but tokens check might be delayed
+      if (justLoggedIn && finalHasUser) {
+        logger.debug('Just logged in and user found, authorizing immediately', { pathname });
+        setIsAuthorized(true);
+        checkingRef.current = false;
+        setIsChecking(false);
+        return;
+      }
+      
       const isAuth = finalHasUser && finalHasTokens;
       
       if (process.env.NODE_ENV === 'development') {
@@ -209,6 +220,7 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
           hasUser: !!user,
           fetchedUser: !!fetchedUser,
           isAuth,
+          justLoggedIn,
           pathname,
           isAuthorized,
           wasAuthenticated,
@@ -227,7 +239,23 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
       }
       
       if (!isAuth) {
-        logger.debug('Not authenticated, redirecting to login', { pathname });
+        // If we just logged in but auth check failed, wait a bit more before redirecting
+        if (justLoggedIn) {
+          logger.debug('Just logged in but auth check failed, waiting before redirect', { pathname });
+          await new Promise(resolve => setTimeout(resolve, 500));
+          // Re-check after wait
+          const storeStateAfterWait = useAuthStore.getState();
+          const tokenAfterWait = TokenStorage.getToken();
+          if (storeStateAfterWait.user && tokenAfterWait) {
+            logger.debug('User and token found after wait, authorizing', { pathname });
+            setIsAuthorized(true);
+            checkingRef.current = false;
+            setIsChecking(false);
+            return;
+          }
+        }
+        
+        logger.debug('Not authenticated, redirecting to login', { pathname, justLoggedIn });
         checkingRef.current = false;
         setIsChecking(false);
         setIsAuthorized(false);

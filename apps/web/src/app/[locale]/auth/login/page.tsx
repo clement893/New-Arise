@@ -86,16 +86,18 @@ function LoginContent() {
       // Set a flag to indicate we just logged in (for ProtectedRoute to detect)
       if (typeof window !== 'undefined') {
         sessionStorage.setItem('just_logged_in', 'true');
-        // Clear flag after 2 seconds (enough time for ProtectedRoute to detect it)
+        // Clear flag after 5 seconds (enough time for ProtectedRoute to detect it and complete auth check)
         setTimeout(() => {
           sessionStorage.removeItem('just_logged_in');
-        }, 2000);
+        }, 5000);
       }
       
-      // Longer delay to ensure store is hydrated and token is available for ProtectedRoute
-      await new Promise(resolve => setTimeout(resolve, 200));
+      // Wait a bit longer to ensure store is hydrated, tokens are stored, and ProtectedRoute can detect auth
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      router.push('/dashboard'); // Will automatically use current locale
+      // Get redirect URL from query params or default to dashboard
+      const redirectUrl = searchParams.get('redirect') || '/dashboard';
+      router.push(redirectUrl); // Will automatically use current locale
     } catch (err) {
       const axiosError = err as AxiosError<ApiErrorResponse>;
       const message = axiosError.response?.data?.detail || 'Login failed';
