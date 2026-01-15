@@ -7,7 +7,7 @@
 // The actual implementation doesn't use next-intl
 export { useTranslations, useLocale } from './hooks';
 
-export function formatDate(date: Date | string, locale: string = 'fr'): string {
+export function formatDate(date: Date | string, locale: string = 'en'): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
   return new Intl.DateTimeFormat(locale, {
     year: 'numeric',
@@ -19,7 +19,7 @@ export function formatDate(date: Date | string, locale: string = 'fr'): string {
 export function formatCurrency(
   amount: number,
   currency: string = 'USD',
-  locale: string = 'fr'
+  locale: string = 'en'
 ): string {
   return new Intl.NumberFormat(locale, {
     style: 'currency',
@@ -27,11 +27,11 @@ export function formatCurrency(
   }).format(amount);
 }
 
-export function formatNumber(value: number, locale: string = 'fr'): string {
+export function formatNumber(value: number, locale: string = 'en'): string {
   return new Intl.NumberFormat(locale).format(value);
 }
 
-export function formatRelativeTime(date: Date | string, locale: string = 'fr'): string {
+export function formatRelativeTime(date: Date | string, locale: string = 'en'): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
   const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - dateObj.getTime()) / 1000);

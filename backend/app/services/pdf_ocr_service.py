@@ -666,6 +666,23 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
             if not merged_result["mbti_type"]:
                 raise ValueError("Could not extract MBTI type from PDF. Please ensure the PDF contains MBTI results from 16Personalities.")
 
+            # Clean MBTI type (remove -T or -A suffix if present, keep it in a separate field)
+            raw_mbti_type = str(merged_result["mbti_type"]).upper().strip()
+            if not raw_mbti_type or raw_mbti_type == "NONE":
+                raise ValueError("Invalid MBTI type extracted from PDF. Please ensure the PDF contains valid MBTI results from 16Personalities.")
+            
+            variant = None
+            if len(raw_mbti_type) > 4:
+                # Check if it ends with -T or -A
+                if raw_mbti_type.endswith("-T") or raw_mbti_type.endswith("-A"):
+                    variant = raw_mbti_type[-1]  # T or A
+                    raw_mbti_type = raw_mbti_type[:-2]  # Remove -T or -A
+            
+            # Update merged_result with cleaned MBTI type
+            merged_result["mbti_type"] = raw_mbti_type
+            if variant:
+                merged_result["variant"] = variant
+
             # Ensure dimension_preferences is properly structured
             required_dimensions = ["EI", "SN", "TF", "JP"]
             for dim in required_dimensions:

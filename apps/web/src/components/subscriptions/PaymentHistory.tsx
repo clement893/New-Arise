@@ -22,7 +22,7 @@ export default function PaymentHistory({ payments }: PaymentHistoryProps) {
       sortable: true,
       render: (value) => (
         <span className="text-sm text-gray-900 dark:text-gray-100">
-          {new Date(String(value)).toLocaleDateString('fr-FR')}
+          {new Date(String(value)).toLocaleDateString('en-US')}
         </span>
       ),
     },

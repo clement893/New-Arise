@@ -44,7 +44,7 @@ export default function CRUDModal({
   };
 
   const getDeleteLabel = () => {
-    return deleteLabel || 'Supprimer';
+    return deleteLabel || 'Delete';
   };
 
   return (

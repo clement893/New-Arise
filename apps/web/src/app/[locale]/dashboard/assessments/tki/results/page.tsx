@@ -155,8 +155,8 @@ export default function TKIResultsPage() {
           <div className="text-center">
             {/* Ensure error is always a string before rendering */}
             <p className="text-red-600 mb-4">{typeof error === 'string' ? error : formatError(error || 'No results found')}</p>
-            <Button onClick={() => router.push('/dashboard/assessments')}>
-              Back to Assessments
+            <Button onClick={() => router.push('/dashboard/assessments')} className="flex align-center gap-8">
+              Back to Assessments 
             </Button>
           </div>
         </Card>
@@ -188,7 +188,7 @@ export default function TKIResultsPage() {
             <Button
               onClick={() => router.push('/dashboard/assessments')}
               variant="outline"
-              className="mb-6"
+              className="mb-6 flex align-center gap-8"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Assessments

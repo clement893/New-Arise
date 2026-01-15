@@ -118,7 +118,7 @@ export default function AdminPagesContent() {
       label: 'Créé le',
       render: (_value, page) => (
         <span className="text-sm text-muted-foreground">
-          {new Date(page.created_at).toLocaleDateString('fr-FR')}
+          {new Date(page.created_at).toLocaleDateString('en-US')}
         </span>
       ),
     },

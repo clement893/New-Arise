@@ -204,7 +204,7 @@ function ProjectsContent() {
       sortable: true,
       render: (value) => (
         <span className="text-gray-600 dark:text-gray-400">
-          {new Date(String(value)).toLocaleDateString('fr-FR')}
+          {new Date(String(value)).toLocaleDateString('en-US')}
         </span>
       ),
     },

@@ -240,6 +240,7 @@ export default function TKIAssessmentPage() {
                 onClick={() => router.push('/dashboard/assessments')} 
                 variant="outline"
                 style={{ borderColor: '#0F4C56', color: '#0F4C56' }}
+                className="flex align-center gap-8"
               >
                 Back to Assessments
               </Button>

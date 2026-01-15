@@ -129,11 +129,11 @@ export default function MBTIResultsPage() {
               <div className="p-6 text-center">
                 <FileText className="w-16 h-16 text-purple-600 mx-auto mb-4" />
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  Aucun résultat MBTI trouvé
+                  No MBTI Results Found
                 </h2>
                 <p className="text-gray-600 mb-6">
-                  Vous n'avez pas encore téléchargé votre score MBTI depuis 16Personalities.
-                  Téléchargez votre PDF ou partagez l'URL de votre profil pour voir vos résultats.
+                  You haven't uploaded your MBTI score from 16Personalities yet.
+                  Upload your PDF or share your profile URL to view your results.
                 </p>
                 <div className="flex flex-col gap-3">
                   <Button 
@@ -142,14 +142,14 @@ export default function MBTIResultsPage() {
                     className="w-full"
                   >
                     <Upload className="w-4 h-4 mr-2" />
-                    Télécharger mon score MBTI
+                    Upload My MBTI Score
                   </Button>
                   <Button 
                     variant="outline" 
                     onClick={() => router.push('/dashboard/assessments')}
                     className="w-full"
                   >
-                    Retour aux assessments
+                    Back to Assessments
                   </Button>
                 </div>
               </div>
@@ -168,12 +168,12 @@ export default function MBTIResultsPage() {
           <Card className="max-w-md">
             <div className="p-6 text-center">
               <p className="text-red-600 mb-4">{errorString}</p>
-              <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2">
                 <Button onClick={() => router.push('/dashboard/assessments/mbti/upload')}>
-                  Télécharger mon score MBTI
+                  Upload My MBTI Score
                 </Button>
                 <Button variant="outline" onClick={() => router.push('/dashboard/assessments')}>
-                  Retour aux assessments
+                  Back to Assessments
                 </Button>
               </div>
             </div>
@@ -205,7 +205,7 @@ export default function MBTIResultsPage() {
             <Button
               variant="ghost"
               onClick={() => router.push('/dashboard/assessments')}
-              className="mb-4"
+              className="mb-4 flex align-center gap-8"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Assessments
@@ -220,7 +220,7 @@ export default function MBTIResultsPage() {
                 {isFromOCR && (
                   <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-arise-gold/20 text-arise-gold rounded-full text-sm font-medium">
                     <FileText size={14} />
-                    Résultats extraits depuis PDF via OCR
+                    Results extracted from PDF via OCR
                   </div>
                 )}
               </div>

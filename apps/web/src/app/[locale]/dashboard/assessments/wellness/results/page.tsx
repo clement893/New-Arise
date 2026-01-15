@@ -97,7 +97,7 @@ export default function WellnessResultsPage() {
           <Card className="max-w-md">
             <div className="p-6 text-center">
               <p className="text-red-600 mb-4">{errorString}</p>
-              <Button onClick={() => router.push('/dashboard/assessments')}>
+              <Button onClick={() => router.push('/dashboard/assessments')} className="flex align-center gap-8">
                 Back to Assessments
               </Button>
             </div>
@@ -141,7 +141,7 @@ export default function WellnessResultsPage() {
             <Button
               variant="ghost"
               onClick={() => router.push('/dashboard/assessments')}
-              className="mb-4"
+              className="mb-4 flex align-center gap-8"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Assessments

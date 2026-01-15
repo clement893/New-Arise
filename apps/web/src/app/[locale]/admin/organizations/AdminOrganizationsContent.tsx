@@ -411,7 +411,7 @@ export default function AdminOrganizationsContent() {
       label: 'Créé le',
       render: (_value, team) => (
         <span className="text-sm text-muted-foreground">
-          {new Date(team.created_at).toLocaleDateString('fr-FR')}
+          {new Date(team.created_at).toLocaleDateString('en-US')}
         </span>
       ),
     },

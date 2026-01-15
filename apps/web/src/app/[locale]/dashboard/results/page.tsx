@@ -46,7 +46,7 @@ function ResultsReportsContent() {
       // Transform to display format
       const transformedAssessments: AssessmentDisplay[] = completedAssessments.map((assessment: ApiAssessment) => {
         const completedDate = assessment.completed_at 
-          ? new Date(assessment.completed_at).toLocaleDateString('fr-FR')
+          ? new Date(assessment.completed_at).toLocaleDateString('en-US')
           : 'N/A';
         
         // Extract score/result from score_summary based on type

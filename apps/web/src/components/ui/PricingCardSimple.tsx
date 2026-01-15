@@ -39,7 +39,7 @@ export default function   PricingCardSimple({
   const isCustomPricing = plan.price === -1;
 
   const displayPrice = calculatePrice();
-  const priceString = displayPrice ? displayPrice.toLocaleString('fr-FR') : null;
+  const priceString = displayPrice ? displayPrice.toLocaleString('en-US') : null;
 
   return (
     <Card

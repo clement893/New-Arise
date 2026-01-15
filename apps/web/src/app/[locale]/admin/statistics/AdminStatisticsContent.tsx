@@ -489,12 +489,12 @@ export default function AdminStatisticsContent() {
   return (
     <PageContainer>
       <PageHeader 
-        title="Statistiques" 
-        description="Visualiser les statistiques et métriques du système"
+        title="Statistics" 
+        description="View system statistics and metrics"
         breadcrumbs={[
-          { label: 'Accueil', href: '/' },
+          { label: 'Home', href: '/' },
           { label: 'Administration', href: '/admin' },
-          { label: 'Statistiques' }
+          { label: 'Statistics' }
         ]} 
       />
 
@@ -512,7 +512,7 @@ export default function AdminStatisticsContent() {
         </Card>
       ) : (
         <>
-          <Section title="Vue d'ensemble" className="mt-6">
+          <Section title="Overview" className="mt-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {statCards.map((stat, index) => (
                 <Card key={index} className="p-4 sm:p-6">
@@ -520,11 +520,11 @@ export default function AdminStatisticsContent() {
                     <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">
                       {stat.title}
                     </h3>
-                    <Badge variant={stat.variant} className="text-xs sm:text-sm">{stat.value.toLocaleString('fr-FR')}</Badge>
+                    <Badge variant={stat.variant} className="text-xs sm:text-sm">{stat.value.toLocaleString('en-US')}</Badge>
                   </div>
                   <div className="mt-2">
                     <p className="text-2xl sm:text-3xl font-bold text-foreground">
-                      {stat.value.toLocaleString('fr-FR')}
+                      {stat.value.toLocaleString('en-US')}
                     </p>
                     <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                       {stat.description}
@@ -535,7 +535,7 @@ export default function AdminStatisticsContent() {
             </div>
           </Section>
 
-          <Section title="Métriques détaillées" className="mt-8">
+          <Section title="Detailed Metrics" className="mt-8">
             {loadingMetrics ? (
               <Card>
                 <div className="py-12 text-center">

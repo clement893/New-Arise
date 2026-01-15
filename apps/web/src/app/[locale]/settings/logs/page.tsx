@@ -165,7 +165,7 @@ export default function LogsSettingsPage() {
       label: t('columns.timestamp') || 'Date/Heure',
       render: (_value, log) => (
         <span className="text-sm text-gray-600 dark:text-gray-400">
-          {new Date(log.timestamp).toLocaleString('fr-FR')}
+          {new Date(log.timestamp).toLocaleString('en-US')}
         </span>
       ),
     },

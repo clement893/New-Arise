@@ -419,7 +419,7 @@ export default function AdminUsersPage() {
                         </td>
                         <td className="py-4 px-4">
                           <div className="text-sm text-gray-900 dark:text-gray-100">
-                            {new Date(user.created_at).toLocaleDateString('fr-FR')}
+                            {new Date(user.created_at).toLocaleDateString('en-US')}
                           </div>
                         </td>
                         <td className="py-4 px-4">

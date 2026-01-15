@@ -223,7 +223,7 @@ export default function AgendaPage() {
     <>
       <PageHeader
         title="Agenda"
-        description="Gérez votre planning de coaching, planifiez vos sessions et suivez vos rendez-vous."
+        description="Manage your coaching schedule, plan your sessions and track your appointments."
       />
 
       <Container className="py-8">
@@ -245,7 +245,7 @@ export default function AgendaPage() {
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Cette semaine</p>
+                <p className="text-sm text-gray-600 mb-1">This week</p>
                 <p className="text-3xl font-bold text-gray-900">{weekSessions.length}</p>
                 <p className="text-xs text-gray-500 mt-1">sessions</p>
               </div>
@@ -404,7 +404,7 @@ export default function AgendaPage() {
                     onChange={(e) => setSelectedCoachee(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-arise-deep-teal focus:border-transparent"
                   >
-                    <option value="all">Tous les coachees</option>
+                    <option value="all">All coachees</option>
                     <option value="1">John Doe</option>
                     <option value="2">Jane Smith</option>
                     <option value="3">Bob Johnson</option>
@@ -416,18 +416,18 @@ export default function AgendaPage() {
                   onClick={handleNewSession}
                 >
                   <Plus size={20} />
-                  Nouvelle session
+                  New session
                 </Button>
               </div>
             </Card>
 
             {/* Upcoming Sessions */}
             <Card className="p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Prochaines sessions</h3>
+              <h3 className="font-semibold text-gray-900 mb-4">Upcoming sessions</h3>
               {upcomingSessions.length === 0 ? (
                 <div className="text-center py-8">
                   <CalendarIcon className="mx-auto mb-2 text-gray-400" size={32} />
-                  <p className="text-sm text-gray-600">Aucune session à venir</p>
+                  <p className="text-sm text-gray-600">No upcoming sessions</p>
                 </div>
               ) : (
                 <div className="space-y-4">

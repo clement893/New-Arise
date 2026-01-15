@@ -268,7 +268,7 @@ export const generateCompleteLeadershipProfilePDF = async (
   doc.text('Comprehensive Assessment Results', pageWidth / 2, pageHeight / 2, { align: 'center' });
   
   doc.setFontSize(12);
-  const currentDate = new Date().toLocaleDateString('fr-FR');
+  const currentDate = new Date().toLocaleDateString('en-US');
   doc.text(`Generated: ${currentDate}`, pageWidth / 2, pageHeight / 2 + 30, { align: 'center' });
   doc.text('ARISE Leadership Development Platform', pageWidth / 2, pageHeight / 2 + 40, { align: 'center' });
 

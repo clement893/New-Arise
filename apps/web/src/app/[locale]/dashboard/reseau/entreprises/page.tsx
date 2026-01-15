@@ -316,7 +316,7 @@ function CompaniesContent() {
 
   // Navigate to detail page
   const openDetailPage = (company: Company) => {
-    const locale = window.location.pathname.split('/')[1] || 'fr';
+    const locale = window.location.pathname.split('/')[1] || 'en';
     router.push(`/${locale}/dashboard/reseau/entreprises/${company.id}`);
   };
 

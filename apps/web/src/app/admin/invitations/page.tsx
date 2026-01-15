@@ -296,10 +296,10 @@ export default function InvitationsPage() {
                     </Badge>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
-                    {new Date(invitation.invited_at).toLocaleDateString('fr-FR')}
+                    {new Date(invitation.invited_at).toLocaleDateString('en-US')}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
-                    {new Date(invitation.expires_at).toLocaleDateString('fr-FR')}
+                    {new Date(invitation.expires_at).toLocaleDateString('en-US')}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex gap-2">

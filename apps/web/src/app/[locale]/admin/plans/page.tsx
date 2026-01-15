@@ -502,7 +502,7 @@ function PlansPageContent() {
 
                 {/* Metadata */}
                 <div className="pt-4 border-t text-xs text-muted-foreground">
-                  <p>ID: {plan.id} | Créé le: {new Date(plan.created_at).toLocaleDateString('fr-FR')} | Modifié le: {new Date(plan.updated_at).toLocaleDateString('fr-FR')}</p>
+                  <p>ID: {plan.id} | Created: {new Date(plan.created_at).toLocaleDateString('en-US')} | Modified: {new Date(plan.updated_at).toLocaleDateString('en-US')}</p>
                 </div>
               </div>
             </Card>

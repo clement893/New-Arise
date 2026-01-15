@@ -55,7 +55,7 @@ export default function ContactDetailPage() {
 
   const handleEdit = () => {
     if (contact) {
-      const locale = params?.locale as string || 'fr';
+      const locale = params?.locale as string || 'en';
       router.push(`/${locale}/dashboard/reseau/contacts/${contact.id}/edit`);
     }
   };
@@ -72,7 +72,7 @@ export default function ContactDetailPage() {
         message: 'Contact supprimé avec succès',
         type: 'success',
       });
-      const locale = params?.locale as string || 'fr';
+      const locale = params?.locale as string || 'en';
       router.push(`/${locale}/dashboard/reseau/contacts`);
     } catch (err) {
       const appError = handleApiError(err);
@@ -111,7 +111,7 @@ export default function ContactDetailPage() {
         <Alert variant="error">{typeof error === 'string' ? error : String(error || 'An error occurred')}</Alert>
         <div className="mt-4">
           <Button variant="outline" onClick={() => {
-            const locale = params?.locale as string || 'fr';
+            const locale = params?.locale as string || 'en';
             router.push(`/${locale}/dashboard/reseau/contacts`);
           }}>
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -137,7 +137,7 @@ export default function ContactDetailPage() {
         <Alert variant="error">Le contact demandé n'existe pas.</Alert>
         <div className="mt-4">
           <Button variant="outline" onClick={() => {
-            const locale = params?.locale as string || 'fr';
+            const locale = params?.locale as string || 'en';
             router.push(`/${locale}/dashboard/reseau/contacts`);
           }}>
             <ArrowLeft className="w-4 h-4 mr-2" />

@@ -27,7 +27,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
   const isAuthPage = pathname?.includes('/auth/');
   
   // Check if it's the landing page (home page) - it has its own Header and Footer
-  const isLandingPage = pathname === '/' || pathname === '/fr' || pathname === '/en' || 
+  const isLandingPage = pathname === '/' || pathname === '/en' || pathname === '/fr' || 
                         (pathname?.match(/^\/[a-z]{2}$/) !== null);
   
   // Check if it's a page with its own ARISE Header and Footer (team, about, contact, privacy, terms, cookies, careers, register, login, news, pricing, help, faq, 360-evaluator)
