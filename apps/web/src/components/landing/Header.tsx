@@ -12,8 +12,9 @@ import { clsx } from 'clsx';
 
 export function Header() {
   const t = useTranslations('landing.header');
-  const { isAuthenticated } = useAuthStore();
+  const { user } = useAuthStore();
   const isHydrated = useHydrated();
+  const isAuthenticated = !!user;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -66,7 +67,7 @@ export function Header() {
 
           {/* Actions Desktop */}
           <div className="hidden md:flex items-center space-x-4 ml-auto">
-            {isHydrated && isAuthenticated() ? (
+            {isHydrated && isAuthenticated ? (
               <>
                 <Link href="/dashboard" className="text-gray-700 hover:text-arise-deep-teal transition-colors">
                   Admin
@@ -179,7 +180,7 @@ export function Header() {
             </Link>
             <div className="border-t border-gray-200 pt-4 mt-2">
               <div className="flex flex-col gap-2 px-2">
-                {isHydrated && isAuthenticated() ? (
+                {isHydrated && isAuthenticated ? (
                   <>
                     <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
                       <Button size="sm" variant="ghost" className="w-full justify-start text-gray-700 hover:text-arise-deep-teal">
