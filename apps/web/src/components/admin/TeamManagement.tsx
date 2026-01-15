@@ -6,6 +6,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Button, Card, Input, Select, Modal, Alert, Loading, Badge } from '@/components/ui';
 import { teamsAPI, type Team, type TeamMember, type TeamCreate, type TeamUpdate, type TeamMemberAdd, type TeamMemberUpdate } from '@/lib/api/teams';
 import { usersAPI } from '@/lib/api';
@@ -32,6 +33,7 @@ interface Role {
 }
 
 export default function TeamManagement({ className }: TeamManagementProps) {
+  const t = useTranslations('admin.teams');
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -92,9 +94,9 @@ export default function TeamManagement({ className }: TeamManagementProps) {
       const errorMessage = getErrorMessage(err);
       // Handle 422 validation errors (settings field issue)
       if (errorMessage?.includes('422') || errorMessage?.includes('settings') || errorMessage?.includes('dictionary') || errorMessage?.includes('validation')) {
-        setError('Erreur de validation des données d\'équipe. Veuillez contacter le support.');
+        setError(t('errors.validationError'));
       } else {
-        setError(errorMessage || 'Erreur lors du chargement des équipes');
+        setError(errorMessage || t('errors.loadFailed'));
       }
     } finally {
       setLoading(false);
@@ -152,7 +154,7 @@ export default function TeamManagement({ className }: TeamManagementProps) {
         }
       }
     } catch (err) {
-      setError(getErrorMessage(err, 'Erreur lors du chargement des membres'));
+      setError(getErrorMessage(err, t('errors.loadMembersFailed')));
     } finally {
       setMembersLoading(false);
     }
@@ -188,16 +190,16 @@ export default function TeamManagement({ className }: TeamManagementProps) {
           description: teamForm.description || undefined,
         };
         await teamsAPI.updateTeam(editingTeam.id, updateData);
-        setSuccess('Équipe mise à jour avec succès');
+        setSuccess(t('success.teamUpdated'));
       } else {
         await teamsAPI.create({ ...teamForm, slug });
-        setSuccess('Équipe créée avec succès');
+        setSuccess(t('success.teamCreated'));
       }
       
       setTeamModalOpen(false);
       await loadTeams();
     } catch (err) {
-      setError(getErrorMessage(err, 'Erreur lors de la sauvegarde de l\'équipe'));
+      setError(getErrorMessage(err, t('errors.saveFailed')));
     }
   };
 
@@ -207,12 +209,12 @@ export default function TeamManagement({ className }: TeamManagementProps) {
     try {
       setError(null);
       await teamsAPI.deleteTeam(itemToDelete.id);
-      setSuccess('Équipe supprimée avec succès');
+      setSuccess(t('success.teamDeleted'));
       setDeleteModalOpen(false);
       setItemToDelete(null);
       await loadTeams();
     } catch (err) {
-      setError(getErrorMessage(err, 'Erreur lors de la suppression de l\'équipe'));
+      setError(getErrorMessage(err, t('errors.deleteFailed')));
     }
   };
 
@@ -230,18 +232,18 @@ export default function TeamManagement({ className }: TeamManagementProps) {
 
   const handleSaveMember = async () => {
     if (!selectedTeam || !memberForm.user_id || !memberForm.role_id) {
-      setError('Veuillez sélectionner un utilisateur et un rôle');
+      setError(t('errors.selectUserAndRole'));
       return;
     }
     
     try {
       setError(null);
       await teamsAPI.addTeamMember(selectedTeam.id, memberForm);
-      setSuccess('Membre ajouté avec succès');
+      setSuccess(t('success.memberAdded'));
       setAddMemberModalOpen(false);
       await loadTeamMembers(selectedTeam.id);
     } catch (err) {
-      setError(getErrorMessage(err, 'Erreur lors de l\'ajout du membre'));
+      setError(getErrorMessage(err, t('errors.addMemberFailed')));
     }
   };
 
@@ -252,10 +254,10 @@ export default function TeamManagement({ className }: TeamManagementProps) {
       setError(null);
       const updateData: TeamMemberUpdate = { role_id: roleId };
       await teamsAPI.updateTeamMember(selectedTeam.id, member.id, updateData);
-      setSuccess('Rôle du membre mis à jour avec succès');
+      setSuccess(t('success.memberRoleUpdated'));
       await loadTeamMembers(selectedTeam.id);
     } catch (err) {
-      setError(getErrorMessage(err, 'Erreur lors de la mise à jour du rôle'));
+      setError(getErrorMessage(err, t('errors.updateRoleFailed')));
     }
   };
 
@@ -265,14 +267,14 @@ export default function TeamManagement({ className }: TeamManagementProps) {
     try {
       setError(null);
       await teamsAPI.removeTeamMember(itemToDelete.teamId, itemToDelete.id);
-      setSuccess('Membre retiré avec succès');
+      setSuccess(t('success.memberRemoved'));
       setDeleteMemberModalOpen(false);
       setItemToDelete(null);
       if (selectedTeam) {
         await loadTeamMembers(selectedTeam.id);
       }
     } catch (err) {
-      setError(getErrorMessage(err, 'Erreur lors de la suppression du membre'));
+      setError(getErrorMessage(err, t('errors.removeMemberFailed')));
     }
   };
 
@@ -314,14 +316,14 @@ export default function TeamManagement({ className }: TeamManagementProps) {
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-xl font-semibold mb-2">Gestion des équipes</h2>
+              <h2 className="text-xl font-semibold mb-2">{t('title')}</h2>
               <p className="text-gray-600 dark:text-gray-400">
-                Gérez vos équipes et leurs membres
+                {t('description')}
               </p>
             </div>
             <Button onClick={handleCreateTeam} variant="primary">
               <Plus className="w-4 h-4 mr-2" />
-              Créer une équipe
+              {t('actions.createTeam')}
             </Button>
           </div>
 
@@ -329,10 +331,10 @@ export default function TeamManagement({ className }: TeamManagementProps) {
             <div className="text-center py-12">
               <Users className="w-16 h-16 mx-auto text-gray-400 mb-4" />
               <p className="text-gray-600 dark:text-gray-400 mb-4">
-                Aucune équipe pour le moment
+                {t('empty.noTeams')}
               </p>
               <Button onClick={handleCreateTeam} variant="primary">
-                Créer votre première équipe
+                {t('empty.createFirstTeam')}
               </Button>
             </div>
           ) : (
@@ -344,9 +346,9 @@ export default function TeamManagement({ className }: TeamManagementProps) {
                       <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-lg font-semibold">{team.name}</h3>
                         {team.is_active ? (
-                          <Badge variant="success">Active</Badge>
+                          <Badge variant="success">{t('status.active')}</Badge>
                         ) : (
-                          <Badge variant="warning">Inactive</Badge>
+                          <Badge variant="warning">{t('status.inactive')}</Badge>
                         )}
                       </div>
                       {team.description && (
@@ -355,10 +357,10 @@ export default function TeamManagement({ className }: TeamManagementProps) {
                         </p>
                       )}
                       <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                        <span>Slug: {team.slug}</span>
-                        <span>Membres: {team.members?.length || 0}</span>
+                        <span>{t('info.slug')}: {team.slug}</span>
+                        <span>{t('info.members')}: {team.members?.length || 0}</span>
                         {team.owner && (
-                          <span>Propriétaire: {getUserName(team.owner_id)}</span>
+                          <span>{t('info.owner')}: {getUserName(team.owner_id)}</span>
                         )}
                       </div>
                     </div>
@@ -369,7 +371,7 @@ export default function TeamManagement({ className }: TeamManagementProps) {
                         onClick={() => handleViewMembers(team)}
                       >
                         <Users className="w-4 h-4 mr-1" />
-                        Membres
+                        {t('actions.members')}
                       </Button>
                       <Button
                         size="sm"
@@ -377,7 +379,7 @@ export default function TeamManagement({ className }: TeamManagementProps) {
                         onClick={() => handleEditTeam(team)}
                       >
                         <Edit className="w-4 h-4 mr-1" />
-                        Modifier
+                        {t('actions.edit')}
                       </Button>
                       <Button
                         size="sm"
@@ -402,45 +404,45 @@ export default function TeamManagement({ className }: TeamManagementProps) {
       <Modal
         isOpen={teamModalOpen}
         onClose={() => setTeamModalOpen(false)}
-        title={editingTeam ? 'Modifier l\'équipe' : 'Créer une équipe'}
+        title={editingTeam ? t('modals.team.editTitle') : t('modals.team.createTitle')}
         size="md"
         footer={
           <>
             <Button variant="ghost" onClick={() => setTeamModalOpen(false)}>
-              Annuler
+              {t('modals.cancel')}
             </Button>
             <Button variant="primary" onClick={handleSaveTeam}>
               <Save className="w-4 h-4 mr-2" />
-              {editingTeam ? 'Enregistrer' : 'Créer'}
+              {editingTeam ? t('modals.team.save') : t('modals.team.create')}
             </Button>
           </>
         }
       >
         <div className="space-y-4">
           <Input
-            label="Nom de l'équipe"
+            label={t('modals.team.nameLabel')}
             value={teamForm.name}
             onChange={(e) => setTeamForm({ ...teamForm, name: e.target.value })}
             required
-            placeholder="Ex: Équipe Marketing"
+            placeholder={t('modals.team.namePlaceholder')}
           />
           <Input
-            label="Slug"
+            label={t('modals.team.slugLabel')}
             value={teamForm.slug}
             onChange={(e) => setTeamForm({ ...teamForm, slug: e.target.value })}
-            placeholder="Ex: equipe-marketing (généré automatiquement si vide)"
-            helperText="Identifiant unique pour l'équipe (généré automatiquement à partir du nom si vide)"
+            placeholder={t('modals.team.slugPlaceholder')}
+            helperText={t('modals.team.slugHelper')}
           />
           <div>
             <label className="block text-sm font-medium mb-2">
-              Description
+              {t('modals.team.descriptionLabel')}
             </label>
             <textarea
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               rows={3}
               value={teamForm.description}
               onChange={(e) => setTeamForm({ ...teamForm, description: e.target.value })}
-              placeholder="Description de l'équipe..."
+              placeholder={t('modals.team.descriptionPlaceholder')}
             />
           </div>
         </div>
@@ -450,12 +452,12 @@ export default function TeamManagement({ className }: TeamManagementProps) {
       <Modal
         isOpen={membersModalOpen}
         onClose={() => setMembersModalOpen(false)}
-        title={`Membres de l'équipe: ${selectedTeam?.name || ''}`}
+        title={t('modals.members.title', { teamName: selectedTeam?.name || '' })}
         size="lg"
         footer={
           <Button variant="primary" onClick={handleAddMember}>
             <Plus className="w-4 h-4 mr-2" />
-            Ajouter un membre
+            {t('modals.members.addButton')}
           </Button>
         }
       >
@@ -467,10 +469,10 @@ export default function TeamManagement({ className }: TeamManagementProps) {
           <div className="text-center py-8">
             <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Aucun membre dans cette équipe
+              {t('modals.members.empty')}
             </p>
             <Button onClick={handleAddMember} variant="primary">
-              Ajouter le premier membre
+              {t('modals.members.addFirst')}
             </Button>
           </div>
         ) : (
@@ -519,29 +521,29 @@ export default function TeamManagement({ className }: TeamManagementProps) {
       <Modal
         isOpen={addMemberModalOpen}
         onClose={() => setAddMemberModalOpen(false)}
-        title="Ajouter un membre"
+        title={t('modals.addMember.title')}
         size="md"
         footer={
           <>
             <Button variant="ghost" onClick={() => setAddMemberModalOpen(false)}>
-              Annuler
+              {t('modals.cancel')}
             </Button>
             <Button variant="primary" onClick={handleSaveMember}>
               <Save className="w-4 h-4 mr-2" />
-              Ajouter
+              {t('modals.addMember.add')}
             </Button>
           </>
         }
       >
         <div className="space-y-4">
           <Select
-            label="Utilisateur"
+            label={t('modals.addMember.userLabel')}
             value={memberForm.user_id.toString()}
             onChange={(e) => setMemberForm({ ...memberForm, user_id: parseInt(e.target.value) })}
             required
-            placeholder="Sélectionner un utilisateur"
+            placeholder={t('modals.addMember.userPlaceholder')}
             options={[
-              { label: 'Sélectionner un utilisateur', value: '0' },
+              { label: t('modals.addMember.userPlaceholder'), value: '0' },
               ...users.map((user) => ({
                 label: `${getUserName(user.id)} (${user.email})`,
                 value: user.id.toString(),
@@ -549,13 +551,13 @@ export default function TeamManagement({ className }: TeamManagementProps) {
             ]}
           />
           <Select
-            label="Rôle"
+            label={t('modals.addMember.roleLabel')}
             value={memberForm.role_id.toString()}
             onChange={(e) => setMemberForm({ ...memberForm, role_id: parseInt(e.target.value) })}
             required
-            placeholder="Sélectionner un rôle"
+            placeholder={t('modals.addMember.rolePlaceholder')}
             options={[
-              { label: 'Sélectionner un rôle', value: '0' },
+              { label: t('modals.addMember.rolePlaceholder'), value: '0' },
               ...roles.map((role) => ({
                 label: role.name,
                 value: role.id.toString(),
@@ -572,7 +574,7 @@ export default function TeamManagement({ className }: TeamManagementProps) {
           setDeleteModalOpen(false);
           setItemToDelete(null);
         }}
-        title="Supprimer l'équipe"
+        title={t('modals.deleteTeam.title')}
         size="sm"
         footer={
           <>
@@ -583,17 +585,17 @@ export default function TeamManagement({ className }: TeamManagementProps) {
                 setItemToDelete(null);
               }}
             >
-              Annuler
+              {t('modals.cancel')}
             </Button>
             <Button variant="danger" onClick={handleDeleteTeam}>
               <Trash2 className="w-4 h-4 mr-2" />
-              Supprimer
+              {t('modals.deleteTeam.delete')}
             </Button>
           </>
         }
       >
         <p className="text-gray-600 dark:text-gray-400">
-          Êtes-vous sûr de vouloir supprimer cette équipe ? Cette action est irréversible.
+          {t('modals.deleteTeam.message')}
         </p>
       </Modal>
 
@@ -604,7 +606,7 @@ export default function TeamManagement({ className }: TeamManagementProps) {
           setDeleteMemberModalOpen(false);
           setItemToDelete(null);
         }}
-        title="Retirer le membre"
+        title={t('modals.removeMember.title')}
         size="sm"
         footer={
           <>
@@ -615,17 +617,17 @@ export default function TeamManagement({ className }: TeamManagementProps) {
                 setItemToDelete(null);
               }}
             >
-              Annuler
+              {t('modals.cancel')}
             </Button>
             <Button variant="danger" onClick={handleDeleteMember}>
               <Trash2 className="w-4 h-4 mr-2" />
-              Retirer
+              {t('modals.removeMember.remove')}
             </Button>
           </>
         }
       >
         <p className="text-gray-600 dark:text-gray-400">
-          Êtes-vous sûr de vouloir retirer ce membre de l'équipe ?
+          {t('modals.removeMember.message')}
         </p>
       </Modal>
     </div>

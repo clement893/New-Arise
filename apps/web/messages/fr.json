@@ -937,6 +937,87 @@
       },
       "total": "Total",
       "all": "Tous"
+    },
+    "teams": {
+      "title": "Gestion des équipes",
+      "description": "Gérer les équipes et les membres d'équipe",
+      "actions": {
+        "createTeam": "Créer une équipe",
+        "members": "Membres",
+        "edit": "Modifier"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "info": {
+        "slug": "Slug",
+        "members": "Membres",
+        "owner": "Propriétaire"
+      },
+      "empty": {
+        "noTeams": "Aucune équipe pour le moment",
+        "createFirstTeam": "Créer votre première équipe"
+      },
+      "success": {
+        "teamCreated": "Équipe créée avec succès",
+        "teamUpdated": "Équipe mise à jour avec succès",
+        "teamDeleted": "Équipe supprimée avec succès",
+        "memberAdded": "Membre ajouté avec succès",
+        "memberRoleUpdated": "Rôle du membre mis à jour avec succès",
+        "memberRemoved": "Membre retiré avec succès"
+      },
+      "errors": {
+        "validationError": "Erreur de validation des données d'équipe. Veuillez contacter le support.",
+        "loadFailed": "Erreur lors du chargement des équipes",
+        "loadMembersFailed": "Erreur lors du chargement des membres",
+        "saveFailed": "Erreur lors de la sauvegarde de l'équipe",
+        "deleteFailed": "Erreur lors de la suppression de l'équipe",
+        "selectUserAndRole": "Veuillez sélectionner un utilisateur et un rôle",
+        "addMemberFailed": "Erreur lors de l'ajout du membre",
+        "updateRoleFailed": "Erreur lors de la mise à jour du rôle",
+        "removeMemberFailed": "Erreur lors de la suppression du membre"
+      },
+      "modals": {
+        "cancel": "Annuler",
+        "team": {
+          "createTitle": "Créer une équipe",
+          "editTitle": "Modifier l'équipe",
+          "nameLabel": "Nom de l'équipe",
+          "namePlaceholder": "Ex: Équipe Marketing",
+          "slugLabel": "Slug",
+          "slugPlaceholder": "Ex: equipe-marketing (généré automatiquement si vide)",
+          "slugHelper": "Identifiant unique pour l'équipe (généré automatiquement à partir du nom si vide)",
+          "descriptionLabel": "Description",
+          "descriptionPlaceholder": "Description de l'équipe...",
+          "create": "Créer",
+          "save": "Enregistrer"
+        },
+        "members": {
+          "title": "Membres de l'équipe: {teamName}",
+          "addButton": "Ajouter un membre",
+          "empty": "Aucun membre dans cette équipe",
+          "addFirst": "Ajouter le premier membre"
+        },
+        "addMember": {
+          "title": "Ajouter un membre",
+          "userLabel": "Utilisateur",
+          "userPlaceholder": "Sélectionner un utilisateur",
+          "roleLabel": "Rôle",
+          "rolePlaceholder": "Sélectionner un rôle",
+          "add": "Ajouter"
+        },
+        "deleteTeam": {
+          "title": "Supprimer l'équipe",
+          "message": "Êtes-vous sûr de vouloir supprimer cette équipe ? Cette action est irréversible.",
+          "delete": "Supprimer"
+        },
+        "removeMember": {
+          "title": "Retirer le membre",
+          "message": "Êtes-vous sûr de vouloir retirer ce membre de l'équipe ?",
+          "remove": "Retirer"
+        }
+      }
     }
   },
   "Dashboard": {
