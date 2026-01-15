@@ -13,9 +13,10 @@ import { Menu, X } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export default function Header() {
-  const { isAuthenticated, user } = useAuthStore();
+  const { user } = useAuthStore();
   const { logout } = useAuth();
   const isHydrated = useHydrated();
+  const isAuthenticated = !!user;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -56,7 +57,7 @@ export default function Header() {
           <div className="hidden md:flex items-center gap-4">
             <LanguageSwitcher />
             {/* Dark mode toggle removed */}
-            {isHydrated && isAuthenticated() ? (
+            {isHydrated && isAuthenticated ? (
               <>
                 <NotificationBellConnected />
                 <span className="text-sm text-muted-foreground hidden lg:block">
@@ -124,7 +125,7 @@ export default function Header() {
               >
                 Accueil
               </Link>
-              {isHydrated && isAuthenticated() && (
+              {isHydrated && isAuthenticated && (
                 <>
                   <div className="px-4 py-3">
                     <NotificationBellConnected />
@@ -142,7 +143,7 @@ export default function Header() {
                 <div className="px-2 mb-4">
                   <LanguageSwitcher />
                 </div>
-                {isHydrated && isAuthenticated() ? (
+                {isHydrated && isAuthenticated ? (
                   <div className="flex flex-col gap-2 px-2">
                     <span className="text-sm text-gray-600 dark:text-gray-400">
                       {user?.name || user?.email}
