@@ -130,9 +130,10 @@ export const useAuthStore = create<AuthState>()(
       },
 
       login: async (user: User, _token: string, _refreshToken?: string) => {
-        // SECURITY: Tokens are stored in httpOnly cookies by the backend during login
-        // TokenStorage.setToken() is a no-op - backend handles cookie setting
-        // Only persist user data (not tokens) for UX
+        // SECURITY: Backend FastAPI sets tokens in httpOnly cookies during login.
+        // TokenStorage.setToken() also stores tokens in sessionStorage as fallback
+        // for Authorization header when cookies aren't shared cross-origin.
+        // Only persist user data (not tokens) in Zustand store for UX
         // Parameters _token and _refreshToken are kept for API compatibility but not used
         set({ user, token: null, refreshToken: null, error: null });
       },

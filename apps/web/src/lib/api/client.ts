@@ -37,18 +37,25 @@ class ApiClient {
   }
 
   private setupInterceptors(): void {
-    // Request interceptor - Tokens are sent automatically via httpOnly cookies
-    // withCredentials: true ensures cookies are included in requests
+    // Request interceptor - Add Authorization header from sessionStorage
+    // Primary: httpOnly cookies (sent automatically via withCredentials: true)
+    // Fallback: Authorization header from sessionStorage (for cross-origin requests)
     this.client.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
-        // Note: Tokens are in httpOnly cookies and sent automatically via withCredentials: true
-        // We don't need to manually add Authorization header if backend reads from cookies
-        // However, some endpoints may still require Bearer token in header for compatibility
+        // Add Authorization header if token exists in sessionStorage
+        // This provides fallback when cookies aren't shared cross-origin
+        if (typeof window !== 'undefined' && config.headers) {
+          const token = TokenStorage.getToken();
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+          }
+        }
         
         logger.debug('API request', {
           method: config.method,
           url: config.url,
           data: config.data,
+          hasAuthHeader: !!config.headers?.Authorization,
         });
         return config;
       },
