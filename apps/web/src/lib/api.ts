@@ -227,6 +227,7 @@ apiClient.interceptors.response.use(
           window.location.pathname === '/' ||
           window.location.pathname.match(/^\/(en|fr|ar|he)?\/?$/) ||
           window.location.pathname.includes('/auth/') ||
+          window.location.pathname.includes('/register') ||
           window.location.pathname.includes('/components') ||
           window.location.pathname.includes('/pricing')
         );

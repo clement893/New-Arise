@@ -8,7 +8,10 @@ import { useRegistrationStore } from '@/stores/registrationStore';
 import { useAuthStore } from '@/lib/store';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { register as registerUser, login } from '@/lib/api/auth';
+import { register as registerUser } from '@/lib/api/auth';
+import { authAPI } from '@/lib/api';
+import { TokenStorage } from '@/lib/auth/tokenStorage';
+import { transformApiUserToStoreUser } from '@/lib/auth/userTransform';
 import { ArrowLeft } from 'lucide-react';
 
 const createAccountSchema = z.object({
@@ -52,10 +55,8 @@ export function Step3_CreateAccount() {
       });
 
       // Step 2: Automatically login the user to get the access token
-      const authResponse = await login({
-        email: data.email,
-        password: data.password,
-      });
+      const authResponse = await authAPI.login(data.email, data.password);
+      const { access_token, refresh_token, user } = authResponse.data;
 
       // Step 3: Store user info in the registration store
       setUserInfo({
@@ -67,18 +68,16 @@ export function Step3_CreateAccount() {
         userId: registeredUser.id,
       });
 
-      // Step 4: Connect user to authentication store
-      await loginToStore(
-        {
-          id: authResponse.user.id.toString(),
-          email: authResponse.user.email,
-          name: authResponse.user.full_name,
-          is_active: authResponse.user.is_active,
-          is_verified: true,
-          is_admin: authResponse.user.is_superuser,
-        },
-        authResponse.access_token
-      );
+      // Step 4: Transform user data to store format
+      const userForStore = transformApiUserToStoreUser(user);
+
+      // Step 5: SECURITY: Backend FastAPI sets tokens in httpOnly cookies during login.
+      // We also store tokens in sessionStorage as fallback for Authorization header
+      // to support cross-origin requests where cookies aren't shared.
+      await TokenStorage.setToken(access_token, refresh_token);
+
+      // Step 6: Connect user to authentication store
+      await loginToStore(userForStore, access_token, refresh_token);
 
       // Step 5: Move to review & confirm step (step 4), then payment (step 5)
       setStep(4);
