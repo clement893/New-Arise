@@ -160,7 +160,7 @@ export default function ProtectedSuperAdminRoute({ children }: ProtectedSuperAdm
             pathname,
             status_code: statusCode 
           });
-          router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}&error=unauthorized`);
+          router.replace(`/login?redirect=${encodeURIComponent(pathname)}&error=unauthorized`);
           return;
         }
         
