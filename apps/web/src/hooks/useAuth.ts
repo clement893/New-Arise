@@ -4,7 +4,7 @@
  */
 
 import { useCallback, useEffect, startTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 import { useAuthStore } from '@/lib/store';
 import { authAPI, usersAPI } from '@/lib/api';
 import { handleApiError } from '@/lib/errors/api';
@@ -100,6 +100,8 @@ export function useAuth() {
       // Clear tokens securely
       await TokenStorage.removeTokens();
       logout();
+      // Use router from next-intl to properly handle locale routing
+      // This ensures we go to /fr/login instead of /fr/auth/login
       router.push('/login');
     }
   }, [logout, router]);
