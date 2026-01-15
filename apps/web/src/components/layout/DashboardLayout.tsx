@@ -14,6 +14,7 @@
 'use client';
 
 import { useState, useMemo, memo, useCallback, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/store';
@@ -49,7 +50,8 @@ interface SidebarItem {
 
 // Memoize sidebar items to prevent recreation on every render
 // This ensures the sidebar doesn't re-render unnecessarily during navigation
-const createSidebarItems = (userType?: UserType, isAdmin?: boolean): SidebarItem[] => {
+// Note: This function is called inside DashboardLayoutContent where useTranslations is available
+const createSidebarItems = (t: ReturnType<typeof useTranslations>, userType?: UserType, isAdmin?: boolean): SidebarItem[] => {
   // Default to INDIVIDUAL if user_type is not provided
   const type = userType || 'INDIVIDUAL';
   
@@ -66,89 +68,89 @@ const createSidebarItems = (userType?: UserType, isAdmin?: boolean): SidebarItem
   if (type === 'ADMIN' || isAdmin === true) {
     return [
       {
-        label: 'Individual',
+        label: t('navigation.groups.individual'),
         icon: <LayoutDashboard className="w-5 h-5" />,
         children: [
           {
-            label: 'Dashboard',
+            label: t('navigation.items.dashboard'),
             href: '/dashboard',
             icon: <LayoutDashboard className="w-5 h-5" />,
           },
           {
-            label: 'Assessments',
+            label: t('navigation.items.assessments'),
             href: '/dashboard/assessments',
             icon: <ClipboardList className="w-5 h-5" />,
           },
           {
-            label: 'Results & Reports',
+            label: t('navigation.items.resultsReports'),
             href: '/dashboard/reports',
             icon: <FileText className="w-5 h-5" />,
           },
           {
-            label: 'Development plan',
+            label: t('navigation.items.developmentPlan'),
             href: '/dashboard/development-plan',
             icon: <TrendingUp className="w-5 h-5" />,
           },
           {
-            label: 'Profile',
+            label: t('navigation.items.profile'),
             href: '/profile',
             icon: <User className="w-5 h-5" />,
           },
         ],
       },
       {
-        label: 'Admin',
+        label: t('navigation.groups.admin'),
         icon: <Users className="w-5 h-5" />,
         children: [
           {
-            label: 'Manage Users',
+            label: t('navigation.items.manageUsers'),
             href: '/dashboard/admin/users',
             icon: <Users className="w-5 h-5" />,
           },
           {
-            label: 'Manage Tests',
+            label: t('navigation.items.manageTests'),
             href: '/dashboard/admin/assessment-management',
             icon: <ClipboardList className="w-5 h-5" />,
           },
           {
-            label: 'Profile',
+            label: t('navigation.items.profile'),
             href: '/profile',
             icon: <User className="w-5 h-5" />,
           },
         ],
       },
       {
-        label: 'Coach',
+        label: t('navigation.groups.coach'),
         icon: <Calendar className="w-5 h-5" />,
         children: [
           {
-            label: 'Coachee',
+            label: t('navigation.items.coachee'),
             href: '/dashboard/coach/coachee',
             icon: <Users className="w-5 h-5" />,
           },
           {
-            label: 'Agenda',
+            label: t('navigation.items.agenda'),
             href: '/dashboard/coach/agenda',
             icon: <Calendar className="w-5 h-5" />,
           },
           {
-            label: 'Profile',
+            label: t('navigation.items.profile'),
             href: '/profile',
             icon: <User className="w-5 h-5" />,
           },
         ],
       },
       {
-        label: 'Business',
+        label: t('navigation.groups.business'),
         icon: <Briefcase className="w-5 h-5" />,
         children: [
           {
-            label: 'Employees',
+            label: t('navigation.items.employees'),
             href: '/dashboard/business/employees',
             icon: <Briefcase className="w-5 h-5" />,
           },
           {
-            label: 'Profile',
+            label: t('navigation.items.profile'),
             href: '/profile',
             icon: <User className="w-5 h-5" />,
           },
@@ -161,17 +163,17 @@ const createSidebarItems = (userType?: UserType, isAdmin?: boolean): SidebarItem
   if (type === 'COACH') {
     return [
       {
-        label: 'Coachee',
+        label: t('navigation.items.coachee'),
         href: '/dashboard/coach/coachee',
         icon: <Users className="w-5 h-5" />,
       },
       {
-        label: 'Agenda',
+        label: t('navigation.items.agenda'),
         href: '/dashboard/coach/agenda',
         icon: <Calendar className="w-5 h-5" />,
       },
       {
-        label: 'Profile',
+        label: t('navigation.items.profile'),
         href: '/profile',
         icon: <User className="w-5 h-5" />,
       },
@@ -182,12 +184,12 @@ const createSidebarItems = (userType?: UserType, isAdmin?: boolean): SidebarItem
   if (type === 'BUSINESS') {
     return [
       {
-        label: 'Employees',
+        label: t('navigation.items.employees'),
         href: '/dashboard/business/employees',
         icon: <Briefcase className="w-5 h-5" />,
       },
       {
-        label: 'Profile',
+        label: t('navigation.items.profile'),
         href: '/profile',
         icon: <User className="w-5 h-5" />,
       },
@@ -197,27 +199,27 @@ const createSidebarItems = (userType?: UserType, isAdmin?: boolean): SidebarItem
   // Individual users (default)
   return [
     {
-      label: 'Dashboard',
+      label: t('navigation.items.dashboard'),
       href: '/dashboard',
       icon: <LayoutDashboard className="w-5 h-5" />,
     },
     {
-      label: 'Assessments',
+      label: t('navigation.items.assessments'),
       href: '/dashboard/assessments',
       icon: <ClipboardList className="w-5 h-5" />,
     },
     {
-      label: 'Results & Reports',
+      label: t('navigation.items.resultsReports'),
       href: '/dashboard/reports',
       icon: <FileText className="w-5 h-5" />,
     },
     {
-      label: 'Development plan',
+      label: t('navigation.items.developmentPlan'),
       href: '/dashboard/development-plan',
       icon: <TrendingUp className="w-5 h-5" />,
     },
     {
-      label: 'Profile',
+      label: t('navigation.items.profile'),
       href: '/profile',
       icon: <User className="w-5 h-5" />,
     },
@@ -228,6 +230,7 @@ const createSidebarItems = (userType?: UserType, isAdmin?: boolean): SidebarItem
 const MemoizedSidebar = memo(Sidebar);
 
 function DashboardLayoutContent({ children }: DashboardLayoutProps) {
+  const t = useTranslations('dashboard.navigation');
   const pathname = usePathname();
   const router = useRouter();
   const { user, token } = useAuthStore();
@@ -294,8 +297,8 @@ function DashboardLayoutContent({ children }: DashboardLayoutProps) {
   // This prevents the sidebar from re-rendering on every navigation
   // For profile page, don't pass admin status to force Individual menu only
   const sidebarItems = useMemo(
-    () => createSidebarItems(effectiveUserType, isProfilePage ? false : effectiveIsAdmin),
-    [effectiveUserType, effectiveIsAdmin, isProfilePage]
+    () => createSidebarItems(t, effectiveUserType, isProfilePage ? false : effectiveIsAdmin),
+    [t, effectiveUserType, effectiveIsAdmin, isProfilePage]
   );
 
   // Memoize callbacks to prevent re-renders

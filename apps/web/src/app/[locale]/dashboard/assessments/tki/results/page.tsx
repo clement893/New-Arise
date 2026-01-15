@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { useRouter } from '@/i18n/routing';
+import { useSearchParams } from 'next/navigation';
 import { getAssessmentResults } from '@/lib/api/assessments';
 import { tkiModes, tkiQuestions } from '@/data/tkiQuestions';
 import Button from '@/components/ui/Button';
@@ -17,6 +19,7 @@ interface TKIResults {
 }
 
 export default function TKIResultsPage() {
+  const t = useTranslations('dashboard.assessments.tki.results');
   const router = useRouter();
   const searchParams = useSearchParams();
   const assessmentId = searchParams.get('id');
@@ -95,46 +98,18 @@ export default function TKIResultsPage() {
   const getModeLevel = (count: number): { label: string; color: string; icon: LucideIcon } => {
     const percentage = getModePercentage(count);
     if (percentage >= 40) {
-      return { label: 'High', color: 'text-success-600', icon: TrendingUp };
+      return { label: t('levels.high'), color: 'text-success-600', icon: TrendingUp };
     } else if (percentage >= 20) {
-      return { label: 'Moderate', color: 'text-yellow-600', icon: Minus };
+      return { label: t('levels.moderate'), color: 'text-yellow-600', icon: Minus };
     } else {
-      return { label: 'Low', color: 'text-gray-500', icon: TrendingDown };
+      return { label: t('levels.low'), color: 'text-gray-500', icon: TrendingDown };
     }
   };
 
   const getModeInsight = (modeId: string, count: number) => {
     const percentage = getModePercentage(count);
-    const insights: Record<string, Record<string, string>> = {
-      competing: {
-        high: 'You tend to pursue your own concerns assertively, which can be effective in emergencies or when quick decisions are needed.',
-        moderate: 'You use competing when necessary, balancing it with other approaches.',
-        low: 'You rarely use a competing approach, preferring more collaborative or accommodating styles.',
-      },
-      collaborating: {
-        high: 'You excel at finding win-win solutions that fully satisfy both parties. This is ideal for complex issues requiring diverse perspectives.',
-        moderate: 'You use collaboration when appropriate, though you may also rely on other conflict modes.',
-        low: 'You may benefit from developing your collaborative skills to find more integrative solutions.',
-      },
-      compromising: {
-        high: 'You frequently seek middle-ground solutions, which can be efficient when time is limited or when goals are moderately important.',
-        moderate: 'You use compromise as one of several conflict management tools in your repertoire.',
-        low: 'You tend to favor other approaches over compromise, which may mean you seek more complete solutions.',
-      },
-      avoiding: {
-        high: 'You often postpone or withdraw from conflicts. While useful for trivial issues, overuse may leave important matters unresolved.',
-        moderate: 'You strategically avoid conflicts when appropriate, such as when emotions are high or more information is needed.',
-        low: 'You rarely avoid conflicts, preferring to address issues directly.',
-      },
-      accommodating: {
-        high: 'You frequently yield to others\' concerns. This builds goodwill but may lead to your needs being overlooked if overused.',
-        moderate: 'You accommodate others when it makes sense, balancing their needs with your own.',
-        low: 'You rarely accommodate others, which may indicate a strong focus on your own goals.',
-      },
-    };
-
     const level = percentage >= 40 ? 'high' : percentage >= 20 ? 'moderate' : 'low';
-    return insights[modeId]?.[level] || '';
+    return t(`insights.${modeId}.${level}`, { defaultValue: '' });
   };
 
   if (isLoading) {
@@ -142,7 +117,7 @@ export default function TKIResultsPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-arise-teal mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your results...</p>
+          <p className="text-gray-600">{t('loading')}</p>
         </div>
       </div>
     );
@@ -154,9 +129,9 @@ export default function TKIResultsPage() {
         <Card className="max-w-md">
           <div className="text-center">
             {/* Ensure error is always a string before rendering */}
-            <p className="text-red-600 mb-4">{typeof error === 'string' ? error : formatError(error || 'No results found')}</p>
-            <Button onClick={() => router.push('/dashboard/assessments')} className="flex align-center gap-8">
-              Back to Assessments 
+            <p className="text-red-600 mb-4">{typeof error === 'string' ? error : formatError(error || t('errors.notFound'))}</p>
+            <Button onClick={() => router.push('/dashboard/assessments')} className="flex items-center gap-4">
+              {t('backToAssessments')}
             </Button>
           </div>
         </Card>
@@ -188,18 +163,18 @@ export default function TKIResultsPage() {
             <Button
               onClick={() => router.push('/dashboard/assessments')}
               variant="primary"
-              className="mb-6 flex align-center gap-8"
+              className="mb-6 flex items-center gap-4"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Assessments
+              {t('backToAssessments')}
             </Button>
 
             <div className="mb-8 pb-6">
               <h1 className="text-4xl font-bold text-black mb-2">
-                TKI Conflict Style Results
+                {t('title')}
               </h1>
               <p className="text-black">
-                Your conflict management profile
+                {t('subtitle')}
               </p>
             </div>
 
@@ -208,10 +183,10 @@ export default function TKIResultsPage() {
               <div className="rounded-lg border shadow-sm bg-gradient-to-br from-arise-teal to-arise-teal-dark text-white p-6">
                 <div className="text-center">
                   <div className="text-4xl mb-3 text-white">{dominantModeInfo?.icon}</div>
-                  <h3 className="text-sm font-medium opacity-90 mb-2 text-white">Dominant Mode</h3>
+                  <h3 className="text-sm font-medium opacity-90 mb-2 text-white">{t('dominantMode')}</h3>
                   <h2 className="text-3xl font-bold mb-2 text-white">{dominantModeInfo?.title}</h2>
                   <p className="text-sm opacity-90 text-white">
-                    {results.dominant_mode ? (results.mode_counts[results.dominant_mode] || 0) : 0} out of 30 responses
+                    {t('responsesCount', { count: results.dominant_mode ? (results.mode_counts[results.dominant_mode] || 0) : 0, total: 30 })}
                   </p>
                 </div>
               </div>
@@ -219,10 +194,10 @@ export default function TKIResultsPage() {
               <div className="rounded-lg border shadow-sm bg-gradient-to-br from-arise-gold to-arise-gold-dark text-white p-6">
                 <div className="text-center">
                   <div className="text-4xl mb-3 text-white">{secondaryModeInfo?.icon}</div>
-                  <h3 className="text-sm font-medium opacity-90 mb-2 text-white">Secondary Mode</h3>
+                  <h3 className="text-sm font-medium opacity-90 mb-2 text-white">{t('secondaryMode')}</h3>
                   <h2 className="text-3xl font-bold mb-2 text-white">{secondaryModeInfo?.title}</h2>
                   <p className="text-sm opacity-90 text-white">
-                    {results.secondary_mode ? (results.mode_counts[results.secondary_mode] || 0) : 0} out of 30 responses
+                    {t('responsesCount', { count: results.secondary_mode ? (results.mode_counts[results.secondary_mode] || 0) : 0, total: 30 })}
                   </p>
                 </div>
               </div>
@@ -260,7 +235,7 @@ export default function TKIResultsPage() {
                       {/* Progress Bar */}
                       <div className="mb-3">
                         <div className="flex justify-between text-sm text-black mb-1">
-                          <span>{count} responses</span>
+                          <span>{t('responses', { count })}</span>
                           <span>{percentage}%</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-3">
@@ -286,17 +261,17 @@ export default function TKIResultsPage() {
             {/* Recommendations */}
             <Card className="bg-arise-gold/10 border-2 border-arise-gold/30">
               <h2 className="text-2xl font-bold text-black mb-4">
-                Recommendations
+                {t('recommendations.title')}
               </h2>
               <div className="space-y-3">
                 <p className="text-black">
-                  <strong>Leverage your strengths:</strong> Your dominant {dominantModeInfo?.title.toLowerCase()} style can be very effective in appropriate situations. Continue to use it when it serves you well.
+                  <strong>{t('recommendations.leverage.title')}</strong> {t('recommendations.leverage.description', { mode: dominantModeInfo?.title.toLowerCase() || '' })}
                 </p>
                 <p className="text-black">
-                  <strong>Develop flexibility:</strong> Consider situations where your less-used modes might be more effective. Expanding your conflict management repertoire will make you a more adaptable leader.
+                  <strong>{t('recommendations.flexibility.title')}</strong> {t('recommendations.flexibility.description')}
                 </p>
                 <p className="text-black">
-                  <strong>Context matters:</strong> No single conflict mode is best in all situations. The most effective leaders can flex between different approaches based on the context, relationship, and importance of the issue.
+                  <strong>{t('recommendations.context.title')}</strong> {t('recommendations.context.description')}
                 </p>
               </div>
             </Card>

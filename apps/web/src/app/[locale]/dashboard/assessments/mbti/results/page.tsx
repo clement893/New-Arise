@@ -6,7 +6,9 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { useRouter } from '@/i18n/routing';
+import { useSearchParams } from 'next/navigation';
 import { getAssessmentResults, AssessmentResult } from '@/lib/api/assessments';
 import { mbtiTypes } from '@/data/mbtiQuestions';
 import Button from '@/components/ui/Button';
@@ -18,6 +20,7 @@ import { ArrowLeft, Download, Brain, FileText, Upload } from 'lucide-react';
 import { formatError } from '@/lib/utils/formatError';
 
 export default function MBTIResultsPage() {
+  const t = useTranslations('dashboard.assessments.mbti.results');
   const router = useRouter();
   const searchParams = useSearchParams();
   const assessmentId = searchParams.get('id');
@@ -78,24 +81,24 @@ export default function MBTIResultsPage() {
 
   const getDimensionLabel = (dimension: string): string => {
     const labels: Record<string, string> = {
-      EI: 'Energy Source',
-      SN: 'Information Gathering',
-      TF: 'Decision Making',
-      JP: 'Lifestyle',
+      EI: t('dimensions.energySource'),
+      SN: t('dimensions.informationGathering'),
+      TF: t('dimensions.decisionMaking'),
+      JP: t('dimensions.lifestyle'),
     };
     return labels[dimension] || dimension;
   };
 
   const getPreferenceLabel = (preference: string): string => {
     const labels: Record<string, string> = {
-      E: 'Extraversion',
-      I: 'Introversion',
-      S: 'Sensing',
-      N: 'Intuition',
-      T: 'Thinking',
-      F: 'Feeling',
-      J: 'Judging',
-      P: 'Perceiving',
+      E: t('preferences.extraversion'),
+      I: t('preferences.introversion'),
+      S: t('preferences.sensing'),
+      N: t('preferences.intuition'),
+      T: t('preferences.thinking'),
+      F: t('preferences.feeling'),
+      J: t('preferences.judging'),
+      P: t('preferences.perceiving'),
     };
     return labels[preference] || preference;
   };
@@ -107,7 +110,7 @@ export default function MBTIResultsPage() {
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading your results...</p>
+            <p className="text-gray-600">{t('loading')}</p>
           </div>
         </div>
       </div>
@@ -160,7 +163,7 @@ export default function MBTIResultsPage() {
     }
     
     // Other errors
-    const errorString = typeof error === 'string' ? error : formatError(error || 'Results not found');
+    const errorString = typeof error === 'string' ? error : formatError(error || t('errors.notFound'));
     return (
       <div className="min-h-screen bg-gray-50 flex">
         <Sidebar />
@@ -170,10 +173,10 @@ export default function MBTIResultsPage() {
               <p className="text-red-600 mb-4">{errorString}</p>
                 <div className="flex flex-col gap-2">
                 <Button onClick={() => router.push('/dashboard/assessments/mbti/upload')}>
-                  Upload My MBTI Score
+                  {t('notFound.uploadButton')}
                 </Button>
                 <Button variant="outline" onClick={() => router.push('/dashboard/assessments')}>
-                  Back to Assessments
+                  {t('backToAssessments')}
                 </Button>
               </div>
             </div>
@@ -205,28 +208,28 @@ export default function MBTIResultsPage() {
             <Button
               variant="ghost"
               onClick={() => router.push('/dashboard/assessments')}
-              className="mb-4 flex align-center gap-8"
+              className="mb-4 flex items-center gap-4"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Assessments
+              {t('backToAssessments')}
             </Button>
 
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  Your MBTI Personality Type
+                  {t('title')}
                 </h1>
-                <p className="text-gray-600">Understanding your unique personality profile</p>
+                <p className="text-gray-600">{t('subtitle')}</p>
                 {isFromOCR && (
                   <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-arise-gold/20 text-arise-gold rounded-full text-sm font-medium">
                     <FileText size={14} />
-                    Results extracted from PDF via OCR
+                    {t('ocrBadge')}
                   </div>
                 )}
               </div>
               <Button variant="outline">
                 <Download className="w-4 h-4 mr-2" />
-                Export PDF
+                {t('exportPdf')}
               </Button>
             </div>
           </MotionDiv>
@@ -382,13 +385,13 @@ export default function MBTIResultsPage() {
           {/* Strengths & Challenges */}
           {(insights.strengths || insights.challenges) && (
             <MotionDiv variant="slideUp" duration="normal" delay={600} className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Strengths & Growth Areas</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('strengths.title')}</h2>
               <div className="grid md:grid-cols-2 gap-4">
                 {/* Strengths */}
                 {insights.strengths && (
                   <Card className="bg-success-50 border-success-200">
                     <div className="p-6">
-                      <h3 className="font-semibold text-success-900 mb-3">💪 Your Strengths</h3>
+                      <h3 className="font-semibold text-success-900 mb-3">💪 {t('strengths.yourStrengths')}</h3>
                       <ul className="space-y-2">
                         {insights.strengths.map((strength: string, index: number) => (
                           <li key={index} className="text-sm text-success-800 flex items-start gap-2">
@@ -405,7 +408,7 @@ export default function MBTIResultsPage() {
                 {insights.challenges && (
                   <Card className="bg-amber-50 border-amber-200">
                     <div className="p-6">
-                      <h3 className="font-semibold text-amber-900 mb-3">🎯 Growth Areas</h3>
+                      <h3 className="font-semibold text-amber-900 mb-3">🎯 {t('strengths.growthAreas')}</h3>
                       <ul className="space-y-2">
                         {insights.challenges.map((challenge: string, index: number) => (
                           <li key={index} className="text-sm text-amber-800 flex items-start gap-2">
@@ -425,7 +428,7 @@ export default function MBTIResultsPage() {
           {recommendations.length > 0 && (
             <MotionDiv variant="slideUp" duration="normal" delay={800} className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Personalized Development Recommendations
+                {t('recommendations.title')}
               </h2>
               <div className="grid gap-4">
                 {recommendations.map((rec: any, index: number) => (
@@ -453,20 +456,20 @@ export default function MBTIResultsPage() {
             <Card className="bg-gray-50">
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Continue Your Leadership Journey
+                  {t('nextSteps.title')}
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  Explore other assessments to gain deeper insights
+                  {t('nextSteps.description')}
                 </p>
                 <div className="flex gap-4 justify-center">
                   <Button onClick={() => router.push('/dashboard/assessments/tki')}>
-                    Take TKI Assessment
+                    {t('nextSteps.takeTKI')}
                   </Button>
                   <Button
                     variant="outline"
                     onClick={() => router.push('/dashboard/assessments/wellness')}
                   >
-                    Try Wellness Assessment
+                    {t('nextSteps.tryWellness')}
                   </Button>
                 </div>
               </div>

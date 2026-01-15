@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
+import { useSearchParams } from 'next/navigation';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { useFeedback360Store } from '@/stores/feedback360Store';
 import {
@@ -224,7 +225,7 @@ export default function Feedback360Page() {
               <Button
                 variant="outline"
                 onClick={() => router.push('/dashboard/assessments')}
-                className="flex-1 flex align-center gap-8"
+                className="flex-1 flex items-center gap-4"
               >
                 Back to Assessments
               </Button>

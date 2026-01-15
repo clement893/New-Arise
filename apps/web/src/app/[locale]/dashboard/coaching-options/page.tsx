@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 import { Card, Grid } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import MotionDiv from '@/components/motion/MotionDiv';

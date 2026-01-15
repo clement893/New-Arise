@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { useRouter } from '@/i18n/routing';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import MotionDiv from '@/components/motion/MotionDiv';
 import {
@@ -40,6 +42,7 @@ interface Results {
 }
 
 export default function Feedback360ResultsPage() {
+  const t = useTranslations('dashboard.assessments.360.results');
   const router = useRouter();
   const searchParams = useSearchParams();
   const { assessmentId } = useFeedback360Store();
@@ -155,7 +158,7 @@ export default function Feedback360ResultsPage() {
         if (resultsError?.response?.status === 404 || 
             (typeof resultsError === 'string' && resultsError.includes('not found')) ||
             (resultsError?.message && resultsError.message.includes('not found'))) {
-          setError('Assessment results not found. The assessment may not be completed yet. Please complete and submit the assessment first.');
+          setError(t('errors.notFound'));
           setIsLoading(false);
           return;
         }
@@ -253,14 +256,14 @@ export default function Feedback360ResultsPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-arise-teal">
-        <div className="text-white">Loading results...</div>
+        <div className="text-white">{t('loading')}</div>
       </div>
     );
   }
 
   if (error || !results) {
     // Ensure error is always a string before rendering
-    const errorString = typeof error === 'string' ? error : formatError(error || 'No results found');
+    const errorString = typeof error === 'string' ? error : formatError(error || t('errors.noResults'));
     
     // Check if the error indicates the assessment is not completed
     const isNotCompletedError = errorString.toLowerCase().includes('not completed') || 
@@ -270,12 +273,12 @@ export default function Feedback360ResultsPage() {
       <div className="flex min-h-screen items-center justify-center bg-arise-teal p-8">
         <div className="rounded-lg bg-white p-8 text-center shadow-lg max-w-2xl">
           <h2 className="mb-4 text-2xl font-semibold text-gray-900">
-            {isNotCompletedError ? 'Assessment Not Completed' : 'Unable to Load Results'}
+            {isNotCompletedError ? t('errors.notCompleted.title') : t('errors.unableToLoad.title')}
           </h2>
           <p className="mb-6 text-gray-600">{errorString}</p>
           <div className="flex gap-4 justify-center">
-            <Button onClick={() => router.push('/dashboard/assessments')} variant="outline" className="flex align-center gap-8">
-              Back to Assessments
+            <Button onClick={() => router.push('/dashboard/assessments')} variant="outline" className="flex items-center gap-4">
+              {t('backToAssessments')}
             </Button>
             {isNotCompletedError && (
               <Button onClick={() => {
@@ -286,7 +289,7 @@ export default function Feedback360ResultsPage() {
                   router.push('/dashboard/assessments/360-feedback');
                 }
               }}>
-                Complete Assessment
+                {t('errors.notCompleted.completeButton')}
               </Button>
             )}
           </div>
@@ -302,9 +305,9 @@ export default function Feedback360ResultsPage() {
   };
 
   const getGapLabel = (gap: number) => {
-    if (gap > 0.5) return 'Self-rating higher';
-    if (gap < -0.5) return 'Others rate higher';
-    return 'Aligned';
+    if (gap > 0.5) return t('gap.selfHigher');
+    if (gap < -0.5) return t('gap.othersHigher');
+    return t('gap.aligned');
   };
 
   const getGapColor = (gap: number) => {
@@ -319,20 +322,20 @@ export default function Feedback360ResultsPage() {
 
     if (!results.has_evaluator_responses) {
       if (capability.self_score >= 4) {
-        return `You rate yourself highly in ${capName}. Consider inviting colleagues to validate this strength.`;
+        return t('insights.selfOnly.high', { capability: capName });
       } else if (capability.self_score <= 2.5) {
-        return `You've identified ${capName} as an area for development. This self-awareness is valuable for growth.`;
+        return t('insights.selfOnly.low', { capability: capName });
       } else {
-        return `You rate yourself moderately in ${capName}. Feedback from others will provide additional perspective.`;
+        return t('insights.selfOnly.moderate', { capability: capName });
       }
     }
 
     if (capability.gap > 0.5) {
-      return `You rate yourself higher than others in ${capName}. This may indicate a blind spot or an opportunity to better demonstrate your capabilities.`;
+      return t('insights.withEvaluators.selfHigher', { capability: capName });
     } else if (capability.gap < -0.5) {
-      return `Others rate you higher than you rate yourself in ${capName}. This suggests you may be underestimating your impact in this area.`;
+      return t('insights.withEvaluators.othersHigher', { capability: capName });
     } else {
-      return `Your self-assessment aligns well with others' perceptions of your ${capName}. This indicates strong self-awareness.`;
+      return t('insights.withEvaluators.aligned', { capability: capName });
     }
   };
 
@@ -344,10 +347,10 @@ export default function Feedback360ResultsPage() {
           <Button
             variant="outline"
             onClick={() => router.push('/dashboard/assessments')}
-            className="mb-4 border-white text-white hover:bg-white/10 flex align-center gap-8"
+            className="mb-4 border-white text-white hover:bg-white/10 flex items-center gap-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Assessments
+            {t('backToAssessments')}
           </Button>
 
           <MotionDiv
@@ -356,20 +359,20 @@ export default function Feedback360ResultsPage() {
             className="rounded-lg bg-white p-8 shadow-lg"
           >
             <h1 className="mb-4 text-3xl font-bold text-gray-900">
-              360° Feedback Results
+              {t('title')}
             </h1>
 
             {results.has_evaluator_responses ? (
               <div className="flex items-center gap-2 text-gray-600">
                 <Users className="h-5 w-5" />
                 <span>
-                  Based on your self-assessment and feedback from {results.evaluator_count} colleague{results.evaluator_count !== 1 ? 's' : ''}
+                  {t('basedOnFeedback', { count: results.evaluator_count })}
                 </span>
               </div>
             ) : (
               <div className="rounded-lg bg-primary-50 p-4">
                 <p className="text-sm text-primary-800">
-                  <strong>Note:</strong> These results are based solely on your self-assessment. Invite colleagues to get a complete 360° view.
+                  <strong>{t('note')}</strong> {t('selfAssessmentOnly')}
                 </p>
               </div>
             )}
@@ -379,12 +382,12 @@ export default function Feedback360ResultsPage() {
               <div className="mt-6 rounded-lg border border-gray-200 p-4">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-gray-900">
-                    Evaluator Status
+                    {t('evaluatorStatus.title')}
                   </h3>
                   <Link href="/dashboard/evaluators">
                     <Button variant="outline" size="sm" className="text-xs flex flex-row items-center gap-2">
                       <Eye className="h-4 w-4" />
-                      View All
+                      {t('evaluatorStatus.viewAll')}
                     </Button>
                   </Link>
                 </div>
@@ -407,23 +410,23 @@ export default function Feedback360ResultsPage() {
                       </div>
                       <div className="ml-3 flex-shrink-0">
                         {evaluator.status === 'completed' || evaluator.status === 'COMPLETED' ? (
-                          <div className="flex items-center gap-1 text-success-600" title="Completed">
+                          <div className="flex items-center gap-1 text-success-600" title={t('evaluatorStatus.completed')}>
                             <CheckCircle className="h-5 w-5" />
                           </div>
                         ) : evaluator.status === 'in_progress' || evaluator.status === 'IN_PROGRESS' ? (
-                          <div className="flex items-center gap-1 text-primary-600" title="In Progress">
+                          <div className="flex items-center gap-1 text-primary-600" title={t('evaluatorStatus.inProgress')}>
                             <Clock className="h-5 w-5" />
                           </div>
                         ) : evaluator.invitation_opened_at ? (
-                          <div className="flex items-center gap-1 text-yellow-600" title="Invitation opened">
+                          <div className="flex items-center gap-1 text-yellow-600" title={t('evaluatorStatus.invitationOpened')}>
                             <Mail className="h-5 w-5" />
                           </div>
                         ) : evaluator.invitation_sent_at ? (
-                          <div className="flex items-center gap-1 text-gray-400" title="Invitation sent">
+                          <div className="flex items-center gap-1 text-gray-400" title={t('evaluatorStatus.invitationSent')}>
                             <Mail className="h-5 w-5" />
                           </div>
                         ) : (
-                          <div className="flex items-center gap-1 text-gray-400" title="Not yet invited">
+                          <div className="flex items-center gap-1 text-gray-400" title={t('evaluatorStatus.notInvited')}>
                             <XCircle className="h-5 w-5" />
                           </div>
                         )}
@@ -434,15 +437,15 @@ export default function Feedback360ResultsPage() {
                 <div className="mt-4 flex items-center gap-4 text-xs text-gray-500">
                   <div className="flex items-center gap-1">
                     <CheckCircle className="h-4 w-4 text-success-600" />
-                    <span>Completed ({evaluators.filter((e) => e.status === 'completed' || e.status === 'COMPLETED').length})</span>
+                    <span>{t('evaluatorStatus.completed')} ({evaluators.filter((e) => e.status === 'completed' || e.status === 'COMPLETED').length})</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Clock className="h-4 w-4 text-primary-600" />
-                    <span>In Progress ({evaluators.filter((e) => e.status === 'in_progress' || e.status === 'IN_PROGRESS').length})</span>
+                    <span>{t('evaluatorStatus.inProgress')} ({evaluators.filter((e) => e.status === 'in_progress' || e.status === 'IN_PROGRESS').length})</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Mail className="h-4 w-4 text-gray-400" />
-                    <span>Invitation sent ({evaluators.filter((e) => (e.status === 'not_started' || e.status === 'NOT_STARTED') && e.invitation_sent_at).length})</span>
+                    <span>{t('evaluatorStatus.invitationSent')} ({evaluators.filter((e) => (e.status === 'not_started' || e.status === 'NOT_STARTED') && e.invitation_sent_at).length})</span>
                   </div>
                 </div>
               </div>
@@ -458,7 +461,7 @@ export default function Feedback360ResultsPage() {
           className="mb-8 rounded-lg bg-white p-8 shadow-lg"
         >
           <h2 className="mb-6 text-2xl font-semibold text-gray-900">
-            Overall Leadership Score
+            {t('overallScore.title')}
           </h2>
 
           <div className="flex items-center justify-center">
@@ -467,7 +470,7 @@ export default function Feedback360ResultsPage() {
                 {results.percentage !== undefined && !isNaN(results.percentage) ? `${results.percentage}%` : '0%'}
               </div>
               <div className="text-gray-600">
-                {results.total_score || 0} out of {results.max_score || 150} points
+                {t('overallScore.points', { score: results.total_score || 0, max: results.max_score || 150 })}
               </div>
             </div>
           </div>
@@ -533,7 +536,7 @@ export default function Feedback360ResultsPage() {
                   <div className="mb-4 grid gap-4 md:grid-cols-2">
                     <div>
                       <div className="mb-2 flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Self-Assessment</span>
+                        <span className="text-gray-600">{t('capabilities.selfAssessment')}</span>
                         <span className="font-semibold text-gray-900">
                           {capScore.self_score.toFixed(1)} / 5.0
                         </span>
@@ -584,42 +587,42 @@ export default function Feedback360ResultsPage() {
           className="rounded-lg bg-white p-8 shadow-lg"
         >
           <h2 className="mb-6 text-2xl font-semibold text-gray-900">
-            Recommendations
+            {t('recommendations.title')}
           </h2>
 
           <div className="space-y-4">
             {!results.has_evaluator_responses && evaluators.length === 0 && (
               <div className="rounded-lg bg-primary-50 p-6">
                 <h3 className="mb-2 font-semibold text-primary-900">
-                  Complete Your 360° View
+                  {t('recommendations.complete360.title')}
                 </h3>
                 <p className="mb-4 text-sm text-primary-800">
-                  Invite colleagues, managers, and collaborators to share their perspective on your leadership. This will give you a complete view of how others perceive your capabilities.
+                  {t('recommendations.complete360.description')}
                 </p>
                 <Button
                   onClick={() => router.push('/dashboard/assessments/360-feedback/start')}
                   className="bg-arise-gold hover:bg-arise-gold/90"
                 >
-                  Invite Evaluators
+                  {t('recommendations.complete360.button')}
                 </Button>
               </div>
             )}
 
             <div className="rounded-lg bg-success-50 p-6">
               <h3 className="mb-2 font-semibold text-success-900">
-                Create Your Development Plan
+                {t('recommendations.developmentPlan.title')}
               </h3>
               <p className="text-sm text-success-800">
-                Use these insights to create a personalized development plan focusing on your growth areas while leveraging your strengths.
+                {t('recommendations.developmentPlan.description')}
               </p>
             </div>
 
             <div className="rounded-lg bg-purple-50 p-6">
               <h3 className="mb-2 font-semibold text-purple-900">
-                Schedule Coaching
+                {t('recommendations.coaching.title')}
               </h3>
               <p className="text-sm text-purple-800">
-                Work with an ARISE coach to dive deeper into your results and create actionable strategies for leadership development.
+                {t('recommendations.coaching.description')}
               </p>
             </div>
           </div>

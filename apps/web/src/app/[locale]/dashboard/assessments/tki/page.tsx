@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
+import { useSearchParams } from 'next/navigation';
 import { useTKIStore } from '@/stores/tkiStore';
 import { tkiQuestions, tkiModes } from '@/data/tkiQuestions';
 import { getMyAssessments } from '@/lib/api/assessments';
@@ -240,7 +241,7 @@ export default function TKIAssessmentPage() {
                 onClick={() => router.push('/dashboard/assessments')} 
                 variant="outline"
                 style={{ borderColor: '#0F4C56', color: '#0F4C56' }}
-                className="flex align-center gap-8"
+                className="flex items-center gap-4"
               >
                 Back to Assessments
               </Button>

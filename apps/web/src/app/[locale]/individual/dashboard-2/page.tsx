@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 import { useAuthStore } from '@/lib/store';
 import { Card, Button, LoadingSkeleton, Stack } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';

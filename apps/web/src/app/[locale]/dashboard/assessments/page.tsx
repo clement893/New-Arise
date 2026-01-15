@@ -43,7 +43,7 @@ if (typeof window !== 'undefined') {
 }
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Card, Button, Stack } from '@/components/ui';
@@ -71,43 +71,7 @@ interface AssessmentDisplay {
   totalQuestions?: number;
 }
 
-// Mapping of assessment types to display info (using lowercase keys for internal mapping)
-const ASSESSMENT_CONFIG: Record<string, { title: string; description: string; icon: LucideIcon; externalLink?: string; requiresEvaluators?: boolean }> = {
-  mbti: {
-    title: 'MBTI Personality',
-    description: 'Understanding your natural preferences',
-    icon: Brain,
-    externalLink: 'https://www.16personalities.com/free-personality-test',
-  },
-  tki: {
-    title: 'TKI Conflict Style',
-    description: 'Explore your conflict management approach',
-    icon: Target,
-  },
-  wellness: {
-    title: 'Wellness',
-    description: 'Your overall well-being',
-    icon: Heart,
-  },
-  '360_self': {
-    title: '360° Feedback',
-    description: 'Multi-faceted leadership perspectives',
-    icon: Users,
-    requiresEvaluators: true,
-  },
-  '360_evaluator': {
-    title: '360° Feedback (Evaluator)',
-    description: 'Provide feedback for a colleague',
-    icon: Users,
-  },
-};
-
-const ROLE_LABELS: Record<string, string> = {
-  PEER: 'Peer / Colleague',
-  MANAGER: 'Manager / Superior',
-  DIRECT_REPORT: 'Direct Report / Collaborator',
-  STAKEHOLDER: 'Stakeholder / Client',
-};
+// Note: ASSESSMENT_CONFIG and ROLE_LABELS are now defined inside the component to use translations
 
 function AssessmentsContent() {
   const t = useTranslations('dashboard.assessments');
@@ -118,6 +82,44 @@ function AssessmentsContent() {
   const [evaluators, setEvaluators] = useState<Record<number, EvaluatorStatus[]>>({});
   const isInitialMount = useRef(true);
   const previousPathnameRef = useRef<string | null>(null);
+
+  // Mapping of assessment types to display info (using translations)
+  const ASSESSMENT_CONFIG: Record<string, { title: string; description: string; icon: LucideIcon; externalLink?: string; requiresEvaluators?: boolean }> = {
+    mbti: {
+      title: t('config.mbti.title'),
+      description: t('config.mbti.description'),
+      icon: Brain,
+      externalLink: 'https://www.16personalities.com/free-personality-test',
+    },
+    tki: {
+      title: t('config.tki.title'),
+      description: t('config.tki.description'),
+      icon: Target,
+    },
+    wellness: {
+      title: t('config.wellness.title'),
+      description: t('config.wellness.description'),
+      icon: Heart,
+    },
+    '360_self': {
+      title: t('config.360_self.title'),
+      description: t('config.360_self.description'),
+      icon: Users,
+      requiresEvaluators: true,
+    },
+    '360_evaluator': {
+      title: t('config.360_evaluator.title'),
+      description: t('config.360_evaluator.description'),
+      icon: Users,
+    },
+  };
+
+  const ROLE_LABELS: Record<string, string> = {
+    PEER: t('roles.peer'),
+    MANAGER: t('roles.manager'),
+    DIRECT_REPORT: t('roles.directReport'),
+    STAKEHOLDER: t('roles.stakeholder'),
+  };
   
   // Try to load cached assessments from sessionStorage for instant display
   const getCachedAssessments = (): AssessmentDisplay[] => {
@@ -1152,7 +1154,7 @@ function AssessmentsContent() {
 
   if (error) {
     // Ensure error is always a string before rendering
-    const errorString = typeof error === 'string' ? error : formatError(error || 'Failed to load assessments');
+    const errorString = typeof error === 'string' ? error : formatError(error || t('errors.loadFailed'));
     const isUnauthorized = errorString.includes('401') || errorString.includes('expired') || errorString.includes('Unauthorized');
     
     return (
@@ -1339,7 +1341,7 @@ function AssessmentsContent() {
                     return (
                       <Card key={cardKey} className="border-red-300 bg-red-50">
                         <div className="p-4">
-                          <p className="text-red-700">Error: Invalid icon for {safeAssessment.title}</p>
+                          <p className="text-red-700">{t('errors.invalidIcon', { title: safeAssessment.title })}</p>
                         </div>
                       </Card>
                     );
@@ -1444,7 +1446,7 @@ function AssessmentsContent() {
                             <div className="w-full">
                               <div className="flex justify-between items-center mb-1">
                                 <span className="text-sm font-medium text-gray-700">
-                                  {typeof progressLabel === 'string' ? progressLabel : String(progressLabel || 'Progress')}
+                                  {typeof progressLabel === 'string' ? progressLabel : String(progressLabel || t('progress.label', { count: 0, total: 0 }))}
                                 </span>
                                 <span className="text-sm text-gray-600">
                                   {typeof progressPercentage === 'number' ? `${progressPercentage}%` : '0%'}
@@ -1631,7 +1633,7 @@ function AssessmentsContent() {
                     <Card key={`error-${index}`} className="border-red-300 bg-red-50">
                       <div className="p-4">
                         <h3 className="text-lg font-bold text-red-900 mb-2">
-                          {typeof assessment.title === 'string' ? assessment.title : 'Assessment'}
+                          {typeof assessment.title === 'string' ? assessment.title : t('errors.assessmentFallback')}
                         </h3>
                         <p className="text-sm text-red-700 mb-4">
                           {t('errors.displayError')}

@@ -36,24 +36,35 @@
     "confirmPassword": "Confirmer le mot de passe",
     "login": {
       "title": "Connexion",
+      "welcomeBack": "Bon retour",
+      "subtitle": "Connectez-vous pour poursuivre votre parcours de leadership",
       "errorTitle": "Erreur",
-      "emailLabel": "Email",
-      "emailPlaceholder": "vous@exemple.com",
+      "emailLabel": "Adresse e-mail",
+      "emailPlaceholder": "Entrez votre e-mail",
       "passwordLabel": "Mot de passe",
-      "passwordPlaceholder": "••••••••",
+      "passwordPlaceholder": "Créez un mot de passe fort",
+      "rememberMe": "Se souvenir de moi",
+      "forgotPassword": "Mot de passe oublié ?",
+      "signInButton": "Se connecter →",
+      "signingIn": "Connexion en cours...",
       "loginButton": "Se connecter",
       "loggingIn": "Connexion en cours...",
       "orContinueWith": "Ou continuer avec",
       "continueWithGoogle": "Continuer avec Google",
       "noAccount": "Vous n'avez pas de compte ?",
+      "createAccount": "Créer un compte",
       "registerLink": "S'inscrire",
       "loading": "Chargement...",
+      "validation": {
+        "emailInvalid": "Veuillez entrer une adresse e-mail valide",
+        "passwordRequired": "Le mot de passe est requis"
+      },
       "errors": {
         "unauthorized": "Votre session a expiré ou vous n'êtes pas autorisé. Veuillez vous reconnecter.",
         "sessionExpired": "Votre session a expiré. Veuillez vous reconnecter.",
         "unauthorizedSuperadmin": "Vous devez être superadmin pour accéder à cette page.",
         "forbidden": "Accès refusé. Vous n'avez pas les permissions nécessaires.",
-        "loginFailed": "Échec de la connexion",
+        "loginFailed": "Échec de la connexion. Veuillez réessayer.",
         "corsError": "Erreur de connexion au serveur. Vérifiez que le backend est accessible et que CORS est configuré correctement.",
         "connectionError": "Erreur de connexion au serveur. Veuillez réessayer plus tard.",
         "serverUnavailable": "Le serveur backend est temporairement indisponible. Veuillez réessayer plus tard.",
@@ -120,9 +131,331 @@
           "invited": "Invité"
         }
       },
+      "config": {
+        "mbti": {
+          "title": "Personnalité MBTI",
+          "description": "Comprendre vos préférences naturelles"
+        },
+        "tki": {
+          "title": "Style de conflit TKI",
+          "description": "Explorez votre approche de la gestion des conflits"
+        },
+        "wellness": {
+          "title": "Bien-être",
+          "description": "Votre bien-être global"
+        },
+        "360_self": {
+          "title": "Feedback 360°",
+          "description": "Perspectives de leadership multidimensionnelles"
+        },
+        "360_evaluator": {
+          "title": "Feedback 360° (Évaluateur)",
+          "description": "Fournir un feedback pour un collègue"
+        }
+      },
+      "roles": {
+        "peer": "Pair / Collègue",
+        "manager": "Manager / Supérieur",
+        "directReport": "Subordonné / Collaborateur",
+        "stakeholder": "Partie prenante / Client"
+      },
       "errors": {
         "displayError": "Erreur d'affichage. Veuillez actualiser la page.",
-        "refresh": "Rafraîchir"
+        "refresh": "Rafraîchir",
+        "loadFailed": "Échec du chargement des assessments",
+        "invalidIcon": "Erreur : Icône invalide pour {title}",
+        "assessmentFallback": "Assessment"
+      },
+      "tki": {
+        "results": {
+          "loading": "Chargement de vos résultats...",
+          "title": "Résultats du style de conflit TKI",
+          "subtitle": "Votre profil de gestion des conflits",
+          "backToAssessments": "Retour aux assessments",
+          "dominantMode": "Mode dominant",
+          "secondaryMode": "Mode secondaire",
+          "responsesCount": "{count} sur {total} réponses",
+          "responses": "{count} réponses",
+          "levels": {
+            "high": "Élevé",
+            "moderate": "Modéré",
+            "low": "Faible"
+          },
+          "profile": {
+            "title": "Votre profil de gestion des conflits"
+          },
+          "recommendations": {
+            "title": "Recommandations",
+            "leverage": {
+              "title": "Tirez parti de vos forces :",
+              "description": "Votre style {mode} dominant peut être très efficace dans les situations appropriées. Continuez à l'utiliser quand il vous sert bien."
+            },
+            "flexibility": {
+              "title": "Développez la flexibilité :",
+              "description": "Considérez les situations où vos modes moins utilisés pourraient être plus efficaces. Élargir votre répertoire de gestion des conflits fera de vous un leader plus adaptable."
+            },
+            "context": {
+              "title": "Le contexte compte :",
+              "description": "Aucun mode de conflit unique n'est le meilleur dans toutes les situations. Les leaders les plus efficaces peuvent alterner entre différentes approches en fonction du contexte, de la relation et de l'importance de la question."
+            }
+          },
+          "insights": {
+            "competing": {
+              "high": "Vous tendez à poursuivre vos propres préoccupations de manière assertive, ce qui peut être efficace en cas d'urgence ou lorsque des décisions rapides sont nécessaires.",
+              "moderate": "Vous utilisez la compétition quand c'est nécessaire, en l'équilibrant avec d'autres approches.",
+              "low": "Vous utilisez rarement une approche compétitive, préférant des styles plus collaboratifs ou accommodants."
+            },
+            "collaborating": {
+              "high": "Vous excellez à trouver des solutions gagnant-gagnant qui satisfont pleinement les deux parties. C'est idéal pour les questions complexes nécessitant des perspectives diverses.",
+              "moderate": "Vous utilisez la collaboration quand c'est approprié, bien que vous puissiez également vous appuyer sur d'autres modes de conflit.",
+              "low": "Vous pourriez bénéficier du développement de vos compétences collaboratives pour trouver des solutions plus intégratives."
+            },
+            "compromising": {
+              "high": "Vous recherchez fréquemment des solutions de compromis, ce qui peut être efficace lorsque le temps est limité ou lorsque les objectifs sont modérément importants.",
+              "moderate": "Vous utilisez le compromis comme l'un des plusieurs outils de gestion des conflits dans votre répertoire.",
+              "low": "Vous tendez à favoriser d'autres approches plutôt que le compromis, ce qui peut signifier que vous recherchez des solutions plus complètes."
+            },
+            "avoiding": {
+              "high": "Vous reportez ou vous retirez souvent des conflits. Bien qu'utile pour les questions triviales, une utilisation excessive peut laisser des questions importantes non résolues.",
+              "moderate": "Vous évitez stratégiquement les conflits quand c'est approprié, par exemple lorsque les émotions sont élevées ou lorsque plus d'informations sont nécessaires.",
+              "low": "Vous évitez rarement les conflits, préférant aborder les questions directement."
+            },
+            "accommodating": {
+              "high": "Vous cédez fréquemment aux préoccupations des autres. Cela construit la bonne volonté mais peut conduire à ce que vos besoins soient négligés si c'est trop utilisé.",
+              "moderate": "Vous vous adaptez aux autres quand cela a du sens, en équilibrant leurs besoins avec les vôtres.",
+              "low": "Vous vous adaptez rarement aux autres, ce qui peut indiquer une forte concentration sur vos propres objectifs."
+            }
+          },
+          "errors": {
+            "notFound": "Aucun résultat trouvé"
+          }
+        }
+      },
+      "wellness": {
+        "results": {
+          "loading": "Chargement de vos résultats...",
+          "title": "Vos résultats d'évaluation du bien-être",
+          "subtitle": "Une vue complète de votre bien-être à travers 6 piliers clés",
+          "backToAssessments": "Retour aux assessments",
+          "exportPdf": "Exporter en PDF",
+          "overallScore": {
+            "title": "Score global de bien-être",
+            "strongestPillar": "Pilier le plus fort",
+            "areaForGrowth": "Domaine de croissance"
+          },
+          "pillars": {
+            "sleep": "Sommeil",
+            "nutrition": "Nutrition",
+            "hydration": "Hydratation",
+            "movement": "Mouvement",
+            "stressManagement": "Gestion du stress",
+            "socialConnection": "Connexion sociale"
+          },
+          "profile": {
+            "title": "Votre profil de bien-être"
+          },
+          "insights": {
+            "title": "Insights détaillés par pilier",
+            "defaultDescription": "Votre score {pillar} indique une performance {level} dans ce domaine."
+          },
+          "recommendations": {
+            "title": "Recommandations personnalisées"
+          },
+          "nextSteps": {
+            "title": "Continuez votre parcours de leadership",
+            "description": "Explorez d'autres assessments pour obtenir des insights plus approfondis sur votre style de leadership",
+            "takeTKI": "Passer l'assessment TKI",
+            "try360": "Essayer le Feedback 360°"
+          },
+          "errors": {
+            "notFound": "Résultats non trouvés"
+          }
+        }
+      },
+      "360": {
+        "results": {
+          "loading": "Chargement des résultats...",
+          "title": "Résultats du Feedback 360°",
+          "backToAssessments": "Retour aux assessments",
+          "note": "Note :",
+          "selfAssessmentOnly": "Ces résultats sont basés uniquement sur votre auto-évaluation. Invitez des collègues pour obtenir une vue complète à 360°.",
+          "basedOnFeedback": "Basé sur votre auto-évaluation et les retours de {count} collègue{count, plural, one {} other {s}}",
+          "evaluatorStatus": {
+            "title": "Statut des évaluateurs",
+            "viewAll": "Voir tous",
+            "completed": "Complété",
+            "inProgress": "En cours",
+            "invitationOpened": "Invitation ouverte",
+            "invitationSent": "Invitation envoyée",
+            "notInvited": "Pas encore invité"
+          },
+          "overallScore": {
+            "title": "Score global de leadership",
+            "points": "{score} sur {max} points"
+          },
+          "capabilities": {
+            "title": "Capacités de leadership",
+            "selfAssessment": "Auto-évaluation",
+            "othersAverage": "Moyenne des autres"
+          },
+          "gap": {
+            "selfHigher": "Auto-évaluation plus élevée",
+            "othersHigher": "Les autres vous notent plus haut",
+            "aligned": "Aligné"
+          },
+          "insights": {
+            "selfOnly": {
+              "high": "Vous vous notez très bien en {capability}. Envisagez d'inviter des collègues pour valider cette force.",
+              "moderate": "Vous vous notez modérément en {capability}. Les retours des autres fourniront une perspective supplémentaire.",
+              "low": "Vous avez identifié {capability} comme un domaine de développement. Cette conscience de soi est précieuse pour la croissance."
+            },
+            "withEvaluators": {
+              "selfHigher": "Vous vous notez plus haut que les autres en {capability}. Cela peut indiquer un angle mort ou une opportunité de mieux démontrer vos capacités.",
+              "othersHigher": "Les autres vous notent plus haut que vous ne vous notez en {capability}. Cela suggère que vous pourriez sous-estimer votre impact dans ce domaine.",
+              "aligned": "Votre auto-évaluation s'aligne bien avec les perceptions des autres de votre {capability}. Cela indique une forte conscience de soi."
+            }
+          },
+          "recommendations": {
+            "title": "Recommandations",
+            "complete360": {
+              "title": "Complétez votre vue à 360°",
+              "description": "Invitez des collègues, des managers et des collaborateurs à partager leur perspective sur votre leadership. Cela vous donnera une vue complète de la façon dont les autres perçoivent vos capacités.",
+              "button": "Inviter des évaluateurs"
+            },
+            "developmentPlan": {
+              "title": "Créez votre plan de développement",
+              "description": "Utilisez ces insights pour créer un plan de développement personnalisé axé sur vos domaines de croissance tout en tirant parti de vos forces."
+            },
+            "coaching": {
+              "title": "Planifier un coaching",
+              "description": "Travaillez avec un coach ARISE pour approfondir vos résultats et créer des stratégies actionnables pour le développement du leadership."
+            }
+          },
+          "errors": {
+            "sessionExpired": "Votre session a expiré. Veuillez vous reconnecter.",
+            "notFound": "Résultats d'évaluation non trouvés. L'évaluation n'est peut-être pas encore terminée. Veuillez d'abord compléter et soumettre l'évaluation.",
+            "noResults": "Aucun résultat trouvé",
+            "notCompleted": {
+              "title": "Évaluation non complétée",
+              "completeButton": "Compléter l'évaluation"
+            },
+            "unableToLoad": {
+              "title": "Impossible de charger les résultats"
+            }
+          }
+        }
+      },
+      "results": {
+        "loading": "Chargement de vos résultats...",
+        "title": "Résultats de l'évaluation du bien-être",
+        "subtitle": "Votre profil de bien-être complet à travers six piliers clés",
+        "backToAssessments": "Retour aux assessments",
+        "overallScore": {
+          "title": "Score global de bien-être",
+          "points": "{score} sur {max} points"
+        },
+        "downloading": "Téléchargement...",
+        "generating": "Génération...",
+        "exportPdf": "Exporter en PDF",
+        "downloadReport": "Télécharger le rapport",
+        "pillarScore": {
+          "label": "Score"
+        },
+        "performance": {
+          "excellent": "Excellent",
+          "good": "Bon",
+          "needsAttention": "Nécessite de l'attention"
+        },
+        "insights": {
+          "title": "Insights clés",
+          "strengths": {
+            "title": "Forces",
+            "description": "Votre pilier le plus fort est {pillar}. Continuez votre excellent travail dans ce domaine !"
+          },
+          "growth": {
+            "title": "Domaines de croissance",
+            "description": "Envisagez de vous concentrer sur {pillar} pour atteindre un profil de bien-être plus équilibré."
+          }
+        },
+        "nextSteps": {
+          "title": "Prochaines étapes",
+          "step1": "Examinez vos résultats avec un coach de bien-être pour créer un plan d'action personnalisé",
+          "step2": "Complétez les assessments TKI et Feedback 360° pour un profil de leadership complet",
+          "step3": "Repassez cette évaluation dans 3 mois pour suivre vos progrès",
+          "continueButton": "Continuer vers d'autres assessments",
+          "backToDashboard": "Retour au tableau de bord"
+        },
+        "report": {
+          "title": "Rapport d'évaluation du bien-être",
+          "overallScore": "Score global"
+        },
+        "toast": {
+          "downloadSuccess": "PDF téléchargé avec succès",
+          "downloadFailed": "Échec du téléchargement du rapport PDF. Veuillez réessayer."
+        },
+        "errors": {
+          "noId": "Aucun ID d'évaluation fourni",
+          "notFound": "Évaluation non trouvée. Vous n'avez peut-être pas la permission de voir cette évaluation.",
+          "notCompleted": {
+            "title": "Évaluation non complétée",
+            "description": "Cette évaluation n'est pas encore complétée. Veuillez d'abord répondre à toutes les questions.{progress}",
+            "continueButton": "Continuer l'évaluation"
+          },
+          "questionsAnswered": "questions répondues",
+          "noResults": "Résultats non trouvés",
+          "error": "Erreur"
+        }
+      },
+      "mbti": {
+        "results": {
+          "loading": "Chargement de vos résultats...",
+          "title": "Votre type de personnalité MBTI",
+          "subtitle": "Comprendre votre profil de personnalité unique",
+          "backToAssessments": "Retour aux assessments",
+          "exportPdf": "Exporter en PDF",
+          "ocrBadge": "Résultats extraits du PDF via OCR",
+          "unknownType": "Type inconnu",
+          "unknownTypeDescription": "Description du type non disponible.",
+          "dimensions": {
+            "title": "Vos dimensions de personnalité",
+            "energySource": "Source d'énergie",
+            "informationGathering": "Collecte d'informations",
+            "decisionMaking": "Prise de décision",
+            "lifestyle": "Style de vie"
+          },
+          "preferences": {
+            "extraversion": "Extraversion",
+            "introversion": "Introversion",
+            "sensing": "Sensation",
+            "intuition": "Intuition",
+            "thinking": "Pensée",
+            "feeling": "Sentiment",
+            "judging": "Jugement",
+            "perceiving": "Perception"
+          },
+          "strengths": {
+            "title": "Forces et domaines de croissance",
+            "yourStrengths": "Vos forces",
+            "growthAreas": "Domaines de croissance"
+          },
+          "recommendations": {
+            "title": "Recommandations de développement personnalisées"
+          },
+          "nextSteps": {
+            "title": "Continuez votre parcours de leadership",
+            "description": "Explorez d'autres assessments pour obtenir des insights plus approfondis",
+            "takeTKI": "Passer l'assessment TKI",
+            "tryWellness": "Essayer l'assessment Wellness"
+          },
+          "notFound": {
+            "title": "Aucun résultat MBTI trouvé",
+            "description": "Vous n'avez pas encore téléchargé votre score MBTI de 16Personalities. Téléchargez votre PDF ou partagez l'URL de votre profil pour voir vos résultats.",
+            "uploadButton": "Télécharger mon score MBTI"
+          },
+          "errors": {
+            "notFound": "Résultats non trouvés"
+          }
+        }
       }
     },
     "main": {
@@ -191,6 +524,38 @@
         "loadFailed": "Échec du chargement des assessments",
         "tryAgain": "Réessayer"
       }
+    },
+    "navigation": {
+      "items": {
+        "dashboard": "Tableau de bord",
+        "assessments": "Assessments",
+        "resultsReports": "Résultats et rapports",
+        "developmentPlan": "Plan de développement",
+        "profile": "Profil",
+        "coachee": "Coachee",
+        "agenda": "Agenda",
+        "employees": "Employés",
+        "manageUsers": "Gérer les utilisateurs",
+        "manageTests": "Gérer les tests"
+      },
+      "groups": {
+        "individual": "Individuel",
+        "admin": "Administration",
+        "coach": "Coach",
+        "business": "Entreprise"
+      },
+      "logout": "Déconnexion",
+      "user": "Utilisateur",
+      "backToDashboard": "Retour au tableau de bord",
+      "backToHome": "Retour à l'accueil",
+      "closeMenu": "Fermer le menu",
+      "openMenu": "Ouvrir le menu",
+      "expandSidebar": "Agrandir la barre latérale",
+      "collapseSidebar": "Réduire la barre latérale",
+      "searchPlaceholder": "Rechercher...",
+      "searchAriaLabel": "Rechercher dans la navigation",
+      "clearSearch": "Effacer la recherche",
+      "noResults": "Aucun résultat trouvé"
     },
     "coachingOptions": {
       "title": {
@@ -623,7 +988,74 @@
     }
   },
   "profile": {
-    "title": "Profil",
+    "title": {
+      "part1": "Votre",
+      "part2": "profil"
+    },
+    "subtitle": "Mettre à jour mes informations de profil et abonnement",
+    "tabs": {
+      "profile": "Profil",
+      "subscription": "Abonnement"
+    },
+    "userFallback": "Utilisateur",
+    "nameFallback": "Jean Dupont",
+    "planLabel": "Plan Révélation",
+    "sections": {
+      "personalInfo": {
+        "title": "Informations personnelles",
+        "firstName": "Prénom",
+        "lastName": "Nom",
+        "email": "Adresse e-mail",
+        "password": "Mot de passe"
+      },
+      "additionalInfo": {
+        "title": "Informations supplémentaires",
+        "gender": {
+          "label": "Genre",
+          "male": "Homme",
+          "female": "Femme"
+        },
+        "age": {
+          "label": "Âge",
+          "placeholder": "Entrez votre âge"
+        },
+        "degree": {
+          "label": "Plus haut diplôme obtenu",
+          "options": {
+            "highSchool": "Baccalauréat",
+            "bachelor": "Licence",
+            "master": "Master",
+            "phd": "Doctorat"
+          }
+        },
+        "goal": {
+          "label": "Quel est votre objectif principal avec un plan de développement du leadership ?",
+          "options": {
+            "improveLeadership": "Améliorer les compétences en leadership",
+            "careerAdvancement": "Avancement de carrière",
+            "teamManagement": "Gestion d'équipe",
+            "personalGrowth": "Développement personnel"
+          }
+        },
+        "coach": {
+          "label": "Avez-vous déjà travaillé avec un coach en leadership ?"
+        },
+        "choice": "Choix"
+      },
+      "companyInfo": {
+        "title": "Informations de l'entreprise",
+        "organizationName": "Nom de l'organisation",
+        "position": "Poste"
+      }
+    },
+    "saveButton": {
+      "save": "Enregistrer",
+      "saving": "Enregistrement..."
+    },
+    "toast": {
+      "saveSuccess": "Profil mis à jour avec succès",
+      "partialSave": "Profil mis à jour, mais certaines informations supplémentaires n'ont pas pu être enregistrées"
+    },
     "description": "Gérez les informations de votre profil et les paramètres du compte",
     "breadcrumbs": {
       "dashboard": "Tableau de bord",
@@ -643,7 +1075,7 @@
       "updateSuccess": "Profil mis à jour avec succès"
     },
     "errors": {
-      "loadFailed": "Échec du chargement du profil. Veuillez réessayer.",
+      "loadFailed": "Échec du chargement des données du profil",
       "updateFailed": "Échec de la mise à jour du profil. Veuillez réessayer."
     },
     "settings": {

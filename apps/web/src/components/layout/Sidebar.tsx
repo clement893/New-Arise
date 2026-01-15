@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
@@ -17,6 +18,7 @@ export interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen: controlledIsOpen, onClose }: SidebarProps = {}) {
+  const t = useTranslations('dashboard.navigation');
   const pathname = usePathname();
   const { user } = useAuthStore();
   const { logout } = useAuth();
@@ -181,7 +183,7 @@ export default function Sidebar({ isOpen: controlledIsOpen, onClose }: SidebarPr
           <button
             onClick={handleClose}
             className="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-foreground hover:bg-muted transition-colors min-h-[44px] min-w-[44px]"
-            aria-label="Fermer le menu"
+            aria-label={t('closeMenu')}
             aria-expanded={isOpen}
           >
             <X className="w-6 h-6" />
@@ -206,7 +208,7 @@ export default function Sidebar({ isOpen: controlledIsOpen, onClose }: SidebarPr
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground truncate">
-              {user?.name || 'Utilisateur'}
+              {user?.name || t('user')}
             </p>
             <p className="text-xs text-muted-foreground truncate">
               {user?.email || ''}
@@ -222,7 +224,7 @@ export default function Sidebar({ isOpen: controlledIsOpen, onClose }: SidebarPr
             className="flex-1"
             style={{ backgroundColor: '#0f454d', color: '#fff' }}
           >
-            Déconnexion
+            {t('logout')}
           </Button>
         </div>
       </div>

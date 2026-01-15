@@ -21,7 +21,11 @@ import { Globe, Check } from '@/lib/icons';
 import Button from '@/components/ui/Button';
 import { clsx } from 'clsx';
 
-export default function LanguageSwitcher() {
+interface LanguageSwitcherProps {
+  dropdownPosition?: 'bottom' | 'top';
+}
+
+export default function LanguageSwitcher({ dropdownPosition = 'bottom' }: LanguageSwitcherProps = {}) {
   const locale = useLocale() as Locale;
   const t = useTranslations('language');
   const pathname = usePathname(); // Returns pathname WITHOUT locale prefix (next-intl behavior)
@@ -59,7 +63,10 @@ export default function LanguageSwitcher() {
           />
           
           {/* Dropdown */}
-          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20">
+          <div className={clsx(
+            'absolute right-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20',
+            dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'
+          )}>
             <div className="py-1">
               {locales.map((loc) => (
                 <button

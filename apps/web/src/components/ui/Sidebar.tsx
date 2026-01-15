@@ -1,11 +1,13 @@
 'use client';
 
 import { ReactNode, useState, useMemo, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { clsx } from 'clsx';
 import { ChevronRight, ChevronLeft, ChevronDown, Search, X, Home, LogOut } from 'lucide-react';
 import Input from './Input';
+import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
 
 interface SidebarItem {
   label: string;
@@ -51,6 +53,7 @@ export default function Sidebar({
   onClose,
   isMobile = false,
 }: SidebarProps) {
+  const t = useTranslations('dashboard.navigation');
   const pathname = usePathname();
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
@@ -290,7 +293,7 @@ export default function Sidebar({
             collapsed && 'justify-center',
             'hover:opacity-80 transition-opacity cursor-pointer'
           )}
-          title="Retour au dashboard"
+          title={t('backToDashboard')}
         >
           <h1 className={clsx(
             "text-2xl font-bold text-arise-deep-teal",
@@ -323,7 +326,7 @@ export default function Sidebar({
               <div className="flex-1 min-w-0 flex items-center gap-2">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate">
-                    {user.name || 'Utilisateur'}
+                    {user.name || t('user')}
                   </p>
                   <p className="text-xs text-gray-600 truncate">
                     {user.email}
@@ -352,17 +355,17 @@ export default function Sidebar({
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
             <Input
               type="text"
-              placeholder="Rechercher..."
+              placeholder={t('searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 pr-10 h-10 text-sm"
-              aria-label="Rechercher dans la navigation"
+              aria-label={t('searchAriaLabel')}
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 min-h-[44px] min-w-[44px] flex items-center justify-center"
-                aria-label="Effacer la recherche"
+                aria-label={t('clearSearch')}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -377,12 +380,22 @@ export default function Sidebar({
       )}>
         {filteredItems.length === 0 ? (
           <div className="px-lg py-md text-sm text-gray-500 text-center">
-            Aucun résultat trouvé
+            {t('noResults')}
           </div>
         ) : (
           filteredItems.map((item) => renderItem(item))
         )}
       </nav>
+      
+      {/* Language Switcher */}
+      {!collapsed && (
+        <div className={clsx(
+          'border-t border-gray-200 flex-shrink-0',
+          'p-lg'
+        )}>
+          <LanguageSwitcher dropdownPosition="top" />
+        </div>
+      )}
       
       {/* Footer: Collapse, Close button (mobile), Home, Theme Toggle, Logout (bottom) */}
       {(onToggleCollapse || onClose || onHomeClick || themeToggleComponent || onLogoutClick) && (
@@ -398,8 +411,8 @@ export default function Sidebar({
               <button
                 onClick={onToggleCollapse}
                 className="p-2 rounded-lg hover:bg-gray-100 text-gray-700 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] min-h-[44px] min-w-[44px] flex items-center justify-center"
-                aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-                title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                aria-label={collapsed ? t('expandSidebar') : t('collapseSidebar')}
+                title={collapsed ? t('expandSidebar') : t('collapseSidebar')}
               >
                 {collapsed ? (
                   <ChevronRight className="w-5 h-5 transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]" />
@@ -412,8 +425,8 @@ export default function Sidebar({
               <button
                 onClick={onClose}
                 className="p-2 rounded-lg hover:bg-gray-100 text-gray-700 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] min-h-[44px] min-w-[44px] flex items-center justify-center"
-                aria-label="Fermer le menu"
-                title="Fermer le menu"
+                aria-label={t('closeMenu')}
+                title={t('closeMenu')}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -422,8 +435,8 @@ export default function Sidebar({
               <button
                 onClick={onHomeClick}
                 className="p-2 rounded-lg hover:bg-gray-100 text-gray-700 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] min-h-[44px] min-w-[44px] flex items-center justify-center"
-                aria-label="Retour à l'accueil"
-                title="Retour à l'accueil"
+                aria-label={t('backToHome')}
+                title={t('backToHome')}
               >
                 <Home className="w-5 h-5" />
               </button>
@@ -441,11 +454,11 @@ export default function Sidebar({
                   collapsed || isMobile ? "p-2 min-w-[44px]" : "px-4 py-3 gap-3 w-full"
                 )}
                 style={{ backgroundColor: '#0f454d', color: '#fff' }}
-                aria-label="Déconnexion"
-                title="Déconnexion"
+                aria-label={t('logout')}
+                title={t('logout')}
               >
                 <LogOut className="w-5 h-5" />
-                {!collapsed && !isMobile && <span className="text-sm font-medium">Logout</span>}
+                {!collapsed && !isMobile && <span className="text-sm font-medium">{t('logout')}</span>}
               </button>
             )}
           </div>

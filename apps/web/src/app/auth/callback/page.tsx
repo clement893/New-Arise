@@ -1,7 +1,8 @@
-﻿'use client';
+'use client';
 
 import { Suspense, useEffect, useCallback } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
+import { useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
 import { TokenStorage } from '@/lib/auth/tokenStorage';
 import { transformApiUserToStoreUser } from '@/lib/auth/userTransform';

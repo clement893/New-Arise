@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 import { PageHeader } from '@/components/layout';
 import { Card, Container, Button, Grid } from '@/components/ui';
 import { 
