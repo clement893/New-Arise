@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { useRouter, usePathname } from '@/i18n/routing';
+import { useRouter } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
 import { Card, Button } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
