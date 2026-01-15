@@ -19,9 +19,10 @@ function generateCSPNonce(): string {
   crypto.getRandomValues(array);
   
   // Convert bytes to string for btoa (Edge Runtime supports btoa)
+  // Uint8Array elements are always numbers (0-255), never undefined
   let binary = '';
   for (let i = 0; i < array.length; i++) {
-    binary += String.fromCharCode(array[i]);
+    binary += String.fromCharCode(array[i]!);
   }
   
   // Convert to base64url (URL-safe base64)
