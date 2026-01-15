@@ -24,118 +24,11 @@ function EvaluatorsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  // CRITICAL: Load cache IMMEDIATELY on component initialization, before any state
-  // This ensures cache is available before any useEffect runs
-  let initialCacheLoaded = false;
-  let initialEvaluators: EvaluatorStatus[] = [];
-  let initialAssessmentId: number | null = null;
-  
-  if (typeof window !== 'undefined') {
-    console.log('[EvaluatorsPage] 🚀 SYNC INIT - Starting cache load on component init');
-    
-    // Try to get ID from URL first
-    let id: number | null = null;
-    try {
-      const currentParams = searchParams;
-      if (currentParams) {
-        const idParam = currentParams.get('id');
-        if (idParam) {
-          id = parseInt(idParam);
-          console.log('[EvaluatorsPage] 🚀 SYNC INIT - Found ID in URL:', id);
-        }
-      }
-    } catch (e) {
-      console.warn('[EvaluatorsPage] ⚠️ Could not read searchParams synchronously:', e);
-    }
-    
-    // If no ID in URL, try to get from cache immediately (search ALL cache entries)
-    if (!id) {
-      console.log('[EvaluatorsPage] 🚀 SYNC INIT - No ID in URL, searching all cache entries...');
-      const cacheKeys = Object.keys(localStorage).filter(k => k.startsWith('evaluators_cache_'));
-      console.log('[EvaluatorsPage] 🚀 SYNC INIT - Found', cacheKeys.length, 'cache keys in localStorage');
-      
-      if (cacheKeys.length > 0) {
-        const cacheEntries = cacheKeys.map(key => {
-          try {
-            const rawData = localStorage.getItem(key);
-            if (rawData) {
-              const data = JSON.parse(rawData);
-              const entryId = data.assessmentId || parseInt(key.replace('evaluators_cache_', ''));
-              const entryData = data.data || [];
-              return { 
-                key, 
-                id: entryId, 
-                timestamp: data.timestamp || 0,
-                data: entryData,
-                dataLength: entryData.length
-              };
-            }
-          } catch (e) {
-            console.error('[EvaluatorsPage] ❌ Error parsing cache key', key, ':', e);
-          }
-          return null;
-        }).filter(e => e !== null && !isNaN(e!.id)) as Array<{ key: string; id: number; timestamp: number; data: EvaluatorStatus[]; dataLength: number }>;
-        
-        if (cacheEntries.length > 0) {
-          console.log('[EvaluatorsPage] 🚀 SYNC INIT - Parsed', cacheEntries.length, 'cache entries');
-          // Sort by timestamp (most recent first) and get the first one with data
-          cacheEntries.sort((a, b) => b.timestamp - a.timestamp);
-          const firstEntry = cacheEntries.find(e => e.dataLength > 0) || cacheEntries[0];
-          if (firstEntry) {
-            id = firstEntry.id;
-            console.log('[EvaluatorsPage] 🚀 SYNC INIT - Selected cache entry for assessment', id, 'with', firstEntry.dataLength, 'evaluators');
-          }
-        }
-      }
-    }
-    
-    // Load cache for the found ID
-    if (id) {
-      const cacheKey = `evaluators_cache_${id}`;
-      const rawCache = localStorage.getItem(cacheKey);
-      console.log('[EvaluatorsPage] 🚀 SYNC INIT - Checking cache key', cacheKey, ':', rawCache ? 'EXISTS' : 'NOT FOUND');
-      
-      if (rawCache) {
-        try {
-          const parsed = JSON.parse(rawCache);
-          console.log('[EvaluatorsPage] 🚀 SYNC INIT - Parsed cache:', {
-            hasData: !!parsed.data,
-            dataIsArray: Array.isArray(parsed.data),
-            dataLength: parsed.data?.length || 0,
-            assessmentId: parsed.assessmentId,
-            timestamp: parsed.timestamp ? new Date(parsed.timestamp).toISOString() : 'N/A'
-          });
-          
-          if (parsed.data && Array.isArray(parsed.data) && parsed.data.length > 0) {
-            initialEvaluators = parsed.data;
-            initialAssessmentId = id;
-            initialCacheLoaded = true;
-            console.log('[EvaluatorsPage] 🚀 SYNC CACHE LOAD - Found', initialEvaluators.length, 'evaluators in cache for assessment', id);
-            
-            // Log completed evaluators
-            const completed = initialEvaluators.filter(e => e.status?.toLowerCase() === 'completed');
-            if (completed.length > 0) {
-              console.log('[EvaluatorsPage] 🚀 SYNC CACHE LOAD - Includes', completed.length, 'completed evaluator(s):', completed.map(e => e.name));
-            }
-          } else {
-            console.warn('[EvaluatorsPage] ⚠️ SYNC INIT - Cache exists but has no data or empty array');
-          }
-        } catch (e) {
-          console.error('[EvaluatorsPage] ❌ Error parsing cache on init:', e);
-        }
-      } else {
-        console.warn('[EvaluatorsPage] ⚠️ SYNC INIT - No cache found for assessment', id);
-      }
-    } else {
-      console.warn('[EvaluatorsPage] ⚠️ SYNC INIT - No assessment ID found (neither in URL nor in cache)');
-    }
-  }
-  
-  const [evaluators, setEvaluators] = useState<EvaluatorStatus[]>(initialEvaluators);
+  const [evaluators, setEvaluators] = useState<EvaluatorStatus[]>([]);
   const [filteredEvaluators, setFilteredEvaluators] = useState<EvaluatorStatus[]>([]);
-  const [isLoading, setIsLoading] = useState(!initialCacheLoaded); // Don't show loading if we have cache
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [assessmentId, setAssessmentId] = useState<number | null>(initialAssessmentId);
+  const [assessmentId, setAssessmentId] = useState<number | null>(null);
   const [showEvaluatorModal, setShowEvaluatorModal] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -147,70 +40,21 @@ function EvaluatorsContent() {
   // This ensures evaluators persist across sessions even if API fails
   const getCachedEvaluators = (assessmentId: number): EvaluatorStatus[] => {
     if (typeof window === 'undefined') {
-      console.log('[EvaluatorsPage] getCachedEvaluators - window undefined');
       return [];
     }
     try {
       const cacheKey = `evaluators_cache_${assessmentId}`;
-      console.log('[EvaluatorsPage] 🔍 getCachedEvaluators - Looking for cache key:', cacheKey);
-      
       const cached = localStorage.getItem(cacheKey);
       if (cached) {
-        console.log('[EvaluatorsPage] 🔍 getCachedEvaluators - Cache found, parsing...');
         const parsed = JSON.parse(cached);
-        
-        // CRITICAL: Don't expire cache automatically - keep it forever until explicitly overwritten
-        // This ensures evaluators persist across sessions even if API fails
         const cachedData = parsed.data || [];
-        const cacheAge = parsed.timestamp ? Date.now() - parsed.timestamp : 0;
-        const cacheAgeHours = Math.floor(cacheAge / (60 * 60 * 1000));
-        
-        console.log('[EvaluatorsPage] ✅ Loaded evaluators from cache:', cachedData.length, 'evaluators for assessment', assessmentId, '(cache age:', cacheAgeHours, 'hours)');
-        
-        // Log completed evaluators in cache
-        const completedInCache = cachedData.filter((e: EvaluatorStatus) => e.status?.toLowerCase() === 'completed');
-        if (completedInCache.length > 0) {
-          console.log('[EvaluatorsPage] ✅ Cache includes', completedInCache.length, 'completed evaluator(s):', completedInCache.map((e: EvaluatorStatus) => e.name));
-        }
-        
-        // Log all evaluators in cache for debugging
         if (cachedData.length > 0) {
-          console.log('[EvaluatorsPage] 📋 All evaluators in cache:');
-          cachedData.forEach((e: EvaluatorStatus) => {
-            console.log('[EvaluatorsPage]   -', e.name, '| Status:', e.status, '| Email:', e.email);
-          });
+          console.log('[EvaluatorsPage] ✅ Loaded', cachedData.length, 'evaluators from cache for assessment', assessmentId);
         }
-        
         return cachedData;
-      } else {
-        console.log('[EvaluatorsPage] ⚠️ No cache found for assessment', assessmentId, '(key:', cacheKey, ')');
-        
-        // Debug: List all cache keys to see what's available
-        const allKeys = Object.keys(localStorage);
-        const cacheKeys = allKeys.filter(k => k.startsWith('evaluators_cache_'));
-        console.log('[EvaluatorsPage] 🔍 Available cache keys:', cacheKeys);
-        if (cacheKeys.length > 0) {
-          cacheKeys.forEach(key => {
-            const data = localStorage.getItem(key);
-            if (data) {
-              try {
-                const parsed = JSON.parse(data);
-                console.log('[EvaluatorsPage]   -', key, ':', parsed.data?.length || 0, 'evaluators, assessmentId:', parsed.assessmentId);
-              } catch (e) {
-                console.error('[EvaluatorsPage]   -', key, ': Error parsing');
-              }
-            }
-          });
-        }
       }
     } catch (e) {
       console.error('[EvaluatorsPage] ❌ Error loading cache:', e);
-      // Don't clear cache on error - it might be recoverable
-      console.error('[EvaluatorsPage] ❌ Cache error details:', {
-        assessmentId,
-        error: e instanceof Error ? e.message : String(e),
-        stack: e instanceof Error ? e.stack : undefined
-      });
     }
     return [];
   };
@@ -218,28 +62,17 @@ function EvaluatorsContent() {
   // Save evaluators to cache (localStorage for persistence across page refreshes)
   const saveEvaluatorsToCache = (assessmentId: number, evaluators: EvaluatorStatus[]) => {
     if (typeof window === 'undefined' || !assessmentId) {
-      console.warn('[EvaluatorsPage] Cannot save cache - window undefined or no assessmentId');
       return;
     }
     
     // CRITICAL: Protect against overwriting cache with empty list
     // If we have existing cache with data, don't overwrite with empty list
-    // This prevents losing evaluators when API returns empty (which shouldn't happen, but just in case)
     const existingCache = getCachedEvaluators(assessmentId);
     if (existingCache.length > 0 && evaluators.length === 0) {
-      console.warn('[EvaluatorsPage] ⚠️ WARNING: Attempting to save empty list, but cache has', existingCache.length, 'evaluators. Keeping existing cache.');
-      console.warn('[EvaluatorsPage] ⚠️ This should not happen - API should always return evaluators. Keeping cache to prevent data loss.');
-      // Don't overwrite cache with empty list - keep existing cache
+      console.warn('[EvaluatorsPage] ⚠️ Attempting to save empty list, but cache has', existingCache.length, 'evaluators. Keeping existing cache.');
       return;
     }
     
-    // If we're saving a non-empty list, always save (even if it's smaller than cache)
-    // This ensures completed evaluators are saved
-    if (evaluators.length > 0) {
-      console.log('[EvaluatorsPage] 💾 Saving', evaluators.length, 'evaluators to cache (replacing', existingCache.length, 'existing)');
-    }
-    
-    // Declare variables outside try-catch so they're accessible in catch block
     const cacheKey = `evaluators_cache_${assessmentId}`;
     const cacheData = {
       data: evaluators,
@@ -249,34 +82,9 @@ function EvaluatorsContent() {
     };
     
     try {
-      const serialized = JSON.stringify(cacheData);
-      localStorage.setItem(cacheKey, serialized);
-      console.log('[EvaluatorsPage] ✅ Saved evaluators to cache:', evaluators.length, 'evaluators for assessment', assessmentId);
-      
-      // Log completed evaluators count
-      const completedCount = evaluators.filter(e => e.status?.toLowerCase() === 'completed').length;
-      if (completedCount > 0) {
-        console.log('[EvaluatorsPage] ✅ Cache includes', completedCount, 'completed evaluator(s)');
-      }
-      
-      // Verify it was saved
-      const verify = localStorage.getItem(cacheKey);
-      if (verify) {
-        try {
-          const parsed = JSON.parse(verify);
-          const savedCount = parsed.count || parsed.data?.length || 0;
-          console.log('[EvaluatorsPage] ✅ Cache verification - saved', savedCount, 'evaluators');
-          
-          // Verify completed evaluators are in cache
-          const savedCompleted = parsed.data?.filter((e: any) => e.status?.toLowerCase() === 'completed') || [];
-          if (savedCompleted.length > 0) {
-            console.log('[EvaluatorsPage] ✅ Cache verification - includes', savedCompleted.length, 'completed evaluator(s)');
-          }
-        } catch (parseErr) {
-          console.error('[EvaluatorsPage] ❌ Cache verification failed - cannot parse:', parseErr);
-        }
-      } else {
-        console.error('[EvaluatorsPage] ❌ Cache verification failed - data not found after save!');
+      localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+      if (evaluators.length > 0) {
+        console.log('[EvaluatorsPage] 💾 Saved', evaluators.length, 'evaluators to cache for assessment', assessmentId);
       }
     } catch (e) {
       console.error('[EvaluatorsPage] Error saving cache:', e);
@@ -284,7 +92,6 @@ function EvaluatorsContent() {
       try {
         const keys = Object.keys(localStorage);
         const evaluatorCacheKeys = keys.filter(k => k.startsWith('evaluators_cache_'));
-        console.log('[EvaluatorsPage] Found', evaluatorCacheKeys.length, 'existing cache entries');
         // Remove oldest caches if we have more than 5
         if (evaluatorCacheKeys.length > 5) {
           const cacheEntries = evaluatorCacheKeys.map(key => {
@@ -296,14 +103,11 @@ function EvaluatorsContent() {
             }
           }).sort((a, b) => a.timestamp - b.timestamp);
           
-          // Remove oldest entries
           const toRemove = cacheEntries.slice(0, cacheEntries.length - 5);
           toRemove.forEach(entry => localStorage.removeItem(entry.key));
-          console.log('[EvaluatorsPage] Cleaned up', toRemove.length, 'old cache entries');
         }
         // Retry saving
         localStorage.setItem(cacheKey, JSON.stringify(cacheData));
-        console.log('[EvaluatorsPage] ✅ Retry save successful');
       } catch (retryError) {
         console.error('[EvaluatorsPage] ❌ Failed to save cache after cleanup:', retryError);
       }
@@ -318,22 +122,18 @@ function EvaluatorsContent() {
         setSuccessMessage(null);
       }
 
-      // Get assessment ID from URL params or find it from assessments
-      // Read searchParams directly (not in dependencies to avoid infinite loops)
-      const currentParams = searchParams;
-      let id: number | null = currentParams?.get('id') ? parseInt(currentParams.get('id')!) : null;
+      // Get assessment ID from URL params or state
+      let id: number | null = assessmentId || (searchParams?.get('id') ? parseInt(searchParams.get('id')!) : null);
       
       if (!id) {
         try {
           const allAssessments = await getMyAssessments();
-          // Filter out evaluator assessments (360_evaluator) - these shouldn't appear in user's list
           const assessments = allAssessments.filter(
             (a) => {
               const type = String(a.assessment_type).toLowerCase();
               return type !== 'three_sixty_evaluator' && type !== '360_evaluator';
             }
           );
-          console.log('[EvaluatorsPage] Assessments loaded:', assessments);
           const feedback360Assessment = assessments.find(
             (a) => a.assessment_type === 'THREE_SIXTY_SELF'
           );
@@ -345,7 +145,6 @@ function EvaluatorsContent() {
               if (cacheKey) {
                 const cachedId = parseInt(cacheKey.replace('evaluators_cache_', ''));
                 if (!isNaN(cachedId)) {
-                  console.log('[EvaluatorsPage] Using assessment ID from cache:', cachedId);
                   id = cachedId;
                 }
               }
@@ -359,18 +158,15 @@ function EvaluatorsContent() {
             }
           } else {
             id = feedback360Assessment.id;
-            console.log('[EvaluatorsPage] Found 360 assessment ID:', id);
           }
         } catch (assessmentErr) {
           // If getMyAssessments fails (e.g., 401), try to get ID from cache
-          console.warn('[EvaluatorsPage] Failed to load assessments, trying cache:', assessmentErr);
           const cacheKeys = Object.keys(localStorage).filter(k => k.startsWith('evaluators_cache_'));
           if (cacheKeys.length > 0) {
             const cacheKey = cacheKeys[0];
             if (cacheKey) {
               const cachedId = parseInt(cacheKey.replace('evaluators_cache_', ''));
               if (!isNaN(cachedId)) {
-                console.log('[EvaluatorsPage] Using assessment ID from cache after API failure:', cachedId);
                 id = cachedId;
               }
             }
@@ -393,368 +189,183 @@ function EvaluatorsContent() {
       if (id) {
         const cachedEvaluators = getCachedEvaluators(id);
         if (cachedEvaluators.length > 0) {
-          console.log('[EvaluatorsPage] ✅ Loaded evaluators from cache FIRST:', cachedEvaluators.length, 'evaluators');
           setEvaluators(cachedEvaluators);
           if (!silent) {
             setIsLoading(false);
           }
-          // Cache is now loaded, try API in background but don't fail if it errors
-        } else {
-          // No cache available - make sure we don't stay in loading state forever
-          console.log('[EvaluatorsPage] ⚠️ No cache available for assessment', id, '- will try API');
-          // Don't set loading to false here - let the API call handle it
-        }
-      } else {
-        // No ID available - make sure we don't stay in loading state forever
-        console.log('[EvaluatorsPage] ⚠️ No assessment ID available - cannot load evaluators');
-        if (!silent) {
-          setIsLoading(false);
         }
       }
       
       // Try to load fresh data from API (but don't block if it fails)
       try {
-        console.log('[EvaluatorsPage] Attempting to load evaluators from API for assessment ID:', id);
         const response = await get360Evaluators(id);
-        console.log('[EvaluatorsPage] ✅ Evaluators response from API:', response);
         const evaluatorsList = response.evaluators || [];
-        console.log('[EvaluatorsPage] Evaluators list from API:', evaluatorsList.length, 'evaluators');
         
         // CRITICAL: Only proceed if we got data from API
         if (evaluatorsList.length === 0) {
-          console.warn('[EvaluatorsPage] ⚠️ API returned empty list. Checking cache...');
+          // API returned empty - use cache if available
           const cachedEvaluators = getCachedEvaluators(id);
           if (cachedEvaluators.length > 0) {
-            console.warn('[EvaluatorsPage] ⚠️ API returned empty but cache has', cachedEvaluators.length, 'evaluators. Using cache.');
             setEvaluators(cachedEvaluators);
             if (!silent) {
               setIsLoading(false);
             }
             return; // Use cache, don't save empty list
           } else {
-            console.warn('[EvaluatorsPage] ⚠️ API returned empty and cache is also empty. No evaluators to display.');
             setEvaluators([]);
             if (!silent) {
               setIsLoading(false);
             }
-            return; // Both are empty, nothing to do
+            return;
           }
         }
         
-        // Log evaluator statuses for debugging BEFORE saving
-        console.log('[EvaluatorsPage] 📊 Evaluators from API:');
-        evaluatorsList.forEach(e => {
-          const isCompleted = e.status?.toLowerCase() === 'completed';
-          console.log('[EvaluatorsPage]   -', e.name, '| Status:', e.status, isCompleted ? '✅ COMPLETED' : '');
-        });
-        
         // CRITICAL: Always save to cache after successful API load with data
-        // This ensures cache is always up-to-date with the latest status, including completed evaluators
         if (id && evaluatorsList.length > 0) {
-          console.log('[EvaluatorsPage] 💾 Saving fresh data to cache:', evaluatorsList.length, 'evaluators for assessment', id);
           saveEvaluatorsToCache(id, evaluatorsList);
-          
-          // Verify cache was saved
-          const verifyCache = getCachedEvaluators(id);
-          if (verifyCache.length > 0) {
-            console.log('[EvaluatorsPage] ✅ Cache verification - saved and verified:', verifyCache.length, 'evaluators');
-            
-            // Log what's in cache after saving
-            console.log('[EvaluatorsPage] 📊 Evaluators in cache after save:');
-            verifyCache.forEach(e => {
-              const isCompleted = e.status?.toLowerCase() === 'completed';
-              console.log('[EvaluatorsPage]   -', e.name, '| Status:', e.status, isCompleted ? '✅ COMPLETED' : '');
-            });
-          } else {
-            console.error('[EvaluatorsPage] ❌ Cache verification FAILED - cache is empty after save! This should not happen.');
-          }
         }
         
         // Update state with fresh data from API
-        console.log('[EvaluatorsPage] ✅ Setting evaluators state from API:', evaluatorsList.length, 'evaluators');
-        
-        // Log completed evaluators count
-        const completedCount = evaluatorsList.filter(e => e.status?.toLowerCase() === 'completed').length;
-        if (completedCount > 0) {
-          console.log('[EvaluatorsPage] ✅ API returned', completedCount, 'completed evaluator(s)');
-          evaluatorsList.filter(e => e.status?.toLowerCase() === 'completed').forEach(e => {
-            console.log('[EvaluatorsPage]   ✅ Completed:', e.name);
-          });
-        }
-        
         setEvaluators(evaluatorsList);
-        
-        // Double-check that state was set correctly after a brief delay
-        setTimeout(() => {
-          console.log('[EvaluatorsPage] 🔍 Post-set state check - should have', evaluatorsList.length, 'evaluators in state');
-        }, 100);
       } catch (apiErr: any) {
-        console.error('[EvaluatorsPage] ⚠️ API call failed:', apiErr);
-        const is401 = apiErr?.response?.status === 401 || apiErr?.message?.includes('401') || apiErr?.message?.includes('Unauthorized');
-        
-        // CRITICAL: If API fails, ALWAYS use cache as fallback (don't save empty list)
+        // CRITICAL: If API fails, ALWAYS use cache as fallback
         if (id) {
           const cachedEvaluators = getCachedEvaluators(id);
           if (cachedEvaluators.length > 0) {
-            console.log('[EvaluatorsPage] ✅ API failed (401) but cache is available, using cached evaluators:', cachedEvaluators.length);
             setEvaluators(cachedEvaluators);
             if (!silent) {
               setIsLoading(false);
+              const is401 = apiErr?.response?.status === 401 || apiErr?.message?.includes('401') || apiErr?.message?.includes('Unauthorized');
               if (is401) {
                 setError('Session expirée. Affichage des données en cache. Veuillez vous reconnecter pour actualiser.');
                 setTimeout(() => setError(null), 5000);
               }
             }
             return; // Use cache, don't throw error
-          } else {
-            console.warn('[EvaluatorsPage] ⚠️ API failed AND cache is empty. No evaluators to display.');
-            // Try to find cache from any assessment (last resort)
-            if (typeof window !== 'undefined') {
-              const allKeys = Object.keys(localStorage);
-              const cacheKeys = allKeys.filter(k => k.startsWith('evaluators_cache_'));
-              if (cacheKeys.length > 0) {
-                console.log('[EvaluatorsPage] 🔍 Found', cacheKeys.length, 'cache entries, trying to load latest...');
-                const cacheEntries = cacheKeys.map(key => {
-                  try {
-                    const data = localStorage.getItem(key);
-                    if (data) {
-                      const parsed = JSON.parse(data);
-                      return { key, data: parsed.data || [], timestamp: parsed.timestamp || 0, id: parsed.assessmentId };
-                    }
-                  } catch (e) {
-                    console.error('[EvaluatorsPage] Error parsing cache key', key, e);
-                  }
-                  return null;
-                }).filter(Boolean) as Array<{ key: string; data: EvaluatorStatus[]; timestamp: number; id: number }>;
-                
-                if (cacheEntries.length > 0) {
-                  cacheEntries.sort((a, b) => b.timestamp - a.timestamp);
-                  const latestCache = cacheEntries[0];
-                  if (latestCache && latestCache.data.length > 0) {
-                    console.log('[EvaluatorsPage] ✅ Loading from latest cache entry:', latestCache.data.length, 'evaluators for assessment', latestCache.id);
-                    setEvaluators(latestCache.data);
-                    setAssessmentId(latestCache.id);
-                    if (!silent) {
-                      setIsLoading(false);
-                    }
-                    return;
-                  }
-                }
-              }
-            }
           }
         }
         
         // If no cache and API fails, show error but don't block
-        console.error('[EvaluatorsPage] ❌ No cache available and API failed');
-        // CRITICAL: Always set loading to false, even if we have no data
-        // This prevents the page from being stuck in loading state
         if (!silent) {
           setIsLoading(false);
           setError('Impossible de charger les évaluateurs. Veuillez réessayer.');
         } else {
-          // Even in silent mode, make sure loading is false
           setIsLoading(false);
         }
       }
     } catch (err) {
       console.error('[EvaluatorsPage] Failed to load evaluators:', err);
-      if (err instanceof Error) {
-        console.error('[EvaluatorsPage] Error details:', {
-          message: err.message,
-          stack: err.stack,
-          name: err.name
-        });
-        // Check for 404 error (assessment not found)
-        if (err.message.includes('404') || err.message.includes('not found')) {
-          if (!silent) {
+      if (!silent) {
+        setIsLoading(false);
+        if (err instanceof Error) {
+          if (err.message.includes('404') || err.message.includes('not found')) {
             setError('Assessment 360° non trouvé. Veuillez d\'abord démarrer un assessment 360° depuis la page Assessments.');
-          }
-        } else if (err.message.includes('401') || err.message.includes('Unauthorized')) {
-          // For 401, try to use cache (should already be loaded, but double-check)
-          const currentId = assessmentId || (searchParams?.get('id') ? parseInt(searchParams.get('id')!) : null);
-          if (currentId) {
-            const cachedEvaluators = getCachedEvaluators(currentId);
-            if (cachedEvaluators.length > 0) {
-              console.log('[EvaluatorsPage] ✅ 401 error but using cached evaluators:', cachedEvaluators.length);
-              setEvaluators(cachedEvaluators);
-              if (!silent) {
-                setIsLoading(false);
+          } else if (err.message.includes('401') || err.message.includes('Unauthorized')) {
+            // For 401, try to use cache
+            const currentId = assessmentId || (searchParams?.get('id') ? parseInt(searchParams.get('id')!) : null);
+            if (currentId) {
+              const cachedEvaluators = getCachedEvaluators(currentId);
+              if (cachedEvaluators.length > 0) {
+                setEvaluators(cachedEvaluators);
                 setError('Session expirée. Affichage des données en cache. Veuillez vous reconnecter pour actualiser.');
                 setTimeout(() => setError(null), 5000);
-              }
-              return;
-            }
-          }
-          // Try to find any cache
-          const cacheKeys = Object.keys(localStorage).filter(k => k.startsWith('evaluators_cache_'));
-          if (cacheKeys.length > 0) {
-            const cacheKey = cacheKeys[0];
-            if (cacheKey) {
-              const cachedId = parseInt(cacheKey.replace('evaluators_cache_', ''));
-              if (!isNaN(cachedId)) {
-                const cachedEvaluators = getCachedEvaluators(cachedId);
-                if (cachedEvaluators.length > 0) {
-                  console.log('[EvaluatorsPage] ✅ 401 error, found cache for assessment', cachedId, ':', cachedEvaluators.length, 'evaluators');
-                  setEvaluators(cachedEvaluators);
-                  setAssessmentId(cachedId);
-                  if (!silent) {
-                    setIsLoading(false);
-                    setError('Session expirée. Affichage des données en cache. Veuillez vous reconnecter pour actualiser.');
-                    setTimeout(() => setError(null), 5000);
-                  }
-                  return;
-                }
+                return;
               }
             }
-          }
-          if (!silent) {
             setError('Session expirée. Veuillez vous reconnecter.');
+          } else {
+            setError(`Échec du chargement des évaluateurs: ${err instanceof Error ? err.message : 'Erreur inconnue'}`);
           }
         } else {
-          if (!silent) {
-            setError(`Échec du chargement des évaluateurs: ${err.message}`);
-          }
-        }
-      } else {
-        if (!silent) {
           setError('Échec du chargement des évaluateurs. Veuillez réessayer.');
         }
-      }
-    } finally {
-      if (!silent) {
+      } else {
         setIsLoading(false);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty deps - searchParams is read directly in the function
+  }, [assessmentId, searchParams]);
 
-  // Load from cache on initial mount if available - CRITICAL: This runs FIRST, before any API calls
-  // This useEffect MUST run before the loadEvaluators useEffect
+  // Load from cache on initial mount - CRITICAL: This runs FIRST, before any API calls
+  // This ensures evaluators are visible instantly, even before API calls
   useEffect(() => {
-    // IMMEDIATE cache load - synchronous, no async needed
-    // This ensures evaluators are visible instantly, even before API calls
-    console.log('[EvaluatorsPage] 🚀 INITIAL MOUNT - Loading cache immediately');
-    const currentParams = searchParams;
-    let id: number | null = currentParams?.get('id') ? parseInt(currentParams.get('id')!) : null;
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    console.log('[EvaluatorsPage] 🚀 INITIAL MOUNT - Loading cache');
     
-    // If no ID in URL, try to get from cache immediately
+    // Get ID from URL params (searchParams is now available in useEffect)
+    const idParam = searchParams?.get('id');
+    let id: number | null = idParam ? parseInt(idParam) : null;
+    
+    // If no ID in URL, try to get from cache (search ALL cache entries)
     if (!id) {
       const cacheKeys = Object.keys(localStorage).filter(k => k.startsWith('evaluators_cache_'));
       if (cacheKeys.length > 0) {
-        // Get the most recent cache entry
+        // Get the most recent cache entry with data
         const cacheEntries = cacheKeys.map(key => {
           try {
-            const data = JSON.parse(localStorage.getItem(key) || '{}');
-            return { key, id: data.assessmentId || parseInt(key.replace('evaluators_cache_', '')), timestamp: data.timestamp || 0 };
-          } catch {
-            return { key, id: parseInt(key.replace('evaluators_cache_', '')), timestamp: 0 };
+            const data = localStorage.getItem(key);
+            if (data) {
+              const parsed = JSON.parse(data);
+              const entryId = parsed.assessmentId || parseInt(key.replace('evaluators_cache_', ''));
+              const entryData = parsed.data || [];
+              return { 
+                key, 
+                id: entryId, 
+                timestamp: parsed.timestamp || 0,
+                data: entryData,
+                dataLength: entryData.length
+              };
+            }
+          } catch (e) {
+            console.error('[EvaluatorsPage] Error parsing cache key', key, e);
           }
-        }).filter(e => !isNaN(e.id));
+          return null;
+        }).filter(e => e !== null && !isNaN(e!.id)) as Array<{ key: string; id: number; timestamp: number; data: EvaluatorStatus[]; dataLength: number }>;
         
         if (cacheEntries.length > 0) {
-          // Sort by timestamp (most recent first) and get the first one
+          // Sort by timestamp (most recent first) and get the first one with data
           cacheEntries.sort((a, b) => b.timestamp - a.timestamp);
-          const firstEntry = cacheEntries[0];
+          const firstEntry = cacheEntries.find(e => e.dataLength > 0) || cacheEntries[0];
           if (firstEntry) {
             id = firstEntry.id;
-            console.log('[EvaluatorsPage] ✅ Found assessment ID from cache immediately:', id);
+            console.log('[EvaluatorsPage] ✅ Found assessment ID from cache:', id, 'with', firstEntry.dataLength, 'evaluators');
           }
         }
       }
     }
     
-    // Load from cache IMMEDIATELY if we have an ID
+    // Load from cache if we have an ID
     if (id) {
       const cachedEvaluators = getCachedEvaluators(id);
-      console.log('[EvaluatorsPage] ✅ IMMEDIATE cache load - found', cachedEvaluators.length, 'cached evaluators for assessment', id);
-      
-      // Debug: Check what's actually in localStorage
-      if (typeof window !== 'undefined') {
-        const cacheKey = `evaluators_cache_${id}`;
-        const rawCache = localStorage.getItem(cacheKey);
-        console.log('[EvaluatorsPage] 🔍 Debug - Raw cache data for key', cacheKey, ':', rawCache ? 'EXISTS' : 'NOT FOUND');
-        if (rawCache) {
-          try {
-            const parsed = JSON.parse(rawCache);
-            console.log('[EvaluatorsPage] 🔍 Debug - Parsed cache:', {
-              assessmentId: parsed.assessmentId,
-              count: parsed.count,
-              dataLength: parsed.data?.length || 0,
-              timestamp: parsed.timestamp ? new Date(parsed.timestamp).toISOString() : 'N/A'
-            });
-          } catch (e) {
-            console.error('[EvaluatorsPage] ❌ Debug - Error parsing cache:', e);
-          }
-        }
-      }
-      
       if (cachedEvaluators.length > 0) {
-        console.log('[EvaluatorsPage] ✅ Loading from cache IMMEDIATELY on mount:', cachedEvaluators.length, 'evaluators');
-        
-        // Log completed evaluators
-        const completed = cachedEvaluators.filter(e => e.status?.toLowerCase() === 'completed');
-        if (completed.length > 0) {
-          console.log('[EvaluatorsPage] ✅ Cache includes', completed.length, 'completed evaluator(s):', completed.map(e => e.name));
-        }
-        
+        console.log('[EvaluatorsPage] ✅ Loading from cache:', cachedEvaluators.length, 'evaluators for assessment', id);
         setEvaluators(cachedEvaluators);
         setAssessmentId(id);
-        setIsLoading(false); // Don't show loading since we have cached data
-        console.log('[EvaluatorsPage] ✅ Cache loaded and state set, evaluators should be visible now');
+        setIsLoading(false);
+        
+        // Update URL if needed
+        if (idParam !== String(id)) {
+          router.replace(`/dashboard/evaluators?id=${id}`, { scroll: false });
+        }
       } else {
-        console.log('[EvaluatorsPage] ⚠️ No cached evaluators found for assessment', id, '- will try API');
-        // Even if cache is empty, make sure we don't stay in loading state
+        console.log('[EvaluatorsPage] ⚠️ No cached evaluators found for assessment', id);
+        setAssessmentId(id);
         setIsLoading(false);
       }
     } else {
-      console.log('[EvaluatorsPage] ⚠️ No assessment ID found - trying to find cache from any assessment');
-      // Try to find cache from any assessment (last resort)
-      if (typeof window !== 'undefined') {
-        const allKeys = Object.keys(localStorage);
-        const cacheKeys = allKeys.filter(k => k.startsWith('evaluators_cache_'));
-        if (cacheKeys.length > 0) {
-          console.log('[EvaluatorsPage] 🔍 Found', cacheKeys.length, 'cache entries, trying to load latest...');
-          const cacheEntries = cacheKeys.map(key => {
-            try {
-              const data = localStorage.getItem(key);
-              if (data) {
-                const parsed = JSON.parse(data);
-                return { key, data: parsed.data || [], timestamp: parsed.timestamp || 0, id: parsed.assessmentId };
-              }
-            } catch (e) {
-              console.error('[EvaluatorsPage] Error parsing cache key', key, e);
-            }
-            return null;
-          }).filter(Boolean) as Array<{ key: string; data: EvaluatorStatus[]; timestamp: number; id: number }>;
-          
-          if (cacheEntries.length > 0) {
-            cacheEntries.sort((a, b) => b.timestamp - a.timestamp);
-            const latestCache = cacheEntries[0];
-            if (latestCache && latestCache.data.length > 0) {
-              console.log('[EvaluatorsPage] ✅ Loading from latest cache entry:', latestCache.data.length, 'evaluators for assessment', latestCache.id);
-              setEvaluators(latestCache.data);
-              setAssessmentId(latestCache.id);
-              setIsLoading(false);
-              // Update URL with the assessment ID from cache
-              if (searchParams?.get('id') !== String(latestCache.id)) {
-                router.replace(`/dashboard/evaluators?id=${latestCache.id}`);
-              }
-              return; // Don't try to load from API if we have cache
-            }
-          }
-        }
-      }
-      console.log('[EvaluatorsPage] ⚠️ No assessment ID found and no cache available - will try API');
+      console.log('[EvaluatorsPage] ⚠️ No assessment ID found - will try API');
+      setIsLoading(false);
     }
     
     // Now try to load from API in background (async)
     const loadFromAPI = async () => {
       // If we don't have an ID yet, try to get it from API
-      if (!id) {
+      let currentId = id;
+      if (!currentId) {
         try {
           const allAssessments = await getMyAssessments();
-          // Filter out evaluator assessments (360_evaluator) - these shouldn't appear in user's list
           const assessments = allAssessments.filter(
             (a) => {
               const type = String(a.assessment_type).toLowerCase();
@@ -765,22 +376,20 @@ function EvaluatorsContent() {
             (a) => a.assessment_type === 'THREE_SIXTY_SELF'
           );
           if (feedback360Assessment) {
-            id = feedback360Assessment.id;
-            console.log('[EvaluatorsPage] Found assessment ID from API:', id);
-            setAssessmentId(id);
+            currentId = feedback360Assessment.id;
+            console.log('[EvaluatorsPage] Found assessment ID from API:', currentId);
+            setAssessmentId(currentId);
           }
         } catch (apiErr) {
-          console.warn('[EvaluatorsPage] API failed to get assessment ID, will use cache only:', apiErr);
-          // Continue with cache-only approach - cache is already loaded above
+          console.warn('[EvaluatorsPage] API failed to get assessment ID:', apiErr);
           return;
         }
       }
       
-      // If we have an ID (from URL, cache, or API), try to refresh from API
-      if (id) {
+      // If we have an ID, try to refresh from API
+      if (currentId) {
         // Small delay to let UI render with cache first
         setTimeout(() => {
-          console.log('[EvaluatorsPage] Starting background API refresh');
           loadEvaluators(true); // Silent refresh
         }, 500);
       } else {
@@ -797,16 +406,7 @@ function EvaluatorsContent() {
   // This ensures cache is always up-to-date, even if API fails
   useEffect(() => {
     if (assessmentId && evaluators.length > 0) {
-      console.log('[EvaluatorsPage] 💾 Auto-saving cache - evaluators changed:', evaluators.length, 'evaluators for assessment', assessmentId);
       saveEvaluatorsToCache(assessmentId, evaluators);
-      
-      // Verify cache was saved
-      const verifyCache = getCachedEvaluators(assessmentId);
-      if (verifyCache.length > 0) {
-        console.log('[EvaluatorsPage] ✅ Auto-save verified - cache has', verifyCache.length, 'evaluators');
-      } else {
-        console.error('[EvaluatorsPage] ❌ Auto-save verification FAILED - cache is empty after save!');
-      }
     }
   }, [evaluators, assessmentId]);
 
@@ -822,41 +422,33 @@ function EvaluatorsContent() {
       return;
     }
 
-    // Always poll to refresh status, even if all are completed (to show completed evaluators)
     const refreshEvaluators = async () => {
       try {
-        console.log('[EvaluatorsPage] 🔄 Background refresh triggered for assessment', assessmentId);
         await loadEvaluators(true); // Silent refresh - don't show loading state
-        // Cache is automatically saved in loadEvaluators
-        console.log('[EvaluatorsPage] ✅ Background refresh completed');
       } catch (err) {
-        console.error('[EvaluatorsPage] ⚠️ Error in background refresh:', err);
         // Even if refresh fails, cache should still be available
         const cachedEvaluators = getCachedEvaluators(assessmentId);
         if (cachedEvaluators.length > 0) {
-          console.log('[EvaluatorsPage] ✅ Using cache after refresh error:', cachedEvaluators.length, 'evaluators');
           setEvaluators(cachedEvaluators);
         }
       }
     };
 
-    // Initial refresh after a short delay to ensure data is loaded
+    // Initial refresh after a short delay
     const initialTimeout = setTimeout(() => {
       refreshEvaluators();
-    }, 2000); // 2 seconds after assessmentId is set
+    }, 2000);
 
-    // Poll every 10 seconds to check for status updates (silent refresh)
+    // Poll every 10 seconds
     const interval = setInterval(() => {
       refreshEvaluators();
-    }, 10000); // 10 seconds
+    }, 10000);
 
-    // Cleanup interval and timeout on unmount or when dependencies change
     return () => {
       clearInterval(interval);
       clearTimeout(initialTimeout);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [assessmentId, isLoading]); // Only depend on assessmentId and isLoading to avoid infinite loop
+  }, [assessmentId, isLoading, loadEvaluators]);
 
   const filterEvaluators = () => {
     console.log('[EvaluatorsPage] Filtering evaluators. Total:', evaluators.length, 'Filter:', statusFilter);
@@ -1319,13 +911,13 @@ function EvaluatorsContent() {
             // Immediately reload evaluators to show the newly added ones
             try {
               await loadEvaluators(false); // false = silent reload to avoid showing loading state
+              // Cache is automatically saved in loadEvaluators
             } catch (err) {
               console.error('[EvaluatorsPage] Error reloading evaluators after add:', err);
               // Even if API fails, try to reload from cache
               if (assessmentId) {
                 const cachedEvaluators = getCachedEvaluators(assessmentId);
                 if (cachedEvaluators.length > 0) {
-                  console.log('[EvaluatorsPage] Using cache after add error:', cachedEvaluators.length, 'evaluators');
                   setEvaluators(cachedEvaluators);
                 }
               }
