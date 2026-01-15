@@ -108,34 +108,10 @@ apiClient.interceptors.request.use(
         config.url?.includes('/v1/') // All other /v1/ endpoints require auth
       );
       
-      if (isAuthenticatedEndpoint && !token) {
-        // Reject the request immediately if it's an authenticated endpoint without token
-        logger.warn('Blocking authenticated request without token', { 
-          url: config.url,
-          sessionStorageAvailable: typeof sessionStorage !== 'undefined'
-        });
-        const error = new Error('Authentication required: No token available') as Error & {
-          config: InternalAxiosRequestConfig;
-          isAxiosError: boolean;
-          response: {
-            status: number;
-            statusText: string;
-            data: { detail: string };
-            headers: Record<string, string>;
-            config: InternalAxiosRequestConfig;
-          };
-        };
-        error.config = config;
-        error.isAxiosError = true;
-        error.response = {
-          status: 401,
-          statusText: 'Unauthorized',
-          data: { detail: 'Authentication required: No token available' },
-          headers: {},
-          config: config,
-        };
-        return Promise.reject(error);
-      }
+      // Don't block requests - let the backend handle authentication
+      // The backend can read tokens from cookies (httpOnly) or Authorization header
+      // Blocking here causes issues when tokens are being set asynchronously after login
+      // If no token is available, the backend will return 401 and we'll handle it in the response interceptor
       
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;

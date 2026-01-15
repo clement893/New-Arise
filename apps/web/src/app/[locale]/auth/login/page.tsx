@@ -96,7 +96,10 @@ function LoginContent() {
       await new Promise(resolve => setTimeout(resolve, 500));
       
       // Get redirect URL from query params or default to dashboard
-      const redirectUrl = searchParams.get('redirect') || '/dashboard';
+      // Remove locale prefix if present (next-intl will add it automatically)
+      let redirectUrl = searchParams.get('redirect') || '/dashboard';
+      // Remove locale prefix if present (e.g., /fr/dashboard -> /dashboard)
+      redirectUrl = redirectUrl.replace(/^\/(en|fr|ar|he)\//, '/');
       router.push(redirectUrl); // Will automatically use current locale
     } catch (err) {
       const axiosError = err as AxiosError<ApiErrorResponse>;
