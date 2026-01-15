@@ -95,11 +95,18 @@ apiClient.interceptors.request.use(
       const token = TokenStorage.getToken();
       
       // Check if this is an authenticated endpoint
-      const isAuthenticatedEndpoint = config.url?.includes('/users/me') || 
-                                      config.url?.includes('/auth/me') || 
-                                      config.url?.includes('/admin/') ||
-                                      config.url?.includes('/v1/users/me') ||
-                                      config.url?.includes('/v1/auth/me');
+      // Include all /v1/ endpoints except public ones (login, register, etc.)
+      const publicEndpoints = ['/v1/auth/login', '/v1/auth/register', '/v1/auth/refresh', '/v1/auth/google', '/v1/health'];
+      const isPublicEndpoint = publicEndpoints.some(endpoint => config.url?.includes(endpoint));
+      const isAuthenticatedEndpoint = !isPublicEndpoint && (
+        config.url?.includes('/users/me') || 
+        config.url?.includes('/auth/me') || 
+        config.url?.includes('/admin/') ||
+        config.url?.includes('/v1/users/me') ||
+        config.url?.includes('/v1/auth/me') ||
+        config.url?.includes('/v1/assessments/') ||
+        config.url?.includes('/v1/') // All other /v1/ endpoints require auth
+      );
       
       if (isAuthenticatedEndpoint && !token) {
         // Reject the request immediately if it's an authenticated endpoint without token

@@ -76,9 +76,10 @@ function LoginContent() {
       // Transform user data to store format
       const userForStore = transformApiUserToStoreUser(user);
 
-      // SECURITY: Tokens are stored in httpOnly cookies by the backend during login
-      // We don't need to call TokenStorage.setToken() - backend handles it
-      // Just update the user in the store
+      // SECURITY: Backend FastAPI sets tokens in httpOnly cookies during login.
+      // We also store tokens in sessionStorage as fallback for Authorization header
+      // to support cross-origin requests where cookies may not be shared.
+      await TokenStorage.setToken(access_token, refresh_token);
       await login(userForStore, access_token, refresh_token);
       
       // Set a flag to indicate we just logged in (for ProtectedRoute to detect)
