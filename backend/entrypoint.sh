@@ -1,19 +1,31 @@
 #!/bin/sh
 # Don't use set -e to allow graceful error handling
 
-# Ensure all output goes to stdout/stderr for Railway to capture
-# Railway captures both stdout and stderr, so we output to both
+# CRITICAL: Force immediate output visibility
+# Write to both stdout and stderr, and also to a log file as backup
+LOG_FILE="/tmp/entrypoint.log"
+exec > >(tee -a "$LOG_FILE" 2>&1)
+exec 2>&1
+
 # Force unbuffered output for immediate visibility
-exec 1>&1
-exec 2>&2
+# Python unbuffered mode
+export PYTHONUNBUFFERED=1
 
 # Print immediate startup message so we know the script is running
+# Use multiple methods to ensure visibility
 echo "=========================================="
-echo "ENTRYPOINT SCRIPT STARTED"
-echo "Timestamp: $(date)"
+echo "ENTRYPOINT SCRIPT STARTED - $(date)"
+echo "=========================================="
 echo "Working directory: $(pwd)"
 echo "User: $(whoami)"
+echo "Shell: $SHELL"
+echo "PATH: $PATH"
+echo "Python: $(which python 2>&1)"
 echo "=========================================="
+echo ""
+
+# Also write directly to stderr as backup
+echo "ENTRYPOINT SCRIPT STARTED - stderr backup" >&2
 
 # Use PORT environment variable if set, otherwise default to 8000
 # Railway automatically sets PORT to the port the service should listen on

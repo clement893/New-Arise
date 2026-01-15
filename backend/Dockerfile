@@ -79,6 +79,9 @@ USER appuser
 
 EXPOSE 8000
 
+# Set Python to unbuffered mode for immediate log visibility
+ENV PYTHONUNBUFFERED=1
+
 # Health check - uses PORT env var or defaults to 8000
 # Note: HEALTHCHECK runs inside container, so it uses the same PORT as the app
 # Use Python's urllib instead of requests for better reliability
@@ -90,6 +93,8 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
 # Use entrypoint.sh from the repo
 # Note: Railway will use startCommand from railway.json if set
 # This ENTRYPOINT is a fallback if railway.json is not used
-ENTRYPOINT ["./entrypoint.sh"]
-CMD ["./entrypoint.sh"]
+# Use exec form to ensure proper execution
+# Add explicit shell to ensure script runs even if shebang fails
+ENTRYPOINT ["/bin/sh", "-c", "echo 'DOCKERFILE ENTRYPOINT EXECUTED' && exec ./entrypoint.sh"]
+CMD ["echo 'DOCKERFILE CMD EXECUTED' && exec ./entrypoint.sh"]
 
