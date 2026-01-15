@@ -523,13 +523,15 @@ async def login(
         
         # SECURITY: Set tokens in httpOnly cookies (server-side only)
         # This provides defense in depth - tokens in both response body and cookies
+        # Note: samesite="lax" allows cookies to be sent with cross-origin requests
+        # when withCredentials: true is set in axios, which is necessary for CORS
         is_production = os.getenv("ENVIRONMENT", "development").lower() == "production"
         response.set_cookie(
             key="access_token",
             value=access_token,
             httponly=True,
             secure=is_production,
-            samesite="strict",
+            samesite="lax",  # Changed from "strict" to "lax" to allow cross-origin requests
             max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
             path="/",
         )
@@ -538,7 +540,7 @@ async def login(
             value=refresh_token,
             httponly=True,
             secure=is_production,
-            samesite="strict",
+            samesite="lax",  # Changed from "strict" to "lax" to allow cross-origin requests
             max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
             path="/",
         )
@@ -709,13 +711,15 @@ async def refresh_token(
         
         # SECURITY: Optionally set tokens in httpOnly cookies server-side
         # This provides defense in depth - tokens in both response body and cookies
+        # Note: samesite="lax" allows cookies to be sent with cross-origin requests
+        # when withCredentials: true is set in axios, which is necessary for CORS
         is_production = os.getenv("ENVIRONMENT", "development").lower() == "production"
         response.set_cookie(
             key="access_token",
             value=access_token,
             httponly=True,
             secure=is_production,
-            samesite="strict",
+            samesite="lax",  # Changed from "strict" to "lax" to allow cross-origin requests
             max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
             path="/",
         )
@@ -724,7 +728,7 @@ async def refresh_token(
             value=new_refresh_token,
             httponly=True,
             secure=is_production,
-            samesite="strict",
+            samesite="lax",  # Changed from "strict" to "lax" to allow cross-origin requests
             max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
             path="/",
         )
