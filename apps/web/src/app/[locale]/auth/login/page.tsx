@@ -256,6 +256,8 @@ function LoginContent() {
 }
 
 export default function LoginPage() {
+  const t = useTranslations('auth.login');
+  
   return (
     <Suspense fallback={
       <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 dark:from-muted dark:to-muted">
