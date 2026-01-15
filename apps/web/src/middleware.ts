@@ -113,16 +113,15 @@ export async function middleware(request: NextRequest) {
     const connectSrcUrls = [`'self'`, apiUrl, apiUrlWss, 'https://*.sentry.io', 'wss://*.sentry.io', 'https://*.stripe.com'];
     
     // Build CSP with nonce - always override in production
-    // Include 'unsafe-hashes' to allow inline styles in style attributes
-    // TEMPORARY: Added 'unsafe-inline' for Next.js generated scripts/styles that don't have nonces
-    // TODO: Ideally, all inline scripts/styles should use nonces, but Next.js hydration scripts
-    // and some third-party libraries inject inline code without nonces
-    // Using 'unsafe-inline' with nonces provides some protection while allowing necessary code
+    // IMPORTANT: When a nonce is present in style-src, 'unsafe-inline' is ignored by CSP
+    // So we use nonce only for scripts (which we control), and 'unsafe-inline' + 'unsafe-hashes' for styles
+    // 'unsafe-hashes' allows inline styles in style attributes (e.g., style="color: red")
+    // 'unsafe-inline' allows inline <style> tags and style attributes
     const cspWithNonce = [
       "default-src 'self'",
       `script-src 'self' 'nonce-${nonce}' 'unsafe-inline' https://*.railway.app https://js.stripe.com https://*.stripe.com blob:`,
       "worker-src 'self' blob:",
-      `style-src 'self' 'nonce-${nonce}' 'unsafe-inline' 'unsafe-hashes' https://fonts.googleapis.com https://*.railway.app`,
+      `style-src 'self' 'unsafe-inline' 'unsafe-hashes' https://fonts.googleapis.com https://*.railway.app`,
       "font-src 'self' https://fonts.gstatic.com data:",
       "img-src 'self' data: https: blob:",
       `connect-src ${connectSrcUrls.join(' ')}`,

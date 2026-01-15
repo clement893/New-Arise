@@ -247,15 +247,15 @@ const nextConfig = {
     // Nonces are generated per-request and must match between CSP header and HTML attributes
     // Note: Next.js headers() function doesn't support dynamic nonces per request
     // For full nonce support, use middleware.ts to generate nonces per request
-    // TEMPORARY: Added 'unsafe-inline' as fallback for Next.js generated scripts/styles
-    // The middleware should override this with nonce-based CSP, but this serves as fallback
-    // TODO: Ideally, all inline scripts/styles should use nonces
+    // IMPORTANT: When a nonce is present in style-src, 'unsafe-inline' is ignored by CSP
+    // So we use 'unsafe-inline' + 'unsafe-hashes' for styles (no nonce)
+    // 'unsafe-hashes' allows inline styles in style attributes (e.g., style="color: red")
     const cspDirectives = isProduction
       ? [
           "default-src 'self'",
           "script-src 'self' 'unsafe-inline' https://*.railway.app https://js.stripe.com https://*.stripe.com blob:", // Production: allow unsafe-inline for Next.js hydration
           "worker-src 'self' blob:", // Required for Sentry workers and web workers
-          "style-src 'self' 'unsafe-inline' 'unsafe-hashes' https://fonts.googleapis.com https://*.railway.app", // Production: allow unsafe-inline for inline styles
+          "style-src 'self' 'unsafe-inline' 'unsafe-hashes' https://fonts.googleapis.com https://*.railway.app", // Production: allow unsafe-inline for inline styles (no nonce - it would disable unsafe-inline)
           "font-src 'self' https://fonts.gstatic.com data:",
           "img-src 'self' data: https: blob:",
           "connect-src " + connectSrcUrls.join(' ') + " https://*.stripe.com",
