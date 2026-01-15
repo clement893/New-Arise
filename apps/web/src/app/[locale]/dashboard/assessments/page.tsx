@@ -54,6 +54,7 @@ import { getMyAssessments, Assessment as ApiAssessment, AssessmentType, get360Ev
 import { startAssessment } from '@/lib/api/assessments';
 import InviteAdditionalEvaluatorsModal from '@/components/360/InviteAdditionalEvaluatorsModal';
 import { formatError } from '@/lib/utils/formatError';
+import { useAuthStore } from '@/lib/store';
 
 interface AssessmentDisplay {
   id: string;
@@ -110,6 +111,7 @@ const ROLE_LABELS: Record<string, string> = {
 function AssessmentsContent() {
   const router = useRouter();
   const pathname = usePathname();
+  const { user } = useAuthStore();
   const [showEvaluatorModal, setShowEvaluatorModal] = useState(false);
   const [evaluators, setEvaluators] = useState<Record<number, EvaluatorStatus[]>>({});
   const isInitialMount = useRef(true);
@@ -353,20 +355,27 @@ function AssessmentsContent() {
     }
     
     isInitialMount.current = false;
-    loadAssessments();
+    // Only load assessments if user is authenticated
+    if (user) {
+      loadAssessments();
+    } else {
+      setIsLoading(false);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]); // pathname dependency is intentional - we want to react to navigation
+  }, [pathname, user]); // pathname and user dependency - we want to react to navigation and auth changes
 
   // Refresh assessments when page becomes visible (user returns to tab)
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState === 'visible' && user) {
         loadAssessments();
       }
     };
 
     const handleFocus = () => {
-      loadAssessments();
+      if (user) {
+        loadAssessments();
+      }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -376,7 +385,7 @@ function AssessmentsContent() {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleFocus);
     };
-  }, []);
+  }, [user]);
 
   // Auto-refresh evaluators status every 10 seconds for 360 assessments
   useEffect(() => {
@@ -452,6 +461,12 @@ function AssessmentsContent() {
   }, [assessments, isLoading]); // Only depend on assessments and isLoading to avoid infinite loop
 
   const loadAssessments = async () => {
+    // Don't load if user is not authenticated
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
+    
     try {
       setIsLoading(true);
       setError(null);
