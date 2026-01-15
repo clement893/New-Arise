@@ -100,7 +100,7 @@ export function useAuth() {
       // Clear tokens securely
       await TokenStorage.removeTokens();
       logout();
-      router.push('/auth/login');
+      router.push('/login');
     }
   }, [logout, router]);
 
