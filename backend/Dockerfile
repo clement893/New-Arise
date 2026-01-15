@@ -90,9 +90,9 @@ ENV PYTHONUNBUFFERED=1
 HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
     CMD sh -c 'PORT=${PORT:-8000}; python -c "import urllib.request; import sys; import socket; socket.setdefaulttimeout(5); url=f\"http://localhost:{PORT}/api/v1/health/\"; r=urllib.request.urlopen(url, timeout=5); sys.exit(0 if r.getcode()==200 else 1)"' || exit 1
 
-# IMPORTANT: Railway will use startCommand from railway.json
-# We do NOT set ENTRYPOINT/CMD here to allow Railway to use startCommand
-# If ENTRYPOINT is set, Railway may ignore startCommand from railway.json
-# The startCommand in railway.json will start Uvicorn directly
-# Migrations will be handled by FastAPI lifespan (background initialization)
+# Use entrypoint.sh as the entrypoint
+# This was the working configuration before security changes
+# Railway will use this ENTRYPOINT, or startCommand from railway.json if set
+# The entrypoint.sh script handles migrations in background and starts Uvicorn
+ENTRYPOINT ["./entrypoint.sh"]
 
