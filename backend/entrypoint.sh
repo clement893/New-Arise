@@ -1,6 +1,20 @@
 #!/bin/sh
 # Don't use set -e to allow graceful error handling
 
+# Ensure all output goes to stdout/stderr for Railway to capture
+# Railway captures both stdout and stderr, so we output to both
+# Force unbuffered output for immediate visibility
+exec 1>&1
+exec 2>&2
+
+# Print immediate startup message so we know the script is running
+echo "=========================================="
+echo "ENTRYPOINT SCRIPT STARTED"
+echo "Timestamp: $(date)"
+echo "Working directory: $(pwd)"
+echo "User: $(whoami)"
+echo "=========================================="
+
 # Use PORT environment variable if set, otherwise default to 8000
 # Railway automatically sets PORT to the port the service should listen on
 PORT=${PORT:-8000}
@@ -261,14 +275,22 @@ echo "  - PORT: $PORT"
 echo "  - Python: $(which python)"
 echo "  - Uvicorn: $(python -c 'import uvicorn; print(uvicorn.__file__)' 2>&1)"
 echo "  - App module: app.main:app"
+echo "  - Working directory: $(pwd)"
+echo "  - Files in app/: $(ls -la app/ 2>&1 | head -5)"
 echo ""
-echo "Starting Uvicorn server..."
-echo "This may take a few seconds..."
+echo "=========================================="
+echo "Starting Uvicorn server NOW..."
+echo "=========================================="
+echo "All output below will be from Uvicorn/FastAPI"
+echo "If you don't see 'Application startup complete' below,"
+echo "the server may have failed to start."
+echo "=========================================="
 echo ""
 
 # Start server - use exec to replace shell process
 # This ensures signals are properly handled and Railway can manage the process
 # All output from uvicorn will be visible in Railway logs
+# Use --log-level debug temporarily to see more details
 exec python -m uvicorn app.main:app \
     --host 0.0.0.0 \
     --port "$PORT" \
@@ -276,4 +298,5 @@ exec python -m uvicorn app.main:app \
     --access-log \
     --timeout-keep-alive 30 \
     --limit-concurrency 1000 \
-    --backlog 2048
+    --backlog 2048 \
+    --no-server-header
