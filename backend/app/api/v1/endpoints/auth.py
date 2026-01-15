@@ -36,6 +36,34 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/login")
 
 
+async def get_token_from_request(
+    request: Request,
+    token: Annotated[str | None, Depends(oauth2_scheme)] = None,
+) -> str | None:
+    """
+    Get access token from request.
+    
+    SECURITY: Accepts token from:
+    1. httpOnly cookies (preferred, most secure)
+    2. Authorization header (for backward compatibility)
+    
+    Args:
+        request: FastAPI request object (to access cookies)
+        token: Token from Authorization header (via oauth2_scheme)
+    
+    Returns:
+        Access token string or None
+    """
+    # SECURITY: Prefer reading access token from httpOnly cookies (most secure)
+    access_token = request.cookies.get("access_token")
+    
+    # Fallback to Authorization header for backward compatibility
+    if not access_token and token:
+        access_token = token
+    
+    return access_token
+
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against a hash"""
     # Try bcrypt directly first (for new hashes), fallback to passlib for compatibility
@@ -95,23 +123,33 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
 
 
 async def get_current_user(
-    token: Annotated[str, Depends(oauth2_scheme)],
+    request: Request,
+    token: Annotated[str | None, Depends(oauth2_scheme)] = None,
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> User:
-    """Get current authenticated user"""
+    """
+    Get current authenticated user
+    
+    SECURITY: Accepts access token from:
+    1. httpOnly cookies (preferred, most secure)
+    2. Authorization header (for backward compatibility)
+    """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
     
-    # Handle case where token might be None (shouldn't happen with oauth2_scheme, but be safe)
-    if not token:
+    # Get token from cookies or Authorization header
+    access_token = await get_token_from_request(request, token)
+    
+    # Handle case where token is not found
+    if not access_token:
         raise credentials_exception
     
     try:
         # SECURITY: Do not log token content to prevent information disclosure
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = jwt.decode(access_token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         # Verify token type
         token_type = payload.get("type")
         if token_type != "access":
@@ -469,6 +507,7 @@ async def login(
         )
     
     # Return JSONResponse explicitly to work with rate limiting middleware
+    # SECURITY: Set tokens in httpOnly cookies for maximum security
     try:
         token_data = TokenWithUser(
             access_token=access_token,
@@ -476,10 +515,35 @@ async def login(
             refresh_token=refresh_token,
             user=user_response
         )
-        return JSONResponse(
+        
+        response = JSONResponse(
             status_code=status.HTTP_200_OK,
             content=token_data.model_dump()
         )
+        
+        # SECURITY: Set tokens in httpOnly cookies (server-side only)
+        # This provides defense in depth - tokens in both response body and cookies
+        is_production = os.getenv("ENVIRONMENT", "development").lower() == "production"
+        response.set_cookie(
+            key="access_token",
+            value=access_token,
+            httponly=True,
+            secure=is_production,
+            samesite="strict",
+            max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+            path="/",
+        )
+        response.set_cookie(
+            key="refresh_token",
+            value=refresh_token,
+            httponly=True,
+            secure=is_production,
+            samesite="strict",
+            max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+            path="/",
+        )
+        
+        return response
     except Exception as e:
         logger.error(f"Error creating TokenWithUser response for user {user.id}: {e}", exc_info=True)
         raise HTTPException(
