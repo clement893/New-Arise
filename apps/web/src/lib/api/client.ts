@@ -135,13 +135,14 @@ class ApiClient {
                   window.location.pathname === '/' ||
                   window.location.pathname.match(/^\/(en|fr|ar|he)?\/?$/) ||
                   window.location.pathname.includes('/auth/') ||
+                  window.location.pathname.includes('/login') ||
                   window.location.pathname.includes('/components') ||
                   window.location.pathname.includes('/pricing')
                 );
                 
                 // Prevent redirect loop - check if already on login page or public page
-                if (typeof window !== 'undefined' && !isPublicPage && !window.location.pathname.includes('/auth/login')) {
-                  window.location.href = '/auth/login?error=session_expired';
+                if (typeof window !== 'undefined' && !isPublicPage && !window.location.pathname.includes('/login') && !window.location.pathname.includes('/auth/login')) {
+                  window.location.href = '/login?error=session_expired';
                 }
               } else {
                 // Server error during refresh - don't clear tokens or redirect
@@ -165,14 +166,15 @@ class ApiClient {
               window.location.pathname === '/' ||
               window.location.pathname.match(/^\/(en|fr|ar|he)?\/?$/) ||
               window.location.pathname.includes('/auth/') ||
+              window.location.pathname.includes('/login') ||
               window.location.pathname.includes('/register') ||
               window.location.pathname.includes('/components') ||
               window.location.pathname.includes('/pricing')
             );
             
             // Prevent redirect loop - check if already on login page or public page
-            if (typeof window !== 'undefined' && !isPublicPage && !window.location.pathname.includes('/auth/login')) {
-              window.location.href = '/auth/login?error=unauthorized';
+            if (typeof window !== 'undefined' && !isPublicPage && !window.location.pathname.includes('/login') && !window.location.pathname.includes('/auth/login')) {
+              window.location.href = '/login?error=unauthorized';
             }
             
             return Promise.reject(appError);

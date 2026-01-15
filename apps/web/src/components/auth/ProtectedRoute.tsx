@@ -321,7 +321,7 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
               checkingRef.current = false;
               setIsChecking(false);
               setIsAuthorized(false);
-              router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}&error=unauthorized`);
+              router.replace(`/login?redirect=${encodeURIComponent(pathname)}&error=unauthorized`);
               return;
             } else if (statusCode === 403) {
               // 403 means user is authenticated but doesn't have permission
