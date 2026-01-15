@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 import React, { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/store';
@@ -25,34 +26,35 @@ import { getMyAssessments, Assessment as ApiAssessment, AssessmentType, get360Ev
 import InviteAdditionalEvaluatorsModal from '@/components/360/InviteAdditionalEvaluatorsModal';
 import { determineAssessmentStatus } from '@/lib/utils/assessmentStatus';
 
-// Mapping of assessment types to display info
-const ASSESSMENT_CONFIG: Record<string, { title: string; description: string; icon: typeof Brain; externalLink?: string }> = {
-  MBTI: {
-    title: 'MBTI Personality',
-    description: 'Understanding your natural preferences',
-    icon: Brain,
-    externalLink: 'https://www.psychometrics.com/assessments/mbti/',
-  },
-  TKI: {
-    title: 'TKI Conflict Style',
-    description: 'Explore Your Conflict Management Approach',
-    icon: Target,
-  },
-  THREE_SIXTY_SELF: {
-    title: '360° Feedback',
-    description: 'Multi-Faceted Leadership Perspectives',
-    icon: Users,
-  },
-  WELLNESS: {
-    title: 'Wellness',
-    description: 'Your overall well-being',
-    icon: Heart,
-  },
-};
-
 function DashboardContent() {
+  const t = useTranslations('dashboard.main');
   const { user } = useAuthStore();
   const router = useRouter();
+  
+  // Mapping of assessment types to display info - translated
+  const ASSESSMENT_CONFIG: Record<string, { title: string; description: string; icon: typeof Brain; externalLink?: string }> = {
+    MBTI: {
+      title: t('assessments.mbti.title'),
+      description: t('assessments.mbti.description'),
+      icon: Brain,
+      externalLink: 'https://www.psychometrics.com/assessments/mbti/',
+    },
+    TKI: {
+      title: t('assessments.tki.title'),
+      description: t('assessments.tki.description'),
+      icon: Target,
+    },
+    THREE_SIXTY_SELF: {
+      title: t('assessments.360.title'),
+      description: t('assessments.360.description'),
+      icon: Users,
+    },
+    WELLNESS: {
+      title: t('assessments.wellness.title'),
+      description: t('assessments.wellness.description'),
+      icon: Heart,
+    },
+  };
   const [isLoading, setIsLoading] = useState(true);
   const [assessments, setAssessments] = useState<ApiAssessment[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -96,7 +98,7 @@ function DashboardContent() {
       setAssessments(Array.from(assessmentsMap.values()));
     } catch (err) {
       console.error('Failed to load assessments:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load assessments');
+      setError(err instanceof Error ? err.message : t('errors.loadFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -139,7 +141,7 @@ function DashboardContent() {
               variant="arise-primary"
               onClick={loadAssessments}
             >
-              Try Again
+              {t('errors.tryAgain')}
             </Button>
           </div>
         </Card>
@@ -276,14 +278,14 @@ function DashboardContent() {
         return (
           <span className="inline-flex items-center gap-1 px-3 py-1 bg-success-100 text-success-700 text-xs rounded-full font-medium">
             <CheckCircle size={12} />
-            Completed
+            {t('status.completed')}
           </span>
         );
       case 'in-progress':
         return (
           <div className="flex items-center gap-2">
             <span className="inline-block px-3 py-1 bg-primary-100 text-primary-700 text-xs rounded-full font-medium">
-              In Progress
+              {t('status.inProgress')}
             </span>
             {answerCount !== undefined && totalQuestions !== undefined && (
               <span className="inline-block px-2 py-1 bg-primary-50 text-primary-700 text-xs rounded-full font-medium">
@@ -301,7 +303,7 @@ function DashboardContent() {
     if (evaluation.status === 'locked') {
       return (
         <Button variant="secondary" disabled className="w-full">
-          Locked
+          {t('actions.locked')}
         </Button>
       );
     }
@@ -331,7 +333,7 @@ function DashboardContent() {
             }
           }}
         >
-          View Results
+          {t('actions.viewResults')}
         </Button>
       );
     }
@@ -384,7 +386,7 @@ function DashboardContent() {
             }
           }}
         >
-          View Results
+          {t('actions.viewResults')}
         </Button>
       );
     }
@@ -400,7 +402,7 @@ function DashboardContent() {
             router.push(`/dashboard/assessments/${getAssessmentRoute(evaluation.assessmentType)}`);
           }}
         >
-          Continue
+          {t('actions.continue')}
         </Button>
       );
     }
@@ -416,7 +418,7 @@ function DashboardContent() {
           router.push(`/dashboard/assessments/${getAssessmentRoute(evaluation.assessmentType)}`);
         }}
       >
-        Start
+        {t('actions.start')}
       </Button>
     );
   };
@@ -439,10 +441,10 @@ function DashboardContent() {
           <MotionDiv variant="fade" duration="normal">
             <div className="mb-8 pb-6">
               <h1 className="text-4xl font-medium mb-2">
-                <span className="text-white">Welcome</span> <span style={{ color: '#D5B667' }}>{user?.name?.split(' ')[0] || 'User'}</span>
+                <span className="text-white">{t('welcome.title')}</span> <span style={{ color: '#D5B667' }}>{user?.name?.split(' ')[0] || t('welcome.user')}</span>
               </h1>
               <p className="text-white text-lg">
-                Continue your journey to authentic leadership
+                {t('welcome.subtitle')}
               </p>
             </div>
           </MotionDiv>
@@ -480,10 +482,10 @@ function DashboardContent() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-1">
-                          Add Your 360° Feedback: Evaluators
+                          {t('evaluatorsBanner.title')}
                         </h3>
                         <p className="text-xs sm:text-sm text-gray-900">
-                          Get comprehensive feedback by inviting colleagues to evaluate your leadership.
+                          {t('evaluatorsBanner.description')}
                         </p>
                       </div>
                     </div>
@@ -508,7 +510,7 @@ function DashboardContent() {
                               }}
                             >
                               <Eye size={16} />
-                              <span className="truncate">{evaluators.length > 0 ? `View Evaluators (${evaluators.length})` : 'View Evaluators'}</span>
+                              <span className="truncate">{evaluators.length > 0 ? t('evaluatorsBanner.viewEvaluatorsWithCount', { count: evaluators.length }) : t('evaluatorsBanner.viewEvaluators')}</span>
                             </Button>
                           </Link>
                         );
@@ -534,7 +536,7 @@ function DashboardContent() {
                         }
                       }}
                     >
-                      Add Evaluators
+                      {t('evaluatorsBanner.addEvaluators')}
                     </Button>
                   </div>
                   </div>
@@ -549,10 +551,10 @@ function DashboardContent() {
                 >
                   <div className="flex md:flex-row flex-col md:justify-between md:items-start md:mb-6 md:gap-8 gap-4">
                     <div className="flex-1 w-full">
-                      <h2 className="text-xl sm:text-2xl font-medium mb-2 text-white">Your Progress</h2>
+                      <h2 className="text-xl sm:text-2xl font-medium mb-2 text-white">{t('progress.title')}</h2>
                       <div className="text-4xl sm:text-6xl font-medium mb-2" style={{ color: '#d5b667' }}>{progressData.overall} %</div>
                       <p className="text-sm sm:text-base text-white/90 mb-1">
-                        You are making good progress in your holistic leadership journey. Keep it up!
+                        {t('progress.description')}
                       </p>
                     </div>
                     
@@ -591,7 +593,7 @@ function DashboardContent() {
                       }}
                       onClick={() => router.push('/dashboard/assessments')}
                     >
-                      Continue Learning
+                      {t('progress.continueLearning')}
                     </Button>
                     <Button 
                       variant="outline" 
@@ -609,7 +611,7 @@ function DashboardContent() {
                       }}
                       onClick={() => router.push('/dashboard/results')}
                     >
-                      View Reports
+                      {t('progress.viewReports')}
                     </Button>
                   </div>
                 </Card>
@@ -619,7 +621,7 @@ function DashboardContent() {
               <MotionDiv variant="slideUp" delay={300}>
                 <div className="mb-8 sm:mb-16 md:mb-32">
                   <div className="flex items-center justify-start mb-4 sm:mb-6">
-                    <h2 className="text-xl sm:text-2xl font-medium text-gray-900">Your evaluations</h2>
+                    <h2 className="text-xl sm:text-2xl font-medium text-gray-900">{t('evaluations.title')}</h2>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {evaluations.map((evaluation, index) => {
@@ -655,17 +657,17 @@ function DashboardContent() {
                               {/* Badges based on assessment type */}
                               {evaluation.assessmentType === 'MBTI' && evaluation.externalLink && (
                                 <span className="inline-block px-3 py-1 border border-arise-deep-teal text-arise-deep-teal text-xs rounded-full font-medium">
-                                  External link
+                                  {t('badges.externalLink')}
                                 </span>
                               )}
                               {evaluation.assessmentType === 'TKI' && (
                                 <span className="inline-block px-3 py-1 border border-arise-deep-teal text-arise-deep-teal text-xs rounded-full font-medium">
-                                  Label
+                                  {t('badges.label')}
                                 </span>
                               )}
                               {evaluation.assessmentType === 'THREE_SIXTY_SELF' && (
                                 <span className="inline-block px-3 py-1 border border-arise-deep-teal text-arise-deep-teal text-xs rounded-full font-medium">
-                                  ARISE Platform
+                                  {t('badges.arisePlatform')}
                                 </span>
                               )}
                               {evaluation.assessmentType === 'WELLNESS' && (
@@ -691,7 +693,7 @@ function DashboardContent() {
                                 {evaluation.status === 'locked' ? (
                                   <div className="flex items-center gap-2">
                                     <Lock className="w-4 h-4 text-gray-400" />
-                                    <span className="text-xs text-gray-500">Locked</span>
+                                    <span className="text-xs text-gray-500">{t('status.locked')}</span>
                                   </div>
                                 ) : (
                                   getStatusBadge(evaluation.status, evaluation.answerCount, evaluation.totalQuestions)
@@ -725,24 +727,23 @@ function DashboardContent() {
               <div className="flex flex-col md:flex-row items-center gap-4 sm:gap-6">
                 <div className="flex-1 min-w-0 w-full">
                   <h2 className="text-xl sm:text-2xl font-medium mb-2 sm:mb-3">
-                    Ready to accelerate your growth?
+                    {t('coaching.title')}
                   </h2>
                   <p className="text-sm sm:text-base text-white/90 mb-4 break-words">
-                    Connect with expert ARISE coaches who specialize in leadership development. 
-                    Schedule your FREE coaching session to debrief your results and build a personalized development plan.
+                    {t('coaching.description')}
                   </p>
                   <Button 
                     variant="arise-primary"
                     className="w-full sm:w-auto text-sm sm:text-base"
                     onClick={() => router.push('/dashboard/coaching-options')}
                   >
-                    Explore coaching options →
+                    {t('coaching.exploreOptions')}
                   </Button>
                 </div>
                 <div className="relative w-full sm:w-48 h-48 flex-shrink-0 mt-4 md:mt-0">
                   <Image
                     src="/images/leader-4.jpg"
-                    alt="Coaching session"
+                    alt={t('coaching.imageAlt')}
                     fill
                     className="object-cover rounded-lg"
                   />

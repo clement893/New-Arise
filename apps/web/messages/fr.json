@@ -33,7 +33,33 @@
     "alreadyHaveAccount": "Vous avez déjà un compte ?",
     "dontHaveAccount": "Vous n'avez pas de compte ?",
     "resetPassword": "Réinitialiser le mot de passe",
-    "confirmPassword": "Confirmer le mot de passe"
+    "confirmPassword": "Confirmer le mot de passe",
+    "login": {
+      "title": "Connexion",
+      "errorTitle": "Erreur",
+      "emailLabel": "Email",
+      "emailPlaceholder": "vous@exemple.com",
+      "passwordLabel": "Mot de passe",
+      "passwordPlaceholder": "••••••••",
+      "loginButton": "Se connecter",
+      "loggingIn": "Connexion en cours...",
+      "orContinueWith": "Ou continuer avec",
+      "continueWithGoogle": "Continuer avec Google",
+      "noAccount": "Vous n'avez pas de compte ?",
+      "registerLink": "S'inscrire",
+      "loading": "Chargement...",
+      "errors": {
+        "unauthorized": "Votre session a expiré ou vous n'êtes pas autorisé. Veuillez vous reconnecter.",
+        "sessionExpired": "Votre session a expiré. Veuillez vous reconnecter.",
+        "unauthorizedSuperadmin": "Vous devez être superadmin pour accéder à cette page.",
+        "forbidden": "Accès refusé. Vous n'avez pas les permissions nécessaires.",
+        "loginFailed": "Échec de la connexion",
+        "corsError": "Erreur de connexion au serveur. Vérifiez que le backend est accessible et que CORS est configuré correctement.",
+        "connectionError": "Erreur de connexion au serveur. Veuillez réessayer plus tard.",
+        "serverUnavailable": "Le serveur backend est temporairement indisponible. Veuillez réessayer plus tard.",
+        "googleLoginFailed": "Échec de la connexion Google. Veuillez réessayer."
+      }
+    }
   },
   "navigation": {
     "dashboard": "Tableau de bord",
@@ -97,6 +123,73 @@
       "errors": {
         "displayError": "Erreur d'affichage. Veuillez actualiser la page.",
         "refresh": "Rafraîchir"
+      }
+    },
+    "main": {
+      "welcome": {
+        "title": "Bienvenue",
+        "user": "Utilisateur",
+        "subtitle": "Continuez votre parcours vers un leadership authentique"
+      },
+      "assessments": {
+        "mbti": {
+          "title": "Personnalité MBTI",
+          "description": "Comprendre vos préférences naturelles"
+        },
+        "tki": {
+          "title": "Style de conflit TKI",
+          "description": "Explorez votre approche de la gestion des conflits"
+        },
+        "360": {
+          "title": "Feedback 360°",
+          "description": "Perspectives de leadership multidimensionnelles"
+        },
+        "wellness": {
+          "title": "Bien-être",
+          "description": "Votre bien-être global"
+        }
+      },
+      "status": {
+        "completed": "Complété",
+        "inProgress": "En cours",
+        "locked": "Verrouillé"
+      },
+      "actions": {
+        "locked": "Verrouillé",
+        "viewResults": "Voir les résultats",
+        "continue": "Continuer",
+        "start": "Commencer"
+      },
+      "evaluatorsBanner": {
+        "title": "Ajoutez votre Feedback 360° : Évaluateurs",
+        "description": "Obtenez des retours complets en invitant des collègues à évaluer votre leadership.",
+        "viewEvaluators": "Voir les évaluateurs",
+        "viewEvaluatorsWithCount": "Voir les évaluateurs ({count})",
+        "addEvaluators": "Ajouter des évaluateurs"
+      },
+      "progress": {
+        "title": "Votre progression",
+        "description": "Vous progressez bien dans votre parcours de leadership holistique. Continuez ainsi !",
+        "continueLearning": "Continuer l'apprentissage",
+        "viewReports": "Voir les rapports"
+      },
+      "evaluations": {
+        "title": "Vos évaluations"
+      },
+      "badges": {
+        "externalLink": "Lien externe",
+        "label": "Label",
+        "arisePlatform": "Plateforme ARISE"
+      },
+      "coaching": {
+        "title": "Prêt à accélérer votre croissance ?",
+        "description": "Connectez-vous avec des coachs ARISE experts spécialisés dans le développement du leadership. Planifiez votre session de coaching GRATUITE pour débriefer vos résultats et créer un plan de développement personnalisé.",
+        "exploreOptions": "Explorer les options de coaching →",
+        "imageAlt": "Session de coaching"
+      },
+      "errors": {
+        "loadFailed": "Échec du chargement des assessments",
+        "tryAgain": "Réessayer"
       }
     },
     "coachingOptions": {
@@ -1768,15 +1861,24 @@
     }
   },
   "about": {
+    "hero": {
+      "title": "Notre histoire",
+      "titlePart1": "Notre",
+      "titlePart2": "histoire"
+    },
     "title": "Notre histoire",
     "subtitle": "Autonomiser des leaders authentiques grâce à une évaluation et un développement holistiques",
     "mission": {
       "title": "Notre mission",
+      "titlePart1": "Notre",
+      "titlePart2": "mission",
       "text1": "Autonomiser les leaders du monde entier en fournissant des évaluations complètes basées sur la science et des voies de développement personnalisées qui libèrent leur potentiel de leadership authentique.",
       "text2": "Nous croyons que le grand leadership commence par la conscience de soi. Grâce à notre approche holistique combinant des insights de personnalité, des compétences de gestion des conflits, un feedback 360° et une évaluation du bien-être, nous aidons les leaders à se comprendre profondément et à grandir de manière authentique."
     },
     "vision": {
       "title": "Notre vision",
+      "titlePart1": "Notre",
+      "titlePart2": "vision",
       "text1": "Un monde où chaque leader atteint son plein potentiel, créant un impact positif dans leurs organisations et communautés.",
       "text2": "Nous envisageons un avenir où le développement du leadership est accessible, personnalisé et fondé sur la recherche scientifique. Où les leaders sont équipés non seulement de compétences, mais aussi d'une profonde conscience de soi et d'un objectif authentique."
     },
@@ -1945,7 +2047,45 @@
     },
     "advisory": {
       "title": "Conseil consultatif",
-      "subtitle": "Des experts de premier plan qui guident notre mission et assurent la rigueur scientifique"
+      "subtitle": "Des experts de premier plan qui guident notre mission et assurent la rigueur scientifique",
+      "members": {
+        "james": {
+          "role": "Membre du conseil consultatif",
+          "bio": "Chercheur et auteur renommé en leadership.",
+          "expertise": "Recherche en leadership, Académique"
+        },
+        "lisa": {
+          "role": "Membre du conseil consultatif",
+          "bio": "Experte en comportement organisationnel et dynamique d'équipe.",
+          "expertise": "Comportement organisationnel, Recherche"
+        }
+      }
+    },
+    "members": {
+      "sarah": {
+        "role": "PDG & Co-fondatrice",
+        "bio": "Experte en développement du leadership avec plus de 20 ans d'expérience en psychologie organisationnelle.",
+        "expertise": "Psychologie organisationnelle, Développement du leadership",
+        "education": "Ph.D. en Psychologie, Université Harvard"
+      },
+      "michael": {
+        "role": "CTO & Co-fondateur",
+        "bio": "Visionnaire technologique passionné par l'utilisation de la science des données pour transformer l'évaluation du leadership.",
+        "expertise": "Science des données, Architecture de plateforme",
+        "education": "M.S. en Informatique, MIT"
+      },
+      "emily": {
+        "role": "Responsable de l'évaluation",
+        "bio": "Psychométricienne spécialisée dans les évaluations de la personnalité et du comportement.",
+        "expertise": "Psychométrie, Conception d'évaluations",
+        "education": "Ph.D. en Mesure, Université Stanford"
+      },
+      "david": {
+        "role": "Responsable du coaching",
+        "bio": "Coach exécutif avec une vaste expérience dans l'aide aux leaders pour libérer leur potentiel.",
+        "expertise": "Coaching exécutif, Développement du leadership",
+        "education": "M.A. en Développement organisationnel, Université Columbia"
+      }
     },
     "joinUs": {
       "title": "Rejoignez notre équipe",
@@ -2063,6 +2203,27 @@
         "date": "5 janvier 2024",
         "category": "Développement d'équipe",
         "content": "<p>Le conflit est inévitable dans toute organisation, mais la façon dont les leaders gèrent les conflits peut faire la différence entre une équipe en difficulté et une équipe prospère. Cet article approfondit l'instrument de mode de conflit Thomas-Kilmann (TKI) et comment comprendre les différents styles de gestion des conflits peut aider les leaders à naviguer dans des situations difficiles plus efficacement.</p><h2>Comprendre les styles de conflit</h2><p>Le TKI identifie cinq modes principaux de gestion des conflits : Compétition, Collaboration, Compromis, Évitement et Accommodation. Chaque style a sa place, et les leaders efficaces savent quand utiliser chaque approche.</p><p>Comprendre votre style de conflit naturel—et reconnaître les styles de vos membres d'équipe—est la première étape vers la construction d'une équipe résiliente aux conflits. Cette prise de conscience permet une résolution de conflit plus stratégique et efficace.</p><h2>L'impact d'une gestion efficace des conflits</h2><p>Les équipes qui gèrent bien les conflits sont plus innovantes, productives et engagées. Le conflit, lorsqu'il est géré correctement, peut conduire à une meilleure prise de décision, une créativité accrue et des liens d'équipe plus forts.</p><p>Les leaders qui maîtrisent la gestion des conflits créent des environnements où les perspectives diverses sont valorisées et où les désaccords peuvent être transformés en opportunités de croissance et d'amélioration.</p><h2>Stratégies pratiques</h2><p>Apprenez des stratégies pratiques pour construire des équipes résilientes aux conflits, y compris comment créer une sécurité psychologique, établir des protocoles de communication clairs et développer une culture qui considère le conflit comme un catalyseur de changement positif plutôt qu'une menace.</p><p>En mettant en œuvre ces stratégies, les leaders peuvent transformer la dynamique du lieu de travail et créer des équipes qui non seulement survivent aux conflits mais prospèrent grâce à eux.</p>"
+      }
+    }
+  },
+  "register": {
+    "stepIndicator": "Étape {step} sur {total}",
+    "step1": {
+      "title": "Qui êtes-vous ?",
+      "back": "Retour",
+      "roles": {
+        "individual": {
+          "title": "Individuel",
+          "description": "Je souhaite développer mes compétences de leadership personnelles"
+        },
+        "coach": {
+          "title": "Coach",
+          "description": "J'accompagne les leaders dans leur parcours de développement"
+        },
+        "business": {
+          "title": "Entreprise",
+          "description": "Je souhaite développer les talents de leadership dans mon organisation"
+        }
       }
     }
   }

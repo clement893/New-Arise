@@ -187,7 +187,7 @@ export default function TKIResultsPage() {
           <MotionDiv variant="slideUp" duration="normal">
             <Button
               onClick={() => router.push('/dashboard/assessments')}
-              variant="outline"
+              variant="primary"
               className="mb-6 flex align-center gap-8"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -195,10 +195,10 @@ export default function TKIResultsPage() {
             </Button>
 
             <div className="mb-8 pb-6">
-              <h1 className="text-4xl font-bold text-white mb-2">
+              <h1 className="text-4xl font-bold text-black mb-2">
                 TKI Conflict Style Results
               </h1>
-              <p className="text-white">
+              <p className="text-black">
                 Your conflict management profile
               </p>
             </div>
@@ -230,7 +230,7 @@ export default function TKIResultsPage() {
 
             {/* All Modes Breakdown */}
             <Card className="mb-8">
-              <h2 className="text-2xl font-bold text-white mb-6">
+              <h2 className="text-2xl font-bold text-black mb-6">
                 Your Conflict Management Profile
               </h2>
 
@@ -247,8 +247,8 @@ export default function TKIResultsPage() {
                         <div className="flex items-center gap-3">
                           <div className="text-2xl">{modeInfo?.icon}</div>
                           <div>
-                            <h3 className="font-bold text-white">{modeInfo?.title}</h3>
-                            <p className="text-sm text-white">{modeInfo?.description}</p>
+                            <h3 className="font-bold text-black">{modeInfo?.title}</h3>
+                            <p className="text-sm text-black">{modeInfo?.description}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -259,7 +259,7 @@ export default function TKIResultsPage() {
 
                       {/* Progress Bar */}
                       <div className="mb-3">
-                        <div className="flex justify-between text-sm text-white mb-1">
+                        <div className="flex justify-between text-sm text-black mb-1">
                           <span>{count} responses</span>
                           <span>{percentage}%</span>
                         </div>
@@ -273,7 +273,7 @@ export default function TKIResultsPage() {
 
                       {/* Insight */}
                       <div className="bg-arise-beige p-4 rounded-lg">
-                        <p className="text-sm text-white">
+                        <p className="text-sm text-black">
                           {getModeInsight(modeId, count)}
                         </p>
                       </div>
@@ -285,17 +285,17 @@ export default function TKIResultsPage() {
 
             {/* Recommendations */}
             <Card className="bg-arise-gold/10 border-2 border-arise-gold/30">
-              <h2 className="text-2xl font-bold text-white mb-4">
+              <h2 className="text-2xl font-bold text-black mb-4">
                 Recommendations
               </h2>
               <div className="space-y-3">
-                <p className="text-white">
+                <p className="text-black">
                   <strong>Leverage your strengths:</strong> Your dominant {dominantModeInfo?.title.toLowerCase()} style can be very effective in appropriate situations. Continue to use it when it serves you well.
                 </p>
-                <p className="text-white">
+                <p className="text-black">
                   <strong>Develop flexibility:</strong> Consider situations where your less-used modes might be more effective. Expanding your conflict management repertoire will make you a more adaptable leader.
                 </p>
-                <p className="text-white">
+                <p className="text-black">
                   <strong>Context matters:</strong> No single conflict mode is best in all situations. The most effective leaders can flex between different approaches based on the context, relationship, and importance of the issue.
                 </p>
               </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter, Link } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
 import { AxiosError } from 'axios';
@@ -18,6 +19,7 @@ interface ApiErrorResponse {
 }
 
 function LoginContent() {
+  const t = useTranslations('auth.login');
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login, setError } = useAuthStore();
@@ -43,10 +45,10 @@ function LoginContent() {
       
       // Translate common error codes to user-friendly messages
       const errorMessages: Record<string, string> = {
-        'unauthorized': 'Votre session a expiré ou vous n\'êtes pas autorisé. Veuillez vous reconnecter.',
-        'session_expired': 'Votre session a expiré. Veuillez vous reconnecter.',
-        'unauthorized_superadmin': 'Vous devez être superadmin pour accéder à cette page.',
-        'forbidden': 'Accès refusé. Vous n\'avez pas les permissions nécessaires.',
+        'unauthorized': t('errors.unauthorized'),
+        'session_expired': t('errors.sessionExpired'),
+        'unauthorized_superadmin': t('errors.unauthorizedSuperadmin'),
+        'forbidden': t('errors.forbidden'),
       };
       
       if (errorMessages[errorParam]) {
@@ -103,7 +105,7 @@ function LoginContent() {
       router.push(redirectUrl); // Will automatically use current locale
     } catch (err) {
       const axiosError = err as AxiosError<ApiErrorResponse>;
-      const message = axiosError.response?.data?.detail || 'Login failed';
+      const message = axiosError.response?.data?.detail || t('errors.loginFailed');
       setLocalError(message);
       setError(message);
     } finally {
@@ -127,8 +129,8 @@ function LoginContent() {
                            axiosError.message?.includes('Failed to fetch') ||
                            axiosError.code === 'ERR_NETWORK';
         const message = isCorsError 
-          ? 'Erreur de connexion au serveur. Vérifiez que le backend est accessible et que CORS est configuré correctement.'
-          : 'Erreur de connexion au serveur. Veuillez réessayer plus tard.';
+          ? t('errors.corsError')
+          : t('errors.connectionError');
         setLocalError(message);
         setError(message);
         return;
@@ -136,15 +138,16 @@ function LoginContent() {
       
       // Check for 502 Bad Gateway
       if (axiosError.response.status === 502) {
-        setLocalError('Le serveur backend est temporairement indisponible. Veuillez réessayer plus tard.');
-        setError('Le serveur backend est temporairement indisponible.');
+        const message = t('errors.serverUnavailable');
+        setLocalError(message);
+        setError(message);
         return;
       }
       
       // Other API errors
       const message = axiosError.response?.data?.detail || 
                      axiosError.response?.data?.message || 
-                     'Échec de la connexion Google. Veuillez réessayer.';
+                     t('errors.googleLoginFailed');
       setLocalError(message);
       setError(message);
     }
@@ -157,11 +160,11 @@ function LoginContent() {
         <Container className="w-full max-w-md">
         <Card>
           <h1 className="text-3xl font-bold text-center text-foreground mb-8">
-            Login
+            {t('title')}
           </h1>
 
           {error && (
-            <Alert variant="error" title="Erreur" className="mb-4">
+            <Alert variant="error" title={t('errorTitle')} className="mb-4">
               {error}
             </Alert>
           )}
@@ -169,21 +172,21 @@ function LoginContent() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <Input
               type="email"
-              label="Email"
+              label={t('emailLabel')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="you@example.com"
+              placeholder={t('emailPlaceholder')}
               fullWidth
             />
 
             <Input
               type="password"
-              label="Password"
+              label={t('passwordLabel')}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              placeholder="••••••••"
+              placeholder={t('passwordPlaceholder')}
               maxLength={128}
               fullWidth
             />
@@ -195,7 +198,7 @@ function LoginContent() {
               loading={isLoading}
               fullWidth
             >
-              {isLoading ? 'Logging in...' : 'Login'}
+              {isLoading ? t('loggingIn') : t('loginButton')}
             </Button>
           </form>
 
@@ -205,7 +208,7 @@ function LoginContent() {
                 <div className="w-full border-t border-border"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-background text-muted-foreground">Or continue with</span>
+                <span className="px-2 bg-background text-muted-foreground">{t('orContinueWith')}</span>
               </div>
             </div>
 
@@ -234,14 +237,14 @@ function LoginContent() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              Continue with Google
+              {t('continueWithGoogle')}
             </Button>
           </div>
 
           <p className="text-center text-muted-foreground mt-6">
-            Don't have an account?{' '}
+            {t('noAccount')}{' '}
             <Link href="/auth/register" className="text-primary-600 dark:text-primary-400 hover:underline">
-              Register
+              {t('registerLink')}
             </Link>
           </p>
         </Card>
@@ -260,7 +263,7 @@ export default function LoginPage() {
           <Card>
             <div className="text-center py-8">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mb-4"></div>
-              <p className="text-muted-foreground">Loading...</p>
+              <p className="text-muted-foreground">{t('loading')}</p>
             </div>
           </Card>
         </Container>

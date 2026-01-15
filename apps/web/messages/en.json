@@ -33,7 +33,33 @@
     "alreadyHaveAccount": "Already have an account?",
     "dontHaveAccount": "Don't have an account?",
     "resetPassword": "Reset password",
-    "confirmPassword": "Confirm password"
+    "confirmPassword": "Confirm password",
+    "login": {
+      "title": "Login",
+      "errorTitle": "Error",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "loginButton": "Login",
+      "loggingIn": "Logging in...",
+      "orContinueWith": "Or continue with",
+      "continueWithGoogle": "Continue with Google",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Register",
+      "loading": "Loading...",
+      "errors": {
+        "unauthorized": "Your session has expired or you are not authorized. Please log in again.",
+        "sessionExpired": "Your session has expired. Please log in again.",
+        "unauthorizedSuperadmin": "You must be a superadmin to access this page.",
+        "forbidden": "Access denied. You do not have the necessary permissions.",
+        "loginFailed": "Login failed",
+        "corsError": "Server connection error. Please check that the backend is accessible and CORS is configured correctly.",
+        "connectionError": "Server connection error. Please try again later.",
+        "serverUnavailable": "The backend server is temporarily unavailable. Please try again later.",
+        "googleLoginFailed": "Google login failed. Please try again."
+      }
+    }
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -163,6 +189,73 @@
       "errors": {
         "displayError": "Display error. Please refresh the page.",
         "refresh": "Refresh"
+      }
+    },
+    "main": {
+      "welcome": {
+        "title": "Welcome",
+        "user": "User",
+        "subtitle": "Continue your journey to authentic leadership"
+      },
+      "assessments": {
+        "mbti": {
+          "title": "MBTI Personality",
+          "description": "Understanding your natural preferences"
+        },
+        "tki": {
+          "title": "TKI Conflict Style",
+          "description": "Explore Your Conflict Management Approach"
+        },
+        "360": {
+          "title": "360° Feedback",
+          "description": "Multi-Faceted Leadership Perspectives"
+        },
+        "wellness": {
+          "title": "Wellness",
+          "description": "Your overall well-being"
+        }
+      },
+      "status": {
+        "completed": "Completed",
+        "inProgress": "In Progress",
+        "locked": "Locked"
+      },
+      "actions": {
+        "locked": "Locked",
+        "viewResults": "View Results",
+        "continue": "Continue",
+        "start": "Start"
+      },
+      "evaluatorsBanner": {
+        "title": "Add Your 360° Feedback: Evaluators",
+        "description": "Get comprehensive feedback by inviting colleagues to evaluate your leadership.",
+        "viewEvaluators": "View Evaluators",
+        "viewEvaluatorsWithCount": "View Evaluators ({count})",
+        "addEvaluators": "Add Evaluators"
+      },
+      "progress": {
+        "title": "Your Progress",
+        "description": "You are making good progress in your holistic leadership journey. Keep it up!",
+        "continueLearning": "Continue Learning",
+        "viewReports": "View Reports"
+      },
+      "evaluations": {
+        "title": "Your evaluations"
+      },
+      "badges": {
+        "externalLink": "External link",
+        "label": "Label",
+        "arisePlatform": "ARISE Platform"
+      },
+      "coaching": {
+        "title": "Ready to accelerate your growth?",
+        "description": "Connect with expert ARISE coaches who specialize in leadership development. Schedule your FREE coaching session to debrief your results and build a personalized development plan.",
+        "exploreOptions": "Explore coaching options →",
+        "imageAlt": "Coaching session"
+      },
+      "errors": {
+        "loadFailed": "Failed to load assessments",
+        "tryAgain": "Try Again"
       }
     },
     "coachingOptions": {
@@ -1854,15 +1947,24 @@
     }
   },
   "about": {
+    "hero": {
+      "title": "Our Story",
+      "titlePart1": "Our",
+      "titlePart2": "Story"
+    },
     "title": "Our Story",
     "subtitle": "Empowering authentic leaders through holistic assessment and development",
     "mission": {
       "title": "Our Mission",
+      "titlePart1": "Our",
+      "titlePart2": "Mission",
       "text1": "To empower leaders worldwide by providing comprehensive, science-based assessments and personalized development pathways that unlock their authentic leadership potential.",
       "text2": "We believe that great leadership starts with self-awareness. Through our holistic approach combining personality insights, conflict management skills, 360° feedback, and wellness assessment, we help leaders understand themselves deeply and grow authentically."
     },
     "vision": {
       "title": "Our Vision",
+      "titlePart1": "Our",
+      "titlePart2": "Vision",
       "text1": "A world where every leader reaches their full potential, creating positive impact in their organizations and communities.",
       "text2": "We envision a future where leadership development is accessible, personalized, and grounded in scientific research. Where leaders are equipped not just with skills, but with deep self-awareness and authentic purpose."
     },
@@ -2031,7 +2133,45 @@
     },
     "advisory": {
       "title": "Advisory Board",
-      "subtitle": "Leading experts who guide our mission and ensure scientific rigor"
+      "subtitle": "Leading experts who guide our mission and ensure scientific rigor",
+      "members": {
+        "james": {
+          "role": "Advisory Board Member",
+          "bio": "Renowned leadership researcher and author.",
+          "expertise": "Leadership Research, Academic"
+        },
+        "lisa": {
+          "role": "Advisory Board Member",
+          "bio": "Expert in organizational behavior and team dynamics.",
+          "expertise": "Organizational Behavior, Research"
+        }
+      }
+    },
+    "members": {
+      "sarah": {
+        "role": "CEO & Co-Founder",
+        "bio": "Leadership development expert with 20+ years of experience in organizational psychology.",
+        "expertise": "Organizational Psychology, Leadership Development",
+        "education": "Ph.D. in Psychology, Harvard University"
+      },
+      "michael": {
+        "role": "CTO & Co-Founder",
+        "bio": "Technology visionary passionate about using data science to transform leadership assessment.",
+        "expertise": "Data Science, Platform Architecture",
+        "education": "M.S. in Computer Science, MIT"
+      },
+      "emily": {
+        "role": "Head of Assessment",
+        "bio": "Psychometrician specializing in personality and behavioral assessments.",
+        "expertise": "Psychometrics, Assessment Design",
+        "education": "Ph.D. in Measurement, Stanford University"
+      },
+      "david": {
+        "role": "Head of Coaching",
+        "bio": "Executive coach with extensive experience helping leaders unlock their potential.",
+        "expertise": "Executive Coaching, Leadership Development",
+        "education": "M.A. in Organizational Development, Columbia University"
+      }
     },
     "joinUs": {
       "title": "Join Our Team",
@@ -2149,6 +2289,27 @@
         "date": "January 5, 2024",
         "category": "Team Development",
         "content": "<p>Conflict is inevitable in any organization, but how leaders handle conflict can make the difference between a struggling team and a thriving one. This article delves into the Thomas-Kilmann Conflict Mode Instrument (TKI) and how understanding different conflict-handling styles can help leaders navigate challenging situations more effectively.</p><h2>Understanding Conflict Styles</h2><p>The TKI identifies five primary conflict-handling modes: Competing, Collaborating, Compromising, Avoiding, and Accommodating. Each style has its place, and effective leaders know when to use each approach.</p><p>Understanding your natural conflict style—and recognizing the styles of your team members—is the first step toward building a conflict-resilient team. This awareness allows for more strategic and effective conflict resolution.</p><h2>The Impact of Effective Conflict Management</h2><p>Teams that handle conflict well are more innovative, productive, and engaged. Conflict, when managed properly, can lead to better decision-making, increased creativity, and stronger team bonds.</p><p>Leaders who master conflict management create environments where diverse perspectives are valued and where disagreements can be transformed into opportunities for growth and improvement.</p><h2>Practical Strategies</h2><p>Learn practical strategies for building conflict-resilient teams, including how to create psychological safety, establish clear communication protocols, and develop a culture that views conflict as a catalyst for positive change rather than a threat.</p><p>By implementing these strategies, leaders can transform workplace dynamics and create teams that not only survive conflict but thrive because of it.</p>"
+      }
+    }
+  },
+  "register": {
+    "stepIndicator": "Step {step} of {total}",
+    "step1": {
+      "title": "Who are you?",
+      "back": "Back",
+      "roles": {
+        "individual": {
+          "title": "Individual",
+          "description": "I want to develop my personal leadership skills"
+        },
+        "coach": {
+          "title": "Coach",
+          "description": "I guide leaders through their development journey"
+        },
+        "business": {
+          "title": "Business",
+          "description": "I want to develop leadership talent in my organization"
+        }
       }
     }
   }
