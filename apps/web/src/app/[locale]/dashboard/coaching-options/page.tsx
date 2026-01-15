@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { Card, Grid } from '@/components/ui';
 import Button from '@/components/ui/Button';
@@ -47,116 +48,133 @@ interface Coach {
   email?: string;
 }
 
-const coachingPackages: CoachingPackage[] = [
-  {
-    id: 'starter',
-    name: 'Découverte',
-    description: 'Parfait pour découvrir le coaching et obtenir des conseils ciblés',
-    price: 150,
-    duration: '1 session',
-    sessions: 1,
-    features: [
-      'Session de 90 minutes',
-      'Analyse de vos résultats d\'assessments',
-      'Plan d\'action personnalisé',
-      'Ressources et outils',
-      'Email de suivi post-session'
-    ],
-    color: 'bg-primary-500'
-  },
-  {
-    id: 'growth',
-    name: 'Croissance',
-    description: 'Pour une transformation significative sur plusieurs mois',
-    price: 1200,
-    duration: '3 mois',
-    sessions: 6,
-    features: [
-      '6 sessions de 60 minutes',
-      'Suivi continu de vos progrès',
-      'Plan de développement personnalisé',
-      'Accès à la bibliothèque de ressources',
-      'Support par email entre les sessions',
-      'Rapports de progression mensuels'
-    ],
-    popular: true,
-    color: 'bg-arise-gold'
-  },
-  {
-    id: 'transformation',
-    name: 'Transformation',
-    description: 'Accompagnement complet pour une transformation en profondeur',
-    price: 2400,
-    duration: '6 mois',
-    sessions: 12,
-    features: [
-      '12 sessions de 60 minutes',
-      'Accompagnement intensif et personnalisé',
-      'Plan de développement stratégique',
-      'Accès prioritaire aux ressources premium',
-      'Support illimité par email',
-      'Rapports détaillés trimestriels',
-      'Session de bilan et célébration',
-      'Accès à la communauté exclusive'
-    ],
-    color: 'bg-purple-600'
-  }
-];
-
-const coaches: Coach[] = [
-  {
-    id: '1',
-    name: 'Sarah Chen',
-    title: 'Leadership & Executive Coach',
-    bio: 'Avec plus de 15 ans d\'expérience en développement du leadership, Sarah accompagne les dirigeants dans leur transformation personnelle et professionnelle.',
-    specialties: ['Leadership transformation', 'Communication stratégique', 'Gestion du changement'],
-    rating: 4.9,
-    reviews: 127,
-    experience: '15+ ans',
-    linkedin: 'https://linkedin.com/in/sarahchen',
-    email: 'sarah.chen@arise.com'
-  },
-  {
-    id: '2',
-    name: 'Michael Dubois',
-    title: 'Performance & Wellness Coach',
-    bio: 'Spécialiste en performance organisationnelle et bien-être au travail, Michael aide les leaders à équilibrer excellence professionnelle et épanouissement personnel.',
-    specialties: ['Performance individuelle', 'Wellness & équilibre', 'Gestion du stress'],
-    rating: 4.8,
-    reviews: 89,
-    experience: '12+ ans',
-    linkedin: 'https://linkedin.com/in/michaeldubois',
-    email: 'michael.dubois@arise.com'
-  },
-  {
-    id: '3',
-    name: 'Emma Rodriguez',
-    title: 'Career & Transition Coach',
-    bio: 'Experte en transitions de carrière et développement de potentiel, Emma guide les professionnels dans leurs moments clés de changement et de croissance.',
-    specialties: ['Transition de carrière', 'Développement de potentiel', 'Planification stratégique'],
-    rating: 4.9,
-    reviews: 156,
-    experience: '10+ ans',
-    linkedin: 'https://linkedin.com/in/emmarodriguez',
-    email: 'emma.rodriguez@arise.com'
-  },
-  {
-    id: '4',
-    name: 'David Kim',
-    title: 'Team & Culture Coach',
-    bio: 'Passionné par la construction d\'équipes performantes, David travaille avec les leaders pour créer des environnements de travail collaboratifs et innovants.',
-    specialties: ['Leadership d\'équipe', 'Culture organisationnelle', 'Collaboration'],
-    rating: 4.7,
-    reviews: 94,
-    experience: '14+ ans',
-    linkedin: 'https://linkedin.com/in/davidkim',
-    email: 'david.kim@arise.com'
-  }
-];
-
 export default function CoachingOptionsPage() {
+  const t = useTranslations('dashboard.coachingOptions');
   const router = useRouter();
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
+
+  const coachingPackages: CoachingPackage[] = [
+    {
+      id: 'starter',
+      name: t('packages.starter.name'),
+      description: t('packages.starter.description'),
+      price: 150,
+      duration: t('packages.starter.duration'),
+      sessions: 1,
+      features: [
+        t('packages.starter.features.0'),
+        t('packages.starter.features.1'),
+        t('packages.starter.features.2'),
+        t('packages.starter.features.3'),
+        t('packages.starter.features.4')
+      ],
+      color: 'bg-primary-500'
+    },
+    {
+      id: 'growth',
+      name: t('packages.growth.name'),
+      description: t('packages.growth.description'),
+      price: 1200,
+      duration: t('packages.growth.duration'),
+      sessions: 6,
+      features: [
+        t('packages.growth.features.0'),
+        t('packages.growth.features.1'),
+        t('packages.growth.features.2'),
+        t('packages.growth.features.3'),
+        t('packages.growth.features.4'),
+        t('packages.growth.features.5')
+      ],
+      popular: true,
+      color: 'bg-arise-gold'
+    },
+    {
+      id: 'transformation',
+      name: t('packages.transformation.name'),
+      description: t('packages.transformation.description'),
+      price: 2400,
+      duration: t('packages.transformation.duration'),
+      sessions: 12,
+      features: [
+        t('packages.transformation.features.0'),
+        t('packages.transformation.features.1'),
+        t('packages.transformation.features.2'),
+        t('packages.transformation.features.3'),
+        t('packages.transformation.features.4'),
+        t('packages.transformation.features.5'),
+        t('packages.transformation.features.6'),
+        t('packages.transformation.features.7')
+      ],
+      color: 'bg-purple-600'
+    }
+  ];
+
+  const coaches: Coach[] = [
+    {
+      id: '1',
+      name: 'Sarah Chen',
+      title: t('coaches.sarah.title'),
+      bio: t('coaches.sarah.bio'),
+      specialties: [
+        t('coaches.sarah.specialties.0'),
+        t('coaches.sarah.specialties.1'),
+        t('coaches.sarah.specialties.2')
+      ],
+      rating: 4.9,
+      reviews: 127,
+      experience: t('coaches.sarah.experience'),
+      linkedin: 'https://linkedin.com/in/sarahchen',
+      email: 'sarah.chen@arise.com'
+    },
+    {
+      id: '2',
+      name: 'Michael Dubois',
+      title: t('coaches.michael.title'),
+      bio: t('coaches.michael.bio'),
+      specialties: [
+        t('coaches.michael.specialties.0'),
+        t('coaches.michael.specialties.1'),
+        t('coaches.michael.specialties.2')
+      ],
+      rating: 4.8,
+      reviews: 89,
+      experience: t('coaches.michael.experience'),
+      linkedin: 'https://linkedin.com/in/michaeldubois',
+      email: 'michael.dubois@arise.com'
+    },
+    {
+      id: '3',
+      name: 'Emma Rodriguez',
+      title: t('coaches.emma.title'),
+      bio: t('coaches.emma.bio'),
+      specialties: [
+        t('coaches.emma.specialties.0'),
+        t('coaches.emma.specialties.1'),
+        t('coaches.emma.specialties.2')
+      ],
+      rating: 4.9,
+      reviews: 156,
+      experience: t('coaches.emma.experience'),
+      linkedin: 'https://linkedin.com/in/emmarodriguez',
+      email: 'emma.rodriguez@arise.com'
+    },
+    {
+      id: '4',
+      name: 'David Kim',
+      title: t('coaches.david.title'),
+      bio: t('coaches.david.bio'),
+      specialties: [
+        t('coaches.david.specialties.0'),
+        t('coaches.david.specialties.1'),
+        t('coaches.david.specialties.2')
+      ],
+      rating: 4.7,
+      reviews: 94,
+      experience: t('coaches.david.experience'),
+      linkedin: 'https://linkedin.com/in/davidkim',
+      email: 'david.kim@arise.com'
+    }
+  ];
 
   const handleSelectPackage = (packageId: string) => {
     setSelectedPackage(packageId);
@@ -170,7 +188,7 @@ export default function CoachingOptionsPage() {
     // In a real app, this would navigate to a booking page or open a modal
     console.log('Booking session with coach:', coachId, 'Package:', packageId || selectedPackage);
     // router.push(`/dashboard/coaching/book?coach=${coachId}&package=${packageId || selectedPackage}`);
-    alert(`Réservation d'une session avec le coach et le forfait sélectionnés. Cette fonctionnalité sera bientôt disponible !`);
+    alert(t('booking.alert'));
   };
 
   return (
@@ -178,11 +196,11 @@ export default function CoachingOptionsPage() {
       <MotionDiv variant="fade" duration="normal">
         <div className="mb-8 pb-6">
           <h1 className="text-4xl font-bold mb-2">
-            <span className="text-white">Options de </span>
-            <span style={{ color: '#D5B667' }}>Coaching</span>
+            <span className="text-white">{t('title.prefix')} </span>
+            <span style={{ color: '#D5B667' }}>{t('title.suffix')}</span>
           </h1>
           <p className="text-white text-lg">
-            Découvrez nos forfaits et rencontrez nos coachs certifiés pour accélérer votre développement en leadership
+            {t('subtitle')}
           </p>
         </div>
       </MotionDiv>
@@ -209,25 +227,24 @@ export default function CoachingOptionsPage() {
                 <div className="flex items-center gap-3 mb-4">
                   <Sparkles className="h-8 w-8 text-arise-gold" />
                   <h2 className="text-3xl md:text-4xl font-bold">
-                    Transformez votre leadership avec l'accompagnement personnalisé
+                    {t('hero.title')}
                   </h2>
                 </div>
                 <p className="text-lg text-white/90 max-w-3xl mb-6">
-                  Nos coachs certifiés ARISE vous accompagnent dans votre parcours de développement. 
-                  Choisissez le forfait qui correspond à vos objectifs et sélectionnez le coach qui vous inspire.
+                  {t('hero.description')}
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <div className="flex items-center gap-2">
                     <Award className="h-5 w-5 text-arise-gold" />
-                    <span>Coachs certifiés ICF</span>
+                    <span>{t('hero.badges.icf')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="h-5 w-5 text-arise-gold" />
-                    <span>500+ clients accompagnés</span>
+                    <span>{t('hero.badges.clients')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Star className="h-5 w-5 text-arise-gold" />
-                    <span>4.8/5 satisfaction moyenne</span>
+                    <span>{t('hero.badges.satisfaction')}</span>
                   </div>
                 </div>
               </div>
@@ -255,10 +272,10 @@ export default function CoachingOptionsPage() {
           <div className="relative z-10">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-gray-900 mb-3">
-                Nos Forfaits de Coaching
+                {t('packagesSection.title')}
               </h2>
               <p className="text-gray-600 text-lg">
-                Choisissez le forfait qui correspond à vos besoins et à votre rythme
+                {t('packagesSection.subtitle')}
               </p>
             </div>
 
@@ -269,7 +286,7 @@ export default function CoachingOptionsPage() {
                     {pkg.popular && (
                       <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                         <span className="bg-arise-gold text-arise-deep-teal px-4 py-1 rounded-full text-sm font-semibold">
-                          Le plus populaire
+                          {t('packages.popular')}
                         </span>
                       </div>
                     )}
@@ -300,7 +317,7 @@ export default function CoachingOptionsPage() {
                         </div>
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <Clock className="h-4 w-4" />
-                          <span>{pkg.sessions} session{pkg.sessions > 1 ? 's' : ''}</span>
+                          <span>{t('packages.sessions', { count: pkg.sessions, plural: pkg.sessions > 1 ? 's' : '' })}</span>
                         </div>
                       </div>
 
@@ -318,7 +335,7 @@ export default function CoachingOptionsPage() {
                         className={`w-full ${pkg.popular ? 'bg-arise-gold text-arise-deep-teal hover:bg-arise-gold/90' : ''}`}
                         onClick={() => handleSelectPackage(pkg.id)}
                       >
-                        Choisir ce forfait
+                        {t('packages.selectButton')}
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </div>
@@ -349,16 +366,16 @@ export default function CoachingOptionsPage() {
           <div id="coaches-section" className="relative z-10 scroll-mt-8">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-gray-900 mb-3">
-                Rencontrez nos Coachs
+                {t('coachesSection.title')}
               </h2>
               <p className="text-gray-600 text-lg">
-                Sélectionnez le coach qui correspond le mieux à vos besoins
+                {t('coachesSection.subtitle')}
               </p>
               {selectedPackage && (
                 <div className="mt-4 inline-block">
                   <Card className="bg-primary-50 border-primary-200 p-4">
                     <p className="text-primary-800">
-                      <strong>Forfait sélectionné:</strong> {coachingPackages.find(p => p.id === selectedPackage)?.name}
+                      <strong>{t('coachesSection.selectedPackage')}:</strong> {coachingPackages.find(p => p.id === selectedPackage)?.name}
                     </p>
                   </Card>
                 </div>
@@ -399,7 +416,7 @@ export default function CoachingOptionsPage() {
                                 {coach.rating}
                               </span>
                               <span className="text-sm text-gray-500">
-                                ({coach.reviews} avis)
+                                {t('coaches.reviews', { count: coach.reviews })}
                               </span>
                             </div>
                             <div className="text-sm text-gray-500">
@@ -415,7 +432,7 @@ export default function CoachingOptionsPage() {
 
                       <div className="mb-4">
                         <h4 className="text-sm font-semibold text-gray-900 mb-2">
-                          Spécialités:
+                          {t('coaches.specialties')}:
                         </h4>
                         <div className="flex flex-wrap gap-2">
                           {coach.specialties.map((specialty, idx) => (
@@ -457,7 +474,7 @@ export default function CoachingOptionsPage() {
                           onClick={() => handleBookSession(coach.id, selectedPackage || undefined)}
                           className="bg-arise-deep-teal hover:bg-arise-deep-teal/90"
                         >
-                          Réserver une session
+                          {t('coaches.bookButton')}
                         </Button>
                       </div>
                     </div>
@@ -488,10 +505,10 @@ export default function CoachingOptionsPage() {
           <div className="relative z-10">
             <Card className="text-center p-8 md:p-12 bg-gradient-to-r from-arise-teal to-arise-deep-teal text-white border-0">
               <h2 className="text-3xl font-bold mb-4">
-                Prêt à commencer votre transformation ?
+                {t('cta.title')}
               </h2>
               <p className="text-lg text-white/90 mb-6 max-w-2xl mx-auto">
-                Contactez-nous pour discuter de vos besoins et trouver le forfait et le coach qui vous conviennent le mieux.
+                {t('cta.description')}
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <Button
@@ -499,14 +516,14 @@ export default function CoachingOptionsPage() {
                   className="bg-arise-gold text-arise-deep-teal hover:bg-arise-gold/90"
                   onClick={() => router.push('/dashboard')}
                 >
-                  Retour au dashboard
+                  {t('cta.backToDashboard')}
                 </Button>
                 <Button
                   variant="outline"
                   className="border-2 border-white text-white hover:bg-white/10"
                   onClick={() => router.push('/contact')}
                 >
-                  Nous contacter
+                  {t('cta.contactUs')}
                 </Button>
               </div>
             </Card>

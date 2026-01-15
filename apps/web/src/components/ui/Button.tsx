@@ -192,6 +192,14 @@ function Button({
     standardVariantStyles.borderColor = '#0F4C56';
     standardVariantStyles.color = '#0F4C56';
     standardVariantStyles.backgroundColor = 'transparent';
+    
+    // If outline variant has a background color in props.style, force text to white
+    if (props.style && typeof props.style === 'object' && 'backgroundColor' in props.style) {
+      const bgColor = (props.style as React.CSSProperties).backgroundColor;
+      if (bgColor && bgColor !== 'transparent' && bgColor !== 'rgba(0, 0, 0, 0)') {
+        standardVariantStyles.color = '#FFFFFF';
+      }
+    }
   } else if ((variant === 'secondary' || variant === 'danger' || variant === 'arise-primary') && !variantConfig) {
     // All variants with background must have white text (#FFF)
     standardVariantStyles.color = '#FFFFFF';

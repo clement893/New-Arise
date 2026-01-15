@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import Container from '@/components/ui/Container';
 import PricingCardSimple from '@/components/ui/PricingCardSimple';
 import BillingPeriodToggle from '@/components/ui/BillingPeriodToggle';
@@ -22,60 +23,61 @@ interface Plan {
 }
 
 export default function PricingPage() {
+  const t = useTranslations('pricing.legacy');
   const [billingPeriod, setBillingPeriod] = useState<'month' | 'year'>('month');
 
   const plans: Plan[] = [
     {
       id: 'starter',
-      name: 'Starter',
+      name: t('plans.starter.name'),
       price: 29,
       period: billingPeriod,
-      description: 'Parfait pour les petites organisations',
+      description: t('plans.starter.description'),
       features: [
-        'Jusqu\'à 100 utilisateurs',
-        '1 projet actif',
-        'Support email',
-        'Rapports de base',
-        'API limitée',
+        t('plans.starter.features.0'),
+        t('plans.starter.features.1'),
+        t('plans.starter.features.2'),
+        t('plans.starter.features.3'),
+        t('plans.starter.features.4'),
       ],
-      buttonText: 'Commencer',
+      buttonText: t('plans.starter.buttonText'),
     },
     {
       id: 'professional',
-      name: 'Professional',
+      name: t('plans.professional.name'),
       price: 79,
       period: billingPeriod,
-      description: 'Pour les organisations en croissance',
+      description: t('plans.professional.description'),
       features: [
-        'Jusqu\'à 1,000 utilisateurs',
-        'Projets illimités',
-        'Support prioritaire',
-        'Rapports avancés',
-        'API complète',
-        'Intégrations tierces',
-        'Formulaires personnalisés',
+        t('plans.professional.features.0'),
+        t('plans.professional.features.1'),
+        t('plans.professional.features.2'),
+        t('plans.professional.features.3'),
+        t('plans.professional.features.4'),
+        t('plans.professional.features.5'),
+        t('plans.professional.features.6'),
       ],
       popular: true,
-      buttonText: 'Essayer gratuitement',
+      buttonText: t('plans.professional.buttonText'),
     },
     {
       id: 'enterprise',
-      name: 'Enterprise',
+      name: t('plans.enterprise.name'),
       price: 199,
       period: billingPeriod,
-      description: 'Pour les grandes organisations',
+      description: t('plans.enterprise.description'),
       features: [
-        'Utilisateurs illimités',
-        'Toutes les fonctionnalités',
-        'Support dédié 24/7',
-        'Rapports personnalisés',
-        'API illimitée',
-        'Intégrations personnalisées',
-        'Formulaires avancés',
-        'Multi-organisations',
-        'RBAC avancé',
+        t('plans.enterprise.features.0'),
+        t('plans.enterprise.features.1'),
+        t('plans.enterprise.features.2'),
+        t('plans.enterprise.features.3'),
+        t('plans.enterprise.features.4'),
+        t('plans.enterprise.features.5'),
+        t('plans.enterprise.features.6'),
+        t('plans.enterprise.features.7'),
+        t('plans.enterprise.features.8'),
       ],
-      buttonText: 'Nous contacter',
+      buttonText: t('plans.enterprise.buttonText'),
     },
   ];
 
@@ -83,9 +85,9 @@ export default function PricingPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       <Container className="py-16">
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">Tarifs</h1>
+          <h1 className="text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">{t('title')}</h1>
           <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
-            Choisissez le plan qui correspond à vos besoins
+            {t('subtitle')}
           </p>
 
           <BillingPeriodToggle value={billingPeriod} onChange={setBillingPeriod} />
@@ -107,20 +109,20 @@ export default function PricingPage() {
         {/* FAQ Section */}
         <div className="mt-16 max-w-3xl mx-auto">
           <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-gray-100 mb-8">
-            Questions fréquentes
+            {t('faq.title')}
           </h2>
           <div className="space-y-4">
             <FAQItem
-              question="Puis-je changer de plan à tout moment ?"
-              answer="Oui, vous pouvez mettre à niveau ou rétrograder votre plan à tout moment. Les changements prendront effet immédiatement."
+              question={t('faq.questions.0.question')}
+              answer={t('faq.questions.0.answer')}
             />
             <FAQItem
-              question="Y a-t-il un essai gratuit ?"
-              answer="Oui, tous les plans incluent un essai gratuit de 14 jours. Aucune carte de crédit requise."
+              question={t('faq.questions.1.question')}
+              answer={t('faq.questions.1.answer')}
             />
             <FAQItem
-              question="Quels modes de paiement acceptez-vous ?"
-              answer="Nous acceptons les cartes de crédit (Visa, Mastercard, American Express) et les virements bancaires pour les plans Enterprise."
+              question={t('faq.questions.2.question')}
+              answer={t('faq.questions.2.answer')}
             />
           </div>
         </div>

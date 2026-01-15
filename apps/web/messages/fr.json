@@ -98,6 +98,183 @@
         "displayError": "Erreur d'affichage. Veuillez actualiser la page.",
         "refresh": "Rafraîchir"
       }
+    },
+    "coachingOptions": {
+      "title": {
+        "prefix": "Options de",
+        "suffix": "Coaching"
+      },
+      "subtitle": "Découvrez nos forfaits et rencontrez nos coachs certifiés pour accélérer votre développement en leadership",
+      "hero": {
+        "title": "Transformez votre leadership avec l'accompagnement personnalisé",
+        "description": "Nos coachs certifiés ARISE vous accompagnent dans votre parcours de développement. Choisissez le forfait qui correspond à vos objectifs et sélectionnez le coach qui vous inspire.",
+        "badges": {
+          "icf": "Coachs certifiés ICF",
+          "clients": "500+ clients accompagnés",
+          "satisfaction": "4.8/5 satisfaction moyenne"
+        }
+      },
+      "packagesSection": {
+        "title": "Nos Forfaits de Coaching",
+        "subtitle": "Choisissez le forfait qui correspond à vos besoins et à votre rythme"
+      },
+      "packages": {
+        "popular": "Le plus populaire",
+        "sessions": "{count} session{plural}",
+        "selectButton": "Choisir ce forfait",
+        "starter": {
+          "name": "Découverte",
+          "description": "Parfait pour découvrir le coaching et obtenir des conseils ciblés",
+          "duration": "1 session",
+          "features": {
+            "0": "Session de 90 minutes",
+            "1": "Analyse de vos résultats d'assessments",
+            "2": "Plan d'action personnalisé",
+            "3": "Ressources et outils",
+            "4": "Email de suivi post-session"
+          }
+        },
+        "growth": {
+          "name": "Croissance",
+          "description": "Pour une transformation significative sur plusieurs mois",
+          "duration": "3 mois",
+          "features": {
+            "0": "6 sessions de 60 minutes",
+            "1": "Suivi continu de vos progrès",
+            "2": "Plan de développement personnalisé",
+            "3": "Accès à la bibliothèque de ressources",
+            "4": "Support par email entre les sessions",
+            "5": "Rapports de progression mensuels"
+          }
+        },
+        "transformation": {
+          "name": "Transformation",
+          "description": "Accompagnement complet pour une transformation en profondeur",
+          "duration": "6 mois",
+          "features": {
+            "0": "12 sessions de 60 minutes",
+            "1": "Accompagnement intensif et personnalisé",
+            "2": "Plan de développement stratégique",
+            "3": "Accès prioritaire aux ressources premium",
+            "4": "Support illimité par email",
+            "5": "Rapports détaillés trimestriels",
+            "6": "Session de bilan et célébration",
+            "7": "Accès à la communauté exclusive"
+          }
+        }
+      },
+      "coachesSection": {
+        "title": "Rencontrez nos Coachs",
+        "subtitle": "Sélectionnez le coach qui correspond le mieux à vos besoins",
+        "selectedPackage": "Forfait sélectionné"
+      },
+      "coaches": {
+        "reviews": "({count} avis)",
+        "specialties": "Spécialités",
+        "bookButton": "Réserver une session",
+        "sarah": {
+          "title": "Leadership & Executive Coach",
+          "bio": "Avec plus de 15 ans d'expérience en développement du leadership, Sarah accompagne les dirigeants dans leur transformation personnelle et professionnelle.",
+          "specialties": {
+            "0": "Leadership transformation",
+            "1": "Communication stratégique",
+            "2": "Gestion du changement"
+          },
+          "experience": "15+ ans"
+        },
+        "michael": {
+          "title": "Performance & Wellness Coach",
+          "bio": "Spécialiste en performance organisationnelle et bien-être au travail, Michael aide les leaders à équilibrer excellence professionnelle et épanouissement personnel.",
+          "specialties": {
+            "0": "Performance individuelle",
+            "1": "Wellness & équilibre",
+            "2": "Gestion du stress"
+          },
+          "experience": "12+ ans"
+        },
+        "emma": {
+          "title": "Career & Transition Coach",
+          "bio": "Experte en transitions de carrière et développement de potentiel, Emma guide les professionnels dans leurs moments clés de changement et de croissance.",
+          "specialties": {
+            "0": "Transition de carrière",
+            "1": "Développement de potentiel",
+            "2": "Planification stratégique"
+          },
+          "experience": "10+ ans"
+        },
+        "david": {
+          "title": "Team & Culture Coach",
+          "bio": "Passionné par la construction d'équipes performantes, David travaille avec les leaders pour créer des environnements de travail collaboratifs et innovants.",
+          "specialties": {
+            "0": "Leadership d'équipe",
+            "1": "Culture organisationnelle",
+            "2": "Collaboration"
+          },
+          "experience": "14+ ans"
+        }
+      },
+      "cta": {
+        "title": "Prêt à commencer votre transformation ?",
+        "description": "Contactez-nous pour discuter de vos besoins et trouver le forfait et le coach qui vous conviennent le mieux.",
+        "backToDashboard": "Retour au dashboard",
+        "contactUs": "Nous contacter"
+      },
+      "booking": {
+        "alert": "Réservation d'une session avec le coach et le forfait sélectionnés. Cette fonctionnalité sera bientôt disponible !"
+      },
+      "book": {
+        "title": "Réserver une session de coaching",
+        "subtitle": "Sélectionnez votre coach, votre forfait et choisissez une date",
+        "back": "Retour",
+        "continue": "Continuer",
+        "steps": {
+          "coach": {
+            "title": "Sélectionnez votre coach"
+          },
+          "package": {
+            "title": "Choisissez votre forfait",
+            "sessions": "{count} session{plural}"
+          },
+          "datetime": {
+            "title": "Choisissez la date et l'heure",
+            "dateLabel": "Date",
+            "timeLabel": "Heure",
+            "notesLabel": "Notes (optionnel)",
+            "notesPlaceholder": "Ajoutez des informations sur vos objectifs ou préférences...",
+            "loadingSlots": "Chargement des créneaux disponibles..."
+          },
+          "review": {
+            "title": "Récapitulatif",
+            "coach": "Coach",
+            "package": "Forfait",
+            "date": "Date",
+            "time": "Heure",
+            "total": "Total",
+            "creating": "Création...",
+            "confirmAndPay": "Confirmer et payer"
+          },
+          "payment": {
+            "title": "Paiement",
+            "description": "Vous allez être redirigé vers Stripe pour finaliser votre paiement.",
+            "redirecting": "Redirection...",
+            "proceed": "Procéder au paiement"
+          }
+        },
+        "errors": {
+          "loadFailed": "Erreur lors du chargement des données",
+          "fillAllFields": "Veuillez remplir tous les champs",
+          "createSessionFailed": "Erreur lors de la création de la session",
+          "missingSessionId": "Session ID manquant",
+          "createPaymentFailed": "Erreur lors de la création de la session de paiement"
+        }
+      },
+      "success": {
+        "title": "Réservation confirmée !",
+        "description": "Votre session de coaching a été réservée avec succès.",
+        "viewSessions": "Voir mes sessions",
+        "backToDashboard": "Retour au dashboard",
+        "emailConfirmation": "Un email de confirmation vous a été envoyé avec tous les détails de votre session."
+      }
     }
   },
   "errors": {
@@ -1652,6 +1829,102 @@
       "getStarted": "Commencer"
     }
   },
+  "pricing": {
+    "card": {
+      "customPricing": "Sur devis",
+      "perMonth": "/mois",
+      "defaultDescription": "test pour la plateforme"
+    },
+    "errors": {
+      "plansNotActive": "Les plans existent mais ne sont pas marqués comme ACTIVE. Veuillez aller sur la page Admin > Plans pour marquer les plans comme ACTIVE (statut: ACTIVE).",
+      "noPlansFound": "Aucun plan d'abonnement trouvé dans la base de données. Veuillez créer des plans via la page Admin > Plans ou exécuter le script seed_plans.py sur le serveur backend.",
+      "noActivePlans": "Aucun plan actif disponible. Veuillez vérifier que les plans existent et sont marqués comme ACTIVE via la page Admin > Plans.",
+      "loadFailed": "Erreur lors du chargement des plans: {message}",
+      "tryAgainLater": "Veuillez réessayer plus tard."
+    },
+    "faq": {
+      "title": "Questions fréquentes",
+      "questions": {
+        "0": {
+          "question": "Puis-je changer de plan à tout moment ?",
+          "answer": "Oui, vous pouvez mettre à niveau ou rétrograder votre plan à tout moment. Les changements prendront effet immédiatement."
+        },
+        "1": {
+          "question": "Y a-t-il un essai gratuit ?",
+          "answer": "Oui, tous les plans incluent un essai gratuit de 14 jours. Aucune carte de crédit requise."
+        },
+        "2": {
+          "question": "Quels modes de paiement acceptez-vous ?",
+          "answer": "Nous acceptons les cartes de crédit (Visa, Mastercard, American Express) et les virements bancaires pour les plans Enterprise."
+        }
+      }
+    },
+    "legacy": {
+      "title": "Tarifs",
+      "subtitle": "Choisissez le plan qui correspond à vos besoins",
+      "plans": {
+        "starter": {
+          "name": "Starter",
+          "description": "Parfait pour les petites organisations",
+          "features": {
+            "0": "Jusqu'à 100 utilisateurs",
+            "1": "1 projet actif",
+            "2": "Support email",
+            "3": "Rapports de base",
+            "4": "API limitée"
+          },
+          "buttonText": "Commencer"
+        },
+        "professional": {
+          "name": "Professional",
+          "description": "Pour les organisations en croissance",
+          "features": {
+            "0": "Jusqu'à 1,000 utilisateurs",
+            "1": "Projets illimités",
+            "2": "Support prioritaire",
+            "3": "Rapports avancés",
+            "4": "API complète",
+            "5": "Intégrations tierces",
+            "6": "Formulaires personnalisés"
+          },
+          "buttonText": "Essayer gratuitement"
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "description": "Pour les grandes organisations",
+          "features": {
+            "0": "Utilisateurs illimités",
+            "1": "Toutes les fonctionnalités",
+            "2": "Support dédié 24/7",
+            "3": "Rapports personnalisés",
+            "4": "API illimitée",
+            "5": "Intégrations personnalisées",
+            "6": "Formulaires avancés",
+            "7": "Multi-organisations",
+            "8": "RBAC avancé"
+          },
+          "buttonText": "Nous contacter"
+        }
+      },
+      "faq": {
+        "title": "Questions fréquentes",
+        "questions": {
+          "0": {
+            "question": "Puis-je changer de plan à tout moment ?",
+            "answer": "Oui, vous pouvez mettre à niveau ou rétrograder votre plan à tout moment. Les changements prendront effet immédiatement."
+          },
+          "1": {
+            "question": "Y a-t-il un essai gratuit ?",
+            "answer": "Oui, tous les plans incluent un essai gratuit de 14 jours. Aucune carte de crédit requise."
+          },
+          "2": {
+            "question": "Quels modes de paiement acceptez-vous ?",
+            "answer": "Nous acceptons les cartes de crédit (Visa, Mastercard, American Express) et les virements bancaires pour les plans Enterprise."
+          }
+        }
+      }
+    }
+  },
   "team": {
     "title": "Rencontrez notre équipe",
     "subtitle": "Des experts passionnés dédiés à l'autonomisation de leaders authentiques",
@@ -1750,6 +2023,8 @@
   },
   "news": {
     "title": "Actualités & Insights",
+    "titlePart1": "Actualités",
+    "titlePart2": "& Insights",
     "subtitle": "Restez informé des derniers insights sur le développement du leadership, les évaluations et la croissance organisationnelle",
     "readMore": "Lire la suite",
     "articles": {

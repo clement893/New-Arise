@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui';
@@ -8,6 +9,7 @@ import Button from '@/components/ui/Button';
 import { CheckCircle } from 'lucide-react';
 
 export default function CoachingSessionSuccessPage() {
+  const t = useTranslations('dashboard.coachingOptions.success');
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionIdParam = searchParams.get('session_id');
@@ -27,10 +29,10 @@ export default function CoachingSessionSuccessPage() {
           <div className="mb-6">
             <CheckCircle className="h-16 w-16 text-success-500 mx-auto mb-4" />
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-              Réservation confirmée !
+              {t('title')}
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Votre session de coaching a été réservée avec succès.
+              {t('description')}
             </p>
           </div>
 
@@ -40,18 +42,18 @@ export default function CoachingSessionSuccessPage() {
               variant="primary"
               onClick={() => router.push('/dashboard/coaching-options')}
             >
-              Voir mes sessions
+              {t('viewSessions')}
             </Button>
             <Button
               variant="outline"
               onClick={() => router.push('/dashboard')}
             >
-              Retour au dashboard
+              {t('backToDashboard')}
             </Button>
           </div>
 
           <p className="mt-6 text-sm text-gray-500">
-            Un email de confirmation vous a été envoyé avec tous les détails de votre session.
+            {t('emailConfirmation')}
           </p>
         </Card>
       </div>

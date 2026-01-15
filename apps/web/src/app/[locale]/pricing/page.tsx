@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import PricingCardSimple from '@/components/ui/PricingCardSimple';
 import BillingPeriodToggle from '@/components/ui/BillingPeriodToggle';
@@ -44,6 +45,7 @@ interface ApiPlan {
 }
 
 export default function PricingPage() {
+  const t = useTranslations('pricing');
   const [billingPeriod, setBillingPeriod] = useState<'month' | 'year'>('month');
   const [plans, setPlans] = useState<Plan[]>([]);
   const [apiPlans, setApiPlans] = useState<ApiPlan[]>([]);
@@ -155,7 +157,7 @@ export default function PricingPage() {
                 interval: p.interval 
               }))
             });
-            setError('Les plans existent mais ne sont pas marqués comme ACTIVE. Veuillez aller sur la page Admin > Plans pour marquer les plans comme ACTIVE (statut: ACTIVE).');
+            setError(t('errors.plansNotActive'));
           } else {
             logger.error('No plans found at all in database', { 
               response,
@@ -171,11 +173,11 @@ export default function PricingPage() {
                 plansLength: Array.isArray(response?.data?.plans) ? response.data.plans.length : 'not array'
               }
             });
-            setError('Aucun plan d\'abonnement trouvé dans la base de données. Veuillez créer des plans via la page Admin > Plans ou exécuter le script seed_plans.py sur le serveur backend.');
+            setError(t('errors.noPlansFound'));
           }
         } catch (fallbackErr) {
           logger.error('Error fetching all plans as fallback', { error: fallbackErr });
-          setError('Aucun plan actif disponible. Veuillez vérifier que les plans existent et sont marqués comme ACTIVE via la page Admin > Plans.');
+          setError(t('errors.noActivePlans'));
         }
         
         setApiPlans([]);
@@ -199,7 +201,7 @@ export default function PricingPage() {
       setApiPlans(fetchedPlans);
     } catch (err) {
       const appError = handleApiError(err);
-      setError(`Erreur lors du chargement des plans: ${appError.message || 'Veuillez réessayer plus tard.'}`);
+      setError(t('errors.loadFailed', { message: appError.message || t('errors.tryAgainLater') }));
       logger.error('Failed to load subscription plans', appError, { 
         error: err, 
         fullError: appError,
@@ -257,7 +259,7 @@ export default function PricingPage() {
                     </span>
                   </h1>
                   <p className="text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed">
-                  Autonomiser des leaders authentiques grâce à une évaluation et un développement holistiques
+                  Empower authentic leaders through holistic assessment and development
                   </p>
                 </div>
               </div>
@@ -324,20 +326,20 @@ export default function PricingPage() {
         {/* FAQ Section */}
         <div className="mt-16 max-w-4xl mx-auto">
           <h2 className="text-3xl font-semibold text-center mb-8" style={{ color: '#D8B868' }}>
-            Questions fréquentes
+            {t('faq.title')}
           </h2>
           <div className="space-y-4">
             <FAQItem
-              question="Puis-je changer de plan à tout moment ?"
-              answer="Oui, vous pouvez mettre à niveau ou rétrograder votre plan à tout moment. Les changements prendront effet immédiatement."
+              question={t('faq.questions.0.question')}
+              answer={t('faq.questions.0.answer')}
             />
             <FAQItem
-              question="Y a-t-il un essai gratuit ?"
-              answer="Oui, tous les plans incluent un essai gratuit de 14 jours. Aucune carte de crédit requise."
+              question={t('faq.questions.1.question')}
+              answer={t('faq.questions.1.answer')}
             />
             <FAQItem
-              question="Quels modes de paiement acceptez-vous ?"
-              answer="Nous acceptons les cartes de crédit (Visa, Mastercard, American Express) et les virements bancaires pour les plans Enterprise."
+              question={t('faq.questions.2.question')}
+              answer={t('faq.questions.2.answer')}
             />
           </div>
         </div>

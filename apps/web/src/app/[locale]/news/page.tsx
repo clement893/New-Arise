@@ -58,10 +58,10 @@ export default function NewsPage() {
                 <div className="text-left">
                   <h1 className="mb-6">
                     <span className="block text-5xl md:text-6xl font-light mb-2" style={{ color: '#D8B868' }}>
-                      Actualités
+                      {t('titlePart1')}
                     </span>
                     <span className="block text-5xl md:text-6xl font-medium" style={{ color: '#D8B868' }}>
-                      & Insights
+                      {t('titlePart2')}
                     </span>
                   </h1>
                   <p className="text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed">
@@ -75,7 +75,7 @@ export default function NewsPage() {
                 <div className="absolute inset-0">
                   <Image 
                     src="/images/news-hero.jpg" 
-                    alt="Actualités & Insights"
+                    alt={t('title')}
                     fill
                     className="object-cover"
                     priority
