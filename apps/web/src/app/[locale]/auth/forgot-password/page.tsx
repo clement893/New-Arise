@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, Suspense } from 'react';
-import { useRouter, Link } from '@/i18n/routing';
+import { Link } from '@/i18n/routing';
 import { AxiosError } from 'axios';
 import { authAPI } from '@/lib/api';
 import { Input, Button, Alert, Card, Container } from '@/components/ui';
@@ -14,7 +14,6 @@ interface ApiErrorResponse {
 }
 
 function ForgotPasswordContent() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
