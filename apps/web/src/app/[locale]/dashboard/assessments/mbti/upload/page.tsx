@@ -29,7 +29,7 @@ export default function MBTIPDFUploadPage() {
     if (files.length > 0) {
       const file = files[0];
       if (!file) {
-        setError('Aucun fichier sélectionné');
+        setError('No file selected');
         return;
       }
       
@@ -56,7 +56,7 @@ export default function MBTIPDFUploadPage() {
       }
       
       if (file.size > 10 * 1024 * 1024) { // 10MB
-        setError('Le fichier est trop volumineux. Taille maximale : 10MB');
+        setError('File is too large. Maximum size: 10MB');
         setSelectedFile(null);
         return;
       }
@@ -149,7 +149,7 @@ export default function MBTIPDFUploadPage() {
         await new Promise(resolve => setTimeout(resolve, 1000));
         router.push(`/dashboard/assessments/mbti/results?id=${assessmentId}`);
       } else {
-        throw new Error('Aucun ID d\'assessment retourné');
+        throw new Error('No assessment ID returned');
       }
     } catch (err: unknown) {
       // Ensure interval is cleaned up in case of error
@@ -204,7 +204,7 @@ export default function MBTIPDFUploadPage() {
             disabled={isUploading}
           >
             <ArrowLeft size={16} />
-            Retour
+            Back
           </Button>
 
           <div className="mb-8 pb-6">

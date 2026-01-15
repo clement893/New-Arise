@@ -24,10 +24,10 @@ export default function AboutPage() {
                 <div className="text-left">
                   <h1 className="mb-6">
                     <span className="block text-5xl md:text-6xl font-light mb-2" style={{ color: '#D8B868' }}>
-                      Notre
+                      Our
                     </span>
                     <span className="block text-5xl md:text-6xl font-medium" style={{ color: '#D8B868' }}>
-                      histoire
+                      Story
                     </span>
                   </h1>
                   <p className="text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed">
@@ -41,7 +41,7 @@ export default function AboutPage() {
                 <div className="absolute inset-0">
                   <Image 
                     src="/images/about-hero.jpg" 
-                    alt="Notre histoire"
+                    alt="Our Story"
                     fill
                     className="object-cover"
                     priority
@@ -72,7 +72,7 @@ export default function AboutPage() {
               <div className="relative h-64 md:h-auto rounded-l-2xl overflow-hidden">
                 <Image 
                   src="/images/about-mission.jpg" 
-                  alt="Notre mission"
+                  alt="Our Mission"
                   fill
                   className="object-cover"
                   priority
@@ -92,8 +92,8 @@ export default function AboutPage() {
                     <Target className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
                   </div>
                   <h2 className="text-3xl md:text-4xl">
-                    <span className="font-light" style={{ color: '#D8B868' }}>Notre </span>
-                    <span className="font-medium" style={{ color: '#D8B868' }}>mission</span>
+                    <span className="font-light" style={{ color: '#D8B868' }}>Our </span>
+                    <span className="font-medium" style={{ color: '#D8B868' }}>Mission</span>
                   </h2>
                 </div>
                 <p className="text-base md:text-lg text-gray-900 mb-4 leading-relaxed">
@@ -118,7 +118,7 @@ export default function AboutPage() {
               <div className="relative h-64 md:h-auto rounded-l-2xl overflow-hidden">
                 <Image 
                   src="/images/about-vision.jpg" 
-                  alt="Notre vision"
+                  alt="Our Vision"
                   fill
                   className="object-cover"
                   priority
@@ -138,8 +138,8 @@ export default function AboutPage() {
                     <Eye className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
                   </div>
                   <h2 className="text-3xl md:text-4xl">
-                    <span className="font-light" style={{ color: '#D8B868' }}>Notre </span>
-                    <span className="font-medium" style={{ color: '#D8B868' }}>vision</span>
+                    <span className="font-light" style={{ color: '#D8B868' }}>Our </span>
+                    <span className="font-medium" style={{ color: '#D8B868' }}>Vision</span>
                   </h2>
                 </div>
                 <p className="text-base md:text-lg text-gray-900 mb-4 leading-relaxed">

@@ -47,7 +47,7 @@ export default function AdminSettingsContent() {
       await new Promise(resolve => setTimeout(resolve, 500));
       setSuccess(true);
     } catch (err) {
-      setError(getErrorMessage(err, 'Erreur lors de la sauvegarde des paramètres'));
+      setError(getErrorMessage(err, 'Error saving settings'));
     } finally {
       setLoading(false);
     }
@@ -56,12 +56,12 @@ export default function AdminSettingsContent() {
   return (
     <PageContainer>
       <PageHeader 
-        title="Paramètres système" 
-        description="Configuration générale du système"
+        title="System Settings" 
+        description="General system configuration"
         breadcrumbs={[
-          { label: 'Accueil', href: '/' },
+          { label: 'Home', href: '/' },
           { label: 'Administration', href: '/admin' },
-          { label: 'Paramètres' }
+          { label: 'Settings' }
         ]} 
       />
 
@@ -73,20 +73,20 @@ export default function AdminSettingsContent() {
 
       {success && (
         <Alert variant="success" className="mb-4">
-          Paramètres mis à jour avec succès
+          Settings updated successfully
         </Alert>
       )}
 
       <form onSubmit={handleSubmit}>
-        <Section title="Général" className="mt-6">
+        <Section title="General" className="mt-6">
           <Card className="p-4 sm:p-6 space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex-1">
                 <label className="text-sm font-medium text-foreground">
-                  Mode maintenance
+                  Maintenance Mode
                 </label>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Active le mode maintenance pour restreindre l'accès au système
+                  Enable maintenance mode to restrict system access
                 </p>
               </div>
               <Switch
@@ -98,10 +98,10 @@ export default function AdminSettingsContent() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex-1">
                 <label className="text-sm font-medium text-foreground">
-                  Inscriptions activées
+                  Registration Enabled
                 </label>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Permet aux nouveaux utilisateurs de s'inscrire
+                  Allow new users to register
                 </p>
               </div>
               <Switch
@@ -113,10 +113,10 @@ export default function AdminSettingsContent() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex-1">
                 <label className="text-sm font-medium text-foreground">
-                  Vérification email requise
+                  Email Verification Required
                 </label>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Les utilisateurs doivent vérifier leur email pour activer leur compte
+                  Users must verify their email to activate their account
                 </p>
               </div>
               <Switch
@@ -127,10 +127,10 @@ export default function AdminSettingsContent() {
           </Card>
         </Section>
 
-        <Section title="Sécurité" className="mt-6">
+        <Section title="Security" className="mt-6">
           <Card className="p-4 sm:p-6 space-y-6">
             <Input
-              label="Limite de taux API (requêtes/minute)"
+              label="API Rate Limit (requests/minute)"
               type="number"
               value={settings.api_rate_limit}
               onChange={(e) => setSettings({ ...settings, api_rate_limit: parseInt(e.target.value) || 100 })}
@@ -139,7 +139,7 @@ export default function AdminSettingsContent() {
             />
 
             <Input
-              label="Timeout de session (secondes)"
+              label="Session Timeout (seconds)"
               type="number"
               value={settings.session_timeout}
               onChange={(e) => setSettings({ ...settings, session_timeout: parseInt(e.target.value) || 3600 })}
@@ -151,7 +151,7 @@ export default function AdminSettingsContent() {
 
         <div className="mt-6 flex justify-end">
           <Button type="submit" variant="primary" loading={loading} className="w-full sm:w-auto text-sm sm:text-base">
-            Enregistrer les paramètres
+            Save Settings
           </Button>
         </div>
       </form>

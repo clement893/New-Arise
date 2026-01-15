@@ -25,7 +25,7 @@ export default function ContactDetailPage() {
 
   useEffect(() => {
     if (!contactId) {
-      setError('ID de contact invalide');
+      setError('Invalid contact ID');
       setLoading(false);
       return;
     }
@@ -43,9 +43,9 @@ export default function ContactDetailPage() {
       setContact(data);
     } catch (err) {
       const appError = handleApiError(err);
-      setError(appError.message || 'Erreur lors du chargement du contact');
+      setError(appError.message || 'Error loading contact');
       showToast({
-        message: appError.message || 'Erreur lors du chargement du contact',
+        message: appError.message || 'Error loading contact',
         type: 'error',
       });
     } finally {
@@ -61,7 +61,7 @@ export default function ContactDetailPage() {
   };
 
   const handleDelete = async () => {
-    if (!contact || !confirm('Êtes-vous sûr de vouloir supprimer ce contact ?')) {
+    if (!contact || !confirm('Are you sure you want to delete this contact?')) {
       return;
     }
 
@@ -69,16 +69,16 @@ export default function ContactDetailPage() {
       setDeleting(true);
       await reseauContactsAPI.delete(contact.id);
       showToast({
-        message: 'Contact supprimé avec succès',
+        message: 'Contact deleted successfully',
         type: 'success',
       });
       const locale = params?.locale as string || 'en';
       router.push(`/${locale}/dashboard/reseau/contacts`);
     } catch (err) {
       const appError = handleApiError(err);
-      setError(appError.message || 'Erreur lors de la suppression');
+      setError(appError.message || 'Error deleting');
       showToast({
-        message: appError.message || 'Erreur lors de la suppression',
+        message: appError.message || 'Error deleting',
         type: 'error',
       });
     } finally {
@@ -103,9 +103,9 @@ export default function ContactDetailPage() {
           title="Erreur"
           breadcrumbs={[
             { label: 'Dashboard', href: `/${params?.locale || 'fr'}/dashboard` },
-            { label: 'Module Réseau', href: `/${params?.locale || 'fr'}/dashboard/reseau` },
-            { label: 'Contacts', href: `/${params?.locale || 'fr'}/dashboard/reseau/contacts` },
-            { label: 'Détail' },
+            { label: 'Network Module', href: `/${params?.locale || 'en'}/dashboard/reseau` },
+            { label: 'Contacts', href: `/${params?.locale || 'en'}/dashboard/reseau/contacts` },
+            { label: 'Details' },
           ]}
         />
         <Alert variant="error">{typeof error === 'string' ? error : String(error || 'An error occurred')}</Alert>
@@ -115,7 +115,7 @@ export default function ContactDetailPage() {
             router.push(`/${locale}/dashboard/reseau/contacts`);
           }}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Retour aux contacts
+            Back to contacts
           </Button>
         </div>
       </PageContainer>
@@ -126,22 +126,22 @@ export default function ContactDetailPage() {
     return (
       <PageContainer>
         <PageHeader
-          title="Contact non trouvé"
+          title="Contact not found"
           breadcrumbs={[
-            { label: 'Dashboard', href: `/${params?.locale || 'fr'}/dashboard` },
-            { label: 'Module Réseau', href: `/${params?.locale || 'fr'}/dashboard/reseau` },
-            { label: 'Contacts', href: `/${params?.locale || 'fr'}/dashboard/reseau/contacts` },
-            { label: 'Détail' },
+            { label: 'Dashboard', href: `/${params?.locale || 'en'}/dashboard` },
+            { label: 'Network Module', href: `/${params?.locale || 'en'}/dashboard/reseau` },
+            { label: 'Contacts', href: `/${params?.locale || 'en'}/dashboard/reseau/contacts` },
+            { label: 'Details' },
           ]}
         />
-        <Alert variant="error">Le contact demandé n'existe pas.</Alert>
+        <Alert variant="error">The requested contact does not exist.</Alert>
         <div className="mt-4">
           <Button variant="outline" onClick={() => {
             const locale = params?.locale as string || 'en';
             router.push(`/${locale}/dashboard/reseau/contacts`);
           }}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Retour aux contacts
+            Back to contacts
           </Button>
         </div>
       </PageContainer>
@@ -149,7 +149,7 @@ export default function ContactDetailPage() {
   }
 
   const handleBack = () => {
-    const locale = params?.locale as string || 'fr';
+    const locale = params?.locale as string || 'en';
     router.push(`/${locale}/dashboard/reseau/contacts`);
   };
 
@@ -158,15 +158,15 @@ export default function ContactDetailPage() {
       <PageHeader
         title={`${contact.first_name} ${contact.last_name}`}
         breadcrumbs={[
-          { label: 'Dashboard', href: `/${params?.locale || 'fr'}/dashboard` },
-          { label: 'Module Réseau', href: `/${params?.locale || 'fr'}/dashboard/reseau` },
-          { label: 'Contacts', href: `/${params?.locale || 'fr'}/dashboard/reseau/contacts` },
+          { label: 'Dashboard', href: `/${params?.locale || 'en'}/dashboard` },
+          { label: 'Network Module', href: `/${params?.locale || 'en'}/dashboard/reseau` },
+          { label: 'Contacts', href: `/${params?.locale || 'en'}/dashboard/reseau/contacts` },
           { label: `${contact.first_name} ${contact.last_name}` },
         ]}
         actions={
           <Button variant="outline" size="sm" onClick={handleBack}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Retour à la liste
+            Back to list
           </Button>
         }
       />

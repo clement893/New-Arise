@@ -24,7 +24,7 @@ export default function CompanyDetail({ company, onEdit, onDelete }: CompanyDeta
           <div className="grid grid-cols-2 gap-4 text-sm">
             {company.website && (
               <div>
-                <span className="font-medium">Site web:</span> {company.website}
+                <span className="font-medium">Website:</span> {company.website}
               </div>
             )}
             {company.email && (
@@ -34,12 +34,12 @@ export default function CompanyDetail({ company, onEdit, onDelete }: CompanyDeta
             )}
             {company.phone && (
               <div>
-                <span className="font-medium">Téléphone:</span> {company.phone}
+                <span className="font-medium">Phone:</span> {company.phone}
               </div>
             )}
             {company.country && (
               <div>
-                <span className="font-medium">Pays:</span> {company.country}
+                <span className="font-medium">Country:</span> {company.country}
               </div>
             )}
           </div>
@@ -48,13 +48,13 @@ export default function CompanyDetail({ company, onEdit, onDelete }: CompanyDeta
               {onEdit && (
                 <Button variant="outline" onClick={onEdit}>
                   <Edit className="w-4 h-4 mr-2" />
-                  Modifier
+                  Edit
                 </Button>
               )}
               {onDelete && (
                 <Button variant="danger" onClick={onDelete}>
                   <Trash2 className="w-4 h-4 mr-2" />
-                  Supprimer
+                  Delete
                 </Button>
               )}
             </div>

@@ -118,7 +118,8 @@ export default function DashboardCustomLayout({ children }: DashboardCustomLayou
         <div className="p-4 border-t border-white/20">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-white/80 hover:bg-white/10 hover:text-white w-full transition-colors"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg text-white w-full transition-colors hover:opacity-90"
+            style={{ backgroundColor: '#0f454d', color: '#fff' }}
           >
             <LogOut className="w-5 h-5" />
             <span className="text-sm">Logout</span>

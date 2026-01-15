@@ -76,7 +76,12 @@ export default function Header() {
                     Dashboard
                   </Button>
                 </Link>
-                <Button size="sm" variant="outline" onClick={logout}>
+                <Button 
+                  size="sm" 
+                  variant="primary" 
+                  onClick={logout}
+                  style={{ backgroundColor: '#0f454d', color: '#fff' }}
+                >
                   Déconnexion
                 </Button>
               </>
@@ -161,7 +166,13 @@ export default function Header() {
                         Dashboard
                       </Button>
                     </Link>
-                    <Button size="sm" variant="outline" onClick={logout} className="w-full">
+                    <Button 
+                      size="sm" 
+                      variant="primary" 
+                      onClick={logout} 
+                      className="w-full"
+                      style={{ backgroundColor: '#0f454d', color: '#fff' }}
+                    >
                       Déconnexion
                     </Button>
                   </div>

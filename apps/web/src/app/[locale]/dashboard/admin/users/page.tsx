@@ -45,7 +45,7 @@ export default function AdminUsersPage() {
       setTotal(response.total);
       setTotalPages(Math.ceil(response.total / pageSize));
     } catch (err) {
-      setError(getErrorMessage(err, 'Erreur lors du chargement des utilisateurs'));
+      setError(getErrorMessage(err, 'Error loading users'));
     } finally {
       setLoading(false);
     }
@@ -72,7 +72,7 @@ export default function AdminUsersPage() {
       setTotal((prev) => Math.max(0, prev - 1));
       
       // Show success message
-      setSuccessMessage(`L'utilisateur ${selectedUser.email} a été supprimé avec succès.`);
+      setSuccessMessage(`User ${selectedUser.email} has been successfully deleted.`);
       
       // Close modal
       setDeleteModalOpen(false);
@@ -86,7 +86,7 @@ export default function AdminUsersPage() {
         setSuccessMessage(null);
       }, 5000);
     } catch (err) {
-      setError(getErrorMessage(err, 'Erreur lors de la suppression de l\'utilisateur'));
+      setError(getErrorMessage(err, 'Error deleting user'));
       setDeleteModalOpen(false);
       setSelectedUser(null);
     } finally {
@@ -261,7 +261,7 @@ export default function AdminUsersPage() {
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
             <Input
-              placeholder="Rechercher par email ou nom..."
+              placeholder="Search by email or name..."
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
               className="pl-10 text-sm sm:text-base"
@@ -276,7 +276,7 @@ export default function AdminUsersPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 py-3 px-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
               <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">
-                {selectedCount} utilisateur{selectedCount > 1 ? 's' : ''} sélectionné{selectedCount > 1 ? 's' : ''}
+                {selectedCount} user{selectedCount !== 1 ? 's' : ''} selected
               </span>
               <Button
                 variant="outline"
@@ -284,7 +284,7 @@ export default function AdminUsersPage() {
                 onClick={() => setSelectedUserIds(new Set())}
                 className="text-xs sm:text-sm w-full sm:w-auto"
               >
-                Tout désélectionner
+                Deselect all
               </Button>
             </div>
             <div className="flex items-center gap-2">
@@ -303,7 +303,7 @@ export default function AdminUsersPage() {
                 ) : (
                   <>
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Supprimer ({selectedCount})
+                    Delete ({selectedCount})
                   </>
                 )}
               </Button>
@@ -321,7 +321,7 @@ export default function AdminUsersPage() {
         ) : users.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-600 dark:text-gray-400">
-              {searchTerm ? 'Aucun utilisateur trouvé' : 'Aucun utilisateur'}
+              {searchTerm ? 'No user found' : 'No users'}
             </p>
           </div>
         ) : (
@@ -342,19 +342,19 @@ export default function AdminUsersPage() {
                       Email
                     </th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                      Nom
+                      Name
                     </th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
                       Type
                     </th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                      Statut
+                      Status
                     </th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
                       Superadmin
                     </th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                      Créé le
+                      Created
                     </th>
                     <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
                       Actions
@@ -430,7 +430,7 @@ export default function AdminUsersPage() {
                               onClick={() => {
                                 // View user details - can be implemented later
                               }}
-                              title="Voir les détails"
+                              title="View details"
                               className="min-w-[44px] min-h-[44px] p-2"
                             >
                               <Eye className="w-4 h-4" />
@@ -441,7 +441,7 @@ export default function AdminUsersPage() {
                               onClick={() => {
                                 // Edit user - can be implemented later
                               }}
-                              title="Modifier"
+                              title="Edit"
                               className="min-w-[44px] min-h-[44px] p-2"
                             >
                               <Edit className="w-4 h-4" />
@@ -453,7 +453,7 @@ export default function AdminUsersPage() {
                                 setSelectedUser(user);
                                 setSuperAdminModalOpen(true);
                               }}
-                              title="Rendre superadmin"
+                              title="Make superadmin"
                               className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/20 min-w-[44px] min-h-[44px] p-2"
                             >
                               <Shield className="w-4 h-4" />
@@ -465,7 +465,7 @@ export default function AdminUsersPage() {
                                 setSelectedUser(user);
                                 setDeleteModalOpen(true);
                               }}
-                              title="Supprimer"
+                              title="Delete"
                               className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 min-w-[44px] min-h-[44px] p-2"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -483,7 +483,7 @@ export default function AdminUsersPage() {
             {totalPages > 1 && (
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-gray-200 dark:border-gray-700 px-4 py-4">
                 <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center sm:text-left">
-                  Affichage de {(currentPage - 1) * pageSize + 1} à {Math.min(currentPage * pageSize, total)} sur {total} utilisateurs
+                  Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, total)} of {total} users
                 </div>
                 <div className="flex flex-wrap gap-2 justify-center sm:justify-end">
                   <Button
@@ -493,7 +493,7 @@ export default function AdminUsersPage() {
                     disabled={currentPage === 1}
                     className="text-xs sm:text-sm"
                   >
-                    Précédent
+                    Previous
                   </Button>
                   <div className="flex items-center gap-2">
                     {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -526,7 +526,7 @@ export default function AdminUsersPage() {
                     disabled={currentPage === totalPages}
                     className="text-xs sm:text-sm"
                   >
-                    Suivant
+                    Next
                   </Button>
                 </div>
               </div>
@@ -542,7 +542,7 @@ export default function AdminUsersPage() {
           setDeleteModalOpen(false);
           setSelectedUser(null);
         }}
-        title="Confirmer la suppression"
+        title="Confirm deletion"
         size="sm"
         footer={
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto sm:justify-end">
@@ -555,7 +555,7 @@ export default function AdminUsersPage() {
               disabled={deleting}
               className="w-full sm:w-auto text-sm sm:text-base"
             >
-              Annuler
+              Cancel
             </Button>
             <Button
               variant="danger"
@@ -566,10 +566,10 @@ export default function AdminUsersPage() {
               {deleting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Suppression...
+                  Deleting...
                 </>
               ) : (
-                'Supprimer'
+                'Delete'
               )}
             </Button>
           </div>
@@ -577,7 +577,7 @@ export default function AdminUsersPage() {
       >
         <div className="space-y-4">
           <p className="text-gray-600 dark:text-gray-400">
-            Êtes-vous sûr de vouloir supprimer l'utilisateur{' '}
+            Are you sure you want to delete the user{' '}
             <strong className="text-gray-900 dark:text-gray-100">{selectedUser?.email}</strong> ?
           </p>
           <p className="text-sm text-red-600 dark:text-red-400 font-medium">
@@ -604,7 +604,7 @@ export default function AdminUsersPage() {
               disabled={bulkDeleting}
               className="w-full sm:w-auto text-sm sm:text-base"
             >
-              Annuler
+              Cancel
             </Button>
             <Button
               variant="danger"
@@ -615,10 +615,10 @@ export default function AdminUsersPage() {
               {bulkDeleting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Suppression...
+                  Deleting...
                 </>
               ) : (
-                `Supprimer ${selectedCount} utilisateur${selectedCount > 1 ? 's' : ''}`
+                `Delete ${selectedCount} user${selectedCount !== 1 ? 's' : ''}`
               )}
             </Button>
           </div>
@@ -626,10 +626,10 @@ export default function AdminUsersPage() {
       >
         <div className="space-y-4">
           <p className="text-gray-600 dark:text-gray-400">
-            Êtes-vous sûr de vouloir supprimer <strong className="text-gray-900 dark:text-gray-100">{selectedCount} utilisateur{selectedCount > 1 ? 's' : ''}</strong> ?
+            Are you sure you want to delete <strong className="text-gray-900 dark:text-gray-100">{selectedCount} user{selectedCount !== 1 ? 's' : ''}</strong>?
           </p>
           <p className="text-sm text-red-600 dark:text-red-400 font-medium">
-            ⚠️ Cette action est irréversible. Les utilisateurs seront immédiatement retirés de la liste.
+            ⚠️ This action is irreversible. Users will be immediately removed from the list.
           </p>
         </div>
       </Modal>
@@ -641,7 +641,7 @@ export default function AdminUsersPage() {
           setSuperAdminModalOpen(false);
           setSelectedUser(null);
         }}
-        title="Rendre superadmin"
+        title="Make superadmin"
         size="sm"
         footer={
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto sm:justify-end">
@@ -654,7 +654,7 @@ export default function AdminUsersPage() {
               disabled={makingSuperAdmin}
               className="w-full sm:w-auto text-sm sm:text-base"
             >
-              Annuler
+              Cancel
             </Button>
             <Button
               variant="primary"
@@ -665,12 +665,12 @@ export default function AdminUsersPage() {
               {makingSuperAdmin ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Promotion...
+                  Promoting...
                 </>
               ) : (
                 <>
                   <Shield className="w-4 h-4 mr-2" />
-                  Rendre superadmin
+                  Make superadmin
                 </>
               )}
             </Button>
@@ -679,17 +679,17 @@ export default function AdminUsersPage() {
       >
         <div className="space-y-4">
           <p className="text-gray-600 dark:text-gray-400">
-            Êtes-vous sûr de vouloir rendre <strong className="text-gray-900 dark:text-gray-100">{selectedUser?.email}</strong> superadmin ?
+            Are you sure you want to make <strong className="text-gray-900 dark:text-gray-100">{selectedUser?.email}</strong> a superadmin?
           </p>
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
             <p className="text-sm text-blue-800 dark:text-blue-200 font-medium mb-2">
-              ⚡ Privilèges superadmin :
+              ⚡ Superadmin privileges:
             </p>
             <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1 list-disc list-inside">
-              <li>Accès à toutes les fonctionnalités administratives</li>
-              <li>Gestion des thèmes et configurations système</li>
-              <li>Gestion des rôles et permissions</li>
-              <li>Accès aux logs et statistiques avancées</li>
+              <li>Access to all administrative features</li>
+              <li>Theme and system configuration management</li>
+              <li>Role and permission management</li>
+              <li>Access to logs and advanced statistics</li>
             </ul>
           </div>
         </div>

@@ -15,7 +15,7 @@ export default function CompaniesGallery({ companies = [], onCompanyClick }: Com
       {companies.length === 0 ? (
         <div className="col-span-full text-center py-12 text-muted-foreground">
           <Building2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
-          <p>Aucune entreprise trouvée</p>
+          <p>No company found</p>
         </div>
       ) : (
         companies.map((company) => (

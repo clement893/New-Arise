@@ -136,8 +136,7 @@ export default function ButtonLink({
   // For external links, use regular anchor tag
   const isExternal = href.startsWith('http://') || href.startsWith('https://') || href.startsWith('//');
   
-  // Apply standard colors for primary and outline variants using inline styles
-  // This ensures the color is applied even if CSS variables are not set
+  // Apply standard colors for variants with background (text must be white)
   const standardStyles: React.CSSProperties = {};
   if (variant === 'primary') {
     standardStyles.backgroundColor = '#0F4C56';
@@ -146,6 +145,9 @@ export default function ButtonLink({
     standardStyles.borderColor = '#0F4C56';
     standardStyles.color = '#0F4C56';
     standardStyles.backgroundColor = 'transparent';
+  } else if (variant === 'secondary' || variant === 'danger') {
+    // All variants with background must have white text
+    standardStyles.color = '#FFFFFF';
   }
 
   const buttonClasses = clsx(
@@ -197,15 +199,23 @@ export default function ButtonLink({
         onMouseEnter={(e) => {
           if (variant === 'primary') {
             e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.9)';
+            e.currentTarget.style.color = '#FFFFFF';
           } else if (variant === 'outline') {
             e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.1)';
+          } else if (variant === 'secondary' || variant === 'danger') {
+            // Ensure text stays white on hover for all background variants
+            e.currentTarget.style.color = '#FFFFFF';
           }
         }}
         onMouseLeave={(e) => {
           if (variant === 'primary') {
             e.currentTarget.style.backgroundColor = '#0F4C56';
+            e.currentTarget.style.color = '#FFFFFF';
           } else if (variant === 'outline') {
             e.currentTarget.style.backgroundColor = 'transparent';
+          } else if (variant === 'secondary' || variant === 'danger') {
+            // Ensure text stays white on hover leave for all background variants
+            e.currentTarget.style.color = '#FFFFFF';
           }
         }}
       >

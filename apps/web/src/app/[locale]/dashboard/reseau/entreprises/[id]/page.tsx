@@ -24,7 +24,7 @@ export default function CompanyDetailPage() {
 
   useEffect(() => {
     if (!companyId) {
-      setError('ID d\'entreprise invalide');
+      setError('Invalid company ID');
       setLoading(false);
       return;
     }
@@ -42,9 +42,9 @@ export default function CompanyDetailPage() {
       setCompany(data);
     } catch (err) {
       const appError = handleApiError(err);
-      setError(appError.message || 'Erreur lors du chargement de l\'entreprise');
+      setError(appError.message || 'Error loading company');
       showToast({
-        message: appError.message || 'Erreur lors du chargement de l\'entreprise',
+        message: appError.message || 'Error loading company',
         type: 'error',
       });
     } finally {
@@ -60,7 +60,7 @@ export default function CompanyDetailPage() {
   };
 
   const handleDelete = async () => {
-    if (!company || !confirm('Êtes-vous sûr de vouloir supprimer cette entreprise ?')) {
+    if (!company || !confirm('Are you sure you want to delete this company?')) {
       return;
     }
 
@@ -68,16 +68,16 @@ export default function CompanyDetailPage() {
       setDeleting(true);
       await companiesAPI.delete(company.id);
       showToast({
-        message: 'Entreprise supprimée avec succès',
+        message: 'Company deleted successfully',
         type: 'success',
       });
       const locale = params?.locale as string || 'en';
       router.push(`/${locale}/dashboard/reseau/entreprises`);
     } catch (err) {
       const appError = handleApiError(err);
-      setError(appError.message || 'Erreur lors de la suppression');
+      setError(appError.message || 'Error deleting');
       showToast({
-        message: appError.message || 'Erreur lors de la suppression',
+        message: appError.message || 'Error deleting',
         type: 'error',
       });
     } finally {
@@ -108,8 +108,8 @@ export default function CompanyDetailPage() {
           description={typeof error === 'string' ? error : String(error || 'An error occurred')}
           breadcrumbs={[
             { label: 'Dashboard', href: '/dashboard' },
-            { label: 'Module Réseau', href: '/dashboard/reseau' },
-            { label: 'Entreprises', href: '/dashboard/reseau/entreprises' },
+            { label: 'Network Module', href: '/dashboard/reseau' },
+            { label: 'Companies', href: '/dashboard/reseau/entreprises' },
             { label: 'Détail' },
           ]}
           actions={
@@ -132,7 +132,7 @@ export default function CompanyDetailPage() {
     <PageContainer>
       <PageHeader
         title={company.name}
-        description={company.description || 'Détails de l\'entreprise'}
+        description={company.description || 'Company details'}
         breadcrumbs={[
           { label: 'Dashboard', href: '/dashboard' },
           { label: 'Module Réseau', href: '/dashboard/reseau' },

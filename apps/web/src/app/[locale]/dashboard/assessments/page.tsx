@@ -44,6 +44,7 @@ if (typeof window !== 'undefined') {
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Card, Button, Stack } from '@/components/ui';
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
@@ -109,6 +110,7 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 function AssessmentsContent() {
+  const t = useTranslations('dashboard.assessments');
   const router = useRouter();
   const pathname = usePathname();
   const { user } = useAuthStore();
@@ -830,26 +832,26 @@ function AssessmentsContent() {
         return (
           <div className="flex items-center gap-2 px-3 py-1 bg-success-100 text-success-700 rounded-full text-sm font-medium">
             <CheckCircle size={16} />
-            Completed
+            {t('status.completed')}
           </div>
         );
       case 'in-progress':
         return (
           <div className="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
-            In Progress
+            {t('status.inProgress')}
           </div>
         );
       case 'locked':
         return (
           <div className="flex items-center gap-2 px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-sm font-medium">
             <Lock size={16} />
-            Locked
+            {t('status.locked')}
           </div>
         );
       default:
         return (
           <div className="px-3 py-1 bg-arise-gold/20 text-arise-gold rounded-full text-sm font-medium">
-            Available
+            {t('status.available')}
           </div>
         );
     }
@@ -898,7 +900,7 @@ function AssessmentsContent() {
             }}
           >
             <Eye size={16} />
-            View Results
+            {t('actions.viewResults')}
           </Button>
         );
       }
@@ -920,7 +922,7 @@ function AssessmentsContent() {
           size="sm"
           >
             <Brain size={12} />
-            Take the test
+            {t('actions.takeTest')}
           </Button>
           <Button
             variant="outline"
@@ -931,7 +933,7 @@ function AssessmentsContent() {
             }}
           >
             <Upload size={12} />
-            Upload your test
+            {t('actions.uploadTest')}
           </Button>
         </div>
       );
@@ -998,10 +1000,10 @@ function AssessmentsContent() {
           {isStarting && !isAlreadyCompleted ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              Submitting...
+              {t('actions.submitting')}
             </>
           ) : (
-            'View Results'
+            t('actions.viewResults')
           )}
         </Button>
       );
@@ -1038,10 +1040,10 @@ function AssessmentsContent() {
           {isStarting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Loading...
+              {t('actions.loading')}
             </>
           ) : (
-            'Continue'
+            t('actions.continue')
           )}
         </Button>
       );
@@ -1088,10 +1090,10 @@ function AssessmentsContent() {
         {isStarting ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Loading...
+            {t('actions.loading')}
           </>
         ) : (
-          'Start'
+          t('actions.start')
         )}
       </Button>
     );
@@ -1108,11 +1110,11 @@ function AssessmentsContent() {
         <MotionDiv variant="fade" duration="normal">
           <div className="mb-8 pb-6">
             <h1 className="text-4xl font-bold mb-2">
-              <span className="text-white">Vos </span>
-              <span style={{ color: '#D5B667' }}>assessments</span>
+              <span className="text-white">{t('titlePrefix')} </span>
+              <span style={{ color: '#D5B667' }}>{t('titleSuffix')}</span>
             </h1>
             <p className="text-white">
-              Suivez et gérez vos assessments de leadership
+              {t('description')}
             </p>
           </div>
         </MotionDiv>
@@ -1154,11 +1156,11 @@ function AssessmentsContent() {
             <p className="text-red-600 mb-4">{errorString}</p>
             {isUnauthorized ? (
               <Button variant="primary" onClick={() => window.location.reload()}>
-                Refresh Page
+                {t('refreshPage')}
               </Button>
             ) : (
               <Button variant="primary" onClick={loadAssessments}>
-                Retry
+                {t('retry')}
               </Button>
             )}
           </div>
@@ -1172,11 +1174,11 @@ function AssessmentsContent() {
       <MotionDiv variant="fade" duration="normal">
         <div className="mb-8 pb-6 text-left">
           <h1 className="text-4xl font-bold mb-2">
-            <span className="text-white">Vos </span>
-            <span style={{ color: '#D5B667' }}>assessments</span>
+            <span className="text-white">{t('titlePrefix')} </span>
+            <span style={{ color: '#D5B667' }}>{t('titleSuffix')}</span>
           </h1>
           <p className="text-white">
-            Suivez et gérez vos assessments de leadership
+            {t('description')}
           </p>
         </div>
       </MotionDiv>
@@ -1206,7 +1208,7 @@ function AssessmentsContent() {
             {isLoading && safeAssessments.length > 0 && (
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span>Actualisation...</span>
+                <span>{t('refreshing')}</span>
               </div>
             )}
             <Button
@@ -1228,7 +1230,7 @@ function AssessmentsContent() {
               style={{ border: 'none', padding: '2px 4px' }}
             >
               <RefreshCw className={`h-3 w-3 ${isLoading ? 'animate-spin' : ''}`} />
-              <span>Actualiser</span>
+              <span>{t('refresh')}</span>
             </Button>
           </div>
           <MotionDiv variant="slideUp" delay={100}>
@@ -1414,19 +1416,19 @@ function AssessmentsContent() {
                             let progressValue = answerCount;
                             let progressMax = totalQuestions > 0 ? totalQuestions : 100;
                             let progressPercentage = 0;
-                            let progressLabel = 'Not started';
+                            let progressLabel = t('status.notStarted');
                             let barColor = '#9ca3af';
                             
                             if (totalQuestions > 0) {
                               // Calculate percentage based on actual data
                               progressPercentage = Math.round((answerCount / totalQuestions) * 100);
                               progressLabel = answerCount === totalQuestions 
-                                ? 'Completed' 
-                                : `Progress: ${answerCount}/${totalQuestions} questions`;
+                                ? t('status.completed')
+                                : t('progress.label', { count: answerCount, total: totalQuestions });
                             } else if (answerCount > 0) {
                               // Fallback: show answer count if total is unknown
                               progressPercentage = Math.min(answerCount * 3, 99); // Estimate ~3% per answer
-                              progressLabel = `Progress: ${answerCount} responses`;
+                              progressLabel = t('progress.responses', { count: answerCount });
                             }
                             
                             // Set bar color: gold when there's progress, gray when 0
@@ -1461,7 +1463,7 @@ function AssessmentsContent() {
                           console.error('[Assessments] Error rendering progress bar:', progressError);
                           return (
                             <div className="w-full">
-                              <p className="text-sm text-gray-500">Progress not available</p>
+                              <p className="text-sm text-gray-500">{t('progress.notAvailable')}</p>
                             </div>
                           );
                         }
@@ -1482,10 +1484,10 @@ function AssessmentsContent() {
                             </div>
                             <div>
                               <h3 className="text-lg font-bold text-gray-900 mb-1">
-                                360° Evaluators
+                                {t('evaluators.title')}
                               </h3>
                               <p className="text-sm text-gray-600">
-                                Invite colleagues to provide 360° feedback on your leadership
+                                {t('evaluators.description')}
                               </p>
                             </div>
                           </div>
@@ -1497,7 +1499,7 @@ function AssessmentsContent() {
                           if (assessmentEvaluators.length === 0) {
                             return (
                               <div className="mb-3">
-                                <p className="text-sm text-gray-600 mb-3">No evaluators added yet</p>
+                                <p className="text-sm text-gray-600 mb-3">{t('evaluators.noEvaluators')}</p>
                               </div>
                             );
                           }
@@ -1508,21 +1510,21 @@ function AssessmentsContent() {
                               return (
                                 <div className="flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
                                   <CheckCircle size={12} />
-                                  Test réalisé
+                                  {t('evaluators.status.completed')}
                                 </div>
                               );
                             } else if (statusLower === 'in_progress' || statusLower === 'started') {
                               return (
                                 <div className="flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
                                   <Clock size={12} />
-                                  In Progress
+                                  {t('evaluators.status.inProgress')}
                                 </div>
                               );
                             } else {
                               return (
                                 <div className="flex items-center gap-1 px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">
                                   <Mail size={12} />
-                                  Invité
+                                  {t('evaluators.status.invited')}
                                 </div>
                               );
                             }
@@ -1563,7 +1565,7 @@ function AssessmentsContent() {
                                 style={{ padding: '4px 8px' }}
                               >
                                 <Eye size={12} />
-                                Voir tous
+                                {t('evaluators.viewAll')}
                               </Button>
                             </Link>
                           )}
@@ -1574,7 +1576,7 @@ function AssessmentsContent() {
                             style={{ backgroundColor: '#d8b868', color: '#000000', padding: '4px 8px' }}
                             onClick={() => setShowEvaluatorModal(true)}
                           >
-                            Ajouter
+                            {t('evaluators.add')}
                           </Button>
                         </div>
                       </div>
@@ -1626,7 +1628,7 @@ function AssessmentsContent() {
                           {typeof assessment.title === 'string' ? assessment.title : 'Assessment'}
                         </h3>
                         <p className="text-sm text-red-700 mb-4">
-                          Display error. Please refresh the page.
+                          {t('errors.displayError')}
                         </p>
                         <Button 
                           variant="outline" 
@@ -1638,7 +1640,7 @@ function AssessmentsContent() {
                             }
                           }}
                         >
-                          Rafraîchir
+                          {t('errors.refresh')}
                         </Button>
                       </div>
                     </Card>
