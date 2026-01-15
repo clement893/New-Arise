@@ -70,20 +70,18 @@ export default async function LocaleLayout({
   // side is the easiest way to get started
   const messages = await getMessages();
   
-  // SECURITY: Get CSP nonce from request headers (set by middleware)
+  // SECURITY: Get CSP nonce from cookies (set by middleware)
   // Nonces allow inline scripts/styles while maintaining strict CSP
-  // Note: In Next.js, middleware headers are available via request headers
-  // For Server Components, we need to get it from the incoming request
+  // Note: In Next.js, middleware response headers are not accessible in Server Components
+  // So we use cookies to pass the nonce from middleware to Server Components
   let cspNonce: string | undefined;
   try {
-    // Try to get nonce from headers (available in Server Components)
-    // The middleware sets X-CSP-Nonce header which should be available
-    const { headers } = await import('next/headers');
-    const headersList = await headers();
-    // Check both lowercase and original case
-    cspNonce = headersList.get('x-csp-nonce') || headersList.get('X-CSP-Nonce') || undefined;
+    // Get nonce from cookie (set by middleware)
+    const { cookies } = await import('next/headers');
+    const cookieStore = await cookies();
+    cspNonce = cookieStore.get('csp-nonce')?.value;
   } catch (error) {
-    // If headers() is not available (e.g., in static generation), nonce will be undefined
+    // If cookies() is not available (e.g., in static generation), nonce will be undefined
     // In that case, CSP will fall back to strict mode without nonces
     // This is acceptable as static pages don't need dynamic nonces
   }

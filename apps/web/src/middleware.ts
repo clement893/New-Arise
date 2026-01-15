@@ -83,20 +83,57 @@ export async function middleware(request: NextRequest) {
   
   // SECURITY: Add CSP nonce to response header for use in inline scripts/styles
   // The nonce will be used in CSP header and must match in HTML attributes
-  // Also add to request headers so Server Components can access it
+  // Also store in cookie so Server Components can access it (headers() doesn't work for response headers)
   response.headers.set('X-CSP-Nonce', nonce);
+  // Store nonce in cookie for Server Components to access
+  // Cookie is httpOnly=false so it can be read by client if needed, but primarily for server-side
+  response.cookies.set('csp-nonce', nonce, {
+    httpOnly: false, // Allow server-side access via cookies()
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 60, // Short-lived, only needed for the current request
+  });
   
   // SECURITY: Update CSP header with nonce for production
   // In production, CSP should use nonces instead of unsafe-inline
   const isProduction = process.env.NODE_ENV === 'production';
-  const existingCSP = response.headers.get('Content-Security-Policy');
   
-  if (isProduction && existingCSP) {
-    // Replace CSP with nonce-based CSP
-    // Note: Next.js config sets CSP, but we can override it here with nonces
-    const cspWithNonce = existingCSP
-      .replace(/script-src[^;]+/, `script-src 'self' 'nonce-${nonce}' https://*.railway.app https://js.stripe.com https://*.stripe.com blob:`)
-      .replace(/style-src[^;]+/, `style-src 'self' 'nonce-${nonce}' https://fonts.googleapis.com https://*.railway.app`);
+  if (isProduction) {
+    // Get API URL for connect-src (same logic as next.config.js)
+    let apiUrl = process.env.NEXT_PUBLIC_API_URL 
+      || process.env.NEXT_PUBLIC_DEFAULT_API_URL
+      || 'http://localhost:8000';
+    apiUrl = apiUrl.trim();
+    if (!apiUrl.startsWith('http://') && !apiUrl.startsWith('https://')) {
+      apiUrl = `https://${apiUrl}`;
+    }
+    apiUrl = apiUrl.replace(/\/$/, '');
+    const apiUrlWss = apiUrl.replace(/^https?:\/\//, 'wss://');
+    const connectSrcUrls = [`'self'`, apiUrl, apiUrlWss, 'https://*.sentry.io', 'wss://*.sentry.io', 'https://*.stripe.com'];
+    
+    // Build CSP with nonce - always override in production
+    // Include 'unsafe-hashes' to allow inline styles in style attributes
+    // TEMPORARY: Added 'unsafe-inline' for Next.js generated scripts/styles that don't have nonces
+    // TODO: Ideally, all inline scripts/styles should use nonces, but Next.js hydration scripts
+    // and some third-party libraries inject inline code without nonces
+    // Using 'unsafe-inline' with nonces provides some protection while allowing necessary code
+    const cspWithNonce = [
+      "default-src 'self'",
+      `script-src 'self' 'nonce-${nonce}' 'unsafe-inline' https://*.railway.app https://js.stripe.com https://*.stripe.com blob:`,
+      "worker-src 'self' blob:",
+      `style-src 'self' 'nonce-${nonce}' 'unsafe-inline' 'unsafe-hashes' https://fonts.googleapis.com https://*.railway.app`,
+      "font-src 'self' https://fonts.gstatic.com data:",
+      "img-src 'self' data: https: blob:",
+      `connect-src ${connectSrcUrls.join(' ')}`,
+      "frame-src 'self' https://*.stripe.com https://js.stripe.com",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "frame-ancestors 'none'",
+      "upgrade-insecure-requests",
+    ].filter(Boolean).join('; ');
+    
     response.headers.set('Content-Security-Policy', cspWithNonce);
   }
   
