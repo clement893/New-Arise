@@ -5,6 +5,7 @@ import { Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/lib/store';
 import { useHydrated } from '@/hooks/useHydrated';
+import { TokenStorage } from '@/lib/auth/tokenStorage';
 import Button from '@/components/ui/Button';
 import { LanguageToggle } from './LanguageToggle';
 import { Menu, X, ArrowRight } from 'lucide-react';
@@ -14,7 +15,14 @@ export function Header() {
   const t = useTranslations('landing.header');
   const { user } = useAuthStore();
   const isHydrated = useHydrated();
-  const isAuthenticated = !!user;
+  
+  // Check if user has valid tokens (not just user in store)
+  // This ensures that even if user persists in localStorage, we check for actual tokens
+  // Check token on every render to catch logout events immediately
+  const hasToken = typeof window !== 'undefined' ? !!TokenStorage.getToken() : false;
+  
+  // User is authenticated only if both user exists AND token exists
+  const isAuthenticated = !!user && hasToken;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);

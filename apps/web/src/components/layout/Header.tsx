@@ -5,6 +5,7 @@ import { Link } from '@/i18n/routing';
 import { useAuthStore } from '@/lib/store';
 import { useAuth } from '@/hooks/useAuth';
 import { useHydrated } from '@/hooks/useHydrated';
+import { TokenStorage } from '@/lib/auth/tokenStorage';
 import Button from '../ui/Button';
 // ThemeToggle removed - dark mode is no longer supported
 import LanguageSwitcher from '../i18n/LanguageSwitcher';
@@ -16,7 +17,14 @@ export default function Header() {
   const { user } = useAuthStore();
   const { logout } = useAuth();
   const isHydrated = useHydrated();
-  const isAuthenticated = !!user;
+  
+  // Check if user has valid tokens (not just user in store)
+  // This ensures that even if user persists in localStorage, we check for actual tokens
+  // Check token on every render to catch logout events immediately
+  const hasToken = typeof window !== 'undefined' ? !!TokenStorage.getToken() : false;
+  
+  // User is authenticated only if both user exists AND token exists
+  const isAuthenticated = !!user && hasToken;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
