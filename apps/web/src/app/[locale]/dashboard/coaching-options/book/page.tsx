@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui';
@@ -26,6 +27,7 @@ import {
 import { logger } from '@/lib/logger';
 
 export default function BookCoachingSessionPage() {
+  const t = useTranslations('dashboard.coachingOptions.book');
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -73,7 +75,7 @@ export default function BookCoachingSessionPage() {
           }
         }
       } catch (err) {
-        setError('Erreur lors du chargement des données');
+        setError(t('errors.loadFailed'));
         logger.error('Failed to load coaches/packages', err);
       } finally {
         setLoading(false);
@@ -129,7 +131,7 @@ export default function BookCoachingSessionPage() {
 
   const handleReview = () => {
     if (!selectedCoach || !selectedPackage || !selectedDate || !selectedTime) {
-      setError('Veuillez remplir tous les champs');
+      setError(t('errors.fillAllFields'));
       return;
     }
     setStep('review');
@@ -137,7 +139,7 @@ export default function BookCoachingSessionPage() {
 
   const handleCreateSession = async () => {
     if (!selectedCoach || !selectedPackage || !selectedDate || !selectedTime) {
-      setError('Veuillez remplir tous les champs');
+      setError(t('errors.fillAllFields'));
       return;
     }
 
@@ -165,7 +167,7 @@ export default function BookCoachingSessionPage() {
       setStep('payment');
     } catch (err: any) {
       // Ensure error is always a string to prevent React error #130
-      const errorMessage = typeof err?.message === 'string' ? err.message : String(err?.message || 'Erreur lors de la création de la session');
+      const errorMessage = typeof err?.message === 'string' ? err.message : String(err?.message || t('errors.createSessionFailed'));
       setError(errorMessage);
       logger.error('Failed to create session', err);
     } finally {
@@ -200,7 +202,7 @@ export default function BookCoachingSessionPage() {
       }
     } catch (err: any) {
       // Ensure error is always a string to prevent React error #130
-      const errorMessage = typeof err?.message === 'string' ? err.message : String(err?.message || 'Erreur lors de la création de la session de paiement');
+      const errorMessage = typeof err?.message === 'string' ? err.message : String(err?.message || t('errors.createPaymentFailed'));
       setError(errorMessage);
       logger.error('Failed to create checkout session', err);
       setLoading(false);
@@ -238,15 +240,15 @@ export default function BookCoachingSessionPage() {
           className="mb-6"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Retour
+          {t('back')}
         </Button>
 
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Réserver une session de coaching
+            {t('title')}
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Sélectionnez votre coach, votre forfait et choisissez une date
+            {t('subtitle')}
           </p>
         </div>
 
@@ -287,7 +289,7 @@ export default function BookCoachingSessionPage() {
           <Card className="p-6">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
               <User className="h-6 w-6" />
-              Sélectionnez votre coach
+              {t('steps.coach.title')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {coaches.map((coach) => (
@@ -320,7 +322,7 @@ export default function BookCoachingSessionPage() {
           <Card className="p-6">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
               <CreditCard className="h-6 w-6" />
-              Choisissez votre forfait
+              {t('steps.package.title')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {packages.map((pkg) => (
@@ -340,7 +342,7 @@ export default function BookCoachingSessionPage() {
                   </div>
                   {pkg.sessions_count > 1 && (
                     <div className="text-sm text-gray-500 mt-1">
-                      {pkg.sessions_count} sessions
+                      {t('steps.package.sessions', { count: pkg.sessions_count, plural: pkg.sessions_count > 1 ? 's' : '' })}
                     </div>
                   )}
                 </button>
@@ -348,7 +350,7 @@ export default function BookCoachingSessionPage() {
             </div>
             <div className="mt-6 flex gap-4">
               <Button variant="outline" onClick={() => setStep('coach')}>
-                Retour
+                {t('back')}
               </Button>
             </div>
           </Card>
@@ -359,11 +361,11 @@ export default function BookCoachingSessionPage() {
           <Card className="p-6">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
               <Calendar className="h-6 w-6" />
-              Choisissez la date et l'heure
+              {t('steps.datetime.title')}
             </h2>
             
             <div className="mb-6">
-              <label className="block text-sm font-medium mb-2">Date</label>
+              <label className="block text-sm font-medium mb-2">{t('steps.datetime.dateLabel')}</label>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                 {getDateOptions().map((date) => {
                   const dateStr = date.toISOString().split('T')[0];
@@ -379,7 +381,7 @@ export default function BookCoachingSessionPage() {
                           : 'border-gray-200 hover:border-arise-teal/50'
                       }`}
                     >
-                      {date.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}
+                      {date.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })}
                     </button>
                   );
                 })}
@@ -388,11 +390,11 @@ export default function BookCoachingSessionPage() {
 
             {selectedDate && (
               <div className="mb-6">
-                <label className="block text-sm font-medium mb-2">Heure</label>
+                <label className="block text-sm font-medium mb-2">{t('steps.datetime.timeLabel')}</label>
                 {availableSlots.length > 0 ? (
                   <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
                     {availableSlots.map((slot, idx) => {
-                      const slotTime = new Date(slot.start).toLocaleTimeString('fr-FR', { 
+                      const slotTime = new Date(slot.start).toLocaleTimeString(undefined, { 
                         hour: '2-digit', 
                         minute: '2-digit' 
                       });
@@ -424,27 +426,27 @@ export default function BookCoachingSessionPage() {
 
             <div className="mb-6">
               <label className="block text-sm font-medium mb-2">
-                Notes (optionnel)
+                {t('steps.datetime.notesLabel')}
               </label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded-lg"
                 rows={3}
-                placeholder="Ajoutez des informations sur vos objectifs ou préférences..."
+                placeholder={t('steps.datetime.notesPlaceholder')}
               />
             </div>
 
             <div className="flex gap-4">
               <Button variant="outline" onClick={() => setStep('package')}>
-                Retour
+                {t('back')}
               </Button>
               <Button 
                 variant="primary"
                 onClick={handleReview}
                 disabled={!selectedDate || !selectedTime}
               >
-                Continuer
+                {t('continue')}
               </Button>
             </div>
           </Card>
@@ -453,21 +455,21 @@ export default function BookCoachingSessionPage() {
         {/* Step 4: Review */}
         {step === 'review' && selectedCoach && selectedPackage && selectedDate && selectedTime && (
           <Card className="p-6">
-            <h2 className="text-2xl font-bold mb-6">Récapitulatif</h2>
+            <h2 className="text-2xl font-bold mb-6">{t('steps.review.title')}</h2>
             
             <div className="space-y-4 mb-6">
               <div className="flex justify-between">
-                <span className="text-gray-600">Coach:</span>
+                <span className="text-gray-600">{t('steps.review.coach')}:</span>
                 <span className="font-semibold">{selectedCoach.name}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Forfait:</span>
+                <span className="text-gray-600">{t('steps.review.package')}:</span>
                 <span className="font-semibold">{selectedPackage.name}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Date:</span>
+                <span className="text-gray-600">{t('steps.review.date')}:</span>
                 <span className="font-semibold">
-                  {selectedDate.toLocaleDateString('fr-FR', { 
+                  {selectedDate.toLocaleDateString(undefined, { 
                     weekday: 'long', 
                     day: 'numeric', 
                     month: 'long',
@@ -476,18 +478,18 @@ export default function BookCoachingSessionPage() {
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Heure:</span>
+                <span className="text-gray-600">{t('steps.review.time')}:</span>
                 <span className="font-semibold">{selectedTime}</span>
               </div>
               <div className="flex justify-between text-xl font-bold pt-4 border-t">
-                <span>Total:</span>
+                <span>{t('steps.review.total')}:</span>
                 <span className="text-arise-teal">{selectedPackage.price}€</span>
               </div>
             </div>
 
             <div className="flex gap-4">
               <Button variant="outline" onClick={() => setStep('datetime')}>
-                Retour
+                {t('back')}
               </Button>
               <Button 
                 variant="primary"
@@ -497,10 +499,10 @@ export default function BookCoachingSessionPage() {
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Création...
+                    {t('steps.review.creating')}
                   </>
                 ) : (
-                  'Confirmer et payer'
+                  t('steps.review.confirmAndPay')
                 )}
               </Button>
             </div>
@@ -512,11 +514,11 @@ export default function BookCoachingSessionPage() {
           <Card className="p-6">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
               <CreditCard className="h-6 w-6" />
-              Paiement
+              {t('steps.payment.title')}
             </h2>
             
             <p className="mb-6 text-gray-600">
-              Vous allez être redirigé vers Stripe pour finaliser votre paiement.
+              {t('steps.payment.description')}
             </p>
 
             <Button 
@@ -528,12 +530,12 @@ export default function BookCoachingSessionPage() {
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Redirection...
+                  {t('steps.payment.redirecting')}
                 </>
               ) : (
                 <>
                   <CreditCard className="h-4 w-4 mr-2" />
-                  Procéder au paiement
+                  {t('steps.payment.proceed')}
                 </>
               )}
             </Button>

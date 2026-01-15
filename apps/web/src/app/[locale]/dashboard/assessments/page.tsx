@@ -948,9 +948,15 @@ function AssessmentsContent() {
         <Button 
           variant="outline" 
           className="text-white flex flex-row items-center gap-2"
-          style={{ backgroundColor: '#0F454D', borderColor: '#0F454D' }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(15, 69, 77, 0.9)'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F454D'}
+          style={{ backgroundColor: '#0F454D', borderColor: '#0F454D', color: '#fff' }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(15, 69, 77, 0.9)';
+            e.currentTarget.style.color = '#fff';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#0F454D';
+            e.currentTarget.style.color = '#fff';
+          }}
           disabled={isStarting && !isAlreadyCompleted}
           onClick={async () => {
             if (isAlreadyCompleted) {

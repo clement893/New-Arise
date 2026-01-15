@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Button, Card } from '@/components/ui';
 import { ArrowRight } from 'lucide-react';
 
@@ -26,6 +27,7 @@ export default function   PricingCardSimple({
   billingPeriod,
   onSelect: _onSelect,
 }: PricingCardSimpleProps) {
+  const t = useTranslations('pricing.card');
   const calculatePrice = () => {
     if (plan.price === -1) {
       return null; // Custom pricing
@@ -52,7 +54,7 @@ export default function   PricingCardSimple({
           {isCustomPricing ? (
             <div>
               <span className="text-4xl md:text-5xl font-bold" style={{ color: '#0F4C56' }}>
-                Sur devis
+                {t('customPricing')}
               </span>
             </div>
           ) : (
@@ -61,7 +63,7 @@ export default function   PricingCardSimple({
                 {priceString}€
               </span>
               <span className="text-lg md:text-xl" style={{ color: '#6B7280' }}>
-                /mois
+                {t('perMonth')}
               </span>
             </div>
           )}
@@ -74,7 +76,7 @@ export default function   PricingCardSimple({
 
         {/* Description */}
         <p className="text-base mb-6" style={{ color: '#1F2937' }}>
-          {plan.description || 'test pour la plateforme'}
+          {plan.description || t('defaultDescription')}
         </p>
 
         {/* Button */}

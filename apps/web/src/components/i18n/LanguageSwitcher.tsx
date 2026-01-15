@@ -15,7 +15,7 @@
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
-import { locales, localeNames, localeNativeNames, isRTL, type Locale } from '@/i18n/routing';
+import { locales, localeNames, localeNativeNames, isRTL, type Locale, usePathname, useRouter } from '@/i18n/routing';
 import { useState } from 'react';
 import { Globe, Check } from '@/lib/icons';
 import Button from '@/components/ui/Button';
@@ -24,22 +24,21 @@ import { clsx } from 'clsx';
 export default function LanguageSwitcher() {
   const locale = useLocale() as Locale;
   const t = useTranslations('language');
+  const pathname = usePathname(); // Returns pathname WITHOUT locale prefix (next-intl behavior)
+  const router = useRouter(); // Returns next-intl router with locale-aware navigation
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLocaleChange = (newLocale: Locale) => {
     setIsOpen(false);
     
-    // Use next-intl's navigation helper
-    const { pathname: currentPath } = window.location;
-    const pathWithoutLocale = currentPath.replace(/^\/(en|fr|ar|he)/, '') || '/';
-    
-    // Build new path with locale
+    // pathname from usePathname() already excludes the locale prefix
+    // So we can directly use it to build the new path
     const newPath = newLocale === 'en' 
-      ? pathWithoutLocale 
-      : `/${newLocale}${pathWithoutLocale}`;
+      ? pathname 
+      : `/${newLocale}${pathname === '/' ? '' : pathname}`;
     
-    // Navigate to new locale
-    window.location.href = newPath;
+    // Use next-intl's router for locale-aware navigation
+    router.push(newPath);
   };
 
   return (

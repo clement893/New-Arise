@@ -1,8 +1,7 @@
 'use client';
 
 import { useLocale } from 'next-intl';
-import { useRouter, usePathname } from 'next/navigation';
-import { type Locale } from '@/i18n/routing';
+import { useRouter, usePathname, type Locale } from '@/i18n/routing';
 import { clsx } from 'clsx';
 
 /**
@@ -11,29 +10,21 @@ import { clsx } from 'clsx';
  */
 export function LanguageToggle() {
   const locale = useLocale() as Locale;
-  const router = useRouter();
-  const pathname = usePathname();
+  const pathname = usePathname(); // Returns pathname WITHOUT locale prefix (next-intl behavior)
+  const router = useRouter(); // Returns next-intl router with locale-aware navigation
 
   const toggleLanguage = () => {
     // Toggle between 'fr' and 'en' only
     const newLocale: Locale = locale === 'fr' ? 'en' : 'fr';
     
-    // Get current pathname without locale prefix
-    const pathWithoutLocale = pathname.replace(/^\/(en|fr|ar|he)/, '') || '/';
-    
-    // Build new path with locale
-    // English (default) has no prefix, French has /fr prefix
+    // pathname from usePathname() already excludes the locale prefix
+    // So we can directly use it to build the new path
     const newPath = newLocale === 'en' 
-      ? pathWithoutLocale 
-      : `/${newLocale}${pathWithoutLocale}`;
+      ? pathname 
+      : `/${newLocale}${pathname === '/' ? '' : pathname}`;
     
-    // Navigate to new locale
+    // Use next-intl's router for locale-aware navigation
     router.push(newPath);
-    
-    // Small delay before reload to ensure navigation and locale change
-    setTimeout(() => {
-      window.location.reload();
-    }, 100);
   };
 
   const isFrench = locale === 'fr';
