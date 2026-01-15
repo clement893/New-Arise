@@ -29,32 +29,26 @@ export class TokenStorage {
   /**
    * Set access token (and optionally refresh token) via httpOnly cookies
    * 
-   * SECURITY: Tokens are stored ONLY in httpOnly cookies, not in localStorage/sessionStorage.
-   * This prevents XSS attacks from accessing tokens.
+   * SECURITY: Tokens are stored ONLY in httpOnly cookies by the backend during login/refresh.
+   * This method is a no-op because the backend FastAPI sets cookies directly.
+   * 
+   * Note: Cookies set by the backend are automatically sent with requests via withCredentials: true.
+   * We don't need to set cookies via Next.js API route because:
+   * 1. Backend sets cookies during login/refresh
+   * 2. Cookies are automatically sent with cross-origin requests (withCredentials: true)
+   * 3. Next.js API route would set cookies on wrong domain anyway
    */
   static async setToken(token: string, refreshToken?: string): Promise<void> {
-    if (typeof window === 'undefined') {
-      return; // Server-side, skip
-    }
-
-    try {
-      // Set tokens via API route (httpOnly cookies only)
-      const response = await fetch(TOKEN_API_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ accessToken: token, refreshToken }),
-        credentials: 'include', // Important: include cookies
+    // No-op: Backend FastAPI sets httpOnly cookies directly during login/refresh
+    // Cookies are automatically sent with requests via withCredentials: true in axios
+    // No need to set cookies via Next.js API route
+    if (process.env.NODE_ENV === 'development') {
+      logger.debug('TokenStorage.setToken() called but is no-op - backend sets cookies directly', {
+        hasToken: !!token,
+        hasRefreshToken: !!refreshToken
       });
-
-      if (!response.ok) {
-        throw new Error(`Failed to set tokens: ${response.statusText}`);
-      }
-    } catch (error) {
-      logger.error('Failed to set token via API route', error instanceof Error ? error : new Error(String(error)));
-      throw error; // Fail fast - tokens must be set securely
     }
+    return Promise.resolve();
   }
 
   /**

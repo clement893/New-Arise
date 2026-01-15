@@ -77,24 +77,10 @@ function LoginContent() {
       // Transform user data to store format
       const userForStore = transformApiUserToStoreUser(user);
 
-      // CRITICAL: Wait for token storage to complete before redirecting
+      // SECURITY: Tokens are stored in httpOnly cookies by the backend during login
+      // We don't need to call TokenStorage.setToken() - backend handles it
+      // Just update the user in the store
       await login(userForStore, access_token, refresh_token);
-      
-      // Verify token is stored correctly
-      const storedToken = TokenStorage.getToken();
-      const storedRefreshToken = TokenStorage.getRefreshToken();
-      
-      if (!storedToken || storedToken !== access_token) {
-        // Token not stored correctly, retry
-        await TokenStorage.setToken(access_token, refresh_token);
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
-      
-      // Ensure refresh token is also stored
-      if (refresh_token && !storedRefreshToken) {
-        await TokenStorage.setToken(access_token, refresh_token);
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
       
       // Set a flag to indicate we just logged in (for ProtectedRoute to detect)
       if (typeof window !== 'undefined') {

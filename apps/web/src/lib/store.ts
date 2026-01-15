@@ -130,8 +130,8 @@ export const useAuthStore = create<AuthState>()(
       },
 
       login: async (user: User, token: string, refreshToken?: string) => {
-        // Store tokens in httpOnly cookies only (not in Zustand store)
-        await TokenStorage.setToken(token, refreshToken);
+        // SECURITY: Tokens are stored in httpOnly cookies by the backend during login
+        // TokenStorage.setToken() is a no-op - backend handles cookie setting
         // Only persist user data (not tokens) for UX
         set({ user, token: null, refreshToken: null, error: null });
       },
