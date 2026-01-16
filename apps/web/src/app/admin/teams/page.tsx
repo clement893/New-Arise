@@ -3,8 +3,6 @@
 // Force dynamic rendering to avoid static generation
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
-export const revalidate = 0;
-export const fetchCache = 'force-no-store';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from '@/i18n/routing';
