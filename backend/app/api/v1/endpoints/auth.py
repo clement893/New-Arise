@@ -1664,53 +1664,52 @@ async def reset_password(
             return {
                 "message": "Password has been reset successfully"
             }
-        
-    except jwt.ExpiredSignatureError:
-        # Log expired token attempt (use separate session)
-        try:
-            await SecurityAuditLogger.log_event(
-                db=None,  # Create separate session to ensure persistence
-                event_type=SecurityEventType.PASSWORD_RESET_COMPLETE,
-                description="Password reset failed: expired token",
-                ip_address=client_ip,
-                user_agent=user_agent,
-                request_method=request.method,
-                request_path=str(request.url.path),
-                severity="warning",
-                success="failure",
-                metadata={"reason": "expired_token"}
+        except jwt.ExpiredSignatureError:
+            # Log expired token attempt (use separate session)
+            try:
+                await SecurityAuditLogger.log_event(
+                    db=None,  # Create separate session to ensure persistence
+                    event_type=SecurityEventType.PASSWORD_RESET_COMPLETE,
+                    description="Password reset failed: expired token",
+                    ip_address=client_ip,
+                    user_agent=user_agent,
+                    request_method=request.method,
+                    request_path=str(request.url.path),
+                    severity="warning",
+                    success="failure",
+                    metadata={"reason": "expired_token"}
+                )
+            except Exception as log_error:
+                logger.warning(f"⚠️ Failed to log expired token event (non-critical): {log_error}")
+            
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Reset token has expired. Please request a new one."
             )
-        except Exception as log_error:
-            logger.warning(f"⚠️ Failed to log expired token event (non-critical): {log_error}")
-        
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Reset token has expired. Please request a new one."
-        )
-    except jwt.JWTError as e:
-        # Log invalid token attempt (use separate session)
-        try:
-            await SecurityAuditLogger.log_event(
-                db=None,  # Create separate session to ensure persistence
-                event_type=SecurityEventType.PASSWORD_RESET_COMPLETE,
-                description=f"Password reset failed: invalid token - {str(e)}",
-                ip_address=client_ip,
-                user_agent=user_agent,
-                request_method=request.method,
-                request_path=str(request.url.path),
-                severity="warning",
-                success="failure",
-                metadata={"reason": "invalid_token"}
+        except jwt.JWTError as e:
+            # Log invalid token attempt (use separate session)
+            try:
+                await SecurityAuditLogger.log_event(
+                    db=None,  # Create separate session to ensure persistence
+                    event_type=SecurityEventType.PASSWORD_RESET_COMPLETE,
+                    description=f"Password reset failed: invalid token - {str(e)}",
+                    ip_address=client_ip,
+                    user_agent=user_agent,
+                    request_method=request.method,
+                    request_path=str(request.url.path),
+                    severity="warning",
+                    success="failure",
+                    metadata={"reason": "invalid_token"}
+                )
+            except Exception as log_error:
+                logger.warning(f"⚠️ Failed to log invalid token event (non-critical): {log_error}")
+            
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid or expired reset token"
             )
-        except Exception as log_error:
-            logger.warning(f"⚠️ Failed to log invalid token event (non-critical): {log_error}")
-        
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid or expired reset token"
-        )
-    except HTTPException:
-        raise
+        except HTTPException:
+            raise
     except Exception as e:
         error_type = type(e).__name__
         error_msg = str(e)
