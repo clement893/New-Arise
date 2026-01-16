@@ -392,10 +392,20 @@ export default function AdminUsersPage() {
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
+              <table className="w-full border-collapse table-fixed">
+                <colgroup>
+                  <col className="w-10" />
+                  <col className="w-[200px]" />
+                  <col className="w-[150px]" />
+                  <col className="w-[120px]" />
+                  <col className="w-[100px]" />
+                  <col className="w-[130px]" />
+                  <col className="w-[120px]" />
+                  <col className="w-[180px]" />
+                </colgroup>
                 <thead>
                   <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                    <th className="text-left py-4 px-4 w-10">
+                    <th className="text-left py-4 px-4">
                       <input
                         type="checkbox"
                         checked={allSelected}
@@ -409,25 +419,25 @@ export default function AdminUsersPage() {
                         aria-label="Select all users"
                       />
                     </th>
-                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[200px]">
+                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
                       {t('columns.email')}
                     </th>
-                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[150px]">
+                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
                       {t('columns.name')}
                     </th>
-                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[120px]">
+                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
                       {t('columns.type')}
                     </th>
-                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[100px]">
+                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
                       {t('columns.status')}
                     </th>
-                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[130px]">
+                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
                       {t('columns.superadmin')}
                     </th>
-                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[120px]">
+                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
                       {t('columns.created')}
                     </th>
-                    <th className="text-right py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[180px]">
+                    <th className="text-right py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
                       {t('columns.actions')}
                     </th>
                   </tr>
@@ -450,12 +460,12 @@ export default function AdminUsersPage() {
                           />
                         </td>
                         <td className="py-4 px-4">
-                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                             {user.email}
                           </div>
                         </td>
                         <td className="py-4 px-4">
-                          <div className="text-sm text-gray-900 dark:text-gray-100">
+                          <div className="text-sm text-gray-900 dark:text-gray-100 truncate">
                             {getUserDisplayName(user)}
                           </div>
                         </td>
@@ -494,7 +504,7 @@ export default function AdminUsersPage() {
                           </div>
                         </td>
                         <td className="py-4 px-4">
-                          <div className="flex flex-wrap justify-end gap-2">
+                          <div className="flex flex-nowrap justify-end gap-2">
                             <Button
                               size="sm"
                               variant="ghost"
