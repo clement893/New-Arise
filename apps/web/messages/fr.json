@@ -1324,7 +1324,7 @@
           "name": "Nom complet",
           "type": "Type d'utilisateur",
           "status": "Statut du compte",
-          "superadmin": "Super administrateur",
+          "superadmin": "Super admin",
           "created": "Date de création",
           "actions": "Actions"
         },

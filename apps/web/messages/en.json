@@ -1390,7 +1390,7 @@
           "name": "Full name",
           "type": "User type",
           "status": "Account status",
-          "superadmin": "Super administrator",
+          "superadmin": "Super admin",
           "created": "Created date",
           "actions": "Actions"
         },
@@ -1921,7 +1921,7 @@
           "name": "Full name",
           "type": "User type",
           "status": "Account status",
-          "superadmin": "Super administrator",
+          "superadmin": "Super admin",
           "created": "Created date",
           "actions": "Actions"
         },
