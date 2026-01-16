@@ -1137,12 +1137,116 @@
         "title": "Your Development Goals",
         "description": "Track your progress towards your leadership goals",
         "progress": "Progress",
-        "dueDate": "Due date"
+        "dueDate": "Due date",
+        "items": {
+          "conflictManagement": {
+            "title": "Improve Conflict Management",
+            "description": "Develop skills in collaborative problem-solving"
+          },
+          "emotionalIntelligence": {
+            "title": "Enhance Emotional Intelligence",
+            "description": "Build self-awareness and empathy"
+          },
+          "leadershipCommunication": {
+            "title": "Leadership Communication",
+            "description": "Master effective team communication"
+          }
+        }
       },
       "resources": {
         "title": "Recommended Resources",
         "description": "Curated content to support your development goals",
-        "view": "View"
+        "view": "View",
+        "items": {
+          "conflictManagementStyles": {
+            "title": "The Five Conflict Management Styles",
+            "description": "Understanding different approaches to conflict resolution",
+            "fullDescription": "Conflict is inevitable in any workplace, but how you handle it makes all the difference. This comprehensive guide explores the five primary conflict management styles: competing, collaborating, compromising, avoiding, and accommodating. Learn when to use each style and how to adapt your approach based on the situation and people involved."
+          },
+          "emotionalIntelligence": {
+            "title": "Emotional Intelligence in Leadership",
+            "description": "Learn how to develop and apply EQ in your leadership role",
+            "fullDescription": "Emotional Intelligence (EQ) is one of the most critical skills for effective leadership. This comprehensive video course explores the four components of EQ: self-awareness, self-management, social awareness, and relationship management. Learn practical strategies to develop your emotional intelligence and apply it in your daily leadership interactions."
+          },
+          "effectiveCommunication": {
+            "title": "Effective Communication for Leaders",
+            "description": "Master the art of clear and inspiring communication",
+            "fullDescription": "Communication is the foundation of effective leadership. This comprehensive course teaches you how to communicate with clarity, empathy, and impact. Learn to adapt your communication style to different audiences, handle difficult conversations, and inspire action through powerful storytelling."
+          },
+          "teamBuilding": {
+            "title": "Team Building Workshop",
+            "description": "Interactive session on building high-performing teams",
+            "fullDescription": "This interactive workshop is designed to help leaders build and maintain high-performing teams. Through hands-on activities, team assessments, and practical exercises, you'll learn how to foster collaboration, build trust, and create an environment where teams can thrive."
+          }
+        }
+      },
+      "resourceDetail": {
+        "back": "Back to Development Plan",
+        "notFound": {
+          "title": "Resource Not Found",
+          "description": "The requested resource does not exist or has been removed."
+        },
+        "types": {
+          "article": "Article",
+          "video": "Video",
+          "course": "Course",
+          "workshop": "Workshop"
+        },
+        "labels": {
+          "keyPoints": "Key Points",
+          "information": "Information",
+          "type": "Type",
+          "duration": "Duration",
+          "author": "Author",
+          "by": "By"
+        },
+        "actions": {
+          "startVideo": "Start Video",
+          "startCourse": "Start Course",
+          "bookWorkshop": "Book Workshop"
+        },
+        "content": {
+          "conflictManagementStyles": {
+            "html": "<h2>Introduction</h2><p>Effective conflict management is a crucial leadership skill. Understanding different conflict management styles helps leaders navigate difficult situations more effectively and create better outcomes for their teams.</p><h2>The Five Conflict Management Styles</h2><h3>1. Competing (Assertive, Uncooperative)</h3><p>The competing style involves taking a firm stand and pursuing your own concerns at the expense of others. This style is appropriate when:</p><ul><li>Quick, decisive action is needed</li><li>Unpopular decisions must be made</li><li>Protecting vital interests is required</li></ul><h3>2. Collaborating (Assertive, Cooperative)</h3><p>Collaboration involves working together to find a solution that fully satisfies both parties. This style is ideal when:</p><ul><li>Both sets of concerns are too important to be compromised</li><li>You need to merge insights from different perspectives</li><li>You want to gain commitment through consensus</li></ul><h3>3. Compromising (Moderate Assertiveness, Moderate Cooperativeness)</h3><p>Compromising involves finding a mutually acceptable solution that partially satisfies both parties. Use this style when:</p><ul><li>Goals are moderately important</li><li>Parties of equal power are committed to mutually exclusive goals</li><li>You need temporary solutions to complex issues</li></ul><h3>4. Avoiding (Unassertive, Uncooperative)</h3><p>Avoiding involves withdrawing from or sidestepping the conflict. This style is appropriate when:</p><ul><li>The issue is trivial or unimportant</li><li>There's no chance of satisfying your concerns</li><li>You need to reduce tension or buy time</li></ul><h3>5. Accommodating (Unassertive, Cooperative)</h3><p>Accommodating involves neglecting your own concerns to satisfy the concerns of others. This style works well when:</p><ul><li>The issue is more important to the other party</li><li>You want to build social credits</li><li>You're outmatched and losing</li></ul><h2>Choosing the Right Style</h2><p>The most effective leaders are flexible and can adapt their conflict management style based on the situation. Consider factors such as:</p><ul><li>The importance of the issue</li><li>The relationship with the other party</li><li>The time available</li><li>The power dynamics involved</li></ul><h2>Conclusion</h2><p>Mastering conflict management requires self-awareness and practice. By understanding these five styles and when to apply them, you can become a more effective leader and create better outcomes for your team.</p>",
+            "keyPoints": [
+              "Five distinct conflict management styles exist",
+              "Each style has appropriate situations for use",
+              "Effective leaders adapt their style to the context",
+              "Collaboration often yields the best long-term results",
+              "Self-awareness is key to effective conflict management"
+            ]
+          },
+          "emotionalIntelligence": {
+            "html": "<h2>Course Overview</h2><p>Emotional Intelligence in Leadership is a transformative course designed to help leaders understand and develop their emotional intelligence skills. This course combines theory with practical exercises and real-world examples.</p><h2>What You'll Learn</h2><h3>Module 1: Understanding Emotional Intelligence</h3><ul><li>The science behind emotional intelligence</li><li>Why EQ matters more than IQ in leadership</li><li>The four components of EQ</li></ul><h3>Module 2: Self-Awareness</h3><ul><li>Recognizing your emotions in real-time</li><li>Understanding your emotional triggers</li><li>Assessing your emotional patterns</li></ul><h3>Module 3: Self-Management</h3><ul><li>Regulating your emotions effectively</li><li>Staying calm under pressure</li><li>Managing stress and avoiding burnout</li></ul><h3>Module 4: Social Awareness</h3><ul><li>Reading the emotional climate of your team</li><li>Empathy and perspective-taking</li><li>Recognizing unspoken concerns</li></ul><h3>Module 5: Relationship Management</h3><ul><li>Influencing others positively</li><li>Handling difficult conversations</li><li>Building trust and psychological safety</li></ul><h2>Key Takeaways</h2><ul><li>EQ can be developed with practice and commitment</li><li>Emotionally intelligent leaders create better team outcomes</li><li>Self-awareness is the foundation of all other EQ skills</li><li>Regular reflection and feedback accelerate EQ development</li></ul>",
+            "keyPoints": [
+              "EQ consists of four core components",
+              "Self-awareness is the foundation of EQ",
+              "EQ can be developed through practice",
+              "Emotionally intelligent leaders drive better results",
+              "Regular reflection accelerates EQ growth"
+            ]
+          },
+          "effectiveCommunication": {
+            "html": "<h2>Course Introduction</h2><p>Effective communication is not just about what you say, but how you say it, when you say it, and to whom you say it. This course provides a comprehensive framework for mastering leadership communication.</p><h2>Core Modules</h2><h3>Module 1: The Fundamentals of Leadership Communication</h3><ul><li>Understanding your communication style</li><li>The importance of active listening</li><li>Verbal vs. non-verbal communication</li></ul><h3>Module 2: Clarity and Conciseness</h3><ul><li>Structuring your message for impact</li><li>Eliminating jargon and ambiguity</li><li>Using the right level of detail</li></ul><h3>Module 3: Adapting to Your Audience</h3><ul><li>Understanding different communication preferences</li><li>Tailoring your message to the audience</li><li>Cross-cultural communication considerations</li></ul><h3>Module 4: Difficult Conversations</h3><ul><li>Preparing for challenging discussions</li><li>Managing emotions in conversations</li><li>Finding common ground</li></ul><h3>Module 5: Inspiring Through Storytelling</h3><ul><li>The power of narrative in leadership</li><li>Crafting compelling stories</li><li>Using stories to drive change</li></ul><h3>Module 6: Feedback and Performance Conversations</h3><ul><li>Giving constructive feedback</li><li>Receiving feedback gracefully</li><li>Creating a feedback culture</li></ul><h2>Practical Exercises</h2><ul><li>Communication style assessment</li><li>Practice scenarios with feedback</li><li>Video recording and self-reflection</li><li>Peer coaching exercises</li></ul><h2>Resources Included</h2><ul><li>Communication templates and frameworks</li><li>Self-assessment tools</li><li>Video examples of effective communication</li><li>Certificate of completion</li></ul>",
+            "keyPoints": [
+              "Communication is a learnable skill",
+              "Adapting to your audience is crucial",
+              "Non-verbal communication matters as much as verbal",
+              "Storytelling is a powerful leadership tool",
+              "Practice and feedback accelerate improvement"
+            ]
+          },
+          "teamBuilding": {
+            "html": "<h2>Workshop Overview</h2><p>This intensive, interactive workshop brings together leadership principles and practical team-building activities. You'll leave with actionable strategies and a deeper understanding of what makes teams successful.</p><h2>Workshop Agenda</h2><h3>Session 1: Understanding Team Dynamics (45 minutes)</h3><ul><li>Stages of team development (Forming, Storming, Norming, Performing)</li><li>Identifying your team's current stage</li><li>Common team challenges and how to address them</li><li>Interactive activity: Team dynamics assessment</li></ul><h3>Session 2: Building Trust (45 minutes)</h3><ul><li>The foundation of trust in teams</li><li>Trust-building exercises</li><li>Repairing broken trust</li><li>Interactive activity: Trust walk and debrief</li></ul><h3>Session 3: Communication and Collaboration (45 minutes)</h3><ul><li>Effective team communication patterns</li><li>Collaborative problem-solving techniques</li><li>Managing conflicts within teams</li><li>Interactive activity: Team challenge exercise</li></ul><h3>Session 4: Action Planning (45 minutes)</h3><ul><li>Creating a team development plan</li><li>Setting team goals and metrics</li><li>Establishing team norms and agreements</li><li>Interactive activity: Team charter creation</li></ul><h2>Learning Objectives</h2><ul><li>Understand the stages of team development</li><li>Learn practical team-building activities</li><li>Develop skills to build and maintain trust</li><li>Create an actionable team development plan</li></ul><h2>Who Should Attend</h2><ul><li>Team leaders and managers</li><li>Project managers</li><li>HR professionals</li><li>Anyone responsible for team performance</li></ul><h2>What's Included</h2><ul><li>Interactive workshop session</li><li>Team assessment tools</li><li>Resource materials and templates</li><li>Certificate of participation</li><li>Follow-up support session</li></ul>",
+            "keyPoints": [
+              "Teams go through predictable development stages",
+              "Trust is the foundation of high-performing teams",
+              "Practical exercises accelerate team development",
+              "Regular team-building maintains team cohesion",
+              "Action planning ensures continued growth"
+            ]
+          }
+        }
       },
       "progress": {
         "title": "Your Progress",

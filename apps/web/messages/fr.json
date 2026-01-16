@@ -949,12 +949,48 @@
         "title": "Vos objectifs de développement",
         "description": "Suivez votre progression vers vos objectifs de leadership",
         "progress": "Progression",
-        "dueDate": "Date d'échéance"
+        "dueDate": "Date d'échéance",
+        "items": {
+          "conflictManagement": {
+            "title": "Améliorer la gestion des conflits",
+            "description": "Développer des compétences en résolution collaborative de problèmes"
+          },
+          "emotionalIntelligence": {
+            "title": "Améliorer l'intelligence émotionnelle",
+            "description": "Développer la conscience de soi et l'empathie"
+          },
+          "leadershipCommunication": {
+            "title": "Communication de leadership",
+            "description": "Maîtriser la communication efficace en équipe"
+          }
+        }
       },
       "resources": {
         "title": "Ressources recommandées",
         "description": "Contenu sélectionné pour soutenir vos objectifs de développement",
-        "view": "Voir"
+        "view": "Voir",
+        "items": {
+          "conflictManagementStyles": {
+            "title": "Les cinq styles de gestion des conflits",
+            "description": "Comprendre les différentes approches de résolution de conflits",
+            "fullDescription": "Le conflit est inévitable dans tout lieu de travail, mais la façon dont vous le gérez fait toute la différence. Ce guide complet explore les cinq styles principaux de gestion des conflits : compétition, collaboration, compromis, évitement et accommodement. Apprenez quand utiliser chaque style et comment adapter votre approche en fonction de la situation et des personnes impliquées."
+          },
+          "emotionalIntelligence": {
+            "title": "L'intelligence émotionnelle en leadership",
+            "description": "Apprenez à développer et appliquer l'IE dans votre rôle de leadership",
+            "fullDescription": "L'intelligence émotionnelle (IE) est l'une des compétences les plus critiques pour un leadership efficace. Ce cours vidéo complet explore les quatre composantes de l'IE : la conscience de soi, la gestion de soi, la conscience sociale et la gestion des relations. Apprenez des stratégies pratiques pour développer votre intelligence émotionnelle et l'appliquer dans vos interactions de leadership quotidiennes."
+          },
+          "effectiveCommunication": {
+            "title": "Communication efficace pour les leaders",
+            "description": "Maîtrisez l'art de la communication claire et inspirante",
+            "fullDescription": "La communication est le fondement d'un leadership efficace. Ce cours complet vous enseigne comment communiquer avec clarté, empathie et impact. Apprenez à adapter votre style de communication à différents publics, à gérer les conversations difficiles et à inspirer l'action grâce à un storytelling puissant."
+          },
+          "teamBuilding": {
+            "title": "Atelier de renforcement d'équipe",
+            "description": "Session interactive sur la construction d'équipes performantes",
+            "fullDescription": "Cet atelier interactif est conçu pour aider les leaders à construire et maintenir des équipes performantes. Grâce à des activités pratiques, des évaluations d'équipe et des exercices pratiques, vous apprendrez à favoriser la collaboration, à construire la confiance et à créer un environnement où les équipes peuvent prospérer."
+          }
+        }
       },
       "progress": {
         "title": "Votre progression",
@@ -968,6 +1004,74 @@
         "description": "Connectez-vous avec des coachs ARISE experts spécialisés dans le développement du leadership. Planifiez votre session de coaching GRATUITE pour débriefer vos résultats et créer un plan de développement personnalisé.",
         "button": "Explorer les options de coaching →",
         "imageAlt": "Session de coaching"
+      },
+      "resourceDetail": {
+        "back": "Retour au Plan de développement",
+        "notFound": {
+          "title": "Ressource non trouvée",
+          "description": "La ressource demandée n'existe pas ou a été supprimée."
+        },
+        "types": {
+          "article": "Article",
+          "video": "Vidéo",
+          "course": "Cours",
+          "workshop": "Atelier"
+        },
+        "labels": {
+          "keyPoints": "Points Clés",
+          "information": "Informations",
+          "type": "Type",
+          "duration": "Durée",
+          "author": "Auteur",
+          "by": "Par"
+        },
+        "actions": {
+          "startVideo": "Commencer la vidéo",
+          "startCourse": "Commencer le cours",
+          "bookWorkshop": "Réserver l'atelier"
+        },
+        "content": {
+          "conflictManagementStyles": {
+            "html": "<h2>Introduction</h2><p>La gestion efficace des conflits est une compétence de leadership cruciale. Comprendre les différents styles de gestion des conflits aide les leaders à naviguer dans des situations difficiles plus efficacement et à créer de meilleurs résultats pour leurs équipes.</p><h2>Les cinq styles de gestion des conflits</h2><h3>1. Compétition (Assertif, Non coopératif)</h3><p>Le style compétitif implique de prendre une position ferme et de poursuivre ses propres préoccupations au détriment des autres. Ce style est approprié lorsque :</p><ul><li>Une action rapide et décisive est nécessaire</li><li>Des décisions impopulaires doivent être prises</li><li>La protection d'intérêts vitaux est requise</li></ul><h3>2. Collaboration (Assertif, Coopératif)</h3><p>La collaboration implique de travailler ensemble pour trouver une solution qui satisfait pleinement les deux parties. Ce style est idéal lorsque :</p><ul><li>Les deux ensembles de préoccupations sont trop importants pour être compromis</li><li>Vous devez fusionner les idées de différentes perspectives</li><li>Vous voulez obtenir un engagement par consensus</li></ul><h3>3. Compromis (Assertivité modérée, Coopérativité modérée)</h3><p>Le compromis implique de trouver une solution mutuellement acceptable qui satisfait partiellement les deux parties. Utilisez ce style lorsque :</p><ul><li>Les objectifs sont modérément importants</li><li>Des parties de pouvoir égal sont engagées dans des objectifs mutuellement exclusifs</li><li>Vous avez besoin de solutions temporaires à des problèmes complexes</li></ul><h3>4. Évitement (Non assertif, Non coopératif)</h3><p>L'évitement implique de se retirer ou d'esquiver le conflit. Ce style est approprié lorsque :</p><ul><li>Le problème est trivial ou sans importance</li><li>Il n'y a aucune chance de satisfaire vos préoccupations</li><li>Vous devez réduire la tension ou gagner du temps</li></ul><h3>5. Accommodement (Non assertif, Coopératif)</h3><p>L'accommodement implique de négliger vos propres préoccupations pour satisfaire celles des autres. Ce style fonctionne bien lorsque :</p><ul><li>Le problème est plus important pour l'autre partie</li><li>Vous voulez construire des crédits sociaux</li><li>Vous êtes surclassé et en train de perdre</li></ul><h2>Choisir le bon style</h2><p>Les leaders les plus efficaces sont flexibles et peuvent adapter leur style de gestion des conflits en fonction de la situation. Considérez des facteurs tels que :</p><ul><li>L'importance du problème</li><li>La relation avec l'autre partie</li><li>Le temps disponible</li><li>La dynamique de pouvoir impliquée</li></ul><h2>Conclusion</h2><p>Maîtriser la gestion des conflits nécessite la conscience de soi et la pratique. En comprenant ces cinq styles et quand les appliquer, vous pouvez devenir un leader plus efficace et créer de meilleurs résultats pour votre équipe.</p>",
+            "keyPoints": [
+              "Cinq styles distincts de gestion des conflits existent",
+              "Chaque style a des situations appropriées d'utilisation",
+              "Les leaders efficaces adaptent leur style au contexte",
+              "La collaboration produit souvent les meilleurs résultats à long terme",
+              "La conscience de soi est la clé d'une gestion efficace des conflits"
+            ]
+          },
+          "emotionalIntelligence": {
+            "html": "<h2>Vue d'ensemble du cours</h2><p>L'intelligence émotionnelle en leadership est un cours transformateur conçu pour aider les leaders à comprendre et développer leurs compétences en intelligence émotionnelle. Ce cours combine la théorie avec des exercices pratiques et des exemples du monde réel.</p><h2>Ce que vous allez apprendre</h2><h3>Module 1 : Comprendre l'intelligence émotionnelle</h3><ul><li>La science derrière l'intelligence émotionnelle</li><li>Pourquoi l'IE compte plus que le QI en leadership</li><li>Les quatre composantes de l'IE</li></ul><h3>Module 2 : Conscience de soi</h3><ul><li>Reconnaître vos émotions en temps réel</li><li>Comprendre vos déclencheurs émotionnels</li><li>Évaluer vos schémas émotionnels</li></ul><h3>Module 3 : Gestion de soi</h3><ul><li>Réguler vos émotions efficacement</li><li>Rester calme sous pression</li><li>Gérer le stress et éviter l'épuisement</li></ul><h3>Module 4 : Conscience sociale</h3><ul><li>Lire le climat émotionnel de votre équipe</li><li>L'empathie et la prise de perspective</li><li>Reconnaître les préoccupations non exprimées</li></ul><h3>Module 5 : Gestion des relations</h3><ul><li>Influencer les autres positivement</li><li>Gérer les conversations difficiles</li><li>Construire la confiance et la sécurité psychologique</li></ul><h2>Points clés à retenir</h2><ul><li>L'IE peut être développée avec la pratique et l'engagement</li><li>Les leaders émotionnellement intelligents créent de meilleurs résultats d'équipe</li><li>La conscience de soi est le fondement de toutes les autres compétences en IE</li><li>La réflexion régulière et le feedback accélèrent le développement de l'IE</li></ul>",
+            "keyPoints": [
+              "L'IE consiste en quatre composantes fondamentales",
+              "La conscience de soi est le fondement de l'IE",
+              "L'IE peut être développée par la pratique",
+              "Les leaders émotionnellement intelligents génèrent de meilleurs résultats",
+              "La réflexion régulière accélère la croissance de l'IE"
+            ]
+          },
+          "effectiveCommunication": {
+            "html": "<h2>Introduction au cours</h2><p>La communication efficace ne se limite pas à ce que vous dites, mais aussi à la façon dont vous le dites, quand vous le dites, et à qui vous le dites. Ce cours fournit un cadre complet pour maîtriser la communication de leadership.</p><h2>Modules principaux</h2><h3>Module 1 : Les fondamentaux de la communication de leadership</h3><ul><li>Comprendre votre style de communication</li><li>L'importance de l'écoute active</li><li>Communication verbale vs. non verbale</li></ul><h3>Module 2 : Clarté et concision</h3><ul><li>Structurer votre message pour l'impact</li><li>Éliminer le jargon et l'ambiguïté</li><li>Utiliser le bon niveau de détail</li></ul><h3>Module 3 : S'adapter à votre public</h3><ul><li>Comprendre les différentes préférences de communication</li><li>Adapter votre message au public</li><li>Considérations de communication interculturelle</li></ul><h3>Module 4 : Conversations difficiles</h3><ul><li>Se préparer aux discussions difficiles</li><li>Gérer les émotions dans les conversations</li><li>Trouver un terrain d'entente</li></ul><h3>Module 5 : Inspirer par le storytelling</h3><ul><li>Le pouvoir du récit dans le leadership</li><li>Créer des histoires convaincantes</li><li>Utiliser les histoires pour conduire le changement</li></ul><h3>Module 6 : Feedback et conversations de performance</h3><ul><li>Donner un feedback constructif</li><li>Recevoir le feedback avec grâce</li><li>Créer une culture du feedback</li></ul><h2>Exercices pratiques</h2><ul><li>Évaluation du style de communication</li><li>Scénarios de pratique avec feedback</li><li>Enregistrement vidéo et auto-réflexion</li><li>Exercices de coaching par les pairs</li></ul><h2>Ressources incluses</h2><ul><li>Modèles et cadres de communication</li><li>Outils d'auto-évaluation</li><li>Exemples vidéo de communication efficace</li><li>Certificat de complétion</li></ul>",
+            "keyPoints": [
+              "La communication est une compétence qui s'apprend",
+              "S'adapter à son public est crucial",
+              "La communication non verbale compte autant que la verbale",
+              "Le storytelling est un outil puissant de leadership",
+              "La pratique et le feedback accélèrent l'amélioration"
+            ]
+          },
+          "teamBuilding": {
+            "html": "<h2>Vue d'ensemble de l'atelier</h2><p>Cet atelier intensif et interactif rassemble les principes de leadership et les activités pratiques de renforcement d'équipe. Vous repartirez avec des stratégies actionnables et une compréhension plus approfondie de ce qui rend les équipes performantes.</p><h2>Programme de l'atelier</h2><h3>Session 1 : Comprendre la dynamique d'équipe (45 minutes)</h3><ul><li>Les étapes du développement d'équipe (Formation, Tempête, Normalisation, Performance)</li><li>Identifier le stade actuel de votre équipe</li><li>Défis communs des équipes et comment les résoudre</li><li>Activité interactive : Évaluation de la dynamique d'équipe</li></ul><h3>Session 2 : Construire la confiance (45 minutes)</h3><ul><li>Les fondements de la confiance dans les équipes</li><li>Exercices de construction de confiance</li><li>Réparer la confiance brisée</li><li>Activité interactive : Marche de confiance et debriefing</li></ul><h3>Session 3 : Communication et collaboration (45 minutes)</h3><ul><li>Modèles de communication d'équipe efficaces</li><li>Techniques de résolution collaborative de problèmes</li><li>Gérer les conflits au sein des équipes</li><li>Activité interactive : Exercice de défi d'équipe</li></ul><h3>Session 4 : Planification d'action (45 minutes)</h3><ul><li>Créer un plan de développement d'équipe</li><li>Définir les objectifs et métriques de l'équipe</li><li>Établir les normes et accords de l'équipe</li><li>Activité interactive : Création de la charte d'équipe</li></ul><h2>Objectifs d'apprentissage</h2><ul><li>Comprendre les étapes du développement d'équipe</li><li>Apprendre des activités pratiques de renforcement d'équipe</li><li>Développer des compétences pour construire et maintenir la confiance</li><li>Créer un plan de développement d'équipe actionnable</li></ul><h2>Qui devrait participer</h2><ul><li>Chefs d'équipe et managers</li><li>Chefs de projet</li><li>Professionnels RH</li><li>Toute personne responsable de la performance d'équipe</li></ul><h2>Ce qui est inclus</h2><ul><li>Session d'atelier interactive</li><li>Outils d'évaluation d'équipe</li><li>Matériel et modèles de ressources</li><li>Certificat de participation</li><li>Session de suivi et de soutien</li></ul>",
+            "keyPoints": [
+              "Les équipes passent par des étapes prévisibles de développement",
+              "La confiance est le fondement des équipes performantes",
+              "Les exercices pratiques accélèrent le développement d'équipe",
+              "Le renforcement d'équipe régulier maintient la cohésion",
+              "La planification d'action assure une croissance continue"
+            ]
+          }
+        }
       }
     },
     "reports": {

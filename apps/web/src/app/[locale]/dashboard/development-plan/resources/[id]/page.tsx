@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
+import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { useParams } from 'next/navigation';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
@@ -27,9 +28,9 @@ const resourcesData: Record<string, {
   '1': {
     id: 1,
     type: 'article',
-    title: 'The Five Conflict Management Styles',
-    description: 'Understanding different approaches to conflict resolution',
-    fullDescription: 'Conflict is inevitable in any workplace, but how you handle it makes all the difference. This comprehensive guide explores the five primary conflict management styles: competing, collaborating, compromising, avoiding, and accommodating. Learn when to use each style and how to adapt your approach based on the situation and people involved.',
+    title: '', // Will be translated in component
+    description: '', // Will be translated in component
+    fullDescription: '', // Will be translated in component
     duration: '10 min read',
     content: `
       <h2>Introduction</h2>
@@ -329,11 +330,44 @@ const resourcesData: Record<string, {
 };
 
 function ResourceDetailContent() {
+  const t = useTranslations('dashboard.developmentPlan');
+  const tDetail = useTranslations('dashboard.developmentPlan.resourceDetail');
   const router = useRouter();
   const params = useParams();
   const resourceId = params?.id as string;
   
-  const resource = resourceId ? resourcesData[resourceId] : null;
+  // Get base resource data
+  const baseResource = resourceId ? resourcesData[resourceId] : null;
+  
+  // Translate resource title, description, content, and keyPoints
+  const resource = baseResource ? {
+    ...baseResource,
+    title: resourceId === '1' ? t('resources.items.conflictManagementStyles.title') :
+           resourceId === '2' ? t('resources.items.emotionalIntelligence.title') :
+           resourceId === '3' ? t('resources.items.effectiveCommunication.title') :
+           resourceId === '4' ? t('resources.items.teamBuilding.title') :
+           baseResource.title,
+    description: resourceId === '1' ? t('resources.items.conflictManagementStyles.description') :
+                 resourceId === '2' ? t('resources.items.emotionalIntelligence.description') :
+                 resourceId === '3' ? t('resources.items.effectiveCommunication.description') :
+                 resourceId === '4' ? t('resources.items.teamBuilding.description') :
+                 baseResource.description,
+    fullDescription: resourceId === '1' ? t('resources.items.conflictManagementStyles.fullDescription') :
+                     resourceId === '2' ? t('resources.items.emotionalIntelligence.fullDescription') :
+                     resourceId === '3' ? t('resources.items.effectiveCommunication.fullDescription') :
+                     resourceId === '4' ? t('resources.items.teamBuilding.fullDescription') :
+                     baseResource.fullDescription || baseResource.description,
+    content: resourceId === '1' ? tDetail('content.conflictManagementStyles.html') :
+             resourceId === '2' ? tDetail('content.emotionalIntelligence.html') :
+             resourceId === '3' ? tDetail('content.effectiveCommunication.html') :
+             resourceId === '4' ? tDetail('content.teamBuilding.html') :
+             baseResource.content,
+    keyPoints: resourceId === '1' ? (tDetail.raw('content.conflictManagementStyles.keyPoints') as string[]) :
+               resourceId === '2' ? (tDetail.raw('content.emotionalIntelligence.keyPoints') as string[]) :
+               resourceId === '3' ? (tDetail.raw('content.effectiveCommunication.keyPoints') as string[]) :
+               resourceId === '4' ? (tDetail.raw('content.teamBuilding.keyPoints') as string[]) :
+               baseResource.keyPoints,
+  } : null;
 
   if (!resource) {
     return (
@@ -342,16 +376,16 @@ function ResourceDetailContent() {
           <Button
             variant="ghost"
             onClick={() => router.push('/dashboard/development-plan')}
-            className="mb-6"
+            className="mb-6 flex items-center gap-4"
           >
-            <ArrowLeft size={16} className="mr-2" />
-            Retour au Development Plan
+            <ArrowLeft size={16} />
+            {tDetail('back')}
           </Button>
           <h1 className="text-4xl font-bold text-white mb-2">
-            Ressource non trouvée
+            {tDetail('notFound.title')}
           </h1>
           <p className="text-white">
-            La ressource demandée n'existe pas ou a été supprimée.
+            {tDetail('notFound.description')}
           </p>
         </div>
       </div>
@@ -360,13 +394,7 @@ function ResourceDetailContent() {
 
   const Icon = resource.icon;
   const getTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      article: 'Article',
-      video: 'Vidéo',
-      course: 'Cours',
-      workshop: 'Atelier',
-    };
-    return labels[type] || type;
+    return tDetail(`types.${type}`) || type;
   };
 
   const getTypeColor = (type: string) => {
@@ -395,10 +423,10 @@ function ResourceDetailContent() {
         <Button
           variant="ghost"
           onClick={() => router.push('/dashboard/development-plan')}
-          className="mb-6 text-white hover:bg-white/10"
+          className="mb-6 text-white hover:bg-white/10 flex items-center gap-4"
         >
-          <ArrowLeft size={16} className="mr-2" />
-          Retour au Development Plan
+          <ArrowLeft size={16} />
+          {tDetail('back')}
         </Button>
 
         {/* Header */}
@@ -431,7 +459,7 @@ function ResourceDetailContent() {
               </p>
               {resource.author && (
                 <p className="text-sm text-white/70">
-                  Par {resource.author}
+                  {tDetail('labels.by')} {resource.author}
                 </p>
               )}
             </div>
@@ -455,7 +483,7 @@ function ResourceDetailContent() {
             {resource.keyPoints && resource.keyPoints.length > 0 && (
               <Card className="p-6 bg-white">
                 <h3 className="text-xl font-bold text-gray-900 mb-4">
-                  Points Clés
+                  {tDetail('labels.keyPoints')}
                 </h3>
                 <ul className="space-y-3">
                   {resource.keyPoints.map((point, index) => (
@@ -474,24 +502,24 @@ function ResourceDetailContent() {
             {/* Resource Info */}
             <Card className="p-6 bg-white">
               <h3 className="text-xl font-bold text-gray-900 mb-4">
-                Informations
+                {tDetail('labels.information')}
               </h3>
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Type</p>
+                  <p className="text-sm text-gray-600 mb-1">{tDetail('labels.type')}</p>
                   <p className="font-semibold text-gray-900">
                     {getTypeLabel(resource.type)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Durée</p>
+                  <p className="text-sm text-gray-600 mb-1">{tDetail('labels.duration')}</p>
                   <p className="font-semibold text-gray-900">
                     {resource.duration}
                   </p>
                 </div>
                 {resource.author && (
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Auteur</p>
+                    <p className="text-sm text-gray-600 mb-1">{tDetail('labels.author')}</p>
                     <p className="font-semibold text-gray-900">
                       {resource.author}
                     </p>
@@ -508,7 +536,7 @@ function ResourceDetailContent() {
                 style={{ backgroundColor: '#D5B667', color: '#000000' }}
               >
                 <PlayCircle size={20} />
-                Commencer la vidéo
+                {tDetail('actions.startVideo')}
               </Button>
             )}
             
@@ -519,7 +547,7 @@ function ResourceDetailContent() {
                 style={{ backgroundColor: '#D5B667', color: '#000000' }}
               >
                 <BookOpen size={20} />
-                Commencer le cours
+                {tDetail('actions.startCourse')}
               </Button>
             )}
 
@@ -530,7 +558,7 @@ function ResourceDetailContent() {
                 style={{ backgroundColor: '#D5B667', color: '#000000' }}
               >
                 <Users size={20} />
-                Réserver l'atelier
+                {tDetail('actions.bookWorkshop')}
               </Button>
             )}
           </div>
