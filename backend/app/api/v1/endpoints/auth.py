@@ -1280,39 +1280,39 @@ async def forgot_password(
         
         # Normalize email (lowercase and trim) for consistent lookup
         normalized_email = forgot_data.email.strip().lower()
-    
-    # Get client IP and user agent for audit logging
-    client_ip = request.client.host if request.client else None
-    user_agent = request.headers.get("user-agent")
-    
-    # Try to find user (but don't reveal if they exist)
-    result = await db.execute(
-        select(User).where(User.email == normalized_email)
-    )
-    user = result.scalar_one_or_none()
-    
-    # Log password reset request attempt (use separate session to avoid conflicts)
-    try:
-        await SecurityAuditLogger.log_event(
-            db=None,  # Create separate session to ensure persistence
-            event_type=SecurityEventType.PASSWORD_RESET_REQUEST,
-            description=f"Password reset requested for email: {normalized_email}",
-            user_id=user.id if user else None,
-            user_email=normalized_email if user else None,
-            ip_address=client_ip,
-            user_agent=user_agent,
-            request_method=request.method,
-            request_path=str(request.url.path),
-            severity="info",
-            success="success" if user else "failure",
-            metadata={"user_exists": user is not None}
+        
+        # Get client IP and user agent for audit logging
+        client_ip = request.client.host if request.client else None
+        user_agent = request.headers.get("user-agent")
+        
+        # Try to find user (but don't reveal if they exist)
+        result = await db.execute(
+            select(User).where(User.email == normalized_email)
         )
-    except Exception as e:
-        # Don't fail the request if audit logging fails
-        logger.warning(f"⚠️ Failed to log password reset request (non-critical): {e}")
-    
-    # Only send email if user exists
-    if user:
+        user = result.scalar_one_or_none()
+        
+        # Log password reset request attempt (use separate session to avoid conflicts)
+        try:
+            await SecurityAuditLogger.log_event(
+                db=None,  # Create separate session to ensure persistence
+                event_type=SecurityEventType.PASSWORD_RESET_REQUEST,
+                description=f"Password reset requested for email: {normalized_email}",
+                user_id=user.id if user else None,
+                user_email=normalized_email if user else None,
+                ip_address=client_ip,
+                user_agent=user_agent,
+                request_method=request.method,
+                request_path=str(request.url.path),
+                severity="info",
+                success="success" if user else "failure",
+                metadata={"user_exists": user is not None}
+            )
+        except Exception as e:
+            # Don't fail the request if audit logging fails
+            logger.warning(f"⚠️ Failed to log password reset request (non-critical): {e}")
+        
+        # Only send email if user exists
+        if user:
         try:
             # Generate password reset token (JWT with 1 hour expiration)
             reset_token_expires = timedelta(hours=1)
@@ -1430,7 +1430,7 @@ async def forgot_password(
             error_msg = f"❌ Failed to generate password reset token for {normalized_email}: {str(e)}"
             logger.error(error_msg, exc_info=True)
             print(error_msg, flush=True)
-    
+        
     except Exception as e:
         # Catch any unexpected errors and still return 200 OK (security best practice)
         error_type = type(e).__name__
