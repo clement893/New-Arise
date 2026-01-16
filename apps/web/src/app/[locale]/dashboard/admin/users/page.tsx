@@ -391,19 +391,19 @@ export default function AdminUsersPage() {
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse table-fixed">
+              <table className="w-full border-collapse min-w-[1200px]">
                 <colgroup>
                   <col className="w-10" />
-                  <col style={{ width: '25%' }} />
-                  <col style={{ width: '15%' }} />
-                  <col style={{ width: '12%' }} />
-                  <col style={{ width: '12%' }} />
-                  <col style={{ width: '12%' }} />
-                  <col style={{ width: '14%' }} />
+                  <col className="min-w-[200px]" />
+                  <col className="min-w-[150px]" />
+                  <col className="min-w-[120px]" />
+                  <col className="min-w-[120px]" />
+                  <col className="min-w-[130px]" />
+                  <col className="min-w-[120px]" />
                 </colgroup>
                 <thead>
                   <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                    <th className="text-left py-4 px-4">
+                    <th className="text-left py-4 px-2 xl:px-4">
                       <input
                         type="checkbox"
                         checked={allSelected}
@@ -417,23 +417,29 @@ export default function AdminUsersPage() {
                         aria-label="Select all users"
                       />
                     </th>
-                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                      {t('columns.email')}
+                    <th className="text-left py-4 px-2 xl:px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      <span className="hidden xl:inline">{t('columns.email')}</span>
+                      <span className="xl:hidden">Email</span>
                     </th>
-                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                      {t('columns.name')}
+                    <th className="text-left py-4 px-2 xl:px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      <span className="hidden xl:inline">{t('columns.name')}</span>
+                      <span className="xl:hidden">Name</span>
                     </th>
-                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                      {t('columns.type')}
+                    <th className="text-left py-4 px-2 xl:px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      <span className="hidden lg:inline">{t('columns.type')}</span>
+                      <span className="lg:hidden">Type</span>
                     </th>
-                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                      {t('columns.status')}
+                    <th className="text-left py-4 px-2 xl:px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      <span className="hidden lg:inline">{t('columns.status')}</span>
+                      <span className="lg:hidden">Status</span>
                     </th>
-                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                      {t('columns.superadmin')}
+                    <th className="text-left py-4 px-2 xl:px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      <span className="hidden 2xl:inline">{t('columns.superadmin')}</span>
+                      <span className="2xl:hidden">Super</span>
                     </th>
-                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                      {t('columns.created')}
+                    <th className="text-left py-4 px-2 xl:px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      <span className="hidden lg:inline">{t('columns.created')}</span>
+                      <span className="lg:hidden">Created</span>
                     </th>
                   </tr>
                 </thead>
@@ -441,7 +447,7 @@ export default function AdminUsersPage() {
                   {users.map((user) => (
                     <>
                       <tr key={user.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                          <td className="py-4 px-4 align-top">
+                          <td className="py-4 px-2 xl:px-4 align-top">
                             <Checkbox
                               checked={selectedUserIds.has(user.id)}
                               onChange={(e) => handleSelectUser(user.id, e.target.checked)}
@@ -449,27 +455,27 @@ export default function AdminUsersPage() {
                               className="cursor-pointer"
                             />
                           </td>
-                          <td className="py-4 px-4">
-                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                          <td className="py-4 px-2 xl:px-4">
+                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate max-w-[200px]">
                               {user.email}
                             </div>
                           </td>
-                          <td className="py-4 px-4">
-                            <div className="text-sm text-gray-900 dark:text-gray-100 truncate">
+                          <td className="py-4 px-2 xl:px-4">
+                            <div className="text-sm text-gray-900 dark:text-gray-100 truncate max-w-[150px]">
                               {getUserDisplayName(user)}
                             </div>
                           </td>
-                          <td className="py-4 px-4">
+                          <td className="py-4 px-2 xl:px-4">
                             <Badge variant={user.user_type === 'ADMIN' ? 'error' : 'default'}>
                               {getUserTypeLabel(user.user_type)}
                             </Badge>
                           </td>
-                          <td className="py-4 px-4">
+                          <td className="py-4 px-2 xl:px-4">
                             <Badge variant={user.is_active ? 'success' : 'default'}>
                               {user.is_active ? t('status.active') : t('status.inactive')}
                             </Badge>
                           </td>
-                          <td className="py-4 px-4">
+                          <td className="py-4 px-2 xl:px-4">
                             {(() => {
                               const isSuperAdmin = userSuperAdminStatus[user.id];
                               if (isSuperAdmin === undefined) {
@@ -488,15 +494,15 @@ export default function AdminUsersPage() {
                               );
                             })()}
                           </td>
-                          <td className="py-4 px-4">
-                            <div className="text-sm text-gray-900 dark:text-gray-100">
+                          <td className="py-4 px-2 xl:px-4">
+                            <div className="text-sm text-gray-900 dark:text-gray-100 whitespace-nowrap">
                               {new Date(user.created_at).toLocaleDateString()}
                             </div>
                           </td>
                         </tr>
                       <tr className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                        <td className="py-2 px-4"></td>
-                        <td colSpan={6} className="py-2 px-4">
+                        <td className="py-2 px-2 xl:px-4"></td>
+                        <td colSpan={6} className="py-2 px-2 xl:px-4">
                           <div className="flex flex-wrap gap-2">
                             <Button
                               size="sm"
