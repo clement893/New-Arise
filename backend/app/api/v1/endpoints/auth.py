@@ -1510,6 +1510,8 @@ async def reset_password(
         
         try:
             logger.info(f"🔐 Password reset attempt - Token length: {len(reset_data.token)}, Password length: {len(reset_data.new_password)}")
+            logger.info(f"🔐 SECRET_KEY configured: {'Yes' if settings.SECRET_KEY else 'No'}")
+            logger.info(f"🔐 ALGORITHM: {settings.ALGORITHM}")
             
             # Decode and verify reset token
             try:
@@ -1519,11 +1521,11 @@ async def reset_password(
                     algorithms=[settings.ALGORITHM]
                 )
                 logger.info(f"✅ Token decoded successfully - Type: {payload.get('type')}, Email: {payload.get('sub')}")
-            except jwt.ExpiredSignatureError:
-                logger.warning("⚠️ Password reset token expired")
+            except jwt.ExpiredSignatureError as e:
+                logger.warning(f"⚠️ Password reset token expired: {str(e)}")
                 raise
             except jwt.JWTError as e:
-                logger.warning(f"⚠️ Invalid JWT token: {str(e)}")
+                logger.warning(f"⚠️ Invalid JWT token: {type(e).__name__}: {str(e)}")
                 raise
             
             # Verify token type
