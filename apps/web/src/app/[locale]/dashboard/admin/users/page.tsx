@@ -11,7 +11,6 @@ import { usersAPI, type User } from '@/lib/api/users';
 import { getErrorMessage } from '@/lib/errors';
 import { Search, Trash2, Edit, Eye, Loader2, Shield } from 'lucide-react';
 import { makeSuperAdmin, checkSuperAdminStatus } from '@/lib/api/admin';
-import MotionDiv from '@/components/motion/MotionDiv';
 
 export default function AdminUsersPage() {
   const t = useTranslations('dashboard.admin.users');
@@ -547,119 +546,6 @@ export default function AdminUsersPage() {
                         </td>
                       </tr>
                     </>
-                  ))}
-                </tbody>
-                      <MotionDiv
-                        variant="fade"
-                        duration="fast"
-                        delay={index * 0.05}
-                      >
-                        <tr className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                          <td className="py-4 px-4 align-top">
-                            <Checkbox
-                              checked={selectedUserIds.has(user.id)}
-                              onChange={(e) => handleSelectUser(user.id, e.target.checked)}
-                              onClick={(e) => e.stopPropagation()}
-                              className="cursor-pointer"
-                            />
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                              {user.email}
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className="text-sm text-gray-900 dark:text-gray-100 truncate">
-                              {getUserDisplayName(user)}
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <Badge variant={user.user_type === 'ADMIN' ? 'error' : 'default'}>
-                              {getUserTypeLabel(user.user_type)}
-                            </Badge>
-                          </td>
-                          <td className="py-4 px-4">
-                            <Badge variant={user.is_active ? 'success' : 'default'}>
-                              {user.is_active ? t('status.active') : t('status.inactive')}
-                            </Badge>
-                          </td>
-                          <td className="py-4 px-4">
-                            {(() => {
-                              const isSuperAdmin = userSuperAdminStatus[user.id];
-                              if (isSuperAdmin === undefined) {
-                                // Check status on mount
-                                checkUserSuperAdminStatus(user);
-                                return (
-                                  <Badge variant="default" className="opacity-50">
-                                    {t('checking')}
-                                  </Badge>
-                                );
-                              }
-                              return (
-                                <Badge variant={isSuperAdmin ? 'error' : 'default'}>
-                                  {isSuperAdmin ? t('yes') : t('no')}
-                                </Badge>
-                              );
-                            })()}
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className="text-sm text-gray-900 dark:text-gray-100">
-                              {new Date(user.created_at).toLocaleDateString()}
-                            </div>
-                          </td>
-                        </tr>
-                      <tr className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                        <td className="py-2 px-4"></td>
-                        <td colSpan={6} className="py-2 px-4">
-                          <div className="flex flex-wrap gap-2">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                // View user details - can be implemented later
-                              }}
-                              title={t('actions.view')}
-                              className="min-w-[44px] min-h-[44px] p-2"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleOpenEditModal(user)}
-                              title={t('actions.edit')}
-                              className="min-w-[44px] min-h-[44px] p-2"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                setSelectedUser(user);
-                                setSuperAdminModalOpen(true);
-                              }}
-                              title={t('actions.makeSuperAdmin')}
-                              className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/20 min-w-[44px] min-h-[44px] p-2"
-                            >
-                              <Shield className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                setSelectedUser(user);
-                                setDeleteModalOpen(true);
-                              }}
-                              title={t('actions.delete')}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 min-w-[44px] min-h-[44px] p-2"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    </React.Fragment>
                   ))}
                 </tbody>
               </table>
