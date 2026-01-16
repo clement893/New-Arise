@@ -1313,123 +1313,123 @@ async def forgot_password(
         
         # Only send email if user exists
         if user:
-        try:
-            # Generate password reset token (JWT with 1 hour expiration)
-            reset_token_expires = timedelta(hours=1)
-            reset_token = jwt.encode(
-                {
-                    "sub": user.email,
-                    "type": "password_reset",
-                    "exp": datetime.now(timezone.utc) + reset_token_expires,
-                    "iat": datetime.now(timezone.utc),
-                },
-                settings.SECRET_KEY,
-                algorithm=settings.ALGORITHM,
-            )
-            
-            # Build reset URL
-            frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
-            reset_url = f"{frontend_url}/auth/reset-password?token={reset_token}"
-            
-            # Get user name for email
-            user_name = f"{user.first_name} {user.last_name}".strip() if user.first_name or user.last_name else user.email.split("@")[0]
-            
-            # Send password reset email - try direct send first (more reliable than Celery)
-            # Since user confirmed SendGrid keys are on Railway, use direct send
-            email_sent = False
-            email_error = None
-            
             try:
-                from app.services.email_service import EmailService
-                email_service = EmailService()
+                # Generate password reset token (JWT with 1 hour expiration)
+                reset_token_expires = timedelta(hours=1)
+                reset_token = jwt.encode(
+                    {
+                        "sub": user.email,
+                        "type": "password_reset",
+                        "exp": datetime.now(timezone.utc) + reset_token_expires,
+                        "iat": datetime.now(timezone.utc),
+                    },
+                    settings.SECRET_KEY,
+                    algorithm=settings.ALGORITHM,
+                )
                 
-                # Check SendGrid configuration with detailed logging
-                sendgrid_api_key = os.getenv("SENDGRID_API_KEY", "")
-                sendgrid_from_email = os.getenv("SENDGRID_FROM_EMAIL", "")
-                sendgrid_from_name = os.getenv("SENDGRID_FROM_NAME", "")
+                # Build reset URL
+                frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+                reset_url = f"{frontend_url}/auth/reset-password?token={reset_token}"
                 
-                logger.info(f"🔍 SendGrid config check - API_KEY: {'✅ Set' if sendgrid_api_key else '❌ Missing'}, FROM_EMAIL: {sendgrid_from_email or 'Not set'}, FROM_NAME: {sendgrid_from_name or 'Not set'}")
+                # Get user name for email
+                user_name = f"{user.first_name} {user.last_name}".strip() if user.first_name or user.last_name else user.email.split("@")[0]
                 
-                sendgrid_configured = email_service.is_configured()
+                # Send password reset email - try direct send first (more reliable than Celery)
+                # Since user confirmed SendGrid keys are on Railway, use direct send
+                email_sent = False
+                email_error = None
                 
-                if not sendgrid_configured:
-                    error_msg = f"❌ SendGrid not configured - SENDGRID_API_KEY is {'empty' if not sendgrid_api_key else 'invalid'}. Cannot send password reset email to {user.email}"
-                    logger.error(error_msg)
-                    email_error = "SendGrid not configured"
-                    print(error_msg, flush=True)
-                else:
-                    # Send email directly via SendGrid
-                    try:
-                        logger.info(f"📧 Attempting to send password reset email to {user.email} via SendGrid...")
-                        logger.info(f"📧 Reset URL: {reset_url[:50]}... (truncated)")
-                        
-                        result = email_service.send_password_reset_email(
-                            to_email=user.email,
-                            name=user_name,
-                            reset_token=reset_token,
-                            reset_url=reset_url
-                        )
-                        status = result.get('status', 'unknown')
-                        message_id = result.get('message_id', 'N/A')
-                        status_code = result.get('status_code', 'N/A')
-                        
-                        logger.info(f"✅ Password reset email sent via SendGrid for user: {user.email}")
-                        logger.info(f"   Status: {status}, Status Code: {status_code}, Message ID: {message_id}")
-                        email_sent = True
-                    except ValueError as e:
-                        error_msg = f"❌ SendGrid configuration error: {str(e)}"
-                        logger.error(error_msg, exc_info=True)
-                        email_error = str(e)
+                try:
+                    from app.services.email_service import EmailService
+                    email_service = EmailService()
+                    
+                    # Check SendGrid configuration with detailed logging
+                    sendgrid_api_key = os.getenv("SENDGRID_API_KEY", "")
+                    sendgrid_from_email = os.getenv("SENDGRID_FROM_EMAIL", "")
+                    sendgrid_from_name = os.getenv("SENDGRID_FROM_NAME", "")
+                    
+                    logger.info(f"🔍 SendGrid config check - API_KEY: {'✅ Set' if sendgrid_api_key else '❌ Missing'}, FROM_EMAIL: {sendgrid_from_email or 'Not set'}, FROM_NAME: {sendgrid_from_name or 'Not set'}")
+                    
+                    sendgrid_configured = email_service.is_configured()
+                    
+                    if not sendgrid_configured:
+                        error_msg = f"❌ SendGrid not configured - SENDGRID_API_KEY is {'empty' if not sendgrid_api_key else 'invalid'}. Cannot send password reset email to {user.email}"
+                        logger.error(error_msg)
+                        email_error = "SendGrid not configured"
                         print(error_msg, flush=True)
-                    except RuntimeError as e:
-                        error_msg = f"❌ SendGrid API error sending to {user.email}: {str(e)}"
-                        logger.error(error_msg, exc_info=True)
-                        email_error = str(e)
-                        print(error_msg, flush=True)
-                    except Exception as e:
-                        error_msg = f"❌ Unexpected error sending password reset email via SendGrid to {user.email}: {str(e)}"
-                        logger.error(error_msg, exc_info=True)
-                        email_error = str(e)
-                        print(error_msg, flush=True)
-                        
-                        # Try Celery as fallback if direct send fails
+                    else:
+                        # Send email directly via SendGrid
                         try:
-                            logger.info(f"🔄 Attempting Celery fallback for {user.email}...")
-                            from app.tasks.email_tasks import send_password_reset_email_task
-                            send_password_reset_email_task.delay(
-                                email=user.email,
+                            logger.info(f"📧 Attempting to send password reset email to {user.email} via SendGrid...")
+                            logger.info(f"📧 Reset URL: {reset_url[:50]}... (truncated)")
+                            
+                            result = email_service.send_password_reset_email(
+                                to_email=user.email,
                                 name=user_name,
                                 reset_token=reset_token,
                                 reset_url=reset_url
                             )
-                            logger.info(f"✅ Password reset email queued via Celery (fallback) for user: {user.email}")
-                            email_sent = True
-                        except Exception as celery_error:
-                            logger.warning(f"⚠️ Celery fallback also failed: {celery_error}")
+                            status = result.get('status', 'unknown')
+                            message_id = result.get('message_id', 'N/A')
+                            status_code = result.get('status_code', 'N/A')
                             
-            except ImportError as e:
-                error_msg = f"❌ Failed to import EmailService: {str(e)}"
-                logger.error(error_msg, exc_info=True)
-                email_error = str(e)
-                print(error_msg, flush=True)
-            except Exception as e:
-                error_msg = f"❌ Unexpected error sending password reset email to {user.email}: {str(e)}"
-                logger.error(error_msg, exc_info=True)
-                email_error = str(e)
-                print(error_msg, flush=True)
-            
-            # Log final status
-            if email_sent:
-                logger.info(f"✅ Password reset email successfully sent for user: {user.email}")
-            else:
-                logger.error(f"❌ Password reset email FAILED for user: {user.email}. Error: {email_error}")
-                print(f"❌ CRITICAL: Password reset email could not be sent to {user.email}. Error: {email_error}", flush=True)
+                            logger.info(f"✅ Password reset email sent via SendGrid for user: {user.email}")
+                            logger.info(f"   Status: {status}, Status Code: {status_code}, Message ID: {message_id}")
+                            email_sent = True
+                        except ValueError as e:
+                            error_msg = f"❌ SendGrid configuration error: {str(e)}"
+                            logger.error(error_msg, exc_info=True)
+                            email_error = str(e)
+                            print(error_msg, flush=True)
+                        except RuntimeError as e:
+                            error_msg = f"❌ SendGrid API error sending to {user.email}: {str(e)}"
+                            logger.error(error_msg, exc_info=True)
+                            email_error = str(e)
+                            print(error_msg, flush=True)
+                        except Exception as e:
+                            error_msg = f"❌ Unexpected error sending password reset email via SendGrid to {user.email}: {str(e)}"
+                            logger.error(error_msg, exc_info=True)
+                            email_error = str(e)
+                            print(error_msg, flush=True)
+                            
+                            # Try Celery as fallback if direct send fails
+                            try:
+                                logger.info(f"🔄 Attempting Celery fallback for {user.email}...")
+                                from app.tasks.email_tasks import send_password_reset_email_task
+                                send_password_reset_email_task.delay(
+                                    email=user.email,
+                                    name=user_name,
+                                    reset_token=reset_token,
+                                    reset_url=reset_url
+                                )
+                                logger.info(f"✅ Password reset email queued via Celery (fallback) for user: {user.email}")
+                                email_sent = True
+                            except Exception as celery_error:
+                                logger.warning(f"⚠️ Celery fallback also failed: {celery_error}")
+                                
+                except ImportError as e:
+                    error_msg = f"❌ Failed to import EmailService: {str(e)}"
+                    logger.error(error_msg, exc_info=True)
+                    email_error = str(e)
+                    print(error_msg, flush=True)
+                except Exception as e:
+                    error_msg = f"❌ Unexpected error sending password reset email to {user.email}: {str(e)}"
+                    logger.error(error_msg, exc_info=True)
+                    email_error = str(e)
+                    print(error_msg, flush=True)
                 
-        except Exception as e:
-            # Log error but don't fail the request (security: don't reveal if email was sent)
-            error_msg = f"❌ Failed to generate password reset token for {normalized_email}: {str(e)}"
-            logger.error(error_msg, exc_info=True)
-            print(error_msg, flush=True)
+                # Log final status
+                if email_sent:
+                    logger.info(f"✅ Password reset email successfully sent for user: {user.email}")
+                else:
+                    logger.error(f"❌ Password reset email FAILED for user: {user.email}. Error: {email_error}")
+                    print(f"❌ CRITICAL: Password reset email could not be sent to {user.email}. Error: {email_error}", flush=True)
+                    
+            except Exception as e:
+                # Log error but don't fail the request (security: don't reveal if email was sent)
+                error_msg = f"❌ Failed to generate password reset token for {normalized_email}: {str(e)}"
+                logger.error(error_msg, exc_info=True)
+                print(error_msg, flush=True)
         
     except Exception as e:
         # Catch any unexpected errors and still return 200 OK (security best practice)
