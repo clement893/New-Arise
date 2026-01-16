@@ -1780,12 +1780,12 @@
         "yes": "Oui",
         "no": "Non",
         "columns": {
-          "email": "Email",
-          "name": "Nom",
-          "type": "Type",
-          "status": "Statut",
-          "superadmin": "Superadmin",
-          "created": "Créé",
+          "email": "Adresse email",
+          "name": "Nom complet",
+          "type": "Type d'utilisateur",
+          "status": "Statut du compte",
+          "superadmin": "Super administrateur",
+          "created": "Date de création",
           "actions": "Actions"
         },
         "types": {
@@ -1855,6 +1855,9 @@
           "firstNamePlaceholder": "Prénom",
           "lastName": "Nom",
           "lastNamePlaceholder": "Nom",
+          "password": "Nouveau mot de passe",
+          "passwordPlaceholder": "Laisser vide pour ne pas modifier",
+          "passwordHint": "Laissez vide si vous ne souhaitez pas modifier le mot de passe",
           "isActive": "Compte actif"
         },
         "errors": {

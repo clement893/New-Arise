@@ -260,6 +260,80 @@ async def list_assessments(
     return response
 
 
+@router.get("/admin/all", response_model=List[AssessmentListItem])
+async def admin_list_all_assessments(
+    current_user: User = Depends(get_current_user),
+    _: None = Depends(require_admin_or_superadmin),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get list of all assessments for all users (admin only)
+    """
+    result = await db.execute(
+        select(Assessment, User)
+        .join(User, Assessment.user_id == User.id)
+        .where(
+            Assessment.assessment_type != AssessmentType.THREE_SIXTY_EVALUATOR  # Exclude evaluator assessments
+        )
+        .order_by(Assessment.created_at.desc())
+    )
+    results = result.all()
+
+    # Format response
+    response = []
+    for assessment, user in results:
+        score_summary = None
+        if assessment.processed_score:
+            # Extract summary based on type
+            if assessment.assessment_type == AssessmentType.WELLNESS:
+                score_summary = {
+                    "total_score": assessment.processed_score.get("total_score"),
+                    "percentage": assessment.processed_score.get("percentage"),
+                }
+            elif assessment.assessment_type == AssessmentType.TKI:
+                score_summary = {
+                    "dominant_mode": assessment.processed_score.get("dominant_mode"),
+                }
+            elif assessment.assessment_type == AssessmentType.THREE_SIXTY_SELF:
+                score_summary = {
+                    "total_score": assessment.processed_score.get("total_score"),
+                }
+
+        # Count answers for this assessment
+        answer_count_result = await db.execute(
+            select(func.count(AssessmentAnswer.id))
+            .where(AssessmentAnswer.assessment_id == assessment.id)
+        )
+        answer_count = answer_count_result.scalar() or 0
+
+        # Get total questions from configuration (replaces hardcoded value)
+        total_questions = get_total_questions(assessment.assessment_type)
+
+        # Get user name
+        user_name = None
+        if user.first_name or user.last_name:
+            user_name = f"{user.first_name or ''} {user.last_name or ''}".strip()
+        elif user.email:
+            user_name = user.email.split("@")[0]
+
+        response.append(AssessmentListItem(
+            id=assessment.id,
+            user_id=assessment.user_id,
+            user_email=user.email,
+            user_name=user_name,
+            assessment_type=assessment.assessment_type.value,
+            status=assessment.status.value,
+            started_at=assessment.started_at,
+            completed_at=assessment.completed_at,
+            score_summary=score_summary,
+            answer_count=answer_count,
+            total_questions=total_questions,
+            created_at=assessment.created_at
+        ))
+
+    return response
+
+
 @router.post("/start")
 async def start_assessment(
     request: AssessmentStartRequest,

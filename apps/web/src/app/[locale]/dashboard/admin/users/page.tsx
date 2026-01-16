@@ -38,11 +38,13 @@ export default function AdminUsersPage() {
     email: string;
     first_name: string;
     last_name: string;
+    password: string;
     is_active: boolean;
   }>({
     email: '',
     first_name: '',
     last_name: '',
+    password: '',
     is_active: true,
   });
   const pageSize = 20;
@@ -249,6 +251,7 @@ export default function AdminUsersPage() {
       email: user.email || '',
       first_name: user.first_name || '',
       last_name: user.last_name || '',
+      password: '',
       is_active: user.is_active ?? true,
     });
     setEditModalOpen(true);
@@ -266,6 +269,7 @@ export default function AdminUsersPage() {
         email: editFormData.email,
         first_name: editFormData.first_name || undefined,
         last_name: editFormData.last_name || undefined,
+        password: editFormData.password || undefined,
         is_active: editFormData.is_active,
       });
       
@@ -388,10 +392,10 @@ export default function AdminUsersPage() {
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full table-fixed">
                 <thead>
                   <tr className="border-b border-gray-200 dark:border-gray-700">
-                    <th className="text-left py-3 px-4 w-12">
+                    <th className="text-left py-3 px-4 w-12 align-middle">
                       <Checkbox
                         checked={allSelected}
                         indeterminate={someSelected}
@@ -399,25 +403,25 @@ export default function AdminUsersPage() {
                         className="cursor-pointer"
                       />
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap align-middle w-[200px]">
                       {t('columns.email')}
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap align-middle w-[180px]">
                       {t('columns.name')}
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap align-middle w-[120px]">
                       {t('columns.type')}
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap align-middle w-[100px]">
                       {t('columns.status')}
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap align-middle w-[120px]">
                       {t('columns.superadmin')}
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap align-middle w-[120px]">
                       {t('columns.created')}
                     </th>
-                    <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                    <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap align-middle w-[180px]">
                       {t('columns.actions')}
                     </th>
                   </tr>
@@ -431,7 +435,7 @@ export default function AdminUsersPage() {
                       delay={index * 0.05}
                     >
                       <tr className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                        <td className="py-4 px-4">
+                        <td className="py-4 px-4 align-middle">
                           <Checkbox
                             checked={selectedUserIds.has(user.id)}
                             onChange={(e) => handleSelectUser(user.id, e.target.checked)}
@@ -439,27 +443,27 @@ export default function AdminUsersPage() {
                             className="cursor-pointer"
                           />
                         </td>
-                        <td className="py-4 px-4 align-top">
-                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        <td className="py-4 px-4 align-middle">
+                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate" title={user.email}>
                             {user.email}
                           </div>
                         </td>
-                        <td className="py-4 px-4 align-top">
-                          <div className="text-sm text-gray-900 dark:text-gray-100">
+                        <td className="py-4 px-4 align-middle">
+                          <div className="text-sm text-gray-900 dark:text-gray-100 truncate" title={getUserDisplayName(user)}>
                             {getUserDisplayName(user)}
                           </div>
                         </td>
-                        <td className="py-4 px-4">
+                        <td className="py-4 px-4 align-middle">
                           <Badge variant={user.user_type === 'ADMIN' ? 'error' : 'default'}>
                             {getUserTypeLabel(user.user_type)}
                           </Badge>
                         </td>
-                        <td className="py-4 px-4 align-top">
+                        <td className="py-4 px-4 align-middle">
                           <Badge variant={user.is_active ? 'success' : 'default'}>
                             {user.is_active ? t('status.active') : t('status.inactive')}
                           </Badge>
                         </td>
-                        <td className="py-4 px-4 align-top">
+                        <td className="py-4 px-4 align-middle">
                           {(() => {
                             const isSuperAdmin = userSuperAdminStatus[user.id];
                             if (isSuperAdmin === undefined) {
@@ -478,12 +482,12 @@ export default function AdminUsersPage() {
                             );
                           })()}
                         </td>
-                        <td className="py-4 px-4 align-top">
+                        <td className="py-4 px-4 align-middle">
                           <div className="text-sm text-gray-900 dark:text-gray-100">
                             {new Date(user.created_at).toLocaleDateString()}
                           </div>
                         </td>
-                        <td className="py-4 px-4 align-top">
+                        <td className="py-4 px-4 align-middle">
                           <div className="flex flex-wrap justify-end gap-2">
                             <Button
                               size="sm"
@@ -841,6 +845,23 @@ export default function AdminUsersPage() {
               disabled={editingUser}
               className="w-full"
             />
+          </div>
+          
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-900 dark:text-gray-100">
+              {t('editModal.password')}
+            </label>
+            <Input
+              type="password"
+              value={editFormData.password}
+              onChange={(e) => setEditFormData({ ...editFormData, password: e.target.value })}
+              placeholder={t('editModal.passwordPlaceholder')}
+              disabled={editingUser}
+              className="w-full"
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {t('editModal.passwordHint')}
+            </p>
           </div>
           
           <div className="space-y-2">

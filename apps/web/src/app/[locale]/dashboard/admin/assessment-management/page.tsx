@@ -9,7 +9,8 @@ import Input from '@/components/ui/Input';
 import Badge from '@/components/ui/Badge';
 import { getErrorMessage } from '@/lib/errors';
 import { 
-  getMyAssessments, 
+  getMyAssessments,
+  getAllAssessments,
   Assessment as ApiAssessment,
   getQuestions,
   createQuestion,
@@ -137,10 +138,9 @@ export default function AdminAssessmentManagementPage() {
       setLoading(true);
       setError(null);
       
-      // For now, use my-assessments endpoint (admin will see all assessments when admin endpoint is available)
-      // In the future, we can create an admin endpoint: GET /v1/assessments/admin/all
+      // Use admin endpoint to get all assessments from all users
       try {
-        const apiAssessments = await getMyAssessments();
+        const apiAssessments = await getAllAssessments();
         
         // Map API assessments to local format
         const mappedAssessments: Assessment[] = apiAssessments.map((apiAssessment: ApiAssessment) => {

@@ -284,6 +284,25 @@ export const getMyAssessments = async (): Promise<Assessment[]> => {
 };
 
 /**
+ * Get all assessments for all users (admin only)
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
+ * Converts backend assessment_type (lowercase) to frontend format (uppercase)
+ */
+export const getAllAssessments = async (): Promise<Assessment[]> => {
+  const response = await apiClient.get(
+    `/v1/assessments/admin/all`
+  );
+  
+  // Convert assessment_type from backend format (lowercase) to frontend format (uppercase)
+  const assessments = Array.isArray(response.data) ? response.data.map((assessment: any) => ({
+    ...assessment,
+    assessment_type: convertAssessmentTypeFromBackend(assessment.assessment_type)
+  })) : response.data;
+  
+  return assessments;
+};
+
+/**
  * Get a specific assessment by ID
  * Uses apiClient to benefit from automatic token refresh on 401 errors
  */
