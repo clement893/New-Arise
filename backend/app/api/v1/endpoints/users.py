@@ -556,8 +556,8 @@ async def update_user(
     user_id: int,
     user_data: UserUpdate,
     current_user: Annotated[User, Depends(get_current_user)],
-    _: None = Depends(require_superadmin),
     db: Annotated[AsyncSession, Depends(get_db)],
+    _: None = Depends(require_superadmin),
 ) -> UserResponse:
     """
     Update a user by ID (superadmin only)
