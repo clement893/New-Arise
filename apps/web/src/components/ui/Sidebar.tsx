@@ -55,6 +55,7 @@ export default function Sidebar({
   const t = useTranslations('dashboard.navigation');
   const pathname = usePathname();
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [manuallyCollapsedItems, setManuallyCollapsedItems] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const activePath = currentPath || pathname;
   
@@ -124,8 +125,16 @@ export default function Sidebar({
       const newSet = new Set(prev);
       if (newSet.has(label)) {
         newSet.delete(label);
+        // Mark as manually collapsed
+        setManuallyCollapsedItems((prevCollapsed) => new Set(prevCollapsed).add(label));
       } else {
         newSet.add(label);
+        // Remove from manually collapsed if it was manually collapsed
+        setManuallyCollapsedItems((prevCollapsed) => {
+          const newCollapsed = new Set(prevCollapsed);
+          newCollapsed.delete(label);
+          return newCollapsed;
+        });
       }
       return newSet;
     });
@@ -253,7 +262,8 @@ export default function Sidebar({
   };
 
   // Auto-expand groups that contain active items (UX/UI improvements - Batch 8)
-  useMemo(() => {
+  // Only auto-expand if the user hasn't manually collapsed the section
+  useEffect(() => {
     items.forEach((item) => {
       if (item.children) {
         const hasActiveChild = item.children.some(
@@ -265,12 +275,13 @@ export default function Sidebar({
                    (normalizedActive && normalizedChild && normalizedActive.startsWith(normalizedChild + '/'));
           }
         );
-        if (hasActiveChild && !expandedItems.has(item.label)) {
+        // Only auto-expand if it has an active child AND it wasn't manually collapsed
+        if (hasActiveChild && !expandedItems.has(item.label) && !manuallyCollapsedItems.has(item.label)) {
           setExpandedItems((prev) => new Set(prev).add(item.label));
         }
       }
     });
-  }, [items, activePath, expandedItems]);
+  }, [items, activePath, expandedItems, manuallyCollapsedItems]);
 
   return (
     <aside

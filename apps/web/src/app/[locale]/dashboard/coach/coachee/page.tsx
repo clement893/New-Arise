@@ -112,7 +112,7 @@ export default function CoacheePage() {
 
   return (
     <>
-      <Container className="py-8">
+      <Container className="py-8" maxWidth="full" center={false}>
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">
             Mes Coachees

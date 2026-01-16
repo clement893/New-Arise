@@ -2079,6 +2079,138 @@
         "uploadFailed": "Error uploading file"
       }
     },
+    "assessmentManagement": {
+      "title": "Assessment Management",
+      "description": "Manage assessments, questions, and scoring rules",
+      "tabs": {
+        "assessments": "Assessments",
+        "questions": "Questions",
+        "rules": "Scoring Rules"
+      },
+      "assessments": {
+        "stats": {
+          "total": "Total Assessments",
+          "completed": "Completed",
+          "inProgress": "In Progress",
+          "averageScore": "Average Score"
+        },
+        "search": {
+          "placeholder": "Search by user email, name or test type...",
+          "allTypes": "All Types",
+          "allStatuses": "All statuses",
+          "refresh": "Refresh",
+          "export": "Export"
+        },
+        "status": {
+          "completed": "Completed",
+          "inProgress": "In Progress",
+          "notStarted": "Not Started"
+        },
+        "types": {
+          "MBTI": "MBTI",
+          "TKI": "TKI",
+          "WELLNESS": "Wellness",
+          "THREE_SIXTY_SELF": "360° Feedback (Self)",
+          "THREE_SIXTY_EVALUATOR": "360° Feedback (Evaluator)"
+        },
+        "empty": {
+          "noTests": "No test found",
+          "noMatch": "No test matches the filters",
+          "description": "Assessments will appear here once an admin endpoint is configured.",
+          "tryModifying": "Try modifying your search or filter criteria."
+        },
+        "card": {
+          "progress": "Progress",
+          "questions": "questions",
+          "score": "Score",
+          "start": "Start",
+          "completed": "Completed",
+          "details": "Details"
+        },
+        "errors": {
+          "loadFailed": "Error loading assessments"
+        }
+      },
+      "questions": {
+        "testType": "Test Type",
+        "refresh": "Refresh",
+        "addQuestion": "Add Question",
+        "empty": {
+          "noQuestions": "No question found",
+          "description": "Questions for this test type are not yet configured.",
+          "addFirst": "Add First Question"
+        },
+        "modal": {
+          "edit": "Edit Question",
+          "add": "Add Question",
+          "questionId": "Question ID",
+          "questionIdPlaceholder": "e.g.: wellness_q1",
+          "questionText": "Question Text",
+          "questionTextPlaceholder": "Enter question text...",
+          "pillar": "Pillar",
+          "pillarPlaceholder": "e.g.: Movement",
+          "number": "Number",
+          "numberPlaceholder": "e.g.: 1",
+          "optionA": "Option A",
+          "optionAPlaceholder": "Option A text...",
+          "optionB": "Option B",
+          "optionBPlaceholder": "Option B text...",
+          "modeA": "Mode A",
+          "modeAPlaceholder": "e.g.: competing",
+          "modeB": "Mode B",
+          "modeBPlaceholder": "e.g.: collaborating",
+          "capability": "Capability",
+          "capabilityPlaceholder": "e.g.: communication",
+          "cancel": "Cancel",
+          "save": "Save",
+          "saving": "Saving..."
+        },
+        "errors": {
+          "loadFailed": "Error loading questions",
+          "saveFailed": "Error saving question",
+          "deleteFailed": "Error deleting question"
+        },
+        "deleteConfirm": "Are you sure you want to delete the question \"{questionId}\"?"
+      },
+      "rules": {
+        "testType": "Test Type",
+        "notAvailable": "Rules Not Available",
+        "notAvailableDescription": "Scoring rules for this test type are not yet configured.",
+        "wellness": {
+          "generalConfig": "General Configuration",
+          "maxTotalScore": "Maximum Total Score",
+          "responseScale": "Response Scale",
+          "pillarRules": "Rules by Pillar",
+          "maxScore": "Max Score",
+          "questions": "Questions",
+          "associatedQuestions": "Associated Questions:",
+          "noQuestions": "No associated questions"
+        },
+        "tki": {
+          "config": "TKI Configuration",
+          "totalQuestions": "Total Questions",
+          "questionsPerMode": "Questions per Mode",
+          "conflictModes": "Conflict Modes"
+        },
+        "360": {
+          "generalConfig": "General Configuration",
+          "maxTotalScore": "Maximum Total Score",
+          "responseScale": "Response Scale",
+          "capabilityRules": "Rules by Capability",
+          "maxScore": "Max Score",
+          "questions": "Questions",
+          "associatedQuestions": "Associated Questions:",
+          "noQuestions": "No associated questions"
+        },
+        "modal": {
+          "edit": "Edit Scoring Rule",
+          "name": "Name",
+          "maxScore": "Maximum Score",
+          "cancel": "Cancel",
+          "save": "Save"
+        }
+      }
+    },
     "main": {
       "title": "Administration",
       "description": "System administration panel",
@@ -2319,6 +2451,92 @@
           "title": "Remove member",
           "message": "Are you sure you want to remove this member from the team?",
           "remove": "Remove"
+        }
+      }
+    },
+    "admin": {
+      "users": {
+        "title": "User Management",
+        "description": "Manage all platform users",
+        "searchPlaceholder": "Search by email or name...",
+        "selectedCount": "{count} user{count, plural, =1 {} other {s}} selected",
+        "deselectAll": "Deselect all",
+        "deleteSelected": "Delete ({count})",
+        "deleting": "Deleting...",
+        "noUsers": "No users",
+        "noUserFound": "No user found",
+        "checking": "Checking...",
+        "yes": "Yes",
+        "no": "No",
+        "columns": {
+          "email": "Email",
+          "name": "Name",
+          "type": "Type",
+          "status": "Status",
+          "superadmin": "Superadmin",
+          "created": "Created",
+          "actions": "Actions"
+        },
+        "types": {
+          "admin": "Admin",
+          "coach": "Coach",
+          "business": "Business",
+          "individual": "Individual",
+          "na": "N/A"
+        },
+        "status": {
+          "active": "Active",
+          "inactive": "Inactive"
+        },
+        "actions": {
+          "view": "View details",
+          "edit": "Edit",
+          "makeSuperAdmin": "Make superadmin",
+          "delete": "Delete"
+        },
+        "pagination": {
+          "showing": "Showing {from} to {to} of {total} users",
+          "previous": "Previous",
+          "next": "Next"
+        },
+        "deleteSuccess": "User {email} has been successfully deleted.",
+        "bulkDeleteSuccess": "{count} user{count, plural, =1 { has} other {s have}} been successfully deleted.",
+        "superAdminSuccess": "User {email} has been successfully promoted to superadmin.",
+        "deleteModal": {
+          "title": "Confirm deletion",
+          "message": "Are you sure you want to delete the user {email}?",
+          "warning": "This action is irreversible. The user will be immediately removed from the list.",
+          "cancel": "Cancel",
+          "delete": "Delete",
+          "deleting": "Deleting..."
+        },
+        "bulkDeleteModal": {
+          "title": "Confirm bulk deletion",
+          "message": "Are you sure you want to delete {count} user{count, plural, =1 {} other {s}}?",
+          "warning": "This action is irreversible. Users will be immediately removed from the list.",
+          "cancel": "Cancel",
+          "delete": "Delete {count} user{count, plural, =1 {} other {s}}",
+          "deleting": "Deleting..."
+        },
+        "superAdminModal": {
+          "title": "Make superadmin",
+          "message": "Are you sure you want to make {email} a superadmin?",
+          "cancel": "Cancel",
+          "confirm": "Make superadmin",
+          "promoting": "Promoting...",
+          "privileges": {
+            "title": "Superadmin privileges:",
+            "feature1": "Access to all administrative features",
+            "feature2": "Theme and system configuration management",
+            "feature3": "Role and permission management",
+            "feature4": "Access to logs and advanced statistics"
+          }
+        },
+        "errors": {
+          "loadFailed": "Error loading users",
+          "deleteFailed": "Error deleting user",
+          "bulkDeleteFailed": "Error deleting users",
+          "superAdminFailed": "Error promoting user to superadmin"
         }
       }
     }
