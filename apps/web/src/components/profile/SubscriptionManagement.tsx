@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { getErrorMessage, getErrorDetail } from '@/lib/errors';
 import { logger } from '@/lib/logger';
@@ -37,6 +37,7 @@ interface Subscription {
 }
 
 export default function SubscriptionManagement() {
+  const t = useTranslations('profile.subscription');
   const router = useRouter();
   const searchParams = useSearchParams();
   const locale = useLocale();
@@ -214,7 +215,7 @@ export default function SubscriptionManagement() {
   useEffect(() => {
     const portalReturn = searchParams?.get('portal_return');
     if (portalReturn === 'true') {
-      setSuccess('Your subscription has been updated successfully.');
+      setSuccess(t('updateSuccess'));
       // Refetch subscription data
       refetchSubscription();
       // Clear the success message after 5 seconds
@@ -245,15 +246,15 @@ export default function SubscriptionManagement() {
         // Redirect to Stripe Customer Portal
         window.location.href = response.data.url;
       } else {
-        setError('Failed to create portal session. Please try again.');
+        setError(t('errors.createPortalFailed'));
       }
     } catch (err: unknown) {
       const errorDetail = getErrorDetail(err);
-      const errorMessage = getErrorMessage(err, 'Error opening subscription management');
+      const errorMessage = getErrorMessage(err, t('errors.openManagementFailed'));
       
       // Handle specific error: no Stripe customer
       if (errorDetail?.includes('customer') || errorDetail?.includes('Stripe')) {
-        setError('Unable to manage subscription. Please contact support or subscribe to a plan first.');
+        setError(t('errors.manageFailed'));
       } else {
         setError(errorDetail || errorMessage);
       }
@@ -261,7 +262,7 @@ export default function SubscriptionManagement() {
   }, [createPortalSessionMutation]);
 
   const handleCancelSubscription = useCallback(async () => {
-    if (!confirm('Are you sure you want to cancel your subscription? It will remain active until the end of the current period.')) {
+    if (!confirm(t('cancelConfirm'))) {
       return;
     }
 
@@ -269,12 +270,12 @@ export default function SubscriptionManagement() {
       setError('');
       setSuccess('');
       await cancelSubscriptionMutation.mutateAsync();
-      setSuccess('Your subscription has been cancelled. It will remain active until the end of the current billing period.');
+      setSuccess(t('cancelSuccess'));
       // React Query will automatically refetch subscription data
     } catch (err: unknown) {
-      setError(getErrorDetail(err) || getErrorMessage(err, 'Error canceling subscription'));
+      setError(getErrorDetail(err) || getErrorMessage(err, t('errors.cancelFailed')));
     }
-  }, [cancelSubscriptionMutation]);
+  }, [cancelSubscriptionMutation, t]);
 
   const handleResumeSubscription = async () => {
     try {
@@ -286,13 +287,13 @@ export default function SubscriptionManagement() {
       // For now, redirect to pricing to resubscribe
       router.push('/pricing');
     } catch (err: unknown) {
-      setError(getErrorDetail(err) || getErrorMessage(err, 'Error resuming subscription'));
+      setError(getErrorDetail(err) || getErrorMessage(err, t('errors.resumeFailed')));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSelectPlan = async (planId: number) => {
+  const handleSelectPlan = useCallback(async (planId: number) => {
     try {
       setError('');
       setSuccess('');
@@ -310,10 +311,10 @@ export default function SubscriptionManagement() {
       }
     } catch (err: unknown) {
       const errorDetail = getErrorDetail(err);
-      const errorMessage = getErrorMessage(err, 'Error subscribing to plan');
+      const errorMessage = getErrorMessage(err, t('errors.subscribeFailed'));
       setError(errorDetail || errorMessage);
     }
-  };
+  }, [createCheckoutMutation, router, t]);
 
   return (
     <div className="space-y-6">
@@ -336,7 +337,7 @@ export default function SubscriptionManagement() {
         <Card>
           <div className="py-12 text-center">
             <Loading />
-            <p className="text-gray-600 dark:text-gray-400 mt-4">Loading subscription information...</p>
+            <p className="text-gray-600 dark:text-gray-400 mt-4">{t('loadingInfo')}</p>
           </div>
         </Card>
       ) : subscription ? (
@@ -347,10 +348,10 @@ export default function SubscriptionManagement() {
               <div className="flex flex-col sm:flex-row sm:gap-0 gap-4 items-start justify-between mb-4">
               <div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                  Manage My Subscription
+                  {t('title')}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400">
-                  Update payment methods, view invoices, and manage your subscription settings
+                  {t('description')}
                 </p>
               </div>
               <Button
@@ -360,7 +361,7 @@ export default function SubscriptionManagement() {
                 variant="arise-primary"
               >
                 <Settings className="w-4 h-4" />
-                {createPortalSessionMutation.isPending ? 'Loading...' : 'Manage Subscription'}
+                {createPortalSessionMutation.isPending ? t('loading') : t('manageButton')}
                 <ExternalLink className="w-4 h-4" />
               </Button>
               </div>
@@ -384,10 +385,10 @@ export default function SubscriptionManagement() {
           <Card className="p-6">
             <div className="text-center py-8">
               <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                No Active Subscription
+                {t('noSubscription.title')}
               </h3>
               <p className="text-gray-900 dark:text-gray-100 mb-6">
-                You don't have an active subscription. Subscribe to a plan to get started.
+                {t('noSubscription.description')}
               </p>
             </div>
           </Card>
@@ -395,14 +396,14 @@ export default function SubscriptionManagement() {
             <Card className="p-6">
               <div className="py-12 text-center">
                 <Loading />
-                <p className="text-gray-600 dark:text-gray-400 mt-4">Loading plans...</p>
+                <p className="text-gray-600 dark:text-gray-400 mt-4">{t('loadingPlans')}</p>
               </div>
             </Card>
           ) : plans.length > 0 ? (
             <div className="space-y-6">
               <div className="text-center">
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Available Plans</h2>
-                <p className="text-gray-600 dark:text-gray-400">Select a plan that fits your needs</p>
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">{t('availablePlans.title')}</h2>
+                <p className="text-gray-600 dark:text-gray-400">{t('availablePlans.description')}</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {plans.map((plan) => (
@@ -419,10 +420,10 @@ export default function SubscriptionManagement() {
           ) : (
             <Card className="p-6">
               <div className="text-center py-12">
-                <p className="text-gray-600 dark:text-gray-400 mb-6">No plans available at the moment</p>
+                <p className="text-gray-600 dark:text-gray-400 mb-6">{t('noPlans')}</p>
                 <Link href={locale === 'en' ? '/pricing' : `/${locale}/pricing`}>
                   <Button variant="arise-primary">
-                    View Plans
+                    {t('viewPlans')}
                   </Button>
                 </Link>
               </div>

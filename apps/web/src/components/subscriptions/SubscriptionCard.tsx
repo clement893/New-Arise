@@ -1,5 +1,5 @@
 import { Badge, Button, Card, Alert } from '@/components/ui';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 interface Subscription {
@@ -26,6 +26,7 @@ export default function SubscriptionCard({
   onCancel,
   onResume,
 }: SubscriptionCardProps) {
+  const t = useTranslations('profile.subscription');
   const locale = useLocale();
   const pricingUrl = locale === 'en' ? '/pricing' : `/${locale}/pricing`;
   
@@ -40,13 +41,7 @@ export default function SubscriptionCard({
   };
 
   const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = {
-      active: 'Active',
-      cancelled: 'Cancelled',
-      expired: 'Expired',
-      trial: 'Trial',
-    };
-    return labels[status] || status;
+    return t(`status.${status}`) || status;
   };
 
   return (
@@ -66,31 +61,30 @@ export default function SubscriptionCard({
               {subscription.amount}€
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              /{subscription.billing_period === 'month' ? 'month' : 'year'}
+              /{t(`period.${subscription.billing_period}`)}
             </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Current Period</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">{t('currentPeriod')}</div>
             <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              {new Date(subscription.current_period_start).toLocaleDateString()} -{' '}
-              {new Date(subscription.current_period_end).toLocaleDateString()}
+              {new Date(subscription.current_period_start).toLocaleDateString(locale)} -{' '}
+              {new Date(subscription.current_period_end).toLocaleDateString(locale)}
             </div>
           </div>
           <div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Next Payment</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">{t('nextPayment')}</div>
             <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              {new Date(subscription.current_period_end).toLocaleDateString()}
+              {new Date(subscription.current_period_end).toLocaleDateString(locale)}
             </div>
           </div>
         </div>
 
         {subscription.cancel_at_period_end && (
           <Alert variant="warning" className="mb-6">
-            Your subscription will be canceled on{' '}
-            {new Date(subscription.current_period_end).toLocaleDateString()}.
+            {t('cancelWarning', { date: new Date(subscription.current_period_end).toLocaleDateString(locale) })}
           </Alert>
         )}
 
@@ -101,14 +95,14 @@ export default function SubscriptionCard({
               onClick={onCancel}
               className="border-red-500 text-red-600 hover:bg-red-50"
             >
-              Cancel Subscription
+              {t('cancelButton')}
             </Button>
           )}
           {subscription.cancel_at_period_end && onResume && (
-            <Button onClick={onResume}>Resume Subscription</Button>
+            <Button onClick={onResume}>{t('resumeButton')}</Button>
           )}
           <Link href={pricingUrl}>
-            <Button variant="outline">Change Plan</Button>
+            <Button variant="outline">{t('changePlanButton')}</Button>
           </Link>
         </div>
       </div>

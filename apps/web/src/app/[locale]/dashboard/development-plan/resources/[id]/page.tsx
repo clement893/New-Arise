@@ -357,6 +357,11 @@ function ResourceDetailContent() {
                      resourceId === '3' ? t('resources.items.effectiveCommunication.fullDescription') :
                      resourceId === '4' ? t('resources.items.teamBuilding.fullDescription') :
                      baseResource.fullDescription || baseResource.description,
+    duration: resourceId === '1' ? tDetail('durations.conflictManagementStyles') :
+              resourceId === '2' ? tDetail('durations.emotionalIntelligence') :
+              resourceId === '3' ? tDetail('durations.effectiveCommunication') :
+              resourceId === '4' ? tDetail('durations.teamBuilding') :
+              baseResource.duration,
     content: resourceId === '1' ? tDetail('content.conflictManagementStyles.html') :
              resourceId === '2' ? tDetail('content.emotionalIntelligence.html') :
              resourceId === '3' ? tDetail('content.effectiveCommunication.html') :

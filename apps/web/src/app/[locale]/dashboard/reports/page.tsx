@@ -43,6 +43,7 @@ interface DashboardStats {
 
 function ResultsReportsContent() {
   const t = useTranslations('dashboard.reports');
+  const tWellness = useTranslations('dashboard.assessments.wellness.results');
   const locale = useLocale();
   const router = useRouter();
   const [assessments, setAssessments] = useState<AssessmentDisplay[]>([]);
@@ -137,10 +138,17 @@ function ResultsReportsContent() {
           let detailedResult: AssessmentResult | undefined;
           try {
             detailedResult = await getAssessmentResults(assessment.id);
-          } catch (err) {
+          } catch (err: any) {
             // If result not available, continue without it
             // This is expected for some assessments that may not have detailed results yet
-            console.warn(`Could not load detailed result for assessment ${assessment.id}:`, err);
+            // Only log if it's not a 404 (results not found) - those are expected
+            const is404 = err?.response?.status === 404 || 
+                         (typeof err === 'string' && err.includes('not found')) ||
+                         (err?.message && err.message.includes('not found'));
+            if (!is404) {
+              // Only log unexpected errors
+              console.warn(`Could not load detailed result for assessment ${assessment.id}:`, err);
+            }
             // Note: Assessment will still be displayed, just without detailed insights
           }
           
@@ -407,12 +415,25 @@ function ResultsReportsContent() {
               };
               const pillarKey = toCamelCase(pillarId);
               try {
-                const translated = t(`dashboard.assessments.wellness.results.pillars.${pillarKey}`);
-                if (translated && translated !== `dashboard.assessments.wellness.results.pillars.${pillarKey}`) {
+                // Use the wellness translation hook to access pillars
+                const translated = tWellness(`pillars.${pillarKey}`);
+                if (translated && translated !== `pillars.${pillarKey}`) {
                   return translated;
                 }
               } catch (e) {
-                // Fallback
+                // Fallback - try common pillar names
+                const commonPillars: Record<string, string> = {
+                  sleep: 'Sleep',
+                  nutrition: 'Nutrition',
+                  hydration: 'Hydration',
+                  movement: 'Movement',
+                  stressManagement: 'Stress Management',
+                  socialConnection: 'Social Connection',
+                  avoidanceOfRiskySubstances: 'Avoidance of Risky Substances',
+                };
+                if (commonPillars[pillarKey]) {
+                  return commonPillars[pillarKey];
+                }
               }
               return pillarId.replace(/_/g, ' ');
             };
