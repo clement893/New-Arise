@@ -395,7 +395,7 @@ export default function AdminUsersPage() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                    <th className="text-left py-3 px-4 w-12">
+                    <th className="text-left py-4 px-4 w-10">
                       <Checkbox
                         checked={allSelected}
                         indeterminate={someSelected}
@@ -403,25 +403,25 @@ export default function AdminUsersPage() {
                         className="cursor-pointer"
                       />
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[200px]">
+                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[200px]">
                       {t('columns.email')}
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[150px]">
+                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[150px]">
                       {t('columns.name')}
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[120px]">
+                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[120px]">
                       {t('columns.type')}
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[100px]">
+                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[100px]">
                       {t('columns.status')}
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[130px]">
+                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[130px]">
                       {t('columns.superadmin')}
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[120px]">
+                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[120px]">
                       {t('columns.created')}
                     </th>
-                    <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[180px]">
+                    <th className="text-right py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[180px]">
                       {t('columns.actions')}
                     </th>
                   </tr>

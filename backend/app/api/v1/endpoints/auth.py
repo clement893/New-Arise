@@ -1288,10 +1288,10 @@ async def forgot_password(
     )
     user = result.scalar_one_or_none()
     
-    # Log password reset request attempt
+    # Log password reset request attempt (use separate session to avoid conflicts)
     try:
         await SecurityAuditLogger.log_event(
-            db=db,
+            db=None,  # Create separate session to ensure persistence
             event_type=SecurityEventType.PASSWORD_RESET_REQUEST,
             description=f"Password reset requested for email: {normalized_email}",
             user_id=user.id if user else None,
@@ -1306,7 +1306,7 @@ async def forgot_password(
         )
     except Exception as e:
         # Don't fail the request if audit logging fails
-        logger.error(f"Failed to log password reset request: {e}", exc_info=True)
+        logger.warning(f"⚠️ Failed to log password reset request (non-critical): {e}")
     
     # Only send email if user exists
     if user:
@@ -1540,10 +1540,10 @@ async def reset_password(
         
         if not user:
             logger.warning(f"⚠️ User not found for email: {normalized_email}")
-            # Log failed reset attempt
+            # Log failed reset attempt (use separate session)
             try:
                 await SecurityAuditLogger.log_event(
-                    db=db,
+                    db=None,  # Create separate session to ensure persistence
                     event_type=SecurityEventType.PASSWORD_RESET_COMPLETE,
                     description=f"Password reset failed: user not found for email: {normalized_email}",
                     ip_address=client_ip,
@@ -1554,8 +1554,8 @@ async def reset_password(
                     success="failure",
                     metadata={"reason": "user_not_found"}
                 )
-            except Exception:
-                pass
+            except Exception as log_error:
+                logger.warning(f"⚠️ Failed to log user not found event (non-critical): {log_error}")
             
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -1623,10 +1623,10 @@ async def reset_password(
                 pass
             raise
         
-        # Log successful password reset
+        # Log successful password reset (use separate session to avoid conflicts)
         try:
             await SecurityAuditLogger.log_event(
-                db=db,
+                db=None,  # Create separate session to ensure persistence
                 event_type=SecurityEventType.PASSWORD_RESET_COMPLETE,
                 description=f"Password reset completed successfully for user: {user.email}",
                 user_id=user.id,
@@ -1638,8 +1638,10 @@ async def reset_password(
                 severity="info",
                 success="success"
             )
+            logger.info(f"✅ Password reset audit log created successfully")
         except Exception as e:
-            logger.error(f"Failed to log password reset completion: {e}", exc_info=True)
+            # Don't fail the request if audit logging fails
+            logger.error(f"⚠️ Failed to log password reset completion (non-critical): {e}", exc_info=True)
         
         logger.info(f"Password reset successful for user: {user.email}")
         
@@ -1648,10 +1650,10 @@ async def reset_password(
         }
         
     except jwt.ExpiredSignatureError:
-        # Log expired token attempt
+        # Log expired token attempt (use separate session)
         try:
             await SecurityAuditLogger.log_event(
-                db=db,
+                db=None,  # Create separate session to ensure persistence
                 event_type=SecurityEventType.PASSWORD_RESET_COMPLETE,
                 description="Password reset failed: expired token",
                 ip_address=client_ip,
@@ -1662,18 +1664,18 @@ async def reset_password(
                 success="failure",
                 metadata={"reason": "expired_token"}
             )
-        except Exception:
-            pass
+        except Exception as log_error:
+            logger.warning(f"⚠️ Failed to log expired token event (non-critical): {log_error}")
         
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Reset token has expired. Please request a new one."
         )
     except jwt.JWTError as e:
-        # Log invalid token attempt
+        # Log invalid token attempt (use separate session)
         try:
             await SecurityAuditLogger.log_event(
-                db=db,
+                db=None,  # Create separate session to ensure persistence
                 event_type=SecurityEventType.PASSWORD_RESET_COMPLETE,
                 description=f"Password reset failed: invalid token - {str(e)}",
                 ip_address=client_ip,
@@ -1684,8 +1686,8 @@ async def reset_password(
                 success="failure",
                 metadata={"reason": "invalid_token"}
             )
-        except Exception:
-            pass
+        except Exception as log_error:
+            logger.warning(f"⚠️ Failed to log invalid token event (non-critical): {log_error}")
         
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
