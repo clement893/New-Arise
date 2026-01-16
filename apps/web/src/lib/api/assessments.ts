@@ -34,13 +34,15 @@ export interface StartAssessmentResponse {
 
 export interface Assessment {
   id: number;
-  user_id: number;
+  user_id?: number;
+  user_email?: string;
+  user_name?: string;
   assessment_type: AssessmentType;
   status: AssessmentStatus;
   started_at?: string;
   completed_at?: string;
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
   answer_count?: number;
   total_questions?: number;
   score_summary?: Record<string, any>; // Summary of scores from processed_score

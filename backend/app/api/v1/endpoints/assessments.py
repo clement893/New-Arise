@@ -39,6 +39,9 @@ router = APIRouter()
 class AssessmentListItem(BaseModel):
     """Assessment list item response"""
     id: int
+    user_id: Optional[int] = None
+    user_email: Optional[str] = None
+    user_name: Optional[str] = None
     assessment_type: str
     status: str
     started_at: Optional[datetime]
@@ -46,6 +49,7 @@ class AssessmentListItem(BaseModel):
     score_summary: Optional[Dict[str, Any]] = None
     answer_count: Optional[int] = 0  # Number of answers provided
     total_questions: Optional[int] = 30  # Total number of questions (30 for most assessments)
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
@@ -191,18 +195,19 @@ async def list_assessments(
     Get list of all assessments for the current user
     """
     result = await db.execute(
-        select(Assessment)
+        select(Assessment, User)
+        .join(User, Assessment.user_id == User.id)
         .where(
             Assessment.user_id == current_user.id,
             Assessment.assessment_type != AssessmentType.THREE_SIXTY_EVALUATOR  # Exclude evaluator assessments
         )
         .order_by(Assessment.created_at.desc())
     )
-    assessments = result.scalars().all()
+    results = result.all()
 
     # Format response
     response = []
-    for assessment in assessments:
+    for assessment, user in results:
         score_summary = None
         if assessment.processed_score:
             # Extract summary based on type
@@ -230,15 +235,26 @@ async def list_assessments(
         # Get total questions from configuration (replaces hardcoded value)
         total_questions = get_total_questions(assessment.assessment_type)
 
+        # Get user name
+        user_name = None
+        if user.first_name or user.last_name:
+            user_name = f"{user.first_name or ''} {user.last_name or ''}".strip()
+        elif user.email:
+            user_name = user.email.split("@")[0]
+
         response.append(AssessmentListItem(
             id=assessment.id,
+            user_id=assessment.user_id,
+            user_email=user.email,
+            user_name=user_name,
             assessment_type=assessment.assessment_type.value,
             status=assessment.status.value,
             started_at=assessment.started_at,
             completed_at=assessment.completed_at,
             score_summary=score_summary,
             answer_count=answer_count,
-            total_questions=total_questions
+            total_questions=total_questions,
+            created_at=assessment.created_at
         ))
 
     return response
