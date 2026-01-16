@@ -1509,161 +1509,161 @@ async def reset_password(
             )
         
         try:
-        logger.info(f"🔐 Password reset attempt - Token length: {len(reset_data.token)}, Password length: {len(reset_data.new_password)}")
-        
-        # Decode and verify reset token
-        try:
-            payload = jwt.decode(
-                reset_data.token,
-                settings.SECRET_KEY,
-                algorithms=[settings.ALGORITHM]
+            logger.info(f"🔐 Password reset attempt - Token length: {len(reset_data.token)}, Password length: {len(reset_data.new_password)}")
+            
+            # Decode and verify reset token
+            try:
+                payload = jwt.decode(
+                    reset_data.token,
+                    settings.SECRET_KEY,
+                    algorithms=[settings.ALGORITHM]
+                )
+                logger.info(f"✅ Token decoded successfully - Type: {payload.get('type')}, Email: {payload.get('sub')}")
+            except jwt.ExpiredSignatureError:
+                logger.warning("⚠️ Password reset token expired")
+                raise
+            except jwt.JWTError as e:
+                logger.warning(f"⚠️ Invalid JWT token: {str(e)}")
+                raise
+            
+            # Verify token type
+            token_type = payload.get("type")
+            if token_type != "password_reset":
+                logger.warning(f"⚠️ Invalid token type: {token_type} (expected: password_reset)")
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Invalid token type"
+                )
+            
+            # Get user email from token
+            user_email = payload.get("sub")
+            if not user_email:
+                logger.warning("⚠️ Token missing 'sub' claim")
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Invalid token payload"
+                )
+            
+            # Normalize email
+            normalized_email = user_email.strip().lower()
+            logger.info(f"🔍 Looking up user with email: {normalized_email}")
+            
+            # Find user
+            result = await db.execute(
+                select(User).where(User.email == normalized_email)
             )
-            logger.info(f"✅ Token decoded successfully - Type: {payload.get('type')}, Email: {payload.get('sub')}")
-        except jwt.ExpiredSignatureError:
-            logger.warning("⚠️ Password reset token expired")
-            raise
-        except jwt.JWTError as e:
-            logger.warning(f"⚠️ Invalid JWT token: {str(e)}")
-            raise
-        
-        # Verify token type
-        token_type = payload.get("type")
-        if token_type != "password_reset":
-            logger.warning(f"⚠️ Invalid token type: {token_type} (expected: password_reset)")
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid token type"
-            )
-        
-        # Get user email from token
-        user_email = payload.get("sub")
-        if not user_email:
-            logger.warning("⚠️ Token missing 'sub' claim")
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid token payload"
-            )
-        
-        # Normalize email
-        normalized_email = user_email.strip().lower()
-        logger.info(f"🔍 Looking up user with email: {normalized_email}")
-        
-        # Find user
-        result = await db.execute(
-            select(User).where(User.email == normalized_email)
-        )
-        user = result.scalar_one_or_none()
-        
-        if not user:
-            logger.warning(f"⚠️ User not found for email: {normalized_email}")
-            # Log failed reset attempt (use separate session)
+            user = result.scalar_one_or_none()
+            
+            if not user:
+                logger.warning(f"⚠️ User not found for email: {normalized_email}")
+                # Log failed reset attempt (use separate session)
+                try:
+                    await SecurityAuditLogger.log_event(
+                        db=None,  # Create separate session to ensure persistence
+                        event_type=SecurityEventType.PASSWORD_RESET_COMPLETE,
+                        description=f"Password reset failed: user not found for email: {normalized_email}",
+                        ip_address=client_ip,
+                        user_agent=user_agent,
+                        request_method=request.method,
+                        request_path=str(request.url.path),
+                        severity="warning",
+                        success="failure",
+                        metadata={"reason": "user_not_found"}
+                    )
+                except Exception as log_error:
+                    logger.warning(f"⚠️ Failed to log user not found event (non-critical): {log_error}")
+                
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Invalid or expired reset token"
+                )
+            
+            logger.info(f"✅ User found: {user.email} (ID: {user.id}, Active: {user.is_active})")
+            
+            # Check if user is active
+            if not user.is_active:
+                logger.warning(f"⚠️ Account disabled for user: {user.email}")
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Account is disabled"
+                )
+            
+            # Update password
+            try:
+                logger.info(f"🔐 Hashing new password for user: {user.email}")
+                logger.info(f"🔐 Password to hash length: {len(reset_data.new_password)} characters")
+                
+                # Hash the password
+                try:
+                    hashed_password = get_password_hash(reset_data.new_password)
+                    logger.info(f"✅ Password hashed successfully (length: {len(hashed_password)} characters)")
+                except Exception as hash_error:
+                    logger.error(f"❌ Error hashing password: {type(hash_error).__name__}: {str(hash_error)}", exc_info=True)
+                    raise
+                
+                # Update user password
+                try:
+                    user.hashed_password = hashed_password
+                    logger.info(f"✅ Password assigned to user object")
+                except Exception as assign_error:
+                    logger.error(f"❌ Error assigning password to user: {type(assign_error).__name__}: {str(assign_error)}", exc_info=True)
+                    raise
+                
+                # Commit to database
+                try:
+                    logger.info(f"💾 Committing password update to database...")
+                    await db.commit()
+                    logger.info(f"✅ Database commit successful")
+                except Exception as commit_error:
+                    logger.error(f"❌ Error committing to database: {type(commit_error).__name__}: {str(commit_error)}", exc_info=True)
+                    await db.rollback()
+                    raise
+                
+                # Refresh user from database
+                try:
+                    await db.refresh(user)
+                    logger.info(f"✅ User refreshed from database")
+                except Exception as refresh_error:
+                    logger.warning(f"⚠️ Error refreshing user (non-critical): {type(refresh_error).__name__}: {str(refresh_error)}")
+                    # Don't fail if refresh fails, password is already updated
+                
+                logger.info(f"✅ Password updated successfully in database for user: {user.email}")
+            except Exception as e:
+                error_type = type(e).__name__
+                error_msg = str(e)
+                logger.error(f"❌ Error updating password: {error_type}: {error_msg}", exc_info=True)
+                print(f"❌ CRITICAL: Password update failed - Type: {error_type}, Message: {error_msg}", flush=True)
+                try:
+                    await db.rollback()
+                except Exception:
+                    pass
+                raise
+            
+            # Log successful password reset (use separate session to avoid conflicts)
             try:
                 await SecurityAuditLogger.log_event(
                     db=None,  # Create separate session to ensure persistence
                     event_type=SecurityEventType.PASSWORD_RESET_COMPLETE,
-                    description=f"Password reset failed: user not found for email: {normalized_email}",
+                    description=f"Password reset completed successfully for user: {user.email}",
+                    user_id=user.id,
+                    user_email=user.email,
                     ip_address=client_ip,
                     user_agent=user_agent,
                     request_method=request.method,
                     request_path=str(request.url.path),
-                    severity="warning",
-                    success="failure",
-                    metadata={"reason": "user_not_found"}
+                    severity="info",
+                    success="success"
                 )
-            except Exception as log_error:
-                logger.warning(f"⚠️ Failed to log user not found event (non-critical): {log_error}")
+                logger.info(f"✅ Password reset audit log created successfully")
+            except Exception as e:
+                # Don't fail the request if audit logging fails
+                logger.error(f"⚠️ Failed to log password reset completion (non-critical): {e}", exc_info=True)
             
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid or expired reset token"
-            )
-        
-        logger.info(f"✅ User found: {user.email} (ID: {user.id}, Active: {user.is_active})")
-        
-        # Check if user is active
-        if not user.is_active:
-            logger.warning(f"⚠️ Account disabled for user: {user.email}")
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Account is disabled"
-            )
-        
-        # Update password
-        try:
-            logger.info(f"🔐 Hashing new password for user: {user.email}")
-            logger.info(f"🔐 Password to hash length: {len(reset_data.new_password)} characters")
+            logger.info(f"Password reset successful for user: {user.email}")
             
-            # Hash the password
-            try:
-                hashed_password = get_password_hash(reset_data.new_password)
-                logger.info(f"✅ Password hashed successfully (length: {len(hashed_password)} characters)")
-            except Exception as hash_error:
-                logger.error(f"❌ Error hashing password: {type(hash_error).__name__}: {str(hash_error)}", exc_info=True)
-                raise
-            
-            # Update user password
-            try:
-                user.hashed_password = hashed_password
-                logger.info(f"✅ Password assigned to user object")
-            except Exception as assign_error:
-                logger.error(f"❌ Error assigning password to user: {type(assign_error).__name__}: {str(assign_error)}", exc_info=True)
-                raise
-            
-            # Commit to database
-            try:
-                logger.info(f"💾 Committing password update to database...")
-                await db.commit()
-                logger.info(f"✅ Database commit successful")
-            except Exception as commit_error:
-                logger.error(f"❌ Error committing to database: {type(commit_error).__name__}: {str(commit_error)}", exc_info=True)
-                await db.rollback()
-                raise
-            
-            # Refresh user from database
-            try:
-                await db.refresh(user)
-                logger.info(f"✅ User refreshed from database")
-            except Exception as refresh_error:
-                logger.warning(f"⚠️ Error refreshing user (non-critical): {type(refresh_error).__name__}: {str(refresh_error)}")
-                # Don't fail if refresh fails, password is already updated
-            
-            logger.info(f"✅ Password updated successfully in database for user: {user.email}")
-        except Exception as e:
-            error_type = type(e).__name__
-            error_msg = str(e)
-            logger.error(f"❌ Error updating password: {error_type}: {error_msg}", exc_info=True)
-            print(f"❌ CRITICAL: Password update failed - Type: {error_type}, Message: {error_msg}", flush=True)
-            try:
-                await db.rollback()
-            except Exception:
-                pass
-            raise
-        
-        # Log successful password reset (use separate session to avoid conflicts)
-        try:
-            await SecurityAuditLogger.log_event(
-                db=None,  # Create separate session to ensure persistence
-                event_type=SecurityEventType.PASSWORD_RESET_COMPLETE,
-                description=f"Password reset completed successfully for user: {user.email}",
-                user_id=user.id,
-                user_email=user.email,
-                ip_address=client_ip,
-                user_agent=user_agent,
-                request_method=request.method,
-                request_path=str(request.url.path),
-                severity="info",
-                success="success"
-            )
-            logger.info(f"✅ Password reset audit log created successfully")
-        except Exception as e:
-            # Don't fail the request if audit logging fails
-            logger.error(f"⚠️ Failed to log password reset completion (non-critical): {e}", exc_info=True)
-        
-        logger.info(f"Password reset successful for user: {user.email}")
-        
-        return {
-            "message": "Password has been reset successfully"
-        }
+            return {
+                "message": "Password has been reset successfully"
+            }
         
     except jwt.ExpiredSignatureError:
         # Log expired token attempt (use separate session)
