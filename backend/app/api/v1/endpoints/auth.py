@@ -1473,42 +1473,42 @@ async def reset_password(
         user_agent = request.headers.get("user-agent")
         
         logger.info(f"🔐 Password reset request received - IP: {client_ip}")
-    
-    # Validate request data
-    try:
-        logger.info(f"🔐 Request data validation:")
-        logger.info(f"   - Token present: {bool(reset_data.token)}")
-        logger.info(f"   - Token length: {len(reset_data.token) if reset_data.token else 0}")
-        logger.info(f"   - Password present: {bool(reset_data.new_password)}")
-        logger.info(f"   - Password length: {len(reset_data.new_password) if reset_data.new_password else 0}")
         
-        if not reset_data.token:
+        # Validate request data
+        try:
+            logger.info(f"🔐 Request data validation:")
+            logger.info(f"   - Token present: {bool(reset_data.token)}")
+            logger.info(f"   - Token length: {len(reset_data.token) if reset_data.token else 0}")
+            logger.info(f"   - Password present: {bool(reset_data.new_password)}")
+            logger.info(f"   - Password length: {len(reset_data.new_password) if reset_data.new_password else 0}")
+            
+            if not reset_data.token:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Reset token is required"
+                )
+            
+            if not reset_data.new_password:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="New password is required"
+                )
+            
+            if len(reset_data.new_password) < 8:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Password must be at least 8 characters long"
+                )
+        except HTTPException:
+            raise
+        except Exception as validation_error:
+            logger.error(f"❌ Request validation error: {type(validation_error).__name__}: {str(validation_error)}", exc_info=True)
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Reset token is required"
+                detail=f"Invalid request data: {str(validation_error)}"
             )
         
-        if not reset_data.new_password:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="New password is required"
-            )
-        
-        if len(reset_data.new_password) < 8:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Password must be at least 8 characters long"
-            )
-    except HTTPException:
-        raise
-    except Exception as validation_error:
-        logger.error(f"❌ Request validation error: {type(validation_error).__name__}: {str(validation_error)}", exc_info=True)
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid request data: {str(validation_error)}"
-        )
-    
-    try:
+        try:
         logger.info(f"🔐 Password reset attempt - Token length: {len(reset_data.token)}, Password length: {len(reset_data.new_password)}")
         
         # Decode and verify reset token
