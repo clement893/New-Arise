@@ -9,7 +9,6 @@ import Input from '@/components/ui/Input';
 import Badge from '@/components/ui/Badge';
 import { getErrorMessage } from '@/lib/errors';
 import { 
-  getMyAssessments,
   getAllAssessments,
   Assessment as ApiAssessment,
   getQuestions,
