@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
 import { Card, Button } from '@/components/ui';
@@ -18,6 +18,7 @@ import { useToast } from '@/components/ui';
 
 function AssessmentResultsContent() {
   const t = useTranslations('dashboard.assessments.results');
+  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   // Ensure assessmentId is always a string or null, never an object
@@ -33,7 +34,7 @@ function AssessmentResultsContent() {
     if (assessmentId) {
       loadResults(parseInt(assessmentId));
     } else {
-      setError('No assessment ID provided');
+      setError(t('errors.noId'));
       setIsLoading(false);
     }
   }, [assessmentId]);
@@ -65,9 +66,9 @@ function AssessmentResultsContent() {
         if (!hasAllAnswers) {
           // Provide more helpful error message with progress info
           const progressInfo = assessment.answer_count !== undefined && assessment.total_questions !== undefined
-            ? ` (${assessment.answer_count}/${assessment.total_questions} questions answered)`
+            ? ` (${assessment.answer_count}/${assessment.total_questions} ${t('errors.questionsAnswered')})`
             : '';
-          setError(`This assessment is not completed yet. Please complete all questions first.${progressInfo}`);
+          setError(`${t('errors.notCompletedYet')}${progressInfo}`);
           setIsLoading(false);
           // Redirect to assessment page immediately (no delay)
           if (assessment.assessment_type === 'WELLNESS') {
@@ -98,7 +99,7 @@ function AssessmentResultsContent() {
             console.log(`[Results] Assessment ${id} successfully submitted, loading results...`);
           } else {
             // Submission didn't complete the assessment, show error
-            throw new Error('Failed to complete assessment. Please try again.');
+            throw new Error(t('errors.failedToComplete'));
           }
         } catch (submitError: unknown) {
           // Convert error to string to prevent React error #130
@@ -106,7 +107,7 @@ function AssessmentResultsContent() {
           console.error(`[Results] Failed to submit assessment ${id}:`, errorMessage);
           const errorDetail = errorMessage;
           
-          setError(`Unable to complete assessment: ${errorDetail || 'Please ensure all questions are answered correctly.'}`);
+          setError(t('errors.unableToComplete', { detail: errorDetail || t('errors.ensureAllQuestions') }));
           setIsLoading(false);
           // Redirect to assessment page
           if (assessment.assessment_type === 'WELLNESS') {
@@ -166,9 +167,9 @@ function AssessmentResultsContent() {
           const pillarPercentage = isPillarScoreObject(pillarData) ? pillarData.percentage : (pillarScore / 25) * 100;
           
           summaryRows.push({
-            'Question': pillar?.name || pillarId,
-            'Answer': '',
-            'Score': `${pillarScore} / 25 (${pillarPercentage.toFixed(1)}%)`,
+            [t('pdf.columns.question')]: pillar?.name || pillarId,
+            [t('pdf.columns.answer')]: '',
+            [t('pdf.columns.score')]: `${pillarScore} / 25 (${pillarPercentage.toFixed(1)}%)`,
           });
         });
       }
@@ -194,7 +195,7 @@ function AssessmentResultsContent() {
         pillarQuestions.forEach((question) => {
           const answerValue = answers[question.id] || '0';
           const answerNum = parseInt(answerValue, 10) || 0;
-          const answerLabel = wellnessScale.find(s => s.value === answerNum)?.label || 'Not Answered';
+          const answerLabel = wellnessScale.find(s => s.value === answerNum)?.label || t('pdf.notAnswered');
           
           // Truncate long questions to fit in PDF (max 80 characters)
           const truncatedQuestion = question.question.length > 80 
@@ -202,9 +203,9 @@ function AssessmentResultsContent() {
             : question.question;
           
           detailedRows.push({
-            'Question': truncatedQuestion,
-            'Answer': answerLabel,
-            'Score': `${answerNum}/5`,
+            [t('pdf.columns.question')]: truncatedQuestion,
+            [t('pdf.columns.answer')]: answerLabel,
+            [t('pdf.columns.score')]: `${answerNum}/5`,
           });
         });
       });
@@ -217,7 +218,7 @@ function AssessmentResultsContent() {
 
       // Prepare title with overall score
       const overallScoreText = `${isNaN(safeTotalScore) ? 0 : safeTotalScore} / ${isNaN(safeMaxScore) ? 150 : safeMaxScore} (${isNaN(safePercentage) ? 0 : safePercentage.toFixed(1)}%)`;
-      const reportTitle = `${t('report.title')} - ${new Date().toLocaleDateString('en-US')}\n${t('report.overallScore')}: ${overallScoreText}`;
+      const reportTitle = `${t('report.title')} - ${new Date().toLocaleDateString(locale)}\n${t('report.overallScore')}: ${overallScoreText}`;
 
       // Call the export API with simplified headers
       const response = await apiClient.post(
@@ -225,7 +226,7 @@ function AssessmentResultsContent() {
         {
           format: 'pdf',
           data: exportData,
-          headers: ['Question', 'Answer', 'Score'],
+          headers: [t('pdf.columns.question'), t('pdf.columns.answer'), t('pdf.columns.score')],
           title: reportTitle,
         },
         {
@@ -254,7 +255,7 @@ function AssessmentResultsContent() {
       window.URL.revokeObjectURL(url);
       
       showToast({
-        message: 'PDF downloaded successfully',
+        message: t('toast.downloadSuccess'),
         type: 'success',
       });
     } catch (err: unknown) {
@@ -262,7 +263,7 @@ function AssessmentResultsContent() {
       const errorMessage = formatError(err);
       console.error('Error downloading PDF:', errorMessage);
       showToast({
-        message: 'Failed to download PDF report. Please try again.',
+        message: t('toast.downloadFailed'),
         type: 'error',
       });
     } finally {
@@ -284,27 +285,32 @@ function AssessmentResultsContent() {
 
   if (error || !results) {
     // Ensure error is always a string before using includes
-    const errorString = typeof error === 'string' ? error : formatError(error || 'Results not found');
-    const isNotCompleted = errorString.includes('not completed') || errorString.includes('not found');
+    const errorString = typeof error === 'string' ? error : formatError(error || t('errors.noResults'));
+    const isNotCompleted = errorString.includes('not completed') || errorString.includes('not found') || errorString.includes('non complétée') || errorString.includes('non trouvée');
     
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Card className="max-w-md text-center p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            {isNotCompleted ? 'Assessment Not Completed' : 'Error'}
+            {isNotCompleted ? t('errors.notCompleted.title') : t('errors.errorTitle')}
           </h2>
-          <p className="text-gray-600 mb-6">{errorString || 'Results not found'}</p>
+          <p className="text-gray-600 mb-6">{errorString || t('errors.noResults')}</p>
           <div className="flex flex-col gap-3">
             {isNotCompleted && assessmentId && (
               <Button 
                 onClick={() => router.push(`/dashboard/assessments/wellness?id=${assessmentId}`)}
                 variant="primary"
               >
-                Continue Assessment
+                {t('errors.notCompleted.continueButton')}
               </Button>
             )}
-            <Button onClick={() => router.push('/dashboard/assessments')} variant="outline" className="flex items-center gap-4">
-              Back to Assessments
+            <Button 
+              onClick={() => router.push('/dashboard/assessments')} 
+              variant="primary" 
+              className="flex items-center gap-4"
+              style={{ backgroundColor: '#0F4C56', color: '#fff' }}
+            >
+              {t('backToAssessments')}
             </Button>
           </div>
         </Card>
@@ -370,9 +376,10 @@ function AssessmentResultsContent() {
           {/* Header */}
           <div className="mb-8 pb-6">
             <Button
-              variant="outline"
+              variant="primary"
               onClick={() => router.push('/dashboard/assessments')}
               className="mb-4 flex items-center gap-4"
+              style={{ backgroundColor: '#0F4C56', color: '#fff' }}
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               {t('backToAssessments')}

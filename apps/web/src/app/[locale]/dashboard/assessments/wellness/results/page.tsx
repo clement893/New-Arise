@@ -100,7 +100,12 @@ export default function WellnessResultsPage() {
           <Card className="max-w-md">
             <div className="p-6 text-center">
               <p className="text-red-600 mb-4">{errorString}</p>
-              <Button onClick={() => router.push('/dashboard/assessments')} className="flex items-center gap-4">
+              <Button 
+                onClick={() => router.push('/dashboard/assessments')} 
+                variant="primary"
+                className="flex items-center gap-4"
+                style={{ backgroundColor: '#0F4C56', color: '#fff' }}
+              >
                 {t('backToAssessments')}
               </Button>
             </div>
@@ -142,9 +147,10 @@ export default function WellnessResultsPage() {
           {/* Header */}
           <MotionDiv variant="slideUp" duration="normal" className="mb-8">
             <Button
-              variant="ghost"
+              variant="primary"
               onClick={() => router.push('/dashboard/assessments')}
               className="mb-4 flex items-center gap-4"
+              style={{ backgroundColor: '#0F4C56', color: '#fff' }}
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               {t('backToAssessments')}

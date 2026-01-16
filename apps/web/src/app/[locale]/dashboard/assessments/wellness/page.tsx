@@ -479,7 +479,12 @@ function WellnessAssessmentContent() {
                 router.push('/dashboard/assessments');
               }
             }}>View Results</Button>
-            <Button variant="outline" onClick={() => router.push('/dashboard/assessments')} className="flex items-center gap-4">
+            <Button 
+              variant="primary" 
+              onClick={() => router.push('/dashboard/assessments')} 
+              className="flex items-center gap-4"
+              style={{ backgroundColor: '#0F4C56', color: '#fff' }}
+            >
               Back to Assessments
             </Button>
           </div>

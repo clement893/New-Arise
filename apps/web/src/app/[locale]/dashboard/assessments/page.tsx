@@ -43,9 +43,8 @@ if (typeof window !== 'undefined') {
 }
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useRouter, usePathname } from '@/i18n/routing';
+import { useRouter, usePathname, Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
 import { Card, Button, Stack } from '@/components/ui';
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';

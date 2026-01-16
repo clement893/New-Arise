@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from '@/i18n/routing';
+import { useRouter, Link } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import MotionDiv from '@/components/motion/MotionDiv';
 import {
   getAssessmentResults,
@@ -277,7 +276,12 @@ export default function Feedback360ResultsPage() {
           </h2>
           <p className="mb-6 text-gray-600">{errorString}</p>
           <div className="flex gap-4 justify-center">
-            <Button onClick={() => router.push('/dashboard/assessments')} variant="outline" className="flex items-center gap-4">
+            <Button 
+              onClick={() => router.push('/dashboard/assessments')} 
+              variant="primary" 
+              className="flex items-center gap-4"
+              style={{ backgroundColor: '#0F4C56', color: '#fff' }}
+            >
               {t('backToAssessments')}
             </Button>
             {isNotCompletedError && (
@@ -345,9 +349,10 @@ export default function Feedback360ResultsPage() {
         {/* Header */}
         <div className="mb-8">
           <Button
-            variant="outline"
+            variant="primary"
             onClick={() => router.push('/dashboard/assessments')}
-            className="mb-4 border-white text-white hover:bg-white/10 flex items-center gap-4"
+            className="mb-4 flex items-center gap-4"
+            style={{ backgroundColor: '#0F4C56', color: '#fff' }}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             {t('backToAssessments')}

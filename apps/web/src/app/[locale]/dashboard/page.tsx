@@ -5,8 +5,7 @@ export const dynamicParams = true;
 
 import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from '@/i18n/routing';
-import Link from 'next/link';
+import { useRouter, Link } from '@/i18n/routing';
 import { useAuthStore } from '@/lib/store';
 import { Card, Button, LoadingSkeleton } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
