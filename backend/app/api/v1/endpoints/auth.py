@@ -1275,6 +1275,9 @@ async def forgot_password(
     Returns:
         Success message (always 200 OK)
     """
+    logger.info(f"📧 FORGOT PASSWORD ENDPOINT CALLED")
+    logger.info(f"📧 Request data received - Email present: {bool(forgot_data.email)}")
+    
     try:
         logger.info(f"📧 Forgot password request received for email: {forgot_data.email}")
         
@@ -1467,6 +1470,9 @@ async def reset_password(
     Returns:
         Success message
     """
+    logger.info(f"🔐 RESET PASSWORD ENDPOINT CALLED")
+    logger.info(f"🔐 Request data received - Token present: {bool(reset_data.token)}, Password present: {bool(reset_data.new_password)}")
+    
     try:
         # Get client IP and user agent for audit logging
         client_ip = request.client.host if request.client else None
