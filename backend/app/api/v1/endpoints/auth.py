@@ -1435,8 +1435,12 @@ async def forgot_password(
         # Catch any unexpected errors and still return 200 OK (security best practice)
         error_type = type(e).__name__
         error_msg = str(e)
+        import traceback
+        error_traceback = traceback.format_exc()
         logger.error(f"❌ Unexpected error in forgot_password endpoint: {error_type}: {error_msg}", exc_info=True)
+        logger.error(f"❌ Full traceback:\n{error_traceback}")
         print(f"❌ CRITICAL: Unexpected error in forgot_password - Type: {error_type}, Message: {error_msg}", flush=True)
+        print(f"❌ Full traceback:\n{error_traceback}", flush=True)
         # Still return 200 OK to prevent email enumeration
     
     # Always return 200 OK (security best practice - don't reveal if user exists)
@@ -1463,11 +1467,12 @@ async def reset_password(
     Returns:
         Success message
     """
-    # Get client IP and user agent for audit logging
-    client_ip = request.client.host if request.client else None
-    user_agent = request.headers.get("user-agent")
-    
-    logger.info(f"🔐 Password reset request received - IP: {client_ip}")
+    try:
+        # Get client IP and user agent for audit logging
+        client_ip = request.client.host if request.client else None
+        user_agent = request.headers.get("user-agent")
+        
+        logger.info(f"🔐 Password reset request received - IP: {client_ip}")
     
     # Validate request data
     try:
@@ -1709,8 +1714,12 @@ async def reset_password(
     except Exception as e:
         error_type = type(e).__name__
         error_msg = str(e)
+        import traceback
+        error_traceback = traceback.format_exc()
         logger.error(f"❌ Unexpected error during password reset: {error_type}: {error_msg}", exc_info=True)
+        logger.error(f"❌ Full traceback:\n{error_traceback}")
         print(f"❌ CRITICAL: Password reset error - Type: {error_type}, Message: {error_msg}", flush=True)
+        print(f"❌ Full traceback:\n{error_traceback}", flush=True)
         
         # Return more detailed error in development, generic in production
         import os
