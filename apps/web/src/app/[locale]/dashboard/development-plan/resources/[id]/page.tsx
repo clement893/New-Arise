@@ -474,7 +474,7 @@ function ResourceDetailContent() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            <Card className="p-8 bg-white">
+            <Card className="bg-white">
               <SafeHTML 
                 html={resource.content}
                 className="text-lg text-gray-700 leading-relaxed [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-gray-900 [&_h2]:mt-8 [&_h2]:mb-4 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-gray-900 [&_h3]:mt-6 [&_h3]:mb-3 [&_p]:mb-4 [&_p]:leading-relaxed [&_ul]:mb-4 [&_ul]:pl-6 [&_ul]:list-disc [&_li]:mb-2 [&_li]:leading-relaxed [&_strong]:font-semibold [&_strong]:text-gray-900 [&_a]:text-arise-deep-teal [&_a]:no-underline hover:[&_a]:underline"
@@ -486,7 +486,7 @@ function ResourceDetailContent() {
           <div className="space-y-6">
             {/* Key Points */}
             {resource.keyPoints && resource.keyPoints.length > 0 && (
-              <Card className="p-6 bg-white">
+              <Card className="bg-white">
                 <h3 className="text-xl font-bold text-gray-900 mb-4">
                   {tDetail('labels.keyPoints')}
                 </h3>
@@ -505,7 +505,7 @@ function ResourceDetailContent() {
             )}
 
             {/* Resource Info */}
-            <Card className="p-6 bg-white">
+            <Card className="bg-white">
               <h3 className="text-xl font-bold text-gray-900 mb-4">
                 {tDetail('labels.information')}
               </h3>

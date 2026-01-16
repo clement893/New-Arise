@@ -13,6 +13,7 @@ import Image from 'next/image';
 
 function DevelopmentPlanContent() {
   const t = useTranslations('dashboard.developmentPlan');
+  const tDetail = useTranslations('dashboard.developmentPlan.resourceDetail');
   const router = useRouter();
   // Mock data for development goals
   const goals = [
@@ -49,7 +50,7 @@ function DevelopmentPlanContent() {
       type: 'article',
       title: t('resources.items.conflictManagementStyles.title'),
       description: t('resources.items.conflictManagementStyles.description'),
-      duration: '10 min read',
+      duration: tDetail('durations.conflictManagementStyles'),
       icon: FileText,
     },
     {
@@ -57,7 +58,7 @@ function DevelopmentPlanContent() {
       type: 'video',
       title: t('resources.items.emotionalIntelligence.title'),
       description: t('resources.items.emotionalIntelligence.description'),
-      duration: '25 min',
+      duration: tDetail('durations.emotionalIntelligence'),
       icon: Video,
     },
     {
@@ -65,7 +66,7 @@ function DevelopmentPlanContent() {
       type: 'course',
       title: t('resources.items.effectiveCommunication.title'),
       description: t('resources.items.effectiveCommunication.description'),
-      duration: '2 hours',
+      duration: tDetail('durations.effectiveCommunication'),
       icon: BookOpen,
     },
     {
@@ -73,7 +74,7 @@ function DevelopmentPlanContent() {
       type: 'workshop',
       title: t('resources.items.teamBuilding.title'),
       description: t('resources.items.teamBuilding.description'),
-      duration: '3 hours',
+      duration: tDetail('durations.teamBuilding'),
       icon: Users,
     },
   ];
