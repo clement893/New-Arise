@@ -15,8 +15,7 @@
 
 import { useState, useMemo, memo, useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { usePathname, useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { usePathname, useRouter, Link } from '@/i18n/routing';
 import { useAuthStore } from '@/lib/store';
 import { useAuth } from '@/hooks/useAuth';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
@@ -68,89 +67,89 @@ const createSidebarItems = (t: ReturnType<typeof useTranslations>, userType?: Us
   if (type === 'ADMIN' || isAdmin === true) {
     return [
       {
-        label: t('navigation.groups.individual'),
+        label: t('groups.individual'),
         icon: <LayoutDashboard className="w-5 h-5" />,
         children: [
           {
-            label: t('navigation.items.dashboard'),
+            label: t('items.dashboard'),
             href: '/dashboard',
             icon: <LayoutDashboard className="w-5 h-5" />,
           },
           {
-            label: t('navigation.items.assessments'),
+            label: t('items.assessments'),
             href: '/dashboard/assessments',
             icon: <ClipboardList className="w-5 h-5" />,
           },
           {
-            label: t('navigation.items.resultsReports'),
+            label: t('items.resultsReports'),
             href: '/dashboard/reports',
             icon: <FileText className="w-5 h-5" />,
           },
           {
-            label: t('navigation.items.developmentPlan'),
+            label: t('items.developmentPlan'),
             href: '/dashboard/development-plan',
             icon: <TrendingUp className="w-5 h-5" />,
           },
           {
-            label: t('navigation.items.profile'),
+            label: t('items.profile'),
             href: '/profile',
             icon: <User className="w-5 h-5" />,
           },
         ],
       },
       {
-        label: t('navigation.groups.admin'),
+        label: t('groups.admin'),
         icon: <Users className="w-5 h-5" />,
         children: [
           {
-            label: t('navigation.items.manageUsers'),
+            label: t('items.manageUsers'),
             href: '/dashboard/admin/users',
             icon: <Users className="w-5 h-5" />,
           },
           {
-            label: t('navigation.items.manageTests'),
+            label: t('items.manageTests'),
             href: '/dashboard/admin/assessment-management',
             icon: <ClipboardList className="w-5 h-5" />,
           },
           {
-            label: t('navigation.items.profile'),
+            label: t('items.profile'),
             href: '/profile',
             icon: <User className="w-5 h-5" />,
           },
         ],
       },
       {
-        label: t('navigation.groups.coach'),
+        label: t('groups.coach'),
         icon: <Calendar className="w-5 h-5" />,
         children: [
           {
-            label: t('navigation.items.coachee'),
+            label: t('items.coachee'),
             href: '/dashboard/coach/coachee',
             icon: <Users className="w-5 h-5" />,
           },
           {
-            label: t('navigation.items.agenda'),
+            label: t('items.agenda'),
             href: '/dashboard/coach/agenda',
             icon: <Calendar className="w-5 h-5" />,
           },
           {
-            label: t('navigation.items.profile'),
+            label: t('items.profile'),
             href: '/profile',
             icon: <User className="w-5 h-5" />,
           },
         ],
       },
       {
-        label: t('navigation.groups.business'),
+        label: t('groups.business'),
         icon: <Briefcase className="w-5 h-5" />,
         children: [
           {
-            label: t('navigation.items.employees'),
+            label: t('items.employees'),
             href: '/dashboard/business/employees',
             icon: <Briefcase className="w-5 h-5" />,
           },
           {
-            label: t('navigation.items.profile'),
+            label: t('items.profile'),
             href: '/profile',
             icon: <User className="w-5 h-5" />,
           },
@@ -163,17 +162,17 @@ const createSidebarItems = (t: ReturnType<typeof useTranslations>, userType?: Us
   if (type === 'COACH') {
     return [
       {
-        label: t('navigation.items.coachee'),
+        label: t('items.coachee'),
         href: '/dashboard/coach/coachee',
         icon: <Users className="w-5 h-5" />,
       },
       {
-        label: t('navigation.items.agenda'),
+        label: t('items.agenda'),
         href: '/dashboard/coach/agenda',
         icon: <Calendar className="w-5 h-5" />,
       },
       {
-        label: t('navigation.items.profile'),
+        label: t('items.profile'),
         href: '/profile',
         icon: <User className="w-5 h-5" />,
       },
@@ -184,12 +183,12 @@ const createSidebarItems = (t: ReturnType<typeof useTranslations>, userType?: Us
   if (type === 'BUSINESS') {
     return [
       {
-        label: t('navigation.items.employees'),
+        label: t('items.employees'),
         href: '/dashboard/business/employees',
         icon: <Briefcase className="w-5 h-5" />,
       },
       {
-        label: t('navigation.items.profile'),
+        label: t('items.profile'),
         href: '/profile',
         icon: <User className="w-5 h-5" />,
       },
@@ -199,27 +198,27 @@ const createSidebarItems = (t: ReturnType<typeof useTranslations>, userType?: Us
   // Individual users (default)
   return [
     {
-      label: t('navigation.items.dashboard'),
+      label: t('items.dashboard'),
       href: '/dashboard',
       icon: <LayoutDashboard className="w-5 h-5" />,
     },
     {
-      label: t('navigation.items.assessments'),
+      label: t('items.assessments'),
       href: '/dashboard/assessments',
       icon: <ClipboardList className="w-5 h-5" />,
     },
     {
-      label: t('navigation.items.resultsReports'),
+      label: t('items.resultsReports'),
       href: '/dashboard/reports',
       icon: <FileText className="w-5 h-5" />,
     },
     {
-      label: t('navigation.items.developmentPlan'),
+      label: t('items.developmentPlan'),
       href: '/dashboard/development-plan',
       icon: <TrendingUp className="w-5 h-5" />,
     },
     {
-      label: t('navigation.items.profile'),
+      label: t('items.profile'),
       href: '/profile',
       icon: <User className="w-5 h-5" />,
     },

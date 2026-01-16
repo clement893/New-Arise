@@ -2,12 +2,11 @@
 
 import { ReactNode, useState, useMemo, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/i18n/routing';
 import { clsx } from 'clsx';
 import { ChevronRight, ChevronLeft, ChevronDown, Search, X, Home, LogOut } from 'lucide-react';
 import Input from './Input';
-import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
+import { LanguageToggle } from '@/components/landing/LanguageToggle';
 
 interface SidebarItem {
   label: string;
@@ -393,7 +392,9 @@ export default function Sidebar({
           'border-t border-gray-200 flex-shrink-0',
           'p-lg'
         )}>
-          <LanguageSwitcher dropdownPosition="top" />
+          <div className="flex justify-center">
+            <LanguageToggle />
+          </div>
         </div>
       )}
       

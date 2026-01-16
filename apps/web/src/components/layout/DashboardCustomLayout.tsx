@@ -1,10 +1,9 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { usePathname, useRouter } from '@/i18n/routing';
+import { usePathname, useRouter, Link } from '@/i18n/routing';
 import { useAuthStore } from '@/lib/store';
 import { useAuth } from '@/hooks/useAuth';
-import Link from 'next/link';
 import { 
   LayoutDashboard, 
   ClipboardList,
@@ -35,16 +34,14 @@ export default function DashboardCustomLayout({ children }: DashboardCustomLayou
   const isActive = (href: string) => {
     if (!pathname) return false;
     
-    // Normalize pathname to remove locale prefix for comparison
-    const normalizedPath = pathname.replace(/^\/(fr|en)/, '') || pathname;
-    
+    // usePathname from @/i18n/routing already returns pathname without locale prefix
     if (href === '/dashboard') {
       // Dashboard is active only on exact match (not on sub-pages)
-      return normalizedPath === '/dashboard' || normalizedPath === '/';
+      return pathname === '/dashboard' || pathname === '/';
     }
     
     // For other pages, check if pathname starts with href
-    return normalizedPath.startsWith(href);
+    return pathname.startsWith(href);
   };
 
   const handleLogout = () => {
