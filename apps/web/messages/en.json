@@ -1813,12 +1813,12 @@
         "yes": "Yes",
         "no": "No",
         "columns": {
-          "email": "Email",
-          "name": "Name",
-          "type": "Type",
-          "status": "Status",
-          "superadmin": "Superadmin",
-          "created": "Created",
+          "email": "Email address",
+          "name": "Full name",
+          "type": "User type",
+          "status": "Account status",
+          "superadmin": "Super administrator",
+          "created": "Created date",
           "actions": "Actions"
         },
         "types": {
@@ -1888,6 +1888,9 @@
           "firstNamePlaceholder": "First name",
           "lastName": "Last name",
           "lastNamePlaceholder": "Last name",
+          "password": "New password",
+          "passwordPlaceholder": "Leave empty to keep current password",
+          "passwordHint": "Leave empty if you don't want to change the password",
           "isActive": "Active account"
         },
         "errors": {

@@ -605,8 +605,14 @@ async def update_user(
                     detail="Email is already taken"
                 )
         
-        # Update only provided fields
-        update_data = user_data.model_dump(exclude_unset=True)
+        # Handle password separately (needs to be hashed)
+        if user_data.password:
+            from app.api.v1.endpoints.auth import get_password_hash
+            user_to_update.hashed_password = get_password_hash(user_data.password)
+            logger.debug("Password updated (hashed)")
+        
+        # Update only provided fields (excluding password which is handled above)
+        update_data = user_data.model_dump(exclude_unset=True, exclude={'password'})
         logger.debug(f"Fields to update: {list(update_data.keys())}")
         
         for field, value in update_data.items():

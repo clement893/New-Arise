@@ -145,6 +145,7 @@ class UserUpdate(BaseModel):
     avatar: Optional[str] = Field(None, max_length=500, description="Avatar URL")
     is_active: Optional[bool] = None
     user_type: Optional[UserType] = Field(None, description="User type")
+    password: Optional[str] = Field(None, min_length=8, max_length=128, description="New password (will be hashed)")
     
     @field_validator('email')
     @classmethod
