@@ -1370,6 +1370,110 @@
         "button": "Explore coaching options →",
         "imageAlt": "Coaching session"
       }
+    },
+    "admin": {
+      "users": {
+        "title": "User Management",
+        "description": "Manage all platform users",
+        "searchPlaceholder": "Search by email or name...",
+        "selectedCount": "{count} user{count, plural, =1 {} other {s}} selected",
+        "deselectAll": "Deselect all",
+        "deleteSelected": "Delete ({count})",
+        "deleting": "Deleting...",
+        "noUsers": "No users",
+        "noUserFound": "No user found",
+        "checking": "Checking...",
+        "yes": "Yes",
+        "no": "No",
+        "columns": {
+          "email": "Email address",
+          "name": "Full name",
+          "type": "User type",
+          "status": "Account status",
+          "superadmin": "Super administrator",
+          "created": "Created date",
+          "actions": "Actions"
+        },
+        "types": {
+          "admin": "Admin",
+          "coach": "Coach",
+          "business": "Business",
+          "individual": "Individual",
+          "na": "N/A"
+        },
+        "status": {
+          "active": "Active",
+          "inactive": "Inactive"
+        },
+        "actions": {
+          "view": "View details",
+          "edit": "Edit",
+          "makeSuperAdmin": "Make superadmin",
+          "delete": "Delete"
+        },
+        "pagination": {
+          "showing": "Showing {from} to {to} of {total} users",
+          "previous": "Previous",
+          "next": "Next"
+        },
+        "deleteSuccess": "User {email} has been successfully deleted.",
+        "bulkDeleteSuccess": "{count} user{count, plural, =1 { has} other {s have}} been successfully deleted.",
+        "superAdminSuccess": "User {email} has been successfully promoted to superadmin.",
+        "updateSuccess": "User {email} has been successfully updated.",
+        "deleteModal": {
+          "title": "Confirm deletion",
+          "message": "Are you sure you want to delete the user {email}?",
+          "warning": "This action is irreversible. The user will be immediately removed from the list.",
+          "cancel": "Cancel",
+          "delete": "Delete",
+          "deleting": "Deleting..."
+        },
+        "bulkDeleteModal": {
+          "title": "Confirm bulk deletion",
+          "message": "Are you sure you want to delete {count} user{count, plural, =1 {} other {s}}?",
+          "warning": "This action is irreversible. Users will be immediately removed from the list.",
+          "cancel": "Cancel",
+          "delete": "Delete {count} user{count, plural, =1 {} other {s}}",
+          "deleting": "Deleting..."
+        },
+        "superAdminModal": {
+          "title": "Promote to superadmin",
+          "message": "Are you sure you want to promote {email} to superadmin?",
+          "cancel": "Cancel",
+          "confirm": "Promote to superadmin",
+          "promoting": "Promoting...",
+          "privileges": {
+            "title": "Superadmin privileges:",
+            "feature1": "Access to all administrative features",
+            "feature2": "Management of theme and system configuration",
+            "feature3": "Management of roles and permissions",
+            "feature4": "Access to advanced logs and statistics"
+          }
+        },
+        "editModal": {
+          "title": "Edit user",
+          "cancel": "Cancel",
+          "save": "Save",
+          "saving": "Saving...",
+          "email": "Email",
+          "emailPlaceholder": "example@email.com",
+          "firstName": "First name",
+          "firstNamePlaceholder": "First name",
+          "lastName": "Last name",
+          "lastNamePlaceholder": "Last name",
+          "password": "New password",
+          "passwordPlaceholder": "Leave empty to keep current password",
+          "passwordHint": "Leave empty if you don't want to change the password",
+          "isActive": "Active account"
+        },
+        "errors": {
+          "loadFailed": "Error loading users",
+          "deleteFailed": "Error deleting user",
+          "bulkDeleteFailed": "Error deleting users",
+          "superAdminFailed": "Error promoting to superadmin",
+          "updateFailed": "Error updating user"
+        }
+      }
     }
   },
   "language": {

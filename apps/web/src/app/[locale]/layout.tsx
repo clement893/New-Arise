@@ -68,7 +68,8 @@ export default async function LocaleLayout({
 
   // Providing all messages to the client
   // side is the easiest way to get started
-  const messages = await getMessages();
+  // Load messages explicitly to ensure they're available for client components
+  const messages = await getMessages({ locale });
   
   // SECURITY: Get CSP nonce from cookies (set by middleware)
   // Nonces allow inline scripts/styles while maintaining strict CSP
