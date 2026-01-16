@@ -392,10 +392,10 @@ export default function AdminUsersPage() {
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="w-full table-fixed">
+              <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b border-gray-200 dark:border-gray-700">
-                    <th className="text-left py-3 px-4 w-12 align-middle">
+                  <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                    <th className="text-left py-3 px-4 w-12">
                       <Checkbox
                         checked={allSelected}
                         indeterminate={someSelected}
@@ -403,25 +403,25 @@ export default function AdminUsersPage() {
                         className="cursor-pointer"
                       />
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap align-middle w-[200px]">
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[200px]">
                       {t('columns.email')}
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap align-middle w-[180px]">
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[150px]">
                       {t('columns.name')}
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap align-middle w-[120px]">
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[120px]">
                       {t('columns.type')}
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap align-middle w-[100px]">
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[100px]">
                       {t('columns.status')}
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap align-middle w-[120px]">
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[130px]">
                       {t('columns.superadmin')}
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap align-middle w-[120px]">
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[120px]">
                       {t('columns.created')}
                     </th>
-                    <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap align-middle w-[180px]">
+                    <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[180px]">
                       {t('columns.actions')}
                     </th>
                   </tr>
@@ -435,7 +435,7 @@ export default function AdminUsersPage() {
                       delay={index * 0.05}
                     >
                       <tr className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                        <td className="py-4 px-4 align-middle">
+                        <td className="py-4 px-4">
                           <Checkbox
                             checked={selectedUserIds.has(user.id)}
                             onChange={(e) => handleSelectUser(user.id, e.target.checked)}
@@ -443,27 +443,27 @@ export default function AdminUsersPage() {
                             className="cursor-pointer"
                           />
                         </td>
-                        <td className="py-4 px-4 align-middle">
-                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate" title={user.email}>
+                        <td className="py-4 px-4">
+                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                             {user.email}
                           </div>
                         </td>
-                        <td className="py-4 px-4 align-middle">
-                          <div className="text-sm text-gray-900 dark:text-gray-100 truncate" title={getUserDisplayName(user)}>
+                        <td className="py-4 px-4">
+                          <div className="text-sm text-gray-900 dark:text-gray-100">
                             {getUserDisplayName(user)}
                           </div>
                         </td>
-                        <td className="py-4 px-4 align-middle">
+                        <td className="py-4 px-4">
                           <Badge variant={user.user_type === 'ADMIN' ? 'error' : 'default'}>
                             {getUserTypeLabel(user.user_type)}
                           </Badge>
                         </td>
-                        <td className="py-4 px-4 align-middle">
+                        <td className="py-4 px-4">
                           <Badge variant={user.is_active ? 'success' : 'default'}>
                             {user.is_active ? t('status.active') : t('status.inactive')}
                           </Badge>
                         </td>
-                        <td className="py-4 px-4 align-middle">
+                        <td className="py-4 px-4">
                           {(() => {
                             const isSuperAdmin = userSuperAdminStatus[user.id];
                             if (isSuperAdmin === undefined) {
@@ -482,12 +482,12 @@ export default function AdminUsersPage() {
                             );
                           })()}
                         </td>
-                        <td className="py-4 px-4 align-middle">
+                        <td className="py-4 px-4">
                           <div className="text-sm text-gray-900 dark:text-gray-100">
                             {new Date(user.created_at).toLocaleDateString()}
                           </div>
                         </td>
-                        <td className="py-4 px-4 align-middle">
+                        <td className="py-4 px-4">
                           <div className="flex flex-wrap justify-end gap-2">
                             <Button
                               size="sm"

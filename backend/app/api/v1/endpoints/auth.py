@@ -1456,17 +1456,30 @@ async def reset_password(
     client_ip = request.client.host if request.client else None
     user_agent = request.headers.get("user-agent")
     
+    logger.info(f"🔐 Password reset request received - IP: {client_ip}")
+    
     try:
+        logger.info(f"🔐 Password reset attempt - Token length: {len(reset_data.token)}, Password length: {len(reset_data.new_password)}")
+        
         # Decode and verify reset token
-        payload = jwt.decode(
-            reset_data.token,
-            settings.SECRET_KEY,
-            algorithms=[settings.ALGORITHM]
-        )
+        try:
+            payload = jwt.decode(
+                reset_data.token,
+                settings.SECRET_KEY,
+                algorithms=[settings.ALGORITHM]
+            )
+            logger.info(f"✅ Token decoded successfully - Type: {payload.get('type')}, Email: {payload.get('sub')}")
+        except jwt.ExpiredSignatureError:
+            logger.warning("⚠️ Password reset token expired")
+            raise
+        except jwt.JWTError as e:
+            logger.warning(f"⚠️ Invalid JWT token: {str(e)}")
+            raise
         
         # Verify token type
         token_type = payload.get("type")
         if token_type != "password_reset":
+            logger.warning(f"⚠️ Invalid token type: {token_type} (expected: password_reset)")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid token type"
@@ -1475,6 +1488,7 @@ async def reset_password(
         # Get user email from token
         user_email = payload.get("sub")
         if not user_email:
+            logger.warning("⚠️ Token missing 'sub' claim")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid token payload"
@@ -1482,6 +1496,7 @@ async def reset_password(
         
         # Normalize email
         normalized_email = user_email.strip().lower()
+        logger.info(f"🔍 Looking up user with email: {normalized_email}")
         
         # Find user
         result = await db.execute(
@@ -1490,6 +1505,7 @@ async def reset_password(
         user = result.scalar_one_or_none()
         
         if not user:
+            logger.warning(f"⚠️ User not found for email: {normalized_email}")
             # Log failed reset attempt
             try:
                 await SecurityAuditLogger.log_event(
@@ -1512,17 +1528,30 @@ async def reset_password(
                 detail="Invalid or expired reset token"
             )
         
+        logger.info(f"✅ User found: {user.email} (ID: {user.id}, Active: {user.is_active})")
+        
         # Check if user is active
         if not user.is_active:
+            logger.warning(f"⚠️ Account disabled for user: {user.email}")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Account is disabled"
             )
         
         # Update password
-        user.hashed_password = get_password_hash(reset_data.new_password)
-        await db.commit()
-        await db.refresh(user)
+        try:
+            logger.info(f"🔐 Hashing new password for user: {user.email}")
+            user.hashed_password = get_password_hash(reset_data.new_password)
+            logger.info(f"✅ Password hashed successfully")
+            
+            logger.info(f"💾 Committing password update to database...")
+            await db.commit()
+            await db.refresh(user)
+            logger.info(f"✅ Password updated successfully in database")
+        except Exception as e:
+            logger.error(f"❌ Error updating password: {type(e).__name__}: {str(e)}", exc_info=True)
+            await db.rollback()
+            raise
         
         # Log successful password reset
         try:
@@ -1595,9 +1624,21 @@ async def reset_password(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Unexpected error during password reset: {e}", exc_info=True)
+        error_type = type(e).__name__
+        error_msg = str(e)
+        logger.error(f"❌ Unexpected error during password reset: {error_type}: {error_msg}", exc_info=True)
+        print(f"❌ CRITICAL: Password reset error - Type: {error_type}, Message: {error_msg}", flush=True)
+        
+        # Return more detailed error in development, generic in production
+        import os
+        env = os.getenv("ENVIRONMENT", "development")
+        if env == "development":
+            detail = f"An error occurred while resetting your password: {error_type}: {error_msg}"
+        else:
+            detail = "An error occurred while resetting your password. Please try again or request a new reset link."
+        
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred while resetting your password"
+            detail=detail
         )
 
