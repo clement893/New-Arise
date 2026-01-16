@@ -20,7 +20,7 @@ from app.core.logging import logger
 from app.models.user import User
 from app.schemas.user import UserUpdate
 from app.schemas.auth import UserResponse
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, require_superadmin
 from fastapi import HTTPException, status
 from typing import Annotated
 
@@ -546,4 +546,130 @@ async def update_current_user(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to update user profile"
+        )
+
+
+@router.put("/{user_id}", response_model=UserResponse)
+@rate_limit_decorator("10/minute")
+async def update_user(
+    request: Request,
+    user_id: int,
+    user_data: UserUpdate,
+    current_user: Annotated[User, Depends(get_current_user)],
+    _: None = Depends(require_superadmin),
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> UserResponse:
+    """
+    Update a user by ID (superadmin only)
+    
+    Allows superadmins to update any user's information.
+    Only updates fields that are provided (partial update).
+    
+    Args:
+        user_id: ID of the user to update
+        user_data: User update data (email, first_name, last_name, is_active, user_type)
+        current_user: Current authenticated superadmin user
+        db: Database session
+        
+    Returns:
+        Updated user information
+        
+    Raises:
+        HTTPException: If user not found or email is already taken by another user
+    """
+    try:
+        logger.info(f"Superadmin {current_user.email} (ID: {current_user.id}) updating user {user_id}")
+        logger.debug(f"Update data received: {user_data.model_dump(exclude_unset=True)}")
+        
+        # Get the user to update
+        result = await db.execute(
+            select(User).where(User.id == user_id)
+        )
+        user_to_update = result.scalar_one_or_none()
+        
+        if not user_to_update:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"User with ID {user_id} not found"
+            )
+        
+        # Check if email is being updated and if it's already taken
+        if user_data.email and user_data.email != user_to_update.email:
+            result = await db.execute(
+                select(User).where(User.email == user_data.email)
+            )
+            existing_user = result.scalar_one_or_none()
+            if existing_user and existing_user.id != user_id:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Email is already taken"
+                )
+        
+        # Update only provided fields
+        update_data = user_data.model_dump(exclude_unset=True)
+        logger.debug(f"Fields to update: {list(update_data.keys())}")
+        
+        for field, value in update_data.items():
+            if hasattr(user_to_update, field):
+                setattr(user_to_update, field, value)
+                logger.debug(f"Updated field {field} to {value}")
+            else:
+                logger.warning(f"Field {field} does not exist on User model, skipping")
+        
+        # Save changes
+        try:
+            await db.commit()
+            logger.debug("Database commit successful")
+        except Exception as commit_error:
+            logger.error(f"Database commit failed: {commit_error}", exc_info=True)
+            await db.rollback()
+            raise
+        
+        try:
+            await db.refresh(user_to_update)
+            logger.debug("User refresh successful")
+        except Exception as refresh_error:
+            logger.error(f"User refresh failed: {refresh_error}", exc_info=True)
+            # Continue anyway, we can still create the response
+        
+        logger.info(f"User {user_id} ({user_to_update.email}) updated successfully by superadmin {current_user.email}")
+        
+        # Invalidate cache
+        try:
+            from app.core.cache import invalidate_cache_pattern_async
+            await invalidate_cache_pattern_async(f"user:{user_id}:*")
+            await invalidate_cache_pattern_async("users:*")
+        except Exception as cache_error:
+            logger.warning(f"Failed to invalidate cache after user update: {cache_error}")
+        
+        # Convert User model to UserResponse schema
+        try:
+            user_response = UserResponse(
+                id=user_to_update.id,
+                email=user_to_update.email,
+                first_name=user_to_update.first_name,
+                last_name=user_to_update.last_name,
+                avatar=user_to_update.avatar,
+                is_active=user_to_update.is_active,
+                user_type=user_to_update.user_type.value if user_to_update.user_type else "INDIVIDUAL",
+                theme_preference=user_to_update.theme_preference or 'system',
+                created_at=user_to_update.created_at.isoformat() if user_to_update.created_at else "",
+                updated_at=user_to_update.updated_at.isoformat() if user_to_update.updated_at else "",
+            )
+            return user_response
+        except Exception as e:
+            logger.error(f"Error creating UserResponse for user {user_id}: {e}", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to serialize user data"
+            )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating user {user_id}: {e}", exc_info=True)
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to update user"
         )

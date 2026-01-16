@@ -1006,6 +1006,108 @@
         "emailConfirmation": "A confirmation email has been sent to you with all the details of your session."
       }
     },
+    "coach": {
+      "coachee": {
+        "title": "My Coachees",
+        "description": "Manage your coachees, track their progress and schedule your coaching sessions.",
+        "stats": {
+          "total": "Total Coachees",
+          "active": "Active",
+          "pending": "Pending",
+          "assessments": "Assessments"
+        },
+        "search": {
+          "placeholder": "Search for a coachee..."
+        },
+        "filters": {
+          "allStatuses": "All statuses",
+          "active": "Active",
+          "inactive": "Inactive",
+          "pending": "Pending"
+        },
+        "actions": {
+          "addCoachee": "Add a coachee",
+          "viewDetails": "View details",
+          "edit": "Edit",
+          "delete": "Delete"
+        },
+        "empty": {
+          "title": "No coachee found",
+          "noMatch": "No coachee matches your search criteria.",
+          "noCoachees": "Start by adding your first coachee.",
+          "addFirst": "Add a coachee"
+        },
+        "details": {
+          "completedAssessments": "Completed assessments:",
+          "memberSince": "Member since:",
+          "lastSession": "Last session:",
+          "nextSession": "Next session:"
+        },
+        "status": {
+          "active": "Active",
+          "inactive": "Inactive",
+          "pending": "Pending"
+        }
+      },
+      "agenda": {
+        "title": "Agenda",
+        "description": "Manage your coaching schedule, plan your sessions and track your appointments.",
+        "stats": {
+          "today": "Today",
+          "thisWeek": "This week",
+          "thisMonth": "This month",
+          "completed": "Completed",
+          "sessions": "sessions",
+          "thisMonthLabel": "this month"
+        },
+        "calendar": {
+          "month": "Month",
+          "week": "Week",
+          "day": "Day",
+          "more": "more"
+        },
+        "months": {
+          "0": "January",
+          "1": "February",
+          "2": "March",
+          "3": "April",
+          "4": "May",
+          "5": "June",
+          "6": "July",
+          "7": "August",
+          "8": "September",
+          "9": "October",
+          "10": "November",
+          "11": "December"
+        },
+        "days": {
+          "0": "Sun",
+          "1": "Mon",
+          "2": "Tue",
+          "3": "Wed",
+          "4": "Thu",
+          "5": "Fri",
+          "6": "Sat"
+        },
+        "status": {
+          "scheduled": "Scheduled",
+          "completed": "Completed",
+          "cancelled": "Cancelled"
+        },
+        "filters": {
+          "title": "Filters",
+          "coachee": "Coachee",
+          "allCoachees": "All coachees"
+        },
+        "actions": {
+          "newSession": "New session"
+        },
+        "upcoming": {
+          "title": "Upcoming sessions",
+          "none": "No upcoming sessions"
+        }
+      }
+    },
     "reports": {
       "header": {
         "title": "Results &",
@@ -1694,6 +1796,107 @@
       "errors": {
         "loadFailed": "Failed to load logs. Please try again.",
         "unauthorized": "You do not have permission to view logs"
+      }
+    },
+    "admin": {
+      "users": {
+        "title": "User Management",
+        "description": "Manage all platform users",
+        "searchPlaceholder": "Search by email or name...",
+        "selectedCount": "{count} user{count, plural, =1 {} other {s}} selected",
+        "deselectAll": "Deselect all",
+        "deleteSelected": "Delete ({count})",
+        "deleting": "Deleting...",
+        "noUsers": "No users",
+        "noUserFound": "No user found",
+        "checking": "Checking...",
+        "yes": "Yes",
+        "no": "No",
+        "columns": {
+          "email": "Email",
+          "name": "Name",
+          "type": "Type",
+          "status": "Status",
+          "superadmin": "Superadmin",
+          "created": "Created",
+          "actions": "Actions"
+        },
+        "types": {
+          "admin": "Admin",
+          "coach": "Coach",
+          "business": "Business",
+          "individual": "Individual",
+          "na": "N/A"
+        },
+        "status": {
+          "active": "Active",
+          "inactive": "Inactive"
+        },
+        "actions": {
+          "view": "View details",
+          "edit": "Edit",
+          "makeSuperAdmin": "Make superadmin",
+          "delete": "Delete"
+        },
+        "pagination": {
+          "showing": "Showing {from} to {to} of {total} users",
+          "previous": "Previous",
+          "next": "Next"
+        },
+        "deleteSuccess": "User {email} has been successfully deleted.",
+        "bulkDeleteSuccess": "{count} user{count, plural, =1 { has} other {s have}} been successfully deleted.",
+        "superAdminSuccess": "User {email} has been successfully promoted to superadmin.",
+        "updateSuccess": "User {email} has been successfully updated.",
+        "deleteModal": {
+          "title": "Confirm deletion",
+          "message": "Are you sure you want to delete the user {email}?",
+          "warning": "This action is irreversible. The user will be immediately removed from the list.",
+          "cancel": "Cancel",
+          "delete": "Delete",
+          "deleting": "Deleting..."
+        },
+        "bulkDeleteModal": {
+          "title": "Confirm bulk deletion",
+          "message": "Are you sure you want to delete {count} user{count, plural, =1 {} other {s}}?",
+          "warning": "This action is irreversible. Users will be immediately removed from the list.",
+          "cancel": "Cancel",
+          "delete": "Delete {count} user{count, plural, =1 {} other {s}}",
+          "deleting": "Deleting..."
+        },
+        "superAdminModal": {
+          "title": "Promote to superadmin",
+          "message": "Are you sure you want to promote {email} to superadmin?",
+          "cancel": "Cancel",
+          "confirm": "Promote to superadmin",
+          "promoting": "Promoting...",
+          "privileges": {
+            "title": "Superadmin privileges:",
+            "feature1": "Access to all administrative features",
+            "feature2": "Management of theme and system configuration",
+            "feature3": "Management of roles and permissions",
+            "feature4": "Access to advanced logs and statistics"
+          }
+        },
+        "editModal": {
+          "title": "Edit user",
+          "cancel": "Cancel",
+          "save": "Save",
+          "saving": "Saving...",
+          "email": "Email",
+          "emailPlaceholder": "example@email.com",
+          "firstName": "First name",
+          "firstNamePlaceholder": "First name",
+          "lastName": "Last name",
+          "lastNamePlaceholder": "Last name",
+          "isActive": "Active account"
+        },
+        "errors": {
+          "loadFailed": "Error loading users",
+          "deleteFailed": "Error deleting user",
+          "bulkDeleteFailed": "Error deleting users",
+          "superAdminFailed": "Error promoting to superadmin",
+          "updateFailed": "Error updating user"
+        }
       }
     }
   },
@@ -2502,6 +2705,7 @@
         "deleteSuccess": "User {email} has been successfully deleted.",
         "bulkDeleteSuccess": "{count} user{count, plural, =1 { has} other {s have}} been successfully deleted.",
         "superAdminSuccess": "User {email} has been successfully promoted to superadmin.",
+        "updateSuccess": "User {email} has been successfully updated.",
         "deleteModal": {
           "title": "Confirm deletion",
           "message": "Are you sure you want to delete the user {email}?",

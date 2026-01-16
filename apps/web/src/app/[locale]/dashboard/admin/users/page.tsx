@@ -32,6 +32,19 @@ export default function AdminUsersPage() {
   const [superAdminModalOpen, setSuperAdminModalOpen] = useState(false);
   const [makingSuperAdmin, setMakingSuperAdmin] = useState(false);
   const [userSuperAdminStatus, setUserSuperAdminStatus] = useState<Record<number, boolean>>({});
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState(false);
+  const [editFormData, setEditFormData] = useState<{
+    email: string;
+    first_name: string;
+    last_name: string;
+    is_active: boolean;
+  }>({
+    email: '',
+    first_name: '',
+    last_name: '',
+    is_active: true,
+  });
   const pageSize = 20;
 
   const fetchUsers = useCallback(async () => {
@@ -229,6 +242,52 @@ export default function AdminUsersPage() {
       console.error('Error checking superadmin status:', err);
     }
   }, [userSuperAdminStatus]);
+
+  const handleOpenEditModal = (user: User) => {
+    setSelectedUser(user);
+    setEditFormData({
+      email: user.email || '',
+      first_name: user.first_name || '',
+      last_name: user.last_name || '',
+      is_active: user.is_active ?? true,
+    });
+    setEditModalOpen(true);
+  };
+
+  const handleUpdateUser = async () => {
+    if (!selectedUser) return;
+
+    try {
+      setEditingUser(true);
+      setError(null);
+      setSuccessMessage(null);
+      
+      await usersAPI.update(selectedUser.id, {
+        email: editFormData.email,
+        first_name: editFormData.first_name || undefined,
+        last_name: editFormData.last_name || undefined,
+        is_active: editFormData.is_active,
+      });
+      
+      setSuccessMessage(t('updateSuccess', { email: editFormData.email }));
+      
+      // Close modal
+      setEditModalOpen(false);
+      setSelectedUser(null);
+      
+      // Refresh the list
+      await fetchUsers();
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 5000);
+    } catch (err) {
+      setError(getErrorMessage(err, t('errors.updateFailed')));
+    } finally {
+      setEditingUser(false);
+    }
+  };
 
   const allSelected = users.length > 0 && selectedUserIds.size === users.length;
   const someSelected = selectedUserIds.size > 0 && selectedUserIds.size < users.length;
@@ -440,9 +499,7 @@ export default function AdminUsersPage() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => {
-                                // Edit user - can be implemented later
-                              }}
+                              onClick={() => handleOpenEditModal(user)}
                               title={t('actions.edit')}
                               className="min-w-[44px] min-h-[44px] p-2"
                             >
@@ -696,6 +753,108 @@ export default function AdminUsersPage() {
               <li>{t('superAdminModal.privileges.feature3')}</li>
               <li>{t('superAdminModal.privileges.feature4')}</li>
             </ul>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Edit User Modal */}
+      <Modal
+        isOpen={editModalOpen}
+        onClose={() => {
+          setEditModalOpen(false);
+          setSelectedUser(null);
+        }}
+        title={t('editModal.title')}
+        size="md"
+        footer={
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setEditModalOpen(false);
+                setSelectedUser(null);
+              }}
+              disabled={editingUser}
+              className="w-full sm:w-auto text-sm sm:text-base"
+            >
+              {t('editModal.cancel')}
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleUpdateUser}
+              disabled={editingUser}
+              className="w-full sm:w-auto text-sm sm:text-base"
+            >
+              {editingUser ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  {t('editModal.saving')}
+                </>
+              ) : (
+                <>
+                  <Edit className="w-4 h-4 mr-2" />
+                  {t('editModal.save')}
+                </>
+              )}
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-900 dark:text-gray-100">
+              {t('editModal.email')}
+            </label>
+            <Input
+              type="email"
+              value={editFormData.email}
+              onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+              placeholder={t('editModal.emailPlaceholder')}
+              disabled={editingUser}
+              className="w-full"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-900 dark:text-gray-100">
+              {t('editModal.firstName')}
+            </label>
+            <Input
+              type="text"
+              value={editFormData.first_name}
+              onChange={(e) => setEditFormData({ ...editFormData, first_name: e.target.value })}
+              placeholder={t('editModal.firstNamePlaceholder')}
+              disabled={editingUser}
+              className="w-full"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-900 dark:text-gray-100">
+              {t('editModal.lastName')}
+            </label>
+            <Input
+              type="text"
+              value={editFormData.last_name}
+              onChange={(e) => setEditFormData({ ...editFormData, last_name: e.target.value })}
+              placeholder={t('editModal.lastNamePlaceholder')}
+              disabled={editingUser}
+              className="w-full"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                checked={editFormData.is_active}
+                onChange={(e) => setEditFormData({ ...editFormData, is_active: e.target.checked })}
+                disabled={editingUser}
+                className="cursor-pointer"
+              />
+              <label className="text-sm font-medium text-gray-900 dark:text-gray-100 cursor-pointer">
+                {t('editModal.isActive')}
+              </label>
+            </div>
           </div>
         </div>
       </Modal>

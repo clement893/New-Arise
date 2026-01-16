@@ -19,6 +19,7 @@ interface PageHeaderProps {
   className?: string;
   titleClassName?: string;
   descriptionClassName?: string;
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
 }
 
 export default function PageHeader({
@@ -30,9 +31,10 @@ export default function PageHeader({
   className,
   titleClassName,
   descriptionClassName,
+  maxWidth,
 }: PageHeaderProps) {
   return (
-    <Container className={clsx('py-8', className)}>
+    <Container className={clsx('py-8', className)} maxWidth={maxWidth}>
       {breadcrumbs && (
         <div className="mb-6">
           <Breadcrumbs items={breadcrumbs} />

@@ -940,6 +940,108 @@
         "emailConfirmation": "Un email de confirmation vous a été envoyé avec tous les détails de votre session."
       }
     },
+    "coach": {
+      "coachee": {
+        "title": "Mes Coachees",
+        "description": "Gérez vos coachees, suivez leurs progrès et planifiez vos sessions de coaching.",
+        "stats": {
+          "total": "Total Coachees",
+          "active": "Actifs",
+          "pending": "En attente",
+          "assessments": "Assessments"
+        },
+        "search": {
+          "placeholder": "Rechercher un coachee..."
+        },
+        "filters": {
+          "allStatuses": "All statuses",
+          "active": "Active",
+          "inactive": "Inactive",
+          "pending": "Pending"
+        },
+        "actions": {
+          "addCoachee": "Add a coachee",
+          "viewDetails": "View details",
+          "edit": "Edit",
+          "delete": "Delete"
+        },
+        "empty": {
+          "title": "No coachee found",
+          "noMatch": "No coachee matches your search criteria.",
+          "noCoachees": "Start by adding your first coachee.",
+          "addFirst": "Ajouter un coachee"
+        },
+        "details": {
+          "completedAssessments": "Completed assessments:",
+          "memberSince": "Member since:",
+          "lastSession": "Last session:",
+          "nextSession": "Next session:"
+        },
+        "status": {
+          "active": "Active",
+          "inactive": "Inactive",
+          "pending": "Pending"
+        }
+      },
+      "agenda": {
+        "title": "Agenda",
+        "description": "Gérez votre planning de coaching, planifiez vos sessions et suivez vos rendez-vous.",
+        "stats": {
+          "today": "Aujourd'hui",
+          "thisWeek": "Cette semaine",
+          "thisMonth": "Ce mois",
+          "completed": "Terminées",
+          "sessions": "sessions",
+          "thisMonthLabel": "ce mois"
+        },
+        "calendar": {
+          "month": "Mois",
+          "week": "Semaine",
+          "day": "Jour",
+          "more": "autres"
+        },
+        "months": {
+          "0": "Janvier",
+          "1": "Février",
+          "2": "Mars",
+          "3": "Avril",
+          "4": "Mai",
+          "5": "Juin",
+          "6": "Juillet",
+          "7": "Août",
+          "8": "Septembre",
+          "9": "Octobre",
+          "10": "Novembre",
+          "11": "Décembre"
+        },
+        "days": {
+          "0": "Dim",
+          "1": "Lun",
+          "2": "Mar",
+          "3": "Mer",
+          "4": "Jeu",
+          "5": "Ven",
+          "6": "Sam"
+        },
+        "status": {
+          "scheduled": "Planifiée",
+          "completed": "Terminée",
+          "cancelled": "Annulée"
+        },
+        "filters": {
+          "title": "Filtres",
+          "coachee": "Coachee",
+          "allCoachees": "Tous les coachees"
+        },
+        "actions": {
+          "newSession": "Nouvelle session"
+        },
+        "upcoming": {
+          "title": "Sessions à venir",
+          "none": "Aucune session à venir"
+        }
+      }
+    },
     "developmentPlan": {
       "header": {
         "title": "Plan de",
@@ -1661,6 +1763,107 @@
         "cancelFailed": "Erreur lors de l'annulation de l'abonnement",
         "resumeFailed": "Erreur lors de la reprise de l'abonnement",
         "subscribeFailed": "Erreur lors de l'abonnement au plan"
+      }
+    },
+    "admin": {
+      "users": {
+        "title": "Gestion des Utilisateurs",
+        "description": "Gérez tous les utilisateurs de la plateforme",
+        "searchPlaceholder": "Rechercher par email ou nom...",
+        "selectedCount": "{count} utilisateur{count, plural, =1 {} other {s}} sélectionné{count, plural, =1 {} other {s}}",
+        "deselectAll": "Tout désélectionner",
+        "deleteSelected": "Supprimer ({count})",
+        "deleting": "Suppression...",
+        "noUsers": "Aucun utilisateur",
+        "noUserFound": "Aucun utilisateur trouvé",
+        "checking": "Vérification...",
+        "yes": "Oui",
+        "no": "Non",
+        "columns": {
+          "email": "Email",
+          "name": "Nom",
+          "type": "Type",
+          "status": "Statut",
+          "superadmin": "Superadmin",
+          "created": "Créé",
+          "actions": "Actions"
+        },
+        "types": {
+          "admin": "Admin",
+          "coach": "Coach",
+          "business": "Entreprise",
+          "individual": "Individuel",
+          "na": "N/A"
+        },
+        "status": {
+          "active": "Actif",
+          "inactive": "Inactif"
+        },
+        "actions": {
+          "view": "Voir les détails",
+          "edit": "Modifier",
+          "makeSuperAdmin": "Promouvoir superadmin",
+          "delete": "Supprimer"
+        },
+        "pagination": {
+          "showing": "Affichage de {from} à {to} sur {total} utilisateurs",
+          "previous": "Précédent",
+          "next": "Suivant"
+        },
+        "deleteSuccess": "L'utilisateur {email} a été supprimé avec succès.",
+        "bulkDeleteSuccess": "{count} utilisateur{count, plural, =1 { a} other {s ont}} été supprimé{count, plural, =1 {} other {s}} avec succès.",
+        "superAdminSuccess": "L'utilisateur {email} a été promu superadmin avec succès.",
+        "updateSuccess": "L'utilisateur {email} a été mis à jour avec succès.",
+        "deleteModal": {
+          "title": "Confirmer la suppression",
+          "message": "Êtes-vous sûr de vouloir supprimer l'utilisateur {email} ?",
+          "warning": "Cette action est irréversible. L'utilisateur sera immédiatement retiré de la liste.",
+          "cancel": "Annuler",
+          "delete": "Supprimer",
+          "deleting": "Suppression..."
+        },
+        "bulkDeleteModal": {
+          "title": "Confirmer la suppression en masse",
+          "message": "Êtes-vous sûr de vouloir supprimer {count} utilisateur{count, plural, =1 {} other {s}} ?",
+          "warning": "Cette action est irréversible. Les utilisateurs seront immédiatement retirés de la liste.",
+          "cancel": "Annuler",
+          "delete": "Supprimer {count} utilisateur{count, plural, =1 {} other {s}}",
+          "deleting": "Suppression..."
+        },
+        "superAdminModal": {
+          "title": "Promouvoir superadmin",
+          "message": "Êtes-vous sûr de vouloir promouvoir {email} en superadmin ?",
+          "cancel": "Annuler",
+          "confirm": "Promouvoir superadmin",
+          "promoting": "Promotion...",
+          "privileges": {
+            "title": "Privilèges superadmin :",
+            "feature1": "Accès à toutes les fonctionnalités administratives",
+            "feature2": "Gestion de la configuration des thèmes et du système",
+            "feature3": "Gestion des rôles et des permissions",
+            "feature4": "Accès aux journaux et statistiques avancées"
+          }
+        },
+        "editModal": {
+          "title": "Modifier l'utilisateur",
+          "cancel": "Annuler",
+          "save": "Enregistrer",
+          "saving": "Enregistrement...",
+          "email": "Email",
+          "emailPlaceholder": "exemple@email.com",
+          "firstName": "Prénom",
+          "firstNamePlaceholder": "Prénom",
+          "lastName": "Nom",
+          "lastNamePlaceholder": "Nom",
+          "isActive": "Compte actif"
+        },
+        "errors": {
+          "loadFailed": "Erreur lors du chargement des utilisateurs",
+          "deleteFailed": "Erreur lors de la suppression de l'utilisateur",
+          "bulkDeleteFailed": "Erreur lors de la suppression des utilisateurs",
+          "superAdminFailed": "Erreur lors de la promotion en superadmin",
+          "updateFailed": "Erreur lors de la mise à jour de l'utilisateur"
+        }
       }
     }
   },
@@ -2416,6 +2619,7 @@
         "deleteSuccess": "L'utilisateur {email} a été supprimé avec succès.",
         "bulkDeleteSuccess": "{count} utilisateur{count, plural, =1 { a} other {s ont}} été supprimé{count, plural, =1 {} other {s}} avec succès.",
         "superAdminSuccess": "L'utilisateur {email} a été promu superadmin avec succès.",
+        "updateSuccess": "L'utilisateur {email} a été mis à jour avec succès.",
         "deleteModal": {
           "title": "Confirmer la suppression",
           "message": "Êtes-vous sûr de vouloir supprimer l'utilisateur {email} ?",

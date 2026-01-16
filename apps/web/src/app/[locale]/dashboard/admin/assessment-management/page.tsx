@@ -46,7 +46,7 @@ type TabType = 'assessments' | 'questions' | 'rules';
 
 interface Assessment {
   id: number;
-  user_id: number;
+  user_id?: number;
   user_email?: string;
   user_name?: string;
   assessment_type: string;
@@ -89,8 +89,15 @@ export default function AdminAssessmentManagementPage() {
   };
 
   const getStatusLabel = (status: string) => {
-    const statusKey = status.toUpperCase();
-    return t(`assessments.status.${statusKey}` as any) || status;
+    const statusUpper = status.toUpperCase();
+    // Map uppercase status to lowercase translation keys
+    const statusMap: Record<string, string> = {
+      'COMPLETED': 'completed',
+      'IN_PROGRESS': 'inProgress',
+      'NOT_STARTED': 'notStarted',
+    };
+    const translationKey = statusMap[statusUpper] || statusUpper.toLowerCase();
+    return t(`assessments.status.${translationKey}` as any) || status;
   };
 
   const getStatusVariant = (status: string): 'success' | 'default' | 'warning' => {
@@ -151,7 +158,9 @@ export default function AdminAssessmentManagementPage() {
           
           return {
             id: apiAssessment.id,
-            user_id: apiAssessment.user_id,
+            user_id: apiAssessment.user_id || undefined,
+            user_email: apiAssessment.user_email || undefined,
+            user_name: apiAssessment.user_name || undefined,
             assessment_type: apiAssessment.assessment_type,
             status: statusUpper,
             started_at: apiAssessment.started_at || null,
@@ -585,7 +594,7 @@ export default function AdminAssessmentManagementPage() {
                         </div>
                         <div>
                           <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                            {assessment.user_email || `User #${assessment.user_id}`}
+                            {assessment.user_email || (assessment.user_id ? `User #${assessment.user_id}` : 'Unknown User')}
                           </h3>
                           {assessment.user_name && (
                             <p className="text-sm text-gray-900 dark:text-gray-100">
