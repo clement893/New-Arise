@@ -1275,8 +1275,11 @@ async def forgot_password(
     Returns:
         Success message (always 200 OK)
     """
-    # Normalize email (lowercase and trim) for consistent lookup
-    normalized_email = forgot_data.email.strip().lower()
+    try:
+        logger.info(f"📧 Forgot password request received for email: {forgot_data.email}")
+        
+        # Normalize email (lowercase and trim) for consistent lookup
+        normalized_email = forgot_data.email.strip().lower()
     
     # Get client IP and user agent for audit logging
     client_ip = request.client.host if request.client else None
@@ -1427,6 +1430,14 @@ async def forgot_password(
             error_msg = f"❌ Failed to generate password reset token for {normalized_email}: {str(e)}"
             logger.error(error_msg, exc_info=True)
             print(error_msg, flush=True)
+    
+    except Exception as e:
+        # Catch any unexpected errors and still return 200 OK (security best practice)
+        error_type = type(e).__name__
+        error_msg = str(e)
+        logger.error(f"❌ Unexpected error in forgot_password endpoint: {error_type}: {error_msg}", exc_info=True)
+        print(f"❌ CRITICAL: Unexpected error in forgot_password - Type: {error_type}, Message: {error_msg}", flush=True)
+        # Still return 200 OK to prevent email enumeration
     
     # Always return 200 OK (security best practice - don't reveal if user exists)
     return {
