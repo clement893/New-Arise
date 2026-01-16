@@ -25,7 +25,7 @@ from app.core.security import create_refresh_token, create_access_token
 from app.core.security_audit import SecurityAuditLogger, SecurityEventType
 from app.models.user import User
 from app.schemas.auth import Token, TokenData, UserCreate, UserResponse, RefreshTokenRequest, TokenWithUser
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 router = APIRouter()
 
@@ -1240,5 +1240,284 @@ async def google_oauth_callback(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Authentication failed: {str(e)}"
+        )
+
+
+class ForgotPasswordRequest(BaseModel):
+    """Forgot password request schema"""
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    """Reset password request schema"""
+    token: str
+    new_password: str = Field(..., min_length=8, description="New password (minimum 8 characters)")
+
+
+@router.post("/forgot-password", status_code=status.HTTP_200_OK)
+@rate_limit_decorator("3/minute")
+async def forgot_password(
+    request: Request,
+    forgot_data: ForgotPasswordRequest,
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> dict:
+    """
+    Request password reset
+    
+    SECURITY: Always returns 200 OK, even if user doesn't exist.
+    This prevents email enumeration attacks.
+    
+    Args:
+        request: FastAPI request object
+        forgot_data: Email address
+        db: Database session
+        
+    Returns:
+        Success message (always 200 OK)
+    """
+    # Normalize email (lowercase and trim) for consistent lookup
+    normalized_email = forgot_data.email.strip().lower()
+    
+    # Get client IP and user agent for audit logging
+    client_ip = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent")
+    
+    # Try to find user (but don't reveal if they exist)
+    result = await db.execute(
+        select(User).where(User.email == normalized_email)
+    )
+    user = result.scalar_one_or_none()
+    
+    # Log password reset request attempt
+    try:
+        await SecurityAuditLogger.log_event(
+            db=db,
+            event_type=SecurityEventType.PASSWORD_RESET_REQUEST,
+            description=f"Password reset requested for email: {normalized_email}",
+            user_id=user.id if user else None,
+            user_email=normalized_email if user else None,
+            ip_address=client_ip,
+            user_agent=user_agent,
+            request_method=request.method,
+            request_path=str(request.url.path),
+            severity="info",
+            success="success" if user else "failure",
+            metadata={"user_exists": user is not None}
+        )
+    except Exception as e:
+        # Don't fail the request if audit logging fails
+        logger.error(f"Failed to log password reset request: {e}", exc_info=True)
+    
+    # Only send email if user exists
+    if user:
+        try:
+            # Generate password reset token (JWT with 1 hour expiration)
+            reset_token_expires = timedelta(hours=1)
+            reset_token = jwt.encode(
+                {
+                    "sub": user.email,
+                    "type": "password_reset",
+                    "exp": datetime.now(timezone.utc) + reset_token_expires,
+                    "iat": datetime.now(timezone.utc),
+                },
+                settings.SECRET_KEY,
+                algorithm=settings.ALGORITHM,
+            )
+            
+            # Build reset URL
+            frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+            reset_url = f"{frontend_url}/auth/reset-password?token={reset_token}"
+            
+            # Get user name for email
+            user_name = f"{user.first_name} {user.last_name}".strip() if user.first_name or user.last_name else user.email.split("@")[0]
+            
+            # Send password reset email via Celery (async)
+            try:
+                from app.tasks.email_tasks import send_password_reset_email_task
+                send_password_reset_email_task.delay(
+                    email=user.email,
+                    name=user_name,
+                    reset_token=reset_token,
+                    reset_url=reset_url
+                )
+                logger.info(f"Password reset email queued for user: {user.email}")
+            except Exception as e:
+                # Log error but don't fail the request (security: don't reveal if email was sent)
+                logger.error(f"Failed to queue password reset email: {e}", exc_info=True)
+        except Exception as e:
+            # Log error but don't fail the request (security: don't reveal if email was sent)
+            logger.error(f"Failed to generate password reset token: {e}", exc_info=True)
+    
+    # Always return 200 OK (security best practice - don't reveal if user exists)
+    return {
+        "message": "If an account with that email exists, we've sent you a password reset link."
+    }
+
+
+@router.post("/reset-password", status_code=status.HTTP_200_OK)
+@rate_limit_decorator("5/minute")
+async def reset_password(
+    request: Request,
+    reset_data: ResetPasswordRequest,
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> dict:
+    """
+    Reset password using token
+    
+    Args:
+        request: FastAPI request object
+        reset_data: Reset token and new password
+        db: Database session
+        
+    Returns:
+        Success message
+    """
+    # Get client IP and user agent for audit logging
+    client_ip = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent")
+    
+    try:
+        # Decode and verify reset token
+        payload = jwt.decode(
+            reset_data.token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM]
+        )
+        
+        # Verify token type
+        token_type = payload.get("type")
+        if token_type != "password_reset":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid token type"
+            )
+        
+        # Get user email from token
+        user_email = payload.get("sub")
+        if not user_email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid token payload"
+            )
+        
+        # Normalize email
+        normalized_email = user_email.strip().lower()
+        
+        # Find user
+        result = await db.execute(
+            select(User).where(User.email == normalized_email)
+        )
+        user = result.scalar_one_or_none()
+        
+        if not user:
+            # Log failed reset attempt
+            try:
+                await SecurityAuditLogger.log_event(
+                    db=db,
+                    event_type=SecurityEventType.PASSWORD_RESET_COMPLETE,
+                    description=f"Password reset failed: user not found for email: {normalized_email}",
+                    ip_address=client_ip,
+                    user_agent=user_agent,
+                    request_method=request.method,
+                    request_path=str(request.url.path),
+                    severity="warning",
+                    success="failure",
+                    metadata={"reason": "user_not_found"}
+                )
+            except Exception:
+                pass
+            
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid or expired reset token"
+            )
+        
+        # Check if user is active
+        if not user.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Account is disabled"
+            )
+        
+        # Update password
+        user.hashed_password = get_password_hash(reset_data.new_password)
+        await db.commit()
+        await db.refresh(user)
+        
+        # Log successful password reset
+        try:
+            await SecurityAuditLogger.log_event(
+                db=db,
+                event_type=SecurityEventType.PASSWORD_RESET_COMPLETE,
+                description=f"Password reset completed successfully for user: {user.email}",
+                user_id=user.id,
+                user_email=user.email,
+                ip_address=client_ip,
+                user_agent=user_agent,
+                request_method=request.method,
+                request_path=str(request.url.path),
+                severity="info",
+                success="success"
+            )
+        except Exception as e:
+            logger.error(f"Failed to log password reset completion: {e}", exc_info=True)
+        
+        logger.info(f"Password reset successful for user: {user.email}")
+        
+        return {
+            "message": "Password has been reset successfully"
+        }
+        
+    except jwt.ExpiredSignatureError:
+        # Log expired token attempt
+        try:
+            await SecurityAuditLogger.log_event(
+                db=db,
+                event_type=SecurityEventType.PASSWORD_RESET_COMPLETE,
+                description="Password reset failed: expired token",
+                ip_address=client_ip,
+                user_agent=user_agent,
+                request_method=request.method,
+                request_path=str(request.url.path),
+                severity="warning",
+                success="failure",
+                metadata={"reason": "expired_token"}
+            )
+        except Exception:
+            pass
+        
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Reset token has expired. Please request a new one."
+        )
+    except jwt.JWTError as e:
+        # Log invalid token attempt
+        try:
+            await SecurityAuditLogger.log_event(
+                db=db,
+                event_type=SecurityEventType.PASSWORD_RESET_COMPLETE,
+                description=f"Password reset failed: invalid token - {str(e)}",
+                ip_address=client_ip,
+                user_agent=user_agent,
+                request_method=request.method,
+                request_path=str(request.url.path),
+                severity="warning",
+                success="failure",
+                metadata={"reason": "invalid_token"}
+            )
+        except Exception:
+            pass
+        
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired reset token"
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during password reset: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while resetting your password"
         )
 

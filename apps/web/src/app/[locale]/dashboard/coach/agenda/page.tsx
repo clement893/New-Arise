@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
 import { useRouter } from '@/i18n/routing';
+import { useTranslations } from 'next-intl';
 import { PageHeader } from '@/components/layout';
 import { Card, Container, Button, Grid } from '@/components/ui';
 import { 
@@ -87,6 +88,7 @@ const mockSessions: Session[] = [
 ];
 
 export default function AgendaPage() {
+  const t = useTranslations('dashboard.coach.agenda');
   const router = useRouter();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<'month' | 'week' | 'day'>('month');
@@ -145,7 +147,20 @@ export default function AgendaPage() {
   // Statistics
   const today = new Date().toISOString().split('T')[0];
   const todaySessions = sessions.filter(s => s.date === today && s.status === 'scheduled');
-  const weekSessions = getSessionsForMonth().filter(s => s.status === 'scheduled');
+  
+  // Get sessions for this week (next 7 days)
+  const weekStart = new Date();
+  weekStart.setHours(0, 0, 0, 0);
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 7);
+  const weekSessions = sessions.filter(s => {
+    if (selectedCoachee !== 'all' && s.coacheeId !== selectedCoachee) {
+      return false;
+    }
+    const sessionDate = new Date(s.date);
+    return sessionDate >= weekStart && sessionDate < weekEnd && s.status === 'scheduled';
+  });
+  
   const completedThisMonth = getSessionsForMonth().filter(s => s.status === 'completed').length;
 
   const navigateMonth = (direction: 'prev' | 'next') => {
@@ -183,7 +198,7 @@ export default function AgendaPage() {
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium border flex items-center gap-1 ${styles[status]}`}>
         {icons[status]}
-        {status === 'scheduled' ? 'Planifiée' : status === 'completed' ? 'Terminée' : 'Annulée'}
+        {t(`status.${status}`)}
       </span>
     );
   };
@@ -214,16 +229,21 @@ export default function AgendaPage() {
 
   const calendarDays = generateCalendarDays();
   const monthNames = [
-    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+    t('months.0'), t('months.1'), t('months.2'), t('months.3'), t('months.4'), t('months.5'),
+    t('months.6'), t('months.7'), t('months.8'), t('months.9'), t('months.10'), t('months.11')
   ];
-  const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+  const dayNames = [
+    t('days.0'), t('days.1'), t('days.2'), t('days.3'), t('days.4'), t('days.5'), t('days.6')
+  ];
 
   return (
     <>
       <PageHeader
-        title="Agenda"
-        description="Manage your coaching schedule, plan your sessions and track your appointments."
+        title={t('title')}
+        description={t('description')}
+        titleClassName="!text-white"
+        descriptionClassName="!text-white"
+        maxWidth="full"
       />
 
       <Container className="py-8" maxWidth="full" center={false}>
@@ -232,9 +252,9 @@ export default function AgendaPage() {
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Aujourd'hui</p>
+                <p className="text-sm text-gray-600 mb-1">{t('stats.today')}</p>
                 <p className="text-3xl font-bold text-gray-900">{todaySessions.length}</p>
-                <p className="text-xs text-gray-500 mt-1">sessions</p>
+                <p className="text-xs text-gray-500 mt-1">{t('stats.sessions')}</p>
               </div>
               <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
                 <CalendarIcon className="text-primary-600" size={24} />
@@ -245,9 +265,9 @@ export default function AgendaPage() {
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">This week</p>
+                <p className="text-sm text-gray-600 mb-1">{t('stats.thisWeek')}</p>
                 <p className="text-3xl font-bold text-gray-900">{weekSessions.length}</p>
-                <p className="text-xs text-gray-500 mt-1">sessions</p>
+                <p className="text-xs text-gray-500 mt-1">{t('stats.sessions')}</p>
               </div>
               <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-full flex items-center justify-center">
                 <Clock className="text-arise-deep-teal" size={24} />
@@ -258,9 +278,9 @@ export default function AgendaPage() {
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Ce mois</p>
+                <p className="text-sm text-gray-600 mb-1">{t('stats.thisMonth')}</p>
                 <p className="text-3xl font-bold text-gray-900">{getSessionsForMonth().length}</p>
-                <p className="text-xs text-gray-500 mt-1">sessions</p>
+                <p className="text-xs text-gray-500 mt-1">{t('stats.sessions')}</p>
               </div>
               <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
                 <CalendarIcon className="text-purple-600" size={24} />
@@ -271,9 +291,9 @@ export default function AgendaPage() {
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Terminées</p>
+                <p className="text-sm text-gray-600 mb-1">{t('stats.completed')}</p>
                 <p className="text-3xl font-bold text-success-600">{completedThisMonth}</p>
-                <p className="text-xs text-gray-500 mt-1">ce mois</p>
+                <p className="text-xs text-gray-500 mt-1">{t('stats.thisMonthLabel')}</p>
               </div>
               <div className="w-12 h-12 bg-success-100 rounded-full flex items-center justify-center">
                 <CheckCircle className="text-success-600" size={24} />
@@ -313,21 +333,21 @@ export default function AgendaPage() {
                     size="sm"
                     onClick={() => setView('month')}
                   >
-                    Mois
+                    {t('calendar.month')}
                   </Button>
                   <Button
                     variant={view === 'week' ? 'primary' : 'outline'}
                     size="sm"
                     onClick={() => setView('week')}
                   >
-                    Semaine
+                    {t('calendar.week')}
                   </Button>
                   <Button
                     variant={view === 'day' ? 'primary' : 'outline'}
                     size="sm"
                     onClick={() => setView('day')}
                   >
-                    Jour
+                    {t('calendar.day')}
                   </Button>
                 </div>
               </div>
@@ -374,7 +394,7 @@ export default function AgendaPage() {
                           ))}
                           {daySessions.length > 2 && (
                             <div className="text-xs text-gray-500">
-                              +{daySessions.length - 2} autres
+                              +{daySessions.length - 2} {t('calendar.more')}
                             </div>
                           )}
                         </div>
@@ -392,19 +412,19 @@ export default function AgendaPage() {
             <Card className="p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Filter size={20} className="text-gray-600" />
-                <h3 className="font-semibold text-gray-900">Filtres</h3>
+                <h3 className="font-semibold text-gray-900">{t('filters.title')}</h3>
               </div>
               <div className="space-y-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Coachee
+                    {t('filters.coachee')}
                   </label>
                   <select
                     value={selectedCoachee}
                     onChange={(e) => setSelectedCoachee(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-arise-deep-teal focus:border-transparent"
                   >
-                    <option value="all">All coachees</option>
+                    <option value="all">{t('filters.allCoachees')}</option>
                     <option value="1">John Doe</option>
                     <option value="2">Jane Smith</option>
                     <option value="3">Bob Johnson</option>
@@ -416,18 +436,18 @@ export default function AgendaPage() {
                   onClick={handleNewSession}
                 >
                   <Plus size={20} />
-                  New session
+                  {t('actions.newSession')}
                 </Button>
               </div>
             </Card>
 
             {/* Upcoming Sessions */}
             <Card className="p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Upcoming sessions</h3>
+              <h3 className="font-semibold text-gray-900 mb-4">{t('upcoming.title')}</h3>
               {upcomingSessions.length === 0 ? (
                 <div className="text-center py-8">
                   <CalendarIcon className="mx-auto mb-2 text-gray-400" size={32} />
-                  <p className="text-sm text-gray-600">No upcoming sessions</p>
+                  <p className="text-sm text-gray-600">{t('upcoming.none')}</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -450,7 +470,7 @@ export default function AgendaPage() {
                       <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
                         <CalendarIcon size={14} />
                         <span>
-                          {new Date(session.date).toLocaleDateString('fr-FR', {
+                          {new Date(session.date).toLocaleDateString(undefined, {
                             weekday: 'short',
                             day: 'numeric',
                             month: 'short'

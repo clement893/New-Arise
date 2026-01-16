@@ -92,6 +92,18 @@ export const usersAPI = {
   },
 
   /**
+   * Update a user (superadmin only)
+   */
+  update: async (userId: number, data: UserUpdate): Promise<User> => {
+    const response = await apiClient.put<User>(`/v1/users/${userId}`, data);
+    const updatedUser = extractApiData<User>(response);
+    if (!updatedUser) {
+      throw new Error(`Failed to update user: ${userId}`);
+    }
+    return updatedUser;
+  },
+
+  /**
    * Delete a user (admin only)
    */
   delete: async (userId: number): Promise<void> => {

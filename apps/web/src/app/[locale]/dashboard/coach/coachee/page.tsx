@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
 import { useRouter } from '@/i18n/routing';
+import { useTranslations } from 'next-intl';
 import { Card, Container, Button, Grid } from '@/components/ui';
 import { 
   Users, 
@@ -67,6 +68,7 @@ const mockCoachees: Coachee[] = [
 ];
 
 export default function CoacheePage() {
+  const t = useTranslations('dashboard.coach.coachee');
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<'all' | 'active' | 'inactive' | 'pending'>('all');
@@ -96,7 +98,7 @@ export default function CoacheePage() {
     };
     return (
       <span className={`px-3 py-1 rounded-full text-xs font-medium border ${styles[status]}`}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
+        {t(`status.${status}`)}
       </span>
     );
   };
@@ -115,10 +117,10 @@ export default function CoacheePage() {
       <Container className="py-8" maxWidth="full" center={false}>
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">
-            Mes Coachees
+            {t('title')}
           </h1>
           <p className="text-white">
-            Gérez vos coachees, suivez leurs progrès et planifiez vos sessions de coaching.
+            {t('description')}
           </p>
         </div>
         {/* Stats Cards */}
@@ -126,7 +128,7 @@ export default function CoacheePage() {
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total Coachees</p>
+                <p className="text-sm text-gray-600 mb-1">{t('stats.total')}</p>
                 <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
               </div>
               <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-full flex items-center justify-center">
@@ -138,7 +140,7 @@ export default function CoacheePage() {
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Actifs</p>
+                <p className="text-sm text-gray-600 mb-1">{t('stats.active')}</p>
                 <p className="text-3xl font-bold text-success-600">{stats.active}</p>
               </div>
               <div className="w-12 h-12 bg-success-100 rounded-full flex items-center justify-center">
@@ -150,7 +152,7 @@ export default function CoacheePage() {
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">En attente</p>
+                <p className="text-sm text-gray-600 mb-1">{t('stats.pending')}</p>
                 <p className="text-3xl font-bold text-yellow-600">{stats.pending}</p>
               </div>
               <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
@@ -162,7 +164,7 @@ export default function CoacheePage() {
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Assessments</p>
+                <p className="text-sm text-gray-600 mb-1">{t('stats.assessments')}</p>
                 <p className="text-3xl font-bold text-arise-teal">{stats.totalAssessments}</p>
               </div>
               <div className="w-12 h-12 bg-arise-teal/10 rounded-full flex items-center justify-center">
@@ -180,7 +182,7 @@ export default function CoacheePage() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                 <Input
                   type="text"
-                  placeholder="Rechercher un coachee..."
+                  placeholder={t('search.placeholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 w-full"
@@ -194,10 +196,10 @@ export default function CoacheePage() {
                 onChange={(e) => setSelectedStatus(e.target.value as typeof selectedStatus)}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-arise-deep-teal focus:border-transparent"
               >
-                <option value="all">All statuses</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="pending">Pending</option>
+                <option value="all">{t('filters.allStatuses')}</option>
+                <option value="active">{t('filters.active')}</option>
+                <option value="inactive">{t('filters.inactive')}</option>
+                <option value="pending">{t('filters.pending')}</option>
               </select>
 
               <Button
@@ -206,7 +208,7 @@ export default function CoacheePage() {
                 className="flex items-center gap-2"
               >
                 <UserPlus size={20} />
-                Add a coachee
+                {t('actions.addCoachee')}
               </Button>
             </div>
           </div>
@@ -217,17 +219,17 @@ export default function CoacheePage() {
           <Card className="p-12 text-center">
             <Users className="mx-auto mb-4 text-gray-400" size={48} />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              No coachee found
+              {t('empty.title')}
             </h3>
             <p className="text-gray-600 mb-6">
               {searchQuery || selectedStatus !== 'all'
-                ? 'No coachee matches your search criteria.'
-                : 'Start by adding your first coachee.'}
+                ? t('empty.noMatch')
+                : t('empty.noCoachees')}
             </p>
             {!searchQuery && selectedStatus === 'all' && (
               <Button variant="primary" onClick={handleAddCoachee}>
                 <UserPlus className="mr-2" size={20} />
-                Ajouter un coachee
+                {t('empty.addFirst')}
               </Button>
             )}
           </Card>
@@ -256,30 +258,30 @@ export default function CoacheePage() {
 
                 <div className="space-y-2 mb-4 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Completed assessments:</span>
+                    <span className="text-gray-600">{t('details.completedAssessments')}</span>
                     <span className="font-semibold text-gray-900">
                       {coachee.assessmentsCompleted}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Member since:</span>
+                    <span className="text-gray-600">{t('details.memberSince')}</span>
                     <span className="text-gray-900">
-                      {new Date(coachee.joinedDate).toLocaleDateString('en-US')}
+                      {new Date(coachee.joinedDate).toLocaleDateString()}
                     </span>
                   </div>
                   {coachee.lastSession && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Last session:</span>
+                      <span className="text-gray-600">{t('details.lastSession')}</span>
                       <span className="text-gray-900">
-                        {new Date(coachee.lastSession).toLocaleDateString('en-US')}
+                        {new Date(coachee.lastSession).toLocaleDateString()}
                       </span>
                     </div>
                   )}
                   {coachee.nextSession && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Next session:</span>
+                      <span className="text-gray-600">{t('details.nextSession')}</span>
                       <span className="font-semibold text-arise-deep-teal">
-                        {new Date(coachee.nextSession).toLocaleDateString('en-US')}
+                        {new Date(coachee.nextSession).toLocaleDateString()}
                       </span>
                     </div>
                   )}
@@ -293,13 +295,13 @@ export default function CoacheePage() {
                     className="flex-1 flex items-center justify-center gap-2"
                   >
                     <Eye size={16} />
-                    View details
+                    {t('actions.viewDetails')}
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
                     className="flex items-center justify-center"
-                    title="Edit"
+                    title={t('actions.edit')}
                   >
                     <Edit size={16} />
                   </Button>
@@ -307,7 +309,7 @@ export default function CoacheePage() {
                     variant="outline"
                     size="sm"
                     className="flex items-center justify-center text-red-600 hover:text-red-700 hover:border-red-300"
-                    title="Delete"
+                    title={t('actions.delete')}
                   >
                     <Trash2 size={16} />
                   </Button>

@@ -290,6 +290,9 @@ export const authAPI = {
   forgotPassword: (email: string) => {
     return apiClient.post('/v1/auth/forgot-password', { email });
   },
+  resetPassword: (token: string, newPassword: string) => {
+    return apiClient.post('/v1/auth/reset-password', { token, new_password: newPassword });
+  },
 };
 
 export const usersAPI = {
