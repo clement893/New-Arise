@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, Button, Container, Alert, Tabs, TabList, Tab, TabPanels, TabPanel, Modal } from '@/components/ui';
 import Input from '@/components/ui/Input';
 import Badge from '@/components/ui/Badge';
@@ -77,23 +78,27 @@ interface ScoringRule {
   [key: string]: unknown; // Allow additional properties
 }
 
-const ASSESSMENT_TYPE_LABELS: Record<string, string> = {
-  MBTI: 'MBTI',
-  TKI: 'TKI',
-  WELLNESS: 'Wellness',
-  THREE_SIXTY_SELF: '360° Feedback (Self)',
-  THREE_SIXTY_EVALUATOR: '360° Feedback (Evaluator)',
-};
-
-const STATUS_LABELS: Record<string, { label: string; variant: 'success' | 'default' | 'warning' }> = {
-  COMPLETED: { label: 'Terminé', variant: 'success' },
-  IN_PROGRESS: { label: 'En cours', variant: 'warning' },
-  NOT_STARTED: { label: 'Non commencé', variant: 'default' },
-};
-
 // Admin Assessment Management Page - Manage assessments, questions, and scoring rules
 export default function AdminAssessmentManagementPage() {
+  const t = useTranslations('admin.assessmentManagement');
   const [activeTab, setActiveTab] = useState<TabType>('assessments');
+
+  // Helper functions for translated labels
+  const getAssessmentTypeLabel = (type: string) => {
+    return t(`assessments.types.${type}` as any) || type;
+  };
+
+  const getStatusLabel = (status: string) => {
+    const statusKey = status.toUpperCase();
+    return t(`assessments.status.${statusKey}` as any) || status;
+  };
+
+  const getStatusVariant = (status: string): 'success' | 'default' | 'warning' => {
+    const statusUpper = status.toUpperCase();
+    if (statusUpper === 'COMPLETED') return 'success';
+    if (statusUpper === 'IN_PROGRESS') return 'warning';
+    return 'default';
+  };
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -166,18 +171,18 @@ export default function AdminAssessmentManagementPage() {
         setAssessments([]);
       }
     } catch (err) {
-      setError(getErrorMessage(err, 'Erreur lors du chargement des tests'));
+      setError(getErrorMessage(err, t('assessments.errors.loadFailed')));
     } finally {
       setLoading(false);
     }
   };
 
   const filteredAssessments = assessments.filter((assessment) => {
-    const matchesSearch = 
+      const matchesSearch = 
       !searchTerm ||
       assessment.user_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       assessment.user_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ASSESSMENT_TYPE_LABELS[assessment.assessment_type]?.toLowerCase().includes(searchTerm.toLowerCase());
+      t(`assessments.types.${assessment.assessment_type}` as any)?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesType = filterType === 'all' || assessment.assessment_type === filterType;
     const matchesStatus = filterStatus === 'all' || assessment.status === filterStatus;
@@ -203,7 +208,7 @@ export default function AdminAssessmentManagementPage() {
       const fetchedQuestions = await getQuestions(backendType);
       setQuestions(fetchedQuestions);
     } catch (err) {
-      const errorMessage = getErrorMessage(err, 'Erreur lors du chargement des questions');
+      const errorMessage = getErrorMessage(err, t('questions.errors.loadFailed'));
       setQuestionsError(errorMessage);
       console.error('Error fetching questions:', err);
     } finally {
@@ -329,7 +334,7 @@ export default function AdminAssessmentManagementPage() {
       setQuestionEditModalOpen(false);
       setEditingQuestion(null);
     } catch (err) {
-      const errorMessage = getErrorMessage(err, 'Erreur lors de la sauvegarde de la question');
+      const errorMessage = getErrorMessage(err, t('questions.errors.saveFailed'));
       setQuestionsError(errorMessage);
       console.error('Error saving question:', err);
     } finally {
@@ -338,7 +343,7 @@ export default function AdminAssessmentManagementPage() {
   };
 
   const handleDeleteQuestion = async (questionId: string) => {
-    if (!confirm(`Are you sure you want to delete the question "${questionId}"?`)) {
+    if (!confirm(t('questions.deleteConfirm', { questionId }))) {
       return;
     }
     
@@ -351,7 +356,7 @@ export default function AdminAssessmentManagementPage() {
       // Refresh questions list
       await fetchQuestions();
     } catch (err) {
-      const errorMessage = getErrorMessage(err, 'Erreur lors de la suppression de la question');
+      const errorMessage = getErrorMessage(err, t('questions.errors.deleteFailed'));
       setQuestionsError(errorMessage);
       console.error('Error deleting question:', err);
     } finally {
@@ -412,10 +417,10 @@ export default function AdminAssessmentManagementPage() {
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <MotionDiv variant="slideUp" duration="normal" delay={0}>
-          <Card className="p-4 sm:p-6 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 border-primary-200 dark:border-primary-800">
+          <Card className="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 border-primary-200 dark:border-primary-800">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs sm:text-sm font-medium text-primary-600 dark:text-primary-400 mb-1">Total des tests</p>
+                <p className="text-xs sm:text-sm font-medium text-primary-600 dark:text-primary-400 mb-1">{t('assessments.stats.total')}</p>
                 <p className="text-2xl sm:text-3xl font-bold text-primary-900 dark:text-primary-100">{totalAssessments}</p>
               </div>
               <div className="p-2 sm:p-3 bg-primary-200 dark:bg-primary-800 rounded-full">
@@ -426,10 +431,10 @@ export default function AdminAssessmentManagementPage() {
         </MotionDiv>
 
         <MotionDiv variant="slideUp" duration="normal" delay={100}>
-          <Card className="p-4 sm:p-6 bg-gradient-to-br from-success-50 to-success-100 dark:from-success-900/20 dark:to-success-800/20 border-success-200 dark:border-success-800">
+          <Card className="bg-gradient-to-br from-success-50 to-success-100 dark:from-success-900/20 dark:to-success-800/20 border-success-200 dark:border-success-800">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs sm:text-sm font-medium text-success-600 dark:text-success-400 mb-1">Terminés</p>
+                <p className="text-xs sm:text-sm font-medium text-success-600 dark:text-success-400 mb-1">{t('assessments.stats.completed')}</p>
                 <p className="text-2xl sm:text-3xl font-bold text-success-900 dark:text-success-100">{completedAssessments}</p>
                 {totalAssessments > 0 && (
                   <p className="text-xs text-success-700 dark:text-success-300 mt-1">
@@ -445,10 +450,10 @@ export default function AdminAssessmentManagementPage() {
         </MotionDiv>
 
         <MotionDiv variant="slideUp" duration="normal" delay={200}>
-          <Card className="p-4 sm:p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 border-yellow-200 dark:border-yellow-800">
+          <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 border-yellow-200 dark:border-yellow-800">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs sm:text-sm font-medium text-yellow-600 dark:text-yellow-400 mb-1">En cours</p>
+                <p className="text-xs sm:text-sm font-medium text-yellow-600 dark:text-yellow-400 mb-1">{t('assessments.stats.inProgress')}</p>
                 <p className="text-2xl sm:text-3xl font-bold text-yellow-900 dark:text-yellow-100">{inProgressAssessments}</p>
                 {totalAssessments > 0 && (
                   <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
@@ -464,10 +469,10 @@ export default function AdminAssessmentManagementPage() {
         </MotionDiv>
 
         <MotionDiv variant="slideUp" duration="normal" delay={300}>
-          <Card className="p-4 sm:p-6 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
+          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs sm:text-sm font-medium text-purple-600 dark:text-purple-400 mb-1">Score moyen</p>
+                <p className="text-xs sm:text-sm font-medium text-purple-600 dark:text-purple-400 mb-1">{t('assessments.stats.averageScore')}</p>
                 <p className="text-2xl sm:text-3xl font-bold text-purple-900 dark:text-purple-100">
                   {averageScore > 0 ? averageScore.toFixed(0) : '-'}%
                 </p>
@@ -481,12 +486,12 @@ export default function AdminAssessmentManagementPage() {
       </div>
 
       {/* Search and Filters */}
-      <Card className="mb-6 p-4 sm:p-6">
+      <Card className="mb-6">
         <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
           <div className="flex-1 relative w-full">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black w-4 h-4 sm:w-5 sm:h-5" />
             <Input
-              placeholder="Search by user email, name or test type..."
+              placeholder={t('assessments.search.placeholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 text-sm sm:text-base"
@@ -500,10 +505,10 @@ export default function AdminAssessmentManagementPage() {
                 onChange={(e) => setFilterType(e.target.value)}
                 className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-arise-teal w-full md:w-auto text-sm sm:text-base"
               >
-                <option value="all">Tous les types</option>
-                {Object.entries(ASSESSMENT_TYPE_LABELS).map(([value, label]) => (
+                <option value="all">{t('assessments.search.allTypes')}</option>
+                {['MBTI', 'TKI', 'WELLNESS', 'THREE_SIXTY_SELF', 'THREE_SIXTY_EVALUATOR'].map((value) => (
                   <option key={value} value={value}>
-                    {label}
+                    {getAssessmentTypeLabel(value)}
                   </option>
                 ))}
               </select>
@@ -513,10 +518,10 @@ export default function AdminAssessmentManagementPage() {
               onChange={(e) => setFilterStatus(e.target.value)}
               className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-arise-teal w-full md:w-auto text-sm sm:text-base"
             >
-              <option value="all">All statuses</option>
-              {Object.entries(STATUS_LABELS).map(([value, config]) => (
+              <option value="all">{t('assessments.search.allStatuses')}</option>
+              {['COMPLETED', 'IN_PROGRESS', 'NOT_STARTED'].map((value) => (
                 <option key={value} value={value}>
-                  {config.label}
+                  {getStatusLabel(value)}
                 </option>
               ))}
             </select>
@@ -528,7 +533,7 @@ export default function AdminAssessmentManagementPage() {
               className="flex items-center gap-2 w-full sm:w-auto text-xs sm:text-sm"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
+              {t('assessments.search.refresh')}
             </Button>
             <Button
               variant="outline"
@@ -536,7 +541,7 @@ export default function AdminAssessmentManagementPage() {
               className="flex items-center gap-2 w-full sm:w-auto text-xs sm:text-sm"
             >
               <Download className="w-4 h-4" />
-              Exporter
+              {t('assessments.search.export')}
             </Button>
           </div>
         </div>
@@ -553,13 +558,13 @@ export default function AdminAssessmentManagementPage() {
             <ClipboardList className="w-16 h-16 text-black mx-auto mb-4" />
             <p className="text-gray-900 dark:text-gray-100 text-lg font-medium mb-2">
               {assessments.length === 0 
-                ? 'No test found'
-                : 'No test matches the filters'}
+                ? t('assessments.empty.noTests')
+                : t('assessments.empty.noMatch')}
             </p>
             <p className="text-gray-900 dark:text-gray-100 text-sm">
               {assessments.length === 0
-                ? 'Les tests apparaîtront ici une fois qu\'un endpoint admin sera configuré.'
-                : 'Try modifying your search or filter criteria.'}
+                ? t('assessments.empty.description')
+                : t('assessments.empty.tryModifying')}
             </p>
           </div>
         ) : (
@@ -592,10 +597,10 @@ export default function AdminAssessmentManagementPage() {
                     </div>
                     <div className="flex gap-2">
                       <Badge 
-                        variant={STATUS_LABELS[assessment.status]?.variant || 'default'}
+                        variant={getStatusVariant(assessment.status)}
                         className="text-xs"
                       >
-                        {STATUS_LABELS[assessment.status]?.label || assessment.status}
+                        {getStatusLabel(assessment.status)}
                       </Badge>
                     </div>
                   </div>
@@ -604,7 +609,7 @@ export default function AdminAssessmentManagementPage() {
                     {/* Type and Progress */}
                     <div className="flex items-center justify-between">
                       <Badge variant="default" className="text-xs">
-                        {ASSESSMENT_TYPE_LABELS[assessment.assessment_type] || assessment.assessment_type}
+                        {getAssessmentTypeLabel(assessment.assessment_type)}
                       </Badge>
                       <div className="flex items-center gap-2">
                         <BarChart3 className="w-4 h-4 text-black" />
@@ -617,9 +622,9 @@ export default function AdminAssessmentManagementPage() {
                     {/* Progress Bar */}
                     <div>
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-gray-900 dark:text-gray-100">Progression</span>
+                        <span className="text-xs text-gray-900 dark:text-gray-100">{t('assessments.card.progress')}</span>
                         <span className="text-xs text-gray-900 dark:text-gray-100">
-                          {assessment.answer_count} / {assessment.total_questions} questions
+                          {assessment.answer_count} / {assessment.total_questions} {t('assessments.card.questions')}
                         </span>
                       </div>
                       <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
@@ -641,7 +646,7 @@ export default function AdminAssessmentManagementPage() {
                       <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                         <div className="flex items-center gap-2">
                           <TrendingUp className="w-4 h-4 text-arise-teal" />
-                          <span className="text-sm text-gray-900 dark:text-gray-100">Score</span>
+                          <span className="text-sm text-gray-900 dark:text-gray-100">{t('assessments.card.score')}</span>
                         </div>
                         {assessment.score_summary.percentage !== undefined ? (
                           <div className="text-right">
@@ -666,7 +671,7 @@ export default function AdminAssessmentManagementPage() {
                         {assessment.started_at && (
                           <div className="flex items-center gap-2 text-xs text-gray-900 dark:text-gray-100">
                             <Clock className="w-3 h-3" />
-                            <span>Start: {new Date(assessment.started_at).toLocaleDateString('en-US', { 
+                            <span>{t('assessments.card.start')}: {new Date(assessment.started_at).toLocaleDateString('en-US', { 
                               day: '2-digit', 
                               month: 'short', 
                               year: 'numeric' 
@@ -676,7 +681,7 @@ export default function AdminAssessmentManagementPage() {
                         {assessment.completed_at && (
                           <div className="flex items-center gap-2 text-xs text-gray-900 dark:text-gray-100">
                             <CheckCircle className="w-3 h-3 text-success-600" />
-                            <span>Completed: {new Date(assessment.completed_at).toLocaleDateString('en-US', { 
+                            <span>{t('assessments.card.completed')}: {new Date(assessment.completed_at).toLocaleDateString('en-US', { 
                               day: '2-digit', 
                               month: 'short', 
                               year: 'numeric' 
@@ -693,7 +698,7 @@ export default function AdminAssessmentManagementPage() {
                         className="flex items-center gap-2"
                       >
                         <Eye className="w-4 h-4" />
-                        Détails
+                        {t('assessments.card.details')}
                       </Button>
                     </div>
                   </div>
@@ -716,16 +721,16 @@ export default function AdminAssessmentManagementPage() {
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-                Type de test
+                {t('questions.testType')}
               </label>
               <select
                 value={selectedTestType}
                 onChange={(e) => setSelectedTestType(e.target.value)}
                 className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-arise-teal w-full max-w-md"
               >
-                {Object.entries(ASSESSMENT_TYPE_LABELS).map(([value, label]) => (
+                {['MBTI', 'TKI', 'WELLNESS', 'THREE_SIXTY_SELF', 'THREE_SIXTY_EVALUATOR'].map((value) => (
                   <option key={value} value={value}>
-                    {label}
+                    {getAssessmentTypeLabel(value)}
                   </option>
                 ))}
               </select>
@@ -738,7 +743,7 @@ export default function AdminAssessmentManagementPage() {
                 className="flex items-center gap-2"
               >
                 <RefreshCw className={`w-4 h-4 ${questionsLoading ? 'animate-spin' : ''}`} />
-                Refresh
+                {t('questions.refresh')}
               </Button>
               <Button
                 variant="primary"
@@ -755,7 +760,7 @@ export default function AdminAssessmentManagementPage() {
                 className="flex items-center gap-2"
               >
                 <Plus size={20} />
-                Ajouter une question
+                {t('questions.addQuestion')}
               </Button>
             </div>
           </div>
@@ -779,10 +784,10 @@ export default function AdminAssessmentManagementPage() {
                 <FileText className="w-12 h-12 text-black" />
               </div>
               <p className="text-gray-900 dark:text-gray-100 text-lg font-medium mb-2">
-                No question found
+                {t('questions.empty.noQuestions')}
               </p>
               <p className="text-gray-900 dark:text-gray-100 text-sm mb-4">
-                Les questions pour ce type de test ne sont pas encore configurées.
+                {t('questions.empty.description')}
               </p>
               <Button
                 variant="primary"
@@ -799,7 +804,7 @@ export default function AdminAssessmentManagementPage() {
                 className="flex items-center gap-2 mx-auto"
               >
                 <Plus size={20} />
-                Ajouter la première question
+                {t('questions.empty.addFirst')}
               </Button>
             </div>
           ) : (
@@ -987,12 +992,12 @@ export default function AdminAssessmentManagementPage() {
             setQuestionEditModalOpen(false);
             setEditingQuestion(null);
           }}
-          title={editingQuestion?.question_id ? 'Modifier la question' : 'Ajouter une question'}
+          title={editingQuestion?.question_id ? t('questions.modal.edit') : t('questions.modal.add')}
         >
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-                ID de la question
+                {t('questions.modal.questionId')}
               </label>
               <Input
                 value={editingQuestion?.question_id || editingQuestion?.id || ''}
@@ -1001,14 +1006,14 @@ export default function AdminAssessmentManagementPage() {
                     setEditingQuestion({ ...editingQuestion, question_id: e.target.value });
                   }
                 }}
-                placeholder="ex: wellness_q1"
+                placeholder={t('questions.modal.questionIdPlaceholder')}
                 disabled={!!editingQuestion?.question_id || !!editingQuestion?.id}
               />
             </div>
             {(selectedTestType === 'WELLNESS' || selectedTestType === 'THREE_SIXTY_SELF' || selectedTestType === 'THREE_SIXTY_EVALUATOR') && (
               <div>
                 <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-                  Texte de la question
+                  {t('questions.modal.questionText')}
                 </label>
                 <textarea
                   value={editingQuestion?.text || editingQuestion?.question || ''}
@@ -1019,14 +1024,14 @@ export default function AdminAssessmentManagementPage() {
                   }}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-arise-teal"
                   rows={4}
-                  placeholder="Entrez le texte de la question..."
+                  placeholder={t('questions.modal.questionTextPlaceholder')}
                 />
               </div>
             )}
             {selectedTestType === 'WELLNESS' && (
               <div>
                 <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-                  Pilier
+                  {t('questions.modal.pillar')}
                 </label>
                 <Input
                   value={editingQuestion?.pillar || ''}
@@ -1035,7 +1040,7 @@ export default function AdminAssessmentManagementPage() {
                       setEditingQuestion({ ...editingQuestion, pillar: e.target.value });
                     }
                   }}
-                  placeholder="ex: Movement"
+                  placeholder={t('questions.modal.pillarPlaceholder')}
                 />
               </div>
             )}
@@ -1058,7 +1063,7 @@ export default function AdminAssessmentManagementPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-                    Option A
+                    {t('questions.modal.optionA')}
                   </label>
                   <textarea
                     value={editingQuestion?.optionA || editingQuestion?.option_a || ''}
@@ -1069,12 +1074,12 @@ export default function AdminAssessmentManagementPage() {
                     }}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-arise-teal"
                     rows={2}
-                    placeholder="Texte de l'option A..."
+                    placeholder={t('questions.modal.optionAPlaceholder')}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-                    Option B
+                    {t('questions.modal.optionB')}
                   </label>
                   <textarea
                     value={editingQuestion?.optionB || editingQuestion?.option_b || ''}
@@ -1085,12 +1090,12 @@ export default function AdminAssessmentManagementPage() {
                     }}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-arise-teal"
                     rows={2}
-                    placeholder="Texte de l'option B..."
+                    placeholder={t('questions.modal.optionBPlaceholder')}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-                    Mode A
+                    {t('questions.modal.modeA')}
                   </label>
                   <Input
                     value={editingQuestion?.modeA || editingQuestion?.mode_a || ''}
@@ -1099,12 +1104,12 @@ export default function AdminAssessmentManagementPage() {
                         setEditingQuestion({ ...editingQuestion, modeA: e.target.value, mode_a: e.target.value });
                       }
                     }}
-                    placeholder="ex: competing"
+                    placeholder={t('questions.modal.modeAPlaceholder')}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-                    Mode B
+                    {t('questions.modal.modeB')}
                   </label>
                   <Input
                     value={editingQuestion?.modeB || editingQuestion?.mode_b || ''}
@@ -1113,7 +1118,7 @@ export default function AdminAssessmentManagementPage() {
                         setEditingQuestion({ ...editingQuestion, modeB: e.target.value, mode_b: e.target.value });
                       }
                     }}
-                    placeholder="ex: collaborating"
+                    placeholder={t('questions.modal.modeBPlaceholder')}
                   />
                 </div>
               </>
@@ -1122,7 +1127,7 @@ export default function AdminAssessmentManagementPage() {
               <>
                 <div>
                   <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-                    Numéro
+                    {t('questions.modal.number')}
                   </label>
                   <Input
                     type="number"
@@ -1132,12 +1137,12 @@ export default function AdminAssessmentManagementPage() {
                         setEditingQuestion({ ...editingQuestion, number: parseInt(e.target.value) || undefined });
                       }
                     }}
-                    placeholder="ex: 1"
+                    placeholder={t('questions.modal.numberPlaceholder')}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-                    Capacité
+                    {t('questions.modal.capability')}
                   </label>
                   <Input
                     value={editingQuestion?.capability || ''}
@@ -1146,7 +1151,7 @@ export default function AdminAssessmentManagementPage() {
                         setEditingQuestion({ ...editingQuestion, capability: e.target.value });
                       }
                     }}
-                    placeholder="ex: communication"
+                    placeholder={t('questions.modal.capabilityPlaceholder')}
                   />
                 </div>
               </>
@@ -1159,11 +1164,11 @@ export default function AdminAssessmentManagementPage() {
                   setEditingQuestion(null);
                 }}
               >
-                Annuler
+                {t('questions.modal.cancel')}
               </Button>
               <Button variant="primary" onClick={handleSaveQuestion} disabled={questionsLoading}>
                 <Save className="w-4 h-4 mr-2" />
-                {questionsLoading ? 'Enregistrement...' : 'Enregistrer'}
+                {questionsLoading ? t('questions.modal.saving') : t('questions.modal.save')}
               </Button>
             </div>
           </div>
@@ -1182,16 +1187,16 @@ export default function AdminAssessmentManagementPage() {
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-                Type de test
+                {t('rules.testType')}
               </label>
               <select
                 value={selectedRuleType}
                 onChange={(e) => setSelectedRuleType(e.target.value)}
                 className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-arise-teal w-full max-w-md"
               >
-                {Object.entries(ASSESSMENT_TYPE_LABELS).map(([value, label]) => (
+                {['MBTI', 'TKI', 'WELLNESS', 'THREE_SIXTY_SELF', 'THREE_SIXTY_EVALUATOR'].map((value) => (
                   <option key={value} value={value}>
-                    {label}
+                    {getAssessmentTypeLabel(value)}
                   </option>
                 ))}
               </select>
@@ -1205,10 +1210,10 @@ export default function AdminAssessmentManagementPage() {
             <div className="text-center py-12">
               <Calculator className="w-16 h-16 text-black mx-auto mb-4" />
               <p className="text-gray-900 dark:text-gray-100 text-lg font-medium mb-2">
-                Règles non disponibles
+                {t('rules.notAvailable')}
               </p>
               <p className="text-gray-900 dark:text-gray-100 text-sm">
-                Les règles de calcul pour ce type de test ne sont pas encore configurées.
+                {t('rules.notAvailableDescription')}
               </p>
             </div>
           ) : (
@@ -1216,18 +1221,18 @@ export default function AdminAssessmentManagementPage() {
               {/* Wellness Rules */}
               {selectedRuleType === 'WELLNESS' && rules.pillars && (
                 <>
-                  <Card className="p-6 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 border-primary-200 dark:border-primary-800 mb-6">
+                  <Card className="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 border-primary-200 dark:border-primary-800 mb-6">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
                       <Calculator className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-                      Configuration générale
+                      {t('rules.wellness.generalConfig')}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-primary-200 dark:border-primary-700">
-                        <p className="text-sm text-gray-900 dark:text-gray-100 mb-1">Score maximum total</p>
+                        <p className="text-sm text-gray-900 dark:text-gray-100 mb-1">{t('rules.wellness.maxTotalScore')}</p>
                         <p className="text-2xl font-bold text-primary-900 dark:text-primary-100">{rules.maxTotalScore}</p>
                       </div>
                       <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-primary-200 dark:border-primary-700">
-                        <p className="text-sm text-gray-900 dark:text-gray-100 mb-1">Échelle de réponse</p>
+                        <p className="text-sm text-gray-900 dark:text-gray-100 mb-1">{t('rules.wellness.responseScale')}</p>
                         <p className="text-2xl font-bold text-primary-900 dark:text-primary-100">
                           {rules.scale.min} - {rules.scale.max}
                         </p>
@@ -1237,7 +1242,7 @@ export default function AdminAssessmentManagementPage() {
                   
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                      Règles par pilier
+                      {t('rules.wellness.pillarRules')}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {rules.pillars.map((pillar: ScoringRule, index: number) => (
@@ -1260,13 +1265,13 @@ export default function AdminAssessmentManagementPage() {
                                 </div>
                                 <div className="flex items-center gap-4 mt-3">
                                   <div className="px-3 py-1.5 bg-success-50 dark:bg-success-900/20 rounded-lg">
-                                    <p className="text-xs text-success-600 dark:text-success-400 mb-0.5">Score max</p>
+                                    <p className="text-xs text-success-600 dark:text-success-400 mb-0.5">{t('rules.wellness.maxScore')}</p>
                                     <p className="text-lg font-bold text-success-700 dark:text-success-300">
                                       {pillar.maxScore}
                                     </p>
                                   </div>
                                   <div className="px-3 py-1.5 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
-                                    <p className="text-xs text-primary-600 dark:text-primary-400 mb-0.5">Questions</p>
+                                    <p className="text-xs text-primary-600 dark:text-primary-400 mb-0.5">{t('rules.wellness.questions')}</p>
                                     <p className="text-lg font-bold text-primary-700 dark:text-primary-300">
                                       {pillar.questions?.length || 0}
                                     </p>
@@ -1285,7 +1290,7 @@ export default function AdminAssessmentManagementPage() {
                             </div>
                             <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                               <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-                                Questions associées:
+                                {t('rules.wellness.associatedQuestions')}
                               </p>
                               {pillar.questions?.length ? (
                                 <div className="flex flex-wrap gap-2">
@@ -1297,7 +1302,7 @@ export default function AdminAssessmentManagementPage() {
                                 </div>
                               ) : (
                                 <span className="text-sm text-gray-900 dark:text-gray-100 italic">
-                                  Aucune question associée
+                                  {t('rules.wellness.noQuestions')}
                                 </span>
                               )}
                             </div>
@@ -1519,18 +1524,18 @@ export default function AdminAssessmentManagementPage() {
   };
 
   return (
-    <Container className="py-4 sm:py-6 md:py-8">
+    <Container className="py-4 sm:py-6 md:py-8" maxWidth="full" center={false}>
       <div className="mb-6 sm:mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
           <div className="flex-1">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-2 sm:gap-3">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2 flex items-center gap-2 sm:gap-3">
               <div className="p-2 bg-arise-teal/10 rounded-lg">
-                <ClipboardList className="w-6 h-6 sm:w-8 sm:h-8 text-arise-teal" />
+                <ClipboardList className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
               </div>
-              Gestion des Évaluations
+              {t('title')}
             </h1>
-            <p className="text-sm sm:text-base text-gray-900 dark:text-gray-100 ml-0 sm:ml-14">
-              Gérez les évaluations, questions et règles de calcul des réponses
+            <p className="text-sm sm:text-base text-white ml-0 sm:ml-14">
+              {t('description')}
             </p>
           </div>
         </div>
@@ -1544,17 +1549,17 @@ export default function AdminAssessmentManagementPage() {
 
       <Tabs defaultTab={activeTab} onChange={(value) => setActiveTab(value as TabType)} className="w-full">
         <TabList className="mb-6 border-b border-gray-200 dark:border-gray-700">
-          <Tab value="assessments" className="flex items-center gap-2">
-            <ClipboardList className="w-4 h-4" />
-            Évaluations
+          <Tab value="assessments" className="flex items-center gap-2 !text-white [&_svg]:!text-white">
+            <ClipboardList className="w-4 h-4 !text-white" style={{ color: '#FFF' }} />
+            {t('tabs.assessments')}
           </Tab>
-          <Tab value="questions" className="flex items-center gap-2">
-            <FileText className="w-4 h-4" />
-            Questions
+          <Tab value="questions" className="flex items-center gap-2 !text-white [&_svg]:!text-white">
+            <FileText className="w-4 h-4 !text-white" style={{ color: '#FFF' }} />
+            {t('tabs.questions')}
           </Tab>
-          <Tab value="rules" className="flex items-center gap-2">
-            <Calculator className="w-4 h-4" />
-            Règles de calcul
+          <Tab value="rules" className="flex items-center gap-2 !text-white [&_svg]:!text-white">
+            <Calculator className="w-4 h-4 !text-white" style={{ color: '#FFF' }} />
+            {t('tabs.rules')}
           </Tab>
         </TabList>
 

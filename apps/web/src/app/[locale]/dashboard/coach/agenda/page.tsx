@@ -226,7 +226,7 @@ export default function AgendaPage() {
         description="Manage your coaching schedule, plan your sessions and track your appointments."
       />
 
-      <Container className="py-8">
+      <Container className="py-8" maxWidth="full" center={false}>
         {/* Stats Cards */}
         <Grid columns={{ mobile: 1, tablet: 2, desktop: 4 }} gap="normal" className="mb-8">
           <Card className="p-6">

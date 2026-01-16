@@ -1993,6 +1993,138 @@
         "uploadFailed": "Erreur lors de l'upload du fichier"
       }
     },
+    "assessmentManagement": {
+      "title": "Gestion des Évaluations",
+      "description": "Gérez les évaluations, questions et règles de calcul des réponses",
+      "tabs": {
+        "assessments": "Évaluations",
+        "questions": "Questions",
+        "rules": "Règles de calcul"
+      },
+      "assessments": {
+        "stats": {
+          "total": "Total des tests",
+          "completed": "Terminés",
+          "inProgress": "En cours",
+          "averageScore": "Score moyen"
+        },
+        "search": {
+          "placeholder": "Search by user email, name or test type...",
+          "allTypes": "Tous les types",
+          "allStatuses": "Tous les statuts",
+          "refresh": "Refresh",
+          "export": "Exporter"
+        },
+        "status": {
+          "completed": "Terminé",
+          "inProgress": "En cours",
+          "notStarted": "Non commencé"
+        },
+        "types": {
+          "MBTI": "MBTI",
+          "TKI": "TKI",
+          "WELLNESS": "Wellness",
+          "THREE_SIXTY_SELF": "360° Feedback (Self)",
+          "THREE_SIXTY_EVALUATOR": "360° Feedback (Evaluator)"
+        },
+        "empty": {
+          "noTests": "No test found",
+          "noMatch": "No test matches the filters",
+          "description": "Les tests apparaîtront ici une fois qu'un endpoint admin sera configuré.",
+          "tryModifying": "Try modifying your search or filter criteria."
+        },
+        "card": {
+          "progress": "Progression",
+          "questions": "questions",
+          "score": "Score",
+          "start": "Start",
+          "completed": "Completed",
+          "details": "Détails"
+        },
+        "errors": {
+          "loadFailed": "Erreur lors du chargement des tests"
+        }
+      },
+      "questions": {
+        "testType": "Type de test",
+        "refresh": "Refresh",
+        "addQuestion": "Ajouter une question",
+        "empty": {
+          "noQuestions": "No question found",
+          "description": "Les questions pour ce type de test ne sont pas encore configurées.",
+          "addFirst": "Ajouter la première question"
+        },
+        "modal": {
+          "edit": "Modifier la question",
+          "add": "Ajouter une question",
+          "questionId": "ID de la question",
+          "questionIdPlaceholder": "ex: wellness_q1",
+          "questionText": "Texte de la question",
+          "questionTextPlaceholder": "Entrez le texte de la question...",
+          "pillar": "Pilier",
+          "pillarPlaceholder": "ex: Movement",
+          "number": "Numéro",
+          "numberPlaceholder": "ex: 1",
+          "optionA": "Option A",
+          "optionAPlaceholder": "Texte de l'option A...",
+          "optionB": "Option B",
+          "optionBPlaceholder": "Texte de l'option B...",
+          "modeA": "Mode A",
+          "modeAPlaceholder": "ex: competing",
+          "modeB": "Mode B",
+          "modeBPlaceholder": "ex: collaborating",
+          "capability": "Capacité",
+          "capabilityPlaceholder": "ex: communication",
+          "cancel": "Annuler",
+          "save": "Enregistrer",
+          "saving": "Enregistrement..."
+        },
+        "errors": {
+          "loadFailed": "Erreur lors du chargement des questions",
+          "saveFailed": "Erreur lors de la sauvegarde de la question",
+          "deleteFailed": "Erreur lors de la suppression de la question"
+        },
+        "deleteConfirm": "Are you sure you want to delete the question \"{questionId}\"?"
+      },
+      "rules": {
+        "testType": "Type de test",
+        "notAvailable": "Règles non disponibles",
+        "notAvailableDescription": "Les règles de calcul pour ce type de test ne sont pas encore configurées.",
+        "wellness": {
+          "generalConfig": "Configuration générale",
+          "maxTotalScore": "Score maximum total",
+          "responseScale": "Échelle de réponse",
+          "pillarRules": "Règles par pilier",
+          "maxScore": "Score max",
+          "questions": "Questions",
+          "associatedQuestions": "Questions associées:",
+          "noQuestions": "Aucune question associée"
+        },
+        "tki": {
+          "config": "Configuration TKI",
+          "totalQuestions": "Total de questions",
+          "questionsPerMode": "Questions par mode",
+          "conflictModes": "Modes de conflit"
+        },
+        "360": {
+          "generalConfig": "Configuration générale",
+          "maxTotalScore": "Score maximum total",
+          "responseScale": "Échelle de réponse",
+          "capabilityRules": "Règles par capacité",
+          "maxScore": "Score max",
+          "questions": "Questions",
+          "associatedQuestions": "Questions associées:",
+          "noQuestions": "Aucune question associée"
+        },
+        "modal": {
+          "edit": "Modifier la règle de calcul",
+          "name": "Nom",
+          "maxScore": "Score maximum",
+          "cancel": "Annuler",
+          "save": "Enregistrer"
+        }
+      }
+    },
     "main": {
       "title": "Administration",
       "description": "Panneau d'administration du système",
@@ -2233,6 +2365,92 @@
           "title": "Retirer le membre",
           "message": "Êtes-vous sûr de vouloir retirer ce membre de l'équipe ?",
           "remove": "Retirer"
+        }
+      }
+    },
+    "admin": {
+      "users": {
+        "title": "Gestion des Utilisateurs",
+        "description": "Gérez tous les utilisateurs de la plateforme",
+        "searchPlaceholder": "Rechercher par email ou nom...",
+        "selectedCount": "{count} utilisateur{count, plural, =1 {} other {s}} sélectionné{count, plural, =1 {} other {s}}",
+        "deselectAll": "Tout désélectionner",
+        "deleteSelected": "Supprimer ({count})",
+        "deleting": "Suppression...",
+        "noUsers": "Aucun utilisateur",
+        "noUserFound": "Aucun utilisateur trouvé",
+        "checking": "Vérification...",
+        "yes": "Oui",
+        "no": "Non",
+        "columns": {
+          "email": "Email",
+          "name": "Nom",
+          "type": "Type",
+          "status": "Statut",
+          "superadmin": "Superadmin",
+          "created": "Créé",
+          "actions": "Actions"
+        },
+        "types": {
+          "admin": "Admin",
+          "coach": "Coach",
+          "business": "Entreprise",
+          "individual": "Individuel",
+          "na": "N/A"
+        },
+        "status": {
+          "active": "Actif",
+          "inactive": "Inactif"
+        },
+        "actions": {
+          "view": "Voir les détails",
+          "edit": "Modifier",
+          "makeSuperAdmin": "Promouvoir superadmin",
+          "delete": "Supprimer"
+        },
+        "pagination": {
+          "showing": "Affichage de {from} à {to} sur {total} utilisateurs",
+          "previous": "Précédent",
+          "next": "Suivant"
+        },
+        "deleteSuccess": "L'utilisateur {email} a été supprimé avec succès.",
+        "bulkDeleteSuccess": "{count} utilisateur{count, plural, =1 { a} other {s ont}} été supprimé{count, plural, =1 {} other {s}} avec succès.",
+        "superAdminSuccess": "L'utilisateur {email} a été promu superadmin avec succès.",
+        "deleteModal": {
+          "title": "Confirmer la suppression",
+          "message": "Êtes-vous sûr de vouloir supprimer l'utilisateur {email} ?",
+          "warning": "Cette action est irréversible. L'utilisateur sera immédiatement retiré de la liste.",
+          "cancel": "Annuler",
+          "delete": "Supprimer",
+          "deleting": "Suppression..."
+        },
+        "bulkDeleteModal": {
+          "title": "Confirmer la suppression en masse",
+          "message": "Êtes-vous sûr de vouloir supprimer {count} utilisateur{count, plural, =1 {} other {s}} ?",
+          "warning": "Cette action est irréversible. Les utilisateurs seront immédiatement retirés de la liste.",
+          "cancel": "Annuler",
+          "delete": "Supprimer {count} utilisateur{count, plural, =1 {} other {s}}",
+          "deleting": "Suppression..."
+        },
+        "superAdminModal": {
+          "title": "Promouvoir superadmin",
+          "message": "Êtes-vous sûr de vouloir promouvoir {email} en superadmin ?",
+          "cancel": "Annuler",
+          "confirm": "Promouvoir superadmin",
+          "promoting": "Promotion...",
+          "privileges": {
+            "title": "Privilèges superadmin :",
+            "feature1": "Accès à toutes les fonctionnalités administratives",
+            "feature2": "Gestion de la configuration des thèmes et du système",
+            "feature3": "Gestion des rôles et des permissions",
+            "feature4": "Accès aux journaux et statistiques avancées"
+          }
+        },
+        "errors": {
+          "loadFailed": "Erreur lors du chargement des utilisateurs",
+          "deleteFailed": "Erreur lors de la suppression de l'utilisateur",
+          "bulkDeleteFailed": "Erreur lors de la suppression des utilisateurs",
+          "superAdminFailed": "Erreur lors de la promotion en superadmin"
         }
       }
     }
