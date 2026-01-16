@@ -1458,6 +1458,40 @@ async def reset_password(
     
     logger.info(f"🔐 Password reset request received - IP: {client_ip}")
     
+    # Validate request data
+    try:
+        logger.info(f"🔐 Request data validation:")
+        logger.info(f"   - Token present: {bool(reset_data.token)}")
+        logger.info(f"   - Token length: {len(reset_data.token) if reset_data.token else 0}")
+        logger.info(f"   - Password present: {bool(reset_data.new_password)}")
+        logger.info(f"   - Password length: {len(reset_data.new_password) if reset_data.new_password else 0}")
+        
+        if not reset_data.token:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Reset token is required"
+            )
+        
+        if not reset_data.new_password:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="New password is required"
+            )
+        
+        if len(reset_data.new_password) < 8:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Password must be at least 8 characters long"
+            )
+    except HTTPException:
+        raise
+    except Exception as validation_error:
+        logger.error(f"❌ Request validation error: {type(validation_error).__name__}: {str(validation_error)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid request data: {str(validation_error)}"
+        )
+    
     try:
         logger.info(f"🔐 Password reset attempt - Token length: {len(reset_data.token)}, Password length: {len(reset_data.new_password)}")
         
@@ -1541,16 +1575,52 @@ async def reset_password(
         # Update password
         try:
             logger.info(f"🔐 Hashing new password for user: {user.email}")
-            user.hashed_password = get_password_hash(reset_data.new_password)
-            logger.info(f"✅ Password hashed successfully")
+            logger.info(f"🔐 Password to hash length: {len(reset_data.new_password)} characters")
             
-            logger.info(f"💾 Committing password update to database...")
-            await db.commit()
-            await db.refresh(user)
-            logger.info(f"✅ Password updated successfully in database")
+            # Hash the password
+            try:
+                hashed_password = get_password_hash(reset_data.new_password)
+                logger.info(f"✅ Password hashed successfully (length: {len(hashed_password)} characters)")
+            except Exception as hash_error:
+                logger.error(f"❌ Error hashing password: {type(hash_error).__name__}: {str(hash_error)}", exc_info=True)
+                raise
+            
+            # Update user password
+            try:
+                user.hashed_password = hashed_password
+                logger.info(f"✅ Password assigned to user object")
+            except Exception as assign_error:
+                logger.error(f"❌ Error assigning password to user: {type(assign_error).__name__}: {str(assign_error)}", exc_info=True)
+                raise
+            
+            # Commit to database
+            try:
+                logger.info(f"💾 Committing password update to database...")
+                await db.commit()
+                logger.info(f"✅ Database commit successful")
+            except Exception as commit_error:
+                logger.error(f"❌ Error committing to database: {type(commit_error).__name__}: {str(commit_error)}", exc_info=True)
+                await db.rollback()
+                raise
+            
+            # Refresh user from database
+            try:
+                await db.refresh(user)
+                logger.info(f"✅ User refreshed from database")
+            except Exception as refresh_error:
+                logger.warning(f"⚠️ Error refreshing user (non-critical): {type(refresh_error).__name__}: {str(refresh_error)}")
+                # Don't fail if refresh fails, password is already updated
+            
+            logger.info(f"✅ Password updated successfully in database for user: {user.email}")
         except Exception as e:
-            logger.error(f"❌ Error updating password: {type(e).__name__}: {str(e)}", exc_info=True)
-            await db.rollback()
+            error_type = type(e).__name__
+            error_msg = str(e)
+            logger.error(f"❌ Error updating password: {error_type}: {error_msg}", exc_info=True)
+            print(f"❌ CRITICAL: Password update failed - Type: {error_type}, Message: {error_msg}", flush=True)
+            try:
+                await db.rollback()
+            except Exception:
+                pass
             raise
         
         # Log successful password reset
