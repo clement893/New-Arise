@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { Card, Button, Container, Alert, Modal, Checkbox } from '@/components/ui';
 import Input from '@/components/ui/Input';
@@ -47,6 +47,36 @@ export default function AdminUsersPage() {
     is_active: true,
   });
   const pageSize = 20;
+  const topScrollRef = useRef<HTMLDivElement>(null);
+  const bottomScrollRef = useRef<HTMLDivElement>(null);
+
+  // Synchronize scroll between top and bottom scrollbars
+  useEffect(() => {
+    const topScroll = topScrollRef.current;
+    const bottomScroll = bottomScrollRef.current;
+
+    if (!topScroll || !bottomScroll) return;
+
+    const handleTopScroll = () => {
+      if (bottomScroll.scrollLeft !== topScroll.scrollLeft) {
+        bottomScroll.scrollLeft = topScroll.scrollLeft;
+      }
+    };
+
+    const handleBottomScroll = () => {
+      if (topScroll.scrollLeft !== bottomScroll.scrollLeft) {
+        topScroll.scrollLeft = bottomScroll.scrollLeft;
+      }
+    };
+
+    topScroll.addEventListener('scroll', handleTopScroll);
+    bottomScroll.addEventListener('scroll', handleBottomScroll);
+
+    return () => {
+      topScroll.removeEventListener('scroll', handleTopScroll);
+      bottomScroll.removeEventListener('scroll', handleBottomScroll);
+    };
+  }, []);
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -390,7 +420,17 @@ export default function AdminUsersPage() {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto">
+            {/* Top scrollbar */}
+            <div 
+              ref={topScrollRef}
+              className="overflow-x-auto overflow-y-hidden h-4 mb-2"
+              style={{ scrollbarWidth: 'thin' }}
+            >
+              <div className="min-w-[1200px] h-1"></div>
+            </div>
+            
+            {/* Table container */}
+            <div ref={bottomScrollRef} className="overflow-x-auto">
               <table className="w-full border-collapse min-w-[1200px]">
                 <colgroup>
                   <col className="w-10" />
