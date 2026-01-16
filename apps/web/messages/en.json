@@ -408,7 +408,8 @@
             "hydration": "Hydration",
             "movement": "Movement",
             "stressManagement": "Stress Management",
-            "socialConnection": "Social Connection"
+            "socialConnection": "Social Connection",
+            "avoidanceOfRiskySubstances": "Avoidance of Risky Substances"
           },
           "profile": {
             "title": "Your Wellness Profile"
@@ -1200,6 +1201,12 @@
           "author": "Author",
           "by": "By"
         },
+        "durations": {
+          "conflictManagementStyles": "10 min read",
+          "emotionalIntelligence": "25 min",
+          "effectiveCommunication": "2 hours",
+          "teamBuilding": "3 hours"
+        },
         "actions": {
           "startVideo": "Start Video",
           "startCourse": "Start Course",
@@ -1439,6 +1446,52 @@
       "empty": "No activity found",
       "errors": {
         "loadFailed": "Failed to load activity log. Please try again."
+      }
+    },
+    "subscription": {
+      "title": "Manage My Subscription",
+      "description": "Update payment methods, view invoices, and manage your subscription settings",
+      "manageButton": "Manage Subscription",
+      "loading": "Loading...",
+      "loadingInfo": "Loading subscription information...",
+      "loadingPlans": "Loading plans...",
+      "status": {
+        "active": "Active",
+        "cancelled": "Cancelled",
+        "expired": "Expired",
+        "trial": "Trial"
+      },
+      "period": {
+        "month": "month",
+        "year": "year"
+      },
+      "currentPeriod": "Current Period",
+      "nextPayment": "Next Payment",
+      "cancelWarning": "Your subscription will be canceled on {date}.",
+      "cancelButton": "Cancel Subscription",
+      "resumeButton": "Resume Subscription",
+      "changePlanButton": "Change Plan",
+      "cancelConfirm": "Are you sure you want to cancel your subscription? It will remain active until the end of the current period.",
+      "cancelSuccess": "Your subscription has been cancelled. It will remain active until the end of the current billing period.",
+      "updateSuccess": "Your subscription has been updated successfully.",
+      "noSubscription": {
+        "title": "No Active Subscription",
+        "description": "You don't have an active subscription. Subscribe to a plan to get started."
+      },
+      "availablePlans": {
+        "title": "Available Plans",
+        "description": "Select a plan that fits your needs"
+      },
+      "noPlans": "No plans available at the moment",
+      "viewPlans": "View Plans",
+      "errors": {
+        "loadFailed": "Error loading subscription",
+        "createPortalFailed": "Failed to create portal session. Please try again.",
+        "manageFailed": "Unable to manage subscription. Please contact support or subscribe to a plan first.",
+        "openManagementFailed": "Error opening subscription management",
+        "cancelFailed": "Error canceling subscription",
+        "resumeFailed": "Error resuming subscription",
+        "subscribeFailed": "Error subscribing to plan"
       }
     }
   },

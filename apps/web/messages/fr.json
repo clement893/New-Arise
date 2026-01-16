@@ -342,7 +342,8 @@
             "hydration": "Hydratation",
             "movement": "Mouvement",
             "stressManagement": "Gestion du stress",
-            "socialConnection": "Connexion sociale"
+            "socialConnection": "Connexion sociale",
+            "avoidanceOfRiskySubstances": "Évitement des substances à risque"
           },
           "profile": {
             "title": "Votre profil de bien-être"
@@ -1025,6 +1026,12 @@
           "author": "Auteur",
           "by": "Par"
         },
+        "durations": {
+          "conflictManagementStyles": "10 min de lecture",
+          "emotionalIntelligence": "25 min",
+          "effectiveCommunication": "2 heures",
+          "teamBuilding": "3 heures"
+        },
         "actions": {
           "startVideo": "Commencer la vidéo",
           "startCourse": "Commencer le cours",
@@ -1608,6 +1615,52 @@
       },
       "section": {
         "title": "Activité récente"
+      }
+    },
+    "subscription": {
+      "title": "Gérer mon abonnement",
+      "description": "Mettre à jour les méthodes de paiement, consulter les factures et gérer les paramètres de votre abonnement",
+      "manageButton": "Gérer l'abonnement",
+      "loading": "Chargement...",
+      "loadingInfo": "Chargement des informations d'abonnement...",
+      "loadingPlans": "Chargement des plans...",
+      "status": {
+        "active": "Actif",
+        "cancelled": "Annulé",
+        "expired": "Expiré",
+        "trial": "Essai"
+      },
+      "period": {
+        "month": "mois",
+        "year": "année"
+      },
+      "currentPeriod": "Période actuelle",
+      "nextPayment": "Prochain paiement",
+      "cancelWarning": "Votre abonnement sera annulé le {date}.",
+      "cancelButton": "Annuler l'abonnement",
+      "resumeButton": "Reprendre l'abonnement",
+      "changePlanButton": "Changer de plan",
+      "cancelConfirm": "Êtes-vous sûr de vouloir annuler votre abonnement ? Il restera actif jusqu'à la fin de la période actuelle.",
+      "cancelSuccess": "Votre abonnement a été annulé. Il restera actif jusqu'à la fin de la période de facturation actuelle.",
+      "updateSuccess": "Votre abonnement a été mis à jour avec succès.",
+      "noSubscription": {
+        "title": "Aucun abonnement actif",
+        "description": "Vous n'avez pas d'abonnement actif. Abonnez-vous à un plan pour commencer."
+      },
+      "availablePlans": {
+        "title": "Plans disponibles",
+        "description": "Sélectionnez un plan qui correspond à vos besoins"
+      },
+      "noPlans": "Aucun plan disponible pour le moment",
+      "viewPlans": "Voir les plans",
+      "errors": {
+        "loadFailed": "Erreur lors du chargement de l'abonnement",
+        "createPortalFailed": "Échec de la création de la session du portail. Veuillez réessayer.",
+        "manageFailed": "Impossible de gérer l'abonnement. Veuillez contacter le support ou vous abonner à un plan d'abord.",
+        "openManagementFailed": "Erreur lors de l'ouverture de la gestion d'abonnement",
+        "cancelFailed": "Erreur lors de l'annulation de l'abonnement",
+        "resumeFailed": "Erreur lors de la reprise de l'abonnement",
+        "subscribeFailed": "Erreur lors de l'abonnement au plan"
       }
     }
   },
