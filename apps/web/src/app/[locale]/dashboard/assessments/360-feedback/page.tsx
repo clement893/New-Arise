@@ -223,9 +223,10 @@ export default function Feedback360Page() {
 
             <div className="flex gap-4">
               <Button
-                variant="outline"
+                variant="primary"
                 onClick={() => router.push('/dashboard/assessments')}
                 className="flex-1 flex items-center gap-4"
+                style={{ backgroundColor: '#0F4C56', color: '#fff' }}
               >
                 Back to Assessments
               </Button>

@@ -4,8 +4,8 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 import { useState, useEffect } from 'react';
-import { useRouter } from '@/i18n/routing';
-import Link from 'next/link';
+import { useTranslations, useLocale } from 'next-intl';
+import { useRouter, Link } from '@/i18n/routing';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import { Card, Loading } from '@/components/ui';
 import Button from '@/components/ui/Button';
@@ -42,6 +42,8 @@ interface DashboardStats {
 }
 
 function ResultsReportsContent() {
+  const t = useTranslations('dashboard.reports');
+  const locale = useLocale();
   const router = useRouter();
   const [assessments, setAssessments] = useState<AssessmentDisplay[]>([]);
   const [keyInsights, setKeyInsights] = useState<KeyInsight[]>([]);
@@ -128,7 +130,7 @@ function ResultsReportsContent() {
       const transformedAssessments: AssessmentDisplay[] = await Promise.all(
         sortedAssessments.map(async (assessment: ApiAssessment) => {
           const completedDate = assessment.completed_at 
-            ? new Date(assessment.completed_at).toLocaleDateString('en-US')
+            ? new Date(assessment.completed_at).toLocaleDateString(locale)
             : 'N/A';
           
           // Try to load detailed result for insights
@@ -144,7 +146,7 @@ function ResultsReportsContent() {
           
           // Extract score/result from score_summary or detailed result
           let score = 'N/A';
-          let result = 'Completed';
+          let result = t('assessments.completed');
           
           if (detailedResult?.scores) {
             const scores = detailedResult.scores;
@@ -157,16 +159,24 @@ function ResultsReportsContent() {
               if (modeEntries.length > 0) {
                 const dominant = modeEntries.sort(([, a], [, b]) => (b as number) - (a as number))[0];
                 if (dominant) {
-                  result = dominant[0];
+                  const modeId = dominant[0].toLowerCase();
+                  try {
+                    result = t(`insights.tkiModes.${modeId}`);
+                    if (result === `insights.tkiModes.${modeId}`) {
+                      result = dominant[0]; // Fallback if translation not found
+                    }
+                  } catch (e) {
+                    result = dominant[0]; // Fallback if translation fails
+                  }
                   score = '100%';
                 }
               }
             } else if (assessment.assessment_type === 'WELLNESS' && scores.percentage) {
               score = `${Math.round(scores.percentage)}%`;
-              result = 'Wellness Score';
+              result = t('assessments.types.WELLNESS');
             } else if (assessment.assessment_type === 'THREE_SIXTY_SELF' && scores.percentage) {
               score = `${Math.round(scores.percentage)}%`;
-              result = '360° Feedback';
+              result = t('assessments.types.THREE_SIXTY_SELF');
             } else if (scores.percentage !== undefined) {
               score = `${Math.round(scores.percentage)}%`;
             }
@@ -176,14 +186,22 @@ function ResultsReportsContent() {
               result = summary.profile;
               score = '100%';
             } else if (assessment.assessment_type === 'TKI' && summary.dominant_mode) {
-              result = summary.dominant_mode;
+              const modeId = (summary.dominant_mode as string).toLowerCase();
+              try {
+                result = t(`insights.tkiModes.${modeId}`);
+                if (result === `insights.tkiModes.${modeId}`) {
+                  result = summary.dominant_mode as string; // Fallback if translation not found
+                }
+              } catch (e) {
+                result = summary.dominant_mode as string; // Fallback if translation fails
+              }
               score = '100%';
             } else if (assessment.assessment_type === 'WELLNESS' && summary.percentage) {
               score = `${Math.round(summary.percentage)}%`;
-              result = 'Wellness Score';
+              result = t('assessments.types.WELLNESS');
             } else if (assessment.assessment_type === 'THREE_SIXTY_SELF' && summary.total_score) {
               score = `${Math.round(summary.total_score)}%`;
-              result = '360° Feedback';
+              result = t('assessments.types.THREE_SIXTY_SELF');
             } else if (summary.percentage) {
               score = `${Math.round(summary.percentage)}%`;
             }
@@ -214,7 +232,7 @@ function ResultsReportsContent() {
       loadAdditionalStats(completedAssessments, transformedAssessments, latestAssessment);
     } catch (err: any) {
       console.error('Failed to load assessments:', err);
-      const errorMessage = err?.response?.data?.detail || err?.message || 'Failed to load assessment results';
+      const errorMessage = err?.response?.data?.detail || err?.message || t('errors.loadFailed');
       setError(errorMessage);
       // Fallback to empty array
       setAssessments([]);
@@ -283,13 +301,13 @@ function ResultsReportsContent() {
     if (mbti && mbti.detailedResult?.scores?.mbti_type) {
       const mbtiType = mbti.detailedResult.scores.mbti_type;
       const description = mbti.detailedResult.insights?.personality_type 
-        || `Your personality type is ${mbtiType}, which indicates a strategic approach to leadership and decision-making.`;
+        || t('insights.descriptions.mbtiDefault', { type: mbtiType });
       
       insights.push({
         id: insightId++,
-        title: 'Leadership Style',
+        title: t('insights.titles.leadershipStyle'),
         description,
-        category: 'Personality',
+        category: t('insights.categories.Personality'),
       });
     }
 
@@ -302,21 +320,31 @@ function ResultsReportsContent() {
         const sorted = modeEntries.sort(([, a], [, b]) => (b as number) - (a as number));
         const dominantEntry = sorted[0];
         if (dominantEntry) {
-          const dominantMode = dominantEntry[0];
-          const modeNames: Record<string, string> = {
-            competing: 'Competing',
-            collaborating: 'Collaborating',
-            compromising: 'Compromising',
-            avoiding: 'Avoiding',
-            accommodating: 'Accommodating',
-          };
-          const modeName = modeNames[dominantMode.toLowerCase()] || dominantMode;
+          const dominantMode = dominantEntry[0].toLowerCase();
+          let modeName: string;
+          try {
+            modeName = t(`insights.tkiModes.${dominantMode}`);
+            if (modeName === `insights.tkiModes.${dominantMode}`) {
+              modeName = dominantMode; // Fallback if translation not found
+            }
+          } catch (e) {
+            modeName = dominantMode; // Fallback if translation fails
+          }
+          
+          let description: string;
+          if (dominantMode === 'competing') {
+            description = t('insights.descriptions.tkiCompeting', { mode: modeName });
+          } else if (dominantMode === 'collaborating') {
+            description = t('insights.descriptions.tkiCollaborating', { mode: modeName });
+          } else {
+            description = t('insights.descriptions.tkiOther', { mode: modeName });
+          }
           
           insights.push({
             id: insightId++,
-            title: 'Conflict Resolution',
-            description: `Your dominant conflict style is ${modeName}, which is highly effective for ${dominantMode === 'collaborating' ? 'team environments and complex problem-solving' : dominantMode === 'competing' ? 'decisive situations requiring quick action' : 'finding balanced solutions'}.`,
-            category: 'TKI',
+            title: t('insights.titles.conflictResolution'),
+            description,
+            category: t('insights.categories.TKI'),
           });
         }
       }
@@ -336,22 +364,22 @@ function ResultsReportsContent() {
           });
           const strongestEntry = sorted[0];
           if (strongestEntry) {
-            const strongest = strongestEntry[0];
+            const strongest = strongestEntry[0].replace(/_/g, ' ');
             
             insights.push({
               id: insightId++,
-              title: 'Team Perception',
-              description: `Your 360° feedback shows strong ${strongest.replace(/_/g, ' ')} capabilities, with clear vision and effective communication skills recognized by your colleagues.`,
-              category: '360 Feedback',
+              title: t('insights.titles.teamPerception'),
+              description: t('insights.descriptions.threeSixtyCapabilities', { capability: strongest }),
+              category: t('insights.categories.360 Feedback'),
             });
           }
         }
       } else if (scores.percentage) {
         insights.push({
           id: insightId++,
-          title: 'Team Perception',
-          description: `Your 360° feedback score is ${Math.round(scores.percentage)}%, indicating strong leadership capabilities recognized by your team.`,
-          category: '360 Feedback',
+          title: t('insights.titles.teamPerception'),
+          description: t('insights.descriptions.threeSixtyScore', { score: Math.round(scores.percentage) }),
+          category: t('insights.categories.360 Feedback'),
         });
       }
     }
@@ -371,23 +399,41 @@ function ResultsReportsContent() {
           const strongestEntry = sorted[0];
           const weakestEntry = sorted[sorted.length - 1];
           if (strongestEntry && weakestEntry) {
-            const strongest = strongestEntry[0];
-            const weakest = weakestEntry[0];
+            // Translate pillar names
+            const translatePillar = (pillarId: string): string => {
+              // Convert underscore format to camelCase (e.g., stress_management -> stressManagement)
+              const toCamelCase = (str: string): string => {
+                return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+              };
+              const pillarKey = toCamelCase(pillarId);
+              try {
+                const translated = t(`dashboard.assessments.wellness.results.pillars.${pillarKey}`);
+                if (translated && translated !== `dashboard.assessments.wellness.results.pillars.${pillarKey}`) {
+                  return translated;
+                }
+              } catch (e) {
+                // Fallback
+              }
+              return pillarId.replace(/_/g, ' ');
+            };
+            
+            const strongest = translatePillar(strongestEntry[0]);
+            const weakest = translatePillar(weakestEntry[0]);
             
             insights.push({
               id: insightId++,
-              title: 'Wellness Focus',
-              description: `Your wellness score is ${wellness.score}. Your strongest pillar is ${strongest.replace(/_/g, ' ')}, while ${weakest.replace(/_/g, ' ')} could benefit from more attention for optimal performance.`,
-              category: 'Wellness',
+              title: t('insights.titles.wellnessFocus'),
+              description: t('insights.descriptions.wellnessPillars', { score: wellness.score, strongest, weakest }),
+              category: t('insights.categories.Wellness'),
             });
           }
         }
       } else if (scores.percentage) {
         insights.push({
           id: insightId++,
-          title: 'Wellness Focus',
-          description: `Your wellness score is ${wellness.score}. Consider improving stress management and sleep quality for better overall performance.`,
-          category: 'Wellness',
+          title: t('insights.titles.wellnessFocus'),
+          description: t('insights.descriptions.wellnessDefault', { score: wellness.score }),
+          category: t('insights.categories.Wellness'),
         });
       }
     }
@@ -397,9 +443,9 @@ function ResultsReportsContent() {
       const defaultInsights = [
         {
           id: insightId++,
-          title: 'Continue Your Journey',
-          description: 'Complete additional assessments to unlock more personalized insights and recommendations.',
-          category: 'General',
+          title: t('insights.titles.continueJourney'),
+          description: t('insights.descriptions.continueJourney'),
+          category: t('insights.categories.General'),
         },
       ];
       insights.push(...defaultInsights.slice(0, 4 - insights.length));
@@ -410,10 +456,10 @@ function ResultsReportsContent() {
 
   const getAssessmentName = (type: AssessmentType): string => {
     const names: Record<AssessmentType, string> = {
-      MBTI: 'MBTI Personality',
-      TKI: 'TKI Conflict Style',
-      WELLNESS: 'Wellness Assessment',
-      THREE_SIXTY_SELF: '360° Feedback',
+      MBTI: t('assessments.types.MBTI'),
+      TKI: t('assessments.types.TKI'),
+      WELLNESS: t('assessments.types.WELLNESS'),
+      THREE_SIXTY_SELF: t('assessments.types.THREE_SIXTY_SELF'),
     };
     return names[type] || type;
   };
@@ -437,7 +483,7 @@ function ResultsReportsContent() {
   const handleExportAll = async () => {
     try {
       if (assessments.length === 0) {
-        alert('No assessments to export.');
+        alert(t('errors.noAssessmentsToExport'));
         return;
       }
 
@@ -451,7 +497,7 @@ function ResultsReportsContent() {
       downloadBlob(zipBlob, `ARISE_Assessments_${timestamp}.zip`);
     } catch (err) {
       console.error('Failed to export assessments:', err);
-      alert('Failed to export assessments. Please try again.');
+      alert(t('errors.exportFailed'));
     } finally {
       setIsGeneratingPDF(false);
     }
@@ -460,7 +506,7 @@ function ResultsReportsContent() {
   const handleDownloadProfile = async () => {
     try {
       if (assessments.length === 0) {
-        alert('No assessments available to generate profile.');
+        alert(t('errors.noAssessmentsForProfile'));
         return;
       }
 
@@ -474,7 +520,7 @@ function ResultsReportsContent() {
       downloadBlob(pdfBlob, `ARISE_Complete_Leadership_Profile_${timestamp}.pdf`);
     } catch (err) {
       console.error('Failed to download profile:', err);
-      alert('Failed to download profile. Please try again.');
+      alert(t('errors.downloadProfileFailed'));
     } finally {
       setIsGeneratingPDF(false);
     }
@@ -492,7 +538,7 @@ function ResultsReportsContent() {
       downloadBlob(pdfBlob, fileName);
     } catch (err) {
       console.error('Failed to download assessment:', err);
-      alert('Failed to download assessment. Please try again.');
+      alert(t('errors.downloadAssessmentFailed'));
     } finally {
       setIsGeneratingPDF(false);
     }
@@ -500,7 +546,7 @@ function ResultsReportsContent() {
 
   const handleDeleteAllAssessments = async () => {
     if (!isSuperAdmin) {
-      setError('Only super admins can delete all their assessments.');
+      setError(t('errors.onlySuperAdmin'));
       return;
     }
 
@@ -514,10 +560,10 @@ function ResultsReportsContent() {
       await loadAssessments();
       
       setShowDeleteConfirm(false);
-      alert(`All your assessments have been successfully deleted. (${result.deleted_count} assessments deleted)`);
+      alert(t('errors.deleteSuccess', { count: result.deleted_count }));
     } catch (err: any) {
       console.error('Failed to delete all assessments:', err);
-      const errorMessage = err?.response?.data?.detail || err?.message || 'Failed to delete assessments';
+      const errorMessage = err?.response?.data?.detail || err?.message || t('errors.deleteFailed');
       setError(errorMessage);
       setShowDeleteConfirm(false);
     } finally {
@@ -532,10 +578,10 @@ function ResultsReportsContent() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold text-white mb-2 text-left">
-              Results & <span style={{ color: '#D8B868' }}>Reports</span>
+              {t('header.title')} <span style={{ color: '#D8B868' }}>{t('header.titleHighlight')}</span>
             </h1>
             <p className="text-white text-left">
-              View your assessment results and comprehensive leadership profile
+              {t('header.description')}
             </p>
           </div>
           {isSuperAdmin && assessments.length > 0 && (
@@ -545,7 +591,7 @@ function ResultsReportsContent() {
               className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white"
             >
               <Trash2 size={16} />
-              Reset All Assessments
+              {t('resetButton')}
             </Button>
           )}
         </div>
@@ -560,18 +606,15 @@ function ResultsReportsContent() {
                 <AlertTriangle className="text-red-600" size={24} />
               </div>
               <h2 className="text-2xl font-bold text-gray-900">
-                Confirmer la suppression
+                {t('deleteModal.title')}
               </h2>
             </div>
-            <p className="text-gray-700 mb-6">
-              Are you sure you want to delete <strong>ALL</strong> your assessments? 
-              This action is <strong>irreversible</strong> and will permanently delete:
-            </p>
+            <p className="text-gray-700 mb-6" dangerouslySetInnerHTML={{ __html: t('deleteModal.message') }} />
             <ul className="list-disc list-inside text-gray-700 mb-6 space-y-1 ml-4">
-              <li>All your assessments ({assessments.length} assessments)</li>
-              <li>All your responses</li>
-              <li>All your results</li>
-              <li>All associated 360° evaluators</li>
+              <li>{t('deleteModal.items.assessments', { count: assessments.length })}</li>
+              <li>{t('deleteModal.items.responses')}</li>
+              <li>{t('deleteModal.items.results')}</li>
+              <li>{t('deleteModal.items.evaluators')}</li>
             </ul>
             <div className="flex gap-3">
               <Button
@@ -580,7 +623,7 @@ function ResultsReportsContent() {
                 disabled={isDeleting}
                 className="flex-1"
               >
-                Annuler
+                {t('deleteModal.cancel')}
               </Button>
               <Button
                 variant="danger"
@@ -588,7 +631,7 @@ function ResultsReportsContent() {
                 disabled={isDeleting}
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white"
               >
-                {isDeleting ? 'Suppression...' : 'Confirmer la suppression'}
+                {isDeleting ? t('deleteModal.deleting') : t('deleteModal.confirm')}
               </Button>
             </div>
           </Card>
@@ -601,7 +644,7 @@ function ResultsReportsContent() {
           <div className="flex items-start gap-3">
             <AlertTriangle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
             <div className="flex-1">
-              <p className="font-medium text-red-900 mb-1">Erreur</p>
+              <p className="font-medium text-red-900 mb-1">{t('errors.title')}</p>
               <p className="text-sm text-red-700">{error}</p>
             </div>
             <button
@@ -641,7 +684,7 @@ function ResultsReportsContent() {
                 <FileText className="text-arise-deep-teal" size={24} />
               </div>
               <p className="text-3xl font-bold text-arise-deep-teal mb-1">{stats.completedAssessments}</p>
-              <p className="text-gray-700 text-sm">Assessments Completed</p>
+              <p className="text-gray-700 text-sm">{t('stats.assessmentsCompleted')}</p>
             </Card>
 
             <Card className="text-center bg-white">
@@ -649,7 +692,7 @@ function ResultsReportsContent() {
                 <TrendingUp className="text-arise-gold" size={24} />
               </div>
               <p className="text-3xl font-bold text-arise-gold mb-1">{stats.averageScore}%</p>
-              <p className="text-gray-700 text-sm">Average Score</p>
+              <p className="text-gray-700 text-sm">{t('stats.averageScore')}</p>
             </Card>
 
             <Card className="text-center bg-white">
@@ -657,7 +700,7 @@ function ResultsReportsContent() {
                 <Target className="text-primary-500" size={24} />
               </div>
               <p className="text-3xl font-bold text-primary-500 mb-1">{stats.developmentGoals}</p>
-              <p className="text-gray-700 text-sm">Development Goals</p>
+              <p className="text-gray-700 text-sm">{t('stats.developmentGoals')}</p>
             </Card>
 
             <Card className="text-center bg-white relative group hover:shadow-lg transition-shadow">
@@ -665,7 +708,7 @@ function ResultsReportsContent() {
                 <Users className="text-success-500" size={24} />
               </div>
               <p className="text-3xl font-bold text-success-500 mb-1">{stats.evaluatorsCount}</p>
-              <p className="text-gray-700 text-sm mb-3">360° Evaluators</p>
+              <p className="text-gray-700 text-sm mb-3">{t('stats.evaluators360')}</p>
               {stats.evaluatorsCount > 0 && (
                 <Link href="/dashboard/evaluators">
                   <Button
@@ -674,7 +717,7 @@ function ResultsReportsContent() {
                     className="w-full mt-2 text-xs flex flex-row items-center gap-2"
                   >
                     <Eye size={14} />
-                    View Evaluators
+                    {t('stats.viewEvaluators')}
                   </Button>
                 </Link>
               )}
@@ -690,10 +733,10 @@ function ResultsReportsContent() {
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-white">
-                    Your Assessment Results
+                    {t('assessments.title')}
                   </h2>
                   <p className="text-white/90">
-                    Comprehensive overview of your completed assessments
+                    {t('assessments.description')}
                   </p>
                 </div>
               </div>
@@ -704,7 +747,7 @@ function ResultsReportsContent() {
                 disabled={isGeneratingPDF || assessments.length === 0}
               >
                 <Download size={16} />
-                {isGeneratingPDF ? 'Generating...' : 'Export All'}
+                {isGeneratingPDF ? t('assessments.generating') : t('assessments.exportAll')}
               </Button>
             </div>
 
@@ -718,7 +761,7 @@ function ResultsReportsContent() {
               </div>
             ) : assessments.length === 0 ? (
               <div className="text-center py-12">
-                <p style={{ color: '#FFFFFF' }}>No completed assessments yet.</p>
+                <p style={{ color: '#FFFFFF' }}>{t('assessments.noAssessments')}</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -734,9 +777,9 @@ function ResultsReportsContent() {
                             {assessment.name}
                           </h3>
                           <div className="flex items-center gap-4 text-sm text-gray-700">
-                            <span>Completed: {assessment.completedDate}</span>
+                            <span>{t('assessments.completed')} {assessment.completedDate}</span>
                             <span>•</span>
-                            <span>Score: {assessment.score}</span>
+                            <span>{t('assessments.score')} {assessment.score}</span>
                             <span>•</span>
                             <span className="font-semibold text-arise-deep-teal">{assessment.result}</span>
                           </div>
@@ -748,13 +791,13 @@ function ResultsReportsContent() {
                           size="sm"
                           onClick={() => handleViewDetails(assessment)}
                         >
-                          View Details
+                          {t('assessments.viewDetails')}
                         </Button>
                         <Button 
                           variant="ghost" 
                           size="sm"
                           onClick={() => handleDownloadAssessment(assessment)}
-                          title={`Download ${assessment.name} report`}
+                          title={t('assessments.downloadReport')}
                         >
                           <Download size={16} />
                         </Button>
@@ -774,10 +817,10 @@ function ResultsReportsContent() {
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">
-                  Key Insights
+                  {t('insights.title')}
                 </h2>
                 <p className="text-gray-700">
-                  Important findings from your assessments
+                  {t('insights.description')}
                 </p>
               </div>
             </div>
@@ -806,7 +849,7 @@ function ResultsReportsContent() {
               ))
               ) : (
                 <div className="col-span-2 text-center sm:py-8 py-2 text-gray-500">
-                  <p>Complete assessments to see your key insights</p>
+                  <p>{t('insights.noInsights')}</p>
                 </div>
               )}
             </div>
@@ -820,10 +863,10 @@ function ResultsReportsContent() {
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">
-                  Your Comprehensive Leadership Profile
+                  {t('profile.title')}
                 </h2>
                 <p className="text-gray-700">
-                  All four assessments integrate seamlessly to create your comprehensive leadership profile
+                  {t('profile.description')}
                 </p>
               </div>
             </div>
@@ -836,10 +879,10 @@ function ResultsReportsContent() {
                     <div className="w-8 h-8 bg-purple-500/10 rounded flex items-center justify-center">
                       <span className="text-purple-500 font-bold text-sm">M</span>
                     </div>
-                    MBTI Personality
+                    {t('profile.mbti.title')}
                   </h3>
                   <p className="text-gray-700 text-sm">
-                    Understanding your natural preferences and how you interact with the world
+                    {t('profile.mbti.description')}
                   </p>
                 </div>
 
@@ -849,10 +892,10 @@ function ResultsReportsContent() {
                     <div className="w-8 h-8 bg-primary-500/10 rounded flex items-center justify-center">
                       <span className="text-primary-500 font-bold text-sm">T</span>
                     </div>
-                    TKI Conflict Management
+                    {t('profile.tki.title')}
                   </h3>
                   <p className="text-gray-700 text-sm">
-                    Explore your conflict management approach and how you handle disagreements
+                    {t('profile.tki.description')}
                   </p>
                 </div>
 
@@ -862,10 +905,10 @@ function ResultsReportsContent() {
                     <div className="w-8 h-8 bg-success-500/10 rounded flex items-center justify-center">
                       <span className="text-success-500 font-bold text-sm">360</span>
                     </div>
-                    360° Feedback
+                    {t('profile.threeSixty.title')}
                   </h3>
                   <p className="text-gray-700 text-sm">
-                    Multi-faceted leadership perspectives from colleagues and team members
+                    {t('profile.threeSixty.description')}
                   </p>
                 </div>
 
@@ -875,10 +918,10 @@ function ResultsReportsContent() {
                     <div className="w-8 h-8 bg-arise-gold/10 rounded flex items-center justify-center">
                       <span className="text-arise-gold font-bold text-sm">W</span>
                     </div>
-                    Wellness Assessment
+                    {t('profile.wellness.title')}
                   </h3>
                   <p className="text-gray-700 text-sm">
-                    Holistic view of your health and well-being across six key pillars
+                    {t('profile.wellness.description')}
                   </p>
                 </div>
               </div>
@@ -890,7 +933,7 @@ function ResultsReportsContent() {
                   onClick={handleDownloadProfile}
                   disabled={isGeneratingPDF || assessments.length === 0}
                 >
-                  {isGeneratingPDF ? 'Generating PDF...' : 'Download Complete Leadership Profile'}
+                  {isGeneratingPDF ? t('profile.generatingPdf') : t('profile.downloadButton')}
                 </Button>
               </div>
             </div>
@@ -912,23 +955,22 @@ function ResultsReportsContent() {
             <div className="flex flex-col md:flex-row items-center gap-6">
               <div className="flex-1 min-w-0">
                 <h2 className="text-2xl font-bold mb-3">
-                  Ready to accelerate your growth?
+                  {t('cta.title')}
                 </h2>
                 <p className="text-white/90 mb-4 break-words">
-                  Connect with expert ARISE coaches who specialize in leadership development. 
-                  Schedule your FREE coaching session to debrief your results and build a personalized development plan.
+                  {t('cta.description')}
                 </p>
                 <Button 
                   variant="arise-primary"
                   onClick={() => router.push('/dashboard/coaching-options')}
                 >
-                  Explore coaching options →
+                  {t('cta.button')}
                 </Button>
               </div>
               <div className="relative w-48 h-48 flex-shrink-0">
                 <Image
                   src="/images/leader-4.jpg"
-                  alt="Coaching session"
+                  alt={t('cta.imageAlt')}
                   fill
                   className="object-cover rounded-lg"
                 />

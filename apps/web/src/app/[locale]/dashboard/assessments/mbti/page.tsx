@@ -30,9 +30,10 @@ export default function MBTIAssessmentPage() {
       <div className="relative z-10 p-8">
         <MotionDiv variant="slideUp" duration="normal">
           <Button
-            variant="ghost"
+            variant="primary"
             onClick={() => router.push('/dashboard/assessments')}
             className="mb-6"
+            style={{ backgroundColor: '#0F4C56', color: '#fff' }}
           >
             <ArrowLeft size={16} className="mr-2" />
             Back to Assessments

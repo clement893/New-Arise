@@ -129,6 +129,77 @@
           "completed": "Test réalisé",
           "inProgress": "En cours",
           "invited": "Invité"
+        },
+        "page": {
+          "title": "Mes",
+          "titleHighlight": "Évaluateurs",
+          "description": "Consultez et gérez vos évaluateurs de feedback 360°",
+          "back": "Retour",
+          "refresh": "Actualiser",
+          "addEvaluators": "Ajouter des évaluateurs",
+          "summary": {
+            "total": "Total",
+            "completed": "Complétés",
+            "inProgress": "En cours",
+            "pending": "En attente"
+          },
+          "filters": {
+            "title": "Filtrer par statut :",
+            "all": "Tous",
+            "completed": "Complétés",
+            "inProgress": "En cours",
+            "invited": "Invités",
+            "pending": "Invitation en attente"
+          },
+          "empty": {
+            "noEvaluators": "Aucun évaluateur ajouté pour le moment.",
+            "noMatch": "Aucun évaluateur ne correspond au filtre sélectionné.",
+            "description": "Pour recevoir des retours sur votre leadership, ajoutez des évaluateurs qui vous connaissent professionnellement (collègues, managers, collaborateurs directs, etc.)."
+          },
+          "evaluator": {
+            "relationship": "Relation :",
+            "invited": "Invité :",
+            "opened": "Ouvert :",
+            "started": "Commencé :",
+            "completed": "Complété :",
+            "copyLink": "Copier le lien",
+            "copied": "Copié !"
+          },
+          "status": {
+            "completed": "Complété",
+            "inProgress": "En cours",
+            "invitationPending": "Invitation en attente",
+            "pending": "En attente"
+          },
+          "roles": {
+            "PEER": "Pair / Collègue",
+            "MANAGER": "Manager / Supérieur",
+            "DIRECT_REPORT": "Collaborateur direct / Collaborateur",
+            "STAKEHOLDER": "Partie prenante / Client"
+          },
+          "time": {
+            "lessThanMinute": "Il y a moins d'une minute",
+            "minutesAgo": "Il y a {minutes} minutes",
+            "hoursAgo": "Il y a {hours} heure{plural}",
+            "daysAgo": "Il y a {days} jour{plural}"
+          },
+          "messages": {
+            "deleteConfirm": "Êtes-vous sûr de vouloir supprimer l'évaluateur \"{name}\" ? Cette action est irréversible.",
+            "deleteSuccess": "L'évaluateur \"{name}\" a été supprimé avec succès",
+            "linkCopied": "Lien d'invitation copié dans le presse-papiers",
+            "addSuccess": "Les évaluateurs ont été ajoutés avec succès et apparaissent dans la liste"
+          },
+          "errors": {
+            "noAssessment": "Aucune évaluation de feedback 360° trouvée. Veuillez d'abord démarrer une évaluation 360° depuis la page Assessments.",
+            "sessionExpired": "Session expirée. Veuillez vous reconnecter.",
+            "sessionExpiredCached": "Session expirée. Affichage des données en cache. Veuillez vous reconnecter pour actualiser.",
+            "unableToLoad": "Impossible de charger les évaluateurs. Veuillez réessayer.",
+            "failedToLoad": "Échec du chargement des évaluateurs : {message}",
+            "failedToLoadGeneric": "Échec du chargement des évaluateurs. Veuillez réessayer.",
+            "failedToDelete": "Échec de la suppression de l'évaluateur",
+            "failedToCopy": "Échec de la copie du lien",
+            "retry": "Réessayer"
+          }
         }
       },
       "config": {
@@ -183,6 +254,28 @@
           },
           "profile": {
             "title": "Votre profil de gestion des conflits"
+          },
+          "modes": {
+            "competing": {
+              "title": "Compétition",
+              "description": "Assertif et non coopératif. Vous poursuivez vos propres préoccupations aux dépens de l'autre personne."
+            },
+            "collaborating": {
+              "title": "Collaboration",
+              "description": "Assertif et coopératif. Vous travaillez avec l'autre personne pour trouver une solution qui satisfait pleinement les deux parties."
+            },
+            "compromising": {
+              "title": "Compromis",
+              "description": "Modérément assertif et modérément coopératif. Vous trouvez un terrain d'entente qui satisfait partiellement les deux parties."
+            },
+            "avoiding": {
+              "title": "Évitement",
+              "description": "Non assertif et non coopératif. Vous ne poursuivez pas vos préoccupations ni celles de l'autre personne."
+            },
+            "accommodating": {
+              "title": "Accommodement",
+              "description": "Non assertif et coopératif. Vous négligez vos propres préoccupations pour satisfaire les préoccupations de l'autre personne."
+            }
           },
           "recommendations": {
             "title": "Recommandations",
@@ -401,9 +494,22 @@
             "description": "Cette évaluation n'est pas encore complétée. Veuillez d'abord répondre à toutes les questions.{progress}",
             "continueButton": "Continuer l'évaluation"
           },
+          "notCompletedYet": "Cette évaluation n'est pas encore complétée. Veuillez d'abord répondre à toutes les questions.",
+          "failedToComplete": "Échec de la complétion de l'évaluation. Veuillez réessayer.",
+          "unableToComplete": "Impossible de compléter l'évaluation : {detail}",
+          "ensureAllQuestions": "Veuillez vous assurer que toutes les questions sont répondues correctement.",
           "questionsAnswered": "questions répondues",
           "noResults": "Résultats non trouvés",
-          "error": "Erreur"
+          "error": "Erreur",
+          "errorTitle": "Erreur"
+        },
+        "pdf": {
+          "columns": {
+            "question": "Question",
+            "answer": "Réponse",
+            "score": "Score"
+          },
+          "notAnswered": "Non répondu"
         }
       },
       "mbti": {
@@ -436,7 +542,106 @@
           "strengths": {
             "title": "Forces et domaines de croissance",
             "yourStrengths": "Vos forces",
-            "growthAreas": "Domaines de croissance"
+            "growthAreas": "Domaines de croissance",
+            "translations": {
+              "Charming": "Charmant",
+              "Sensitive to Others": "Sensible aux autres",
+              "Passionate": "Passionné",
+              "Curious": "Curieux",
+              "Artistic": "Artistique",
+              "Sensitive": "Sensible",
+              "Flexible": "Flexible",
+              "Spontaneous": "Spontané",
+              "Idealistic": "Idéaliste",
+              "Empathetic": "Empathique",
+              "Creative": "Créatif",
+              "Open-minded": "Ouvert d'esprit",
+              "Analytical": "Analytique",
+              "Objective": "Objectif",
+              "Innovative": "Innovant",
+              "Honest": "Honnête",
+              "Energetic": "Énergique",
+              "Pragmatic": "Pragmatique",
+              "Perceptive": "Perspicace",
+              "Bold": "Audacieux",
+              "Direct": "Direct",
+              "Enthusiastic": "Enthousiaste",
+              "Friendly": "Amiable",
+              "Observant": "Observateur",
+              "Sociable": "Sociable",
+              "Independent": "Indépendant",
+              "Charismatic": "Charismatique",
+              "Knowledgeable": "Savant",
+              "Quick-thinking": "Rapide d'esprit",
+              "Original": "Original",
+              "Organized": "Organisé",
+              "Practical": "Pratique",
+              "Dedicated": "Dévoué",
+              "Strong-willed": "Volontaire",
+              "Caring": "Bienveillant",
+              "Social": "Social",
+              "Loyal": "Loyal",
+              "Altruistic": "Altruiste",
+              "Natural leader": "Leader naturel",
+              "Reliable": "Fiable",
+              "Tolerant": "Tolérant",
+              "Efficient": "Efficace",
+              "Strategic": "Stratégique",
+              "Confident": "Confiant",
+              "Responsible": "Responsable",
+              "Detail-oriented": "Orienté détail",
+              "Supportive": "Soutien",
+              "Patient": "Patient",
+              "Hardworking": "Travailleur",
+              "Insightful": "Perspicace",
+              "Principled": "Principe",
+              "Determined": "Déterminé",
+              "Logical": "Logique",
+              "Hands-on": "Pratique",
+              "Calm under pressure": "Calme sous pression"
+            },
+            "challenges": {
+              "May resist change": "Peut résister au changement",
+              "Can be inflexible": "Peut être inflexible",
+              "May overlook feelings": "Peut négliger les sentiments",
+              "May neglect own needs": "Peut négliger ses propres besoins",
+              "Can be too humble": "Peut être trop humble",
+              "Dislikes change": "N'aime pas le changement",
+              "Can be perfectionistic": "Peut être perfectionniste",
+              "May burn out": "Peut s'épuiser",
+              "Sensitive to criticism": "Sensible à la critique",
+              "Can be arrogant": "Peut être arrogant",
+              "May dismiss emotions": "Peut ignorer les émotions",
+              "Overly analytical": "Trop analytique",
+              "May be insensitive": "Peut être insensible",
+              "Risk-taking": "Prise de risque",
+              "Difficulty with commitment": "Difficulté avec l'engagement",
+              "Can be unpredictable": "Peut être imprévisible",
+              "Dislikes conflict": "N'aime pas les conflits",
+              "May be too competitive": "Peut être trop compétitif",
+              "Can be too idealistic": "Peut être trop idéaliste",
+              "May take things personally": "Peut prendre les choses personnellement",
+              "Difficult to know": "Difficile à connaître",
+              "May be absent-minded": "Peut être distrait",
+              "Dislikes rules": "N'aime pas les règles",
+              "May be impatient": "Peut être impatient",
+              "Can be easily bored": "Peut s'ennuyer facilement",
+              "May avoid conflict": "Peut éviter les conflits",
+              "Difficulty with long-term planning": "Difficulté avec la planification à long terme",
+              "Can be unfocused": "Peut manquer de concentration",
+              "May overthink": "Peut trop réfléchir",
+              "Difficulty with routine": "Difficulté avec la routine",
+              "Can be argumentative": "Peut être argumentatif",
+              "Can be needy": "Peut être dépendant",
+              "May be too selfless": "Peut être trop désintéressé",
+              "Difficulty making tough decisions": "Difficulté à prendre des décisions difficiles",
+              "Can be stubborn": "Peut être têtu",
+              "May be intolerant": "Peut être intolérant",
+              "Impatient": "Impatient",
+              "Difficulty delegating": "Difficulté à déléguer",
+              "Fiercely Independent": "Fièrement indépendant",
+              "Unpredictable": "Imprévisible"
+            }
           },
           "recommendations": {
             "title": "Recommandations de développement personnalisées"
@@ -732,6 +937,159 @@
         "viewSessions": "Voir mes sessions",
         "backToDashboard": "Retour au dashboard",
         "emailConfirmation": "Un email de confirmation vous a été envoyé avec tous les détails de votre session."
+      }
+    },
+    "developmentPlan": {
+      "header": {
+        "title": "Plan de",
+        "titleHighlight": "développement",
+        "description": "Suivez votre parcours de développement personnel et professionnel"
+      },
+      "goals": {
+        "title": "Vos objectifs de développement",
+        "description": "Suivez votre progression vers vos objectifs de leadership",
+        "progress": "Progression",
+        "dueDate": "Date d'échéance"
+      },
+      "resources": {
+        "title": "Ressources recommandées",
+        "description": "Contenu sélectionné pour soutenir vos objectifs de développement",
+        "view": "Voir"
+      },
+      "progress": {
+        "title": "Votre progression",
+        "description": "Aperçu de votre parcours de développement",
+        "activeGoals": "Objectifs actifs",
+        "averageProgress": "Progression moyenne",
+        "resourcesCompleted": "Ressources complétées"
+      },
+      "cta": {
+        "title": "Prêt à accélérer votre croissance ?",
+        "description": "Connectez-vous avec des coachs ARISE experts spécialisés dans le développement du leadership. Planifiez votre session de coaching GRATUITE pour débriefer vos résultats et créer un plan de développement personnalisé.",
+        "button": "Explorer les options de coaching →",
+        "imageAlt": "Session de coaching"
+      }
+    },
+    "reports": {
+      "header": {
+        "title": "Résultats &",
+        "titleHighlight": "Rapports",
+        "description": "Consultez vos résultats d'assessments et votre profil de leadership complet"
+      },
+      "stats": {
+        "assessmentsCompleted": "Assessments complétés",
+        "averageScore": "Score moyen",
+        "developmentGoals": "Objectifs de développement",
+        "evaluators360": "Évaluateurs 360°",
+        "viewEvaluators": "Voir les évaluateurs"
+      },
+      "assessments": {
+        "title": "Vos résultats d'assessments",
+        "description": "Aperçu complet de vos assessments complétés",
+        "exportAll": "Exporter tout",
+        "generating": "Génération...",
+        "noAssessments": "Aucun assessment complété pour le moment.",
+        "completed": "Complété :",
+        "score": "Score :",
+        "viewDetails": "Voir les détails",
+        "downloadReport": "Télécharger le rapport",
+        "types": {
+          "MBTI": "Personnalité MBTI",
+          "TKI": "Style de conflit TKI",
+          "WELLNESS": "Évaluation du bien-être",
+          "THREE_SIXTY_SELF": "Feedback 360°"
+        }
+      },
+      "insights": {
+        "title": "Insights clés",
+        "description": "Découvertes importantes de vos assessments",
+        "noInsights": "Complétez des assessments pour voir vos insights clés",
+        "titles": {
+          "leadershipStyle": "Style de leadership",
+          "conflictResolution": "Résolution de conflits",
+          "teamPerception": "Perception de l'équipe",
+          "wellnessFocus": "Focus bien-être",
+          "continueJourney": "Continuez votre parcours"
+        },
+        "categories": {
+          "Personality": "Personnalité",
+          "TKI": "TKI",
+          "360 Feedback": "Feedback 360°",
+          "Wellness": "Bien-être",
+          "General": "Général"
+        },
+        "descriptions": {
+          "mbtiDefault": "Votre type de personnalité est {type}, ce qui indique une approche stratégique du leadership et de la prise de décision.",
+          "tkiCompeting": "Votre style de conflit dominant est {mode}, qui est très efficace pour les situations décisives nécessitant une action rapide.",
+          "tkiCollaborating": "Votre style de conflit dominant est {mode}, qui est très efficace pour les environnements d'équipe et la résolution de problèmes complexes.",
+          "tkiOther": "Votre style de conflit dominant est {mode}, qui est très efficace pour trouver des solutions équilibrées.",
+          "threeSixtyCapabilities": "Votre feedback 360° montre de solides capacités en {capability}, avec une vision claire et des compétences de communication efficaces reconnues par vos collègues.",
+          "threeSixtyScore": "Votre score de feedback 360° est {score}%, indiquant de solides capacités de leadership reconnues par votre équipe.",
+          "wellnessPillars": "Votre score de bien-être est {score}. Votre pilier le plus fort est {strongest}, tandis que {weakest} pourrait bénéficier de plus d'attention pour une performance optimale.",
+          "wellnessDefault": "Votre score de bien-être est {score}. Envisagez d'améliorer la gestion du stress et la qualité du sommeil pour une meilleure performance globale.",
+          "continueJourney": "Complétez des assessments supplémentaires pour débloquer plus d'insights et de recommandations personnalisées."
+        },
+        "tkiModes": {
+          "competing": "Compétition",
+          "collaborating": "Collaboration",
+          "compromising": "Compromis",
+          "avoiding": "Évitement",
+          "accommodating": "Accommodement"
+        }
+      },
+      "profile": {
+        "title": "Votre profil de leadership complet",
+        "description": "Les quatre assessments s'intègrent parfaitement pour créer votre profil de leadership complet",
+        "mbti": {
+          "title": "Personnalité MBTI",
+          "description": "Comprendre vos préférences naturelles et comment vous interagissez avec le monde"
+        },
+        "tki": {
+          "title": "Gestion des conflits TKI",
+          "description": "Explorez votre approche de la gestion des conflits et comment vous gérez les désaccords"
+        },
+        "threeSixty": {
+          "title": "Feedback 360°",
+          "description": "Perspectives de leadership multi-facettes de collègues et membres de l'équipe"
+        },
+        "wellness": {
+          "title": "Évaluation du bien-être",
+          "description": "Vue holistique de votre santé et bien-être à travers six piliers clés"
+        },
+        "downloadButton": "Télécharger le profil de leadership complet",
+        "generatingPdf": "Génération du PDF..."
+      },
+      "deleteModal": {
+        "title": "Confirmer la suppression",
+        "message": "Êtes-vous sûr de vouloir supprimer <strong>TOUS</strong> vos assessments ? Cette action est <strong>irréversible</strong> et supprimera définitivement :",
+        "items": {
+          "assessments": "Tous vos assessments ({count} assessments)",
+          "responses": "Toutes vos réponses",
+          "results": "Tous vos résultats",
+          "evaluators": "Tous les évaluateurs 360° associés"
+        },
+        "cancel": "Annuler",
+        "confirm": "Confirmer la suppression",
+        "deleting": "Suppression..."
+      },
+      "errors": {
+        "title": "Erreur",
+        "loadFailed": "Échec du chargement des résultats d'assessments. Veuillez réessayer.",
+        "noAssessmentsToExport": "Aucun assessment à exporter.",
+        "exportFailed": "Échec de l'exportation des assessments. Veuillez réessayer.",
+        "noAssessmentsForProfile": "Aucun assessment disponible pour générer le profil.",
+        "downloadProfileFailed": "Échec du téléchargement du profil. Veuillez réessayer.",
+        "downloadAssessmentFailed": "Échec du téléchargement de l'assessment. Veuillez réessayer.",
+        "onlySuperAdmin": "Seuls les super administrateurs peuvent supprimer tous leurs assessments.",
+        "deleteFailed": "Échec de la suppression des assessments",
+        "deleteSuccess": "Tous vos assessments ont été supprimés avec succès. ({count} assessments supprimés)"
+      },
+      "resetButton": "Réinitialiser tous les assessments",
+      "cta": {
+        "title": "Prêt à accélérer votre croissance ?",
+        "description": "Connectez-vous avec des coachs ARISE experts spécialisés dans le développement du leadership. Planifiez votre session de coaching GRATUITE pour débriefer vos résultats et créer un plan de développement personnalisé.",
+        "button": "Explorer les options de coaching →",
+        "imageAlt": "Session de coaching"
       }
     }
   },

@@ -195,6 +195,77 @@
           "completed": "Test completed",
           "inProgress": "In Progress",
           "invited": "Invited"
+        },
+        "page": {
+          "title": "My",
+          "titleHighlight": "Evaluators",
+          "description": "View and manage your 360° feedback evaluators",
+          "back": "Back",
+          "refresh": "Refresh",
+          "addEvaluators": "Add evaluators",
+          "summary": {
+            "total": "Total",
+            "completed": "Completed",
+            "inProgress": "In Progress",
+            "pending": "Pending"
+          },
+          "filters": {
+            "title": "Filter by status:",
+            "all": "All",
+            "completed": "Completed",
+            "inProgress": "In Progress",
+            "invited": "Invited",
+            "pending": "Invitation Pending"
+          },
+          "empty": {
+            "noEvaluators": "No evaluators added yet.",
+            "noMatch": "No evaluators match the selected filter.",
+            "description": "To receive feedback on your leadership, add evaluators who know you professionally (colleagues, managers, direct reports, etc.)."
+          },
+          "evaluator": {
+            "relationship": "Relationship:",
+            "invited": "Invited:",
+            "opened": "Opened:",
+            "started": "Started:",
+            "completed": "Completed:",
+            "copyLink": "Copy link",
+            "copied": "Copied!"
+          },
+          "status": {
+            "completed": "Completed",
+            "inProgress": "In Progress",
+            "invitationPending": "Invitation Pending",
+            "pending": "Pending"
+          },
+          "roles": {
+            "PEER": "Peer / Colleague",
+            "MANAGER": "Manager / Superior",
+            "DIRECT_REPORT": "Direct Report / Collaborator",
+            "STAKEHOLDER": "Stakeholder / Client"
+          },
+          "time": {
+            "lessThanMinute": "Less than a minute ago",
+            "minutesAgo": "{minutes} minutes ago",
+            "hoursAgo": "{hours} hour{plural} ago",
+            "daysAgo": "{days} day{plural} ago"
+          },
+          "messages": {
+            "deleteConfirm": "Are you sure you want to delete the evaluator \"{name}\"? This action is irreversible.",
+            "deleteSuccess": "Evaluator \"{name}\" has been successfully deleted",
+            "linkCopied": "Invitation link copied to clipboard",
+            "addSuccess": "Evaluators have been successfully added and appear in the list"
+          },
+          "errors": {
+            "noAssessment": "No 360° feedback assessment found. Please start a 360° assessment from the Assessments page first.",
+            "sessionExpired": "Session expired. Please log in again.",
+            "sessionExpiredCached": "Session expired. Displaying cached data. Please log in again to refresh.",
+            "unableToLoad": "Unable to load evaluators. Please try again.",
+            "failedToLoad": "Failed to load evaluators: {message}",
+            "failedToLoadGeneric": "Failed to load evaluators. Please try again.",
+            "failedToDelete": "Failed to delete evaluator",
+            "failedToCopy": "Failed to copy link",
+            "retry": "Retry"
+          }
         }
       },
       "config": {
@@ -249,6 +320,28 @@
           },
           "profile": {
             "title": "Your Conflict Management Profile"
+          },
+          "modes": {
+            "competing": {
+              "title": "Competing",
+              "description": "Assertive and uncooperative. You pursue your own concerns at the other person's expense."
+            },
+            "collaborating": {
+              "title": "Collaborating",
+              "description": "Assertive and cooperative. You work with the other person to find a solution that fully satisfies both parties."
+            },
+            "compromising": {
+              "title": "Compromising",
+              "description": "Moderately assertive and moderately cooperative. You find a middle ground that partially satisfies both parties."
+            },
+            "avoiding": {
+              "title": "Avoiding",
+              "description": "Unassertive and uncooperative. You do not pursue your concerns or those of the other person."
+            },
+            "accommodating": {
+              "title": "Accommodating",
+              "description": "Unassertive and cooperative. You neglect your own concerns to satisfy the concerns of the other person."
+            }
           },
           "recommendations": {
             "title": "Recommendations",
@@ -467,9 +560,22 @@
             "description": "This assessment is not completed yet. Please complete all questions first.{progress}",
             "continueButton": "Continue Assessment"
           },
+          "notCompletedYet": "This assessment is not completed yet. Please complete all questions first.",
+          "failedToComplete": "Failed to complete assessment. Please try again.",
+          "unableToComplete": "Unable to complete assessment: {detail}",
+          "ensureAllQuestions": "Please ensure all questions are answered correctly.",
           "questionsAnswered": "questions answered",
           "noResults": "Results not found",
-          "error": "Error"
+          "error": "Error",
+          "errorTitle": "Error"
+        },
+        "pdf": {
+          "columns": {
+            "question": "Question",
+            "answer": "Answer",
+            "score": "Score"
+          },
+          "notAnswered": "Not Answered"
         }
       },
       "mbti": {
@@ -502,7 +608,106 @@
           "strengths": {
             "title": "Strengths & Growth Areas",
             "yourStrengths": "Your Strengths",
-            "growthAreas": "Growth Areas"
+            "growthAreas": "Growth Areas",
+            "translations": {
+              "Charming": "Charming",
+              "Sensitive to Others": "Sensitive to Others",
+              "Passionate": "Passionate",
+              "Curious": "Curious",
+              "Artistic": "Artistic",
+              "Sensitive": "Sensitive",
+              "Flexible": "Flexible",
+              "Spontaneous": "Spontaneous",
+              "Idealistic": "Idealistic",
+              "Empathetic": "Empathetic",
+              "Creative": "Creative",
+              "Open-minded": "Open-minded",
+              "Analytical": "Analytical",
+              "Objective": "Objective",
+              "Innovative": "Innovative",
+              "Honest": "Honest",
+              "Energetic": "Energetic",
+              "Pragmatic": "Pragmatic",
+              "Perceptive": "Perceptive",
+              "Bold": "Bold",
+              "Direct": "Direct",
+              "Enthusiastic": "Enthusiastic",
+              "Friendly": "Friendly",
+              "Observant": "Observant",
+              "Sociable": "Sociable",
+              "Independent": "Independent",
+              "Charismatic": "Charismatic",
+              "Knowledgeable": "Knowledgeable",
+              "Quick-thinking": "Quick-thinking",
+              "Original": "Original",
+              "Organized": "Organized",
+              "Practical": "Practical",
+              "Dedicated": "Dedicated",
+              "Strong-willed": "Strong-willed",
+              "Caring": "Caring",
+              "Social": "Social",
+              "Loyal": "Loyal",
+              "Altruistic": "Altruistic",
+              "Natural leader": "Natural leader",
+              "Reliable": "Reliable",
+              "Tolerant": "Tolerant",
+              "Efficient": "Efficient",
+              "Strategic": "Strategic",
+              "Confident": "Confident",
+              "Responsible": "Responsible",
+              "Detail-oriented": "Detail-oriented",
+              "Supportive": "Supportive",
+              "Patient": "Patient",
+              "Hardworking": "Hardworking",
+              "Insightful": "Insightful",
+              "Principled": "Principled",
+              "Determined": "Determined",
+              "Logical": "Logical",
+              "Hands-on": "Hands-on",
+              "Calm under pressure": "Calm under pressure"
+            },
+            "challenges": {
+              "May resist change": "May resist change",
+              "Can be inflexible": "Can be inflexible",
+              "May overlook feelings": "May overlook feelings",
+              "May neglect own needs": "May neglect own needs",
+              "Can be too humble": "Can be too humble",
+              "Dislikes change": "Dislikes change",
+              "Can be perfectionistic": "Can be perfectionistic",
+              "May burn out": "May burn out",
+              "Sensitive to criticism": "Sensitive to criticism",
+              "Can be arrogant": "Can be arrogant",
+              "May dismiss emotions": "May dismiss emotions",
+              "Overly analytical": "Overly analytical",
+              "May be insensitive": "May be insensitive",
+              "Risk-taking": "Risk-taking",
+              "Difficulty with commitment": "Difficulty with commitment",
+              "Can be unpredictable": "Can be unpredictable",
+              "Dislikes conflict": "Dislikes conflict",
+              "May be too competitive": "May be too competitive",
+              "Can be too idealistic": "Can be too idealistic",
+              "May take things personally": "May take things personally",
+              "Difficult to know": "Difficult to know",
+              "May be absent-minded": "May be absent-minded",
+              "Dislikes rules": "Dislikes rules",
+              "May be impatient": "May be impatient",
+              "Can be easily bored": "Can be easily bored",
+              "May avoid conflict": "May avoid conflict",
+              "Difficulty with long-term planning": "Difficulty with long-term planning",
+              "Can be unfocused": "Can be unfocused",
+              "May overthink": "May overthink",
+              "Difficulty with routine": "Difficulty with routine",
+              "Can be argumentative": "Can be argumentative",
+              "Can be needy": "Can be needy",
+              "May be too selfless": "May be too selfless",
+              "Difficulty making tough decisions": "Difficulty making tough decisions",
+              "Can be stubborn": "Can be stubborn",
+              "May be intolerant": "May be intolerant",
+              "Impatient": "Impatient",
+              "Difficulty delegating": "Difficulty delegating",
+              "Fiercely Independent": "Fiercely Independent",
+              "Unpredictable": "Unpredictable"
+            }
           },
           "recommendations": {
             "title": "Personalized Development Recommendations"
@@ -798,6 +1003,159 @@
         "viewSessions": "View my sessions",
         "backToDashboard": "Back to dashboard",
         "emailConfirmation": "A confirmation email has been sent to you with all the details of your session."
+      }
+    },
+    "reports": {
+      "header": {
+        "title": "Results &",
+        "titleHighlight": "Reports",
+        "description": "View your assessment results and comprehensive leadership profile"
+      },
+      "stats": {
+        "assessmentsCompleted": "Assessments Completed",
+        "averageScore": "Average Score",
+        "developmentGoals": "Development Goals",
+        "evaluators360": "360° Evaluators",
+        "viewEvaluators": "View Evaluators"
+      },
+      "assessments": {
+        "title": "Your Assessment Results",
+        "description": "Comprehensive overview of your completed assessments",
+        "exportAll": "Export All",
+        "generating": "Generating...",
+        "noAssessments": "No completed assessments yet.",
+        "completed": "Completed:",
+        "score": "Score:",
+        "viewDetails": "View Details",
+        "downloadReport": "Download report",
+        "types": {
+          "MBTI": "MBTI Personality",
+          "TKI": "TKI Conflict Style",
+          "WELLNESS": "Wellness Assessment",
+          "THREE_SIXTY_SELF": "360° Feedback"
+        }
+      },
+      "insights": {
+        "title": "Key Insights",
+        "description": "Important findings from your assessments",
+        "noInsights": "Complete assessments to see your key insights",
+        "titles": {
+          "leadershipStyle": "Leadership Style",
+          "conflictResolution": "Conflict Resolution",
+          "teamPerception": "Team Perception",
+          "wellnessFocus": "Wellness Focus",
+          "continueJourney": "Continue Your Journey"
+        },
+        "categories": {
+          "Personality": "Personality",
+          "TKI": "TKI",
+          "360 Feedback": "360 Feedback",
+          "Wellness": "Wellness",
+          "General": "General"
+        },
+        "descriptions": {
+          "mbtiDefault": "Your personality type is {type}, which indicates a strategic approach to leadership and decision-making.",
+          "tkiCompeting": "Your dominant conflict style is {mode}, which is highly effective for decisive situations requiring quick action.",
+          "tkiCollaborating": "Your dominant conflict style is {mode}, which is highly effective for team environments and complex problem-solving.",
+          "tkiOther": "Your dominant conflict style is {mode}, which is highly effective for finding balanced solutions.",
+          "threeSixtyCapabilities": "Your 360° feedback shows strong {capability} capabilities, with clear vision and effective communication skills recognized by your colleagues.",
+          "threeSixtyScore": "Your 360° feedback score is {score}%, indicating strong leadership capabilities recognized by your team.",
+          "wellnessPillars": "Your wellness score is {score}. Your strongest pillar is {strongest}, while {weakest} could benefit from more attention for optimal performance.",
+          "wellnessDefault": "Your wellness score is {score}. Consider improving stress management and sleep quality for better overall performance.",
+          "continueJourney": "Complete additional assessments to unlock more personalized insights and recommendations."
+        },
+        "tkiModes": {
+          "competing": "Competing",
+          "collaborating": "Collaborating",
+          "compromising": "Compromising",
+          "avoiding": "Avoiding",
+          "accommodating": "Accommodating"
+        }
+      },
+      "profile": {
+        "title": "Your Comprehensive Leadership Profile",
+        "description": "All four assessments integrate seamlessly to create your comprehensive leadership profile",
+        "mbti": {
+          "title": "MBTI Personality",
+          "description": "Understanding your natural preferences and how you interact with the world"
+        },
+        "tki": {
+          "title": "TKI Conflict Management",
+          "description": "Explore your conflict management approach and how you handle disagreements"
+        },
+        "threeSixty": {
+          "title": "360° Feedback",
+          "description": "Multi-faceted leadership perspectives from colleagues and team members"
+        },
+        "wellness": {
+          "title": "Wellness Assessment",
+          "description": "Holistic view of your health and well-being across six key pillars"
+        },
+        "downloadButton": "Download Complete Leadership Profile",
+        "generatingPdf": "Generating PDF..."
+      },
+      "deleteModal": {
+        "title": "Confirm Deletion",
+        "message": "Are you sure you want to delete <strong>ALL</strong> your assessments? This action is <strong>irreversible</strong> and will permanently delete:",
+        "items": {
+          "assessments": "All your assessments ({count} assessments)",
+          "responses": "All your responses",
+          "results": "All your results",
+          "evaluators": "All associated 360° evaluators"
+        },
+        "cancel": "Cancel",
+        "confirm": "Confirm Deletion",
+        "deleting": "Deleting..."
+      },
+      "errors": {
+        "title": "Error",
+        "loadFailed": "Failed to load assessment results. Please try again.",
+        "noAssessmentsToExport": "No assessments to export.",
+        "exportFailed": "Failed to export assessments. Please try again.",
+        "noAssessmentsForProfile": "No assessments available to generate profile.",
+        "downloadProfileFailed": "Failed to download profile. Please try again.",
+        "downloadAssessmentFailed": "Failed to download assessment. Please try again.",
+        "onlySuperAdmin": "Only super admins can delete all their assessments.",
+        "deleteFailed": "Failed to delete assessments",
+        "deleteSuccess": "All your assessments have been successfully deleted. ({count} assessments deleted)"
+      },
+      "resetButton": "Reset All Assessments",
+      "cta": {
+        "title": "Ready to accelerate your growth?",
+        "description": "Connect with expert ARISE coaches who specialize in leadership development. Schedule your FREE coaching session to debrief your results and build a personalized development plan.",
+        "button": "Explore coaching options →",
+        "imageAlt": "Coaching session"
+      }
+    },
+    "developmentPlan": {
+      "header": {
+        "title": "Development",
+        "titleHighlight": "Plan",
+        "description": "Track your personal and professional development journey"
+      },
+      "goals": {
+        "title": "Your Development Goals",
+        "description": "Track your progress towards your leadership goals",
+        "progress": "Progress",
+        "dueDate": "Due date"
+      },
+      "resources": {
+        "title": "Recommended Resources",
+        "description": "Curated content to support your development goals",
+        "view": "View"
+      },
+      "progress": {
+        "title": "Your Progress",
+        "description": "Overview of your development journey",
+        "activeGoals": "Active Goals",
+        "averageProgress": "Average Progress",
+        "resourcesCompleted": "Resources Completed"
+      },
+      "cta": {
+        "title": "Ready to accelerate your growth?",
+        "description": "Connect with expert ARISE coaches who specialize in leadership development. Schedule your FREE coaching session to debrief your results and build a personalized development plan.",
+        "button": "Explore coaching options →",
+        "imageAlt": "Coaching session"
       }
     }
   },

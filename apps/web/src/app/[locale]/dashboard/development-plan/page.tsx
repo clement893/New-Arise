@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
+import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import { Card } from '@/components/ui';
@@ -11,6 +12,7 @@ import { Target, BookOpen, Video, FileText, Users, TrendingUp, CheckCircle2, Cir
 import Image from 'next/image';
 
 function DevelopmentPlanContent() {
+  const t = useTranslations('dashboard.developmentPlan');
   const router = useRouter();
   // Mock data for development goals
   const goals = [
@@ -81,10 +83,10 @@ function DevelopmentPlanContent() {
       {/* Header */}
       <div className="mb-8 pb-6">
         <h1 className="text-4xl font-bold text-white mb-2">
-          Development <span style={{ color: '#D8B868' }}>Plan</span>
+          {t('header.title')} <span style={{ color: '#D8B868' }}>{t('header.titleHighlight')}</span>
         </h1>
         <p className="text-white">
-          Track your personal and professional development journey
+          {t('header.description')}
         </p>
       </div>
 
@@ -97,10 +99,10 @@ function DevelopmentPlanContent() {
             </div>
             <div>
               <h2 className="text-2xl font-bold text-gray-900">
-                Your Development Goals
+                {t('goals.title')}
               </h2>
               <p className="text-gray-700">
-                Track your progress towards your leadership goals
+                {t('goals.description')}
               </p>
             </div>
           </div>
@@ -128,7 +130,7 @@ function DevelopmentPlanContent() {
                     {/* Progress Bar */}
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-700">Progress</span>
+                        <span className="text-gray-700">{t('goals.progress')}</span>
                         <span className="font-semibold text-arise-deep-teal">{goal.progress}%</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
@@ -141,7 +143,7 @@ function DevelopmentPlanContent() {
                   </div>
                 </div>
                   <div className="text-right sm:ml-4 ml-0">
-                    <p className="text-sm text-gray-600">Due date</p>
+                    <p className="text-sm text-gray-600">{t('goals.dueDate')}</p>
                     <p className="text-sm font-semibold text-gray-900">{goal.dueDate}</p>
                   </div>
                 </div>
@@ -159,10 +161,10 @@ function DevelopmentPlanContent() {
           </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
-              Recommended Resources
+              {t('resources.title')}
             </h2>
             <p className="text-gray-700">
-              Curated content to support your development goals
+              {t('resources.description')}
             </p>
           </div>
         </div>
@@ -203,7 +205,7 @@ function DevelopmentPlanContent() {
                           router.push(`/dashboard/development-plan/resources/${resource.id}`);
                         }}
                       >
-                        View
+                        {t('resources.view')}
                       </Button>
                     </div>
                   </div>
@@ -223,10 +225,10 @@ function DevelopmentPlanContent() {
           </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
-              Your Progress
+              {t('progress.title')}
             </h2>
             <p className="text-gray-700">
-              Overview of your development journey
+              {t('progress.description')}
             </p>
           </div>
         </div>
@@ -234,15 +236,15 @@ function DevelopmentPlanContent() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-gray-50 rounded-lg p-4 text-center">
             <p className="text-3xl font-bold text-arise-deep-teal mb-2">3</p>
-            <p className="text-gray-700">Active Goals</p>
+            <p className="text-gray-700">{t('progress.activeGoals')}</p>
           </div>
           <div className="bg-gray-50 rounded-lg p-4 text-center">
             <p className="text-3xl font-bold text-arise-gold mb-2">45%</p>
-            <p className="text-gray-700">Average Progress</p>
+            <p className="text-gray-700">{t('progress.averageProgress')}</p>
           </div>
           <div className="bg-gray-50 rounded-lg p-4 text-center">
             <p className="text-3xl font-bold text-success-600 mb-2">8</p>
-            <p className="text-gray-700">Resources Completed</p>
+            <p className="text-gray-700">{t('progress.resourcesCompleted')}</p>
           </div>
         </div>
       </Card>
@@ -252,23 +254,22 @@ function DevelopmentPlanContent() {
         <div className="flex flex-col md:flex-row items-center gap-6">
           <div className="flex-1 min-w-0">
             <h2 className="text-2xl font-bold mb-3">
-              Ready to accelerate your growth?
+              {t('cta.title')}
             </h2>
             <p className="text-white/90 mb-4 break-words">
-              Connect with expert ARISE coaches who specialize in leadership development. 
-              Schedule your FREE coaching session to debrief your results and build a personalized development plan.
+              {t('cta.description')}
             </p>
             <Button 
               variant="arise-primary"
               onClick={() => router.push('/dashboard/coaching-options')}
             >
-              Explore coaching options →
+              {t('cta.button')}
             </Button>
           </div>
           <div className="relative w-48 h-48 flex-shrink-0">
             <Image
               src="/images/leader-4.jpg"
-              alt="Coaching session"
+              alt={t('cta.imageAlt')}
               fill
               className="object-cover rounded-lg"
             />

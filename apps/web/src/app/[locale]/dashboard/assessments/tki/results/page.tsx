@@ -86,7 +86,22 @@ export default function TKIResultsPage() {
   };
 
   const getModeInfo = (modeId: string) => {
-    return tkiModes.find(m => m.id === modeId);
+    const mode = tkiModes.find(m => m.id === modeId);
+    if (!mode) return null;
+    
+    // Translate title and description
+    try {
+      const translatedTitle = t(`modes.${modeId}.title`);
+      const translatedDescription = t(`modes.${modeId}.description`);
+      return {
+        ...mode,
+        title: translatedTitle !== `modes.${modeId}.title` ? translatedTitle : mode.title,
+        description: translatedDescription !== `modes.${modeId}.description` ? translatedDescription : mode.description,
+      };
+    } catch (e) {
+      // Fallback to original if translation fails
+      return mode;
+    }
   };
 
   const getModePercentage = (count: number) => {
@@ -130,7 +145,12 @@ export default function TKIResultsPage() {
           <div className="text-center">
             {/* Ensure error is always a string before rendering */}
             <p className="text-red-600 mb-4">{typeof error === 'string' ? error : formatError(error || t('errors.notFound'))}</p>
-            <Button onClick={() => router.push('/dashboard/assessments')} className="flex items-center gap-4">
+            <Button 
+              onClick={() => router.push('/dashboard/assessments')} 
+              variant="primary"
+              className="flex items-center gap-4"
+              style={{ backgroundColor: '#0F4C56', color: '#fff' }}
+            >
               {t('backToAssessments')}
             </Button>
           </div>
@@ -164,6 +184,7 @@ export default function TKIResultsPage() {
               onClick={() => router.push('/dashboard/assessments')}
               variant="primary"
               className="mb-6 flex items-center gap-4"
+              style={{ backgroundColor: '#0F4C56', color: '#fff' }}
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               {t('backToAssessments')}
@@ -206,7 +227,7 @@ export default function TKIResultsPage() {
             {/* All Modes Breakdown */}
             <Card className="mb-8">
               <h2 className="text-2xl font-bold text-black mb-6">
-                Your Conflict Management Profile
+                {t('profile.title')}
               </h2>
 
               <div className="space-y-6">

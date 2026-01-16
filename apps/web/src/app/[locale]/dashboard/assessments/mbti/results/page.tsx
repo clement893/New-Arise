@@ -103,6 +103,35 @@ export default function MBTIResultsPage() {
     return labels[preference] || preference;
   };
 
+  const translateStrengthOrChallenge = (text: string): string => {
+    // Try to get translation from the translations object
+    // next-intl returns the key if translation doesn't exist, so we check if result equals the key
+    const strengthKey = `strengths.translations.${text}`;
+    try {
+      const strengthTranslation = t(strengthKey);
+      // If translation exists and is different from the key path, use it
+      if (strengthTranslation && strengthTranslation !== strengthKey) {
+        return strengthTranslation;
+      }
+    } catch (e) {
+      // Key doesn't exist, try challenges
+    }
+    
+    // Try challenges translations
+    const challengeKey = `strengths.challenges.${text}`;
+    try {
+      const challengeTranslation = t(challengeKey);
+      if (challengeTranslation && challengeTranslation !== challengeKey) {
+        return challengeTranslation;
+      }
+    } catch (e) {
+      // Key doesn't exist
+    }
+    
+    // Return original text if no translation found
+    return text;
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex">
@@ -132,11 +161,10 @@ export default function MBTIResultsPage() {
               <div className="p-6 text-center">
                 <FileText className="w-16 h-16 text-purple-600 mx-auto mb-4" />
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  No MBTI Results Found
+                  {t('notFound.title')}
                 </h2>
                 <p className="text-gray-600 mb-6">
-                  You haven't uploaded your MBTI score from 16Personalities yet.
-                  Upload your PDF or share your profile URL to view your results.
+                  {t('notFound.description')}
                 </p>
                 <div className="flex flex-col gap-3">
                   <Button 
@@ -145,14 +173,15 @@ export default function MBTIResultsPage() {
                     className="w-full"
                   >
                     <Upload className="w-4 h-4 mr-2" />
-                    Upload My MBTI Score
+                    {t('notFound.uploadButton')}
                   </Button>
                   <Button 
-                    variant="outline" 
+                    variant="primary" 
                     onClick={() => router.push('/dashboard/assessments')}
                     className="w-full"
+                    style={{ backgroundColor: '#0F4C56', color: '#fff' }}
                   >
-                    Back to Assessments
+                    {t('backToAssessments')}
                   </Button>
                 </div>
               </div>
@@ -175,7 +204,11 @@ export default function MBTIResultsPage() {
                 <Button onClick={() => router.push('/dashboard/assessments/mbti/upload')}>
                   {t('notFound.uploadButton')}
                 </Button>
-                <Button variant="outline" onClick={() => router.push('/dashboard/assessments')}>
+                <Button 
+                  variant="primary" 
+                  onClick={() => router.push('/dashboard/assessments')}
+                  style={{ backgroundColor: '#0F4C56', color: '#fff' }}
+                >
                   {t('backToAssessments')}
                 </Button>
               </div>
@@ -206,9 +239,10 @@ export default function MBTIResultsPage() {
           {/* Header */}
           <MotionDiv variant="slideUp" duration="normal" className="mb-8">
             <Button
-              variant="ghost"
+              variant="primary"
               onClick={() => router.push('/dashboard/assessments')}
               className="mb-4 flex items-center gap-4"
+              style={{ backgroundColor: '#0F4C56', color: '#fff' }}
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               {t('backToAssessments')}
@@ -253,7 +287,7 @@ export default function MBTIResultsPage() {
                           key={index}
                           className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium"
                         >
-                          {strength}
+                          {translateStrengthOrChallenge(strength)}
                         </span>
                       ))}
                     </div>
@@ -266,7 +300,7 @@ export default function MBTIResultsPage() {
 
           {/* Dimension Breakdown */}
           <MotionDiv variant="slideUp" duration="normal" delay={200} className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Your Personality Dimensions</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('dimensions.title')}</h2>
             <div className="grid gap-4">
               {Object.entries(dimensionPreferences).map(
                 ([dimension, prefs]: [string, any], index) => {
@@ -396,7 +430,7 @@ export default function MBTIResultsPage() {
                         {insights.strengths.map((strength: string, index: number) => (
                           <li key={index} className="text-sm text-success-800 flex items-start gap-2">
                             <span className="text-success-600 mt-1">•</span>
-                            <span>{strength}</span>
+                            <span>{translateStrengthOrChallenge(strength)}</span>
                           </li>
                         ))}
                       </ul>
@@ -413,7 +447,7 @@ export default function MBTIResultsPage() {
                         {insights.challenges.map((challenge: string, index: number) => (
                           <li key={index} className="text-sm text-amber-800 flex items-start gap-2">
                             <span className="text-amber-600 mt-1">•</span>
-                            <span>{challenge}</span>
+                            <span>{translateStrengthOrChallenge(challenge)}</span>
                           </li>
                         ))}
                       </ul>
