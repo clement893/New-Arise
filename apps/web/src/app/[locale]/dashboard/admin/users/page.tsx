@@ -396,11 +396,17 @@ export default function AdminUsersPage() {
                 <thead>
                   <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
                     <th className="text-left py-4 px-4 w-10">
-                      <Checkbox
+                      <input
+                        type="checkbox"
                         checked={allSelected}
-                        indeterminate={someSelected}
+                        ref={(node) => {
+                          if (node) {
+                            node.indeterminate = someSelected;
+                          }
+                        }}
                         onChange={(e) => handleSelectAll(e.target.checked)}
-                        className="cursor-pointer"
+                        className="cursor-pointer w-4 h-4 text-primary-600 dark:text-primary-400 border-border bg-background focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:ring-offset-0 rounded"
+                        aria-label="Select all users"
                       />
                     </th>
                     <th className="text-left py-4 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap min-w-[200px]">
