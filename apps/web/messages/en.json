@@ -195,6 +195,77 @@
           "completed": "Test completed",
           "inProgress": "In Progress",
           "invited": "Invited"
+        },
+        "page": {
+          "title": "My",
+          "titleHighlight": "Evaluators",
+          "description": "View and manage your 360° feedback evaluators",
+          "back": "Back",
+          "refresh": "Refresh",
+          "addEvaluators": "Add evaluators",
+          "summary": {
+            "total": "Total",
+            "completed": "Completed",
+            "inProgress": "In Progress",
+            "pending": "Pending"
+          },
+          "filters": {
+            "title": "Filter by status:",
+            "all": "All",
+            "completed": "Completed",
+            "inProgress": "In Progress",
+            "invited": "Invited",
+            "pending": "Invitation Pending"
+          },
+          "empty": {
+            "noEvaluators": "No evaluators added yet.",
+            "noMatch": "No evaluators match the selected filter.",
+            "description": "To receive feedback on your leadership, add evaluators who know you professionally (colleagues, managers, direct reports, etc.)."
+          },
+          "evaluator": {
+            "relationship": "Relationship:",
+            "invited": "Invited:",
+            "opened": "Opened:",
+            "started": "Started:",
+            "completed": "Completed:",
+            "copyLink": "Copy link",
+            "copied": "Copied!"
+          },
+          "status": {
+            "completed": "Completed",
+            "inProgress": "In Progress",
+            "invitationPending": "Invitation Pending",
+            "pending": "Pending"
+          },
+          "roles": {
+            "PEER": "Peer / Colleague",
+            "MANAGER": "Manager / Superior",
+            "DIRECT_REPORT": "Direct Report / Collaborator",
+            "STAKEHOLDER": "Stakeholder / Client"
+          },
+          "time": {
+            "lessThanMinute": "Less than a minute ago",
+            "minutesAgo": "{minutes} minutes ago",
+            "hoursAgo": "{hours} hour{plural} ago",
+            "daysAgo": "{days} day{plural} ago"
+          },
+          "messages": {
+            "deleteConfirm": "Are you sure you want to delete the evaluator \"{name}\"? This action is irreversible.",
+            "deleteSuccess": "Evaluator \"{name}\" has been successfully deleted",
+            "linkCopied": "Invitation link copied to clipboard",
+            "addSuccess": "Evaluators have been successfully added and appear in the list"
+          },
+          "errors": {
+            "noAssessment": "No 360° feedback assessment found. Please start a 360° assessment from the Assessments page first.",
+            "sessionExpired": "Session expired. Please log in again.",
+            "sessionExpiredCached": "Session expired. Displaying cached data. Please log in again to refresh.",
+            "unableToLoad": "Unable to load evaluators. Please try again.",
+            "failedToLoad": "Failed to load evaluators: {message}",
+            "failedToLoadGeneric": "Failed to load evaluators. Please try again.",
+            "failedToDelete": "Failed to delete evaluator",
+            "failedToCopy": "Failed to copy link",
+            "retry": "Retry"
+          }
         }
       },
       "config": {

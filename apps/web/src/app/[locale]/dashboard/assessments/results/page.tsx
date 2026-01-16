@@ -483,7 +483,19 @@ function AssessmentResultsContent() {
                       <div className="text-4xl mr-4">{pillar.icon}</div>
                       <div className="flex-1">
                         <h3 className="text-lg font-bold text-gray-900 mb-1">
-                          {pillar.name}
+                          {(() => {
+                            // Translate pillar name
+                            const pillarKey = pillar.id.replace(/_/g, '');
+                            try {
+                              const translated = t(`dashboard.assessments.wellness.results.pillars.${pillarKey}`);
+                              if (translated && translated !== `dashboard.assessments.wellness.results.pillars.${pillarKey}`) {
+                                return translated;
+                              }
+                            } catch (e) {
+                              // Fallback
+                            }
+                            return pillar.name;
+                          })()}
                         </h3>
                         <p className="text-sm text-gray-600">
                           {pillar.description}
@@ -551,7 +563,20 @@ function AssessmentResultsContent() {
                           const allScores = Object.values(pillar_scores || {}).map(d => getPillarScore(d));
                           return allScores.length > 0 && !isNaN(score) && score === Math.max(...allScores.filter(s => !isNaN(s)));
                         });
-                        return strongestPillar?.name || 'N/A';
+                        if (strongestPillar) {
+                          // Translate pillar name
+                          const pillarKey = strongestPillar.id.replace(/_/g, '');
+                          try {
+                            const translated = t(`dashboard.assessments.wellness.results.pillars.${pillarKey}`);
+                            if (translated && translated !== `dashboard.assessments.wellness.results.pillars.${pillarKey}`) {
+                              return translated;
+                            }
+                          } catch (e) {
+                            // Fallback
+                          }
+                          return strongestPillar.name;
+                        }
+                        return 'N/A';
                       })()
                     })}
                   </p>
@@ -575,7 +600,20 @@ function AssessmentResultsContent() {
                           const allScores = Object.values(pillar_scores || {}).map(d => getPillarScore(d));
                           return allScores.length > 0 && !isNaN(score) && score === Math.min(...allScores.filter(s => !isNaN(s)));
                         });
-                        return weakestPillar?.name || 'N/A';
+                        if (weakestPillar) {
+                          // Translate pillar name
+                          const pillarKey = weakestPillar.id.replace(/_/g, '');
+                          try {
+                            const translated = t(`dashboard.assessments.wellness.results.pillars.${pillarKey}`);
+                            if (translated && translated !== `dashboard.assessments.wellness.results.pillars.${pillarKey}`) {
+                              return translated;
+                            }
+                          } catch (e) {
+                            // Fallback
+                          }
+                          return weakestPillar.name;
+                        }
+                        return 'N/A';
                       })()
                     })}
                   </p>

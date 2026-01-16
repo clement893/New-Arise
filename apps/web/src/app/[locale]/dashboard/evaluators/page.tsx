@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
 import { Card, Button, LoadingSkeleton } from '@/components/ui';
@@ -12,18 +13,22 @@ import InviteAdditionalEvaluatorsModal from '@/components/360/InviteAdditionalEv
 import { ArrowLeft, CheckCircle, Clock, Mail, User, Plus, Trash2, Copy, RefreshCw, Filter } from 'lucide-react';
 import { get360Evaluators, EvaluatorStatus, getMyAssessments, remove360Evaluator } from '@/lib/api/assessments';
 
-const ROLE_LABELS: Record<string, string> = {
-  PEER: 'Peer / Colleague',
-  MANAGER: 'Manager / Superior',
-  DIRECT_REPORT: 'Direct Report / Collaborator',
-  STAKEHOLDER: 'Stakeholder / Client',
-};
+// ROLE_LABELS will be translated in the component using useTranslations
 
 type StatusFilter = 'all' | 'completed' | 'in_progress' | 'invited' | 'pending';
 
 function EvaluatorsContent() {
+  const t = useTranslations('dashboard.assessments.evaluators.page');
+  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
+  
+  const ROLE_LABELS: Record<string, string> = {
+    PEER: t('roles.PEER'),
+    MANAGER: t('roles.MANAGER'),
+    DIRECT_REPORT: t('roles.DIRECT_REPORT'),
+    STAKEHOLDER: t('roles.STAKEHOLDER'),
+  };
   
   const [evaluators, setEvaluators] = useState<EvaluatorStatus[]>([]);
   const [filteredEvaluators, setFilteredEvaluators] = useState<EvaluatorStatus[]>([]);
@@ -54,9 +59,9 @@ function EvaluatorsContent() {
         }
         return cachedData;
       }
-    } catch (e) {
-      console.error('[EvaluatorsPage] ❌ Error loading cache:', e);
-    }
+          } catch (e: unknown) {
+            console.error('[EvaluatorsPage] ❌ Error loading cache:', e);
+          }
     return [];
   };
 
@@ -152,7 +157,7 @@ function EvaluatorsContent() {
             }
             if (!id) {
               if (!silent) {
-                setError('No 360° feedback assessment found. Please start a 360° assessment from the Assessments page first.');
+                setError(t('errors.noAssessment'));
                 setIsLoading(false);
               }
               return;
@@ -174,7 +179,7 @@ function EvaluatorsContent() {
           }
           if (!id) {
             if (!silent) {
-              setError('Session expirée. Veuillez vous reconnecter.');
+              setError(t('errors.sessionExpired'));
               setIsLoading(false);
             }
             return;
@@ -238,7 +243,7 @@ function EvaluatorsContent() {
               setIsLoading(false);
               const is401 = apiErr?.response?.status === 401 || apiErr?.message?.includes('401') || apiErr?.message?.includes('Unauthorized');
               if (is401) {
-                setError('Session expired. Displaying cached data. Please log in again to refresh.');
+                setError(t('errors.sessionExpiredCached'));
                 setTimeout(() => setError(null), 5000);
               }
             }
@@ -249,7 +254,7 @@ function EvaluatorsContent() {
         // If no cache and API fails, show error but don't block
         if (!silent) {
           setIsLoading(false);
-          setError('Unable to load evaluators. Please try again.');
+          setError(t('errors.unableToLoad'));
         } else {
           setIsLoading(false);
         }
@@ -260,7 +265,7 @@ function EvaluatorsContent() {
         setIsLoading(false);
         if (err instanceof Error) {
           if (err.message.includes('404') || err.message.includes('not found')) {
-            setError('360° assessment not found. Please start a 360° assessment from the Assessments page first.');
+            setError(t('errors.noAssessment'));
           } else if (err.message.includes('401') || err.message.includes('Unauthorized')) {
             // For 401, try to use cache
             const currentId = assessmentId || (searchParams?.get('id') ? parseInt(searchParams.get('id')!) : null);
@@ -268,17 +273,17 @@ function EvaluatorsContent() {
               const cachedEvaluators = getCachedEvaluators(currentId);
               if (cachedEvaluators.length > 0) {
                 setEvaluators(cachedEvaluators);
-                setError('Session expired. Displaying cached data. Please log in again to refresh.');
+                setError(t('errors.sessionExpiredCached'));
                 setTimeout(() => setError(null), 5000);
                 return;
               }
             }
-            setError('Session expired. Please log in again.');
+            setError(t('errors.sessionExpired'));
           } else {
-            setError(`Failed to load evaluators: ${err instanceof Error ? err.message : 'Unknown error'}`);
+            setError(t('errors.failedToLoad', { message: err.message || 'Unknown error' }));
           }
         } else {
-          setError('Failed to load evaluators. Please try again.');
+          setError(t('errors.failedToLoadGeneric'));
         }
       } else {
         setIsLoading(false);
@@ -319,11 +324,11 @@ function EvaluatorsContent() {
                 dataLength: entryData.length
               };
             }
-          } catch (e) {
+          } catch (e: unknown) {
             console.error('[EvaluatorsPage] Error parsing cache key', key, e);
           }
           return null;
-        }).filter(e => e !== null && !isNaN(e!.id)) as Array<{ key: string; id: number; timestamp: number; data: EvaluatorStatus[]; dataLength: number }>;
+            }).filter((e): e is { key: string; id: number; timestamp: number; data: EvaluatorStatus[]; dataLength: number } => e !== null && !isNaN(e!.id));
         
         if (cacheEntries.length > 0) {
           // Sort by timestamp (most recent first) and get the first one with data
@@ -488,7 +493,7 @@ function EvaluatorsContent() {
     if (!assessmentId) return;
     
     const confirmed = window.confirm(
-      `Are you sure you want to delete the evaluator "${evaluatorName}"? This action is irreversible.`
+      t('messages.deleteConfirm', { name: evaluatorName })
     );
     
     if (!confirmed) return;
@@ -496,13 +501,12 @@ function EvaluatorsContent() {
     try {
       setDeletingId(evaluatorId);
       await remove360Evaluator(assessmentId, evaluatorId);
-      setSuccessMessage(`Evaluator "${evaluatorName}" has been successfully deleted`);
+      setSuccessMessage(t('messages.deleteSuccess', { name: evaluatorName }));
       await loadEvaluators();
       setTimeout(() => setSuccessMessage(null), 5000);
     } catch (err) {
       console.error('Failed to delete evaluator:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to delete evaluator';
-      setError(errorMessage);
+      setError(t('errors.failedToDelete'));
       setTimeout(() => setError(null), 5000);
     } finally {
       setDeletingId(null);
@@ -515,14 +519,14 @@ function EvaluatorsContent() {
       const invitationUrl = `${baseUrl}/360-evaluator/${token}`;
       await navigator.clipboard.writeText(invitationUrl);
       setCopiedToken(token);
-      setSuccessMessage('Invitation link copied to clipboard');
+      setSuccessMessage(t('messages.linkCopied'));
       setTimeout(() => {
         setCopiedToken(null);
         setSuccessMessage(null);
       }, 3000);
     } catch (err) {
       console.error('Failed to copy link:', err);
-      setError('Failed to copy link');
+      setError(t('errors.failedToCopy'));
       setTimeout(() => setError(null), 3000);
     }
   };
@@ -534,28 +538,28 @@ function EvaluatorsContent() {
       return (
         <div className="flex items-center gap-2 px-3 py-1 bg-success-100 text-success-700 rounded-full text-sm font-medium">
           <CheckCircle size={16} />
-          Completed
+          {t('status.completed')}
         </div>
       );
     } else if (statusLower === 'in_progress' || statusLower === 'started') {
       return (
         <div className="flex items-center gap-2 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
           <Clock size={16} />
-          In Progress
+          {t('status.inProgress')}
         </div>
       );
     } else if (statusLower === 'invited' || statusLower === 'not_started') {
       return (
         <div className="flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">
           <Mail size={16} />
-          Invitation Pending
+          {t('status.invitationPending')}
         </div>
       );
     } else {
       return (
         <div className="flex items-center gap-2 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
           <Clock size={16} />
-          Pending
+          {t('status.pending')}
         </div>
       );
     }
@@ -565,7 +569,7 @@ function EvaluatorsContent() {
     if (!dateString) return 'N/A';
     try {
       // Convert to Montreal timezone (America/Montreal)
-      return new Date(dateString).toLocaleString('en-US', {
+      return new Date(dateString).toLocaleString(locale, {
         timeZone: 'America/Montreal',
         year: 'numeric',
         month: 'short',
@@ -590,11 +594,11 @@ function EvaluatorsContent() {
         const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
         if (diffHours === 0) {
           const diffMinutes = Math.floor(diffMs / (1000 * 60));
-          return diffMinutes <= 1 ? 'Il y a moins d\'une minute' : `Il y a ${diffMinutes} minutes`;
+          return diffMinutes <= 1 ? t('time.lessThanMinute') : t('time.minutesAgo', { minutes: diffMinutes });
         }
-        return `Il y a ${diffHours} heure${diffHours > 1 ? 's' : ''}`;
+        return t('time.hoursAgo', { hours: diffHours, plural: diffHours > 1 ? 's' : '' });
       }
-      return `Il y a ${diffDays} jour${diffDays > 1 ? 's' : ''}`;
+      return t('time.daysAgo', { days: diffDays, plural: diffDays > 1 ? 's' : '' });
     } catch {
       return null;
     }
@@ -617,7 +621,7 @@ function EvaluatorsContent() {
           <div className="text-center">
             <p className="text-red-600 mb-4">{error}</p>
             <Button variant="primary" onClick={() => loadEvaluators()}>
-              Réessayer
+              {t('errors.retry')}
             </Button>
           </div>
         </Card>
@@ -655,7 +659,7 @@ function EvaluatorsContent() {
               style={{ border: 'none', color: '#FFFFFF', padding: '4px 8px' }}
             >
               <ArrowLeft size={14} />
-              Retour
+              {t('back')}
             </Button>
             <Button
               variant="outline"
@@ -666,17 +670,17 @@ function EvaluatorsContent() {
               disabled={isLoading}
             >
               <RefreshCw size={12} className={isLoading ? 'animate-spin' : ''} />
-              Refresh
+              {t('refresh')}
             </Button>
           </div>
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-2">
-                <span className="text-white">My </span>
-                <span style={{ color: '#D5B667' }}>Evaluators</span>
+                <span className="text-white">{t('title')} </span>
+                <span style={{ color: '#D5B667' }}>{t('titleHighlight')}</span>
               </h1>
               <p className="text-white text-lg">
-                View and manage your 360° feedback evaluators
+                {t('description')}
               </p>
             </div>
             {assessmentId && (
@@ -687,7 +691,7 @@ function EvaluatorsContent() {
                 style={{ width: 'fit-content' }}
               >
                 <Plus size={16} style={{ marginRight: '4px' }} />
-                Add evaluators
+                {t('addEvaluators')}
               </Button>
             )}
           </div>
@@ -718,25 +722,25 @@ function EvaluatorsContent() {
               <div className="text-3xl font-bold text-gray-900 mb-1">
                 {evaluators.length}
               </div>
-              <div className="text-sm text-gray-600">Total</div>
+              <div className="text-sm text-gray-600">{t('summary.total')}</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-success-600 mb-1">
                 {completedCount}
               </div>
-              <div className="text-sm text-gray-600">Completed</div>
+              <div className="text-sm text-gray-600">{t('summary.completed')}</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-primary-600 mb-1">
                 {inProgressCount}
               </div>
-              <div className="text-sm text-gray-600">In Progress</div>
+              <div className="text-sm text-gray-600">{t('summary.inProgress')}</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-yellow-600 mb-1">
                 {invitedCount + pendingCount}
               </div>
-              <div className="text-sm text-gray-600">Pending</div>
+              <div className="text-sm text-gray-600">{t('summary.pending')}</div>
             </div>
           </div>
         </Card>
@@ -749,7 +753,7 @@ function EvaluatorsContent() {
             <div className="flex items-center gap-4 flex-wrap">
               <div className="flex items-center gap-2">
                 <Filter size={16} className="text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">Filter by status:</span>
+                <span className="text-sm font-medium text-gray-700">{t('filters.title')}</span>
               </div>
               <div className="flex gap-2 flex-wrap">
                 {(['all', 'completed', 'in_progress', 'invited', 'pending'] as StatusFilter[]).map((filter) => (
@@ -760,11 +764,11 @@ function EvaluatorsContent() {
                     onClick={() => setStatusFilter(filter)}
                     className="text-xs"
                   >
-                    {filter === 'all' && 'All'}
-                    {filter === 'completed' && 'Completed'}
-                    {filter === 'in_progress' && 'In Progress'}
-                    {filter === 'invited' && 'Invited'}
-                    {filter === 'pending' && 'Invitation Pending'}
+                    {filter === 'all' && t('filters.all')}
+                    {filter === 'completed' && t('filters.completed')}
+                    {filter === 'in_progress' && t('filters.inProgress')}
+                    {filter === 'invited' && t('filters.invited')}
+                    {filter === 'pending' && t('filters.pending')}
                   </Button>
                 ))}
               </div>
@@ -781,13 +785,13 @@ function EvaluatorsContent() {
               <div className="max-w-md mx-auto">
                 <p className="text-gray-600 mb-4 text-lg">
                   {evaluators.length === 0 
-                    ? 'No evaluators added yet.' 
-                    : 'No evaluators match the selected filter.'}
+                    ? t('empty.noEvaluators')
+                    : t('empty.noMatch')}
                 </p>
                 {evaluators.length === 0 && (
                   <div className="space-y-3 flex-col flex align-center justify-center">
                     <p className="text-gray-500 text-sm mb-4">
-                      To receive feedback on your leadership, add evaluators who know you professionally (colleagues, managers, direct reports, etc.).
+                      {t('empty.description')}
                     </p>
                     {assessmentId && (
                       <Button
@@ -796,7 +800,7 @@ function EvaluatorsContent() {
                         className="font-semibold flex flex-row items-center gap-2"
                       >
                         <Plus size={20} />
-                        Add evaluators
+                        {t('addEvaluators')}
                       </Button>
                     )}
                   </div>
@@ -827,13 +831,13 @@ function EvaluatorsContent() {
                         </p>
                         {evaluator.role && (
                           <p className="text-xs text-gray-500 mb-3">
-                            Relationship: {ROLE_LABELS[evaluator.role] || evaluator.role}
+                            {t('evaluator.relationship')} {ROLE_LABELS[evaluator.role] || evaluator.role}
                           </p>
                         )}
                         <div className="flex flex-wrap gap-4 text-xs text-gray-500 mb-2">
                           {evaluator.invitation_sent_at && (
                             <div>
-                              <span className="font-medium">Invited:</span>{' '}
+                              <span className="font-medium">{t('evaluator.invited')}</span>{' '}
                               {formatDate(evaluator.invitation_sent_at)}
                               {getTimeElapsed(evaluator.invitation_sent_at) && (
                                 <span className="text-gray-400 ml-1">
@@ -844,19 +848,19 @@ function EvaluatorsContent() {
                           )}
                           {evaluator.invitation_opened_at && (
                             <div>
-                              <span className="font-medium">Opened:</span>{' '}
+                              <span className="font-medium">{t('evaluator.opened')}</span>{' '}
                               {formatDate(evaluator.invitation_opened_at)}
                             </div>
                           )}
                           {evaluator.started_at && (
                             <div>
-                              <span className="font-medium">Started:</span>{' '}
+                              <span className="font-medium">{t('evaluator.started')}</span>{' '}
                               {formatDate(evaluator.started_at)}
                             </div>
                           )}
                           {evaluator.completed_at && (
                             <div>
-                              <span className="font-medium">Completed:</span>{' '}
+                              <span className="font-medium">{t('evaluator.completed')}</span>{' '}
                               {formatDate(evaluator.completed_at)}
                             </div>
                           )}
@@ -870,7 +874,7 @@ function EvaluatorsContent() {
                               className="text-xs flex flex-row items-center gap-2"
                             >
                               <Copy size={14} />
-                              {copiedToken === evaluator.invitation_token ? 'Copied!' : 'Copy link'}
+                              {copiedToken === evaluator.invitation_token ? t('evaluator.copied') : t('evaluator.copyLink')}
                             </Button>
                           </div>
                         )}
@@ -940,7 +944,7 @@ function EvaluatorsContent() {
             
             // Set filter to all to show all evaluators including newly added
             setStatusFilter('all');
-            setSuccessMessage('Evaluators have been successfully added and appear in the list');
+            setSuccessMessage(t('messages.addSuccess'));
             setTimeout(() => setSuccessMessage(null), 5000);
           }}
         />

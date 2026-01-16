@@ -129,6 +129,77 @@
           "completed": "Test réalisé",
           "inProgress": "En cours",
           "invited": "Invité"
+        },
+        "page": {
+          "title": "Mes",
+          "titleHighlight": "Évaluateurs",
+          "description": "Consultez et gérez vos évaluateurs de feedback 360°",
+          "back": "Retour",
+          "refresh": "Actualiser",
+          "addEvaluators": "Ajouter des évaluateurs",
+          "summary": {
+            "total": "Total",
+            "completed": "Complétés",
+            "inProgress": "En cours",
+            "pending": "En attente"
+          },
+          "filters": {
+            "title": "Filtrer par statut :",
+            "all": "Tous",
+            "completed": "Complétés",
+            "inProgress": "En cours",
+            "invited": "Invités",
+            "pending": "Invitation en attente"
+          },
+          "empty": {
+            "noEvaluators": "Aucun évaluateur ajouté pour le moment.",
+            "noMatch": "Aucun évaluateur ne correspond au filtre sélectionné.",
+            "description": "Pour recevoir des retours sur votre leadership, ajoutez des évaluateurs qui vous connaissent professionnellement (collègues, managers, collaborateurs directs, etc.)."
+          },
+          "evaluator": {
+            "relationship": "Relation :",
+            "invited": "Invité :",
+            "opened": "Ouvert :",
+            "started": "Commencé :",
+            "completed": "Complété :",
+            "copyLink": "Copier le lien",
+            "copied": "Copié !"
+          },
+          "status": {
+            "completed": "Complété",
+            "inProgress": "En cours",
+            "invitationPending": "Invitation en attente",
+            "pending": "En attente"
+          },
+          "roles": {
+            "PEER": "Pair / Collègue",
+            "MANAGER": "Manager / Supérieur",
+            "DIRECT_REPORT": "Collaborateur direct / Collaborateur",
+            "STAKEHOLDER": "Partie prenante / Client"
+          },
+          "time": {
+            "lessThanMinute": "Il y a moins d'une minute",
+            "minutesAgo": "Il y a {minutes} minutes",
+            "hoursAgo": "Il y a {hours} heure{plural}",
+            "daysAgo": "Il y a {days} jour{plural}"
+          },
+          "messages": {
+            "deleteConfirm": "Êtes-vous sûr de vouloir supprimer l'évaluateur \"{name}\" ? Cette action est irréversible.",
+            "deleteSuccess": "L'évaluateur \"{name}\" a été supprimé avec succès",
+            "linkCopied": "Lien d'invitation copié dans le presse-papiers",
+            "addSuccess": "Les évaluateurs ont été ajoutés avec succès et apparaissent dans la liste"
+          },
+          "errors": {
+            "noAssessment": "Aucune évaluation de feedback 360° trouvée. Veuillez d'abord démarrer une évaluation 360° depuis la page Assessments.",
+            "sessionExpired": "Session expirée. Veuillez vous reconnecter.",
+            "sessionExpiredCached": "Session expirée. Affichage des données en cache. Veuillez vous reconnecter pour actualiser.",
+            "unableToLoad": "Impossible de charger les évaluateurs. Veuillez réessayer.",
+            "failedToLoad": "Échec du chargement des évaluateurs : {message}",
+            "failedToLoadGeneric": "Échec du chargement des évaluateurs. Veuillez réessayer.",
+            "failedToDelete": "Échec de la suppression de l'évaluateur",
+            "failedToCopy": "Échec de la copie du lien",
+            "retry": "Réessayer"
+          }
         }
       },
       "config": {
