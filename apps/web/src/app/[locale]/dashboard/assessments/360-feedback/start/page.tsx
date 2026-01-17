@@ -580,21 +580,22 @@ export default function Start360FeedbackPage() {
                     )}
                   </Button>
                 </div>
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="bg-arise-gold hover:bg-arise-gold/90 flex flex-row items-center gap-2"
-                >
-                  {isSubmitting ? (
-                    <>Sending...</>
-                  ) : (
-                    <>
-                      <UserPlus className="h-4 w-4" />
-                      {evaluators.length > 0 && evaluators.some(e => e.name.trim() && e.email.trim())
-                        ? 'Send invitations and start'
-                        : 'Start without contributors'}
-                    </>
-                  )}
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="bg-arise-gold hover:bg-arise-gold/90 flex flex-row items-center gap-2"
+                  >
+                    {isSubmitting ? (
+                      <>Sending...</>
+                    ) : (
+                      <>
+                        <UserPlus className="h-4 w-4" />
+                        {evaluators.length > 0 && evaluators.some(e => e.name.trim() && e.email.trim())
+                          ? 'Send invitations and start'
+                          : 'Start without contributors'}
+                      </>
+                    )}
+                  </Button>
                 </Button>
               </div>
             </form>

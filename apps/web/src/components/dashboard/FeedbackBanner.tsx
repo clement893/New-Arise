@@ -11,7 +11,7 @@ export function FeedbackBanner() {
         </div>
         <div>
           <h3 className="text-lg font-bold text-gray-900 mb-1">
-            Add Your 360° Feedback Evaluators
+            Add Your 360° Feedback Contributors
           </h3>
           <p className="text-sm text-gray-600">
             Get comprehensive feedback by inviting colleagues to evaluate your leadership.
@@ -19,7 +19,7 @@ export function FeedbackBanner() {
         </div>
       </div>
       <button className="px-6 py-2 bg-arise-deep-teal text-white rounded-lg font-medium hover:bg-arise-deep-teal/90 transition-colors whitespace-nowrap">
-        Add evaluators
+        Add contributors
       </button>
     </div>
   );
