@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { Card, Button } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
@@ -19,7 +18,6 @@ import { getMyAssessments, getAssessmentResults, AssessmentType } from '@/lib/ap
 import { formatError } from '@/lib/utils/formatError';
 
 function ExecutiveSummaryContent() {
-  const t = useTranslations('dashboard.executiveSummary');
   const router = useRouter();
   const [assessments, setAssessments] = useState<any[]>([]);
   const [results, setResults] = useState<Record<string, any>>({});
