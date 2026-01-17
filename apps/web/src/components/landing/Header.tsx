@@ -10,6 +10,7 @@ import Button from '@/components/ui/Button';
 import { LanguageToggle } from './LanguageToggle';
 import { Menu, X, ArrowRight } from 'lucide-react';
 import { clsx } from 'clsx';
+import Image from 'next/image';
 
 export function Header() {
   const t = useTranslations('landing.header');
@@ -57,7 +58,14 @@ export function Header() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <span className="text-2xl font-bold text-arise-deep-teal">ARISE</span>
+            <Image
+              src="/images/arise-logo.png"
+              alt="ARISE"
+              width={120}
+              height={40}
+              className="h-10 w-auto"
+              priority
+            />
           </Link>
 
           {/* Navigation Desktop - Centered */}
@@ -70,6 +78,9 @@ export function Header() {
             </Link>
             <Link href="/news" className="text-gray-700 hover:text-arise-deep-teal transition-colors">
               {t('news')}
+            </Link>
+            <Link href="/register" className="text-gray-700 hover:text-arise-deep-teal transition-colors">
+              {t('getStarted')}
             </Link>
           </div>
 
@@ -185,6 +196,13 @@ export function Header() {
               className="text-gray-700 hover:text-arise-deep-teal transition-colors px-4 py-3 min-h-[44px] flex items-center rounded-lg hover:bg-gray-50"
             >
               {t('news')}
+            </Link>
+            <Link
+              href="/register"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-gray-700 hover:text-arise-deep-teal transition-colors px-4 py-3 min-h-[44px] flex items-center rounded-lg hover:bg-gray-50"
+            >
+              {t('getStarted')}
             </Link>
             <div className="border-t border-gray-200 pt-4 mt-2">
               <div className="flex flex-col gap-2 px-2">

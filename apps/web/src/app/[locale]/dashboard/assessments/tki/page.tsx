@@ -217,7 +217,7 @@ export default function TKIAssessmentPage() {
                 </svg>
               </div>
               <h1 className="text-3xl font-bold mb-2" style={{ color: '#0F4C56' }}>Congratulations!</h1>
-              <p className="text-gray-600">You've completed the TKI Conflict Style Assessment</p>
+              <p className="text-gray-600">You've completed the ARISE Conflict Style Assessment</p>
             </div>
 
             <div className="mb-6 p-4 bg-arise-beige rounded-lg">
@@ -258,7 +258,7 @@ export default function TKIAssessmentPage() {
         <MotionDiv variant="slideUp" duration="normal" className="max-w-4xl w-full">
           <Card className="bg-white p-8">
             <h1 className="text-3xl font-bold text-arise-teal mb-4 text-center">
-              TKI Conflict Style Assessment
+              ARISE Conflict Style Assessment
             </h1>
             <p className="text-gray-600 mb-6 text-center">
               Explore your conflict management approach
@@ -370,7 +370,7 @@ export default function TKIAssessmentPage() {
                   <div className="flex items-center gap-3">
                     <Target className="w-6 h-6" style={{ color: '#0F4C56' }} />
                     <span className="font-semibold text-gray-900">
-                      TKI Conflict Style
+                      ARISE Conflict Style
                     </span>
                   </div>
                   <div className="text-center">

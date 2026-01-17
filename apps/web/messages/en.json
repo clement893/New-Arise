@@ -186,9 +186,9 @@
         "loading": "Loading..."
       },
       "evaluators": {
-        "title": "360° Evaluators",
+        "title": "360° Contributors",
         "description": "Invite colleagues to provide 360° feedback on your leadership",
-        "noEvaluators": "No evaluators added yet",
+        "noEvaluators": "No contributors added yet",
         "viewAll": "View all",
         "add": "Add",
         "status": {
@@ -198,11 +198,11 @@
         },
         "page": {
           "title": "My",
-          "titleHighlight": "Evaluators",
-          "description": "View and manage your 360° feedback evaluators",
+          "titleHighlight": "Contributors",
+          "description": "View and manage your 360° feedback contributors",
           "back": "Back",
           "refresh": "Refresh",
-          "addEvaluators": "Add evaluators",
+          "addEvaluators": "Add contributors",
           "summary": {
             "total": "Total",
             "completed": "Completed",
@@ -218,9 +218,9 @@
             "pending": "Invitation Pending"
           },
           "empty": {
-            "noEvaluators": "No evaluators added yet.",
-            "noMatch": "No evaluators match the selected filter.",
-            "description": "To receive feedback on your leadership, add evaluators who know you professionally (colleagues, managers, direct reports, etc.)."
+            "noEvaluators": "No contributors added yet.",
+            "noMatch": "No contributors match the selected filter.",
+            "description": "To receive feedback on your leadership, add contributors who know you professionally (colleagues, managers, direct reports, etc.)."
           },
           "evaluator": {
             "relationship": "Relationship:",
@@ -250,19 +250,19 @@
             "daysAgo": "{days} day{plural} ago"
           },
           "messages": {
-            "deleteConfirm": "Are you sure you want to delete the evaluator \"{name}\"? This action is irreversible.",
-            "deleteSuccess": "Evaluator \"{name}\" has been successfully deleted",
+            "deleteConfirm": "Are you sure you want to delete the contributor \"{name}\"? This action is irreversible.",
+            "deleteSuccess": "Contributor \"{name}\" has been successfully deleted",
             "linkCopied": "Invitation link copied to clipboard",
-            "addSuccess": "Evaluators have been successfully added and appear in the list"
+            "addSuccess": "Contributors have been successfully added and appear in the list"
           },
           "errors": {
             "noAssessment": "No 360° feedback assessment found. Please start a 360° assessment from the Assessments page first.",
             "sessionExpired": "Session expired. Please log in again.",
             "sessionExpiredCached": "Session expired. Displaying cached data. Please log in again to refresh.",
-            "unableToLoad": "Unable to load evaluators. Please try again.",
-            "failedToLoad": "Failed to load evaluators: {message}",
-            "failedToLoadGeneric": "Failed to load evaluators. Please try again.",
-            "failedToDelete": "Failed to delete evaluator",
+            "unableToLoad": "Unable to load contributors. Please try again.",
+            "failedToLoad": "Failed to load contributors: {message}",
+            "failedToLoadGeneric": "Failed to load contributors. Please try again.",
+            "failedToDelete": "Failed to delete contributor",
             "failedToCopy": "Failed to copy link",
             "retry": "Retry"
           }
@@ -274,7 +274,7 @@
           "description": "Understanding your natural preferences"
         },
         "tki": {
-          "title": "TKI Conflict Style",
+          "title": "ARISE Conflict Style",
           "description": "Explore your conflict management approach"
         },
         "wellness": {
@@ -286,7 +286,7 @@
           "description": "Multi-faceted leadership perspectives"
         },
         "360_evaluator": {
-          "title": "360° Feedback (Evaluator)",
+          "title": "360° Feedback (Contributor)",
           "description": "Provide feedback for a colleague"
         }
       },
@@ -306,7 +306,7 @@
       "tki": {
         "results": {
           "loading": "Loading your results...",
-          "title": "TKI Conflict Style Results",
+          "title": "ARISE Conflict Style Results",
           "subtitle": "Your conflict management profile",
           "backToAssessments": "Back to Assessments",
           "dominantMode": "Dominant Mode",
@@ -441,7 +441,7 @@
           "selfAssessmentOnly": "These results are based solely on your self-assessment. Invite colleagues to get a complete 360° view.",
           "basedOnFeedback": "Based on your self-assessment and feedback from {count} colleague{count, plural, one {} other {s}}",
           "evaluatorStatus": {
-            "title": "Evaluator Status",
+            "title": "Contributor Status",
             "viewAll": "View All",
             "completed": "Completed",
             "inProgress": "In Progress",
@@ -480,11 +480,11 @@
             "complete360": {
               "title": "Complete Your 360° View",
               "description": "Invite colleagues, managers, and collaborators to share their perspective on your leadership. This will give you a complete view of how others perceive your capabilities.",
-              "button": "Invite Evaluators"
+              "button": "Invite Contributors"
             },
             "developmentPlan": {
-              "title": "Create Your Development Plan",
-              "description": "Use these insights to create a personalized development plan focusing on your growth areas while leveraging your strengths."
+              "title": "Create Your Personal Growth Plan",
+              "description": "Use these insights to create a personalized growth plan focusing on your growth areas while leveraging your strengths."
             },
             "coaching": {
               "title": "Schedule Coaching",
@@ -742,7 +742,7 @@
           "description": "Understanding your natural preferences"
         },
         "tki": {
-          "title": "TKI Conflict Style",
+          "title": "ARISE Conflict Style",
           "description": "Explore Your Conflict Management Approach"
         },
         "360": {
@@ -766,11 +766,11 @@
         "start": "Start"
       },
       "evaluatorsBanner": {
-        "title": "Add Your 360° Feedback: Evaluators",
+        "title": "Add Your 360° Feedback: Contributors",
         "description": "Get comprehensive feedback by inviting colleagues to evaluate your leadership.",
-        "viewEvaluators": "View Evaluators",
-        "viewEvaluatorsWithCount": "View Evaluators ({count})",
-        "addEvaluators": "Add Evaluators"
+        "viewEvaluators": "View Contributors",
+        "viewEvaluatorsWithCount": "View Contributors ({count})",
+        "addEvaluators": "Add Contributors"
       },
       "progress": {
         "title": "Your Progress",
@@ -788,7 +788,7 @@
       },
       "coaching": {
         "title": "Ready to accelerate your growth?",
-        "description": "Connect with expert ARISE coaches who specialize in leadership development. Schedule your FREE coaching session to debrief your results and build a personalized development plan.",
+        "description": "Connect with expert ARISE coaches who specialize in leadership development. Schedule your FREE coaching session to debrief your results and build a personalized growth plan.",
         "exploreOptions": "Explore coaching options →",
         "imageAlt": "Coaching session"
       },
@@ -802,7 +802,7 @@
         "dashboard": "Dashboard",
         "assessments": "Assessments",
         "resultsReports": "Results & Reports",
-        "developmentPlan": "Development plan",
+        "developmentPlan": "Personal Growth Plan",
         "profile": "Profile",
         "coachee": "Coachee",
         "agenda": "Agenda",
@@ -871,7 +871,7 @@
           "features": {
             "0": "6 sessions of 60 minutes",
             "1": "Continuous progress tracking",
-            "2": "Personalized development plan",
+            "2": "Personalized growth plan",
             "3": "Access to resource library",
             "4": "Email support between sessions",
             "5": "Monthly progress reports"
@@ -884,7 +884,7 @@
           "features": {
             "0": "12 sessions of 60 minutes",
             "1": "Intensive and personalized support",
-            "2": "Strategic development plan",
+            "2": "Strategic growth plan",
             "3": "Priority access to premium resources",
             "4": "Unlimited email support",
             "5": "Detailed quarterly reports",
@@ -1118,8 +1118,8 @@
         "assessmentsCompleted": "Assessments Completed",
         "averageScore": "Average Score",
         "developmentGoals": "Development Goals",
-        "evaluators360": "360° Evaluators",
-        "viewEvaluators": "View Evaluators"
+        "evaluators360": "360° Contributors",
+        "viewEvaluators": "View Contributors"
       },
       "assessments": {
         "title": "Your Assessment Results",
@@ -1133,7 +1133,7 @@
         "downloadReport": "Download report",
         "types": {
           "MBTI": "MBTI Personality",
-          "TKI": "TKI Conflict Style",
+          "TKI": "ARISE Conflict Style",
           "WELLNESS": "Wellness Assessment",
           "THREE_SIXTY_SELF": "360° Feedback"
         }
@@ -1204,7 +1204,7 @@
           "assessments": "All your assessments ({count} assessments)",
           "responses": "All your responses",
           "results": "All your results",
-          "evaluators": "All associated 360° evaluators"
+          "evaluators": "All associated 360° contributors"
         },
         "cancel": "Cancel",
         "confirm": "Confirm Deletion",
@@ -1225,14 +1225,14 @@
       "resetButton": "Reset All Assessments",
       "cta": {
         "title": "Ready to accelerate your growth?",
-        "description": "Connect with expert ARISE coaches who specialize in leadership development. Schedule your FREE coaching session to debrief your results and build a personalized development plan.",
+        "description": "Connect with expert ARISE coaches who specialize in leadership development. Schedule your FREE coaching session to debrief your results and build a personalized growth plan.",
         "button": "Explore coaching options →",
         "imageAlt": "Coaching session"
       }
     },
     "developmentPlan": {
       "header": {
-        "title": "Development",
+        "title": "Personal Growth",
         "titleHighlight": "Plan",
         "description": "Track your personal and professional development journey"
       },
@@ -1284,7 +1284,7 @@
         }
       },
       "resourceDetail": {
-        "back": "Back to Development Plan",
+        "back": "Back to Personal Growth Plan",
         "notFound": {
           "title": "Resource Not Found",
           "description": "The requested resource does not exist or has been removed."
@@ -1366,7 +1366,7 @@
       },
       "cta": {
         "title": "Ready to accelerate your growth?",
-        "description": "Connect with expert ARISE coaches who specialize in leadership development. Schedule your FREE coaching session to debrief your results and build a personalized development plan.",
+        "description": "Connect with expert ARISE coaches who specialize in leadership development. Schedule your FREE coaching session to debrief your results and build a personalized growth plan.",
         "button": "Explore coaching options →",
         "imageAlt": "Coaching session"
       }
@@ -1531,7 +1531,7 @@
           }
         },
         "goal": {
-          "label": "What is your main goal with a leadership development plan?",
+          "label": "What is your main goal with a leadership growth plan?",
           "options": {
             "improveLeadership": "Improve Leadership Skills",
             "careerAdvancement": "Career Advancement",
@@ -2421,7 +2421,7 @@
           "TKI": "TKI",
           "WELLNESS": "Wellness",
           "THREE_SIXTY_SELF": "360° Feedback (Self)",
-          "THREE_SIXTY_EVALUATOR": "360° Feedback (Evaluator)"
+          "THREE_SIXTY_EVALUATOR": "360° Feedback (Contributor)"
         },
         "empty": {
           "noTests": "No test found",
@@ -2889,7 +2889,7 @@
     },
     "buildingLeaders": {
       "title": "Building leaders",
-      "description": "Leadership development is not just about skills and competencies. It's about cultivating authentic leaders who understand themselves, inspire others, and create lasting impact. Our holistic approach combines cutting-edge assessments with personalized insights to help leaders thrive."
+      "description": "Leadership development is not just about skills and competencies. It's about cultivating authentic leaders who understand themselves, inspire others, and create lasting impact. With purposeful insights and intentional direction, leaders can ignite the fire within themselves and others. Our holistic approach combines cutting-edge assessments with personalized insights to help leaders thrive."
     },
     "fourDimensions": {
       "methodology": "OUR METHODOLOGY",
@@ -2902,7 +2902,7 @@
           "description": "Understand your natural preferences and how you interact with the world around you through the Myers-Briggs Type Indicator."
         },
         "tki": {
-          "title": "TKI",
+          "title": "ARISE",
           "subtitle": "Conflict Management",
           "description": "Discover your conflict-handling styles and learn how to navigate challenging situations with confidence and effectiveness."
         },
@@ -2929,7 +2929,7 @@
       "subtitle": "Whether you're an individual leader, a coach, or an organization, we have the right solution for you.",
       "individual": {
         "title": "INDIVIDUAL",
-        "description": "Perfect for leaders looking to develop their personal leadership skills and gain deep self-awareness.",
+        "description": "Perfect for leaders at any level (entry, middle, senior, executive), looking to develop their personal leadership skills and gain deep self-awareness.",
         "features": {
           "assessment": "Complete all 4 assessments",
           "profile": "Personal leadership profile",
@@ -2940,7 +2940,7 @@
       },
       "coach": {
         "title": "COACH",
-        "description": "Designed for professional coaches who guide leaders through their development journey.",
+        "description": "Designed for professional leadership coaches who guide leaders through their development journey.",
         "features": {
           "clients": "Manage multiple clients",
           "reports": "Access client reports",
@@ -2981,7 +2981,7 @@
     },
     "finalCTA": {
       "title": "Ready to elevate your leadership?",
-      "subtitle": "Join thousands of leaders who have discovered their authentic leadership style through ARISE.",
+      "subtitle": "Join the ARISE community of leaders who have discovered their authentic leadership style through ARISE.",
       "discoverMore": "Discover More",
       "getStarted": "Get Started"
     },
@@ -3430,19 +3430,24 @@
     },
     "title": "Our Story",
     "subtitle": "Empowering authentic leaders through holistic assessment and development",
+    "story": {
+      "text1": "ARISE was born in July 2025, out of a desire to give back and help build workplaces where people can thrive, grow and rise to their full potential. Because when people rise, they lift organizations, communities, and the world around them.",
+      "text2": "The magic of authentic leadership",
+      "text3": "Authentic leaders are at the core of creating conditions where people thrive. By leading with authenticity and realness, they set the stage for a positive workplace – one where there's joy in the journey of achieving results. When leaders do more than meet targets, they transform businesses into spaces where meaningful progress ripples through their organizations and into their communities and homes."
+    },
     "mission": {
       "title": "Our Mission",
       "titlePart1": "Our",
       "titlePart2": "Mission",
-      "text1": "To empower leaders worldwide by providing comprehensive, science-based assessments and personalized development pathways that unlock their authentic leadership potential.",
+      "text1": "Empowering leaders worldwide to shape workplaces where humanity and high performance thrive together. By providing comprehensive, science-based assessments and personalized development pathways, we unlock their authentic leadership potential.",
       "text2": "We believe that great leadership starts with self-awareness. Through our holistic approach combining personality insights, conflict management skills, 360° feedback, and wellness assessment, we help leaders understand themselves deeply and grow authentically."
     },
     "vision": {
       "title": "Our Vision",
       "titlePart1": "Our",
       "titlePart2": "Vision",
-      "text1": "A world where every leader reaches their full potential, creating positive impact in their organizations and communities.",
-      "text2": "We envision a future where leadership development is accessible, personalized, and grounded in scientific research. Where leaders are equipped not just with skills, but with deep self-awareness and authentic purpose."
+      "text1": "A world where every leader reaches their full potential, creating lasting positive impact within their teams, organizations and communities.",
+      "text2": "We envision a future where leadership development is accessible, personalized, and holistic, grounded in scientific research and real human experience. A future where leaders cultivate not only skills, but deep self-awareness, authentic purpose, and resilience—where well-being is valued as highly as performance, and success is measured by both results and human flourishing."
     },
     "values": {
       "title": "Our Values",

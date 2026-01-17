@@ -19,7 +19,7 @@ export function Sidebar() {
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Assessments', href: '/dashboard/assessments', icon: ClipboardList },
     { name: 'Results & Reports', href: '/dashboard/results', icon: BarChart3 },
-    { name: 'Development plan', href: '/dashboard/development', icon: Target },
+    { name: 'Personal Growth Plan', href: '/dashboard/development', icon: Target },
   ];
 
   const isActive = (href: string) => pathname === href;

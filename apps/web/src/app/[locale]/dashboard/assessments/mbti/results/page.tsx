@@ -261,7 +261,28 @@ export default function MBTIResultsPage() {
                   </div>
                 )}
               </div>
-              <Button variant="outline">
+              <Button 
+                variant="outline"
+                onClick={async () => {
+                  try {
+                    const { generateAssessmentPDF, downloadBlob } = await import('@/lib/utils/pdfGenerator');
+                    const pdfBlob = await generateAssessmentPDF({
+                      id: Number(assessmentId),
+                      name: 'MBTI Assessment Results',
+                      type: 'MBTI',
+                      completedDate: new Date().toLocaleDateString(),
+                      score: mbtiType,
+                      result: typeInfo.name,
+                      detailedResult: results,
+                    });
+                    const timestamp = new Date().toISOString().split('T')[0];
+                    downloadBlob(pdfBlob, `MBTI_Assessment_Results_${timestamp}.pdf`);
+                  } catch (err) {
+                    console.error('Error generating PDF:', err);
+                    alert('Failed to generate PDF. Please try again.');
+                  }
+                }}
+              >
                 <Download className="w-4 h-4 mr-2" />
                 {t('exportPdf')}
               </Button>

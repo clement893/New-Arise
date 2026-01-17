@@ -32,7 +32,7 @@ const ASSESSMENT_CONFIG: Record<string, { title: string; description: string; ic
     externalLink: 'https://www.psychometrics.com/assessments/mbti/',
   },
   TKI: {
-    title: 'TKI Conflict Style',
+    title: 'ARISE Conflict Style',
     description: 'Explore Your Conflict Management Approach',
     icon: Target,
   },

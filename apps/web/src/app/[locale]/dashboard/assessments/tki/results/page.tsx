@@ -180,15 +180,6 @@ export default function TKIResultsPage() {
       {/* Content */}
       <div className="relative z-10 p-8">
           <MotionDiv variant="slideUp" duration="normal">
-            <Button
-              onClick={() => router.push('/dashboard/assessments')}
-              variant="primary"
-              className="mb-6 flex items-center gap-4"
-              style={{ backgroundColor: '#0F4C56', color: '#fff' }}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              {t('backToAssessments')}
-            </Button>
 
             <div className="mb-8 pb-6">
               <h1 className="text-4xl font-bold text-black mb-2">
@@ -279,10 +270,10 @@ export default function TKIResultsPage() {
               </div>
             </Card>
 
-            {/* Recommendations */}
-            <Card className="bg-arise-gold/10 border-2 border-arise-gold/30">
+            {/* KEY Recommendations */}
+            <Card className="bg-arise-gold/10 border-2 border-arise-gold/30 mb-8">
               <h2 className="text-2xl font-bold text-black mb-4">
-                {t('recommendations.title')}
+                KEY {t('recommendations.title')}
               </h2>
               <div className="space-y-3">
                 <p className="text-black">
@@ -296,6 +287,19 @@ export default function TKIResultsPage() {
                 </p>
               </div>
             </Card>
+
+            {/* Back button at bottom */}
+            <div className="flex justify-center mt-8">
+              <Button
+                onClick={() => router.push('/dashboard/assessments')}
+                variant="primary"
+                className="flex items-center gap-4"
+                style={{ backgroundColor: '#0F4C56', color: '#fff' }}
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                {t('backToAssessments')}
+              </Button>
+            </div>
           </MotionDiv>
         </div>
     </div>

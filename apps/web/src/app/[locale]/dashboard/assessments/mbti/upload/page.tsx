@@ -7,6 +7,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from '@/i18n/routing';
+import { useTranslations, useLocale } from 'next-intl';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import MotionDiv from '@/components/motion/MotionDiv';
@@ -17,6 +18,8 @@ import { formatError } from '@/lib/utils/formatError';
 
 export default function MBTIPDFUploadPage() {
   const router = useRouter();
+  const t = useTranslations('dashboard.assessments.mbti.upload');
+  const locale = useLocale();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [profileUrl, setProfileUrl] = useState<string>('');
   const [inputMode, setInputMode] = useState<'file' | 'url' | 'image'>('file');
@@ -37,7 +40,7 @@ export default function MBTIPDFUploadPage() {
       if (inputMode === 'file') {
         // PDF validation
         if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-          setError('Veuillez sélectionner un fichier PDF valide');
+          setError(locale === 'fr' ? 'Veuillez sélectionner un fichier PDF valide' : 'Please select a valid PDF file');
           setSelectedFile(null);
           return;
         }
@@ -49,7 +52,7 @@ export default function MBTIPDFUploadPage() {
         const hasValidExtension = allowedExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
         
         if (!hasValidType && !hasValidExtension) {
-          setError('Veuillez sélectionner une image valide (PNG, JPG, JPEG, GIF, WEBP)');
+          setError(locale === 'fr' ? 'Veuillez sélectionner une image valide (PNG, JPG, JPEG, GIF, WEBP)' : 'Please select a valid image (PNG, JPG, JPEG, GIF, WEBP)');
           setSelectedFile(null);
           return;
         }
@@ -71,25 +74,31 @@ export default function MBTIPDFUploadPage() {
     if (!url.trim()) {
       return false;
     }
-    // Validate 16Personalities profile URL format
-    const urlPattern = /^https?:\/\/www\.16personalities\.com\/profiles\/[a-zA-Z0-9]+/;
-    return urlPattern.test(url.trim());
+    // Validate 16Personalities profile URL format - more flexible
+    // Accepts www.16personalities.com/profiles/... or 16personalities.com/profiles/...
+    const urlPattern = /^https?:\/\/(www\.)?16personalities\.com\/profiles\/[a-zA-Z0-9]+/;
+    const trimmedUrl = url.trim();
+    return urlPattern.test(trimmedUrl);
   };
 
   const handleUpload = async () => {
     // Validate inputs BEFORE starting upload process
     if ((inputMode === 'file' || inputMode === 'image') && !selectedFile) {
-      setError(inputMode === 'file' ? 'Veuillez sélectionner un fichier PDF' : 'Veuillez sélectionner une image');
+      setError(inputMode === 'file' 
+        ? (locale === 'fr' ? 'Veuillez sélectionner un fichier PDF' : 'Please select a PDF file')
+        : (locale === 'fr' ? 'Veuillez sélectionner une image' : 'Please select an image'));
       return;
     }
     
     if (inputMode === 'url' && !profileUrl.trim()) {
-      setError('Veuillez entrer une URL de profil 16Personalities');
+      setError(locale === 'fr' ? 'Veuillez entrer une URL de profil 16Personalities' : 'Please enter a 16Personalities profile URL');
       return;
     }
     
     if (inputMode === 'url' && !validateProfileUrl(profileUrl)) {
-      setError('URL invalide. Format attendu: https://www.16personalities.com/profiles/...');
+      setError(locale === 'fr' 
+        ? 'URL invalide. Format attendu: https://www.16personalities.com/profiles/...'
+        : 'Invalid URL. Expected format: https://www.16personalities.com/profiles/...');
       return;
     }
 
@@ -125,11 +134,17 @@ export default function MBTIPDFUploadPage() {
         if (inputMode === 'file' && selectedFile) {
           result = await uploadMBTIPDF(selectedFile);
         } else if (inputMode === 'url' && profileUrl.trim()) {
-          result = await uploadMBTIPDFFromURL(profileUrl.trim());
+          const trimmedUrl = profileUrl.trim();
+          if (!validateProfileUrl(trimmedUrl)) {
+            throw new Error(locale === 'fr' 
+              ? 'URL invalide. Format attendu: https://www.16personalities.com/profiles/...'
+              : 'Invalid URL. Expected format: https://www.16personalities.com/profiles/...');
+          }
+          result = await uploadMBTIPDFFromURL(trimmedUrl);
         } else if (inputMode === 'image' && selectedFile) {
           result = await uploadMBTIImage(selectedFile);
         } else {
-          throw new Error('Mode d\'upload invalide');
+          throw new Error(locale === 'fr' ? 'Mode d\'upload invalide' : 'Invalid upload mode');
         }
       } finally {
         // Always clean up interval when API call completes (success or error)

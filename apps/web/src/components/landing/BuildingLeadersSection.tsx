@@ -20,10 +20,12 @@ export function BuildingLeadersSection() {
           </div>
 
           {/* Image Grid */}
+          {/* NOTE: Images should be replaced with images from ARISE bank of images 
+              (https://drive.google.com/drive/folders/1yyPb1Pmz-YaNhI2oik59L3oSmQZc9X_p?usp=drive_link) */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div className="relative h-64 rounded-lg overflow-hidden shadow-md">
               <Image
-                src="/images/leader-1.jpg"
+                src="/images/arise-leader-1.jpg"
                 alt="Professional business team collaboration"
                 fill
                 className="object-cover"
@@ -31,7 +33,7 @@ export function BuildingLeadersSection() {
             </div>
             <div className="relative h-64 rounded-lg overflow-hidden shadow-md">
               <Image
-                src="/images/leader-2.jpg"
+                src="/images/arise-leader-2.jpg"
                 alt="Diverse leadership team"
                 fill
                 className="object-cover"
@@ -39,7 +41,7 @@ export function BuildingLeadersSection() {
             </div>
             <div className="relative h-64 rounded-lg overflow-hidden shadow-md">
               <Image
-                src="/images/leader-3.jpg"
+                src="/images/arise-leader-3.jpg"
                 alt="Business professionals teamwork"
                 fill
                 className="object-cover"
@@ -47,7 +49,7 @@ export function BuildingLeadersSection() {
             </div>
             <div className="relative h-64 rounded-lg overflow-hidden shadow-md col-span-2 md:col-span-1">
               <Image
-                src="/images/leader-4.jpg"
+                src="/images/arise-leader-4.jpg"
                 alt="Executive coaching session"
                 fill
                 className="object-cover"
@@ -55,7 +57,7 @@ export function BuildingLeadersSection() {
             </div>
             <div className="relative h-64 rounded-lg overflow-hidden shadow-md">
               <Image
-                src="/images/leader-5.jpg"
+                src="/images/arise-leader-5.jpg"
                 alt="Corporate leadership conference"
                 fill
                 className="object-cover"
@@ -63,7 +65,7 @@ export function BuildingLeadersSection() {
             </div>
             <div className="relative h-64 rounded-lg overflow-hidden shadow-md">
               <Image
-                src="/images/leader-6.jpg"
+                src="/images/arise-leader-6.jpg"
                 alt="Professional business meeting"
                 fill
                 className="object-cover"
