@@ -7,7 +7,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from '@/i18n/routing';
-import { useTranslations, useLocale } from 'next-intl';
+import { useLocale } from 'next-intl';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import MotionDiv from '@/components/motion/MotionDiv';
@@ -18,7 +18,6 @@ import { formatError } from '@/lib/utils/formatError';
 
 export default function MBTIPDFUploadPage() {
   const router = useRouter();
-  const t = useTranslations('dashboard.assessments.mbti.upload');
   const locale = useLocale();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [profileUrl, setProfileUrl] = useState<string>('');
