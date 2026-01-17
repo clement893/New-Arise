@@ -12,7 +12,6 @@ import {
   Users, 
   Heart,
   TrendingUp,
-  FileText,
   Download,
   ArrowLeft
 } from 'lucide-react';
