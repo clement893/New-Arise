@@ -600,7 +600,6 @@ export default function Start360FeedbackPage() {
                     </>
                   )}
                 </Button>
-                </Button>
               </div>
             </form>
           </Card>
