@@ -426,13 +426,13 @@ The following sections detail your results from each assessment, along with pers
     }
   }
 
-  // Development Plan Page
+  // Personal Growth Plan Page
   doc.addPage();
   yPos = 20;
 
   doc.setFontSize(20);
   doc.setFont('helvetica', 'bold');
-  doc.text('Development Plan', 20, yPos);
+  doc.text('Personal Growth Plan', 20, yPos);
   yPos += 15;
 
   doc.setFontSize(12);
@@ -442,10 +442,10 @@ The following sections detail your results from each assessment, along with pers
 1. Leverage your identified strengths in leadership and communication
 2. Address areas with development opportunities identified in your assessments
 3. Set specific, measurable goals aligned with your assessment insights
-4. Regularly review and update your development plan
+4. Regularly review and update your personal growth plan
 5. Seek feedback from colleagues and mentors
 
-Consider working with an ARISE coach to create a personalized development plan tailored to your specific results and career goals.`;
+Consider working with an ARISE coach to create a personalized growth plan tailored to your specific results and career goals.`;
   
   const planLines = doc.splitTextToSize(planText, pageWidth - 40);
   doc.text(planLines, 20, yPos);

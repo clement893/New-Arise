@@ -210,9 +210,26 @@ function AssessmentResultsContent() {
         });
       });
 
-      // Combine summary (pillars) and detailed (questions) data
+      // Separate summary (pillars) and detailed (questions) data
+      // Add section headers to clearly separate pillars from questions
+      const pillarHeader = {
+        [t('pdf.columns.question')]: '=== PILLAR SUMMARY ===',
+        [t('pdf.columns.answer')]: '',
+        [t('pdf.columns.score')]: '',
+      };
+      
+      const questionHeader = {
+        [t('pdf.columns.question')]: '=== QUESTION DETAILS ===',
+        [t('pdf.columns.answer')]: '',
+        [t('pdf.columns.score')]: '',
+      };
+      
+      // Combine sections with clear separation
       const exportData = [
+        pillarHeader,
         ...summaryRows,
+        { [t('pdf.columns.question')]: '', [t('pdf.columns.answer')]: '', [t('pdf.columns.score')]: '' }, // Empty row for spacing
+        questionHeader,
         ...detailedRows,
       ];
 
