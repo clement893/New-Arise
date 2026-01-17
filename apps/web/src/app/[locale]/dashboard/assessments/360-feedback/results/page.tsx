@@ -346,24 +346,8 @@ export default function Feedback360ResultsPage() {
   return (
     <div className="min-h-screen bg-arise-teal p-8">
       <div className="mx-auto max-w-6xl">
-        {/* Header - Back button at top */}
+        {/* Header */}
         <div className="mb-8">
-          <Button
-            variant="primary"
-            onClick={() => {
-              const id = searchParams?.get('id') || assessmentId;
-              if (id) {
-                router.push(`/dashboard/assessments/360-feedback?assessmentId=${id}`);
-              } else {
-                router.push('/dashboard/assessments');
-              }
-            }}
-            className="mb-4 flex items-center gap-4"
-            style={{ backgroundColor: '#0F4C56', color: '#fff' }}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Assessment
-          </Button>
 
           <MotionDiv
             variant="slideUp"

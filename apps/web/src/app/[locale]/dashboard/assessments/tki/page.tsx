@@ -175,10 +175,38 @@ export default function TKIAssessmentPage() {
   };
 
   const handleSelectAnswer = async (answer: 'A' | 'B') => {
-    if (!currentQuestionData) return;
+    if (!currentQuestionData || !effectiveAssessmentId) return;
     setSelectedAnswer(answer);
-    await answerQuestion(currentQuestionData.id, answer);
+    try {
+      await answerQuestion(currentQuestionData.id, answer);
+      // Answer saved successfully
+    } catch (err) {
+      // Error is already handled by the store
+      console.error('Failed to save answer:', err);
+      // Show user-friendly error
+      alert('Failed to save your answer. Please try again. Your progress is being saved automatically.');
+    }
   };
+
+  // Auto-save current answer periodically to prevent data loss (every 2 minutes)
+  useEffect(() => {
+    if (!effectiveAssessmentId || !currentQuestionData || !selectedAnswer) return;
+    
+    const autosaveInterval = setInterval(() => {
+      if (currentQuestionData && selectedAnswer && effectiveAssessmentId) {
+        // Check if answer is already saved
+        const currentAnswer = answers[currentQuestionData.id];
+        if (currentAnswer !== selectedAnswer) {
+          // Answer changed but not saved, save it
+          answerQuestion(currentQuestionData.id, selectedAnswer).catch(err => {
+            console.warn('Autosave failed:', err);
+          });
+        }
+      }
+    }, 120000); // 2 minutes
+
+    return () => clearInterval(autosaveInterval);
+  }, [effectiveAssessmentId, currentQuestionData, selectedAnswer, answers, answerQuestion]);
 
   const handleNext = () => {
     if (isLastQuestion && selectedAnswer) {

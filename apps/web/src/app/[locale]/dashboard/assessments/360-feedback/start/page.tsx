@@ -52,6 +52,7 @@ export default function Start360FeedbackPage() {
       // First, try to use assessmentId from URL
       if (assessmentId) {
         id = parseInt(assessmentId);
+        setResolvedAssessmentId(id);
       } else {
         // If no assessmentId in URL, try to find existing 360 assessment
         try {
@@ -194,25 +195,50 @@ export default function Start360FeedbackPage() {
           role: e.role,
         }));
 
+      // Check if assessment already exists
+      let assessmentIdToUse: number | null = null;
+      
+      // First, try to use existing assessment ID
+      if (assessmentId) {
+        assessmentIdToUse = parseInt(assessmentId);
+      } else if (resolvedAssessmentId) {
+        assessmentIdToUse = resolvedAssessmentId;
+      } else {
+        // Try to find existing assessment
+        try {
+          const assessments = await getMyAssessments();
+          const feedback360Assessment = assessments.find(
+            (a) => a.assessment_type === 'THREE_SIXTY_SELF'
+          );
+          if (feedback360Assessment) {
+            assessmentIdToUse = feedback360Assessment.id;
+          }
+        } catch (err) {
+          console.warn('Could not find existing assessment:', err);
+        }
+      }
+
+      // Always call start360Feedback - backend will resume existing or create new
+      // This ensures contributors are properly added
       const response = await start360Feedback(evaluatorsData);
+      assessmentIdToUse = response.assessment_id || assessmentIdToUse;
 
       setSubmittedEvaluatorsCount(evaluatorsData.length);
       setSuccess(true);
       
       // Store the assessment ID for persistence
-      const idToUse = response.assessment_id || parseInt(assessmentId!) || resolvedAssessmentId;
-      if (idToUse) {
-        setResolvedAssessmentId(idToUse);
+      if (assessmentIdToUse) {
+        setResolvedAssessmentId(assessmentIdToUse);
         // Update URL with assessment ID for persistence
         const newUrl = new URL(window.location.href);
-        newUrl.searchParams.set('assessmentId', idToUse.toString());
+        newUrl.searchParams.set('assessmentId', assessmentIdToUse.toString());
         window.history.replaceState({}, '', newUrl.toString());
-        await loadExistingEvaluators(idToUse);
+        await loadExistingEvaluators(assessmentIdToUse);
       }
       
       // Redirect to the 360 feedback assessment page (auto-evaluation) after a short delay
       setTimeout(() => {
-        router.push(`/dashboard/assessments/360-feedback?assessmentId=${response.assessment_id}`);
+        router.push(`/dashboard/assessments/360-feedback?assessmentId=${assessmentIdToUse}`);
       }, 2000);
     } catch (err: any) {
       console.error('Failed to start 360 feedback:', err);
@@ -233,24 +259,49 @@ export default function Start360FeedbackPage() {
     try {
       setIsSubmitting(true);
 
-      // Create assessment without contributors
-      const response = await start360Feedback([]);
-
-      setSubmittedEvaluatorsCount(0);
-      setSuccess(true);
+      // Check if assessment already exists
+      let assessmentIdToUse: number | null = null;
       
+      // First, try to use existing assessment ID from URL or resolved
+      if (assessmentId) {
+        assessmentIdToUse = parseInt(assessmentId);
+      } else if (resolvedAssessmentId) {
+        assessmentIdToUse = resolvedAssessmentId;
+      } else {
+        // Try to find existing assessment
+        try {
+          const assessments = await getMyAssessments();
+          const feedback360Assessment = assessments.find(
+            (a) => a.assessment_type === 'THREE_SIXTY_SELF'
+          );
+          if (feedback360Assessment) {
+            assessmentIdToUse = feedback360Assessment.id;
+          }
+        } catch (err) {
+          console.warn('Could not find existing assessment:', err);
+        }
+      }
+
+      // If no existing assessment, create a new one without contributors
+      if (!assessmentIdToUse) {
+        const response = await start360Feedback([]);
+        assessmentIdToUse = response.assessment_id;
+      }
+
       // Store the assessment ID for persistence
-      const idToUse = response.assessment_id || parseInt(assessmentId!) || resolvedAssessmentId;
-      if (idToUse) {
-        setResolvedAssessmentId(idToUse);
+      if (assessmentIdToUse) {
+        setResolvedAssessmentId(assessmentIdToUse);
         // Update URL with assessment ID for persistence
         const newUrl = new URL(window.location.href);
-        newUrl.searchParams.set('assessmentId', idToUse.toString());
+        newUrl.searchParams.set('assessmentId', assessmentIdToUse.toString());
         window.history.replaceState({}, '', newUrl.toString());
       }
       
-      // Redirect immediately to the 360 feedback assessment page
-      router.push(`/dashboard/assessments/360-feedback?assessmentId=${response.assessment_id}`);
+      setSubmittedEvaluatorsCount(0);
+      setSuccess(true);
+      
+      // Redirect immediately to the 360 feedback assessment page (skip success screen)
+      router.push(`/dashboard/assessments/360-feedback?assessmentId=${assessmentIdToUse}`);
     } catch (err: any) {
       console.error('Failed to start 360 feedback:', err);
       setError(

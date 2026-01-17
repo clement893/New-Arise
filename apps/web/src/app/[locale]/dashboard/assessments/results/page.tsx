@@ -498,8 +498,8 @@ function AssessmentResultsContent() {
                   <Card className="hover:shadow-lg transition-shadow">
                     <div className="flex items-start mb-4">
                       <div className="text-4xl mr-4 flex-shrink-0">{pillar.icon}</div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-bold text-gray-900 mb-1 break-words">
+                      <div className="flex-1 min-w-0 overflow-hidden">
+                        <h3 className="text-lg font-bold text-gray-900 mb-1 break-words overflow-wrap-anywhere">
                           {(() => {
                             // Translate pillar name
                             const pillarKey = pillar.id.replace(/_/g, '');
@@ -514,7 +514,7 @@ function AssessmentResultsContent() {
                             return pillar.name;
                           })()}
                         </h3>
-                        <p className="text-sm text-gray-600 break-words">
+                        <p className="text-sm text-gray-600 break-words overflow-wrap-anywhere whitespace-pre-wrap">
                           {pillar.description}
                         </p>
                       </div>
@@ -558,83 +558,125 @@ function AssessmentResultsContent() {
           <MotionDiv variant="fade" duration="normal">
             <Card className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                {t('insights.title')}
+                KEY {t('insights.title')}
               </h2>
               <div className="space-y-4">
-                <div className="p-4 bg-success-50 rounded-lg break-words">
-                  <h3 className="font-bold text-success-900 mb-2">{t('insights.strengths.title')}</h3>
-                  <p className="text-success-800 break-words">
-                    {t('insights.strengths.description', { 
-                      pillar: (() => {
-                        const getPillarScore = (data: number | PillarScore | undefined): number => {
-                          if (typeof data === 'number') return data;
-                          if (typeof data === 'object' && data !== null && 'score' in data) {
-                            const scoreValue = data.score;
-                            return typeof scoreValue === 'number' ? scoreValue : (typeof scoreValue === 'string' ? parseFloat(scoreValue) : 0);
-                          }
-                          return 0;
-                        };
-                        const strongestPillar = wellnessPillars.find(p => {
-                          const data = pillar_scores?.[p.id];
-                          const score = getPillarScore(data);
-                          const allScores = Object.values(pillar_scores || {}).map(d => getPillarScore(d));
-                          return allScores.length > 0 && !isNaN(score) && score === Math.max(...allScores.filter(s => !isNaN(s)));
-                        });
-                        if (strongestPillar) {
-                          // Translate pillar name
-                          const pillarKey = strongestPillar.id.replace(/_/g, '');
-                          try {
-                            const translated = t(`dashboard.assessments.wellness.results.pillars.${pillarKey}`);
-                            if (translated && translated !== `dashboard.assessments.wellness.results.pillars.${pillarKey}`) {
-                              return translated;
+                {/* Use backend insights if available, otherwise generate from scores */}
+                {results.insights && typeof results.insights === 'object' && Object.keys(results.insights).length > 0 ? (
+                  // Display backend insights
+                  <div className="space-y-4">
+                    {results.insights.strengths && (
+                      <div className="p-4 bg-success-50 rounded-lg break-words overflow-hidden">
+                        <h3 className="font-bold text-success-900 mb-2">{t('insights.strengths.title')}</h3>
+                        {Array.isArray(results.insights.strengths) ? (
+                          <ul className="list-disc list-inside space-y-1 text-success-800">
+                            {results.insights.strengths.map((strength: string, idx: number) => (
+                              <li key={idx} className="break-words">{strength}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-success-800 break-words whitespace-pre-wrap">{String(results.insights.strengths)}</p>
+                        )}
+                      </div>
+                    )}
+                    {results.insights.growth_areas && (
+                      <div className="p-4 bg-yellow-50 rounded-lg break-words overflow-hidden">
+                        <h3 className="font-bold text-yellow-900 mb-2">{t('insights.growth.title')}</h3>
+                        {Array.isArray(results.insights.growth_areas) ? (
+                          <ul className="list-disc list-inside space-y-1 text-yellow-800">
+                            {results.insights.growth_areas.map((area: string, idx: number) => (
+                              <li key={idx} className="break-words">{area}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-yellow-800 break-words whitespace-pre-wrap">{String(results.insights.growth_areas)}</p>
+                        )}
+                      </div>
+                    )}
+                    {results.insights.summary && (
+                      <div className="p-4 bg-blue-50 rounded-lg break-words overflow-hidden">
+                        <h3 className="font-bold text-blue-900 mb-2">Summary</h3>
+                        <p className="text-blue-800 break-words whitespace-pre-wrap">{String(results.insights.summary)}</p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  // Fallback: Generate insights from scores
+                  <div className="space-y-4">
+                    <div className="p-4 bg-success-50 rounded-lg break-words overflow-hidden">
+                      <h3 className="font-bold text-success-900 mb-2">{t('insights.strengths.title')}</h3>
+                      <p className="text-success-800 break-words whitespace-pre-wrap">
+                        {t('insights.strengths.description', { 
+                          pillar: (() => {
+                            const getPillarScore = (data: number | PillarScore | undefined): number => {
+                              if (typeof data === 'number') return data;
+                              if (typeof data === 'object' && data !== null && 'score' in data) {
+                                const scoreValue = data.score;
+                                return typeof scoreValue === 'number' ? scoreValue : (typeof scoreValue === 'string' ? parseFloat(scoreValue) : 0);
+                              }
+                              return 0;
+                            };
+                            const strongestPillar = wellnessPillars.find(p => {
+                              const data = pillar_scores?.[p.id];
+                              const score = getPillarScore(data);
+                              const allScores = Object.values(pillar_scores || {}).map(d => getPillarScore(d));
+                              return allScores.length > 0 && !isNaN(score) && score === Math.max(...allScores.filter(s => !isNaN(s)));
+                            });
+                            if (strongestPillar) {
+                              const pillarKey = strongestPillar.id.replace(/_/g, '');
+                              try {
+                                const translated = t(`dashboard.assessments.wellness.results.pillars.${pillarKey}`);
+                                if (translated && translated !== `dashboard.assessments.wellness.results.pillars.${pillarKey}`) {
+                                  return translated;
+                                }
+                              } catch (e) {
+                                // Fallback
+                              }
+                              return strongestPillar.name;
                             }
-                          } catch (e) {
-                            // Fallback
-                          }
-                          return strongestPillar.name;
-                        }
-                        return 'N/A';
-                      })()
-                    })}
-                  </p>
-                </div>
-                <div className="p-4 bg-yellow-50 rounded-lg break-words">
-                  <h3 className="font-bold text-yellow-900 mb-2">{t('insights.growth.title')}</h3>
-                  <p className="text-yellow-800 break-words">
-                    {t('insights.growth.description', { 
-                      pillar: (() => {
-                        const getPillarScore = (data: number | PillarScore | undefined): number => {
-                          if (typeof data === 'number') return data;
-                          if (typeof data === 'object' && data !== null && 'score' in data) {
-                            const scoreValue = data.score;
-                            return typeof scoreValue === 'number' ? scoreValue : (typeof scoreValue === 'string' ? parseFloat(scoreValue) : 0);
-                          }
-                          return 0;
-                        };
-                        const weakestPillar = wellnessPillars.find(p => {
-                          const data = pillar_scores?.[p.id];
-                          const score = getPillarScore(data);
-                          const allScores = Object.values(pillar_scores || {}).map(d => getPillarScore(d));
-                          return allScores.length > 0 && !isNaN(score) && score === Math.min(...allScores.filter(s => !isNaN(s)));
-                        });
-                        if (weakestPillar) {
-                          // Translate pillar name
-                          const pillarKey = weakestPillar.id.replace(/_/g, '');
-                          try {
-                            const translated = t(`dashboard.assessments.wellness.results.pillars.${pillarKey}`);
-                            if (translated && translated !== `dashboard.assessments.wellness.results.pillars.${pillarKey}`) {
-                              return translated;
+                            return 'N/A';
+                          })()
+                        })}
+                      </p>
+                    </div>
+                    <div className="p-4 bg-yellow-50 rounded-lg break-words overflow-hidden">
+                      <h3 className="font-bold text-yellow-900 mb-2">{t('insights.growth.title')}</h3>
+                      <p className="text-yellow-800 break-words whitespace-pre-wrap">
+                        {t('insights.growth.description', { 
+                          pillar: (() => {
+                            const getPillarScore = (data: number | PillarScore | undefined): number => {
+                              if (typeof data === 'number') return data;
+                              if (typeof data === 'object' && data !== null && 'score' in data) {
+                                const scoreValue = data.score;
+                                return typeof scoreValue === 'number' ? scoreValue : (typeof scoreValue === 'string' ? parseFloat(scoreValue) : 0);
+                              }
+                              return 0;
+                            };
+                            const weakestPillar = wellnessPillars.find(p => {
+                              const data = pillar_scores?.[p.id];
+                              const score = getPillarScore(data);
+                              const allScores = Object.values(pillar_scores || {}).map(d => getPillarScore(d));
+                              return allScores.length > 0 && !isNaN(score) && score === Math.min(...allScores.filter(s => !isNaN(s)));
+                            });
+                            if (weakestPillar) {
+                              const pillarKey = weakestPillar.id.replace(/_/g, '');
+                              try {
+                                const translated = t(`dashboard.assessments.wellness.results.pillars.${pillarKey}`);
+                                if (translated && translated !== `dashboard.assessments.wellness.results.pillars.${pillarKey}`) {
+                                  return translated;
+                                }
+                              } catch (e) {
+                                // Fallback
+                              }
+                              return weakestPillar.name;
                             }
-                          } catch (e) {
-                            // Fallback
-                          }
-                          return weakestPillar.name;
-                        }
-                        return 'N/A';
-                      })()
-                    })}
-                  </p>
-                </div>
+                            return 'N/A';
+                          })()
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </Card>
           </MotionDiv>
@@ -643,56 +685,74 @@ function AssessmentResultsContent() {
           <MotionDiv variant="fade" duration="normal">
             <Card>
               <h2 className="text-2xl font-bold text-gray-900 mb-4 break-words">
-                {t('nextSteps.title')}
+                NEXT STEPS
               </h2>
-              <ul className="space-y-3">
-                <li className="flex items-start break-words">
-                  <div className="w-6 h-6 bg-arise-gold rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
-                    <span className="text-white text-sm font-bold">1</span>
-                  </div>
-                  <p className="text-gray-700 break-words">
-                    {t('nextSteps.step1')}
-                  </p>
-                </li>
-                <li className="flex items-start break-words">
-                  <div className="w-6 h-6 bg-arise-gold rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
-                    <span className="text-white text-sm font-bold">2</span>
-                  </div>
-                  <p className="text-gray-700 break-words">
-                    {t('nextSteps.step2')}
-                  </p>
-                </li>
-                <li className="flex items-start break-words">
-                  <div className="w-6 h-6 bg-arise-gold rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
-                    <span className="text-white text-sm font-bold">3</span>
-                  </div>
-                  <p className="text-gray-700 break-words">
-                    {t('nextSteps.step3')}
-                  </p>
-                </li>
-                {t('nextSteps.step4') && (
-                  <li className="flex items-start break-words">
+              {/* Use backend recommendations if available, otherwise show default next steps */}
+              {results.recommendations && typeof results.recommendations === 'object' && (
+                Array.isArray(results.recommendations) && results.recommendations.length > 0 ? (
+                  <ul className="space-y-3">
+                    {results.recommendations.map((rec: any, idx: number) => (
+                      <li key={idx} className="flex items-start break-words overflow-hidden">
+                        <div className="w-6 h-6 bg-arise-gold rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+                          <span className="text-white text-sm font-bold">{idx + 1}</span>
+                        </div>
+                        <p className="text-gray-700 break-words whitespace-pre-wrap flex-1">
+                          {typeof rec === 'string' ? rec : (rec.title || rec.description || JSON.stringify(rec))}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                ) : typeof results.recommendations === 'object' && Object.keys(results.recommendations).length > 0 ? (
+                  <ul className="space-y-3">
+                    {Object.entries(results.recommendations).map(([key, value], idx) => (
+                      <li key={key} className="flex items-start break-words overflow-hidden">
+                        <div className="w-6 h-6 bg-arise-gold rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+                          <span className="text-white text-sm font-bold">{idx + 1}</span>
+                        </div>
+                        <p className="text-gray-700 break-words whitespace-pre-wrap flex-1">
+                          {String(value)}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null
+              )}
+              {(!results.recommendations || (typeof results.recommendations === 'object' && Object.keys(results.recommendations).length === 0)) && (
+                <ul className="space-y-3">
+                  <li className="flex items-start break-words overflow-hidden">
                     <div className="w-6 h-6 bg-arise-gold rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
-                      <span className="text-white text-sm font-bold">4</span>
+                      <span className="text-white text-sm font-bold">1</span>
                     </div>
-                    <p className="text-gray-700 break-words">
-                      {t('nextSteps.step4')}
+                    <p className="text-gray-700 break-words whitespace-pre-wrap flex-1">
+                      Review your wellness scores across all six pillars to understand your current well-being status.
                     </p>
                   </li>
-                )}
-              </ul>
+                  <li className="flex items-start break-words overflow-hidden">
+                    <div className="w-6 h-6 bg-arise-gold rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+                      <span className="text-white text-sm font-bold">2</span>
+                    </div>
+                    <p className="text-gray-700 break-words whitespace-pre-wrap flex-1">
+                      Focus on improving areas with lower scores by implementing small, sustainable changes in your daily routine.
+                    </p>
+                  </li>
+                  <li className="flex items-start break-words overflow-hidden">
+                    <div className="w-6 h-6 bg-arise-gold rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+                      <span className="text-white text-sm font-bold">3</span>
+                    </div>
+                    <p className="text-gray-700 break-words whitespace-pre-wrap flex-1">
+                      Continue your leadership development journey by completing other assessments (MBTI, ARISE Conflict Style, 360° Feedback).
+                    </p>
+                  </li>
+                </ul>
+              )}
               <div className="mt-6 flex gap-4 flex-wrap">
                 <Button 
                   variant="primary"
                   onClick={() => router.push('/dashboard/assessments')}
+                  className="flex items-center gap-2"
+                  style={{ backgroundColor: '#0F4C56', color: '#fff' }}
                 >
-                  {t('nextSteps.continueButton')}
-                </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => router.push('/dashboard')}
-                >
-                  {t('nextSteps.backToDashboard')}
+                  {t('backToAssessments')}
                 </Button>
               </div>
             </Card>

@@ -266,20 +266,34 @@ export default function MBTIResultsPage() {
                 onClick={async () => {
                   try {
                     const { generateAssessmentPDF, downloadBlob } = await import('@/lib/utils/pdfGenerator');
-                    const pdfBlob = await generateAssessmentPDF({
+                    
+                    // Ensure all data is properly formatted before generating PDF
+                    const pdfData = {
                       id: Number(assessmentId),
                       name: 'MBTI Assessment Results',
                       type: 'MBTI',
                       completedDate: new Date().toLocaleDateString(),
-                      score: mbtiType,
-                      result: typeInfo.name,
-                      detailedResult: results,
-                    });
+                      score: mbtiType || 'XXXX',
+                      result: typeInfo.name || 'Unknown Type',
+                      detailedResult: {
+                        ...results,
+                        scores: {
+                          ...results.scores,
+                          mbti_type: mbtiType || 'XXXX',
+                          dimension_preferences: results.scores?.dimension_preferences || {},
+                        },
+                        insights: results.insights || {},
+                        recommendations: results.recommendations || [],
+                      },
+                    };
+                    
+                    const pdfBlob = await generateAssessmentPDF(pdfData);
                     const timestamp = new Date().toISOString().split('T')[0];
                     downloadBlob(pdfBlob, `MBTI_Assessment_Results_${timestamp}.pdf`);
                   } catch (err) {
                     console.error('Error generating PDF:', err);
-                    alert('Failed to generate PDF. Please try again.');
+                    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+                    alert(`Failed to generate PDF: ${errorMessage}. Please try again.`);
                   }
                 }}
               >
