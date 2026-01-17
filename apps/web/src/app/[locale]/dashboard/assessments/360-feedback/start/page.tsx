@@ -199,10 +199,14 @@ export default function Start360FeedbackPage() {
       setSubmittedEvaluatorsCount(evaluatorsData.length);
       setSuccess(true);
       
-      // Reload evaluators if we're on an existing assessment
+      // Store the assessment ID for persistence
       const idToUse = response.assessment_id || parseInt(assessmentId!) || resolvedAssessmentId;
       if (idToUse) {
         setResolvedAssessmentId(idToUse);
+        // Update URL with assessment ID for persistence
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.set('assessmentId', idToUse.toString());
+        window.history.replaceState({}, '', newUrl.toString());
         await loadExistingEvaluators(idToUse);
       }
       
@@ -229,23 +233,24 @@ export default function Start360FeedbackPage() {
     try {
       setIsSubmitting(true);
 
-      // Create assessment without evaluators
+      // Create assessment without contributors
       const response = await start360Feedback([]);
 
       setSubmittedEvaluatorsCount(0);
       setSuccess(true);
       
-      // Reload evaluators if we're on an existing assessment
+      // Store the assessment ID for persistence
       const idToUse = response.assessment_id || parseInt(assessmentId!) || resolvedAssessmentId;
       if (idToUse) {
         setResolvedAssessmentId(idToUse);
-        await loadExistingEvaluators(idToUse);
+        // Update URL with assessment ID for persistence
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.set('assessmentId', idToUse.toString());
+        window.history.replaceState({}, '', newUrl.toString());
       }
       
-      // Redirect to the 360 feedback assessment page (auto-evaluation) after a short delay
-      setTimeout(() => {
-        router.push(`/dashboard/assessments/360-feedback?assessmentId=${response.assessment_id}`);
-      }, 2000);
+      // Redirect immediately to the 360 feedback assessment page
+      router.push(`/dashboard/assessments/360-feedback?assessmentId=${response.assessment_id}`);
     } catch (err: any) {
       console.error('Failed to start 360 feedback:', err);
       setError(
@@ -253,7 +258,6 @@ export default function Start360FeedbackPage() {
         err.message || 
         'An error occurred while starting the 360° assessment'
       );
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -265,7 +269,7 @@ export default function Start360FeedbackPage() {
           <Card className="p-8 text-center">
             <CheckCircle className="mx-auto mb-4 h-16 w-16 text-success-500" />
             <h1 className="mb-4 text-3xl font-bold text-gray-900">
-              Invitations Sent!
+              {submittedEvaluatorsCount > 0 ? 'Invitations Sent!' : 'Assessment Created!'}
             </h1>
             <p className="mb-8 text-gray-600">
               {submittedEvaluatorsCount > 0
@@ -576,26 +580,26 @@ export default function Start360FeedbackPage() {
                     {isSubmitting ? (
                       <>Processing...</>
                     ) : (
-                      <>Skip this step</>
+                      <>Start without contributors</>
                     )}
                   </Button>
                 </div>
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="bg-arise-gold hover:bg-arise-gold/90 flex flex-row items-center gap-2"
-                  >
-                    {isSubmitting ? (
-                      <>Sending...</>
-                    ) : (
-                      <>
-                        <UserPlus className="h-4 w-4" />
-                        {evaluators.length > 0 && evaluators.some(e => e.name.trim() && e.email.trim())
-                          ? 'Send invitations and start'
-                          : 'Start without contributors'}
-                      </>
-                    )}
-                  </Button>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-arise-gold hover:bg-arise-gold/90 flex flex-row items-center gap-2"
+                >
+                  {isSubmitting ? (
+                    <>Sending...</>
+                  ) : (
+                    <>
+                      <UserPlus className="h-4 w-4" />
+                      {evaluators.length > 0 && evaluators.some(e => e.name.trim() && e.email.trim())
+                        ? 'Send invitations and start'
+                        : 'Start without contributors'}
+                    </>
+                  )}
+                </Button>
                 </Button>
               </div>
             </form>

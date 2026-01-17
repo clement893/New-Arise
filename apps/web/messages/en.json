@@ -539,9 +539,10 @@
         },
         "nextSteps": {
           "title": "Next Steps",
-          "step1": "Review your results with a wellness coach to create a personalized action plan",
-          "step2": "Complete the TKI and 360° Feedback assessments for a complete leadership profile",
-          "step3": "Retake this assessment in 3 months to track your progress",
+          "step1": "Review your wellness results and identify specific areas where you can make improvements",
+          "step2": "Create a personalized wellness action plan focusing on your areas for growth",
+          "step3": "Complete the ARISE Conflict Style and 360° Feedback assessments for a complete leadership profile",
+          "step4": "Schedule regular check-ins to track your wellness progress over time",
           "continueButton": "Continue to Other Assessments",
           "backToDashboard": "Back to Dashboard"
         },

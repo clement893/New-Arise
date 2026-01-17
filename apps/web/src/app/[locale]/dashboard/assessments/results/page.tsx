@@ -480,9 +480,9 @@ function AssessmentResultsContent() {
                 >
                   <Card className="hover:shadow-lg transition-shadow">
                     <div className="flex items-start mb-4">
-                      <div className="text-4xl mr-4">{pillar.icon}</div>
-                      <div className="flex-1">
-                        <h3 className="text-lg font-bold text-gray-900 mb-1">
+                      <div className="text-4xl mr-4 flex-shrink-0">{pillar.icon}</div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-bold text-gray-900 mb-1 break-words">
                           {(() => {
                             // Translate pillar name
                             const pillarKey = pillar.id.replace(/_/g, '');
@@ -497,7 +497,7 @@ function AssessmentResultsContent() {
                             return pillar.name;
                           })()}
                         </h3>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-600 break-words">
                           {pillar.description}
                         </p>
                       </div>
@@ -537,16 +537,16 @@ function AssessmentResultsContent() {
             })}
           </div>
 
-          {/* Insights Section */}
+          {/* Key Insights Section */}
           <MotionDiv variant="fade" duration="normal">
             <Card className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
                 {t('insights.title')}
               </h2>
               <div className="space-y-4">
-                <div className="p-4 bg-success-50 rounded-lg">
+                <div className="p-4 bg-success-50 rounded-lg break-words">
                   <h3 className="font-bold text-success-900 mb-2">{t('insights.strengths.title')}</h3>
-                  <p className="text-success-800">
+                  <p className="text-success-800 break-words">
                     {t('insights.strengths.description', { 
                       pillar: (() => {
                         const getPillarScore = (data: number | PillarScore | undefined): number => {
@@ -581,9 +581,9 @@ function AssessmentResultsContent() {
                     })}
                   </p>
                 </div>
-                <div className="p-4 bg-yellow-50 rounded-lg">
+                <div className="p-4 bg-yellow-50 rounded-lg break-words">
                   <h3 className="font-bold text-yellow-900 mb-2">{t('insights.growth.title')}</h3>
-                  <p className="text-yellow-800">
+                  <p className="text-yellow-800 break-words">
                     {t('insights.growth.description', { 
                       pillar: (() => {
                         const getPillarScore = (data: number | PillarScore | undefined): number => {
@@ -625,36 +625,46 @@ function AssessmentResultsContent() {
           {/* Next Steps */}
           <MotionDiv variant="fade" duration="normal">
             <Card>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4 break-words">
                 {t('nextSteps.title')}
               </h2>
               <ul className="space-y-3">
-                <li className="flex items-start">
+                <li className="flex items-start break-words">
                   <div className="w-6 h-6 bg-arise-gold rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
                     <span className="text-white text-sm font-bold">1</span>
                   </div>
-                  <p className="text-gray-700">
+                  <p className="text-gray-700 break-words">
                     {t('nextSteps.step1')}
                   </p>
                 </li>
-                <li className="flex items-start">
+                <li className="flex items-start break-words">
                   <div className="w-6 h-6 bg-arise-gold rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
                     <span className="text-white text-sm font-bold">2</span>
                   </div>
-                  <p className="text-gray-700">
+                  <p className="text-gray-700 break-words">
                     {t('nextSteps.step2')}
                   </p>
                 </li>
-                <li className="flex items-start">
+                <li className="flex items-start break-words">
                   <div className="w-6 h-6 bg-arise-gold rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
                     <span className="text-white text-sm font-bold">3</span>
                   </div>
-                  <p className="text-gray-700">
+                  <p className="text-gray-700 break-words">
                     {t('nextSteps.step3')}
                   </p>
                 </li>
+                {t('nextSteps.step4') && (
+                  <li className="flex items-start break-words">
+                    <div className="w-6 h-6 bg-arise-gold rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+                      <span className="text-white text-sm font-bold">4</span>
+                    </div>
+                    <p className="text-gray-700 break-words">
+                      {t('nextSteps.step4')}
+                    </p>
+                  </li>
+                )}
               </ul>
-              <div className="mt-6 flex gap-4">
+              <div className="mt-6 flex gap-4 flex-wrap">
                 <Button 
                   variant="primary"
                   onClick={() => router.push('/dashboard/assessments')}
