@@ -477,35 +477,35 @@ export default function MBTIPDFUploadPage() {
             <div className="p-6">
               <h3 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
                 <AlertCircle size={20} />
-                Besoin d'aide ?
+                Need help?
               </h3>
               <div className="space-y-4 text-sm text-blue-800">
                 <div>
-                  <p className="font-medium mb-2">Option 1 : Import depuis URL (Recommandé)</p>
+                  <p className="font-medium mb-2">Option 1: Import from URL (Recommended)</p>
                   <ol className="space-y-1 ml-4 list-decimal">
-                    <li>Connectez-vous à votre compte sur <a href="https://www.16personalities.com" target="_blank" rel="noopener noreferrer" className="underline font-medium">16Personalities</a></li>
-                    <li>Allez sur votre page de profil (ex: https://www.16personalities.com/profiles/6d65d1ec09592)</li>
-                    <li>Copiez l'URL complète depuis la barre d'adresse</li>
-                    <li>Collez l'URL ici et cliquez sur "Importer depuis URL"</li>
+                    <li>Log in to your account on <a href="https://www.16personalities.com" target="_blank" rel="noopener noreferrer" className="underline font-medium">16Personalities</a></li>
+                    <li>Go to your profile page (e.g., https://www.16personalities.com/profiles/6d65d1ec09592)</li>
+                    <li>Copy the complete URL from the address bar</li>
+                    <li>Paste the URL here and click "Import from URL"</li>
                   </ol>
                 </div>
                 <div>
-                  <p className="font-medium mb-2">Option 2 : Upload de fichier PDF</p>
+                  <p className="font-medium mb-2">Option 2: Upload PDF file</p>
                   <ol className="space-y-1 ml-4 list-decimal">
-                    <li>Retournez sur <a href="https://www.16personalities.com" target="_blank" rel="noopener noreferrer" className="underline font-medium">16Personalities</a></li>
-                    <li>Connectez-vous à votre compte</li>
-                    <li>Téléchargez votre PDF de résultats depuis votre profil</li>
-                    <li>Revenez ici et uploadez le fichier PDF</li>
+                    <li>Go back to <a href="https://www.16personalities.com" target="_blank" rel="noopener noreferrer" className="underline font-medium">16Personalities</a></li>
+                    <li>Log in to your account</li>
+                    <li>Download your results PDF from your profile</li>
+                    <li>Come back here and upload the PDF file</li>
                   </ol>
                 </div>
                 <div>
-                  <p className="font-medium mb-2">Option 3 : Importer depuis une image (Recommandé pour les screenshots)</p>
+                  <p className="font-medium mb-2">Option 3: Import from image (Recommended for screenshots)</p>
                   <ol className="space-y-1 ml-4 list-decimal">
-                    <li>Allez sur votre page de résultats sur <a href="https://www.16personalities.com" target="_blank" rel="noopener noreferrer" className="underline font-medium">16Personalities</a></li>
-                    <li>Prenez un screenshot de votre page de résultats (toute la page)</li>
-                    <li>Revenez ici et sélectionnez "Importer depuis une image"</li>
-                    <li>Uploadez votre screenshot</li>
-                    <li>Le système extraira automatiquement toutes les informations de votre profil</li>
+                    <li>Go to your results page on <a href="https://www.16personalities.com" target="_blank" rel="noopener noreferrer" className="underline font-medium">16Personalities</a></li>
+                    <li>Take a screenshot of your results page (entire page)</li>
+                    <li>Come back here and select "Import from image"</li>
+                    <li>Upload your screenshot</li>
+                    <li>The system will automatically extract all information from your profile</li>
                   </ol>
                 </div>
               </div>

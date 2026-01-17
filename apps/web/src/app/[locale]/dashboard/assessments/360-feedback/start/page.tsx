@@ -289,7 +289,7 @@ export default function Start360FeedbackPage() {
     <>
       <PageHeader
         title="Start a 360° Feedback Assessment"
-        description="Invite professionals to assess your leadership capabilities (optional). They will receive an email with throughout orientation and with a link to the complete a form. You may add contributors later."
+        description="Invite professionals to assess your leadership capabilities (optional). They will receive an email with thorough orientation and with a link to complete a form. You may add contributors later."
         titleClassName="text-white"
         descriptionClassName="text-white"
       />

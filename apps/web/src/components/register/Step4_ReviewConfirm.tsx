@@ -84,7 +84,7 @@ export function Step4_ReviewConfirm() {
             className="text-white text-sm flex items-center gap-2 hover:text-white/80 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Retour
+            Back
           </button>
         </div>
       </div>
