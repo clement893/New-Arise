@@ -344,7 +344,7 @@
             }
           },
           "recommendations": {
-            "title": "Recommendations",
+            "title": "KEY Recommendations",
             "leverage": {
               "title": "Leverage your strengths:",
               "description": "Your dominant {mode} style can be very effective in appropriate situations. Continue to use it when it serves you well."
@@ -424,7 +424,7 @@
           "nextSteps": {
             "title": "Continue Your Leadership Journey",
             "description": "Explore other assessments to gain deeper insights into your leadership style",
-            "takeTKI": "Take TKI Assessment",
+            "takeTKI": "Take ARISE Conflict Assessment",
             "try360": "Try 360° Feedback"
           },
           "errors": {
@@ -476,7 +476,7 @@
             }
           },
           "recommendations": {
-            "title": "Recommendations",
+            "title": "KEY Recommendations",
             "complete360": {
               "title": "Complete Your 360° View",
               "description": "Invite colleagues, managers, and collaborators to share their perspective on your leadership. This will give you a complete view of how others perceive your capabilities.",
@@ -717,7 +717,7 @@
           "nextSteps": {
             "title": "Continue Your Leadership Journey",
             "description": "Explore other assessments to gain deeper insights",
-            "takeTKI": "Take TKI Assessment",
+            "takeTKI": "Take ARISE Conflict Assessment",
             "tryWellness": "Try Wellness Assessment"
           },
           "notFound": {
@@ -3470,29 +3470,7 @@
         "text": "We strive for the highest quality in everything we do, from assessments to customer support."
       }
     },
-    "journey": {
-      "title": "Our Journey",
-      "2020": {
-        "title": "2020 - Foundation",
-        "text": "ARISE was founded with a vision to revolutionize leadership development through holistic assessment and personalized insights."
-      },
-      "2021": {
-        "title": "2021 - First Assessments",
-        "text": "Launched our first comprehensive assessment suite, combining MBTI, TKI, 360° Feedback, and Wellness assessments."
-      },
-      "2022": {
-        "title": "2022 - Platform Launch",
-        "text": "Introduced our integrated platform, making leadership development accessible to individuals, coaches, and organizations worldwide."
-      },
-      "2023": {
-        "title": "2023 - Global Expansion",
-        "text": "Expanded our services globally, supporting thousands of leaders across multiple countries and industries."
-      },
-      "2024": {
-        "title": "2024 - Today",
-        "text": "Continuing to innovate and expand, helping more leaders discover their authentic leadership style and reach their full potential."
-      }
-    },
+
     "cta": {
       "title": "Ready to Start Your Leadership Journey?",
       "subtitle": "Join thousands of leaders who have discovered their authentic leadership style through ARISE.",
