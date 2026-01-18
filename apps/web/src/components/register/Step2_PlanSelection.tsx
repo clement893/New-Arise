@@ -5,7 +5,6 @@ import { useRegistrationStore } from '@/stores/registrationStore';
 import { Check, Loader2, ArrowLeft } from 'lucide-react';
 import { subscriptionsAPI } from '@/lib/api';
 import { Alert } from '@/components/ui';
-import { useLocale } from 'next-intl';
 
 interface Plan {
   id: number;
@@ -25,7 +24,6 @@ export function Step2_PlanSelection() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const locale = useLocale();
 
   useEffect(() => {
     const loadPlans = async () => {
