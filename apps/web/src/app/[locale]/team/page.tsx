@@ -7,7 +7,6 @@ import { Footer } from '@/components/landing/Footer';
 import { Card } from '@/components/ui';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { Users, Award, ExternalLink, Handshake } from 'lucide-react';
-import Image from 'next/image';
 
 export default function TeamPage() {
   const t = useTranslations('team');
