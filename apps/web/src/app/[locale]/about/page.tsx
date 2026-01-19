@@ -30,8 +30,14 @@ export default function AboutPage() {
                       {t('hero.titlePart2')}
                     </span>
                   </h1>
+                  <p className="text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed mb-8">
+                    {t('subtitlePart1')}
+                  </p>
+                  <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: '#D8B868', fontWeight: 700 }}>
+                    {t('subtitleHeading')}
+                  </h2>
                   <p className="text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed">
-                    {t('subtitle')}
+                    {t('subtitlePart2')}
                   </p>
                 </div>
               </div>
