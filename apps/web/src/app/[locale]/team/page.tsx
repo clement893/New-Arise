@@ -91,7 +91,7 @@ export default function TeamPage() {
                             alt={member.name}
                             width={192}
                             height={192}
-                            className="object-cover object-top"
+                            className="object-cover object-[center_15%]"
                           />
                         ) : (
                           <Users className="text-arise-deep-teal/40" size={96} />
