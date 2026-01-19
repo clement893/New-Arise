@@ -48,7 +48,7 @@ export function Step1_RoleSelection() {
             className="group relative bg-white rounded-lg shadow-xl p-4 border-2 border-gray-200 hover:border-arise-gold transition-all duration-300 text-left flex flex-col overflow-hidden"
           >
             {/* Hover overlay */}
-            <div className="absolute inset-0 bg-black/10 backdrop-blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+            <div className="absolute inset-0 bg-black/10 backdrop-blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 rounded-lg" />
             
             {/* Content with relative z-index */}
             <div className="relative z-20 flex flex-col">

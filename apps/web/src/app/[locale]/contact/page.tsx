@@ -8,7 +8,7 @@ import { Card, Alert } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle } from 'lucide-react';
+import { Mail, Clock, Send, CheckCircle } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { apiClient } from '@/lib/api';
 import { AxiosError } from 'axios';
@@ -116,38 +116,10 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-1">{t('getInTouch.email')}</h3>
-                    <a href="mailto:contact@arise.com" className="text-arise-deep-teal hover:underline">
-                      contact@arise.com
+                    <a href="mailto:info@arisehumancapital.com" className="text-arise-deep-teal hover:underline">
+                      info@arisehumancapital.com
                     </a>
                     <p className="text-sm text-gray-600 mt-1">{t('getInTouch.emailText')}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Phone className="text-arise-deep-teal" size={20} />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">{t('getInTouch.phone')}</h3>
-                    <a href="tel:+1234567890" className="text-arise-deep-teal hover:underline">
-                      +1 (234) 567-890
-                    </a>
-                    <p className="text-sm text-gray-600 mt-1">{t('getInTouch.phoneText')}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <MapPin className="text-arise-deep-teal" size={20} />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">{t('getInTouch.address')}</h3>
-                    <p className="text-gray-700">
-                      123 Leadership Avenue<br />
-                      Suite 100<br />
-                      New York, NY 10001<br />
-                      United States
-                    </p>
                   </div>
                 </div>
 

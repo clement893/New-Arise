@@ -19,8 +19,8 @@ export default function FAQPage() {
       <div className="pt-16 min-h-screen bg-white">
         <PageContainer>
           <PageHeader
-            title="Questions Fréquemment Posées"
-            description="Trouvez des réponses aux questions les plus courantes sur la plateforme ARISE"
+            title="Questions Fréquemment Posées / Questions Frequently Asked"
+            description="Trouvez des réponses aux questions les plus courantes sur la plateforme ARISE / Find answers to the most frequently asked questions about the ARISE Holistic Leadership platform."
             titleClassName="text-gray-900"
             descriptionClassName="text-gray-600"
           />

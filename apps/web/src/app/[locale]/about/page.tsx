@@ -61,68 +61,15 @@ export default function AboutPage() {
           </div>
         </MotionDiv>
 
-        {/* Our Story Section */}
-        <div className="mb-16">
-          <Card 
-            className="p-0 border border-[#D8B868] rounded-2xl overflow-hidden bg-white"
-            style={{ borderColor: '#D8B868' }}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch md:p-8 p-0">
-              {/* Image Left */}
-              <div className="relative h-64 md:h-auto rounded-l-2xl overflow-hidden">
-                {/* NOTE: Image should be replaced with image from ARISE bank of images 
-                    (https://drive.google.com/drive/folders/1yyPb1Pmz-YaNhI2oik59L3oSmQZc9X_p?usp=drive_link) */}
-                <Image 
-                  src="/images/about-story.jpg" 
-                  alt={t('story.text2')}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-                {/* Fallback gradient if image fails to load */}
-                <div className="absolute inset-0 bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                  <Users className="text-arise-deep-teal/30" size={120} />
-                </div>
-                {/* Rounded right edge where image meets text */}
-                <div className="absolute right-0 top-0 bottom-0 w-4 bg-white rounded-r-full"></div>
-              </div>
-              
-              {/* Content Right */}
-              <div className="p-8 md:p-12">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(216, 184, 104, 0.2)' }}>
-                    <Users className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
-                  </div>
-                  <h2 className="text-3xl md:text-4xl">
-                    <span className="font-light" style={{ color: '#D8B868' }}>{t('hero.titlePart1')} </span>
-                    <span className="font-medium" style={{ color: '#D8B868' }}>{t('hero.titlePart2')}</span>
-                  </h2>
-                </div>
-                <p className="text-base md:text-lg text-gray-900 mb-6 leading-relaxed">
-                  {t('story.text1')}
-                </p>
-                <h3 className="text-xl md:text-2xl font-semibold text-arise-deep-teal mb-4" style={{ color: '#0F4C56' }}>
-                  {t('story.text2')}
-                </h3>
-                <p className="text-base md:text-lg text-gray-900 leading-relaxed">
-                  {t('story.text3')}
-                </p>
-              </div>
-            </div>
-          </Card>
-        </div>
-
         {/* Mission Section */}
         <div className="mb-16">
           <Card 
             className="p-0 border border-[#D8B868] rounded-2xl overflow-hidden bg-white"
             style={{ borderColor: '#D8B868' }}
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch md:p-8 p-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch p-8">
               {/* Image Left */}
-              <div className="relative h-64 md:h-auto rounded-l-2xl overflow-hidden">
-                {/* NOTE: Image should be replaced with image from ARISE bank of images 
-                    (https://drive.google.com/drive/folders/1yyPb1Pmz-YaNhI2oik59L3oSmQZc9X_p?usp=drive_link) */}
+              <div className="relative h-80 md:h-96 rounded-l-2xl overflow-hidden">
                 <Image 
                   src="/images/about-mission.jpg" 
                   alt={t('mission.title')}
@@ -130,16 +77,10 @@ export default function AboutPage() {
                   className="object-cover"
                   priority
                 />
-                {/* Fallback gradient if image fails to load */}
-                <div className="absolute inset-0 bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                  <Target className="text-arise-deep-teal/30" size={120} />
-                </div>
-                {/* Rounded right edge where image meets text */}
-                <div className="absolute right-0 top-0 bottom-0 w-4 bg-white rounded-r-full"></div>
               </div>
               
               {/* Content Right */}
-              <div className="">
+              <div className="p-6 md:p-8 flex flex-col justify-center">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(216, 184, 104, 0.2)' }}>
                     <Target className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
@@ -166,11 +107,9 @@ export default function AboutPage() {
             className="p-0 border border-[#D8B868] rounded-2xl overflow-hidden bg-white"
             style={{ borderColor: '#D8B868' }}
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch md:p-8 p-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch p-8">
               {/* Image Left */}
-              <div className="relative h-64 md:h-auto rounded-l-2xl overflow-hidden">
-                {/* NOTE: Image should be replaced with image from ARISE bank of images 
-                    (https://drive.google.com/drive/folders/1yyPb1Pmz-YaNhI2oik59L3oSmQZc9X_p?usp=drive_link) */}
+              <div className="relative h-80 md:h-96 rounded-l-2xl overflow-hidden">
                 <Image 
                   src="/images/about-vision.jpg" 
                   alt={t('vision.title')}
@@ -178,16 +117,10 @@ export default function AboutPage() {
                   className="object-cover"
                   priority
                 />
-                {/* Fallback gradient if image fails to load */}
-                <div className="absolute inset-0 bg-gradient-to-br from-arise-gold/20 to-arise-deep-teal/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                  <Eye className="text-arise-gold/30" size={120} />
-                </div>
-                {/* Rounded right edge where image meets text */}
-                <div className="absolute right-0 top-0 bottom-0 w-4 bg-white rounded-r-full"></div>
               </div>
               
               {/* Content Right */}
-              <div className="">
+              <div className="p-6 md:p-8 flex flex-col justify-center">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(216, 184, 104, 0.2)' }}>
                     <Eye className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
@@ -266,6 +199,99 @@ export default function AboutPage() {
                   {t('values.excellence.text')}
                 </p>
               </Card>
+            </div>
+          </div>
+        </div>
+
+        {/* Timeline Section */}
+        <div className="mb-16">
+          <div>
+            <MotionDiv variant="fade" duration="normal">
+              <h2 className="text-3xl md:text-4xl font-medium text-center mb-12" style={{ color: '#D8B868' }}>
+                {t('journey.title')}
+              </h2>
+            </MotionDiv>
+
+            <div className="relative max-w-6xl mx-auto">
+              {/* Vertical timeline line */}
+              <div className="absolute left-6 top-0 bottom-0 w-0.5" style={{ backgroundColor: 'rgba(0, 0, 0, 0.1)' }}></div>
+
+              <div className="space-y-8">
+                {/* 2020 */}
+                <div className="flex gap-6 relative">
+                  <div className="flex-shrink-0 relative z-10">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-medium" style={{ backgroundColor: '#0F4C56' }}>
+                      01
+                    </div>
+                  </div>
+                  <div className="flex-1 pt-1">
+                    <h3 className="text-lg md:text-xl font-medium text-gray-900 mb-2">{t('journey.2020.title')}</h3>
+                    <p className="text-base md:text-lg text-gray-700 leading-relaxed">
+                      {t('journey.2020.text')}
+                    </p>
+                  </div>
+                </div>
+
+                {/* 2021 */}
+                <div className="flex gap-6 relative">
+                  <div className="flex-shrink-0 relative z-10">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-medium" style={{ backgroundColor: '#0F4C56' }}>
+                      02
+                    </div>
+                  </div>
+                  <div className="flex-1 pt-1">
+                    <h3 className="text-lg md:text-xl font-medium text-gray-900 mb-2">{t('journey.2021.title')}</h3>
+                    <p className="text-base md:text-lg text-gray-700 leading-relaxed">
+                      {t('journey.2021.text')}
+                    </p>
+                  </div>
+                </div>
+
+                {/* 2022 */}
+                <div className="flex gap-6 relative">
+                  <div className="flex-shrink-0 relative z-10">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-medium" style={{ backgroundColor: '#0F4C56' }}>
+                      03
+                    </div>
+                  </div>
+                  <div className="flex-1 pt-1">
+                    <h3 className="text-lg md:text-xl font-medium text-gray-900 mb-2">{t('journey.2022.title')}</h3>
+                    <p className="text-base md:text-lg text-gray-700 leading-relaxed">
+                      {t('journey.2022.text')}
+                    </p>
+                  </div>
+                </div>
+
+                {/* 2023 */}
+                <div className="flex gap-6 relative">
+                  <div className="flex-shrink-0 relative z-10">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-medium" style={{ backgroundColor: '#0F4C56' }}>
+                      04
+                    </div>
+                  </div>
+                  <div className="flex-1 pt-1">
+                    <h3 className="text-lg md:text-xl font-medium text-gray-900 mb-2">{t('journey.2023.title')}</h3>
+                    <p className="text-base md:text-lg text-gray-700 leading-relaxed">
+                      {t('journey.2023.text')}
+                    </p>
+                  </div>
+                </div>
+
+                {/* 2024 */}
+                <div className="flex gap-6 relative">
+                  <div className="flex-shrink-0 relative z-10">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-medium" style={{ backgroundColor: '#0F4C56' }}>
+                      05
+                    </div>
+                  </div>
+                  <div className="flex-1 pt-1">
+                    <h3 className="text-lg md:text-xl font-medium text-gray-900 mb-2">{t('journey.2024.title')}</h3>
+                    <p className="text-base md:text-lg text-gray-700 leading-relaxed">
+                      {t('journey.2024.text')}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
