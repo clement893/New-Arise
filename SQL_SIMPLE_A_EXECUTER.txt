@@ -1,0 +1,31 @@
+================================================
+COPIEZ CES COMMANDES SQL DANS RAILWAY
+================================================
+
+-- 1. Désactiver l'ancien plan Test
+UPDATE plans SET status = 'inactive' WHERE name LIKE '%Test%';
+
+-- 2. Supprimer les anciens plans si ils existent
+DELETE FROM plans WHERE name IN ('REVELATION', 'SELF EXPLORATION', 'WELLNESS');
+
+-- 3. Créer REVELATION ($299)
+INSERT INTO plans (name, description, amount, currency, interval, interval_count, status, is_popular, created_at, updated_at)
+VALUES ('REVELATION', 'Complete leadership assessment with 360 degree feedback', 29900, 'usd', 'month', 1, 'active', true, NOW(), NOW());
+
+-- 4. Créer SELF EXPLORATION ($250)
+INSERT INTO plans (name, description, amount, currency, interval, interval_count, status, is_popular, created_at, updated_at)
+VALUES ('SELF EXPLORATION', 'Professional assessment with wellness check', 25000, 'usd', 'month', 1, 'active', false, NOW(), NOW());
+
+-- 5. Créer WELLNESS ($99)
+INSERT INTO plans (name, description, amount, currency, interval, interval_count, status, is_popular, created_at, updated_at)
+VALUES ('WELLNESS', 'Basic wellness assessment', 9900, 'usd', 'month', 1, 'active', false, NOW(), NOW());
+
+-- 6. Vérifier
+SELECT id, name, amount, (amount::numeric / 100) as price_dollars, interval, status FROM plans WHERE status = 'active' ORDER BY amount DESC;
+
+================================================
+RÉSULTAT ATTENDU:
+REVELATION      | 299.00
+SELF EXPLORATION| 250.00  
+WELLNESS        | 99.00
+================================================
