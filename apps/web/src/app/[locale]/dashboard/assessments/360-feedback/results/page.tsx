@@ -348,15 +348,6 @@ export default function Feedback360ResultsPage() {
       <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="mb-8">
-          <Button
-            variant="primary"
-            onClick={() => router.push('/dashboard/assessments')}
-            className="mb-4 flex items-center gap-4"
-            style={{ backgroundColor: '#0F4C56', color: '#fff' }}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            {t('backToAssessments')}
-          </Button>
 
           <MotionDiv
             variant="slideUp"
@@ -632,6 +623,19 @@ export default function Feedback360ResultsPage() {
             </div>
           </div>
         </MotionDiv>
+
+        {/* Back to assessments button at bottom */}
+        <div className="flex justify-center mt-8 mb-8">
+          <Button
+            onClick={() => router.push('/dashboard/assessments')}
+            variant="primary"
+            className="flex items-center gap-4"
+            style={{ backgroundColor: '#0F4C56', color: '#fff' }}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            {t('backToAssessments')}
+          </Button>
+        </div>
       </div>
     </div>
   );

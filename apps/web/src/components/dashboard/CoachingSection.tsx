@@ -28,7 +28,7 @@ export function CoachingSection() {
         <p className="text-white/90 mb-6 max-w-2xl">
           Connect with expert ARISE coaches who specialize in leadership development. 
           Schedule your FREE coaching session to debrief your results and build a 
-          personalized development plan.
+          personalized personal growth plan.
         </p>
         <button 
           className="flex items-center gap-2 px-6 py-3 bg-arise-gold text-arise-deep-teal rounded-lg font-semibold hover:bg-arise-gold/90 transition-colors"

@@ -204,12 +204,17 @@ export function Step3_CreateAccount() {
           <div className="flex justify-between items-center pt-4">
             <button
               type="button"
-              onClick={() => setStep(2)}
+              onClick={() => {
+                // Warn user that going back after account creation may cause issues
+                if (window.confirm('Your account has been created and you are logged in. Going back may cause navigation issues. Do you want to continue?')) {
+                  setStep(2);
+                }
+              }}
               disabled={isLoading}
-              className="text-white text-sm flex items-center gap-2 hover:text-white/80 transition-colors disabled:opacity-50"
+              className="text-arise-deep-teal text-base font-semibold flex items-center gap-2 hover:text-arise-deep-teal/80 transition-colors disabled:opacity-50 px-4 py-2 rounded-lg hover:bg-gray-100"
             >
-              <ArrowLeft className="w-4 h-4" />
-              Retour
+              <ArrowLeft className="w-5 h-5" />
+              Back
             </button>
             <Button
               type="submit"

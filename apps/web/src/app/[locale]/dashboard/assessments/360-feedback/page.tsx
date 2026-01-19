@@ -86,6 +86,7 @@ export default function Feedback360Page() {
       router.push('/dashboard/assessments/360-feedback/start');
       return;
     }
+    // If we have an assessment ID, go directly to questions
     setScreen('questions');
   };
 

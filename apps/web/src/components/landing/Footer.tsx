@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
+import Image from 'next/image';
 
 export function Footer() {
   const t = useTranslations('landing.footer');
@@ -13,7 +14,15 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           {/* Logo and Description */}
           <div>
-            <h3 className="text-2xl font-bold text-arise-gold mb-4">ARISE</h3>
+            <div className="mb-4">
+              <Image
+                src="/images/arise-logo-white.png"
+                alt="ARISE"
+                width={120}
+                height={40}
+                className="h-10 w-auto"
+              />
+            </div>
             <p className="text-gray-400 text-sm">
               {t('description')}
             </p>

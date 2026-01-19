@@ -2,13 +2,14 @@
 
 import { useState } from 'react';
 import { useRegistrationStore } from '@/stores/registrationStore';
-import { Plus, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 
 interface PlanTab {
   id: string;
   name: string;
   price: number;
+  included: string[];
 }
 
 interface Feature {
@@ -21,18 +22,46 @@ export function Step1_5_DiscoverPlans() {
   const { setStep } = useRegistrationStore();
   const [selectedPlanTab, setSelectedPlanTab] = useState<string>('revelation');
   const [selectedFeatures, setSelectedFeatures] = useState<Set<string>>(new Set());
+  const [hoveredPlan, setHoveredPlan] = useState<string | null>(null);
 
   const planTabs: PlanTab[] = [
-    { id: 'revelation', name: 'REVELATION', price: 299 },
-    { id: 'self-exploration', name: 'SELF EXPLORATION', price: 250 },
-    { id: 'wellness', name: 'WELLNESS', price: 99 },
+    { 
+      id: 'revelation', 
+      name: 'REVELATION', 
+      price: 299,
+      included: [
+        'Professional Assessment (MBTI + ARISE Conflict Management)',
+        '360° Peer Evaluation',
+        'Wellness Pulse',
+        'Executive Summary'
+      ]
+    },
+    { 
+      id: 'self-exploration', 
+      name: 'SELF EXPLORATION', 
+      price: 250,
+      included: [
+        'Professional Assessment (MBTI + ARISE Conflict Management)',
+        'Wellness Pulse',
+        'Executive Summary'
+      ]
+    },
+    { 
+      id: 'wellness', 
+      name: 'WELLNESS', 
+      price: 99,
+      included: [
+        'Wellness Pulse',
+        'Basic Assessment Summary'
+      ]
+    },
   ];
 
   const features: Feature[] = [
     {
       id: 'professional-assessment',
       title: 'Professional Assessment',
-      description: 'Combined MBTI assessment with TKI conflict management style assessment',
+      description: 'Combined MBTI (Myers Briggs Type Indicator) assessment with ARISE Conflict Management style. You will gain insight into your natural leadership preferences, how you handle conflict and learn to navigate difficult situations with confidence and effectiveness.',
     },
     {
       id: '360-peer-evaluation',
@@ -100,24 +129,45 @@ export function Step1_5_DiscoverPlans() {
         {/* Content */}
         <div className="relative z-10 p-8 md:p-12">
           {/* Title */}
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
             Discover our plans
           </h2>
+          <p className="text-white/90 text-lg mb-8">
+            Select the plan that best meets your development needs.
+          </p>
 
           {/* Plan Tabs */}
-          <div className="flex flex-wrap gap-3 mb-8">
+          <div className="flex flex-wrap gap-3 mb-8 relative">
             {planTabs.map((plan) => (
-              <button
-                key={plan.id}
-                onClick={() => handlePlanTabSelect(plan.id)}
-                className={`px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200 ${
-                  selectedPlanTab === plan.id
-                    ? 'bg-gray-300 text-gray-900'
-                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-                }`}
-              >
-                {plan.name} ${plan.price}
-              </button>
+              <div key={plan.id} className="relative">
+                <button
+                  onClick={() => handlePlanTabSelect(plan.id)}
+                  onMouseEnter={() => setHoveredPlan(plan.id)}
+                  onMouseLeave={() => setHoveredPlan(null)}
+                  className={`px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200 ${
+                    selectedPlanTab === plan.id
+                      ? 'bg-gray-300 text-gray-900'
+                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                  }`}
+                >
+                  {plan.name} ${plan.price}
+                </button>
+                
+                {/* Hover Tooltip */}
+                {hoveredPlan === plan.id && (
+                  <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-xl p-4 z-50 border-2 border-[#D8B868]">
+                    <h4 className="font-bold text-gray-900 mb-2 text-sm">What's included:</h4>
+                    <ul className="space-y-1">
+                      {plan.included.map((item, index) => (
+                        <li key={index} className="text-xs text-gray-700 flex items-start gap-2">
+                          <span className="text-[#D8B868] mt-1">•</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
 
@@ -136,26 +186,13 @@ export function Step1_5_DiscoverPlans() {
                   {/* Hover overlay */}
                   <div className="absolute inset-0 bg-black/10 backdrop-blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
                   
-                  <div className="relative z-20 flex-grow pr-4">
+                  <div className="relative z-20 flex-grow">
                     <h3 className="text-base font-bold text-gray-900 mb-2 group-hover:text-white transition-colors duration-300">
                       {feature.title}
                     </h3>
                     <p className="text-gray-700 text-sm leading-relaxed group-hover:text-white transition-colors duration-300">
                       {feature.description}
                     </p>
-                  </div>
-                  <div
-                    className={`relative z-20 ml-2 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
-                      isSelected
-                        ? 'bg-[#D8B868] text-white'
-                        : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                    }`}
-                  >
-                    <Plus
-                      className={`w-5 h-5 transition-transform duration-200 ${
-                        isSelected ? 'rotate-45' : ''
-                      }`}
-                    />
                   </div>
                 </div>
               );
@@ -166,10 +203,10 @@ export function Step1_5_DiscoverPlans() {
           <div className="flex items-center justify-center pt-6 border-t border-white/20">
             <button
               onClick={handleBack}
-              className="text-white text-sm flex items-center gap-2 hover:text-white/80 transition-colors"
+              className="text-white text-base font-semibold flex items-center gap-2 hover:text-white/90 transition-colors px-4 py-2 rounded-lg hover:bg-white/10"
             >
-              <ArrowLeft className="w-4 h-4" />
-              Retour
+              <ArrowLeft className="w-5 h-5" />
+              Back
             </button>
           </div>
         </div>

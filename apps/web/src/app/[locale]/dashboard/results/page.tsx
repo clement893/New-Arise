@@ -97,7 +97,7 @@ function ResultsReportsContent() {
   const getAssessmentName = (type: AssessmentType): string => {
     const names: Record<AssessmentType, string> = {
       MBTI: 'MBTI Personality',
-      TKI: 'TKI Conflict Style',
+      TKI: 'ARISE Conflict Style',
       WELLNESS: 'Wellness Assessment',
       THREE_SIXTY_SELF: '360° Feedback',
     };
@@ -380,7 +380,7 @@ function ResultsReportsContent() {
                 <div className="w-8 h-8 bg-primary-500/10 rounded flex items-center justify-center">
                   <span className="text-primary-500 font-bold text-sm">T</span>
                 </div>
-                TKI Conflict Management
+                ARISE Conflict Management
               </h3>
               <p className="text-gray-600 text-sm">
                 Explore your conflict management approach and how you handle disagreements
@@ -431,7 +431,7 @@ function ResultsReportsContent() {
             </h2>
             <p className="text-white/90 mb-4">
               Connect with expert ARISE coaches who specialize in leadership development. 
-              Schedule your FREE coaching session to debrief your results and build a personalized development plan.
+              Schedule your FREE coaching session to debrief your results and build a personalized personal growth plan.
             </p>
             <Button 
               variant="secondary" 

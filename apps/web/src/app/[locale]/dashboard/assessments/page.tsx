@@ -690,12 +690,12 @@ function AssessmentsContent() {
       
       setAssessments(finalValidatedAssessments);
       
-      // Load evaluators for 360 assessments
+      // Load contributors for 360 assessments
       const threeSixtyAssessment = finalValidatedAssessments.find(a => a.assessmentType === 'THREE_SIXTY_SELF' && a.assessmentId);
       if (threeSixtyAssessment?.assessmentId) {
         try {
           // Try to load from cache first for instant display (localStorage for persistence)
-          const cacheKey = `evaluators_cache_${threeSixtyAssessment.assessmentId}`;
+          const cacheKey = `contributors_cache_${threeSixtyAssessment.assessmentId}`;
           if (typeof window !== 'undefined') {
             try {
               const cached = localStorage.getItem(cacheKey);
@@ -703,12 +703,12 @@ function AssessmentsContent() {
                 const parsed = JSON.parse(cached);
                 // Check if cache is recent (less than 24 hours old)
                 if (parsed.timestamp && Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000) {
-                  const cachedEvaluators = parsed.data || [];
-                  if (cachedEvaluators.length > 0) {
-                    console.log('[AssessmentsPage] Loaded evaluators from cache:', cachedEvaluators.length);
+                  const cachedContributors = parsed.data || [];
+                  if (cachedContributors.length > 0) {
+                    console.log('[AssessmentsPage] Loaded contributors from cache:', cachedContributors.length);
                     setEvaluators(prev => ({
                       ...prev,
-                      [threeSixtyAssessment.assessmentId!]: cachedEvaluators
+                      [threeSixtyAssessment.assessmentId!]: cachedContributors
                     }));
                   }
                 }
@@ -730,7 +730,7 @@ function AssessmentsContent() {
                 timestamp: Date.now(),
                 assessmentId: threeSixtyAssessment.assessmentId
               }));
-              console.log('[AssessmentsPage] Saved evaluators to cache:', evaluatorsList.length);
+              console.log('[AssessmentsPage] Saved contributors to cache:', evaluatorsList.length);
             } catch (cacheErr) {
               console.error('[AssessmentsPage] Error saving cache:', cacheErr);
             }
@@ -741,8 +741,8 @@ function AssessmentsContent() {
             [threeSixtyAssessment.assessmentId!]: evaluatorsList
           }));
         } catch (evaluatorsErr) {
-          console.error('Failed to load evaluators:', formatError(evaluatorsErr));
-          // Don't fail the whole page if evaluators fail to load
+          console.error('Failed to load contributors:', formatError(evaluatorsErr));
+          // Don't fail the whole page if contributors fail to load
         }
       }
       
@@ -1478,7 +1478,7 @@ function AssessmentsContent() {
                       </div>
                     )}
                     
-                    {/* 360 Feedback Evaluators Section - integrated in the same Card */}
+                    {/* 360 Feedback Contributors Section - integrated in the same Card */}
                     {safeAssessment.assessmentType === 'THREE_SIXTY_SELF' && safeAssessment.assessmentId && (
                       <div className="mt-6 pt-6 border-t border-gray-300">
                         <div className="flex flex-col sm:flex-row items-center sm:gap-0 gap-4 justify-between mb-3">
@@ -1500,13 +1500,23 @@ function AssessmentsContent() {
                           </div>
                         </div>
                         
-                        {/* Evaluators List */}
+                        {/* Contributors List */}
                         {(() => {
-                          const assessmentEvaluators = safeAssessment.assessmentId ? evaluators[safeAssessment.assessmentId] || [] : [];
-                          if (assessmentEvaluators.length === 0) {
+                          const assessmentContributors = safeAssessment.assessmentId ? evaluators[safeAssessment.assessmentId] || [] : [];
+                          if (assessmentContributors.length === 0) {
                             return (
                               <div className="mb-3">
                                 <p className="text-sm text-gray-600 mb-3">{t('evaluators.noEvaluators')}</p>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    router.push(`/dashboard/assessments/360-feedback/start?assessmentId=${safeAssessment.assessmentId}`);
+                                  }}
+                                  className="text-xs"
+                                >
+                                  Add Contributors
+                                </Button>
                               </div>
                             );
                           }
@@ -1539,19 +1549,19 @@ function AssessmentsContent() {
                           
                           return (
                             <div className="mb-3 space-y-2">
-                              {assessmentEvaluators.map((evaluator) => (
-                                <div key={evaluator.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                              {assessmentContributors.map((contributor) => (
+                                <div key={contributor.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
                                   <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-1">
-                                      <span className="text-sm font-medium text-gray-900">{evaluator.name}</span>
-                                      {getEvaluatorStatusBadge(evaluator.status)}
+                                      <span className="text-sm font-medium text-gray-900">{contributor.name}</span>
+                                      {getEvaluatorStatusBadge(contributor.status)}
                                     </div>
                                     <div className="flex items-center gap-2 text-xs text-gray-600">
-                                      <span>{evaluator.email}</span>
-                                      {evaluator.role && (
+                                      <span>{contributor.email}</span>
+                                      {contributor.role && (
                                         <>
                                           <span>•</span>
-                                          <span>{ROLE_LABELS[evaluator.role] || evaluator.role}</span>
+                                          <span>{ROLE_LABELS[contributor.role] || contributor.role}</span>
                                         </>
                                       )}
                                     </div>
@@ -1688,7 +1698,7 @@ function AssessmentsContent() {
               setShowEvaluatorModal(false);
               // Reload assessments and evaluators
               await loadAssessments();
-              // Reload evaluators for the 360 assessment
+              // Reload contributors for the 360 assessment
               const feedback360Assessment = safeAssessments.find(a => a.assessmentType === 'THREE_SIXTY_SELF');
               if (feedback360Assessment?.assessmentId) {
                 try {
@@ -1698,7 +1708,7 @@ function AssessmentsContent() {
                   // Save to cache (localStorage for persistence)
                   if (typeof window !== 'undefined') {
                     try {
-                      const cacheKey = `evaluators_cache_${feedback360Assessment.assessmentId}`;
+                      const cacheKey = `contributors_cache_${feedback360Assessment.assessmentId}`;
                       localStorage.setItem(cacheKey, JSON.stringify({
                         data: evaluatorsList,
                         timestamp: Date.now(),

@@ -261,7 +261,42 @@ export default function MBTIResultsPage() {
                   </div>
                 )}
               </div>
-              <Button variant="outline">
+              <Button 
+                variant="outline"
+                onClick={async () => {
+                  try {
+                    const { generateAssessmentPDF, downloadBlob } = await import('@/lib/utils/pdfGenerator');
+                    
+                    // Ensure all data is properly formatted before generating PDF
+                    const pdfData = {
+                      id: Number(assessmentId),
+                      name: 'MBTI Assessment Results',
+                      type: 'MBTI',
+                      completedDate: new Date().toLocaleDateString(),
+                      score: mbtiType || 'XXXX',
+                      result: typeInfo.name || 'Unknown Type',
+                      detailedResult: {
+                        ...results,
+                        scores: {
+                          ...results.scores,
+                          mbti_type: mbtiType || 'XXXX',
+                          dimension_preferences: results.scores?.dimension_preferences || {},
+                        },
+                        insights: results.insights || {},
+                        recommendations: results.recommendations || [],
+                      },
+                    };
+                    
+                    const pdfBlob = await generateAssessmentPDF(pdfData);
+                    const timestamp = new Date().toISOString().split('T')[0];
+                    downloadBlob(pdfBlob, `MBTI_Assessment_Results_${timestamp}.pdf`);
+                  } catch (err) {
+                    console.error('Error generating PDF:', err);
+                    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+                    alert(`Failed to generate PDF: ${errorMessage}. Please try again.`);
+                  }
+                }}
+              >
                 <Download className="w-4 h-4 mr-2" />
                 {t('exportPdf')}
               </Button>

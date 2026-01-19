@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Button from '@/components/ui/Button';
+import Image from 'next/image';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -25,9 +26,15 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
           {/* Brand Section */}
           <div className="lg:col-span-2">
-            <h3 className="text-white font-bold text-xl mb-4">
-              <span className="text-arise-gold">ARISE</span>
-            </h3>
+            <div className="mb-4">
+              <Image
+                src="/images/arise-logo-white.png"
+                alt="ARISE"
+                width={120}
+                height={40}
+                className="h-10 w-auto"
+              />
+            </div>
             <p className="text-sm text-gray-400 dark:text-gray-500 mb-6 leading-relaxed max-w-md">
               Template full-stack moderne pour démarrer rapidement vos projets avec Next.js 16, React 19, FastAPI et PostgreSQL.
             </p>

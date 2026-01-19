@@ -52,6 +52,7 @@ export default function Start360FeedbackPage() {
       // First, try to use assessmentId from URL
       if (assessmentId) {
         id = parseInt(assessmentId);
+        setResolvedAssessmentId(id);
       } else {
         // If no assessmentId in URL, try to find existing 360 assessment
         try {
@@ -145,19 +146,19 @@ export default function Start360FeedbackPage() {
     for (let i = 0; i < evaluators.length; i++) {
       const evaluator = evaluators[i];
       if (!evaluator) {
-        setError(`Evaluator ${i + 1} is invalid`);
+        setError(`Contributor ${i + 1} is invalid`);
         return false;
       }
       if (!evaluator.name.trim()) {
-        setError(`Evaluator ${i + 1} name is required`);
+        setError(`Contributor ${i + 1} name is required`);
         return false;
       }
       if (!evaluator.email.trim()) {
-        setError(`Evaluator ${i + 1} email is required`);
+        setError(`Contributor ${i + 1} email is required`);
         return false;
       }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(evaluator.email)) {
-        setError(`Evaluator ${i + 1} email is not valid`);
+        setError(`Contributor ${i + 1} email is not valid`);
         return false;
       }
     }
@@ -166,7 +167,7 @@ export default function Start360FeedbackPage() {
     const emails = evaluators.filter((e): e is EvaluatorForm => e !== undefined).map((e) => e.email.toLowerCase());
     const uniqueEmails = new Set(emails);
     if (uniqueEmails.size !== emails.length) {
-      setError('Evaluator emails must be unique');
+      setError('Contributor emails must be unique');
       return false;
     }
 
@@ -194,21 +195,50 @@ export default function Start360FeedbackPage() {
           role: e.role,
         }));
 
+      // Check if assessment already exists
+      let assessmentIdToUse: number | null = null;
+      
+      // First, try to use existing assessment ID
+      if (assessmentId) {
+        assessmentIdToUse = parseInt(assessmentId);
+      } else if (resolvedAssessmentId) {
+        assessmentIdToUse = resolvedAssessmentId;
+      } else {
+        // Try to find existing assessment
+        try {
+          const assessments = await getMyAssessments();
+          const feedback360Assessment = assessments.find(
+            (a) => a.assessment_type === 'THREE_SIXTY_SELF'
+          );
+          if (feedback360Assessment) {
+            assessmentIdToUse = feedback360Assessment.id;
+          }
+        } catch (err) {
+          console.warn('Could not find existing assessment:', err);
+        }
+      }
+
+      // Always call start360Feedback - backend will resume existing or create new
+      // This ensures contributors are properly added
       const response = await start360Feedback(evaluatorsData);
+      assessmentIdToUse = response.assessment_id || assessmentIdToUse;
 
       setSubmittedEvaluatorsCount(evaluatorsData.length);
       setSuccess(true);
       
-      // Reload evaluators if we're on an existing assessment
-      const idToUse = response.assessment_id || parseInt(assessmentId!) || resolvedAssessmentId;
-      if (idToUse) {
-        setResolvedAssessmentId(idToUse);
-        await loadExistingEvaluators(idToUse);
+      // Store the assessment ID for persistence
+      if (assessmentIdToUse) {
+        setResolvedAssessmentId(assessmentIdToUse);
+        // Update URL with assessment ID for persistence
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.set('assessmentId', assessmentIdToUse.toString());
+        window.history.replaceState({}, '', newUrl.toString());
+        await loadExistingEvaluators(assessmentIdToUse);
       }
       
       // Redirect to the 360 feedback assessment page (auto-evaluation) after a short delay
       setTimeout(() => {
-        router.push(`/dashboard/assessments/360-feedback?assessmentId=${response.assessment_id}`);
+        router.push(`/dashboard/assessments/360-feedback?assessmentId=${assessmentIdToUse}`);
       }, 2000);
     } catch (err: any) {
       console.error('Failed to start 360 feedback:', err);
@@ -229,23 +259,49 @@ export default function Start360FeedbackPage() {
     try {
       setIsSubmitting(true);
 
-      // Create assessment without evaluators
-      const response = await start360Feedback([]);
+      // Check if assessment already exists
+      let assessmentIdToUse: number | null = null;
+      
+      // First, try to use existing assessment ID from URL or resolved
+      if (assessmentId) {
+        assessmentIdToUse = parseInt(assessmentId);
+      } else if (resolvedAssessmentId) {
+        assessmentIdToUse = resolvedAssessmentId;
+      } else {
+        // Try to find existing assessment
+        try {
+          const assessments = await getMyAssessments();
+          const feedback360Assessment = assessments.find(
+            (a) => a.assessment_type === 'THREE_SIXTY_SELF'
+          );
+          if (feedback360Assessment) {
+            assessmentIdToUse = feedback360Assessment.id;
+          }
+        } catch (err) {
+          console.warn('Could not find existing assessment:', err);
+        }
+      }
 
+      // If no existing assessment, create a new one without contributors
+      if (!assessmentIdToUse) {
+        const response = await start360Feedback([]);
+        assessmentIdToUse = response.assessment_id;
+      }
+
+      // Store the assessment ID for persistence
+      if (assessmentIdToUse) {
+        setResolvedAssessmentId(assessmentIdToUse);
+        // Update URL with assessment ID for persistence
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.set('assessmentId', assessmentIdToUse.toString());
+        window.history.replaceState({}, '', newUrl.toString());
+      }
+      
       setSubmittedEvaluatorsCount(0);
       setSuccess(true);
       
-      // Reload evaluators if we're on an existing assessment
-      const idToUse = response.assessment_id || parseInt(assessmentId!) || resolvedAssessmentId;
-      if (idToUse) {
-        setResolvedAssessmentId(idToUse);
-        await loadExistingEvaluators(idToUse);
-      }
-      
-      // Redirect to the 360 feedback assessment page (auto-evaluation) after a short delay
-      setTimeout(() => {
-        router.push(`/dashboard/assessments/360-feedback?assessmentId=${response.assessment_id}`);
-      }, 2000);
+      // Redirect immediately to the 360 feedback assessment page (skip success screen)
+      router.push(`/dashboard/assessments/360-feedback?assessmentId=${assessmentIdToUse}`);
     } catch (err: any) {
       console.error('Failed to start 360 feedback:', err);
       setError(
@@ -253,7 +309,6 @@ export default function Start360FeedbackPage() {
         err.message || 
         'An error occurred while starting the 360° assessment'
       );
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -265,12 +320,12 @@ export default function Start360FeedbackPage() {
           <Card className="p-8 text-center">
             <CheckCircle className="mx-auto mb-4 h-16 w-16 text-success-500" />
             <h1 className="mb-4 text-3xl font-bold text-gray-900">
-              Invitations Sent!
+              {submittedEvaluatorsCount > 0 ? 'Invitations Sent!' : 'Assessment Created!'}
             </h1>
             <p className="mb-8 text-gray-600">
               {submittedEvaluatorsCount > 0
-                ? `Invitations have been sent ${submittedEvaluatorsCount > 1 ? `to ${submittedEvaluatorsCount} evaluators` : 'to the evaluator'}. You can now start your self-assessment.`
-                : 'Your 360° assessment has been created. You can now start your self-assessment and add evaluators later if you wish.'}
+                ? `Invitations have been sent ${submittedEvaluatorsCount > 1 ? `to ${submittedEvaluatorsCount} contributors` : 'to the contributor'}. You can now start your self-assessment.`
+                : 'Your 360° assessment has been created. You can now start your self-assessment and add contributors later if you wish.'}
             </p>
             <p className="text-sm text-gray-500">
               Redirecting...
@@ -285,7 +340,7 @@ export default function Start360FeedbackPage() {
     <>
       <PageHeader
         title="Start a 360° Feedback Assessment"
-        description="Invite people to evaluate your leadership (optional). They will receive an email with a link to the form. You can add evaluators later."
+        description="Invite professionals to assess your leadership capabilities (optional). They will receive an email with thorough orientation and with a link to complete a form. You may add contributors later."
         titleClassName="text-white"
         descriptionClassName="text-white"
       />
@@ -297,7 +352,7 @@ export default function Start360FeedbackPage() {
             <Card className="mb-6 p-6">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                  Added Evaluators ({existingEvaluators.length})
+                  Added Contributors ({existingEvaluators.length})
                 </h2>
                 <Button
                   type="button"
@@ -397,11 +452,23 @@ export default function Start360FeedbackPage() {
                     <h3 className="font-semibold text-primary-900">
                       Instructions
                     </h3>
-                    <p className="mt-1 text-sm text-primary-800">
-                      Invitez des personnes qui vous connaissent bien dans votre contexte professionnel (optionnel). 
-                      Choisissez des personnes ayant des relations différentes avec vous (collègue, manager, collaborateur, client, etc.).
-                      You can add evaluators now or later from your dashboard.
-                    </p>
+                    <div className="mt-1 text-sm text-primary-800 space-y-2">
+                      <p>
+                        The 360° feedback process provides a complete view of your leadership by combining your self-reflection with feedback from colleagues/peers, leaders, direct reports and external stakeholders. It helps you recognize your strengths, identify areas for growth, and compare how you see yourself with how others experience your leadership.
+                      </p>
+                      <p className="font-semibold mt-3">
+                        ORIENTATION FOR SELECTION OF CONTRIBUTORS
+                      </p>
+                      <p>
+                        This process requires openness, honesty, and thoughtful reflections. It is important to select professionals that will be comfortable conducting this process while being:
+                      </p>
+                      <ul className="list-disc list-inside ml-2 space-y-1">
+                        <li><strong>Reflective:</strong> Taking time to carefully consider your actions, decisions, and the impact you have had on work environment and on others, ideally in the last twelve months.</li>
+                        <li><strong>Honest:</strong> Acknowledging both your strengths and the areas where you can grow, to add the most value to the process.</li>
+                        <li><strong>Balanced:</strong> Focusing on real behaviors and outcomes, not intentions and/or isolated moments.</li>
+                        <li><strong>Growth-oriented:</strong> Approaching this process to genuinely allow the opportunity to reveal blinds and to set a foundation for continued growth.</li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -424,7 +491,7 @@ export default function Start360FeedbackPage() {
                           {index + 1}
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 text-left">
-                          Evaluator {index + 1}
+                          Contributor {index + 1}
                         </h3>
                       </div>
                       {evaluators.length > 1 && (
@@ -432,7 +499,7 @@ export default function Start360FeedbackPage() {
                           type="button"
                           onClick={() => removeEvaluator(index)}
                           className="rounded p-1 text-red-600 hover:bg-red-50"
-                          title="Remove this evaluator"
+                          title="Remove this contributor"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -523,7 +590,7 @@ export default function Start360FeedbackPage() {
                   }}
                 >
                   <Plus className="h-4 w-4" />
-                  Add an evaluator
+                  Add a contributor
                 </Button>
               </div>
 
@@ -532,7 +599,15 @@ export default function Start360FeedbackPage() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => router.push('/dashboard/assessments')}
+                    onClick={() => {
+                      // If we have an assessmentId, go to the assessment page, otherwise go to assessments list
+                      const idToUse = parseInt(assessmentId || '') || resolvedAssessmentId;
+                      if (idToUse) {
+                        router.push(`/dashboard/assessments/360-feedback?assessmentId=${idToUse}`);
+                      } else {
+                        router.push('/dashboard/assessments/360-feedback');
+                      }
+                    }}
                     disabled={isSubmitting}
                     style={{ 
                       border: '1px solid #D8B868',
@@ -540,7 +615,7 @@ export default function Start360FeedbackPage() {
                       padding: '6px 12px'
                     }}
                   >
-                    Cancel
+                    Back
                   </Button>
                   <Button
                     type="button"
@@ -556,7 +631,7 @@ export default function Start360FeedbackPage() {
                     {isSubmitting ? (
                       <>Processing...</>
                     ) : (
-                      <>Skip this step</>
+                      <>Start without contributors</>
                     )}
                   </Button>
                 </div>
@@ -572,7 +647,7 @@ export default function Start360FeedbackPage() {
                       <UserPlus className="h-4 w-4" />
                       {evaluators.length > 0 && evaluators.some(e => e.name.trim() && e.email.trim())
                         ? 'Send invitations and start'
-                        : 'Start without evaluators'}
+                        : 'Start without contributors'}
                     </>
                   )}
                 </Button>

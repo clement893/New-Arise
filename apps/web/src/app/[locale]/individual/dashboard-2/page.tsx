@@ -32,7 +32,7 @@ const ASSESSMENT_CONFIG: Record<string, { title: string; description: string; ic
     externalLink: 'https://www.psychometrics.com/assessments/mbti/',
   },
   TKI: {
-    title: 'TKI Conflict Style',
+    title: 'ARISE Conflict Style',
     description: 'Explore Your Conflict Management Approach',
     icon: Target,
   },
@@ -690,7 +690,7 @@ function DashboardContent() {
                   </h2>
                   <p className="text-white/90 mb-4 break-words">
                     Connect with expert ARISE coaches who specialize in leadership development. 
-                    Schedule your FREE coaching session to debrief your results and build a personalized development plan.
+                    Schedule your FREE coaching session to debrief your results and build a personalized personal growth plan.
                   </p>
                   <Button 
                     variant="arise-primary"

@@ -7,6 +7,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from '@/i18n/routing';
+import { useLocale } from 'next-intl';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import MotionDiv from '@/components/motion/MotionDiv';
@@ -17,6 +18,7 @@ import { formatError } from '@/lib/utils/formatError';
 
 export default function MBTIPDFUploadPage() {
   const router = useRouter();
+  const locale = useLocale();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [profileUrl, setProfileUrl] = useState<string>('');
   const [inputMode, setInputMode] = useState<'file' | 'url' | 'image'>('file');
@@ -37,7 +39,7 @@ export default function MBTIPDFUploadPage() {
       if (inputMode === 'file') {
         // PDF validation
         if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-          setError('Veuillez sélectionner un fichier PDF valide');
+          setError(locale === 'fr' ? 'Veuillez sélectionner un fichier PDF valide' : 'Please select a valid PDF file');
           setSelectedFile(null);
           return;
         }
@@ -49,7 +51,7 @@ export default function MBTIPDFUploadPage() {
         const hasValidExtension = allowedExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
         
         if (!hasValidType && !hasValidExtension) {
-          setError('Veuillez sélectionner une image valide (PNG, JPG, JPEG, GIF, WEBP)');
+          setError(locale === 'fr' ? 'Veuillez sélectionner une image valide (PNG, JPG, JPEG, GIF, WEBP)' : 'Please select a valid image (PNG, JPG, JPEG, GIF, WEBP)');
           setSelectedFile(null);
           return;
         }
@@ -71,25 +73,57 @@ export default function MBTIPDFUploadPage() {
     if (!url.trim()) {
       return false;
     }
-    // Validate 16Personalities profile URL format
-    const urlPattern = /^https?:\/\/www\.16personalities\.com\/profiles\/[a-zA-Z0-9]+/;
-    return urlPattern.test(url.trim());
+    // Validate 16Personalities profile URL format - more flexible
+    // Accepts www.16personalities.com/profiles/... or 16personalities.com/profiles/...
+    // Also accepts URLs with query parameters or trailing slashes
+    const trimmedUrl = url.trim();
+    try {
+      const urlObj = new URL(trimmedUrl);
+      const hostname = urlObj.hostname.toLowerCase();
+      const pathname = urlObj.pathname.toLowerCase();
+      
+      // Check if it's a 16personalities.com domain
+      if (!hostname.includes('16personalities.com')) {
+        return false;
+      }
+      
+      // Check if path starts with /profiles/
+      if (!pathname.startsWith('/profiles/')) {
+        return false;
+      }
+      
+      // Check if there's a profile ID after /profiles/
+      const profileId = pathname.split('/profiles/')[1]?.split('/')[0];
+      if (!profileId || profileId.length < 1) {
+        return false;
+      }
+      
+      return true;
+    } catch (e) {
+      // If URL parsing fails, try regex as fallback
+      const urlPattern = /^https?:\/\/(www\.)?16personalities\.com\/profiles\/[a-zA-Z0-9]+/;
+      return urlPattern.test(trimmedUrl);
+    }
   };
 
   const handleUpload = async () => {
     // Validate inputs BEFORE starting upload process
     if ((inputMode === 'file' || inputMode === 'image') && !selectedFile) {
-      setError(inputMode === 'file' ? 'Veuillez sélectionner un fichier PDF' : 'Veuillez sélectionner une image');
+      setError(inputMode === 'file' 
+        ? (locale === 'fr' ? 'Veuillez sélectionner un fichier PDF' : 'Please select a PDF file')
+        : (locale === 'fr' ? 'Veuillez sélectionner une image' : 'Please select an image'));
       return;
     }
     
     if (inputMode === 'url' && !profileUrl.trim()) {
-      setError('Veuillez entrer une URL de profil 16Personalities');
+      setError(locale === 'fr' ? 'Veuillez entrer une URL de profil 16Personalities' : 'Please enter a 16Personalities profile URL');
       return;
     }
     
     if (inputMode === 'url' && !validateProfileUrl(profileUrl)) {
-      setError('URL invalide. Format attendu: https://www.16personalities.com/profiles/...');
+      setError(locale === 'fr' 
+        ? 'URL invalide. Format attendu: https://www.16personalities.com/profiles/...'
+        : 'Invalid URL. Expected format: https://www.16personalities.com/profiles/...');
       return;
     }
 
@@ -125,11 +159,17 @@ export default function MBTIPDFUploadPage() {
         if (inputMode === 'file' && selectedFile) {
           result = await uploadMBTIPDF(selectedFile);
         } else if (inputMode === 'url' && profileUrl.trim()) {
-          result = await uploadMBTIPDFFromURL(profileUrl.trim());
+          const trimmedUrl = profileUrl.trim();
+          if (!validateProfileUrl(trimmedUrl)) {
+            throw new Error(locale === 'fr' 
+              ? 'URL invalide. Format attendu: https://www.16personalities.com/profiles/...'
+              : 'Invalid URL. Expected format: https://www.16personalities.com/profiles/...');
+          }
+          result = await uploadMBTIPDFFromURL(trimmedUrl);
         } else if (inputMode === 'image' && selectedFile) {
           result = await uploadMBTIImage(selectedFile);
         } else {
-          throw new Error('Mode d\'upload invalide');
+          throw new Error(locale === 'fr' ? 'Mode d\'upload invalide' : 'Invalid upload mode');
         }
       } finally {
         // Always clean up interval when API call completes (success or error)
@@ -261,7 +301,7 @@ export default function MBTIPDFUploadPage() {
                   style={inputMode === 'url' ? { backgroundColor: '#D5B667', color: '#000000' } : undefined}
                 >
                   <LinkIcon size={18} />
-                  Importer depuis URL
+                  {locale === 'fr' ? 'Importer depuis URL' : 'Import from URL'}
                 </Button>
                 <Button
                   variant={inputMode === 'image' ? 'primary' : 'outline'}
@@ -275,34 +315,34 @@ export default function MBTIPDFUploadPage() {
                   style={inputMode === 'image' ? { backgroundColor: '#D5B667', color: '#000000' } : undefined}
                 >
                   <ImageIcon size={18} />
-                  Importer depuis une image
+                  {locale === 'fr' ? 'Importer depuis une image' : 'Import from Image'}
                 </Button>
               </div>
 
               {/* Instructions */}
               <div className="bg-arise-beige p-4 rounded-lg mb-6">
-                <h3 className="font-semibold text-arise-teal mb-2">Instructions :</h3>
+                <h3 className="font-semibold text-arise-teal mb-2">{locale === 'fr' ? 'Instructions :' : 'Instructions:'}</h3>
                 {inputMode === 'file' ? (
                   <ul className="text-sm text-gray-700 space-y-1">
-                    <li>• Format accepté : PDF uniquement</li>
-                    <li>• Taille maximale : 10MB</li>
-                    <li>• Le fichier sera analysé avec l'intelligence artificielle pour extraire vos résultats</li>
-                    <li>• Le processus peut prendre 10-30 secondes</li>
+                    <li>• {locale === 'fr' ? 'Format accepté : PDF uniquement' : 'Accepted format: PDF only'}</li>
+                    <li>• {locale === 'fr' ? 'Taille maximale : 10MB' : 'Maximum size: 10MB'}</li>
+                    <li>• {locale === 'fr' ? 'Le fichier sera analysé avec l\'intelligence artificielle pour extraire vos résultats' : 'The file will be analyzed with artificial intelligence to extract your results'}</li>
+                    <li>• {locale === 'fr' ? 'Le processus peut prendre 10-30 secondes' : 'The process may take 10-30 seconds'}</li>
                   </ul>
                 ) : inputMode === 'url' ? (
                   <ul className="text-sm text-gray-700 space-y-1">
-                    <li>• Collez l'URL de votre profil 16Personalities (ex: https://www.16personalities.com/profiles/6d65d1ec09592)</li>
-                    <li>• Le système téléchargera automatiquement le PDF depuis cette URL</li>
-                    <li>• Le PDF sera analysé avec l'intelligence artificielle pour extraire vos résultats</li>
-                    <li>• Le processus peut prendre 15-45 secondes</li>
+                    <li>• {locale === 'fr' ? 'Collez l\'URL de votre profil 16Personalities (ex: https://www.16personalities.com/profiles/6d65d1ec09592)' : 'Paste your 16Personalities profile URL (e.g., https://www.16personalities.com/profiles/6d65d1ec09592)'}</li>
+                    <li>• {locale === 'fr' ? 'Le système téléchargera automatiquement le PDF depuis cette URL' : 'The system will automatically download the PDF from this URL'}</li>
+                    <li>• {locale === 'fr' ? 'Le PDF sera analysé avec l\'intelligence artificielle pour extraire vos résultats' : 'The PDF will be analyzed with artificial intelligence to extract your results'}</li>
+                    <li>• {locale === 'fr' ? 'Le processus peut prendre 15-45 secondes' : 'The process may take 15-45 seconds'}</li>
                   </ul>
                 ) : (
                   <ul className="text-sm text-gray-700 space-y-1">
-                    <li>• Formats acceptés : PNG, JPG, JPEG, GIF, WEBP</li>
-                    <li>• Taille maximale : 10MB</li>
-                    <li>• Prenez un screenshot de votre page de résultats 16Personalities</li>
-                    <li>• L'image sera analysée avec l'intelligence artificielle pour extraire vos résultats</li>
-                    <li>• Le processus peut prendre 10-30 secondes</li>
+                    <li>• {locale === 'fr' ? 'Formats acceptés : PNG, JPG, JPEG, GIF, WEBP' : 'Accepted formats: PNG, JPG, JPEG, GIF, WEBP'}</li>
+                    <li>• {locale === 'fr' ? 'Taille maximale : 10MB' : 'Maximum size: 10MB'}</li>
+                    <li>• {locale === 'fr' ? 'Prenez un screenshot de votre page de résultats 16Personalities' : 'Take a screenshot of your 16Personalities results page'}</li>
+                    <li>• {locale === 'fr' ? 'L\'image sera analysée avec l\'intelligence artificielle pour extraire vos résultats' : 'The image will be analyzed with artificial intelligence to extract your results'}</li>
+                    <li>• {locale === 'fr' ? 'Le processus peut prendre 10-30 secondes' : 'The process may take 10-30 seconds'}</li>
                   </ul>
                 )}
               </div>
@@ -311,12 +351,12 @@ export default function MBTIPDFUploadPage() {
               {inputMode === 'file' ? (
                 <div className="mb-6">
                   <FileUploadWithPreview
-                    label="Sélectionner votre PDF"
+                    label={locale === 'fr' ? 'Sélectionner votre PDF' : 'Select your PDF'}
                     accept="application/pdf,.pdf"
                     multiple={false}
                     onFileSelect={handleFileSelect}
                     maxSize={10}
-                    helperText="Taille maximale : 10MB • Format : PDF uniquement"
+                    helperText={locale === 'fr' ? 'Taille maximale : 10MB • Format : PDF uniquement' : 'Maximum size: 10MB • Format: PDF only'}
                     fullWidth
                     error={error || undefined}
                   />
@@ -324,12 +364,12 @@ export default function MBTIPDFUploadPage() {
               ) : inputMode === 'image' ? (
                 <div className="mb-6">
                   <FileUploadWithPreview
-                    label="Sélectionner votre image (screenshot)"
+                    label={locale === 'fr' ? 'Sélectionner votre image (screenshot)' : 'Select your image (screenshot)'}
                     accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,.png,.jpg,.jpeg,.gif,.webp"
                     multiple={false}
                     onFileSelect={handleFileSelect}
                     maxSize={10}
-                    helperText="Taille maximale : 10MB • Formats : PNG, JPG, JPEG, GIF, WEBP"
+                    helperText={locale === 'fr' ? 'Taille maximale : 10MB • Formats : PNG, JPG, JPEG, GIF, WEBP' : 'Maximum size: 10MB • Formats: PNG, JPG, JPEG, GIF, WEBP'}
                     fullWidth
                     error={error || undefined}
                   />
@@ -337,7 +377,7 @@ export default function MBTIPDFUploadPage() {
               ) : (
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    URL de votre profil 16Personalities
+                    {locale === 'fr' ? 'URL de votre profil 16Personalities' : 'Your 16Personalities Profile URL'}
                   </label>
                   <input
                     type="url"
@@ -351,7 +391,7 @@ export default function MBTIPDFUploadPage() {
                     disabled={isUploading}
                   />
                   <p className="mt-2 text-xs text-gray-500">
-                    Exemple : https://www.16personalities.com/profiles/6d65d1ec09592
+                    {locale === 'fr' ? 'Exemple : https://www.16personalities.com/profiles/6d65d1ec09592' : 'Example: https://www.16personalities.com/profiles/6d65d1ec09592'}
                   </p>
                 </div>
               )}
@@ -376,7 +416,7 @@ export default function MBTIPDFUploadPage() {
                   <div className="flex items-center gap-3">
                     <CheckCircle className="text-green-600 flex-shrink-0" size={24} />
                     <div className="flex-1">
-                      <p className="font-medium text-green-900">URL valide</p>
+                      <p className="font-medium text-green-900">{locale === 'fr' ? 'URL valide' : 'Valid URL'}</p>
                       <p className="text-sm text-green-700 break-all">
                         {profileUrl}
                       </p>
@@ -450,7 +490,11 @@ export default function MBTIPDFUploadPage() {
                   ) : (
                     <>
                       {inputMode === 'url' ? <LinkIcon size={20} /> : inputMode === 'image' ? <ImageIcon size={20} /> : <Upload size={20} />}
-                      {inputMode === 'url' ? 'Importer depuis URL' : inputMode === 'image' ? 'Analyser mon image' : 'Analyser mon PDF'}
+                      {inputMode === 'url' 
+                        ? (locale === 'fr' ? 'Importer depuis URL' : 'Import from URL')
+                        : inputMode === 'image' 
+                        ? (locale === 'fr' ? 'Analyser mon image' : 'Analyze My Image')
+                        : (locale === 'fr' ? 'Analyser mon PDF' : 'Analyze My PDF')}
                     </>
                   )}
                 </Button>
@@ -463,35 +507,35 @@ export default function MBTIPDFUploadPage() {
             <div className="p-6">
               <h3 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
                 <AlertCircle size={20} />
-                Besoin d'aide ?
+                {locale === 'fr' ? 'Besoin d\'aide ?' : 'Need help?'}
               </h3>
               <div className="space-y-4 text-sm text-blue-800">
                 <div>
-                  <p className="font-medium mb-2">Option 1 : Import depuis URL (Recommandé)</p>
+                  <p className="font-medium mb-2">{locale === 'fr' ? 'Option 1 : Importer depuis URL (Recommandé)' : 'Option 1: Import from URL (Recommended)'}</p>
                   <ol className="space-y-1 ml-4 list-decimal">
-                    <li>Connectez-vous à votre compte sur <a href="https://www.16personalities.com" target="_blank" rel="noopener noreferrer" className="underline font-medium">16Personalities</a></li>
-                    <li>Allez sur votre page de profil (ex: https://www.16personalities.com/profiles/6d65d1ec09592)</li>
-                    <li>Copiez l'URL complète depuis la barre d'adresse</li>
-                    <li>Collez l'URL ici et cliquez sur "Importer depuis URL"</li>
+                    <li>{locale === 'fr' ? 'Connectez-vous à votre compte sur' : 'Log in to your account on'} <a href="https://www.16personalities.com" target="_blank" rel="noopener noreferrer" className="underline font-medium">16Personalities</a></li>
+                    <li>{locale === 'fr' ? 'Allez sur votre page de profil (ex: https://www.16personalities.com/profiles/6d65d1ec09592)' : 'Go to your profile page (e.g., https://www.16personalities.com/profiles/6d65d1ec09592)'}</li>
+                    <li>{locale === 'fr' ? 'Copiez l\'URL complète depuis la barre d\'adresse' : 'Copy the complete URL from the address bar'}</li>
+                    <li>{locale === 'fr' ? 'Collez l\'URL ici et cliquez sur "Importer depuis URL"' : 'Paste the URL here and click "Import from URL"'}</li>
                   </ol>
                 </div>
                 <div>
-                  <p className="font-medium mb-2">Option 2 : Upload de fichier PDF</p>
+                  <p className="font-medium mb-2">{locale === 'fr' ? 'Option 2 : Télécharger un fichier PDF' : 'Option 2: Upload PDF file'}</p>
                   <ol className="space-y-1 ml-4 list-decimal">
-                    <li>Retournez sur <a href="https://www.16personalities.com" target="_blank" rel="noopener noreferrer" className="underline font-medium">16Personalities</a></li>
-                    <li>Connectez-vous à votre compte</li>
-                    <li>Téléchargez votre PDF de résultats depuis votre profil</li>
-                    <li>Revenez ici et uploadez le fichier PDF</li>
+                    <li>{locale === 'fr' ? 'Retournez sur' : 'Go back to'} <a href="https://www.16personalities.com" target="_blank" rel="noopener noreferrer" className="underline font-medium">16Personalities</a></li>
+                    <li>{locale === 'fr' ? 'Connectez-vous à votre compte' : 'Log in to your account'}</li>
+                    <li>{locale === 'fr' ? 'Téléchargez votre PDF de résultats depuis votre profil' : 'Download your results PDF from your profile'}</li>
+                    <li>{locale === 'fr' ? 'Revenez ici et téléchargez le fichier PDF' : 'Come back here and upload the PDF file'}</li>
                   </ol>
                 </div>
                 <div>
-                  <p className="font-medium mb-2">Option 3 : Importer depuis une image (Recommandé pour les screenshots)</p>
+                  <p className="font-medium mb-2">{locale === 'fr' ? 'Option 3 : Importer depuis une image (Recommandé pour les captures d\'écran)' : 'Option 3: Import from image (Recommended for screenshots)'}</p>
                   <ol className="space-y-1 ml-4 list-decimal">
-                    <li>Allez sur votre page de résultats sur <a href="https://www.16personalities.com" target="_blank" rel="noopener noreferrer" className="underline font-medium">16Personalities</a></li>
-                    <li>Prenez un screenshot de votre page de résultats (toute la page)</li>
-                    <li>Revenez ici et sélectionnez "Importer depuis une image"</li>
-                    <li>Uploadez votre screenshot</li>
-                    <li>Le système extraira automatiquement toutes les informations de votre profil</li>
+                    <li>{locale === 'fr' ? 'Allez sur votre page de résultats sur' : 'Go to your results page on'} <a href="https://www.16personalities.com" target="_blank" rel="noopener noreferrer" className="underline font-medium">16Personalities</a></li>
+                    <li>{locale === 'fr' ? 'Prenez une capture d\'écran de votre page de résultats (page entière)' : 'Take a screenshot of your results page (entire page)'}</li>
+                    <li>{locale === 'fr' ? 'Revenez ici et sélectionnez "Importer depuis une image"' : 'Come back here and select "Import from image"'}</li>
+                    <li>{locale === 'fr' ? 'Téléchargez votre capture d\'écran' : 'Upload your screenshot'}</li>
+                    <li>{locale === 'fr' ? 'Le système extraira automatiquement toutes les informations de votre profil' : 'The system will automatically extract all information from your profile'}</li>
                   </ol>
                 </div>
               </div>
