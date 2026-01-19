@@ -12,6 +12,7 @@ import LanguageSwitcher from '../i18n/LanguageSwitcher';
 import NotificationBellConnected from '../notifications/NotificationBellConnected';
 import { Menu, X } from 'lucide-react';
 import { clsx } from 'clsx';
+import Image from 'next/image';
 
 export default function Header() {
   const { user } = useAuthStore();
@@ -53,8 +54,15 @@ export default function Header() {
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link href="/" className="text-xl sm:text-2xl font-bold text-foreground">
-            <span className="text-white">ARISE</span>
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/images/arise-logo.png"
+              alt="ARISE"
+              width={120}
+              height={40}
+              className="h-10 w-auto"
+              priority
+            />
           </Link>
 
           {/* Desktop Navigation */}
