@@ -20,7 +20,7 @@ export default function AboutPage() {
           <div className="mb-16 relative overflow-hidden rounded-2xl" style={{ backgroundColor: '#0F4C56' }}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-center w-full">
               {/* Left Section - Text on Dark Teal Background */}
-              <div className="relative z-10 p-8 md:p-12 lg:p-16 flex flex-col justify-center" style={{ backgroundColor: '#0F4C56' }}>
+              <div className="relative z-10 pt-8 pb-8 pl-8 md:pt-12 md:pb-12 md:pl-12 lg:pt-16 lg:pb-16 lg:pl-16 flex flex-col justify-center" style={{ backgroundColor: '#0F4C56' }}>
                 <div className="text-left">
                   <h1 className="mb-6">
                     <span className="block text-5xl md:text-6xl font-light mb-2" style={{ color: '#D8B868' }}>
@@ -33,7 +33,7 @@ export default function AboutPage() {
                   <p className="text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed mb-8">
                     {t('subtitlePart1')}
                   </p>
-                  <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: '#D8B868', fontWeight: 700 }}>
+                  <h2 className="text-2xl md:text-3xl font-bold" style={{ color: '#D8B868', fontWeight: 700 }}>
                     {t('subtitleHeading')}
                   </h2>
                   <p className="text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed">
