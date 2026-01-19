@@ -244,7 +244,7 @@ export default function MBTIResultsPage() {
               className="mb-4 flex items-center gap-4"
               style={{ backgroundColor: '#0F4C56', color: '#fff' }}
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="w-4 h-4" />
               {t('backToAssessments')}
             </Button>
 
@@ -451,41 +451,126 @@ export default function MBTIResultsPage() {
             </div>
           </MotionDiv>
 
-          {/* Strengths & Challenges */}
-          {(insights.strengths || insights.challenges) && (
+          {/* Leadership Capabilities Analysis */}
+          {insights.leadership_capabilities && Object.keys(insights.leadership_capabilities).length > 0 && (
             <MotionDiv variant="slideUp" duration="normal" delay={600} className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('strengths.title')}</h2>
-              <div className="grid md:grid-cols-2 gap-4">
-                {/* Strengths */}
-                {insights.strengths && (
-                  <Card className="bg-success-50 border-success-200">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                MBTI Profile and Capabilities Analysis
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Based on 6 key leadership skills
+              </p>
+              <div className="grid gap-6">
+                {/* 1. Communication */}
+                {insights.leadership_capabilities.communication && (
+                  <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
                     <div className="p-6">
-                      <h3 className="font-semibold text-success-900 mb-3">💪 {t('strengths.yourStrengths')}</h3>
-                      <ul className="space-y-2">
-                        {insights.strengths.map((strength: string, index: number) => (
-                          <li key={index} className="text-sm text-success-800 flex items-start gap-2">
-                            <span className="text-success-600 mt-1">•</span>
-                            <span>{translateStrengthOrChallenge(strength)}</span>
-                          </li>
-                        ))}
-                      </ul>
+                      <div className="flex items-start gap-3 mb-2">
+                        <span className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                        <div className="flex-1">
+                          <h3 className="font-bold text-blue-900 text-lg mb-2">
+                            Communication: {insights.leadership_capabilities.communication.title}
+                          </h3>
+                          <p className="text-blue-800 text-sm leading-relaxed">
+                            {insights.leadership_capabilities.communication.description}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </Card>
                 )}
 
-                {/* Challenges */}
-                {insights.challenges && (
-                  <Card className="bg-amber-50 border-amber-200">
+                {/* 2. Problem-solving and Conflict resolution */}
+                {insights.leadership_capabilities.problemSolving && (
+                  <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
                     <div className="p-6">
-                      <h3 className="font-semibold text-amber-900 mb-3">🎯 {t('strengths.growthAreas')}</h3>
-                      <ul className="space-y-2">
-                        {insights.challenges.map((challenge: string, index: number) => (
-                          <li key={index} className="text-sm text-amber-800 flex items-start gap-2">
-                            <span className="text-amber-600 mt-1">•</span>
-                            <span>{translateStrengthOrChallenge(challenge)}</span>
-                          </li>
-                        ))}
-                      </ul>
+                      <div className="flex items-start gap-3 mb-2">
+                        <span className="flex-shrink-0 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                        <div className="flex-1">
+                          <h3 className="font-bold text-green-900 text-lg mb-2">
+                            Problem-solving and Conflict resolution: {insights.leadership_capabilities.problemSolving.title}
+                          </h3>
+                          <p className="text-green-800 text-sm leading-relaxed">
+                            {insights.leadership_capabilities.problemSolving.description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                )}
+
+                {/* 3. Leadership Style */}
+                {insights.leadership_capabilities.leadershipStyle && (
+                  <Card className="bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200">
+                    <div className="p-6">
+                      <div className="flex items-start gap-3 mb-2">
+                        <span className="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                        <div className="flex-1">
+                          <h3 className="font-bold text-purple-900 text-lg mb-2">
+                            Leadership Style: {insights.leadership_capabilities.leadershipStyle.title}
+                          </h3>
+                          <p className="text-purple-800 text-sm leading-relaxed">
+                            {insights.leadership_capabilities.leadershipStyle.description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                )}
+
+                {/* 4. Team culture */}
+                {insights.leadership_capabilities.teamCulture && (
+                  <Card className="bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200">
+                    <div className="p-6">
+                      <div className="flex items-start gap-3 mb-2">
+                        <span className="flex-shrink-0 w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center text-sm font-bold">4</span>
+                        <div className="flex-1">
+                          <h3 className="font-bold text-amber-900 text-lg mb-2">
+                            Team culture: {insights.leadership_capabilities.teamCulture.title}
+                          </h3>
+                          <p className="text-amber-800 text-sm leading-relaxed">
+                            {insights.leadership_capabilities.teamCulture.description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                )}
+
+                {/* 5. Change */}
+                {insights.leadership_capabilities.change && (
+                  <Card className="bg-gradient-to-r from-teal-50 to-cyan-50 border-teal-200">
+                    <div className="p-6">
+                      <div className="flex items-start gap-3 mb-2">
+                        <span className="flex-shrink-0 w-8 h-8 bg-teal-600 text-white rounded-full flex items-center justify-center text-sm font-bold">5</span>
+                        <div className="flex-1">
+                          <h3 className="font-bold text-teal-900 text-lg mb-2">
+                            Change: {insights.leadership_capabilities.change.title}
+                          </h3>
+                          <p className="text-teal-800 text-sm leading-relaxed">
+                            {insights.leadership_capabilities.change.description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                )}
+
+                {/* 6. Stress */}
+                {insights.leadership_capabilities.stress && (
+                  <Card className="bg-gradient-to-r from-rose-50 to-pink-50 border-rose-200">
+                    <div className="p-6">
+                      <div className="flex items-start gap-3 mb-2">
+                        <span className="flex-shrink-0 w-8 h-8 bg-rose-600 text-white rounded-full flex items-center justify-center text-sm font-bold">6</span>
+                        <div className="flex-1">
+                          <h3 className="font-bold text-rose-900 text-lg mb-2">
+                            Stress: {insights.leadership_capabilities.stress.title}
+                          </h3>
+                          <p className="text-rose-800 text-sm leading-relaxed">
+                            {insights.leadership_capabilities.stress.description}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </Card>
                 )}

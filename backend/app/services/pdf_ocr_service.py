@@ -45,6 +45,14 @@ except ImportError:
     PLAYWRIGHT_AVAILABLE = False
     logger.warning("Playwright not available. Install with: pip install playwright && playwright install chromium")
 
+# Try to import BeautifulSoup for HTML parsing
+try:
+    from bs4 import BeautifulSoup
+    BEAUTIFULSOUP_AVAILABLE = True
+except ImportError:
+    BEAUTIFULSOUP_AVAILABLE = False
+    logger.warning("BeautifulSoup not available. Install with: pip install beautifulsoup4 lxml")
+
 # OpenAI configuration
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o")  # Use GPT-4o for vision
@@ -1103,6 +1111,387 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
         except Exception as e:
             logger.error(f"Error in Playwright PDF download: {e}", exc_info=True)
             raise
+
+    async def extract_mbti_from_html_url(self, url: str) -> Dict[str, Any]:
+        """
+        Extract MBTI results by fetching and parsing HTML from a 16Personalities profile URL
+        
+        This method:
+        1. Fetches the HTML content from the URL
+        2. Parses the HTML to extract text and images
+        3. Uses OpenAI to analyze the content and extract MBTI information
+        
+        Args:
+            url: The 16Personalities profile URL
+            
+        Returns:
+            Dictionary containing extracted MBTI data
+        """
+        try:
+            logger.info(f"Extracting MBTI data from HTML URL: {url}")
+            
+            # Normalize URL
+            url = url.strip()
+            if '16personalities.com' not in url.lower():
+                raise ValueError(f"Invalid 16Personalities URL. Must be a 16personalities.com URL. Got: {url}")
+            
+            # Fetch HTML content
+            async with httpx.AsyncClient(
+                timeout=httpx.Timeout(60.0, connect=10.0),
+                follow_redirects=True,
+                headers={
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                    'Accept-Language': 'en-US,en;q=0.9',
+                    'Accept-Encoding': 'gzip, deflate, br',
+                    'DNT': '1',
+                    'Connection': 'keep-alive',
+                    'Upgrade-Insecure-Requests': '1',
+                }
+            ) as client:
+                logger.info(f"Fetching HTML from: {url}")
+                response = await client.get(url)
+                
+                if response.status_code == 404:
+                    raise ValueError(f"Profile not found (404). The profile may be private or the URL is incorrect: {url}")
+                if response.status_code == 403:
+                    raise ValueError(f"Access forbidden (403). The profile is private and requires authentication.")
+                if response.status_code != 200:
+                    raise ValueError(f"Failed to access profile URL: HTTP {response.status_code}")
+                
+                html_content = response.text
+                logger.info(f"Successfully fetched HTML content ({len(html_content)} characters)")
+                
+                # Parse HTML to extract MBTI information
+                extracted_data = await self._parse_html_for_mbti(html_content, url, client)
+                
+                return extracted_data
+                
+        except httpx.TimeoutException:
+            raise ValueError(f"Request timeout while accessing profile URL. Please try again.")
+        except ValueError:
+            raise
+        except Exception as e:
+            logger.error(f"Error extracting MBTI from HTML URL: {e}", exc_info=True)
+            raise ValueError(f"Failed to extract MBTI data from URL: {str(e)}")
+    
+    async def _parse_html_for_mbti(self, html_content: str, url: str, client: httpx.AsyncClient) -> Dict[str, Any]:
+        """
+        Parse HTML content to extract MBTI information
+        
+        Args:
+            html_content: The HTML content of the page
+            url: The original URL (for building absolute URLs)
+            client: HTTP client for downloading images
+            
+        Returns:
+            Dictionary containing extracted MBTI data
+        """
+        try:
+            if not BEAUTIFULSOUP_AVAILABLE:
+                logger.warning("BeautifulSoup not available, falling back to OpenAI-based extraction")
+                return await self._extract_mbti_with_openai_text(html_content)
+            
+            # Parse HTML with BeautifulSoup
+            soup = BeautifulSoup(html_content, 'lxml')
+            logger.info("HTML parsed with BeautifulSoup")
+            
+            # Extract structured data from the page
+            extracted_info = {
+                'text_content': '',
+                'images': [],
+                'structured_data': {}
+            }
+            
+            # 1. Try to find JSON-LD or structured data
+            json_ld_scripts = soup.find_all('script', type='application/ld+json')
+            for script in json_ld_scripts:
+                try:
+                    import json
+                    data = json.loads(script.string)
+                    extracted_info['structured_data']['json_ld'] = data
+                    logger.info("Found JSON-LD structured data")
+                except:
+                    pass
+            
+            # 2. Try to find embedded data in script tags
+            import re
+            script_tags = soup.find_all('script')
+            for script in script_tags:
+                if script.string:
+                    # Look for common data patterns
+                    patterns = [
+                        r'window\.__INITIAL_STATE__\s*=\s*({.+?});',
+                        r'window\.__PRELOADED_STATE__\s*=\s*({.+?});',
+                        r'window\.profileData\s*=\s*({.+?});',
+                        r'window\.__NEXT_DATA__\s*=\s*({.+?});',
+                    ]
+                    for pattern in patterns:
+                        matches = re.findall(pattern, script.string, re.DOTALL)
+                        if matches:
+                            try:
+                                import json
+                                data = json.loads(matches[0])
+                                extracted_info['structured_data']['embedded'] = data
+                                logger.info(f"Found embedded data using pattern: {pattern[:50]}...")
+                                break
+                            except:
+                                pass
+            
+            # 3. Extract visible text from the page (prioritize specific sections)
+            # Remove script and style elements
+            for element in soup(['script', 'style', 'meta', 'link', 'noscript']):
+                element.decompose()
+            
+            # Look for main content areas
+            main_content = None
+            content_selectors = [
+                {'class': re.compile(r'profile|personality|result|content|main', re.I)},
+                {'id': re.compile(r'profile|personality|result|content|main', re.I)},
+                'main',
+                'article',
+                {'role': 'main'},
+            ]
+            
+            for selector in content_selectors:
+                if isinstance(selector, str):
+                    main_content = soup.find(selector)
+                else:
+                    main_content = soup.find(attrs=selector)
+                if main_content:
+                    logger.info(f"Found main content using selector: {selector}")
+                    break
+            
+            if not main_content:
+                main_content = soup.find('body')
+                logger.info("Using body tag as main content")
+            
+            if main_content:
+                # Extract all text
+                text_content = main_content.get_text(separator='\n', strip=True)
+                extracted_info['text_content'] = text_content
+                logger.info(f"Extracted {len(text_content)} characters of text content")
+            
+            # 4. Extract personality type from meta tags or data attributes
+            meta_tags = soup.find_all('meta')
+            for meta in meta_tags:
+                if meta.get('property') or meta.get('name'):
+                    prop = meta.get('property') or meta.get('name')
+                    content = meta.get('content')
+                    if content and any(keyword in str(prop).lower() for keyword in ['type', 'personality', 'mbti']):
+                        extracted_info['structured_data'][f'meta_{prop}'] = content
+                        logger.info(f"Found meta tag: {prop} = {content}")
+            
+            # 5. Look for specific MBTI type patterns in text
+            mbti_pattern = r'\b([IE][NS][TF][JP])(?:-[AT])?\b'
+            mbti_matches = re.findall(mbti_pattern, extracted_info['text_content'])
+            if mbti_matches:
+                extracted_info['structured_data']['mbti_type_candidates'] = mbti_matches
+                logger.info(f"Found MBTI type candidates: {mbti_matches}")
+            
+            # 6. Extract images (optional, can be used for additional analysis)
+            img_tags = soup.find_all('img')
+            for img in img_tags[:5]:  # Limit to first 5 images to avoid excessive downloads
+                src = img.get('src') or img.get('data-src')
+                if src:
+                    # Make absolute URL
+                    from urllib.parse import urljoin
+                    absolute_url = urljoin(url, src)
+                    # Only include if it looks like it might be relevant
+                    if any(keyword in absolute_url.lower() for keyword in ['profile', 'avatar', 'personality', 'type', 'result', 'chart', 'graph']):
+                        extracted_info['images'].append({
+                            'url': absolute_url,
+                            'alt': img.get('alt', ''),
+                            'title': img.get('title', '')
+                        })
+            
+            logger.info(f"Found {len(extracted_info['images'])} relevant images")
+            
+            # 7. Use OpenAI to analyze the extracted content
+            logger.info("Analyzing extracted content with OpenAI")
+            result = await self._analyze_extracted_content_with_openai(extracted_info, client)
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error parsing HTML for MBTI: {e}", exc_info=True)
+            # Fallback to simple text-based extraction
+            logger.info("Falling back to simple text-based extraction")
+            return await self._extract_mbti_with_openai_text(html_content)
+    
+    async def _analyze_extracted_content_with_openai(self, extracted_info: Dict[str, Any], client: httpx.AsyncClient) -> Dict[str, Any]:
+        """
+        Use OpenAI to analyze the extracted content and identify MBTI information
+        
+        Args:
+            extracted_info: Dictionary containing extracted text, images, and structured data
+            client: HTTP client for downloading images if needed
+            
+        Returns:
+            Dictionary containing MBTI results
+        """
+        try:
+            # Prepare the content for OpenAI
+            text_content = extracted_info.get('text_content', '')
+            structured_data = extracted_info.get('structured_data', {})
+            
+            # Build comprehensive prompt
+            prompt = f"""Analyze the following content from a 16Personalities profile page and extract MBTI information.
+
+TEXT CONTENT:
+{text_content[:8000]}
+
+STRUCTURED DATA:
+{str(structured_data)[:2000]}
+
+Extract the following information and return ONLY a valid JSON object (no markdown, no code blocks):
+
+{{
+  "mbti_type": "INTJ" or "ENFP-A" etc. (4 letters, may include -T or -A),
+  "personality_name": "ARCHITECT" or "CAMPAIGNER" etc.,
+  "variant": "TURBULENT" or "ASSERTIVE" (if available),
+  "role": "ANALYST" or "DIPLOMAT" etc. (if available),
+  "strategy": "CONSTANT IMPROVEMENT" or "SOCIAL ENGAGEMENT" etc. (if available),
+  "dimension_preferences": {{
+    "EI": {{"E": 45, "I": 55}},
+    "SN": {{"S": 30, "N": 70}},
+    "TF": {{"T": 65, "F": 35}},
+    "JP": {{"J": 75, "P": 25}}
+  }},
+  "traits": {{
+    "Mind": "Introverted (55%)" or similar,
+    "Energy": "Intuitive (70%)" or similar,
+    "Nature": "Thinking (65%)" or similar,
+    "Tactics": "Judging (75%)" or similar,
+    "Identity": "Turbulent (60%)" or similar
+  }},
+  "description": "Brief description of the personality type",
+  "strengths": ["strength 1", "strength 2", ...],
+  "challenges": ["challenge 1", "challenge 2", ...]
+}}
+
+Important:
+1. Extract all percentages you can find for each dimension
+2. If exact percentages aren't available, estimate based on trait descriptions
+3. Return ONLY the JSON object, no additional text
+4. All fields should be filled as completely as possible from the available content
+"""
+
+            logger.info("Calling OpenAI to analyze extracted content")
+            
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are an expert at analyzing personality assessment results and extracting structured data. Return only valid JSON."
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                max_tokens=self.max_tokens,
+                temperature=self.temperature
+            )
+            
+            # Extract response
+            content = response.choices[0].message.content.strip()
+            logger.info(f"OpenAI response received ({len(content)} characters)")
+            
+            # Parse JSON response
+            import json
+            # Remove markdown code blocks if present
+            if content.startswith('```'):
+                content = re.sub(r'^```(?:json)?\n?', '', content)
+                content = re.sub(r'\n?```$', '', content)
+            
+            result = json.loads(content)
+            logger.info(f"Successfully parsed MBTI data: {result.get('mbti_type', 'unknown')}")
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error analyzing content with OpenAI: {e}", exc_info=True)
+            raise ValueError(f"Failed to analyze content: {str(e)}")
+    
+    async def _extract_mbti_with_openai_text(self, html_or_text: str) -> Dict[str, Any]:
+        """
+        Fallback method: Extract MBTI from raw HTML or text using OpenAI
+        
+        Args:
+            html_or_text: Raw HTML or text content
+            
+        Returns:
+            Dictionary containing MBTI results
+        """
+        try:
+            # Clean up HTML if needed
+            text = html_or_text
+            if '<html' in text.lower() or '<!doctype' in text.lower():
+                # Try basic cleanup
+                import re
+                text = re.sub(r'<script[^>]*>.*?</script>', '', text, flags=re.DOTALL | re.IGNORECASE)
+                text = re.sub(r'<style[^>]*>.*?</style>', '', text, flags=re.DOTALL | re.IGNORECASE)
+                text = re.sub(r'<[^>]+>', ' ', text)
+                text = re.sub(r'\s+', ' ', text).strip()
+            
+            # Limit text length
+            text = text[:10000]
+            
+            prompt = f"""Analyze this content from a 16Personalities profile and extract MBTI information.
+
+CONTENT:
+{text}
+
+Extract and return ONLY a valid JSON object (no markdown, no code blocks):
+
+{{
+  "mbti_type": "INTJ" or "ENFP-A" etc.,
+  "personality_name": "ARCHITECT" or similar,
+  "variant": "TURBULENT" or "ASSERTIVE" (if found),
+  "role": "ANALYST" or similar (if found),
+  "strategy": "CONSTANT IMPROVEMENT" or similar (if found),
+  "dimension_preferences": {{
+    "EI": {{"E": 45, "I": 55}},
+    "SN": {{"S": 30, "N": 70}},
+    "TF": {{"T": 65, "F": 35}},
+    "JP": {{"J": 75, "P": 25}}
+  }},
+  "traits": {{}},
+  "description": "Description of the personality",
+  "strengths": [],
+  "challenges": []
+}}
+
+Return only the JSON, nothing else."""
+
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": "You are an expert at extracting MBTI data. Return only valid JSON."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=self.max_tokens,
+                temperature=self.temperature
+            )
+            
+            content = response.choices[0].message.content.strip()
+            
+            # Parse JSON
+            import json
+            if content.startswith('```'):
+                content = re.sub(r'^```(?:json)?\n?', '', content)
+                content = re.sub(r'\n?```$', '', content)
+            
+            result = json.loads(content)
+            logger.info(f"Extracted MBTI data: {result.get('mbti_type', 'unknown')}")
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error in fallback extraction: {e}", exc_info=True)
+            raise ValueError(f"Failed to extract MBTI data: {str(e)}")
 
     @staticmethod
     def is_configured() -> bool:

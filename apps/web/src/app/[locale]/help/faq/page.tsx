@@ -6,12 +6,14 @@
 
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { FAQ } from '@/components/help';
 import { PageHeader, PageContainer } from '@/components/layout';
 import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
 
 export default function FAQPage() {
+  const t = useTranslations('faq');
 
   return (
     <>
@@ -19,8 +21,8 @@ export default function FAQPage() {
       <div className="pt-16 min-h-screen bg-white">
         <PageContainer>
           <PageHeader
-            title="Questions Fréquemment Posées / Questions Frequently Asked"
-            description="Trouvez des réponses aux questions les plus courantes sur la plateforme ARISE / Find answers to the most frequently asked questions about the ARISE Holistic Leadership platform."
+            title={t('title')}
+            description={t('description')}
             titleClassName="text-gray-900"
             descriptionClassName="text-gray-600"
           />

@@ -19,7 +19,7 @@ interface Plan {
 }
 
 export function Step2_PlanSelection() {
-  const { setPlanId, setStep } = useRegistrationStore();
+  const { setPlanId, setSelectedPlan: setStorePlan, setStep } = useRegistrationStore();
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -88,10 +88,23 @@ export function Step2_PlanSelection() {
   }, []);
 
   const handlePlanSelect = (planId: number) => {
-    setSelectedPlan(planId);
-    setPlanId(planId.toString());
-    // Automatically advance to next step
-    setStep(3);
+    const plan = plans.find(p => p.id === planId);
+    if (plan) {
+      setSelectedPlan(planId);
+      setPlanId(planId.toString());
+      // Save the full plan details to the store
+      setStorePlan({
+        id: plan.id,
+        name: plan.name,
+        description: plan.description,
+        amount: plan.amount,
+        currency: plan.currency,
+        interval: plan.interval,
+        interval_count: plan.interval_count,
+      });
+      // Automatically advance to next step
+      setStep(3);
+    }
   };
 
   const handleBack = () => {

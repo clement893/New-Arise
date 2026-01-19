@@ -120,9 +120,9 @@
         "loading": "Chargement..."
       },
       "evaluators": {
-        "title": "Évaluateurs 360°",
+        "title": "Contributeurs 360°",
         "description": "Invitez des collègues à fournir un feedback 360° sur votre leadership",
-        "noEvaluators": "Aucun évaluateur ajouté pour le moment",
+        "noContributors": "Aucun contributeur ajouté pour le moment",
         "viewAll": "Voir tous",
         "add": "Ajouter",
         "status": {
@@ -132,11 +132,11 @@
         },
         "page": {
           "title": "Mes",
-          "titleHighlight": "Évaluateurs",
-          "description": "Consultez et gérez vos évaluateurs de feedback 360°",
+          "titleHighlight": "Contributeurs",
+          "description": "Consultez et gérez vos contributeurs de feedback 360°",
           "back": "Retour",
           "refresh": "Actualiser",
-          "addEvaluators": "Ajouter des évaluateurs",
+          "addContributors": "Ajouter des contributeurs",
           "summary": {
             "total": "Total",
             "completed": "Complétés",
@@ -152,11 +152,11 @@
             "pending": "Invitation en attente"
           },
           "empty": {
-            "noEvaluators": "Aucun évaluateur ajouté pour le moment.",
-            "noMatch": "Aucun évaluateur ne correspond au filtre sélectionné.",
-            "description": "Pour recevoir des retours sur votre leadership, ajoutez des évaluateurs qui vous connaissent professionnellement (collègues, managers, collaborateurs directs, etc.)."
+            "noContributors": "Aucun contributeur ajouté pour le moment.",
+            "noMatch": "Aucun contributeur ne correspond au filtre sélectionné.",
+            "description": "Pour recevoir des retours sur votre leadership, ajoutez des contributeurs qui vous connaissent professionnellement (collègues, managers, collaborateurs directs, etc.)."
           },
-          "evaluator": {
+          "contributor": {
             "relationship": "Relation :",
             "invited": "Invité :",
             "opened": "Ouvert :",
@@ -184,19 +184,19 @@
             "daysAgo": "Il y a {days} jour{plural}"
           },
           "messages": {
-            "deleteConfirm": "Êtes-vous sûr de vouloir supprimer l'évaluateur \"{name}\" ? Cette action est irréversible.",
-            "deleteSuccess": "L'évaluateur \"{name}\" a été supprimé avec succès",
+            "deleteConfirm": "Êtes-vous sûr de vouloir supprimer le contributeur \"{name}\" ? Cette action est irréversible.",
+            "deleteSuccess": "Le contributeur \"{name}\" a été supprimé avec succès",
             "linkCopied": "Lien d'invitation copié dans le presse-papiers",
-            "addSuccess": "Les évaluateurs ont été ajoutés avec succès et apparaissent dans la liste"
+            "addSuccess": "Les contributeurs ont été ajoutés avec succès et apparaissent dans la liste"
           },
           "errors": {
             "noAssessment": "Aucune évaluation de feedback 360° trouvée. Veuillez d'abord démarrer une évaluation 360° depuis la page Assessments.",
             "sessionExpired": "Session expirée. Veuillez vous reconnecter.",
             "sessionExpiredCached": "Session expirée. Affichage des données en cache. Veuillez vous reconnecter pour actualiser.",
-            "unableToLoad": "Impossible de charger les évaluateurs. Veuillez réessayer.",
-            "failedToLoad": "Échec du chargement des évaluateurs : {message}",
-            "failedToLoadGeneric": "Échec du chargement des évaluateurs. Veuillez réessayer.",
-            "failedToDelete": "Échec de la suppression de l'évaluateur",
+            "unableToLoad": "Impossible de charger les contributeurs. Veuillez réessayer.",
+            "failedToLoad": "Échec du chargement des contributeurs : {message}",
+            "failedToLoadGeneric": "Échec du chargement des contributeurs. Veuillez réessayer.",
+            "failedToDelete": "Échec de la suppression du contributeur",
             "failedToCopy": "Échec de la copie du lien",
             "retry": "Réessayer"
           }
@@ -208,7 +208,7 @@
           "description": "Comprendre vos préférences naturelles"
         },
         "tki": {
-          "title": "Style de conflit TKI",
+          "title": "Style de conflit ARISE",
           "description": "Explorez votre approche de la gestion des conflits"
         },
         "wellness": {
@@ -220,7 +220,7 @@
           "description": "Perspectives de leadership multidimensionnelles"
         },
         "360_evaluator": {
-          "title": "Feedback 360° (Évaluateur)",
+          "title": "Feedback 360° (Contributeur)",
           "description": "Fournir un feedback pour un collègue"
         }
       },
@@ -240,7 +240,7 @@
       "tki": {
         "results": {
           "loading": "Chargement de vos résultats...",
-          "title": "Résultats du style de conflit TKI",
+          "title": "Résultats du style de conflit ARISE",
           "subtitle": "Votre profil de gestion des conflits",
           "backToAssessments": "Retour aux assessments",
           "dominantMode": "Mode dominant",
@@ -374,8 +374,8 @@
           "note": "Note :",
           "selfAssessmentOnly": "Ces résultats sont basés uniquement sur votre auto-évaluation. Invitez des collègues pour obtenir une vue complète à 360°.",
           "basedOnFeedback": "Basé sur votre auto-évaluation et les retours de {count} collègue{count, plural, one {} other {s}}",
-          "evaluatorStatus": {
-            "title": "Statut des évaluateurs",
+          "contributorStatus": {
+            "title": "Statut des contributeurs",
             "viewAll": "Voir tous",
             "completed": "Complété",
             "inProgress": "En cours",
@@ -403,7 +403,7 @@
               "moderate": "Vous vous notez modérément en {capability}. Les retours des autres fourniront une perspective supplémentaire.",
               "low": "Vous avez identifié {capability} comme un domaine de développement. Cette conscience de soi est précieuse pour la croissance."
             },
-            "withEvaluators": {
+            "withContributors": {
               "selfHigher": "Vous vous notez plus haut que les autres en {capability}. Cela peut indiquer un angle mort ou une opportunité de mieux démontrer vos capacités.",
               "othersHigher": "Les autres vous notent plus haut que vous ne vous notez en {capability}. Cela suggère que vous pourriez sous-estimer votre impact dans ce domaine.",
               "aligned": "Votre auto-évaluation s'aligne bien avec les perceptions des autres de votre {capability}. Cela indique une forte conscience de soi."
@@ -414,11 +414,11 @@
             "complete360": {
               "title": "Complétez votre vue à 360°",
               "description": "Invitez des collègues, des managers et des collaborateurs à partager leur perspective sur votre leadership. Cela vous donnera une vue complète de la façon dont les autres perçoivent vos capacités.",
-              "button": "Inviter des évaluateurs"
+              "button": "Inviter des contributeurs"
             },
             "developmentPlan": {
-              "title": "Créez votre plan de développement",
-              "description": "Utilisez ces insights pour créer un plan de développement personnalisé axé sur vos domaines de croissance tout en tirant parti de vos forces."
+              "title": "Créez votre plan de croissance personnelle",
+              "description": "Utilisez ces insights pour créer un plan de croissance personnalisé axé sur vos domaines de développement tout en tirant parti de vos forces."
             },
             "coaching": {
               "title": "Planifier un coaching",
@@ -539,6 +539,16 @@
             "feeling": "Sentiment",
             "judging": "Jugement",
             "perceiving": "Perception"
+          },
+          "leadershipCapabilities": {
+            "title": "Profil MBTI et Analyse des Capacités",
+            "subtitle": "Basé sur 6 compétences clés de leadership",
+            "communication": "Communication",
+            "problemSolving": "Résolution de problèmes et gestion des conflits",
+            "leadershipStyle": "Style de leadership",
+            "teamCulture": "Culture d'équipe",
+            "change": "Changement",
+            "stress": "Stress"
           },
           "strengths": {
             "title": "Forces et domaines de croissance",
@@ -661,6 +671,59 @@
           "errors": {
             "notFound": "Résultats non trouvés"
           }
+        },
+        "backToAssessments": "Retour aux évaluations",
+        "pageTitle": {
+          "prefix": "Test MBTI -",
+          "suffix": "Personnalité"
+        },
+        "pageSubtitle": "Découvrez votre type de personnalité à travers 4 dimensions",
+        "title": "Évaluation de personnalité MBTI",
+        "description": "Les types de personnalité Myers-Briggs sont 16 profils de personnalité distincts identifiés par l'indicateur de type Myers-Briggs (MBTI) (un questionnaire d'auto-évaluation) basé sur les préférences autour de 4 dimensions, dans la façon dont vous (1) gagnez de l'énergie, (2) assimilez l'information, (3) prenez des décisions, et (4) abordez le monde.",
+        "howToProceed": {
+          "title": "Comment procéder ?",
+          "step1": "Cliquez sur le bouton ci-dessous pour accéder au test sur 16Personalities",
+          "step2": "Complétez le test sur leur plateforme (environ 10-15 minutes)",
+          "step3": "Téléchargez votre PDF de résultats depuis 16Personalities",
+          "step4": "Revenez ici et téléchargez votre PDF pour voir vos résultats dans ARISE"
+        },
+        "actions": {
+          "takeTest": "Passer le test sur 16Personalities",
+          "completedTest": "J'ai terminé le test, télécharger ma fiche récapitulative (PDF).",
+          "readyToUpload": "Prêt à télécharger votre fiche récapitulative ?",
+          "uploadPDF": "Télécharger ma fiche récapitulative PDF",
+          "factsheetInstructions": {
+            "title": "Pour trouver votre fiche récapitulative :",
+            "step1": "Allez dans Votre profil",
+            "step2": "Sélectionnez Vue d'ensemble",
+            "step3": "Téléchargez la Fiche récapitulative"
+          }
+        },
+        "aboutMBTI": {
+          "title": "À propos du MBTI",
+          "fourDimensions": {
+            "title": "Les 4 dimensions",
+            "energy": {
+              "code": "E/I",
+              "description": "Extraversion (E) ou Introversion (I), comment vous concentrez votre énergie (vers l'extérieur ou vers l'intérieur)"
+            },
+            "information": {
+              "code": "S/N",
+              "description": "Sensation (S) ou Intuition (N), Comment vous percevez l'information (faits concrets ou schémas/idées)"
+            },
+            "decisions": {
+              "code": "T/F",
+              "description": "Pensée (T) ou Sentiment (F), Comment vous prenez des décisions (logique ou valeurs/émotions)"
+            },
+            "lifestyle": {
+              "code": "J/P",
+              "description": "Jugement (J) ou Perception (P), Votre style de vie préféré (structuré/planifié ou flexible/spontané)"
+            }
+          },
+          "personalityType": {
+            "title": "Votre type de personnalité",
+            "description": "La combinaison de ces préférences crée 16 types, souvent regroupés en catégories comme Analystes, Diplomates, Sentinelles et Explorateurs, chacun avec des traits uniques."
+          }
         }
       }
     },
@@ -676,7 +739,7 @@
           "description": "Comprendre vos préférences naturelles"
         },
         "tki": {
-          "title": "Style de conflit TKI",
+          "title": "Style de conflit ARISE",
           "description": "Explorez votre approche de la gestion des conflits"
         },
         "360": {
@@ -699,12 +762,12 @@
         "continue": "Continuer",
         "start": "Commencer"
       },
-      "evaluatorsBanner": {
-        "title": "Ajoutez votre Feedback 360° : Évaluateurs",
+      "contributorsBanner": {
+        "title": "Ajoutez votre Feedback 360° : Contributeurs",
         "description": "Obtenez des retours complets en invitant des collègues à évaluer votre leadership.",
-        "viewEvaluators": "Voir les évaluateurs",
-        "viewEvaluatorsWithCount": "Voir les évaluateurs ({count})",
-        "addEvaluators": "Ajouter des évaluateurs"
+        "viewContributors": "Voir les contributeurs",
+        "viewContributorsWithCount": "Voir les contributeurs ({count})",
+        "addContributors": "Ajouter des contributeurs"
       },
       "progress": {
         "title": "Votre progression",
@@ -736,7 +799,7 @@
         "dashboard": "Tableau de bord",
         "assessments": "Assessments",
         "resultsReports": "Résultats et rapports",
-        "developmentPlan": "Plan de développement",
+        "developmentPlan": "Plan de croissance personnelle",
         "profile": "Profil",
         "coachee": "Coachee",
         "agenda": "Agenda",
@@ -1045,11 +1108,11 @@
     "developmentPlan": {
       "header": {
         "title": "Plan de",
-        "titleHighlight": "développement",
-        "description": "Suivez votre parcours de développement personnel et professionnel"
+        "titleHighlight": "croissance personnelle",
+        "description": "Suivez votre parcours de croissance personnel et professionnel"
       },
       "goals": {
-        "title": "Vos objectifs de développement",
+        "title": "Vos objectifs de croissance personnelle",
         "description": "Suivez votre progression vers vos objectifs de leadership",
         "progress": "Progression",
         "dueDate": "Date d'échéance",
@@ -1070,7 +1133,7 @@
       },
       "resources": {
         "title": "Ressources recommandées",
-        "description": "Contenu sélectionné pour soutenir vos objectifs de développement",
+        "description": "Contenu sélectionné pour soutenir vos objectifs de croissance personnelle",
         "view": "Voir",
         "items": {
           "conflictManagementStyles": {
@@ -1097,7 +1160,7 @@
       },
       "progress": {
         "title": "Votre progression",
-        "description": "Aperçu de votre parcours de développement",
+        "description": "Aperçu de votre parcours de croissance personnelle",
         "activeGoals": "Objectifs actifs",
         "averageProgress": "Progression moyenne",
         "resourcesCompleted": "Ressources complétées"
@@ -1193,8 +1256,8 @@
         "assessmentsCompleted": "Assessments complétés",
         "averageScore": "Score moyen",
         "developmentGoals": "Objectifs de développement",
-        "evaluators360": "Évaluateurs 360°",
-        "viewEvaluators": "Voir les évaluateurs"
+        "contributors360": "Contributeurs 360°",
+        "viewContributors": "Voir les contributeurs"
       },
       "assessments": {
         "title": "Vos résultats d'assessments",
@@ -1208,7 +1271,7 @@
         "downloadReport": "Télécharger le rapport",
         "types": {
           "MBTI": "Personnalité MBTI",
-          "TKI": "Style de conflit TKI",
+          "TKI": "Style de conflit ARISE",
           "WELLNESS": "Évaluation du bien-être",
           "THREE_SIXTY_SELF": "Feedback 360°"
         }
@@ -1279,7 +1342,7 @@
           "assessments": "Tous vos assessments ({count} assessments)",
           "responses": "Toutes vos réponses",
           "results": "Tous vos résultats",
-          "evaluators": "Tous les évaluateurs 360° associés"
+          "contributors": "Tous les contributeurs 360° associés"
         },
         "cancel": "Annuler",
         "confirm": "Confirmer la suppression",
@@ -2335,7 +2398,7 @@
           "TKI": "TKI",
           "WELLNESS": "Wellness",
           "THREE_SIXTY_SELF": "360° Feedback (Self)",
-          "THREE_SIXTY_EVALUATOR": "360° Feedback (Evaluator)"
+          "THREE_SIXTY_CONTRIBUTOR": "360° Feedback (Contributor)"
         },
         "empty": {
           "noTests": "No test found",
@@ -2843,7 +2906,7 @@
       "subtitle": "Que vous soyez un leader individuel, un coach ou une organisation, nous avons la solution adaptée pour vous.",
       "individual": {
         "title": "INDIVIDUEL",
-        "description": "Parfait pour les leaders qui cherchent à développer leurs compétences de leadership personnelles et à acquérir une profonde conscience de soi.",
+        "description": "Parfait pour les leaders à tous les niveaux (débutant, intermédiaire, senior, exécutif), qui cherchent à développer leurs compétences de leadership personnelles et à acquérir une profonde conscience de soi.",
         "features": {
           "assessment": "Compléter les 4 évaluations",
           "profile": "Profil de leadership personnel",
@@ -2854,7 +2917,7 @@
       },
       "coach": {
         "title": "COACH",
-        "description": "Conçu pour les coaches professionnels qui guident les leaders dans leur parcours de développement.",
+        "description": "Conçu pour les coaches professionnels en leadership qui guident les leaders dans leur parcours de développement.",
         "features": {
           "clients": "Gérer plusieurs clients",
           "reports": "Accéder aux rapports clients",
@@ -2895,7 +2958,7 @@
     },
     "finalCTA": {
       "title": "Prêt à commencer votre parcours de leadership ?",
-      "subtitle": "Rejoignez des milliers de leaders qui ont découvert leur style de leadership authentique grâce à ARISE.",
+      "subtitle": "Rejoignez la communauté ARISE de leaders qui ont découvert leur style de leadership authentique grâce à ARISE.",
       "discoverMore": "En savoir plus",
       "getStarted": "Commencer"
     },
@@ -3343,20 +3406,20 @@
       "titlePart2": "histoire"
     },
     "title": "Notre histoire",
-    "subtitle": "Autonomiser des leaders authentiques grâce à une évaluation et un développement holistiques",
+    "subtitle": "ARISE est né en juillet 2025, d'un désir de redonner et d'aider à construire des milieux de travail où les gens peuvent s'épanouir, grandir et atteindre leur plein potentiel. Parce que lorsque les gens s'élèvent, ils soulèvent les organisations, les communautés et le monde qui les entoure.\n\nLa magie du leadership authentique\nLes leaders authentiques sont au cœur de la création de conditions où les gens s'épanouissent. En dirigeant avec authenticité et authenticité, ils créent les conditions d'un milieu de travail positif – un milieu où il y a de la joie dans le parcours vers l'atteinte des résultats. Lorsque les leaders font plus qu'atteindre des objectifs, ils transforment les entreprises en espaces où le progrès significatif se répercute dans leurs organisations, leurs communautés et leurs foyers.",
     "mission": {
       "title": "Notre mission",
       "titlePart1": "Notre",
       "titlePart2": "mission",
-      "text1": "Autonomiser les leaders du monde entier en fournissant des évaluations complètes basées sur la science et des voies de développement personnalisées qui libèrent leur potentiel de leadership authentique.",
+      "text1": "Donner aux leaders du monde entier les moyens de façonner des milieux de travail où l'humanité et la haute performance prospèrent ensemble. En fournissant des évaluations complètes basées sur la science et des voies de développement personnalisées, nous libérons leur potentiel de leadership authentique.",
       "text2": "Nous croyons que le grand leadership commence par la conscience de soi. Grâce à notre approche holistique combinant des insights de personnalité, des compétences de gestion des conflits, un feedback 360° et une évaluation du bien-être, nous aidons les leaders à se comprendre profondément et à grandir de manière authentique."
     },
     "vision": {
       "title": "Notre vision",
       "titlePart1": "Notre",
       "titlePart2": "vision",
-      "text1": "Un monde où chaque leader atteint son plein potentiel, créant un impact positif dans leurs organisations et communautés.",
-      "text2": "Nous envisageons un avenir où le développement du leadership est accessible, personnalisé et fondé sur la recherche scientifique. Où les leaders sont équipés non seulement de compétences, mais aussi d'une profonde conscience de soi et d'un objectif authentique."
+      "text1": "Un monde où chaque leader atteint son plein potentiel, créant un impact positif durable au sein de leurs équipes, organisations et communautés.",
+      "text2": "Nous envisageons un avenir où le développement du leadership est accessible, personnalisé et holistique, fondé sur la recherche scientifique et l'expérience humaine réelle. Un avenir où les leaders cultivent non seulement des compétences, mais aussi une profonde conscience de soi, un objectif authentique et la résilience—où le bien-être est valorisé autant que la performance, et où le succès se mesure à la fois par les résultats et l'épanouissement humain."
     },
     "values": {
       "title": "Nos valeurs",
@@ -3376,29 +3439,6 @@
       "excellence": {
         "title": "Excellence",
         "text": "Nous visons la plus haute qualité dans tout ce que nous faisons, des évaluations au support client."
-      }
-    },
-    "journey": {
-      "title": "Notre parcours",
-      "2020": {
-        "title": "2020 - Fondation",
-        "text": "ARISE a été fondé avec une vision de révolutionner le développement du leadership grâce à une évaluation holistique et des insights personnalisés."
-      },
-      "2021": {
-        "title": "2021 - Premières évaluations",
-        "text": "Lancement de notre première suite d'évaluations complète, combinant MBTI, TKI, Feedback 360° et évaluations du bien-être."
-      },
-      "2022": {
-        "title": "2022 - Lancement de la plateforme",
-        "text": "Introduction de notre plateforme intégrée, rendant le développement du leadership accessible aux individus, coaches et organisations du monde entier."
-      },
-      "2023": {
-        "title": "2023 - Expansion mondiale",
-        "text": "Expansion de nos services à l'échelle mondiale, soutenant des milliers de leaders dans plusieurs pays et industries."
-      },
-      "2024": {
-        "title": "2024 - Aujourd'hui",
-        "text": "Continuant à innover et à s'étendre, aidant plus de leaders à découvrir leur style de leadership authentique et à atteindre leur plein potentiel."
       }
     },
     "cta": {
@@ -3519,28 +3559,46 @@
     "title": "Rencontrez notre équipe",
     "subtitle": "Des experts passionnés dédiés à l'autonomisation de leaders authentiques",
     "leadership": {
-      "title": "Équipe dirigeante",
-      "description": "Pour l'instant, l'équipe se compose de Gabi et moi (et bientôt en croissance). Apprenez-en plus sur notre équipe et notre mission en visitant notre site web principal.",
-      "learnMore": "Rencontrer l'équipe"
+      "title": "Équipe dirigeante"
     },
     "partners": {
-      "title": "Partenaires clés",
-      "subtitle": "Nous travaillons avec des partenaires extraordinaires qui partagent notre mission",
-      "nukleo": {
-        "description": "Partenaire stratégique en technologie et innovation nous aidant à créer des solutions de développement du leadership de pointe."
-      },
-      "unlock": {
-        "description": "Partenaire en communications et marque nous aidant à partager notre mission d'autonomisation des leaders dans le monde entier."
-      },
-      "visitWebsite": "Visiter le site web"
+      "title": "Nos partenaires",
+      "subtitle": "Collaborer avec des leaders de l'industrie pour offrir une valeur exceptionnelle",
+      "keyPartners": {
+        "title": "Partenaires clés",
+        "nukleo": {
+          "name": "Nukleo",
+          "description": "Partenaire stratégique en développement du leadership et design organisationnel.",
+          "url": "https://nukleo.com/"
+        },
+        "unlock": {
+          "name": "Unlock Communications",
+          "description": "Partenariat en stratégies de communication et excellence en leadership.",
+          "url": "https://www.unlockcommunications.com/"
+        }
+      }
     },
     "advisory": {
       "title": "Conseil consultatif",
-      "subtitle": "Des experts de premier plan qui guident notre mission et assurent la rigueur scientifique",
-      "joinCTA": {
-        "title": "Rejoindre notre conseil consultatif",
-        "description": "Intéressé à rejoindre notre conseil consultatif et à aider à partager notre mission ARISE d'autonomiser les leaders à s'élever à leur plein potentiel ? Contactez-nous à info@arisehumancapital.com.",
-        "contactUs": "Contactez-nous"
+      "subtitle": "Intéressé à rejoindre notre conseil consultatif et à nous aider à partager notre mission ARISE d'autonomiser les leaders à s'élever à leur plein potentiel ?",
+      "contact": "Contactez-nous à info@arisehumancapital.com"
+    },
+    "members": {
+      "gabriela": {
+        "role": "Fondatrice, PDG",
+        "bio": "Gabi a plus de 25 ans d'expérience en ressources humaines—dont 15 ans en leadership exécutif—construisant des cultures hautement performantes, transformant les environnements de travail et permettant aux organisations d'atteindre leurs objectifs stratégiques et le développement continu de leurs collaborateurs.",
+        "expertise": "Ressources humaines, Culture organisationnelle, Développement du leadership, Coaching en bien-être",
+        "education": "Psychologue brésilienne de l'Universidade Estácio de Sá avec spécialisation en comportement organisationnel. Accréditation Myers-Briggs. Certifications en Coaching bien-être et Médecine du mode de vie de Harvard Medical School.",
+        "linkedin": "https://www.linkedin.com/in/gabrielaloureiro/",
+        "wellbeing": "Élevée près de l'océan, j'ai toujours trouvé l'équilibre et l'énergie en étant proche de l'eau. Aujourd'hui, je me ressource par de longues promenades à notre chalet au bord du lac, la natation, la randonnée et en rejoignant mes quatre enfants dans divers sports."
+      },
+      "tamara": {
+        "role": "Co-fondatrice, Conseillère stratégique",
+        "bio": "Tamara est une leader commerciale stratégique passionnée par l'aide aux organisations à libérer le plein potentiel de leurs collaborateurs. Avec plus de 20 ans d'expérience en leadership senior dans des entreprises mondiales telles que Procter & Gamble, Abbott Nutrition, Sanofi Consumer Healthcare et Merck Canada, elle apporte un bilan éprouvé de croissance, transformation et résultats durables.",
+        "expertise": "Leadership stratégique, Design organisationnel, Marketing, Ventes, Gestion du changement, Organisations alimentées par l'IA",
+        "education": "Baccalauréat en RH et comportement organisationnel de McGill (avec mention). MBA en Marketing de HEC Montréal. Certificat en AI Essentials for Business de Harvard Business School.",
+        "linkedin": "https://www.linkedin.com/in/tamaralovi/",
+        "wellbeing": "Toujours en quête d'équilibre et de bien-être, j'ai trouvé ma libération émotionnelle et physique par le spinning, le kayak et le tennis, et mon inspiration créative—et mon sens du zen—par la peinture (de préférence avec des amis ou avec ma fille)."
       }
     },
     "joinUs": {

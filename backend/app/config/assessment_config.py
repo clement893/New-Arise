@@ -32,7 +32,7 @@ ASSESSMENT_METADATA: Dict[AssessmentType, Dict[str, Any]] = {
         "total_questions": 30,
     },
     AssessmentType.TKI: {
-        "name": "TKI Conflict Style",
+        "name": "ARISE Conflict Style",
         "description": "Explore your conflict management approach",
         "total_questions": 30,
     },

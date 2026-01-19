@@ -1926,47 +1926,61 @@ async def upload_mbti_pdf(
                 detail=f"Failed to initialize OCR service: {str(init_error)}. Please check OPENAI_API_KEY and ensure PyMuPDF and Pillow are installed."
             )
         
-        # Download PDF from URL if needed
+        # Extract MBTI data from URL or PDF
+        extracted_data = None
+        
         if profile_url and not pdf_bytes:
-            logger.info(f"Downloading PDF from 16Personalities profile URL: {profile_url}")
+            # First, try HTML parsing (faster and more direct)
+            logger.info(f"Extracting MBTI data from 16Personalities profile URL using HTML parsing: {profile_url}")
             try:
-                pdf_bytes = await ocr_service.download_pdf_from_url(profile_url)
-                logger.info(f"Successfully downloaded PDF ({len(pdf_bytes)} bytes) from profile URL")
-            except Exception as download_error:
-                logger.error(f"Failed to download PDF from URL: {download_error}", exc_info=True)
+                extracted_data = await ocr_service.extract_mbti_from_html_url(profile_url)
+                logger.info(f"Successfully extracted MBTI data from HTML: {extracted_data.get('mbti_type', 'unknown')}")
+            except Exception as html_error:
+                logger.warning(f"HTML parsing failed: {html_error}. Falling back to PDF download...")
+                # Fall back to PDF download method
+                try:
+                    pdf_bytes = await ocr_service.download_pdf_from_url(profile_url)
+                    logger.info(f"Successfully downloaded PDF ({len(pdf_bytes)} bytes) from profile URL")
+                except Exception as download_error:
+                    logger.error(f"Both HTML parsing and PDF download failed", exc_info=True)
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"Failed to extract data from URL. HTML parsing error: {str(html_error)}. PDF download error: {str(download_error)}"
+                    )
+        
+        # If we have PDF bytes but no extracted data yet, extract from PDF
+        if pdf_bytes and not extracted_data:
+            logger.info(f"Extracting MBTI results from PDF for user {current_user.id} (PDF size: {len(pdf_bytes)} bytes)")
+            try:
+                extracted_data = await ocr_service.extract_mbti_results(pdf_bytes)
+                logger.info(f"Successfully extracted MBTI data from PDF: {extracted_data.get('mbti_type', 'unknown')}")
+            except Exception as extract_error:
+                logger.error(f"Failed to extract MBTI results from PDF: {extract_error}", exc_info=True)
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Failed to download PDF from URL: {str(download_error)}"
+                    detail=f"Failed to extract MBTI results from PDF: {str(extract_error)}"
                 )
         
-        # Ensure we have PDF bytes at this point
-        if not pdf_bytes:
-            logger.error("No PDF data available for processing")
+        # Ensure we have extracted data at this point
+        if not extracted_data:
+            logger.error("No MBTI data could be extracted")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="No PDF data available for processing"
-            )
-        
-        logger.info(f"Extracting MBTI results from PDF for user {current_user.id} (PDF size: {len(pdf_bytes)} bytes)")
-        # Extract MBTI results from PDF
-        try:
-            extracted_data = await ocr_service.extract_mbti_results(pdf_bytes)
-            logger.info(f"Successfully extracted MBTI data: {extracted_data.get('mbti_type', 'unknown')}")
-        except Exception as extract_error:
-            logger.error(f"Failed to extract MBTI results from PDF: {extract_error}", exc_info=True)
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Failed to extract MBTI results from PDF: {str(extract_error)}"
+                detail="No MBTI data could be extracted from the provided source"
             )
         
         # Validate extracted data
         logger.debug(f"Validating extracted data: {extracted_data}")
         mbti_type = extracted_data.get("mbti_type")
-        if not mbti_type or len(str(mbti_type)) != 4:
+        
+        # Allow for -T/-A suffix (e.g., INTJ-T)
+        mbti_type_clean = mbti_type.replace('-T', '').replace('-A', '') if mbti_type else None
+        
+        if not mbti_type_clean or len(str(mbti_type_clean)) != 4:
             logger.error(f"Invalid MBTI type extracted: {mbti_type}")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Could not extract valid MBTI type from PDF. Extracted: {mbti_type}. Please ensure the PDF contains valid MBTI results from 16Personalities."
+                detail=f"Could not extract valid MBTI type. Extracted: {mbti_type}. Please ensure the source contains valid MBTI results from 16Personalities."
             )
         
         # Convert extracted data to assessment scores format

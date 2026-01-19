@@ -200,7 +200,7 @@ def generate_tki_html(results: Dict[str, Any], user_name: str, user_email: str) 
     </head>
     <body>
         <div class="header">
-            <h1>TKI Conflict Style Assessment Report</h1>
+            <h1>ARISE Conflict Style Assessment Report</h1>
             <p>Generated on {datetime.now().strftime('%B %d, %Y')}</p>
         </div>
         
@@ -439,6 +439,35 @@ def generate_mbti_html(results: Dict[str, Any], user_name: str, user_email: str)
         """
     
     html += "</table>"
+    
+    # Leadership Capabilities Section
+    if 'leadership_capabilities' in insights and insights['leadership_capabilities']:
+        capabilities = insights['leadership_capabilities']
+        html += """
+        <h2>MBTI Profile and Capabilities Analysis</h2>
+        <p style="color: #666; margin-bottom: 20px;">Based on 6 key leadership skills</p>
+        """
+        
+        capability_order = [
+            ('communication', 'Communication'),
+            ('problemSolving', 'Problem-solving and Conflict resolution'),
+            ('leadershipStyle', 'Leadership Style'),
+            ('teamCulture', 'Team culture'),
+            ('change', 'Change'),
+            ('stress', 'Stress')
+        ]
+        
+        for idx, (key, label) in enumerate(capability_order, 1):
+            if key in capabilities:
+                cap = capabilities[key]
+                html += f"""
+                <div class="recommendation-box" style="margin-bottom: 15px;">
+                    <h3 style="color: #0F4C56; margin-bottom: 8px;">
+                        {idx}. {label}: {cap.get('title', '')}
+                    </h3>
+                    <p style="margin: 0; line-height: 1.6;">{cap.get('description', '')}</p>
+                </div>
+                """
     
     if 'strengths' in insights:
         html += "<h2>Your Strengths</h2><ul>"

@@ -635,7 +635,7 @@ function ResultsReportsContent() {
               <li>{t('deleteModal.items.assessments', { count: assessments.length })}</li>
               <li>{t('deleteModal.items.responses')}</li>
               <li>{t('deleteModal.items.results')}</li>
-              <li>{t('deleteModal.items.evaluators')}</li>
+              <li>{t('deleteModal.items.contributors')}</li>
             </ul>
             <div className="flex gap-3">
               <Button
@@ -729,7 +729,7 @@ function ResultsReportsContent() {
                 <Users className="text-success-500" size={24} />
               </div>
               <p className="text-3xl font-bold text-success-500 mb-1">{stats.evaluatorsCount}</p>
-              <p className="text-gray-700 text-sm mb-3">{t('stats.evaluators360')}</p>
+              <p className="text-gray-700 text-sm mb-3">{t('stats.contributors360')}</p>
               {stats.evaluatorsCount > 0 && (
                 <Link href="/dashboard/evaluators">
                   <Button
@@ -738,7 +738,7 @@ function ResultsReportsContent() {
                     className="w-full mt-2 text-xs flex flex-row items-center gap-2"
                   >
                     <Eye size={14} />
-                    {t('stats.viewEvaluators')}
+                    {t('stats.viewContributors')}
                   </Button>
                 </Link>
               )}

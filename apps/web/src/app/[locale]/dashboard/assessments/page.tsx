@@ -83,6 +83,7 @@ function AssessmentsContent() {
   const previousPathnameRef = useRef<string | null>(null);
 
   // Mapping of assessment types to display info (using translations)
+  // Order: MBTI, TKI (ARISE Conflict Style), 360 Feedback, Wellness
   const ASSESSMENT_CONFIG: Record<string, { title: string; description: string; icon: LucideIcon; externalLink?: string; requiresEvaluators?: boolean }> = {
     mbti: {
       title: t('config.mbti.title'),
@@ -95,16 +96,16 @@ function AssessmentsContent() {
       description: t('config.tki.description'),
       icon: Target,
     },
-    wellness: {
-      title: t('config.wellness.title'),
-      description: t('config.wellness.description'),
-      icon: Heart,
-    },
     '360_self': {
       title: t('config.360_self.title'),
       description: t('config.360_self.description'),
       icon: Users,
       requiresEvaluators: true,
+    },
+    wellness: {
+      title: t('config.wellness.title'),
+      description: t('config.wellness.description'),
+      icon: Heart,
     },
     '360_evaluator': {
       title: t('config.360_evaluator.title'),
@@ -1410,15 +1411,15 @@ function AssessmentsContent() {
                         {getActionButton(safeAssessment)}
                       </div>
                     </div>
-                    {/* Progress bar - always visible, except for MBTI */}
-                    {safeAssessment.assessmentType !== 'MBTI' && (
-                      <div className="mt-4">
-                        {(() => {
-                          // SIMPLIFIED PROGRESS BAR: Use answerCount and totalQuestions directly from backend
-                          try {
-                            // Get safe numeric values
-                            const answerCount = typeof safeAssessment.answerCount === 'number' ? safeAssessment.answerCount : (typeof safeAssessment.answerCount === 'string' ? parseInt(safeAssessment.answerCount, 10) : 0);
-                            const totalQuestions = typeof safeAssessment.totalQuestions === 'number' ? safeAssessment.totalQuestions : (typeof safeAssessment.totalQuestions === 'string' ? parseInt(safeAssessment.totalQuestions, 10) : 0);
+                    {/* Progress bar - always visible */}
+                    <div className="mt-4">
+                      {(() => {
+                        // SIMPLIFIED PROGRESS BAR: Use answerCount and totalQuestions directly from backend
+                        // For MBTI: show 0% or 100% based on completion status
+                        try {
+                          // Get safe numeric values
+                          const answerCount = typeof safeAssessment.answerCount === 'number' ? safeAssessment.answerCount : (typeof safeAssessment.answerCount === 'string' ? parseInt(safeAssessment.answerCount, 10) : 0);
+                          const totalQuestions = typeof safeAssessment.totalQuestions === 'number' ? safeAssessment.totalQuestions : (typeof safeAssessment.totalQuestions === 'string' ? parseInt(safeAssessment.totalQuestions, 10) : 0);
                             
                             let progressValue = answerCount;
                             let progressMax = totalQuestions > 0 ? totalQuestions : 100;
@@ -1426,7 +1427,18 @@ function AssessmentsContent() {
                             let progressLabel = t('status.notStarted');
                             let barColor = '#9ca3af';
                             
-                            if (totalQuestions > 0) {
+                            // Special handling for MBTI (external assessment)
+                            if (safeAssessment.assessmentType === 'MBTI') {
+                              if (safeAssessment.status === 'completed') {
+                                progressPercentage = 100;
+                                progressLabel = t('status.completed');
+                                barColor = '#d8b868';
+                              } else {
+                                progressPercentage = 0;
+                                progressLabel = t('status.notStarted');
+                                barColor = '#9ca3af';
+                              }
+                            } else if (totalQuestions > 0) {
                               // Calculate percentage based on actual data
                               progressPercentage = Math.round((answerCount / totalQuestions) * 100);
                               progressLabel = answerCount === totalQuestions 
@@ -1439,7 +1451,9 @@ function AssessmentsContent() {
                             }
                             
                             // Set bar color: gold when there's progress, gray when 0
-                            barColor = answerCount > 0 ? '#d8b868' : '#9ca3af';
+                            if (safeAssessment.assessmentType !== 'MBTI') {
+                              barColor = answerCount > 0 ? '#d8b868' : '#9ca3af';
+                            }
                           
                           return (
                             <div className="w-full">
@@ -1474,9 +1488,8 @@ function AssessmentsContent() {
                             </div>
                           );
                         }
-                        })()}
-                      </div>
-                    )}
+                      })()}
+                    </div>
                     
                     {/* 360 Feedback Contributors Section - integrated in the same Card */}
                     {safeAssessment.assessmentType === 'THREE_SIXTY_SELF' && safeAssessment.assessmentId && (
@@ -1506,7 +1519,7 @@ function AssessmentsContent() {
                           if (assessmentContributors.length === 0) {
                             return (
                               <div className="mb-3">
-                                <p className="text-sm text-gray-600 mb-3">{t('evaluators.noEvaluators')}</p>
+                                <p className="text-sm text-gray-600 mb-3">{t('evaluators.noContributors')}</p>
                                 <Button
                                   variant="outline"
                                   size="sm"

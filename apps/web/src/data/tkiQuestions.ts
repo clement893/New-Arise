@@ -1,5 +1,5 @@
 /**
- * TKI Conflict Style Questions - CORRECTED FROM EXCEL
+ * ARISE Conflict Style Questions - CORRECTED FROM EXCEL
  * 30 questions with binary choices (A vs B)
  * Each choice corresponds to one of 5 conflict management modes
  */

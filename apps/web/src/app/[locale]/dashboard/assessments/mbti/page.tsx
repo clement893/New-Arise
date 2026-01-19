@@ -7,6 +7,7 @@
 
 import { useState } from 'react';
 import { useRouter } from '@/i18n/routing';
+import { useTranslations } from 'next-intl';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import MotionDiv from '@/components/motion/MotionDiv';
@@ -14,6 +15,7 @@ import { ArrowLeft, ExternalLink, Upload, Brain, FileText, CheckCircle } from 'l
 
 export default function MBTIAssessmentPage() {
   const router = useRouter();
+  const t = useTranslations('assessments.mbti');
   const [showUploadOption, setShowUploadOption] = useState(false);
 
   return (
@@ -29,23 +31,23 @@ export default function MBTIAssessmentPage() {
       {/* Content */}
       <div className="relative z-10 p-8">
         <MotionDiv variant="slideUp" duration="normal">
-          <Button
+          <Button 
             variant="primary"
             onClick={() => router.push('/dashboard/assessments')}
-            className="mb-6"
+            className="mb-6 flex items-center gap-4"
             style={{ backgroundColor: '#0F4C56', color: '#fff' }}
           >
-            <ArrowLeft size={16} className="mr-2" />
-            Back to Assessments
+            <ArrowLeft size={16} />
+            {t('backToAssessments')}
           </Button>
 
           <div className="mb-8 pb-6">
             <h1 className="text-4xl font-bold mb-2">
-              <span className="text-white">Test MBTI - </span>
-              <span style={{ color: '#D5B667' }}>Personnalité</span>
+              <span className="text-white">{t('pageTitle.prefix')} </span>
+              <span style={{ color: '#D5B667' }}>{t('pageTitle.suffix')}</span>
             </h1>
             <p className="text-gray-600">
-              Découvrez votre type de personnalité à travers 4 dimensions
+              {t('pageSubtitle')}
             </p>
           </div>
 
@@ -58,11 +60,10 @@ export default function MBTIAssessmentPage() {
                 </div>
                 <div className="flex-1">
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                    MBTI Personality Assessment
+                    {t('title')}
                   </h2>
                   <p className="text-gray-600">
-                    Le Myers-Briggs Type Indicator (MBTI) est un outil de développement personnel 
-                    qui identifie votre type de personnalité selon 4 dimensions principales.
+                    {t('description')}
                   </p>
                 </div>
               </div>
@@ -71,24 +72,24 @@ export default function MBTIAssessmentPage() {
               <div className="bg-arise-beige p-6 rounded-lg mb-8">
                 <h3 className="font-semibold text-arise-teal mb-4 flex items-center gap-2">
                   <FileText size={20} />
-                  Comment procéder ?
+                  {t('howToProceed.title')}
                 </h3>
                 <ol className="space-y-3 text-gray-700">
                   <li className="flex items-start gap-3">
                     <span className="flex-shrink-0 w-6 h-6 bg-arise-gold text-white rounded-full flex items-center justify-center text-sm font-bold">1</span>
-                    <span>Cliquez sur le bouton ci-dessous pour accéder au test sur 16Personalities</span>
+                    <span>{t('howToProceed.step1')}</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="flex-shrink-0 w-6 h-6 bg-arise-gold text-white rounded-full flex items-center justify-center text-sm font-bold">2</span>
-                    <span>Complétez le test sur leur plateforme (environ 10-15 minutes)</span>
+                    <span>{t('howToProceed.step2')}</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="flex-shrink-0 w-6 h-6 bg-arise-gold text-white rounded-full flex items-center justify-center text-sm font-bold">3</span>
-                    <span>Téléchargez votre PDF de résultats depuis 16Personalities</span>
+                    <span>{t('howToProceed.step3')}</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="flex-shrink-0 w-6 h-6 bg-arise-gold text-white rounded-full flex items-center justify-center text-sm font-bold">4</span>
-                    <span>Come back here and upload your PDF to see your results in ARISE</span>
+                    <span>{t('howToProceed.step4')}</span>
                   </li>
                 </ol>
               </div>
@@ -102,7 +103,7 @@ export default function MBTIAssessmentPage() {
                   style={{ backgroundColor: '#D5B667', color: '#000000' }}
                 >
                   <ExternalLink size={20} />
-                  Take the test on 16Personalities
+                  {t('actions.takeTest')}
                 </Button>
 
                 {!showUploadOption ? (
@@ -112,19 +113,23 @@ export default function MBTIAssessmentPage() {
                     className="w-full flex items-center justify-center gap-2"
                   >
                     <Upload size={20} />
-                    I've completed the test, upload my PDF
+                    {t('actions.completedTest')}
                   </Button>
                 ) : (
                   <Card className="bg-arise-gold/10 border-2 border-arise-gold/30">
                     <div className="p-6">
                       <div className="flex items-center gap-3 mb-4">
                         <CheckCircle className="text-arise-gold" size={24} />
-                        <h3 className="font-semibold text-gray-900">Ready to upload your PDF?</h3>
+                        <h3 className="font-semibold text-gray-900">{t('actions.readyToUpload')}</h3>
                       </div>
-                      <p className="text-gray-600 mb-4">
-                        Make sure you've downloaded your results PDF from 16Personalities, 
-                        then click the button below to upload it.
-                      </p>
+                      <div className="bg-white p-4 rounded-lg border border-arise-gold/30 mb-4">
+                        <p className="font-medium text-gray-900 mb-2">{t('actions.factsheetInstructions.title')}</p>
+                        <ol className="text-gray-700 text-sm space-y-1 ml-4 list-decimal">
+                          <li>{t('actions.factsheetInstructions.step1')}</li>
+                          <li>{t('actions.factsheetInstructions.step2')}</li>
+                          <li>{t('actions.factsheetInstructions.step3')}</li>
+                        </ol>
+                      </div>
                       <Button
                         variant="primary"
                         onClick={() => router.push('/dashboard/assessments/mbti/upload')}
@@ -132,7 +137,7 @@ export default function MBTIAssessmentPage() {
                         style={{ backgroundColor: '#D5B667', color: '#000000' }}
                       >
                         <Upload size={20} />
-                        Upload my results PDF
+                        {t('actions.uploadPDF')}
                       </Button>
                     </div>
                   </Card>
@@ -144,22 +149,21 @@ export default function MBTIAssessmentPage() {
           {/* Information Card */}
           <Card className="bg-arise-teal/10 border-2 border-arise-teal/30">
             <div className="p-6">
-              <h3 className="font-semibold text-arise-teal mb-3">À propos du MBTI</h3>
+              <h3 className="font-semibold text-arise-teal mb-3">{t('aboutMBTI.title')}</h3>
               <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
                 <div>
-                  <h4 className="font-medium mb-2">Les 4 dimensions :</h4>
+                  <h4 className="font-medium mb-2">{t('aboutMBTI.fourDimensions.title')}</h4>
                   <ul className="space-y-1">
-                    <li>• <strong>E/I</strong> : Extraversion / Introversion</li>
-                    <li>• <strong>S/N</strong> : Sensation / Intuition</li>
-                    <li>• <strong>T/F</strong> : Pensée / Sentiment</li>
-                    <li>• <strong>J/P</strong> : Jugement / Perception</li>
+                    <li>• <strong>{t('aboutMBTI.fourDimensions.energy.code')}</strong>: {t('aboutMBTI.fourDimensions.energy.description')}</li>
+                    <li>• <strong>{t('aboutMBTI.fourDimensions.information.code')}</strong>: {t('aboutMBTI.fourDimensions.information.description')}</li>
+                    <li>• <strong>{t('aboutMBTI.fourDimensions.decisions.code')}</strong>: {t('aboutMBTI.fourDimensions.decisions.description')}</li>
+                    <li>• <strong>{t('aboutMBTI.fourDimensions.lifestyle.code')}</strong>: {t('aboutMBTI.fourDimensions.lifestyle.description')}</li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-medium mb-2">Votre type de personnalité :</h4>
+                  <h4 className="font-medium mb-2">{t('aboutMBTI.personalityType.title')}</h4>
                   <p>
-                    Une combinaison de ces 4 dimensions donne naissance à 16 types de personnalité 
-                    uniques (INTJ, ENFP, ESTJ, etc.), chacun avec ses propres forces et préférences.
+                    {t('aboutMBTI.personalityType.description')}
                   </p>
                 </div>
               </div>

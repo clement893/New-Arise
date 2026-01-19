@@ -398,7 +398,7 @@ function AssessmentResultsContent() {
               className="mb-4 flex items-center gap-4"
               style={{ backgroundColor: '#0F4C56', color: '#fff' }}
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="w-4 h-4" />
               {t('backToAssessments')}
             </Button>
             <h1 className="text-4xl font-bold text-white mb-2">
