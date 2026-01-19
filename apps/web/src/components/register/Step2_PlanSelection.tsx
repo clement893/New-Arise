@@ -202,7 +202,7 @@ export function Step2_PlanSelection() {
                       </h3>
                       <span className="text-lg font-semibold text-arise-gold">
                         {formatPrice(plan)}
-                        {plan.amount && plan.amount > 0 && formatInterval(plan)}
+                        {plan.amount && Number(plan.amount) > 0 && formatInterval(plan)}
                       </span>
                     </div>
                     {plan.description && (
