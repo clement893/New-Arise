@@ -6,7 +6,7 @@ import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
 import { Card } from '@/components/ui';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { Target, Eye, Award, Users, Lightbulb, TrendingUp, CheckCircle } from 'lucide-react';
+import { Target, Eye, Award, Lightbulb, TrendingUp, CheckCircle } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 
 export default function AboutPage() {
@@ -49,10 +49,6 @@ export default function AboutPage() {
                       // Fallback handled by CSS
                     }}
                   />
-                  {/* Fallback gradient if image fails to load */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                    <Users className="text-white/30" size={120} />
-                  </div>
                 </div>
                 {/* Subtle border around photo */}
                 <div className="absolute inset-0 border-2 border-black/10 rounded-r-2xl pointer-events-none"></div>
