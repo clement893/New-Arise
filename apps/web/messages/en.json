@@ -2889,7 +2889,7 @@
     },
     "buildingLeaders": {
       "title": "Building leaders",
-      "description": "Leadership development is not just about skills and competencies. It's about cultivating authentic leaders who understand themselves, inspire others, and create lasting impact. Our holistic approach combines cutting-edge assessments with personalized insights to help leaders thrive."
+      "description": "Leadership development is not just about skills and competencies. It's about cultivating authentic leaders who understand themselves, inspire others, and create lasting impact.\n\nOur holistic approach combines cutting-edge assessments with personalized insights to help leaders thrive."
     },
     "fourDimensions": {
       "methodology": "OUR METHODOLOGY",
@@ -3430,6 +3430,14 @@
     },
     "title": "Our Story",
     "subtitle": "Empowering authentic leaders through holistic assessment and development",
+    "story": {
+      "title": "Our Story",
+      "titlePart1": "Our",
+      "titlePart2": "Story",
+      "text1": "ARISE was born in July 2025, out of a desire to give back and help build workplaces where people can thrive, grow and rise to their full potential. Because when people rise, they lift organizations, communities, and the world around them.",
+      "subtitle": "The magic of authentic leadership",
+      "text2": "Authentic leaders are at the core of creating conditions where people thrive. By leading with authenticity and realness, they set the stage for a positive workplace – one where there's joy in the journey of achieving results. When leaders do more than meet targets, they transform businesses into spaces where meaningful progress ripples through their organizations and into their communities and homes."
+    },
     "mission": {
       "title": "Our Mission",
       "titlePart1": "Our",
@@ -3605,48 +3613,28 @@
     "title": "Meet Our Team",
     "subtitle": "Passionate experts dedicated to empowering authentic leaders",
     "leadership": {
-      "title": "Leadership Team"
+      "title": "Leadership Team",
+      "description": "For now the team consists of Gabi and I (and soon growing). Learn more about our team and mission by visiting our main website.",
+      "learnMore": "Meet the Team"
+    },
+    "partners": {
+      "title": "Key Partners",
+      "subtitle": "We work with amazing partners who share our mission",
+      "nukleo": {
+        "description": "Strategic technology and innovation partner helping us build cutting-edge leadership development solutions."
+      },
+      "unlock": {
+        "description": "Communications and brand partner helping us share our mission to empower leaders worldwide."
+      },
+      "visitWebsite": "Visit Website"
     },
     "advisory": {
       "title": "Advisory Board",
       "subtitle": "Leading experts who guide our mission and ensure scientific rigor",
-      "members": {
-        "james": {
-          "role": "Advisory Board Member",
-          "bio": "Renowned leadership researcher and author.",
-          "expertise": "Leadership Research, Academic"
-        },
-        "lisa": {
-          "role": "Advisory Board Member",
-          "bio": "Expert in organizational behavior and team dynamics.",
-          "expertise": "Organizational Behavior, Research"
-        }
-      }
-    },
-    "members": {
-      "sarah": {
-        "role": "CEO & Co-Founder",
-        "bio": "Leadership development expert with 20+ years of experience in organizational psychology.",
-        "expertise": "Organizational Psychology, Leadership Development",
-        "education": "Ph.D. in Psychology, Harvard University"
-      },
-      "michael": {
-        "role": "CTO & Co-Founder",
-        "bio": "Technology visionary passionate about using data science to transform leadership assessment.",
-        "expertise": "Data Science, Platform Architecture",
-        "education": "M.S. in Computer Science, MIT"
-      },
-      "emily": {
-        "role": "Head of Assessment",
-        "bio": "Psychometrician specializing in personality and behavioral assessments.",
-        "expertise": "Psychometrics, Assessment Design",
-        "education": "Ph.D. in Measurement, Stanford University"
-      },
-      "david": {
-        "role": "Head of Coaching",
-        "bio": "Executive coach with extensive experience helping leaders unlock their potential.",
-        "expertise": "Executive Coaching, Leadership Development",
-        "education": "M.A. in Organizational Development, Columbia University"
+      "joinCTA": {
+        "title": "Join Our Advisory Board",
+        "description": "Interested in joining our advisory board and helping share our ARISE mission to empower leaders to rise to their full potential? Contact us at info@arisehumancapital.com.",
+        "contactUs": "Contact Us"
       }
     },
     "joinUs": {

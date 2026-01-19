@@ -71,8 +71,7 @@ export function Step1_5_DiscoverPlans() {
 
   const handlePlanTabSelect = (planId: string) => {
     setSelectedPlanTab(planId);
-    // Automatically advance to next step when a plan tab is selected
-    setStep(2);
+    // Plan tabs are just for display - don't advance to next step
   };
 
   const handleBack = () => {

@@ -49,34 +49,68 @@ export default function AdminUsersPage() {
   const pageSize = 20;
   const topScrollRef = useRef<HTMLDivElement>(null);
   const bottomScrollRef = useRef<HTMLDivElement>(null);
+  const tableRef = useRef<HTMLTableElement>(null);
+  const topScrollContentRef = useRef<HTMLDivElement>(null);
 
-  // Synchronize scroll between top and bottom scrollbars
+  // Synchronize scrollbar width and scroll position
   useEffect(() => {
     const topScroll = topScrollRef.current;
     const bottomScroll = bottomScrollRef.current;
+    const table = tableRef.current;
+    const topScrollContent = topScrollContentRef.current;
 
-    if (!topScroll || !bottomScroll) return;
+    if (!topScroll || !bottomScroll || !table || !topScrollContent) return;
+
+    // Sync the width of top scrollbar content with table width
+    const syncWidth = () => {
+      const tableWidth = table.scrollWidth;
+      topScrollContent.style.width = `${tableWidth}px`;
+    };
+
+    // Initial sync
+    syncWidth();
+
+    // Sync on resize
+    const resizeObserver = new ResizeObserver(() => {
+      syncWidth();
+    });
+    resizeObserver.observe(table);
+
+    // Synchronize scroll position
+    let isScrolling = false;
 
     const handleTopScroll = () => {
-      if (bottomScroll.scrollLeft !== topScroll.scrollLeft) {
+      if (!isScrolling) {
+        isScrolling = true;
         bottomScroll.scrollLeft = topScroll.scrollLeft;
+        requestAnimationFrame(() => {
+          isScrolling = false;
+        });
       }
     };
 
     const handleBottomScroll = () => {
-      if (topScroll.scrollLeft !== bottomScroll.scrollLeft) {
+      if (!isScrolling) {
+        isScrolling = true;
         topScroll.scrollLeft = bottomScroll.scrollLeft;
+        requestAnimationFrame(() => {
+          isScrolling = false;
+        });
       }
     };
 
-    topScroll.addEventListener('scroll', handleTopScroll);
-    bottomScroll.addEventListener('scroll', handleBottomScroll);
+    topScroll.addEventListener('scroll', handleTopScroll, { passive: true });
+    bottomScroll.addEventListener('scroll', handleBottomScroll, { passive: true });
+
+    // Sync initial scroll position
+    topScroll.scrollLeft = bottomScroll.scrollLeft;
 
     return () => {
       topScroll.removeEventListener('scroll', handleTopScroll);
       bottomScroll.removeEventListener('scroll', handleBottomScroll);
+      resizeObserver.disconnect();
     };
-  }, []);
+  }, [users]);
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -426,12 +460,12 @@ export default function AdminUsersPage() {
               className="overflow-x-auto overflow-y-hidden h-4 mb-2"
               style={{ scrollbarWidth: 'thin' }}
             >
-              <div className="min-w-[1200px] h-1"></div>
+              <div ref={topScrollContentRef} className="h-1" style={{ minWidth: '1200px' }}></div>
             </div>
             
             {/* Table container */}
             <div ref={bottomScrollRef} className="overflow-x-auto">
-              <table className="w-full border-collapse min-w-[1200px]">
+              <table ref={tableRef} className="w-full border-collapse" style={{ minWidth: '1200px' }}>
                 <colgroup>
                   <col className="w-10" />
                   <col className="min-w-[200px]" />

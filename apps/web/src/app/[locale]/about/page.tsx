@@ -49,10 +49,6 @@ export default function AboutPage() {
                       // Fallback handled by CSS
                     }}
                   />
-                  {/* Fallback gradient if image fails to load */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                    <Users className="text-white/30" size={120} />
-                  </div>
                 </div>
                 {/* Subtle border around photo */}
                 <div className="absolute inset-0 border-2 border-black/10 rounded-r-2xl pointer-events-none"></div>
@@ -61,13 +57,54 @@ export default function AboutPage() {
           </div>
         </MotionDiv>
 
+        {/* Our Story Section */}
+        <div className="mb-16">
+          <Card 
+            className="p-0 border border-[#D8B868] rounded-2xl overflow-hidden bg-white"
+            style={{ borderColor: '#D8B868' }}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch">
+              {/* Image Left */}
+              <div className="relative h-64 md:h-auto rounded-l-2xl overflow-hidden">
+                <Image 
+                  src="/images/about-story.jpg" 
+                  alt={t('story.title')}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </div>
+              
+              {/* Content Right */}
+              <div className="p-6 md:p-8 flex flex-col justify-center">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(216, 184, 104, 0.2)' }}>
+                    <Users className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
+                  </div>
+                  <h2 className="text-3xl md:text-4xl">
+                    <span className="font-light" style={{ color: '#D8B868' }}>{t('story.titlePart1')} </span>
+                    <span className="font-medium" style={{ color: '#D8B868' }}>{t('story.titlePart2')}</span>
+                  </h2>
+                </div>
+                <p className="text-base md:text-lg text-gray-900 mb-4 leading-relaxed">
+                  {t('story.text1')}
+                </p>
+                <h3 className="text-xl md:text-2xl font-medium text-gray-900 mb-3">{t('story.subtitle')}</h3>
+                <p className="text-base md:text-lg text-gray-900 leading-relaxed">
+                  {t('story.text2')}
+                </p>
+              </div>
+            </div>
+          </Card>
+        </div>
+
         {/* Mission Section */}
         <div className="mb-16">
           <Card 
             className="p-0 border border-[#D8B868] rounded-2xl overflow-hidden bg-white"
             style={{ borderColor: '#D8B868' }}
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch md:p-8 p-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch">
               {/* Image Left */}
               <div className="relative h-64 md:h-auto rounded-l-2xl overflow-hidden">
                 <Image 
@@ -77,16 +114,10 @@ export default function AboutPage() {
                   className="object-cover"
                   priority
                 />
-                {/* Fallback gradient if image fails to load */}
-                <div className="absolute inset-0 bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                  <Target className="text-arise-deep-teal/30" size={120} />
-                </div>
-                {/* Rounded right edge where image meets text */}
-                <div className="absolute right-0 top-0 bottom-0 w-4 bg-white rounded-r-full"></div>
               </div>
               
               {/* Content Right */}
-              <div className="">
+              <div className="p-6 md:p-8 flex flex-col justify-center">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(216, 184, 104, 0.2)' }}>
                     <Target className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
@@ -113,7 +144,7 @@ export default function AboutPage() {
             className="p-0 border border-[#D8B868] rounded-2xl overflow-hidden bg-white"
             style={{ borderColor: '#D8B868' }}
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch md:p-8 p-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch">
               {/* Image Left */}
               <div className="relative h-64 md:h-auto rounded-l-2xl overflow-hidden">
                 <Image 
@@ -123,16 +154,10 @@ export default function AboutPage() {
                   className="object-cover"
                   priority
                 />
-                {/* Fallback gradient if image fails to load */}
-                <div className="absolute inset-0 bg-gradient-to-br from-arise-gold/20 to-arise-deep-teal/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                  <Eye className="text-arise-gold/30" size={120} />
-                </div>
-                {/* Rounded right edge where image meets text */}
-                <div className="absolute right-0 top-0 bottom-0 w-4 bg-white rounded-r-full"></div>
               </div>
               
               {/* Content Right */}
-              <div className="">
+              <div className="p-6 md:p-8 flex flex-col justify-center">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(216, 184, 104, 0.2)' }}>
                     <Eye className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
