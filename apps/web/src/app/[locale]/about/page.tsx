@@ -17,8 +17,8 @@ export default function AboutPage() {
       <main className="container mx-auto px-4 pt-24 pb-12">
         {/* Hero Section */}
         <MotionDiv variant="fade" duration="normal">
-          <div className="mb-16 relative flex items-center overflow-hidden rounded-2xl" style={{ backgroundColor: '#0F4C56', minHeight: '500px' }}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch w-full">
+          <div className="mb-16 relative overflow-hidden rounded-2xl" style={{ backgroundColor: '#0F4C56' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-center w-full">
               {/* Left Section - Text on Dark Teal Background */}
               <div className="relative z-10 p-8 md:p-12 lg:p-16 flex flex-col justify-center" style={{ backgroundColor: '#0F4C56' }}>
                 <div className="text-left">
@@ -43,8 +43,8 @@ export default function AboutPage() {
               </div>
               
               {/* Right Section - Photo */}
-              <div className="relative h-64 md:h-auto rounded-r-2xl overflow-hidden" style={{ borderLeft: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                <div className="absolute inset-0">
+              <div className="relative p-8 md:p-12 flex items-center justify-center">
+                <div className="relative w-full rounded-2xl overflow-hidden" style={{ aspectRatio: '3/4', maxHeight: '500px' }}>
                   <Image 
                     src="/images/about-hero.jpg" 
                     alt={t('hero.title')}
@@ -55,9 +55,9 @@ export default function AboutPage() {
                       // Fallback handled by CSS
                     }}
                   />
+                  {/* Subtle border around photo */}
+                  <div className="absolute inset-0 border-2 border-white/10 rounded-2xl pointer-events-none"></div>
                 </div>
-                {/* Subtle border around photo */}
-                <div className="absolute inset-0 border-2 border-black/10 rounded-r-2xl pointer-events-none"></div>
               </div>
             </div>
           </div>
@@ -69,9 +69,9 @@ export default function AboutPage() {
             className="p-0 border border-[#D8B868] rounded-2xl overflow-hidden bg-white"
             style={{ borderColor: '#D8B868' }}
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch">
               {/* Image Left */}
-              <div className="relative h-80 md:h-96 rounded-l-2xl overflow-hidden">
+              <div className="relative h-80 md:h-full rounded-l-2xl overflow-hidden">
                 <Image 
                   src="/images/about-mission.jpg" 
                   alt={t('mission.title')}
@@ -109,9 +109,9 @@ export default function AboutPage() {
             className="p-0 border border-[#D8B868] rounded-2xl overflow-hidden bg-white"
             style={{ borderColor: '#D8B868' }}
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch">
               {/* Image Left */}
-              <div className="relative h-80 md:h-96 rounded-l-2xl overflow-hidden">
+              <div className="relative h-80 md:h-full rounded-l-2xl overflow-hidden">
                 <Image 
                   src="/images/about-vision.jpg" 
                   alt={t('vision.title')}

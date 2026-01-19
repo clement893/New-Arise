@@ -84,14 +84,14 @@ export default function TeamPage() {
                 <Card className="p-6 hover:shadow-lg transition-shadow">
                   <div className="flex flex-col gap-6">
                     <div className="flex justify-center">
-                      <div className="w-48 h-48 rounded-full bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 flex items-center justify-center overflow-hidden border-4 border-white shadow-md">
+                      <div className="w-48 h-48 rounded-lg bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 flex items-center justify-center overflow-hidden border-4 border-white shadow-md">
                         {member.image ? (
                           <Image
                             src={member.image}
                             alt={member.name}
                             width={192}
                             height={192}
-                            className="object-cover object-[center_20%]"
+                            className="object-cover object-top h-full"
                           />
                         ) : (
                           <Users className="text-arise-deep-teal/40" size={96} />

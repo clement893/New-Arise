@@ -1,0 +1,3 @@
+Copiez cette ligne et collez-la dans Railway Query :
+
+UPDATE plans SET amount = 29900, name = 'REVELATION', updated_at = NOW() WHERE name LIKE '%Test%' OR name LIKE '%REVELATION%';
