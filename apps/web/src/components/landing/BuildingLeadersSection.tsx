@@ -6,6 +6,15 @@ import Image from 'next/image';
 export function BuildingLeadersSection() {
   const t = useTranslations('landing.buildingLeaders');
 
+  const images = [
+    { src: '/images/arise-leader-1.jpg', alt: 'Professional business team collaboration' },
+    { src: '/images/arise-leader-2.jpg', alt: 'Diverse leadership team' },
+    { src: '/images/arise-leader-3.jpg', alt: 'Business professionals teamwork' },
+    { src: '/images/arise-leader-4.jpg', alt: 'Executive coaching session', className: 'col-span-2 md:col-span-1' },
+    { src: '/images/arise-leader-5.jpg', alt: 'Corporate leadership conference' },
+    { src: '/images/arise-leader-6.jpg', alt: 'Professional business meeting' },
+  ];
+
   return (
     <section className="py-20 bg-white">
       <div className="container mx-auto px-[11px]">
@@ -20,57 +29,21 @@ export function BuildingLeadersSection() {
           </div>
 
           {/* Image Grid */}
-          {/* NOTE: Images should be replaced with images from ARISE bank of images 
-              (https://drive.google.com/drive/folders/1yyPb1Pmz-YaNhI2oik59L3oSmQZc9X_p?usp=drive_link) */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div className="relative h-64 rounded-lg overflow-hidden shadow-md bg-gray-50">
-              <Image
-                src="/images/arise-leader-1.jpg"
-                alt="Professional business team collaboration"
-                fill
-                className="object-contain"
-              />
-            </div>
-            <div className="relative h-64 rounded-lg overflow-hidden shadow-md bg-gray-50">
-              <Image
-                src="/images/arise-leader-2.jpg"
-                alt="Diverse leadership team"
-                fill
-                className="object-contain"
-              />
-            </div>
-            <div className="relative h-64 rounded-lg overflow-hidden shadow-md bg-gray-50">
-              <Image
-                src="/images/arise-leader-3.jpg"
-                alt="Business professionals teamwork"
-                fill
-                className="object-contain"
-              />
-            </div>
-            <div className="relative h-64 rounded-lg overflow-hidden shadow-md col-span-2 md:col-span-1 bg-gray-50">
-              <Image
-                src="/images/arise-leader-4.jpg"
-                alt="Executive coaching session"
-                fill
-                className="object-contain"
-              />
-            </div>
-            <div className="relative h-64 rounded-lg overflow-hidden shadow-md bg-gray-50">
-              <Image
-                src="/images/arise-leader-5.jpg"
-                alt="Corporate leadership conference"
-                fill
-                className="object-contain"
-              />
-            </div>
-            <div className="relative h-64 rounded-lg overflow-hidden shadow-md bg-gray-50">
-              <Image
-                src="/images/arise-leader-6.jpg"
-                alt="Professional business meeting"
-                fill
-                className="object-contain"
-              />
-            </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 items-start">
+            {images.map((image, index) => (
+              <div 
+                key={index} 
+                className={`relative rounded-lg overflow-hidden shadow-md ${image.className || ''}`}
+              >
+                <Image
+                  src={image.src}
+                  alt={image.alt}
+                  width={800}
+                  height={600}
+                  className="w-full h-auto block object-contain"
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>
