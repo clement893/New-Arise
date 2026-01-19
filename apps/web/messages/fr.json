@@ -3740,5 +3740,9 @@
         }
       }
     }
+  },
+  "faq": {
+    "title": "Questions Fréquemment Posées",
+    "description": "Trouvez des réponses aux questions les plus courantes sur la plateforme ARISE"
   }
 }
