@@ -3806,6 +3806,10 @@
       }
     }
   },
+  "faq": {
+    "title": "Questions Frequently Asked",
+    "description": "Find answers to the most frequently asked questions about the ARISE Holistic Leadership platform."
+  },
   "register": {
     "stepIndicator": "Step {step} of {total}",
     "step1": {
