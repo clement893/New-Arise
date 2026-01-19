@@ -290,7 +290,7 @@ export default function TermsOfServicePage() {
             </p>
             <div className="space-y-2 text-gray-700">
               <p><strong>{t('contact.email')}</strong> <a href="mailto:legal@arisehumancapital.com" className="text-arise-deep-teal hover:underline">legal@arisehumancapital.com</a></p>
-              <p><strong>{t('contact.address')}</strong> ARISE Human Capital, 4835 Av Borden, Montrea, Quebec, Canada, H4V 2S9</p>
+              <p><strong>{t('contact.address')}</strong> ARISE Human Capital, 4835 Av Borden, Montreal, Quebec, Canada, H4V 2S9</p>
             </div>
           </Card>
         </div>
