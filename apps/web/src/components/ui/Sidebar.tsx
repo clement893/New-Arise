@@ -305,12 +305,15 @@ export default function Sidebar({
           )}
           title={t('backToDashboard')}
         >
-          <h1 className={clsx(
-            "text-2xl font-bold text-arise-deep-teal",
-            collapsed && "text-xl"
-          )}>
-            {collapsed ? 'A' : 'ARISE'}
-          </h1>
+          {collapsed ? (
+            <h1 className="text-xl font-bold text-arise-deep-teal">A</h1>
+          ) : (
+            <img 
+              src="/images/arise-logo.png" 
+              alt="ARISE" 
+              className="h-8 w-auto object-contain"
+            />
+          )}
         </Link>
       </div>
 
