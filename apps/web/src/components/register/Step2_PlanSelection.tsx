@@ -118,9 +118,17 @@ export function Step2_PlanSelection() {
   };
 
   const formatInterval = (plan: Plan) => {
-    if (plan.interval === 'MONTH' && plan.interval_count === 1) return '/month';
-    if (plan.interval === 'YEAR' && plan.interval_count === 1) return '/year';
-    return `/${plan.interval_count || 1} ${plan.interval.toLowerCase()}s`;
+    const interval = plan.interval?.toUpperCase();
+    const count = plan.interval_count || 1;
+    
+    if (interval === 'MONTH' && count === 1) return '/month';
+    if (interval === 'YEAR' && count === 1) return '/year';
+    if (interval === 'WEEK' && count === 1) return '/week';
+    if (interval === 'DAY' && count === 1) return '/day';
+    
+    // For counts > 1, handle pluralization
+    const intervalName = interval?.toLowerCase() || 'month';
+    return `/${count} ${intervalName}${count > 1 ? 's' : ''}`;
   };
 
   const parseFeatures = (features: string | null | undefined): string[] => {
