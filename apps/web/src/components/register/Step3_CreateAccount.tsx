@@ -146,7 +146,7 @@ export function Step3_CreateAccount() {
               <div className="text-right">
                 <p className="text-xl font-bold text-arise-gold">
                   {formatPrice()}
-                  {selectedPlan.amount && selectedPlan.amount > 0 && formatInterval()}
+                  {selectedPlan.amount && (typeof selectedPlan.amount === 'string' ? parseFloat(selectedPlan.amount) : selectedPlan.amount) > 0 && formatInterval()}
                 </p>
               </div>
             </div>
