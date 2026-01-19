@@ -691,7 +691,7 @@ function EvaluatorsContent() {
                 style={{ width: 'fit-content' }}
               >
                 <Plus size={16} style={{ marginRight: '4px' }} />
-                {t('addEvaluators')}
+                {t('addContributors')}
               </Button>
             )}
           </div>
@@ -785,7 +785,7 @@ function EvaluatorsContent() {
               <div className="max-w-md mx-auto">
                 <p className="text-gray-600 mb-4 text-lg">
                   {evaluators.length === 0 
-                    ? t('empty.noEvaluators')
+                    ? t('empty.noContributors')
                     : t('empty.noMatch')}
                 </p>
                 {evaluators.length === 0 && (
@@ -800,7 +800,7 @@ function EvaluatorsContent() {
                         className="font-semibold flex flex-row items-center gap-2"
                       >
                         <Plus size={20} />
-                        {t('addEvaluators')}
+                        {t('addContributors')}
                       </Button>
                     )}
                   </div>
@@ -831,13 +831,13 @@ function EvaluatorsContent() {
                         </p>
                         {evaluator.role && (
                           <p className="text-xs text-gray-500 mb-3">
-                            {t('evaluator.relationship')} {ROLE_LABELS[evaluator.role] || evaluator.role}
+                            {t('contributor.relationship')} {ROLE_LABELS[evaluator.role] || evaluator.role}
                           </p>
                         )}
                         <div className="flex flex-wrap gap-4 text-xs text-gray-500 mb-2">
                           {evaluator.invitation_sent_at && (
                             <div>
-                              <span className="font-medium">{t('evaluator.invited')}</span>{' '}
+                              <span className="font-medium">{t('contributor.invited')}</span>{' '}
                               {formatDate(evaluator.invitation_sent_at)}
                               {getTimeElapsed(evaluator.invitation_sent_at) && (
                                 <span className="text-gray-400 ml-1">
@@ -848,19 +848,19 @@ function EvaluatorsContent() {
                           )}
                           {evaluator.invitation_opened_at && (
                             <div>
-                              <span className="font-medium">{t('evaluator.opened')}</span>{' '}
+                              <span className="font-medium">{t('contributor.opened')}</span>{' '}
                               {formatDate(evaluator.invitation_opened_at)}
                             </div>
                           )}
                           {evaluator.started_at && (
                             <div>
-                              <span className="font-medium">{t('evaluator.started')}</span>{' '}
+                              <span className="font-medium">{t('contributor.started')}</span>{' '}
                               {formatDate(evaluator.started_at)}
                             </div>
                           )}
                           {evaluator.completed_at && (
                             <div>
-                              <span className="font-medium">{t('evaluator.completed')}</span>{' '}
+                              <span className="font-medium">{t('contributor.completed')}</span>{' '}
                               {formatDate(evaluator.completed_at)}
                             </div>
                           )}
@@ -874,7 +874,7 @@ function EvaluatorsContent() {
                               className="text-xs flex flex-row items-center gap-2"
                             >
                               <Copy size={14} />
-                              {copiedToken === evaluator.invitation_token ? t('evaluator.copied') : t('evaluator.copyLink')}
+                              {copiedToken === evaluator.invitation_token ? t('contributor.copied') : t('contributor.copyLink')}
                             </Button>
                           </div>
                         )}

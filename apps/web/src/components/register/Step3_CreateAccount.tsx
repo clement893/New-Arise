@@ -29,7 +29,7 @@ const createAccountSchema = z.object({
 type CreateAccountFormData = z.infer<typeof createAccountSchema>;
 
 export function Step3_CreateAccount() {
-  const { setUserInfo, setStep } = useRegistrationStore();
+  const { setUserInfo, setStep, selectedPlan } = useRegistrationStore();
   const { login: loginToStore } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,6 +41,20 @@ export function Step3_CreateAccount() {
   } = useForm<CreateAccountFormData>({
     resolver: zodResolver(createAccountSchema),
   });
+
+  const formatPrice = (plan: typeof selectedPlan) => {
+    if (!plan) return '';
+    if (!plan.amount || plan.amount === 0) return 'Free';
+    const price = (plan.amount / 100).toFixed(2);
+    return `$${price}`;
+  };
+
+  const formatInterval = (plan: typeof selectedPlan) => {
+    if (!plan) return '';
+    if (plan.interval === 'MONTH' && plan.interval_count === 1) return '/month';
+    if (plan.interval === 'YEAR' && plan.interval_count === 1) return '/year';
+    return `/${plan.interval_count || 1} ${plan.interval.toLowerCase()}s`;
+  };
 
   const onSubmit = async (data: CreateAccountFormData) => {
     setIsLoading(true);
@@ -113,6 +127,28 @@ export function Step3_CreateAccount() {
         <p className="text-gray-600 text-center mb-8">
           Enter your information to get started
         </p>
+
+        {selectedPlan && (
+          <div className="mb-6 p-4 bg-arise-light-beige border-2 border-arise-gold rounded-lg">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Selected Plan</p>
+                <h3 className="text-xl font-bold text-arise-deep-teal">{selectedPlan.name}</h3>
+                {selectedPlan.description && (
+                  <p className="text-sm text-gray-600 mt-1">{selectedPlan.description}</p>
+                )}
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold text-arise-gold">
+                  {formatPrice(selectedPlan)}
+                  {selectedPlan.amount && selectedPlan.amount > 0 && (
+                    <span className="text-sm text-gray-600 ml-1">{formatInterval(selectedPlan)}</span>
+                  )}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">

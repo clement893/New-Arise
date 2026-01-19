@@ -1,6 +1,6 @@
 /**
  * TKI Assessment Store
- * Manages state for TKI Conflict Style questionnaire
+ * Manages state for ARISE Conflict Style questionnaire
  */
 
 import { create } from 'zustand';

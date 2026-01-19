@@ -14,7 +14,7 @@ export function BuildingLeadersSection() {
             <h2 className="text-4xl md:text-5xl font-semibold text-arise-deep-teal mb-4">
               {t('title')}
             </h2>
-            <p className="text-lg text-gray-700 max-w-3xl">
+            <p className="text-lg text-gray-700 max-w-3xl whitespace-pre-line">
               {t('description')}
             </p>
           </div>

@@ -44,6 +44,10 @@ anthropic>=0.18.0
 PyMuPDF>=1.23.0
 Pillow>=10.0.0
 
+# HTML Parsing for MBTI extraction
+beautifulsoup4>=4.12.0
+lxml>=5.0.0
+
 # Email
 sendgrid>=6.10.0
 

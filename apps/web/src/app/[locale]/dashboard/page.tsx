@@ -149,6 +149,7 @@ function DashboardContent() {
   }
 
   // Calculate progress data from real assessments
+  // Order: MBTI, TKI (ARISE Conflict Style), 360 Feedback, Wellness
   const assessmentTypes: AssessmentType[] = ['MBTI', 'TKI', 'THREE_SIXTY_SELF', 'WELLNESS'];
   const progressItems = assessmentTypes.map(type => {
     const assessment = assessments.find(a => a.assessment_type === type);
@@ -426,7 +427,6 @@ function DashboardContent() {
     switch (color) {
       case 'primary':
       case 'teal':
-        return 'bg-arise-deep-teal';
       case 'orange':
         return 'bg-arise-gold';
       default:
@@ -481,10 +481,10 @@ function DashboardContent() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-1">
-                          {t('evaluatorsBanner.title')}
+                          {t('contributorsBanner.title')}
                         </h3>
                         <p className="text-xs sm:text-sm text-gray-900">
-                          {t('evaluatorsBanner.description')}
+                          {t('contributorsBanner.description')}
                         </p>
                       </div>
                     </div>
@@ -509,7 +509,7 @@ function DashboardContent() {
                               }}
                             >
                               <Eye size={16} />
-                              <span className="truncate">{evaluators.length > 0 ? t('evaluatorsBanner.viewEvaluatorsWithCount', { count: evaluators.length }) : t('evaluatorsBanner.viewEvaluators')}</span>
+                              <span className="truncate">{evaluators.length > 0 ? t('contributorsBanner.viewContributorsWithCount', { count: evaluators.length }) : t('contributorsBanner.viewContributors')}</span>
                             </Button>
                           </Link>
                         );
@@ -535,7 +535,7 @@ function DashboardContent() {
                         }
                       }}
                     >
-                      {t('evaluatorsBanner.addEvaluators')}
+                      {t('contributorsBanner.addContributors')}
                     </Button>
                   </div>
                   </div>

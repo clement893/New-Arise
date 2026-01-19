@@ -335,11 +335,11 @@ export default function Feedback360ResultsPage() {
     }
 
     if (capability.gap > 0.5) {
-      return t('insights.withEvaluators.selfHigher', { capability: capName });
+      return t('insights.withContributors.selfHigher', { capability: capName });
     } else if (capability.gap < -0.5) {
-      return t('insights.withEvaluators.othersHigher', { capability: capName });
+      return t('insights.withContributors.othersHigher', { capability: capName });
     } else {
-      return t('insights.withEvaluators.aligned', { capability: capName });
+      return t('insights.withContributors.aligned', { capability: capName });
     }
   };
 
@@ -373,17 +373,17 @@ export default function Feedback360ResultsPage() {
               </div>
             )}
 
-            {/* Evaluators Status Section */}
+            {/* Contributors Status Section */}
             {evaluators.length > 0 && (
               <div className="mt-6 rounded-lg border border-gray-200 p-4">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-gray-900">
-                    {t('evaluatorStatus.title')}
+                    {t('contributorStatus.title')}
                   </h3>
                   <Link href="/dashboard/evaluators">
                     <Button variant="outline" size="sm" className="text-xs flex flex-row items-center gap-2">
                       <Eye className="h-4 w-4" />
-                      {t('evaluatorStatus.viewAll')}
+                      {t('contributorStatus.viewAll')}
                     </Button>
                   </Link>
                 </div>
@@ -406,23 +406,23 @@ export default function Feedback360ResultsPage() {
                       </div>
                       <div className="ml-3 flex-shrink-0">
                         {evaluator.status === 'completed' || evaluator.status === 'COMPLETED' ? (
-                          <div className="flex items-center gap-1 text-success-600" title={t('evaluatorStatus.completed')}>
+                          <div className="flex items-center gap-1 text-success-600" title={t('contributorStatus.completed')}>
                             <CheckCircle className="h-5 w-5" />
                           </div>
                         ) : evaluator.status === 'in_progress' || evaluator.status === 'IN_PROGRESS' ? (
-                          <div className="flex items-center gap-1 text-primary-600" title={t('evaluatorStatus.inProgress')}>
+                          <div className="flex items-center gap-1 text-primary-600" title={t('contributorStatus.inProgress')}>
                             <Clock className="h-5 w-5" />
                           </div>
                         ) : evaluator.invitation_opened_at ? (
-                          <div className="flex items-center gap-1 text-yellow-600" title={t('evaluatorStatus.invitationOpened')}>
+                          <div className="flex items-center gap-1 text-yellow-600" title={t('contributorStatus.invitationOpened')}>
                             <Mail className="h-5 w-5" />
                           </div>
                         ) : evaluator.invitation_sent_at ? (
-                          <div className="flex items-center gap-1 text-gray-400" title={t('evaluatorStatus.invitationSent')}>
+                          <div className="flex items-center gap-1 text-gray-400" title={t('contributorStatus.invitationSent')}>
                             <Mail className="h-5 w-5" />
                           </div>
                         ) : (
-                          <div className="flex items-center gap-1 text-gray-400" title={t('evaluatorStatus.notInvited')}>
+                          <div className="flex items-center gap-1 text-gray-400" title={t('contributorStatus.notInvited')}>
                             <XCircle className="h-5 w-5" />
                           </div>
                         )}
@@ -433,15 +433,15 @@ export default function Feedback360ResultsPage() {
                 <div className="mt-4 flex items-center gap-4 text-xs text-gray-500">
                   <div className="flex items-center gap-1">
                     <CheckCircle className="h-4 w-4 text-success-600" />
-                    <span>{t('evaluatorStatus.completed')} ({evaluators.filter((e) => e.status === 'completed' || e.status === 'COMPLETED').length})</span>
+                    <span>{t('contributorStatus.completed')} ({evaluators.filter((e) => e.status === 'completed' || e.status === 'COMPLETED').length})</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Clock className="h-4 w-4 text-primary-600" />
-                    <span>{t('evaluatorStatus.inProgress')} ({evaluators.filter((e) => e.status === 'in_progress' || e.status === 'IN_PROGRESS').length})</span>
+                    <span>{t('contributorStatus.inProgress')} ({evaluators.filter((e) => e.status === 'in_progress' || e.status === 'IN_PROGRESS').length})</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Mail className="h-4 w-4 text-gray-400" />
-                    <span>{t('evaluatorStatus.invitationSent')} ({evaluators.filter((e) => (e.status === 'not_started' || e.status === 'NOT_STARTED') && e.invitation_sent_at).length})</span>
+                    <span>{t('contributorStatus.invitationSent')} ({evaluators.filter((e) => (e.status === 'not_started' || e.status === 'NOT_STARTED') && e.invitation_sent_at).length})</span>
                   </div>
                 </div>
               </div>
@@ -632,7 +632,7 @@ export default function Feedback360ResultsPage() {
             className="flex items-center gap-4"
             style={{ backgroundColor: '#0F4C56', color: '#fff' }}
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-4 h-4" />
             {t('backToAssessments')}
           </Button>
         </div>
