@@ -36,9 +36,9 @@ export function Step3_CreateAccount() {
 
   const formatPrice = () => {
     if (!selectedPlan) return '';
-    if (!selectedPlan.amount || selectedPlan.amount === 0) return 'Free';
     // Handle both number and string (Decimal from backend)
-    const amountInCents = typeof selectedPlan.amount === 'string' ? parseFloat(selectedPlan.amount) : selectedPlan.amount;
+    const amountInCents = typeof selectedPlan.amount === 'string' ? parseFloat(selectedPlan.amount) : (selectedPlan.amount || 0);
+    if (!selectedPlan.amount || amountInCents === 0) return 'Free';
     const price = (amountInCents / 100).toFixed(2);
     return `$${price}`;
   };

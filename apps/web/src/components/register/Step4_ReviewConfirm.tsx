@@ -9,9 +9,9 @@ export function Step4_ReviewConfirm() {
 
   const formatPrice = () => {
     if (!selectedPlan) return 'Free';
-    if (!selectedPlan.amount || selectedPlan.amount === 0) return 'Free';
     // Handle both number and string (Decimal from backend)
-    const amountInCents = typeof selectedPlan.amount === 'string' ? parseFloat(selectedPlan.amount) : selectedPlan.amount;
+    const amountInCents = typeof selectedPlan.amount === 'string' ? parseFloat(selectedPlan.amount) : (selectedPlan.amount || 0);
+    if (!selectedPlan.amount || amountInCents === 0) return 'Free';
     const price = (amountInCents / 100).toFixed(2);
     return `$${price}`;
   };
@@ -81,7 +81,7 @@ export function Step4_ReviewConfirm() {
                 <p className="text-gray-900 font-semibold text-lg">{selectedPlan.name}</p>
                 <p className="text-arise-gold font-bold text-xl mt-1">
                   {formatPrice()}
-                  {selectedPlan.amount && selectedPlan.amount > 0 && formatInterval()}
+                  {selectedPlan.amount && (typeof selectedPlan.amount === 'string' ? parseFloat(selectedPlan.amount) : selectedPlan.amount) > 0 && formatInterval()}
                 </p>
               </div>
             ) : (

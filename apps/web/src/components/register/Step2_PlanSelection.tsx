@@ -106,9 +106,9 @@ export function Step2_PlanSelection() {
   };
 
   const formatPrice = (plan: Plan) => {
-    if (!plan.amount || plan.amount === 0) return 'Free';
     // Handle both number and string (Decimal from backend)
-    const amountInCents = typeof plan.amount === 'string' ? parseFloat(plan.amount) : plan.amount;
+    const amountInCents = typeof plan.amount === 'string' ? parseFloat(plan.amount) : (plan.amount || 0);
+    if (!plan.amount || amountInCents === 0) return 'Free';
     const price = (amountInCents / 100).toFixed(2);
     return `$${price}`;
   };

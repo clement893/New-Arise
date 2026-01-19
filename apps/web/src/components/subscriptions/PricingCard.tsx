@@ -8,7 +8,7 @@ export interface Plan {
   id: number;
   name: string;
   description: string | null;
-  amount: number;
+  amount: number | string;
   currency: string;
   interval: 'MONTH' | 'YEAR' | 'WEEK' | 'DAY';
   interval_count: number;
@@ -29,8 +29,10 @@ export function PricingCard({ plan, onSelect, isLoading, currentPlanId }: Pricin
   const featureList = Object.entries(features).filter(([_, value]) => typeof value !== 'boolean' || value === true);
 
   const formatPrice = () => {
-    if (plan.amount === 0) return 'Free';
-    const price = (plan.amount / 100).toFixed(2);
+    // Handle both number and string (Decimal from backend)
+    const amountInCents = typeof plan.amount === 'string' ? parseFloat(plan.amount) : (plan.amount || 0);
+    if (amountInCents === 0) return 'Free';
+    const price = (amountInCents / 100).toFixed(2);
     return `$${price}`;
   };
 
@@ -59,7 +61,7 @@ export function PricingCard({ plan, onSelect, isLoading, currentPlanId }: Pricin
 
         <div className="mb-6">
           <span className="text-4xl font-bold text-gray-900 dark:text-white">{formatPrice()}</span>
-          {plan.amount > 0 && (
+          {(typeof plan.amount === 'string' ? parseFloat(plan.amount) : plan.amount) > 0 && (
             <span className="text-gray-600 dark:text-gray-400 ml-2">{formatInterval()}</span>
           )}
         </div>
