@@ -30,8 +30,14 @@ export default function AboutPage() {
                       {t('hero.titlePart2')}
                     </span>
                   </h1>
+                  <p className="text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed mb-8">
+                    {t('subtitlePart1')}
+                  </p>
+                  <h2 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: '#D8B868', fontWeight: 700 }}>
+                    {t('subtitleHeading')}
+                  </h2>
                   <p className="text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed">
-                    {t('subtitle')}
+                    {t('subtitlePart2')}
                   </p>
                 </div>
               </div>
@@ -49,10 +55,6 @@ export default function AboutPage() {
                       // Fallback handled by CSS
                     }}
                   />
-                  {/* Fallback gradient if image fails to load */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                    <Users className="text-white/30" size={120} />
-                  </div>
                 </div>
                 {/* Subtle border around photo */}
                 <div className="absolute inset-0 border-2 border-black/10 rounded-r-2xl pointer-events-none"></div>
