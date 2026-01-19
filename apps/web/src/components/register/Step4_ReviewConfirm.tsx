@@ -5,7 +5,27 @@ import { useRegistrationStore } from '@/stores/registrationStore';
 import { Edit2, ArrowLeft } from 'lucide-react';
 
 export function Step4_ReviewConfirm() {
-  const { role, planId, userInfo, setStep } = useRegistrationStore();
+  const { role, selectedPlan, userInfo, setStep } = useRegistrationStore();
+
+  const formatPrice = () => {
+    if (!selectedPlan) return 'Free';
+    if (!selectedPlan.amount || selectedPlan.amount === 0) return 'Free';
+    const price = (selectedPlan.amount / 100).toFixed(2);
+    return `$${price}`;
+  };
+
+  const formatInterval = () => {
+    if (!selectedPlan) return '';
+    const interval = selectedPlan.interval?.toUpperCase();
+    const count = selectedPlan.interval_count || 1;
+    
+    if (interval === 'MONTH' && count === 1) return '/month';
+    if (interval === 'YEAR' && count === 1) return '/year';
+    if (interval === 'MONTH') return `/${count} months`;
+    if (interval === 'YEAR') return `/${count} years`;
+    
+    return `/${count} ${selectedPlan.interval?.toLowerCase()}${count > 1 ? 's' : ''}`;
+  };
 
   // Automatically advance to payment step after a short delay
   useEffect(() => {
@@ -54,7 +74,17 @@ export function Step4_ReviewConfirm() {
                 Edit
               </button>
             </div>
-            <p className="text-gray-700 capitalize">{planId}</p>
+            {selectedPlan ? (
+              <div>
+                <p className="text-gray-900 font-semibold text-lg">{selectedPlan.name}</p>
+                <p className="text-arise-gold font-bold text-xl mt-1">
+                  {formatPrice()}
+                  {selectedPlan.amount && selectedPlan.amount > 0 && formatInterval()}
+                </p>
+              </div>
+            ) : (
+              <p className="text-gray-500">No plan selected</p>
+            )}
           </div>
 
           {/* Account Information Section */}

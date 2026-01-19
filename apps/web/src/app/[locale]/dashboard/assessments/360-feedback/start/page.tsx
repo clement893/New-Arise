@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { PageHeader } from '@/components/layout';
 import { Card, Container } from '@/components/ui';
 import Button from '@/components/ui/Button';
@@ -31,6 +32,7 @@ export default function Start360FeedbackPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const assessmentId = searchParams.get('assessmentId');
+  const t = useTranslations('assessments.evaluators.startPage');
   
   const [evaluators, setEvaluators] = useState<EvaluatorForm[]>([
     { name: '', email: '', role: 'PEER' },
@@ -320,15 +322,15 @@ export default function Start360FeedbackPage() {
           <Card className="p-8 text-center">
             <CheckCircle className="mx-auto mb-4 h-16 w-16 text-success-500" />
             <h1 className="mb-4 text-3xl font-bold text-gray-900">
-              {submittedEvaluatorsCount > 0 ? 'Invitations Sent!' : 'Assessment Created!'}
+              {submittedEvaluatorsCount > 0 ? t('success.invitationsSent') : t('success.assessmentCreated')}
             </h1>
             <p className="mb-8 text-gray-600">
               {submittedEvaluatorsCount > 0
-                ? `Invitations have been sent ${submittedEvaluatorsCount > 1 ? `to ${submittedEvaluatorsCount} contributors` : 'to the contributor'}. You can now start your self-assessment.`
-                : 'Your 360° assessment has been created. You can now start your self-assessment and add contributors later if you wish.'}
+                ? t('success.invitationsSentMessage', { count: submittedEvaluatorsCount })
+                : t('success.assessmentCreatedMessage')}
             </p>
             <p className="text-sm text-gray-500">
-              Redirecting...
+              {t('success.redirecting')}
             </p>
           </Card>
         </div>
@@ -339,8 +341,8 @@ export default function Start360FeedbackPage() {
   return (
     <>
       <PageHeader
-        title="Start a 360° Feedback Assessment"
-        description="Invite professionals to assess your leadership capabilities (optional). They will receive an email with thorough orientation and with a link to complete a form. You may add contributors later."
+        title={t('title')}
+        description={t('description')}
         titleClassName="text-white"
         descriptionClassName="text-white"
       />
@@ -590,7 +592,7 @@ export default function Start360FeedbackPage() {
                   }}
                 >
                   <Plus className="h-4 w-4" />
-                  Add a contributor
+                  {t('buttons.addContributor')}
                 </Button>
               </div>
 
@@ -615,7 +617,7 @@ export default function Start360FeedbackPage() {
                       padding: '6px 12px'
                     }}
                   >
-                    Back
+                    {t('buttons.back')}
                   </Button>
                   <Button
                     type="button"
@@ -628,11 +630,7 @@ export default function Start360FeedbackPage() {
                       padding: '6px 12px'
                     }}
                   >
-                    {isSubmitting ? (
-                      <>Processing...</>
-                    ) : (
-                      <>Start without contributors</>
-                    )}
+                    {isSubmitting ? t('buttons.processing') : t('buttons.startWithoutContributors')}
                   </Button>
                 </div>
                 <Button
@@ -641,13 +639,11 @@ export default function Start360FeedbackPage() {
                   className="bg-arise-gold hover:bg-arise-gold/90 flex flex-row items-center gap-2"
                 >
                   {isSubmitting ? (
-                    <>Sending...</>
+                    t('buttons.sending')
                   ) : (
                     <>
                       <UserPlus className="h-4 w-4" />
-                      {evaluators.length > 0 && evaluators.some(e => e.name.trim() && e.email.trim())
-                        ? 'Send invitations and start'
-                        : 'Start without contributors'}
+                      {t('buttons.sendInvitations')}
                     </>
                   )}
                 </Button>

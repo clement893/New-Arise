@@ -33,6 +33,26 @@ export function Step3_CreateAccount() {
   const { login: loginToStore } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const formatPrice = () => {
+    if (!selectedPlan) return '';
+    if (!selectedPlan.amount || selectedPlan.amount === 0) return 'Free';
+    const price = (selectedPlan.amount / 100).toFixed(2);
+    return `$${price}`;
+  };
+
+  const formatInterval = () => {
+    if (!selectedPlan) return '';
+    const interval = selectedPlan.interval?.toUpperCase();
+    const count = selectedPlan.interval_count || 1;
+    
+    if (interval === 'MONTH' && count === 1) return '/month';
+    if (interval === 'YEAR' && count === 1) return '/year';
+    if (interval === 'MONTH') return `/${count} months`;
+    if (interval === 'YEAR') return `/${count} years`;
+    
+    return `/${count} ${selectedPlan.interval?.toLowerCase()}${count > 1 ? 's' : ''}`;
+  };
   
   const {
     register,
@@ -41,28 +61,6 @@ export function Step3_CreateAccount() {
   } = useForm<CreateAccountFormData>({
     resolver: zodResolver(createAccountSchema),
   });
-
-  const formatPrice = (plan: typeof selectedPlan) => {
-    if (!plan) return '';
-    if (!plan.amount || plan.amount === 0) return 'Free';
-    const price = (plan.amount / 100).toFixed(2);
-    return `$${price}`;
-  };
-
-  const formatInterval = (plan: typeof selectedPlan) => {
-    if (!plan) return '';
-    const interval = plan.interval?.toUpperCase();
-    const count = plan.interval_count || 1;
-    
-    if (interval === 'MONTH' && count === 1) return '/month';
-    if (interval === 'YEAR' && count === 1) return '/year';
-    if (interval === 'WEEK' && count === 1) return '/week';
-    if (interval === 'DAY' && count === 1) return '/day';
-    
-    // For counts > 1, handle pluralization
-    const intervalName = interval?.toLowerCase() || 'month';
-    return `/${count} ${intervalName}${count > 1 ? 's' : ''}`;
-  };
 
   const onSubmit = async (data: CreateAccountFormData) => {
     setIsLoading(true);
@@ -138,20 +136,15 @@ export function Step3_CreateAccount() {
 
         {selectedPlan && (
           <div className="mb-6 p-4 bg-arise-light-beige border-2 border-arise-gold rounded-lg">
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Selected Plan</p>
-                <h3 className="text-xl font-bold text-arise-deep-teal">{selectedPlan.name}</h3>
-                {selectedPlan.description && (
-                  <p className="text-sm text-gray-600 mt-1">{selectedPlan.description}</p>
-                )}
+                <p className="text-lg font-semibold text-arise-deep-teal">{selectedPlan.name}</p>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold text-arise-gold">
-                  {formatPrice(selectedPlan)}
-                  {selectedPlan.amount && selectedPlan.amount > 0 && (
-                    <span className="text-sm text-gray-600 ml-1">{formatInterval(selectedPlan)}</span>
-                  )}
+                <p className="text-xl font-bold text-arise-gold">
+                  {formatPrice()}
+                  {selectedPlan.amount && selectedPlan.amount > 0 && formatInterval()}
                 </p>
               </div>
             </div>

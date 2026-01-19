@@ -3,7 +3,6 @@ import { create } from 'zustand';
 export interface SelectedPlan {
   id: number;
   name: string;
-  description?: string;
   amount?: number;
   currency: string;
   interval: string;
@@ -31,7 +30,7 @@ export interface RegistrationState {
   setStep: (step: number) => void;
   setRole: (role: 'individual' | 'coach' | 'business') => void;
   setPlanId: (planId: string) => void;
-  setSelectedPlan: (plan: SelectedPlan | null) => void;
+  setSelectedPlan: (plan: SelectedPlan) => void;
   setUserInfo: (userInfo: Partial<RegistrationState['userInfo']>) => void;
   setProfileInfo: (profileInfo: Partial<RegistrationState['profileInfo']>) => void;
   reset: () => void;
@@ -58,7 +57,7 @@ export const useRegistrationStore = create<RegistrationState>((set) => ({
   setStep: (step) => set({ step }),
   setRole: (role) => set({ role }),
   setPlanId: (planId) => set({ planId }),
-  setSelectedPlan: (selectedPlan) => set({ selectedPlan }),
+  setSelectedPlan: (selectedPlan) => set({ selectedPlan, planId: selectedPlan.id.toString() }),
   setUserInfo: (userInfo) =>
     set((state) => ({
       userInfo: { ...state.userInfo, ...userInfo },

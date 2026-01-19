@@ -286,7 +286,7 @@ const resourcesData: Record<string, {
       
       <h3>Session 4: Action Planning (45 minutes)</h3>
       <ul>
-        <li>Creating a team development plan</li>
+        <li>Creating a team personal growth plan</li>
         <li>Setting team goals and metrics</li>
         <li>Establishing team norms and agreements</li>
         <li>Interactive activity: Team charter creation</li>
@@ -297,7 +297,7 @@ const resourcesData: Record<string, {
         <li>Understand the stages of team development</li>
         <li>Learn practical team-building activities</li>
         <li>Develop skills to build and maintain trust</li>
-        <li>Create an actionable team development plan</li>
+        <li>Create an actionable team personal growth plan</li>
       </ul>
       
       <h2>Who Should Attend</h2>

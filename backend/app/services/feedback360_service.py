@@ -279,7 +279,7 @@ def generate_360_recommendations(scores: Dict, interpretations: Dict) -> List[Di
             'resources': [
                 'Book: "The Coaching Habit" by Michael Bungay Stanier',
                 'Training: Coaching skills for managers',
-                'Practice: Implement Individual Development Plans (IDPs)'
+                'Practice: Implement Individual Personal Growth Plans (IPGPs)'
             ]
         },
         'execution': {

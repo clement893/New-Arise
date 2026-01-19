@@ -82,25 +82,25 @@ export default function TeamPage() {
             {teamMembers.map((member, index) => (
               <MotionDiv key={member.id} variant="slideUp" delay={index * 100}>
                 <Card className="p-6 hover:shadow-lg transition-shadow">
-                  <div className="flex flex-col md:flex-row gap-6">
-                    <div className="flex-shrink-0">
-                      <div className="w-32 h-32 rounded-lg bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 flex items-center justify-center overflow-hidden">
+                  <div className="flex flex-col gap-6">
+                    <div className="flex justify-center">
+                      <div className="w-48 h-48 rounded-lg bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 flex items-center justify-center overflow-hidden">
                         {member.image ? (
                           <Image
                             src={member.image}
                             alt={member.name}
-                            width={128}
-                            height={128}
+                            width={192}
+                            height={192}
                             className="object-cover"
                           />
                         ) : (
-                          <Users className="text-arise-deep-teal/40" size={64} />
+                          <Users className="text-arise-deep-teal/40" size={96} />
                         )}
                       </div>
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-2xl font-bold text-gray-900 mb-1">{member.name}</h3>
-                      <p className="text-lg text-arise-deep-teal font-semibold mb-3">{member.role}</p>
+                      <h3 className="text-2xl font-bold text-gray-900 mb-1 text-center">{member.name}</h3>
+                      <p className="text-lg text-arise-deep-teal font-semibold mb-3 text-center">{member.role}</p>
                       <p className="text-gray-700 mb-4">{member.bio}</p>
                       
                       <div className="space-y-3 mb-4">
@@ -126,7 +126,7 @@ export default function TeamPage() {
                         )}
                       </div>
 
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center justify-center gap-4">
                         {member.linkedin && (
                           <a
                             href={member.linkedin}
