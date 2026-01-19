@@ -39,8 +39,8 @@ export function BuildingLeadersSection() {
                   src={image.src}
                   alt={image.alt}
                   width={800}
-                  height={600}
-                  className="w-full h-auto block object-contain"
+                  height={450}
+                  className="w-full h-auto block object-cover"
                 />
               </div>
             ))}
