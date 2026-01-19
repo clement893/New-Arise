@@ -734,59 +734,6 @@
           "errors": {
             "notFound": "Résultats non trouvés"
           }
-        },
-        "backToAssessments": "Retour aux évaluations",
-        "pageTitle": {
-          "prefix": "Test MBTI -",
-          "suffix": "Personnalité"
-        },
-        "pageSubtitle": "Découvrez votre type de personnalité à travers 4 dimensions",
-        "title": "Évaluation de personnalité MBTI",
-        "description": "Les types de personnalité Myers-Briggs sont 16 profils de personnalité distincts identifiés par l'indicateur de type Myers-Briggs (MBTI) (un questionnaire d'auto-évaluation) basé sur les préférences autour de 4 dimensions, dans la façon dont vous (1) gagnez de l'énergie, (2) assimilez l'information, (3) prenez des décisions, et (4) abordez le monde.",
-        "howToProceed": {
-          "title": "Comment procéder ?",
-          "step1": "Cliquez sur le bouton ci-dessous pour accéder au test sur 16Personalities",
-          "step2": "Complétez le test sur leur plateforme (environ 10-15 minutes)",
-          "step3": "Téléchargez votre PDF de résultats depuis 16Personalities",
-          "step4": "Revenez ici et téléchargez votre PDF pour voir vos résultats dans ARISE"
-        },
-        "actions": {
-          "takeTest": "Passer le test sur 16Personalities",
-          "completedTest": "J'ai terminé le test, télécharger ma fiche récapitulative (PDF).",
-          "readyToUpload": "Prêt à télécharger votre fiche récapitulative ?",
-          "uploadPDF": "Télécharger ma fiche récapitulative PDF",
-          "factsheetInstructions": {
-            "title": "Pour trouver votre fiche récapitulative :",
-            "step1": "Allez dans Votre profil",
-            "step2": "Sélectionnez Vue d'ensemble",
-            "step3": "Téléchargez la Fiche récapitulative"
-          }
-        },
-        "aboutMBTI": {
-          "title": "À propos du MBTI",
-          "fourDimensions": {
-            "title": "Les 4 dimensions",
-            "energy": {
-              "code": "E/I",
-              "description": "Extraversion (E) ou Introversion (I), comment vous concentrez votre énergie (vers l'extérieur ou vers l'intérieur)"
-            },
-            "information": {
-              "code": "S/N",
-              "description": "Sensation (S) ou Intuition (N), Comment vous percevez l'information (faits concrets ou schémas/idées)"
-            },
-            "decisions": {
-              "code": "T/F",
-              "description": "Pensée (T) ou Sentiment (F), Comment vous prenez des décisions (logique ou valeurs/émotions)"
-            },
-            "lifestyle": {
-              "code": "J/P",
-              "description": "Jugement (J) ou Perception (P), Votre style de vie préféré (structuré/planifié ou flexible/spontané)"
-            }
-          },
-          "personalityType": {
-            "title": "Votre type de personnalité",
-            "description": "La combinaison de ces préférences crée 16 types, souvent regroupés en catégories comme Analystes, Diplomates, Sentinelles et Explorateurs, chacun avec des traits uniques."
-          }
         }
       }
     },

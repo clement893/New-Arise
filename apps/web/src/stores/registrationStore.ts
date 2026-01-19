@@ -3,7 +3,7 @@ import { create } from 'zustand';
 export interface SelectedPlan {
   id: number;
   name: string;
-  amount?: number;
+  amount?: number | string; // Can be number or string (Decimal from backend)
   currency: string;
   interval: string;
   interval_count?: number;

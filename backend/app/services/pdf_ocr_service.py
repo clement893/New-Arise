@@ -1117,9 +1117,10 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
         Extract MBTI results by fetching and parsing HTML from a 16Personalities profile URL
         
         This method:
-        1. Fetches the HTML content from the URL
-        2. Parses the HTML to extract text and images
-        3. Uses OpenAI to analyze the content and extract MBTI information
+        1. Tries Playwright first (for JavaScript-rendered pages)
+        2. Falls back to direct HTTP fetch if Playwright unavailable
+        3. Parses the HTML to extract text and images
+        4. Uses OpenAI to analyze the content and extract MBTI information
         
         Args:
             url: The 16Personalities profile URL
@@ -1135,7 +1136,22 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
             if '16personalities.com' not in url.lower():
                 raise ValueError(f"Invalid 16Personalities URL. Must be a 16personalities.com URL. Got: {url}")
             
-            # Fetch HTML content
+            # Try Playwright first for JavaScript-rendered pages
+            if PLAYWRIGHT_AVAILABLE:
+                logger.info("Playwright available, using headless browser to load JavaScript content...")
+                try:
+                    html_content = await self._fetch_html_with_playwright(url)
+                    if html_content:
+                        logger.info(f"Successfully fetched HTML with Playwright ({len(html_content)} characters)")
+                        async with httpx.AsyncClient(timeout=httpx.Timeout(60.0)) as client:
+                            extracted_data = await self._parse_html_for_mbti(html_content, url, client)
+                            return extracted_data
+                except Exception as pw_error:
+                    logger.warning(f"Playwright failed: {pw_error}, falling back to direct HTTP fetch")
+            else:
+                logger.info("Playwright not available, using direct HTTP fetch (may not work for JavaScript-rendered pages)")
+            
+            # Fallback: Direct HTTP fetch
             async with httpx.AsyncClient(
                 timeout=httpx.Timeout(60.0, connect=10.0),
                 follow_redirects=True,
@@ -1174,6 +1190,65 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
         except Exception as e:
             logger.error(f"Error extracting MBTI from HTML URL: {e}", exc_info=True)
             raise ValueError(f"Failed to extract MBTI data from URL: {str(e)}")
+    
+    async def _fetch_html_with_playwright(self, url: str) -> str:
+        """
+        Fetch HTML content using Playwright headless browser
+        This waits for JavaScript to execute and page to fully load
+        
+        Args:
+            url: The URL to fetch
+            
+        Returns:
+            Fully rendered HTML content
+        """
+        if not PLAYWRIGHT_AVAILABLE:
+            raise ValueError("Playwright is not available")
+        
+        try:
+            from playwright.async_api import async_playwright
+            
+            logger.info(f"Starting Playwright to fetch: {url}")
+            
+            async with async_playwright() as p:
+                # Launch browser in headless mode
+                browser = await p.chromium.launch(headless=True)
+                
+                try:
+                    # Create new page
+                    page = await browser.new_page()
+                    
+                    # Set realistic viewport
+                    await page.set_viewport_size({"width": 1920, "height": 1080})
+                    
+                    # Navigate to URL
+                    logger.info("Navigating to URL...")
+                    await page.goto(url, wait_until="networkidle", timeout=30000)
+                    
+                    # Wait a bit more for any lazy-loaded content
+                    logger.info("Waiting for content to load...")
+                    await page.wait_for_timeout(2000)
+                    
+                    # Try to wait for specific content indicators
+                    try:
+                        # Wait for personality type to be visible
+                        await page.wait_for_selector('text=/[IE][NS][TF][JP]/', timeout=5000)
+                        logger.info("Personality type detected on page")
+                    except:
+                        logger.warning("Could not detect personality type selector, continuing anyway")
+                    
+                    # Get the fully rendered HTML
+                    html_content = await page.content()
+                    logger.info(f"Playwright fetched {len(html_content)} characters of HTML")
+                    
+                    return html_content
+                    
+                finally:
+                    await browser.close()
+                    
+        except Exception as e:
+            logger.error(f"Error in Playwright fetch: {e}", exc_info=True)
+            raise
     
     async def _parse_html_for_mbti(self, html_content: str, url: str, client: httpx.AsyncClient) -> Dict[str, Any]:
         """

@@ -800,59 +800,6 @@
           "errors": {
             "notFound": "Results not found"
           }
-        },
-        "backToAssessments": "Back to Assessments",
-        "pageTitle": {
-          "prefix": "MBTI Test -",
-          "suffix": "Personality"
-        },
-        "pageSubtitle": "Discover your personality type through 4 dimensions",
-        "title": "MBTI Personality Assessment",
-        "description": "Myers-Briggs Personality Types are 16 distinct personality profiles identified by the Myers-Briggs Type Indicator (MBTI) (a self-report questionnaire) based on preferences around 4 dimensions, in how you (1) gain energy, (2) take in info, (3) make decisions, and (4) approach the world.",
-        "howToProceed": {
-          "title": "How to proceed",
-          "step1": "Click the button below to access the test on 16Personalities",
-          "step2": "Complete the test on their platform (approximately 10-15 minutes)",
-          "step3": "Download your results PDF from 16Personalities",
-          "step4": "Come back here and upload your PDF to see your results in ARISE"
-        },
-        "actions": {
-          "takeTest": "Take the test on 16Personalities",
-          "completedTest": "I've completed the test, upload my Factsheet (PDF).",
-          "readyToUpload": "Ready to upload your Factsheet?",
-          "uploadPDF": "Upload my Factsheet PDF",
-          "factsheetInstructions": {
-            "title": "To find your Factsheet:",
-            "step1": "Go to Your Profile",
-            "step2": "Select Overview",
-            "step3": "Download Factsheet"
-          }
-        },
-        "aboutMBTI": {
-          "title": "More about the MBTI",
-          "fourDimensions": {
-            "title": "The Four Dimensions",
-            "energy": {
-              "code": "E/I",
-              "description": "Extraversion (E) or Introversion (I), how you focus your energy (outwardly or inwardly)"
-            },
-            "information": {
-              "code": "S/N",
-              "description": "Sensing (S) or Intuition (N), How you perceive information (concrete facts or patterns/ideas)"
-            },
-            "decisions": {
-              "code": "T/F",
-              "description": "Thinking (T) or Feeling (F), How you make decisions (logic or values/emotions)"
-            },
-            "lifestyle": {
-              "code": "J/P",
-              "description": "Judging (J) or Perceiving (P), Your preferred lifestyle (structured/planned or flexible/spontaneous)"
-            }
-          },
-          "personalityType": {
-            "title": "Your Personality Type",
-            "description": "Combining these preferences creates 16 types, often grouped into categories like Analysts, Diplomats, Sentinels, and Explorers, each with unique traits."
-          }
         }
       }
     },

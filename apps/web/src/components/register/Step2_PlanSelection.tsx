@@ -10,7 +10,7 @@ interface Plan {
   id: number;
   name: string;
   description?: string;
-  amount?: number;
+  amount?: number | string; // Can be number or string (Decimal from backend)
   currency: string;
   interval: string;
   interval_count?: number;
@@ -107,7 +107,9 @@ export function Step2_PlanSelection() {
 
   const formatPrice = (plan: Plan) => {
     if (!plan.amount || plan.amount === 0) return 'Free';
-    const price = (plan.amount / 100).toFixed(2);
+    // Handle both number and string (Decimal from backend)
+    const amountInCents = typeof plan.amount === 'string' ? parseFloat(plan.amount) : plan.amount;
+    const price = (amountInCents / 100).toFixed(2);
     return `$${price}`;
   };
 

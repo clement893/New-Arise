@@ -18,8 +18,8 @@ interface Plan {
   id: number;
   name: string;
   description?: string;
-  price?: number;
-  amount?: number;
+  price?: number | string; // Can be number or string (Decimal from backend)
+  amount?: number | string; // Can be number or string (Decimal from backend)
   currency: string;
   interval: string;
   interval_count?: number;
@@ -351,7 +351,9 @@ function PaymentFormContent() {
   const formatPrice = (plan: Plan | null) => {
     if (!plan) return '$0.00';
     const price = plan.price || plan.amount || 0;
-    const amount = (price / 100).toFixed(2);
+    // Handle both number and string (Decimal from backend)
+    const priceInCents = typeof price === 'string' ? parseFloat(price) : price;
+    const amount = (priceInCents / 100).toFixed(2);
     return `$${amount}`;
   };
 
