@@ -16,7 +16,7 @@ export function Footer() {
           <div>
             <div className="mb-4">
               <Image
-                src="/images/arise-logo.png"
+                src="/images/arise-logo-white.png"
                 alt="ARISE"
                 width={120}
                 height={40}
