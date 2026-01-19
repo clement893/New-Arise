@@ -21,7 +21,7 @@ export default function TeamPage() {
       expertise: t('members.gabriela.expertise'),
       education: t('members.gabriela.education'),
       wellbeing: t('members.gabriela.wellbeing'),
-      image: '/images/team/placeholder.jpg',
+      image: '/images/team/gabriela.webp',
       linkedin: t('members.gabriela.linkedin'),
       email: 'info@arisehumancapital.com',
     },
@@ -33,7 +33,7 @@ export default function TeamPage() {
       expertise: t('members.tamara.expertise'),
       education: t('members.tamara.education'),
       wellbeing: t('members.tamara.wellbeing'),
-      image: '/images/team/placeholder.jpg',
+      image: '/images/team/tamara.webp',
       linkedin: t('members.tamara.linkedin'),
       email: 'info@arisehumancapital.com',
     },
@@ -91,7 +91,7 @@ export default function TeamPage() {
                             alt={member.name}
                             width={192}
                             height={192}
-                            className="object-cover"
+                            className="object-cover object-top"
                           />
                         ) : (
                           <Users className="text-arise-deep-teal/40" size={96} />
