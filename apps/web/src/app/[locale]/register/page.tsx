@@ -81,9 +81,20 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-arise-deep-teal relative overflow-hidden">
       <Header />
       
+      {/* Background Image with low opacity */}
+      <div 
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: 'url("/images/arise-leader-1.jpg")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          opacity: 0.05
+        }}
+      />
+
       {/* Background pattern */}
       <div 
-        className="absolute inset-0 opacity-10"
+        className="absolute inset-0 opacity-10 z-0"
         style={{
           backgroundImage: `repeating-linear-gradient(
             90deg,
