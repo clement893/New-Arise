@@ -12,7 +12,6 @@ import { useSearchParams } from 'next/navigation';
 import { getAssessmentResults, AssessmentResult } from '@/lib/api/assessments';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
-import { Sidebar } from '@/components/dashboard/Sidebar';
 import MotionDiv from '@/components/motion/MotionDiv';
 import WellnessBarChart from '@/components/assessments/charts/WellnessBarChart';
 import InsightCard from '@/components/assessments/InsightCard';
@@ -78,13 +77,10 @@ export default function WellnessResultsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">
-        <Sidebar />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">{t('loading')}</p>
-          </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">{t('loading')}</p>
         </div>
       </div>
     );
@@ -94,23 +90,20 @@ export default function WellnessResultsPage() {
     // Ensure error is always a string before rendering
     const errorString = typeof error === 'string' ? error : formatError(error || t('errors.notFound'));
     return (
-      <div className="min-h-screen bg-gray-50 flex">
-        <Sidebar />
-        <div className="flex-1 flex items-center justify-center">
-          <Card className="max-w-md">
-            <div className="p-6 text-center">
-              <p className="text-red-600 mb-4">{errorString}</p>
-              <Button 
-                onClick={() => router.push('/dashboard/assessments')} 
-                variant="primary"
-                className="flex items-center gap-4"
-                style={{ backgroundColor: '#0F4C56', color: '#fff' }}
-              >
-                {t('backToAssessments')}
-              </Button>
-            </div>
-          </Card>
-        </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="max-w-md">
+          <div className="p-6 text-center">
+            <p className="text-red-600 mb-4">{errorString}</p>
+            <Button 
+              onClick={() => router.push('/dashboard/assessments')} 
+              variant="primary"
+              className="flex items-center gap-4"
+              style={{ backgroundColor: '#0F4C56', color: '#fff' }}
+            >
+              {t('backToAssessments')}
+            </Button>
+          </div>
+        </Card>
       </div>
     );
   }
@@ -139,11 +132,8 @@ export default function WellnessResultsPage() {
   const weakestPillar = sortedPillars[sortedPillars.length - 1]?.[0] || '';
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
-
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-6xl mx-auto p-8">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-6xl mx-auto p-8">
           {/* Header */}
           <MotionDiv variant="slideUp" duration="normal" className="mb-8">
             <Button
@@ -287,7 +277,7 @@ export default function WellnessResultsPage() {
                 </p>
                 <div className="flex gap-4 justify-center">
                   <Button onClick={() => router.push('/dashboard/assessments/tki')}>
-                    Take TKI Assessment
+                    Take ARISE Assessment
                   </Button>
                   <Button
                     variant="outline"
@@ -300,7 +290,6 @@ export default function WellnessResultsPage() {
             </Card>
           </MotionDiv>
         </div>
-      </div>
     </div>
   );
 }

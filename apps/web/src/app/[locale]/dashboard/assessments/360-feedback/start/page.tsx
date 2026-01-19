@@ -32,7 +32,8 @@ export default function Start360FeedbackPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const assessmentId = searchParams.get('assessmentId');
-  const t = useTranslations('assessments.evaluators.startPage');
+  const t = useTranslations('dashboard.assessments.evaluators');
+  const tCommon = useTranslations('common');
   
   const [evaluators, setEvaluators] = useState<EvaluatorForm[]>([
     { name: '', email: '', role: 'PEER' },
@@ -322,15 +323,15 @@ export default function Start360FeedbackPage() {
           <Card className="p-8 text-center">
             <CheckCircle className="mx-auto mb-4 h-16 w-16 text-success-500" />
             <h1 className="mb-4 text-3xl font-bold text-gray-900">
-              {submittedEvaluatorsCount > 0 ? t('success.invitationsSent') : t('success.assessmentCreated')}
+              {submittedEvaluatorsCount > 0 ? 'Invitations Sent!' : 'Assessment Created!'}
             </h1>
             <p className="mb-8 text-gray-600">
               {submittedEvaluatorsCount > 0
-                ? t('success.invitationsSentMessage', { count: submittedEvaluatorsCount })
-                : t('success.assessmentCreatedMessage')}
+                ? `Invitations have been sent ${submittedEvaluatorsCount > 1 ? `to ${submittedEvaluatorsCount} contributors` : 'to the contributor'}. You can now start your self-assessment.`
+                : 'Your 360° assessment has been created. You can now start your self-assessment and add contributors later if you wish.'}
             </p>
             <p className="text-sm text-gray-500">
-              {t('success.redirecting')}
+              Redirecting...
             </p>
           </Card>
         </div>
@@ -341,8 +342,8 @@ export default function Start360FeedbackPage() {
   return (
     <>
       <PageHeader
-        title={t('title')}
-        description={t('description')}
+        title="Start a 360° Feedback Assessment"
+        description="Invite professionals to assess your leadership capabilities (optional). They will receive an email with thorough orientation and with a link to complete a form. You may add contributors later."
         titleClassName="text-white"
         descriptionClassName="text-white"
       />
@@ -368,7 +369,7 @@ export default function Start360FeedbackPage() {
                   }}
                   disabled={isLoadingEvaluators}
                 >
-                  {isLoadingEvaluators ? 'Loading...' : 'Refresh'}
+                  {isLoadingEvaluators ? tCommon('loading') : t('page.refresh')}
                 </Button>
               </div>
               <div className="space-y-3">
@@ -427,12 +428,12 @@ export default function Start360FeedbackPage() {
                             {isCopied ? (
                               <>
                                 <Check className="h-4 w-4 text-success-600" />
-                                Copied
+                                {t('page.contributor.copied')}
                               </>
                             ) : (
                               <>
                                 <Copy className="h-4 w-4" />
-                                Copy
+                                {t('page.contributor.copyLink')}
                               </>
                             )}
                           </Button>
@@ -592,7 +593,7 @@ export default function Start360FeedbackPage() {
                   }}
                 >
                   <Plus className="h-4 w-4" />
-                  {t('buttons.addContributor')}
+                  {t('startPage.addContributor')}
                 </Button>
               </div>
 
@@ -617,7 +618,7 @@ export default function Start360FeedbackPage() {
                       padding: '6px 12px'
                     }}
                   >
-                    {t('buttons.back')}
+                    {tCommon('back')}
                   </Button>
                   <Button
                     type="button"
@@ -630,7 +631,11 @@ export default function Start360FeedbackPage() {
                       padding: '6px 12px'
                     }}
                   >
-                    {isSubmitting ? t('buttons.processing') : t('buttons.startWithoutContributors')}
+                    {isSubmitting ? (
+                      <>{t('startPage.processing')}</>
+                    ) : (
+                      <>{t('startPage.startWithoutContributors')}</>
+                    )}
                   </Button>
                 </div>
                 <Button
@@ -639,11 +644,13 @@ export default function Start360FeedbackPage() {
                   className="bg-arise-gold hover:bg-arise-gold/90 flex flex-row items-center gap-2"
                 >
                   {isSubmitting ? (
-                    t('buttons.sending')
+                    <>{t('startPage.sending')}</>
                   ) : (
                     <>
                       <UserPlus className="h-4 w-4" />
-                      {t('buttons.sendInvitations')}
+                      {evaluators.length > 0 && evaluators.some(e => e.name.trim() && e.email.trim())
+                        ? t('startPage.sendInvitations')
+                        : t('startPage.startWithContributors')}
                     </>
                   )}
                 </Button>

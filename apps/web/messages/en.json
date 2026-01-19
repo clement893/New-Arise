@@ -197,23 +197,12 @@
           "invited": "Invited"
         },
         "startPage": {
-          "title": "Start a 360° Feedback Assessment",
-          "description": "Invite professionals to assess your leadership capabilities (optional). They will receive an email with thorough orientation and with a link to complete a form. You may add contributors later.",
-          "buttons": {
-            "back": "Back",
-            "startWithoutContributors": "Start without contributors",
-            "sendInvitations": "Send invitations and start",
-            "addContributor": "Add a contributor",
-            "processing": "Processing...",
-            "sending": "Sending..."
-          },
-          "success": {
-            "invitationsSent": "Invitations Sent!",
-            "assessmentCreated": "Assessment Created!",
-            "invitationsSentMessage": "Invitations have been sent {count, plural, one {to the contributor} other {to # contributors}}. You can now start your self-assessment.",
-            "assessmentCreatedMessage": "Your 360° assessment has been created. You can now start your self-assessment and add contributors later if you wish.",
-            "redirecting": "Redirecting..."
-          }
+          "startWithoutContributors": "Start without contributors",
+          "startWithContributors": "Start with contributors",
+          "sendInvitations": "Send invitations and start",
+          "processing": "Processing...",
+          "sending": "Sending...",
+          "addContributor": "Add a contributor"
         },
         "page": {
           "title": "My",
