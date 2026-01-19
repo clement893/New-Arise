@@ -455,7 +455,73 @@ export default function MBTIPDFUploadPage() {
                     <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
                     <div className="flex-1">
                       <p className="font-medium text-red-900 mb-1">Error</p>
-                      <p className="text-sm text-red-700">{error}</p>
+                      <p className="text-sm text-red-700 mb-3">{error}</p>
+                      
+                      {/* Show helpful alternatives if it's a 403/private profile error */}
+                      {(error.includes('403') || error.toLowerCase().includes('private') || error.toLowerCase().includes('forbidden')) && (
+                        <div className="mt-3 p-3 bg-white rounded border border-red-300">
+                          <p className="font-medium text-red-900 mb-2">
+                            {locale === 'fr' ? '💡 Solutions alternatives :' : '💡 Alternative solutions:'}
+                          </p>
+                          <div className="space-y-2 text-sm text-gray-700">
+                            <div className="flex items-start gap-2">
+                              <span className="font-bold text-red-600">1.</span>
+                              <div>
+                                <p className="font-medium">
+                                  {locale === 'fr' ? 'Rendre votre profil public' : 'Make your profile public'}
+                                </p>
+                                <p className="text-xs">
+                                  {locale === 'fr' 
+                                    ? 'Allez dans les paramètres de 16Personalities et activez "Profil Public"'
+                                    : 'Go to 16Personalities settings and enable "Public Profile"'}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <span className="font-bold text-red-600">2.</span>
+                              <div>
+                                <p className="font-medium">
+                                  {locale === 'fr' ? 'Télécharger le PDF manuellement' : 'Download PDF manually'}
+                                </p>
+                                <p className="text-xs">
+                                  {locale === 'fr' 
+                                    ? 'Téléchargez votre PDF depuis 16Personalities puis utilisez le bouton "Upload a PDF"'
+                                    : 'Download your PDF from 16Personalities then use the "Upload a PDF" button'}
+                                </p>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setInputMode('file')}
+                                  className="mt-2 text-xs"
+                                >
+                                  {locale === 'fr' ? '→ Passer au mode PDF' : '→ Switch to PDF mode'}
+                                </Button>
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <span className="font-bold text-red-600">3.</span>
+                              <div>
+                                <p className="font-medium">
+                                  {locale === 'fr' ? 'Prendre une capture d\'écran' : 'Take a screenshot'}
+                                </p>
+                                <p className="text-xs">
+                                  {locale === 'fr' 
+                                    ? 'Prenez une capture d\'écran de votre page de résultats et utilisez "Import from Image"'
+                                    : 'Take a screenshot of your results page and use "Import from Image"'}
+                                </p>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setInputMode('image')}
+                                  className="mt-2 text-xs"
+                                >
+                                  {locale === 'fr' ? '→ Passer au mode Image' : '→ Switch to Image mode'}
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -510,10 +576,29 @@ export default function MBTIPDFUploadPage() {
                 {locale === 'fr' ? 'Besoin d\'aide ?' : 'Need help?'}
               </h3>
               <div className="space-y-4 text-sm text-blue-800">
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                  <p className="font-semibold text-yellow-900 mb-2">
+                    {locale === 'fr' ? '⚠️ Profil Privé (Erreur 403)' : '⚠️ Private Profile (403 Error)'}
+                  </p>
+                  <p className="text-yellow-800 mb-2">
+                    {locale === 'fr' 
+                      ? 'Si vous obtenez une erreur "Access forbidden (403)", votre profil est privé. Vous devez le rendre public OU utiliser les options 2 ou 3 ci-dessous.'
+                      : 'If you get "Access forbidden (403)" error, your profile is private. You must make it public OR use options 2 or 3 below.'}
+                  </p>
+                  <p className="font-medium text-yellow-900">
+                    {locale === 'fr' ? 'Pour rendre votre profil public :' : 'To make your profile public:'}
+                  </p>
+                  <ol className="space-y-1 ml-4 list-decimal text-yellow-800">
+                    <li>{locale === 'fr' ? 'Allez sur 16personalities.com et connectez-vous' : 'Go to 16personalities.com and log in'}</li>
+                    <li>{locale === 'fr' ? 'Allez dans les paramètres de votre profil' : 'Go to your profile settings'}</li>
+                    <li>{locale === 'fr' ? 'Activez l\'option "Profil Public" ou "Public Profile"' : 'Enable the "Public Profile" option'}</li>
+                    <li>{locale === 'fr' ? 'Sauvegardez et réessayez' : 'Save and try again'}</li>
+                  </ol>
+                </div>
                 <div>
-                  <p className="font-medium mb-2">{locale === 'fr' ? 'Option 1 : Importer depuis URL (Recommandé)' : 'Option 1: Import from URL (Recommended)'}</p>
+                  <p className="font-medium mb-2">{locale === 'fr' ? 'Option 1 : Importer depuis URL (Profil Public Requis)' : 'Option 1: Import from URL (Public Profile Required)'}</p>
                   <ol className="space-y-1 ml-4 list-decimal">
-                    <li>{locale === 'fr' ? 'Connectez-vous à votre compte sur' : 'Log in to your account on'} <a href="https://www.16personalities.com" target="_blank" rel="noopener noreferrer" className="underline font-medium">16Personalities</a></li>
+                    <li>{locale === 'fr' ? 'Assurez-vous que votre profil est public (voir l\'avertissement ci-dessus)' : 'Make sure your profile is public (see warning above)'}</li>
                     <li>{locale === 'fr' ? 'Allez sur votre page de profil (ex: https://www.16personalities.com/profiles/6d65d1ec09592)' : 'Go to your profile page (e.g., https://www.16personalities.com/profiles/6d65d1ec09592)'}</li>
                     <li>{locale === 'fr' ? 'Copiez l\'URL complète depuis la barre d\'adresse' : 'Copy the complete URL from the address bar'}</li>
                     <li>{locale === 'fr' ? 'Collez l\'URL ici et cliquez sur "Importer depuis URL"' : 'Paste the URL here and click "Import from URL"'}</li>

@@ -19,8 +19,8 @@ interface Plan {
 }
 
 export function Step2_PlanSelection() {
-  const { setPlanId, setSelectedPlan: setStorePlan, setStep } = useRegistrationStore();
-  const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
+  const { setSelectedPlan: setStorePlan, setStep } = useRegistrationStore();
+  const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -87,24 +87,18 @@ export function Step2_PlanSelection() {
     loadPlans();
   }, []);
 
-  const handlePlanSelect = (planId: number) => {
-    const plan = plans.find(p => p.id === planId);
-    if (plan) {
-      setSelectedPlan(planId);
-      setPlanId(planId.toString());
-      // Save the full plan details to the store
-      setStorePlan({
-        id: plan.id,
-        name: plan.name,
-        description: plan.description,
-        amount: plan.amount,
-        currency: plan.currency,
-        interval: plan.interval,
-        interval_count: plan.interval_count,
-      });
-      // Automatically advance to next step
-      setStep(3);
-    }
+  const handlePlanSelect = (plan: Plan) => {
+    setSelectedPlanId(plan.id);
+    setStorePlan({
+      id: plan.id,
+      name: plan.name,
+      amount: plan.amount,
+      currency: plan.currency,
+      interval: plan.interval,
+      interval_count: plan.interval_count,
+    });
+    // Automatically advance to next step
+    setStep(3);
   };
 
   const handleBack = () => {
@@ -118,9 +112,15 @@ export function Step2_PlanSelection() {
   };
 
   const formatInterval = (plan: Plan) => {
-    if (plan.interval === 'MONTH' && plan.interval_count === 1) return '/month';
-    if (plan.interval === 'YEAR' && plan.interval_count === 1) return '/year';
-    return `/${plan.interval_count || 1} ${plan.interval.toLowerCase()}s`;
+    const interval = plan.interval?.toUpperCase();
+    const count = plan.interval_count || 1;
+    
+    if (interval === 'MONTH' && count === 1) return '/month';
+    if (interval === 'YEAR' && count === 1) return '/year';
+    if (interval === 'MONTH') return `/${count} months`;
+    if (interval === 'YEAR') return `/${count} years`;
+    
+    return `/${count} ${plan.interval?.toLowerCase()}${count > 1 ? 's' : ''}`;
   };
 
   const parseFeatures = (features: string | null | undefined): string[] => {
@@ -180,9 +180,9 @@ export function Step2_PlanSelection() {
             return (
               <div
                 key={plan.id}
-                onClick={() => handlePlanSelect(plan.id)}
+                onClick={() => handlePlanSelect(plan)}
                 className={`p-6 border-2 rounded-lg cursor-pointer transition-all duration-300 ${
-                  selectedPlan === plan.id
+                  selectedPlanId === plan.id
                     ? 'border-arise-gold bg-arise-light-beige'
                     : 'border-gray-200 hover:border-arise-deep-teal hover:rounded-lg'
                 } ${plan.is_popular ? 'ring-2 ring-arise-gold' : ''}`}
@@ -218,11 +218,11 @@ export function Step2_PlanSelection() {
                     )}
                   </div>
                   <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ml-4 self-center ${
-                    selectedPlan === plan.id
+                    selectedPlanId === plan.id
                       ? 'border-arise-gold bg-arise-gold'
                       : 'border-gray-300'
                   }`}>
-                    {selectedPlan === plan.id && (
+                    {selectedPlanId === plan.id && (
                       <Check className="w-4 h-4 text-white" />
                     )}
                   </div>

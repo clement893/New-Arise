@@ -130,6 +130,25 @@
           "inProgress": "En cours",
           "invited": "Invité"
         },
+        "startPage": {
+          "title": "Démarrer une évaluation Feedback 360°",
+          "description": "Invitez des professionnels à évaluer vos capacités de leadership (optionnel). Ils recevront un courriel avec une orientation complète et un lien pour remplir un formulaire. Vous pourrez ajouter des contributeurs plus tard.",
+          "buttons": {
+            "back": "Retour",
+            "startWithoutContributors": "Démarrer sans contributeurs",
+            "sendInvitations": "Envoyer les invitations et démarrer",
+            "addContributor": "Ajouter un contributeur",
+            "processing": "Traitement en cours...",
+            "sending": "Envoi en cours..."
+          },
+          "success": {
+            "invitationsSent": "Invitations envoyées !",
+            "assessmentCreated": "Évaluation créée !",
+            "invitationsSentMessage": "Les invitations ont été envoyées {count, plural, one {au contributeur} other {à # contributeurs}}. Vous pouvez maintenant commencer votre auto-évaluation.",
+            "assessmentCreatedMessage": "Votre évaluation 360° a été créée. Vous pouvez maintenant commencer votre auto-évaluation et ajouter des contributeurs plus tard si vous le souhaitez.",
+            "redirecting": "Redirection en cours..."
+          }
+        },
         "page": {
           "title": "Mes",
           "titleHighlight": "Contributeurs",
@@ -321,6 +340,61 @@
           },
           "errors": {
             "notFound": "Aucun résultat trouvé"
+          }
+        }
+      },
+      "mbti": {
+        "backToAssessments": "Retour aux assessments",
+        "pageTitle": {
+          "prefix": "MBTI",
+          "suffix": "Évaluation de la personnalité"
+        },
+        "pageSubtitle": "Découvrez votre type de personnalité unique et vos préférences",
+        "title": "Indicateur de Type Myers-Briggs (MBTI)",
+        "description": "L'évaluation MBTI vous aide à comprendre vos préférences de personnalité à travers quatre dimensions clés, fournissant des insights sur la façon dont vous interagissez avec le monde, traitez l'information, prenez des décisions et organisez votre vie.",
+        "howToProceed": {
+          "title": "Comment procéder",
+          "step1": "Cliquez sur le bouton ci-dessous pour accéder au test gratuit 16Personalities (basé sur les principes du MBTI)",
+          "step2": "Complétez l'évaluation honnêtement - il n'y a pas de bonnes ou de mauvaises réponses",
+          "step3": "Téléchargez votre profil de personnalité en PDF lorsque vous recevez vos résultats",
+          "step4": "Revenez ici et téléversez votre PDF pour l'intégrer à votre plan de développement ARISE"
+        },
+        "actions": {
+          "takeTest": "Passer le test de personnalité gratuit",
+          "completedTest": "J'ai déjà complété le test",
+          "readyToUpload": "Prêt à téléverser vos résultats",
+          "uploadPDF": "Téléverser vos résultats PDF",
+          "factsheetInstructions": {
+            "title": "Comment obtenir votre PDF :",
+            "step1": "Après avoir complété le test sur 16Personalities, faites défiler jusqu'au bas de votre page de résultats",
+            "step2": "Cherchez le bouton 'Télécharger en PDF' ou 'Enregistrer en PDF'",
+            "step3": "Enregistrez le PDF et revenez ici pour le téléverser"
+          }
+        },
+        "aboutMBTI": {
+          "title": "À propos de l'évaluation MBTI",
+          "fourDimensions": {
+            "title": "Quatre dimensions clés :",
+            "energy": {
+              "code": "E/I (Extraversion/Introversion)",
+              "description": "Où vous concentrez votre attention et puisez votre énergie"
+            },
+            "information": {
+              "code": "S/N (Sensation/Intuition)",
+              "description": "Comment vous recueillez l'information et percevez le monde"
+            },
+            "decisions": {
+              "code": "T/F (Pensée/Sentiment)",
+              "description": "Comment vous prenez des décisions et évaluez les situations"
+            },
+            "lifestyle": {
+              "code": "J/P (Jugement/Perception)",
+              "description": "Comment vous abordez la structure et l'organisation dans votre vie"
+            }
+          },
+          "personalityType": {
+            "title": "Votre type de personnalité",
+            "description": "La combinaison de vos préférences à travers ces quatre dimensions crée l'un des 16 types de personnalité uniques (par exemple, ENFP, ISTJ, etc.). Comprendre votre type peut vous aider à tirer parti de vos forces naturelles, améliorer la communication et développer les domaines de croissance."
           }
         }
       },

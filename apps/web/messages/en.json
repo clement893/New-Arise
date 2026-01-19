@@ -196,6 +196,25 @@
           "inProgress": "In Progress",
           "invited": "Invited"
         },
+        "startPage": {
+          "title": "Start a 360° Feedback Assessment",
+          "description": "Invite professionals to assess your leadership capabilities (optional). They will receive an email with thorough orientation and with a link to complete a form. You may add contributors later.",
+          "buttons": {
+            "back": "Back",
+            "startWithoutContributors": "Start without contributors",
+            "sendInvitations": "Send invitations and start",
+            "addContributor": "Add a contributor",
+            "processing": "Processing...",
+            "sending": "Sending..."
+          },
+          "success": {
+            "invitationsSent": "Invitations Sent!",
+            "assessmentCreated": "Assessment Created!",
+            "invitationsSentMessage": "Invitations have been sent {count, plural, one {to the contributor} other {to # contributors}}. You can now start your self-assessment.",
+            "assessmentCreatedMessage": "Your 360° assessment has been created. You can now start your self-assessment and add contributors later if you wish.",
+            "redirecting": "Redirecting..."
+          }
+        },
         "page": {
           "title": "My",
           "titleHighlight": "Contributors",
@@ -387,6 +406,61 @@
           },
           "errors": {
             "notFound": "No results found"
+          }
+        }
+      },
+      "mbti": {
+        "backToAssessments": "Back to Assessments",
+        "pageTitle": {
+          "prefix": "MBTI",
+          "suffix": "Personality Assessment"
+        },
+        "pageSubtitle": "Discover your unique personality type and preferences",
+        "title": "Myers-Briggs Type Indicator (MBTI)",
+        "description": "The MBTI assessment helps you understand your personality preferences across four key dimensions, providing insights into how you interact with the world, process information, make decisions, and organize your life.",
+        "howToProceed": {
+          "title": "How to Proceed",
+          "step1": "Click the button below to access the free 16Personalities test (based on MBTI principles)",
+          "step2": "Complete the assessment honestly - there are no right or wrong answers",
+          "step3": "Download your personality profile as a PDF when you receive your results",
+          "step4": "Return here and upload your PDF to integrate it with your ARISE development plan"
+        },
+        "actions": {
+          "takeTest": "Take the Free Personality Test",
+          "completedTest": "I've Already Completed the Test",
+          "readyToUpload": "Ready to Upload Your Results",
+          "uploadPDF": "Upload Your PDF Results",
+          "factsheetInstructions": {
+            "title": "How to Get Your PDF:",
+            "step1": "After completing the test on 16Personalities, scroll to the bottom of your results page",
+            "step2": "Look for the 'Download as PDF' or 'Save as PDF' button",
+            "step3": "Save the PDF and return here to upload it"
+          }
+        },
+        "aboutMBTI": {
+          "title": "About the MBTI Assessment",
+          "fourDimensions": {
+            "title": "Four Key Dimensions:",
+            "energy": {
+              "code": "E/I (Extraversion/Introversion)",
+              "description": "Where you focus your attention and get your energy"
+            },
+            "information": {
+              "code": "S/N (Sensing/Intuition)",
+              "description": "How you take in information and perceive the world"
+            },
+            "decisions": {
+              "code": "T/F (Thinking/Feeling)",
+              "description": "How you make decisions and evaluate situations"
+            },
+            "lifestyle": {
+              "code": "J/P (Judging/Perceiving)",
+              "description": "How you approach structure and organization in your life"
+            }
+          },
+          "personalityType": {
+            "title": "Your Personality Type",
+            "description": "The combination of your preferences across these four dimensions creates one of 16 unique personality types (e.g., ENFP, ISTJ, etc.). Understanding your type can help you leverage your natural strengths, improve communication, and develop areas for growth."
           }
         }
       },
@@ -851,7 +925,7 @@
       },
       "coaching": {
         "title": "Ready to accelerate your growth?",
-        "description": "Connect with expert ARISE coaches who specialize in leadership development. Schedule your FREE coaching session to debrief your results and build a personalized development plan.",
+        "description": "Connect with expert ARISE coaches who specialize in leadership development. Schedule your FREE coaching session to debrief your results and build a personalized personal growth plan.",
         "exploreOptions": "Explore coaching options →",
         "imageAlt": "Coaching session"
       },
@@ -934,7 +1008,7 @@
           "features": {
             "0": "6 sessions of 60 minutes",
             "1": "Continuous progress tracking",
-            "2": "Personalized development plan",
+            "2": "Personalized personal growth plan",
             "3": "Access to resource library",
             "4": "Email support between sessions",
             "5": "Monthly progress reports"
@@ -947,7 +1021,7 @@
           "features": {
             "0": "12 sessions of 60 minutes",
             "1": "Intensive and personalized support",
-            "2": "Strategic development plan",
+            "2": "Strategic personal growth plan",
             "3": "Priority access to premium resources",
             "4": "Unlimited email support",
             "5": "Detailed quarterly reports",
@@ -1288,7 +1362,7 @@
       "resetButton": "Reset All Assessments",
       "cta": {
         "title": "Ready to accelerate your growth?",
-        "description": "Connect with expert ARISE coaches who specialize in leadership development. Schedule your FREE coaching session to debrief your results and build a personalized development plan.",
+        "description": "Connect with expert ARISE coaches who specialize in leadership development. Schedule your FREE coaching session to debrief your results and build a personalized personal growth plan.",
         "button": "Explore coaching options →",
         "imageAlt": "Coaching session"
       }
@@ -1409,7 +1483,7 @@
             ]
           },
           "teamBuilding": {
-            "html": "<h2>Workshop Overview</h2><p>This intensive, interactive workshop brings together leadership principles and practical team-building activities. You'll leave with actionable strategies and a deeper understanding of what makes teams successful.</p><h2>Workshop Agenda</h2><h3>Session 1: Understanding Team Dynamics (45 minutes)</h3><ul><li>Stages of team development (Forming, Storming, Norming, Performing)</li><li>Identifying your team's current stage</li><li>Common team challenges and how to address them</li><li>Interactive activity: Team dynamics assessment</li></ul><h3>Session 2: Building Trust (45 minutes)</h3><ul><li>The foundation of trust in teams</li><li>Trust-building exercises</li><li>Repairing broken trust</li><li>Interactive activity: Trust walk and debrief</li></ul><h3>Session 3: Communication and Collaboration (45 minutes)</h3><ul><li>Effective team communication patterns</li><li>Collaborative problem-solving techniques</li><li>Managing conflicts within teams</li><li>Interactive activity: Team challenge exercise</li></ul><h3>Session 4: Action Planning (45 minutes)</h3><ul><li>Creating a team development plan</li><li>Setting team goals and metrics</li><li>Establishing team norms and agreements</li><li>Interactive activity: Team charter creation</li></ul><h2>Learning Objectives</h2><ul><li>Understand the stages of team development</li><li>Learn practical team-building activities</li><li>Develop skills to build and maintain trust</li><li>Create an actionable team development plan</li></ul><h2>Who Should Attend</h2><ul><li>Team leaders and managers</li><li>Project managers</li><li>HR professionals</li><li>Anyone responsible for team performance</li></ul><h2>What's Included</h2><ul><li>Interactive workshop session</li><li>Team assessment tools</li><li>Resource materials and templates</li><li>Certificate of participation</li><li>Follow-up support session</li></ul>",
+            "html": "<h2>Workshop Overview</h2><p>This intensive, interactive workshop brings together leadership principles and practical team-building activities. You'll leave with actionable strategies and a deeper understanding of what makes teams successful.</p><h2>Workshop Agenda</h2><h3>Session 1: Understanding Team Dynamics (45 minutes)</h3><ul><li>Stages of team development (Forming, Storming, Norming, Performing)</li><li>Identifying your team's current stage</li><li>Common team challenges and how to address them</li><li>Interactive activity: Team dynamics assessment</li></ul><h3>Session 2: Building Trust (45 minutes)</h3><ul><li>The foundation of trust in teams</li><li>Trust-building exercises</li><li>Repairing broken trust</li><li>Interactive activity: Trust walk and debrief</li></ul><h3>Session 3: Communication and Collaboration (45 minutes)</h3><ul><li>Effective team communication patterns</li><li>Collaborative problem-solving techniques</li><li>Managing conflicts within teams</li><li>Interactive activity: Team challenge exercise</li></ul><h3>Session 4: Action Planning (45 minutes)</h3><ul><li>Creating a team personal growth plan</li><li>Setting team goals and metrics</li><li>Establishing team norms and agreements</li><li>Interactive activity: Team charter creation</li></ul><h2>Learning Objectives</h2><ul><li>Understand the stages of team development</li><li>Learn practical team-building activities</li><li>Develop skills to build and maintain trust</li><li>Create an actionable team personal growth plan</li></ul><h2>Who Should Attend</h2><ul><li>Team leaders and managers</li><li>Project managers</li><li>HR professionals</li><li>Anyone responsible for team performance</li></ul><h2>What's Included</h2><ul><li>Interactive workshop session</li><li>Team assessment tools</li><li>Resource materials and templates</li><li>Certificate of participation</li><li>Follow-up support session</li></ul>",
             "keyPoints": [
               "Teams go through predictable development stages",
               "Trust is the foundation of high-performing teams",
@@ -1429,7 +1503,7 @@
       },
       "cta": {
         "title": "Ready to accelerate your growth?",
-        "description": "Connect with expert ARISE coaches who specialize in leadership development. Schedule your FREE coaching session to debrief your results and build a personalized development plan.",
+        "description": "Connect with expert ARISE coaches who specialize in leadership development. Schedule your FREE coaching session to debrief your results and build a personalized personal growth plan.",
         "button": "Explore coaching options →",
         "imageAlt": "Coaching session"
       }
@@ -1594,7 +1668,7 @@
           }
         },
         "goal": {
-          "label": "What is your main goal with a leadership development plan?",
+          "label": "What is your main goal with a leadership personal growth plan?",
           "options": {
             "improveLeadership": "Improve Leadership Skills",
             "careerAdvancement": "Career Advancement",
@@ -3204,7 +3278,7 @@
       "items": [
         "Personality and behavioral assessments (MBTI, TKI, 360° Feedback, Wellness)",
         "Personalized leadership profiles and insights",
-        "Development plans and recommendations",
+        "Personal growth plans and recommendations",
         "Coaching services and resources",
         "Progress tracking and reporting tools"
       ]

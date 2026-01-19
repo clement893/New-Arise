@@ -27,7 +27,7 @@ interface Plan {
 }
 
 function PaymentFormContent() {
-  const { planId, setStep } = useRegistrationStore();
+  const { planId, selectedPlan: storePlan, setStep } = useRegistrationStore();
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -80,6 +80,22 @@ function PaymentFormContent() {
   // Load plan details
   useEffect(() => {
     const loadPlan = async () => {
+      // First, try to use the plan from the store if available
+      if (storePlan) {
+        setSelectedPlan({
+          id: storePlan.id,
+          name: storePlan.name,
+          amount: storePlan.amount,
+          currency: storePlan.currency,
+          interval: storePlan.interval,
+          interval_count: storePlan.interval_count,
+          is_active: true,
+        });
+        setLoadingPlan(false);
+        return;
+      }
+
+      // Fallback to loading from API if not in store
       if (!planId) {
         setError('No plan selected. Please go back and select a plan.');
         setLoadingPlan(false);
@@ -117,7 +133,7 @@ function PaymentFormContent() {
     };
 
     loadPlan();
-  }, [planId]);
+  }, [planId, storePlan]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

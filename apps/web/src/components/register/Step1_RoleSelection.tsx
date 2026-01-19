@@ -45,7 +45,7 @@ export function Step1_RoleSelection() {
           <button
             key={role.id}
             onClick={() => handleRoleSelect(role.id)}
-            className="group relative bg-white rounded-lg shadow-xl p-4 border-2 border-gray-200 hover:border-arise-gold transition-all duration-300 text-left flex flex-col overflow-hidden isolate"
+            className="group relative bg-white rounded-lg shadow-xl p-4 border-2 border-gray-200 hover:border-arise-gold transition-all duration-300 text-left flex flex-col overflow-hidden"
           >
             {/* Hover overlay */}
             <div className="absolute inset-0 bg-arise-deep-teal/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 rounded-lg" />
