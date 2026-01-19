@@ -58,10 +58,10 @@ export function Step1_RoleSelection() {
               >
                 <role.icon className="w-8 h-8" style={{ color: '#0F4C56' }} />
               </div>
-              <h3 className="text-xl font-bold text-arise-deep-teal mb-2 group-hover:text-white transition-colors duration-300">
+              <h3 className="text-xl font-bold text-arise-deep-teal mb-2 group-hover:text-black/40 transition-colors duration-300">
                 {role.title}
               </h3>
-              <p className="text-gray-600 group-hover:text-white transition-colors duration-300">
+              <p className="text-gray-600 group-hover:text-black/40 transition-colors duration-300">
                 {role.description}
               </p>
             </div>

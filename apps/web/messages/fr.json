@@ -131,23 +131,12 @@
           "invited": "Invité"
         },
         "startPage": {
-          "title": "Démarrer une évaluation Feedback 360°",
-          "description": "Invitez des professionnels à évaluer vos capacités de leadership (optionnel). Ils recevront un courriel avec une orientation complète et un lien pour remplir un formulaire. Vous pourrez ajouter des contributeurs plus tard.",
-          "buttons": {
-            "back": "Retour",
-            "startWithoutContributors": "Démarrer sans contributeurs",
-            "sendInvitations": "Envoyer les invitations et démarrer",
-            "addContributor": "Ajouter un contributeur",
-            "processing": "Traitement en cours...",
-            "sending": "Envoi en cours..."
-          },
-          "success": {
-            "invitationsSent": "Invitations envoyées !",
-            "assessmentCreated": "Évaluation créée !",
-            "invitationsSentMessage": "Les invitations ont été envoyées {count, plural, one {au contributeur} other {à # contributeurs}}. Vous pouvez maintenant commencer votre auto-évaluation.",
-            "assessmentCreatedMessage": "Votre évaluation 360° a été créée. Vous pouvez maintenant commencer votre auto-évaluation et ajouter des contributeurs plus tard si vous le souhaitez.",
-            "redirecting": "Redirection en cours..."
-          }
+          "startWithoutContributors": "Commencer sans contributeurs",
+          "startWithContributors": "Commencer avec contributeurs",
+          "sendInvitations": "Envoyer les invitations et commencer",
+          "processing": "Traitement...",
+          "sending": "Envoi...",
+          "addContributor": "Ajouter un contributeur"
         },
         "page": {
           "title": "Mes",

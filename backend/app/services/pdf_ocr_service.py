@@ -1193,8 +1193,12 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                 return await self._extract_mbti_with_openai_text(html_content)
             
             # Parse HTML with BeautifulSoup
+            logger.info("Starting HTML parsing with BeautifulSoup...")
             soup = BeautifulSoup(html_content, 'lxml')
-            logger.info("HTML parsed with BeautifulSoup")
+            logger.info(f"HTML parsed successfully. Document title: {soup.title.string if soup.title else 'No title'}")
+            
+            # Save first 2000 chars of HTML for debugging
+            logger.debug(f"HTML preview (first 2000 chars):\n{html_content[:2000]}")
             
             # Extract structured data from the page
             extracted_info = {
@@ -1307,6 +1311,19 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
             
             logger.info(f"Found {len(extracted_info['images'])} relevant images")
             
+            # Log extraction summary
+            logger.info(f"Extraction summary:")
+            logger.info(f"  - Text content length: {len(extracted_info['text_content'])} chars")
+            logger.info(f"  - Structured data keys: {list(extracted_info['structured_data'].keys())}")
+            logger.info(f"  - Images found: {len(extracted_info['images'])}")
+            logger.info(f"  - Text preview (first 500 chars): {extracted_info['text_content'][:500]}")
+            
+            # Check if we have sufficient content
+            if len(extracted_info['text_content']) < 100 and not extracted_info['structured_data']:
+                logger.warning("Very little content extracted from HTML, likely JavaScript-rendered page")
+                logger.info("Attempting direct text extraction fallback")
+                return await self._extract_mbti_with_openai_text(html_content)
+            
             # 7. Use OpenAI to analyze the extracted content
             logger.info("Analyzing extracted content with OpenAI")
             result = await self._analyze_extracted_content_with_openai(extracted_info, client)
@@ -1316,7 +1333,7 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
         except Exception as e:
             logger.error(f"Error parsing HTML for MBTI: {e}", exc_info=True)
             # Fallback to simple text-based extraction
-            logger.info("Falling back to simple text-based extraction")
+            logger.info("Falling back to simple text-based extraction due to error")
             return await self._extract_mbti_with_openai_text(html_content)
     
     async def _analyze_extracted_content_with_openai(self, extracted_info: Dict[str, Any], client: httpx.AsyncClient) -> Dict[str, Any]:
@@ -1334,6 +1351,8 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
             # Prepare the content for OpenAI
             text_content = extracted_info.get('text_content', '')
             structured_data = extracted_info.get('structured_data', {})
+            
+            logger.info(f"Preparing OpenAI analysis with {len(text_content)} chars of text and {len(structured_data)} data keys")
             
             # Build comprehensive prompt
             prompt = f"""Analyze the following content from a 16Personalities profile page and extract MBTI information.
@@ -1398,22 +1417,30 @@ Important:
             # Extract response
             content = response.choices[0].message.content.strip()
             logger.info(f"OpenAI response received ({len(content)} characters)")
+            logger.debug(f"OpenAI response content:\n{content}")
             
             # Parse JSON response
             import json
             # Remove markdown code blocks if present
             if content.startswith('```'):
+                logger.debug("Removing markdown code block delimiters")
                 content = re.sub(r'^```(?:json)?\n?', '', content)
                 content = re.sub(r'\n?```$', '', content)
             
-            result = json.loads(content)
-            logger.info(f"Successfully parsed MBTI data: {result.get('mbti_type', 'unknown')}")
+            try:
+                result = json.loads(content)
+                logger.info(f"Successfully parsed MBTI data: {result.get('mbti_type', 'unknown')}")
+                logger.debug(f"Full extracted data: {result}")
+                return result
+            except json.JSONDecodeError as json_err:
+                logger.error(f"JSON parsing failed. Content was:\n{content}")
+                raise ValueError(f"OpenAI returned invalid JSON: {str(json_err)}")
             
-            return result
-            
+        except ValueError:
+            raise
         except Exception as e:
             logger.error(f"Error analyzing content with OpenAI: {e}", exc_info=True)
-            raise ValueError(f"Failed to analyze content: {str(e)}")
+            raise ValueError(f"Failed to analyze content with AI: {str(e)}")
     
     async def _extract_mbti_with_openai_text(self, html_or_text: str) -> Dict[str, Any]:
         """
@@ -1426,18 +1453,29 @@ Important:
             Dictionary containing MBTI results
         """
         try:
+            logger.info("Starting fallback text extraction with OpenAI")
+            
             # Clean up HTML if needed
             text = html_or_text
-            if '<html' in text.lower() or '<!doctype' in text.lower():
+            is_html = '<html' in text.lower() or '<!doctype' in text.lower()
+            
+            if is_html:
+                logger.info("Content appears to be HTML, performing cleanup...")
                 # Try basic cleanup
                 import re
                 text = re.sub(r'<script[^>]*>.*?</script>', '', text, flags=re.DOTALL | re.IGNORECASE)
                 text = re.sub(r'<style[^>]*>.*?</style>', '', text, flags=re.DOTALL | re.IGNORECASE)
                 text = re.sub(r'<[^>]+>', ' ', text)
                 text = re.sub(r'\s+', ' ', text).strip()
+                logger.info(f"HTML cleanup complete. Text length: {len(text)} chars")
             
             # Limit text length
+            original_length = len(text)
             text = text[:10000]
+            if original_length > 10000:
+                logger.info(f"Text truncated from {original_length} to 10000 chars")
+            
+            logger.debug(f"Text preview for AI analysis (first 500 chars):\n{text[:500]}")
             
             prompt = f"""Analyze this content from a 16Personalities profile and extract MBTI information.
 
@@ -1466,6 +1504,7 @@ Extract and return ONLY a valid JSON object (no markdown, no code blocks):
 
 Return only the JSON, nothing else."""
 
+            logger.info("Calling OpenAI for fallback text extraction...")
             response = await self.client.chat.completions.create(
                 model=self.model,
                 messages=[
@@ -1477,21 +1516,30 @@ Return only the JSON, nothing else."""
             )
             
             content = response.choices[0].message.content.strip()
+            logger.info(f"OpenAI fallback response received ({len(content)} characters)")
+            logger.debug(f"OpenAI fallback response:\n{content}")
             
             # Parse JSON
             import json
             if content.startswith('```'):
+                logger.debug("Removing markdown code block delimiters from fallback response")
                 content = re.sub(r'^```(?:json)?\n?', '', content)
                 content = re.sub(r'\n?```$', '', content)
             
-            result = json.loads(content)
-            logger.info(f"Extracted MBTI data: {result.get('mbti_type', 'unknown')}")
+            try:
+                result = json.loads(content)
+                logger.info(f"Fallback extraction successful! MBTI type: {result.get('mbti_type', 'unknown')}")
+                logger.debug(f"Full fallback result: {result}")
+                return result
+            except json.JSONDecodeError as json_err:
+                logger.error(f"Fallback JSON parsing failed. Content was:\n{content}")
+                raise ValueError(f"OpenAI fallback returned invalid JSON: {str(json_err)}")
             
-            return result
-            
+        except ValueError:
+            raise
         except Exception as e:
             logger.error(f"Error in fallback extraction: {e}", exc_info=True)
-            raise ValueError(f"Failed to extract MBTI data: {str(e)}")
+            raise ValueError(f"Failed to extract MBTI data from content: {str(e)}")
 
     @staticmethod
     def is_configured() -> bool:

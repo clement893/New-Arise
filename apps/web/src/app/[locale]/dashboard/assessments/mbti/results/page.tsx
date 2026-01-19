@@ -13,7 +13,6 @@ import { getAssessmentResults, AssessmentResult } from '@/lib/api/assessments';
 import { mbtiTypes } from '@/data/mbtiQuestions';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
-import { Sidebar } from '@/components/dashboard/Sidebar';
 import MotionDiv from '@/components/motion/MotionDiv';
 import RecommendationCard from '@/components/assessments/RecommendationCard';
 import { ArrowLeft, Download, Brain, FileText, Upload } from 'lucide-react';
@@ -134,13 +133,10 @@ export default function MBTIResultsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">
-        <Sidebar />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">{t('loading')}</p>
-          </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">{t('loading')}</p>
         </div>
       </div>
     );
@@ -154,59 +150,29 @@ export default function MBTIResultsPage() {
     if (isNotFound || (!results && !isLoading)) {
       // Results don't exist - show upload page option
       return (
-        <div className="min-h-screen bg-gray-50 flex">
-          <Sidebar />
-          <div className="flex-1 flex items-center justify-center">
-            <Card className="max-w-md">
-              <div className="p-6 text-center">
-                <FileText className="w-16 h-16 text-purple-600 mx-auto mb-4" />
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  {t('notFound.title')}
-                </h2>
-                <p className="text-gray-600 mb-6">
-                  {t('notFound.description')}
-                </p>
-                <div className="flex flex-col gap-3">
-                  <Button 
-                    variant="arise-primary"
-                    onClick={() => router.push('/dashboard/assessments/mbti/upload')}
-                    className="w-full"
-                  >
-                    <Upload className="w-4 h-4 mr-2" />
-                    {t('notFound.uploadButton')}
-                  </Button>
-                  <Button 
-                    variant="primary" 
-                    onClick={() => router.push('/dashboard/assessments')}
-                    className="w-full"
-                    style={{ backgroundColor: '#0F4C56', color: '#fff' }}
-                  >
-                    {t('backToAssessments')}
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          </div>
-        </div>
-      );
-    }
-    
-    // Other errors
-    const errorString = typeof error === 'string' ? error : formatError(error || t('errors.notFound'));
-    return (
-      <div className="min-h-screen bg-gray-50 flex">
-        <Sidebar />
-        <div className="flex-1 flex items-center justify-center">
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <Card className="max-w-md">
             <div className="p-6 text-center">
-              <p className="text-red-600 mb-4">{errorString}</p>
-                <div className="flex flex-col gap-2">
-                <Button onClick={() => router.push('/dashboard/assessments/mbti/upload')}>
+              <FileText className="w-16 h-16 text-purple-600 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                {t('notFound.title')}
+              </h2>
+              <p className="text-gray-600 mb-6">
+                {t('notFound.description')}
+              </p>
+              <div className="flex flex-col gap-3">
+                <Button 
+                  variant="arise-primary"
+                  onClick={() => router.push('/dashboard/assessments/mbti/upload')}
+                  className="w-full"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
                   {t('notFound.uploadButton')}
                 </Button>
                 <Button 
                   variant="primary" 
                   onClick={() => router.push('/dashboard/assessments')}
+                  className="w-full"
                   style={{ backgroundColor: '#0F4C56', color: '#fff' }}
                 >
                   {t('backToAssessments')}
@@ -215,6 +181,30 @@ export default function MBTIResultsPage() {
             </div>
           </Card>
         </div>
+      );
+    }
+    
+    // Other errors
+    const errorString = typeof error === 'string' ? error : formatError(error || t('errors.notFound'));
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="max-w-md">
+          <div className="p-6 text-center">
+            <p className="text-red-600 mb-4">{errorString}</p>
+              <div className="flex flex-col gap-2">
+              <Button onClick={() => router.push('/dashboard/assessments/mbti/upload')}>
+                {t('notFound.uploadButton')}
+              </Button>
+              <Button 
+                variant="primary" 
+                onClick={() => router.push('/dashboard/assessments')}
+                style={{ backgroundColor: '#0F4C56', color: '#fff' }}
+              >
+                {t('backToAssessments')}
+              </Button>
+            </div>
+          </div>
+        </Card>
       </div>
     );
   }
@@ -231,11 +221,8 @@ export default function MBTIResultsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
-
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-6xl mx-auto p-8">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-6xl mx-auto p-8">
           {/* Header */}
           <MotionDiv variant="slideUp" duration="normal" className="mb-8">
             <Button
@@ -630,7 +617,6 @@ export default function MBTIResultsPage() {
             </Card>
           </MotionDiv>
         </div>
-      </div>
     </div>
   );
 }
