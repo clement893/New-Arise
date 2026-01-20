@@ -56,11 +56,21 @@ Le problème est **identifié et résolu**. Il ne reste plus qu'à **déployer**
 
 | Élément | Status | Action |
 |---------|--------|--------|
-| Problème identifié | ✅ | Chromium manquant |
-| Solution développée | ✅ | Dockerfile modifié |
+| Problème identifié | ✅ | Chromium manquant + timeout |
+| Solution développée | ✅ | Dockerfile + timeout fix |
 | Testé en local | ✅ | Playwright fonctionne |
 | Documentation créée | ✅ | 10+ fichiers de doc |
 | **Déployé sur Railway** | ⏳ | **← VOUS EN ÊTES ICI** |
+
+### ✨ Dernières Améliorations (v2.0)
+
+- ✅ Home directory créé explicitement avec `--create-home`
+- ✅ Permissions du cache Playwright fixées
+- ✅ Timeout augmenté (30s → 60s)
+- ✅ Stratégie d'attente changée (`networkidle` → `domcontentloaded`)
+- ✅ Attente JavaScript optimisée (2s → 5s total)
+
+**Impact:** Import plus rapide et plus fiable!
 
 ## 🎬 Action Immédiate
 

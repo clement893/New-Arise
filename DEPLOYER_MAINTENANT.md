@@ -8,14 +8,15 @@ git status
 
 # 2. Ajouter les fichiers modifiés
 git add backend/Dockerfile
+git add backend/app/services/pdf_ocr_service.py
 git add DEPLOYER_FIX_MBTI_RAILWAY.md
 git add ACTIONS_REQUISES_MBTI.md
 git add FIX_MBTI_RESUME.md
 git add INDEX_FIX_MBTI.md
 git add DEPLOYER_MAINTENANT.md
+git add START_HERE_MBTI.md
 git add backend/scripts/test_mbti_url_production.py
 git add backend/scripts/check_playwright.py
-git add backend/app/services/pdf_ocr_service.py
 git add LISEZ_MOI_MBTI.md
 git add TEST_MBTI_URL_FIX.md
 git add GUIDE_RESOLUTION_MBTI_URL.md
@@ -23,16 +24,23 @@ git add MBTI_URL_FIX_SUMMARY.md
 git add README_MBTI_FIX.md
 
 # 3. Commiter
-git commit -m "fix(backend): Install Playwright browsers in Docker for MBTI URL import
+git commit -m "fix(backend): Install Playwright browsers and fix timeout for MBTI URL import
 
 - Install Chromium as appuser in runner stage of Dockerfile
+- Create home directory with --create-home flag for appuser
+- Create and set permissions on Playwright cache directory
 - Set PLAYWRIGHT_BROWSERS_PATH environment variable
+- Change page.goto wait strategy from 'networkidle' to 'domcontentloaded'
+- Increase timeout from 30s to 60s to handle slower responses
 - Improve MBTI score extraction with better regex patterns
 - Add clear error messages with installation instructions
 - Create diagnostic scripts for local and production testing
 - Add comprehensive documentation and deployment guides
 
-Fixes: MBTI URL import failing on Railway with 'Executable doesn't exist' error
+Fixes: 
+- MBTI URL import failing on Railway with 'Executable doesn't exist' error
+- Timeout errors on page.goto with networkidle strategy
+
 Tested: Playwright works locally, requires redeploy for production
 Impact: Enables MBTI profile import from 16Personalities URLs on production
 

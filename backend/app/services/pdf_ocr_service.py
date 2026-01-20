@@ -1216,20 +1216,25 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                     await page.set_viewport_size({"width": 1920, "height": 1080})
                     
                     # Navigate to URL
+                    # Use 'domcontentloaded' instead of 'networkidle' as 16Personalities
+                    # has continuous network requests that prevent networkidle from triggering
                     logger.info("Navigating to URL...")
-                    await page.goto(url, wait_until="networkidle", timeout=30000)
+                    await page.goto(url, wait_until="domcontentloaded", timeout=60000)
                     
-                    # Wait a bit more for any lazy-loaded content
-                    logger.info("Waiting for content to load...")
-                    await page.wait_for_timeout(2000)
+                    # Wait for JavaScript to render content
+                    logger.info("Waiting for JavaScript to render content...")
+                    await page.wait_for_timeout(3000)
                     
                     # Try to wait for specific content indicators
                     try:
-                        # Wait for personality type to be visible
-                        await page.wait_for_selector('text=/[IE][NS][TF][JP]/', timeout=5000)
-                        logger.info("Personality type detected on page")
+                        # Wait for main content to be visible (body with text)
+                        await page.wait_for_selector('body', timeout=5000)
+                        logger.info("Page body detected")
+                        
+                        # Wait a bit more for dynamic content
+                        await page.wait_for_timeout(2000)
                     except:
-                        logger.warning("Could not detect personality type selector, continuing anyway")
+                        logger.warning("Could not detect page body, continuing anyway")
                     
                     # Get the fully rendered HTML
                     html_content = await page.content()

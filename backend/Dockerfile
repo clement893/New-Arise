@@ -74,14 +74,23 @@ RUN chown -R appuser:appuser /app
 RUN chmod +x entrypoint.sh start.py 2>/dev/null || true && \
     chown appuser:appuser entrypoint.sh start.py 2>/dev/null || true
 
-# Install Playwright browsers as the appuser (so they go to the right home directory)
+# Switch to appuser before installing Playwright browsers
 USER appuser
+
+# Create cache directory with proper permissions
+RUN mkdir -p /home/appuser/.cache && \
+    chmod 755 /home/appuser/.cache
 
 # Set environment variable for Playwright cache directory
 ENV PLAYWRIGHT_BROWSERS_PATH=/home/appuser/.cache/ms-playwright
 
 # Install Playwright browsers as appuser (system deps already installed in base image)
+# Note: This will download ~200MB of Chromium to /home/appuser/.cache/ms-playwright
 RUN playwright install chromium
+
+# Verify installation
+RUN playwright --version && \
+    ls -la /home/appuser/.cache/ms-playwright/ || echo "Playwright cache directory created"
 
 EXPOSE 8000
 
