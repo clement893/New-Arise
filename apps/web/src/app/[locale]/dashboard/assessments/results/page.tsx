@@ -13,7 +13,6 @@ import { assessmentsApi, AssessmentResult, PillarScore } from '@/lib/api/assessm
 import { wellnessPillars } from '@/data/wellnessQuestionsReal';
 import { ArrowLeft, TrendingUp } from 'lucide-react';
 import { formatError } from '@/lib/utils/formatError';
-import { useToast } from '@/components/ui';
 import WellnessRadarChart from '@/components/assessments/charts/WellnessRadarChart';
 
 function AssessmentResultsContent() {
@@ -26,7 +25,6 @@ function AssessmentResultsContent() {
   const [results, setResults] = useState<AssessmentResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { showToast } = useToast();
 
   useEffect(() => {
     if (assessmentId) {
