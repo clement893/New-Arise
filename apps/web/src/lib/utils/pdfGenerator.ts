@@ -99,22 +99,6 @@ export const generateAssessmentPDF = async (assessment: AssessmentForPDF): Promi
         });
         yPos += 5;
       }
-      
-      // Dimensions (overall scores if available)
-      if (scores.dimensions) {
-        doc.text('Dimensions:', 20, yPos);
-        yPos += 7;
-        Object.entries(scores.dimensions).forEach(([dimension, dimScores]) => {
-          if (typeof dimScores === 'object' && dimScores !== null) {
-            const formattedScores = Object.entries(dimScores)
-              .map(([letter, value]) => `${letter}: ${value}%`)
-              .join(', ');
-            doc.text(`  ${dimension}: ${formattedScores}`, 25, yPos);
-            yPos += 6;
-          }
-        });
-        yPos += 5;
-      }
     }
 
     // TKI Results
