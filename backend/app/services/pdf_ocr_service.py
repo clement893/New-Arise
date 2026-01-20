@@ -1117,10 +1117,9 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
         Extract MBTI results by fetching and parsing HTML from a 16Personalities profile URL
         
         This method:
-        1. Tries Playwright first (for JavaScript-rendered pages)
-        2. Falls back to direct HTTP fetch if Playwright unavailable
-        3. Parses the HTML to extract text and images
-        4. Uses OpenAI to analyze the content and extract MBTI information
+        1. Uses Playwright headless browser (REQUIRED for JavaScript-rendered pages)
+        2. Parses the HTML to extract text and images
+        3. Uses OpenAI to analyze the content and extract MBTI information
         
         Args:
             url: The 16Personalities profile URL
@@ -1136,52 +1135,47 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
             if '16personalities.com' not in url.lower():
                 raise ValueError(f"Invalid 16Personalities URL. Must be a 16personalities.com URL. Got: {url}")
             
-            # Try Playwright first for JavaScript-rendered pages
-            if PLAYWRIGHT_AVAILABLE:
-                logger.info("Playwright available, using headless browser to load JavaScript content...")
-                try:
-                    html_content = await self._fetch_html_with_playwright(url)
-                    if html_content:
-                        logger.info(f"Successfully fetched HTML with Playwright ({len(html_content)} characters)")
-                        async with httpx.AsyncClient(timeout=httpx.Timeout(60.0)) as client:
-                            extracted_data = await self._parse_html_for_mbti(html_content, url, client)
-                            return extracted_data
-                except Exception as pw_error:
-                    logger.warning(f"Playwright failed: {pw_error}, falling back to direct HTTP fetch")
-            else:
-                logger.info("Playwright not available, using direct HTTP fetch (may not work for JavaScript-rendered pages)")
+            # 16Personalities uses Cloudflare protection and requires JavaScript rendering
+            # Playwright is REQUIRED, not optional
+            if not PLAYWRIGHT_AVAILABLE:
+                raise ValueError(
+                    "Unable to access 16Personalities profiles. The site requires JavaScript rendering which needs Playwright. "
+                    "Please install Playwright by running: pip install playwright && playwright install chromium"
+                )
             
-            # Fallback: Direct HTTP fetch
-            async with httpx.AsyncClient(
-                timeout=httpx.Timeout(60.0, connect=10.0),
-                follow_redirects=True,
-                headers={
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                    'Accept-Language': 'en-US,en;q=0.9',
-                    'Accept-Encoding': 'gzip, deflate, br',
-                    'DNT': '1',
-                    'Connection': 'keep-alive',
-                    'Upgrade-Insecure-Requests': '1',
-                }
-            ) as client:
-                logger.info(f"Fetching HTML from: {url}")
-                response = await client.get(url)
+            logger.info("Using Playwright headless browser to load JavaScript content...")
+            try:
+                html_content = await self._fetch_html_with_playwright(url)
+                if not html_content:
+                    raise ValueError("Failed to fetch HTML content with Playwright")
                 
-                if response.status_code == 404:
-                    raise ValueError(f"Profile not found (404). The profile may be private or the URL is incorrect: {url}")
-                if response.status_code == 403:
-                    raise ValueError(f"Access forbidden (403). The profile is private and requires authentication.")
-                if response.status_code != 200:
-                    raise ValueError(f"Failed to access profile URL: HTTP {response.status_code}")
+                logger.info(f"Successfully fetched HTML with Playwright ({len(html_content)} characters)")
                 
-                html_content = response.text
-                logger.info(f"Successfully fetched HTML content ({len(html_content)} characters)")
+                async with httpx.AsyncClient(timeout=httpx.Timeout(60.0)) as client:
+                    extracted_data = await self._parse_html_for_mbti(html_content, url, client)
+                    return extracted_data
+                    
+            except Exception as pw_error:
+                logger.error(f"Playwright error: {pw_error}", exc_info=True)
                 
-                # Parse HTML to extract MBTI information
-                extracted_data = await self._parse_html_for_mbti(html_content, url, client)
-                
-                return extracted_data
+                # Check if it's a specific error we can provide better guidance for
+                error_msg = str(pw_error).lower()
+                if '403' in error_msg or 'forbidden' in error_msg:
+                    raise ValueError(
+                        "Access to the profile was blocked (403). This can happen if:\n"
+                        "1. The profile is set to private in 16Personalities settings\n"
+                        "2. Cloudflare blocked the request\n\n"
+                        "To fix: Go to 16personalities.com, log in, and ensure your profile is set to PUBLIC in your settings."
+                    )
+                elif '404' in error_msg or 'not found' in error_msg:
+                    raise ValueError(
+                        "Profile not found (404). Please verify:\n"
+                        "1. The URL is correct\n"
+                        "2. The profile still exists\n"
+                        "3. The profile is public"
+                    )
+                else:
+                    raise ValueError(f"Failed to load profile page: {str(pw_error)}")
                 
         except httpx.TimeoutException:
             raise ValueError(f"Request timeout while accessing profile URL. Please try again.")
@@ -1368,6 +1362,35 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                 extracted_info['structured_data']['mbti_type_candidates'] = mbti_matches
                 logger.info(f"Found MBTI type candidates: {mbti_matches}")
             
+            # 5.5 Extract percentage scores for MBTI dimensions
+            # Look for patterns like "54% Introverted", "Introverted 54%", "Energy: 54% Introverted"
+            dimension_scores = {}
+            
+            # Simple patterns for percentage extraction
+            # Pattern 1: "54% Introverted" or "Energy: 54% Introverted"
+            percent_trait_pattern = r'(\d+)%\s+(Introverted|Extraverted|Intuitive|Observant|Thinking|Feeling|Judging|Prospecting|Assertive|Turbulent)'
+            matches = re.finditer(percent_trait_pattern, extracted_info['text_content'], re.IGNORECASE)
+            for match in matches:
+                percentage = int(match.group(1))
+                trait = match.group(2).strip()
+                dimension_scores[trait] = percentage
+                logger.info(f"Found score: {trait}: {percentage}%")
+            
+            # Pattern 2: "Introverted 54%" (less common but possible)
+            trait_percent_pattern = r'(Introverted|Extraverted|Intuitive|Observant|Thinking|Feeling|Judging|Prospecting|Assertive|Turbulent)\s+(\d+)%'
+            matches = re.finditer(trait_percent_pattern, extracted_info['text_content'], re.IGNORECASE)
+            for match in matches:
+                trait = match.group(1).strip()
+                percentage = int(match.group(2))
+                # Only add if not already found (Pattern 1 has priority)
+                if trait not in dimension_scores:
+                    dimension_scores[trait] = percentage
+                    logger.info(f"Found score (alt pattern): {trait}: {percentage}%")
+            
+            if dimension_scores:
+                extracted_info['structured_data']['dimension_scores'] = dimension_scores
+                logger.info(f"Extracted dimension scores: {dimension_scores}")
+            
             # 6. Extract images (optional, can be used for additional analysis)
             img_tags = soup.find_all('img')
             for img in img_tags[:5]:  # Limit to first 5 images to avoid excessive downloads
@@ -1447,28 +1470,34 @@ Extract the following information and return ONLY a valid JSON object (no markdo
   "role": "ANALYST" or "DIPLOMAT" etc. (if available),
   "strategy": "CONSTANT IMPROVEMENT" or "SOCIAL ENGAGEMENT" etc. (if available),
   "dimension_preferences": {{
-    "EI": {{"E": 45, "I": 55}},
-    "SN": {{"S": 30, "N": 70}},
-    "TF": {{"T": 65, "F": 35}},
-    "JP": {{"J": 75, "P": 25}}
+    "EI": {{"E": 46, "I": 54}},
+    "SN": {{"S": 45, "N": 55}},
+    "TF": {{"T": 47, "F": 53}},
+    "JP": {{"J": 39, "P": 61}}
   }},
   "traits": {{
-    "Mind": "Introverted (55%)" or similar,
-    "Energy": "Intuitive (70%)" or similar,
-    "Nature": "Thinking (65%)" or similar,
-    "Tactics": "Judging (75%)" or similar,
-    "Identity": "Turbulent (60%)" or similar
+    "Mind": "Introverted (54%)" or similar,
+    "Energy": "Observant (55%)" or similar,
+    "Nature": "Feeling (53%)" or similar,
+    "Tactics": "Prospecting (61%)" or similar,
+    "Identity": "Turbulent (51%)" or similar
   }},
   "description": "Brief description of the personality type",
   "strengths": ["strength 1", "strength 2", ...],
   "challenges": ["challenge 1", "challenge 2", ...]
 }}
 
-Important:
-1. Extract all percentages you can find for each dimension
-2. If exact percentages aren't available, estimate based on trait descriptions
-3. Return ONLY the JSON object, no additional text
-4. All fields should be filled as completely as possible from the available content
+Important instructions for extracting percentages:
+1. Look for patterns like "Energy: 54% Introverted" or "Introverted 54%" or "54% Introverted"
+2. The dimensions are: Mind (Introverted/Extraverted), Energy (Intuitive/Observant), Nature (Thinking/Feeling), Tactics (Judging/Prospecting), Identity (Assertive/Turbulent)
+3. For dimension_preferences, if you find "54% Introverted", that means {{"E": 46, "I": 54}}
+4. For dimension_preferences, if you find "55% Observant", that means {{"S": 55, "N": 45}}
+5. For dimension_preferences, if you find "53% Feeling", that means {{"T": 47, "F": 53}}
+6. For dimension_preferences, if you find "61% Prospecting", that means {{"J": 39, "P": 61}}
+7. For dimension_preferences Identity, if you find "51% Turbulent", that means {{"A": 49, "T": 51}}
+8. The two percentages in each dimension must add up to 100
+9. Return ONLY the JSON object, no additional text or markdown
+10. All fields should be filled as completely as possible from the available content
 """
 
             logger.info("Calling OpenAI to analyze extracted content")
