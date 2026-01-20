@@ -22,9 +22,15 @@ git add TEST_MBTI_URL_FIX.md
 git add GUIDE_RESOLUTION_MBTI_URL.md
 git add MBTI_URL_FIX_SUMMARY.md
 git add README_MBTI_FIX.md
+git add TERMINOLOGIE_MBTI_FIX.md
+git add TIMEOUT_FIX_EXPLIQUE.md
+git add CHANGELOG_MBTI_FIX.md
+git add RESUME_FINAL_MBTI.md
+git add LIRE_EN_PREMIER.md
+git add FIX_MBTI.txt
 
 # 3. Commiter
-git commit -m "fix(backend): Install Playwright browsers and fix timeout for MBTI URL import
+git commit -m "fix(backend): Install Playwright, fix timeout, and use exact 16Personalities terminology
 
 - Install Chromium as appuser in runner stage of Dockerfile
 - Create home directory with --create-home flag for appuser
@@ -32,6 +38,9 @@ git commit -m "fix(backend): Install Playwright browsers and fix timeout for MBT
 - Set PLAYWRIGHT_BROWSERS_PATH environment variable
 - Change page.goto wait strategy from 'networkidle' to 'domcontentloaded'
 - Increase timeout from 30s to 60s to handle slower responses
+- Use exact 16Personalities terms: 'Extraverted', 'Observant', 'Prospecting', etc.
+- Add normalization dictionary for consistent terminology
+- Improve OpenAI prompt with CRITICAL section for exact term usage
 - Improve MBTI score extraction with better regex patterns
 - Add clear error messages with installation instructions
 - Create diagnostic scripts for local and production testing
@@ -40,9 +49,12 @@ git commit -m "fix(backend): Install Playwright browsers and fix timeout for MBT
 Fixes: 
 - MBTI URL import failing on Railway with 'Executable doesn't exist' error
 - Timeout errors on page.goto with networkidle strategy
+- Incorrect terminology (e.g., 'Extroverted' instead of 'Extraverted')
 
 Tested: Playwright works locally, requires redeploy for production
-Impact: Enables MBTI profile import from 16Personalities URLs on production
+Impact: 
+- Enables MBTI profile import from 16Personalities URLs on production
+- Ensures exact terminology matches between import and display
 
 Documentation:
 - FIX_MBTI_RESUME.md: Executive summary

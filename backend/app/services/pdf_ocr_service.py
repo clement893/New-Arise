@@ -1369,7 +1369,22 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
             
             # 5.5 Extract percentage scores for MBTI dimensions
             # Look for patterns like "54% Introverted", "Introverted 54%", "Energy: 54% Introverted"
+            # IMPORTANT: 16Personalities uses "Extraverted" (with 'a'), not "Extroverted"
             dimension_scores = {}
+            
+            # Define exact terms used by 16Personalities (case-sensitive after capture)
+            valid_traits = {
+                'introverted': 'Introverted',
+                'extraverted': 'Extraverted',
+                'intuitive': 'Intuitive',
+                'observant': 'Observant',
+                'thinking': 'Thinking',
+                'feeling': 'Feeling',
+                'judging': 'Judging',
+                'prospecting': 'Prospecting',
+                'assertive': 'Assertive',
+                'turbulent': 'Turbulent'
+            }
             
             # Simple patterns for percentage extraction
             # Pattern 1: "54% Introverted" or "Energy: 54% Introverted"
@@ -1377,7 +1392,9 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
             matches = re.finditer(percent_trait_pattern, extracted_info['text_content'], re.IGNORECASE)
             for match in matches:
                 percentage = int(match.group(1))
-                trait = match.group(2).strip()
+                trait_raw = match.group(2).strip()
+                # Normalize to exact 16Personalities terminology
+                trait = valid_traits.get(trait_raw.lower(), trait_raw)
                 dimension_scores[trait] = percentage
                 logger.info(f"Found score: {trait}: {percentage}%")
             
@@ -1385,8 +1402,10 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
             trait_percent_pattern = r'(Introverted|Extraverted|Intuitive|Observant|Thinking|Feeling|Judging|Prospecting|Assertive|Turbulent)\s+(\d+)%'
             matches = re.finditer(trait_percent_pattern, extracted_info['text_content'], re.IGNORECASE)
             for match in matches:
-                trait = match.group(1).strip()
+                trait_raw = match.group(1).strip()
                 percentage = int(match.group(2))
+                # Normalize to exact 16Personalities terminology
+                trait = valid_traits.get(trait_raw.lower(), trait_raw)
                 # Only add if not already found (Pattern 1 has priority)
                 if trait not in dimension_scores:
                     dimension_scores[trait] = percentage
@@ -1481,16 +1500,23 @@ Extract the following information and return ONLY a valid JSON object (no markdo
     "JP": {{"J": 39, "P": 61}}
   }},
   "traits": {{
-    "Mind": "Introverted (54%)" or similar,
-    "Energy": "Observant (55%)" or similar,
-    "Nature": "Feeling (53%)" or similar,
-    "Tactics": "Prospecting (61%)" or similar,
-    "Identity": "Turbulent (51%)" or similar
+    "Mind": "Introverted (54%)" or "Extraverted (46%)",
+    "Energy": "Observant (55%)" or "Intuitive (45%)",
+    "Nature": "Feeling (53%)" or "Thinking (47%)",
+    "Tactics": "Prospecting (61%)" or "Judging (39%)",
+    "Identity": "Turbulent (51%)" or "Assertive (49%)"
   }},
   "description": "Brief description of the personality type",
   "strengths": ["strength 1", "strength 2", ...],
   "challenges": ["challenge 1", "challenge 2", ...]
 }}
+
+CRITICAL: Use EXACT terminology from 16Personalities:
+- Mind dimension: ONLY use "Introverted" or "Extraverted" (NOT "Introvert", "Extravert", "Introverted", etc.)
+- Energy dimension: ONLY use "Intuitive" or "Observant" (NOT "Sensing", "Sensor", "Intuition", etc.)
+- Nature dimension: ONLY use "Thinking" or "Feeling" (NOT "Thinker", "Feeler", etc.)
+- Tactics dimension: ONLY use "Judging" or "Prospecting" (NOT "Perceiving", "Judger", "Prospector", etc.)
+- Identity dimension: ONLY use "Turbulent" or "Assertive" (NOT "Turbulent personality", "Assertive type", etc.)
 
 Important instructions for extracting percentages:
 1. Look for patterns like "Energy: 54% Introverted" or "Introverted 54%" or "54% Introverted"
@@ -1503,6 +1529,7 @@ Important instructions for extracting percentages:
 8. The two percentages in each dimension must add up to 100
 9. Return ONLY the JSON object, no additional text or markdown
 10. All fields should be filled as completely as possible from the available content
+11. ALWAYS use the exact terms listed above in the traits field (capitalize first letter only)
 """
 
             logger.info("Calling OpenAI to analyze extracted content")

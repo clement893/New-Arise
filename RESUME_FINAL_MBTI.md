@@ -4,7 +4,7 @@
 
 Le problème d'import MBTI depuis URL sur Railway a été **complètement résolu**.
 
-## 🔧 Corrections Appliquées (v2.0)
+## 🔧 Corrections Appliquées (v2.1)
 
 ### 1. Chromium Manquant (v1.0)
 - ✅ Installation de Playwright/Chromium dans le Dockerfile
@@ -15,7 +15,12 @@ Le problème d'import MBTI depuis URL sur Railway a été **complètement résol
 - ✅ Timeout augmenté: 30s → 60s
 - ✅ Attente JavaScript optimisée: 5s total
 
-### 3. Extraction Améliorée
+### 3. Terminologie Exacte (v2.1)
+- ✅ Utilisation des termes exacts: "Extraverted", "Observant", "Prospecting", etc.
+- ✅ Dictionnaire de normalisation pour cohérence
+- ✅ Prompt OpenAI renforcé avec section CRITICAL
+
+### 4. Extraction Améliorée
 - ✅ Regex optimisées pour les pourcentages
 - ✅ Prompt OpenAI amélioré
 - ✅ Messages d'erreur clairs
