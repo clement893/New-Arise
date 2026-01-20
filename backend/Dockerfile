@@ -54,9 +54,9 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Create non-root user
+# Create non-root user with home directory
 RUN groupadd --system --gid 1001 appuser && \
-    useradd --system --uid 1001 --gid appuser appuser
+    useradd --system --uid 1001 --gid appuser --create-home appuser
 
 # Copy dependencies and application
 COPY --from=deps /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
