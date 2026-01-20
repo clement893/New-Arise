@@ -1447,9 +1447,11 @@ async def forgot_password(
         # Still return 200 OK to prevent email enumeration
     
     # Always return 200 OK (security best practice - don't reveal if user exists)
-    return {
-        "message": "If an account with that email exists, we've sent you a password reset link."
-    }
+    # IMPORTANT: Return JSONResponse explicitly for slowapi compatibility
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"message": "If an account with that email exists, we've sent you a password reset link."}
+    )
 
 
 @router.post("/reset-password", status_code=status.HTTP_200_OK)
@@ -1722,7 +1724,11 @@ async def reset_password(
             # Temporarily disabled to isolate 500 error issue
             # audit_result = await SecurityAuditLogger.log_event(...)
             
-            return {"message": "Password has been reset successfully"}
+            # IMPORTANT: Return JSONResponse explicitly for slowapi compatibility
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content={"message": "Password has been reset successfully"}
+            )
             
         except jwt.ExpiredSignatureError:
             # TODO: Re-enable audit logging after debugging
