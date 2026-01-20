@@ -22,39 +22,39 @@ export interface Feedback360Question {
 export const feedback360Capabilities = [
   {
     id: 'change_management' as Feedback360Capability,
-    title: 'Gestion du changement',
+    title: 'Change Management',
     icon: '🔄',
-    description: 'Capacité à s\'adapter et à conduire efficacement les changements organisationnels.',
+    description: 'Ability to adapt to and drive organizational changes effectively.',
   },
   {
     id: 'communication' as Feedback360Capability,
     title: 'Communication',
     icon: '💬',
-    description: 'Efficacité dans la transmission des idées et la compréhension des autres.',
+    description: 'Effectiveness in conveying ideas and understanding others.',
   },
   {
     id: 'leadership_style' as Feedback360Capability,
-    title: 'Style de leadership',
+    title: 'Leadership Style',
     icon: '👔',
-    description: 'Approche pour inspirer, motiver et guider les autres.',
+    description: 'Approach to inspiring, motivating, and guiding others.',
   },
   {
     id: 'problem_solving_and_decision_making' as Feedback360Capability,
-    title: 'Résolution de problèmes et prise de décision',
+    title: 'Problem Solving and Decision Making',
     icon: '🧩',
-    description: 'Capacité à analyser les situations et à prendre des décisions efficaces.',
+    description: 'Ability to analyze situations and make effective decisions.',
   },
   {
     id: 'stress_management' as Feedback360Capability,
-    title: 'Gestion du stress',
+    title: 'Stress Management',
     icon: '🧘',
-    description: 'Capacité à gérer la pression et à maintenir son calme.',
+    description: 'Capacity to handle pressure and maintain composure.',
   },
   {
     id: 'team_culture' as Feedback360Capability,
-    title: 'Culture d\'équipe',
+    title: 'Team Culture',
     icon: '👥',
-    description: 'Contribution à la création d\'environnements d\'équipe positifs et collaboratifs.',
+    description: 'Contribution to building positive and collaborative team environments.',
   },
 ];
 
@@ -247,9 +247,9 @@ export interface Feedback360ScaleOption {
 }
 
 export const feedback360Scale: Feedback360ScaleOption[] = [
-  { value: 1, label: 'Fortement en désaccord' },
-  { value: 2, label: 'En désaccord' },
-  { value: 3, label: 'Neutre' },
-  { value: 4, label: 'D\'accord' },
-  { value: 5, label: 'Fortement d\'accord' },
+  { value: 1, label: 'Strongly Disagree' },
+  { value: 2, label: 'Disagree' },
+  { value: 3, label: 'Neutral' },
+  { value: 4, label: 'Agree' },
+  { value: 5, label: 'Strongly Agree' },
 ];
