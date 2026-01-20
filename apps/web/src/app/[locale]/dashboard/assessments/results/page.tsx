@@ -9,12 +9,12 @@ import { useSearchParams } from 'next/navigation';
 import { Card, Button } from '@/components/ui';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { assessmentsApi, AssessmentResult, PillarScore, getAssessmentAnswers } from '@/lib/api/assessments';
-import { wellnessPillars, wellnessQuestions, wellnessScale } from '@/data/wellnessQuestionsReal';
-import { ArrowLeft, Download, TrendingUp, Loader2 } from 'lucide-react';
-import { apiClient } from '@/lib/api';
+import { assessmentsApi, AssessmentResult, PillarScore } from '@/lib/api/assessments';
+import { wellnessPillars } from '@/data/wellnessQuestionsReal';
+import { ArrowLeft, TrendingUp } from 'lucide-react';
 import { formatError } from '@/lib/utils/formatError';
 import { useToast } from '@/components/ui';
+import WellnessRadarChart from '@/components/assessments/charts/WellnessRadarChart';
 
 function AssessmentResultsContent() {
   const t = useTranslations('dashboard.assessments.results');
@@ -27,7 +27,6 @@ function AssessmentResultsContent() {
   const [results, setResults] = useState<AssessmentResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isDownloading, setIsDownloading] = useState(false);
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -135,159 +134,6 @@ function AssessmentResultsContent() {
       setIsLoading(false);
     }
   };
-
-  const handleDownloadPDF = async () => {
-    if (!results || !assessmentId) return;
-
-    try {
-      setIsDownloading(true);
-      
-      // Fetch assessment answers for detailed breakdown
-      const answers = await getAssessmentAnswers(parseInt(assessmentId));
-      
-      const { scores } = results;
-      
-      // CRITICAL: Ensure all numeric values are actually numbers for PDF export
-      const safeTotalScore = typeof scores?.total_score === 'number' ? scores.total_score : (typeof scores?.total_score === 'string' ? parseInt(scores.total_score, 10) : 0);
-      const safeMaxScore = typeof scores?.max_score === 'number' ? scores.max_score : (typeof scores?.max_score === 'string' ? parseInt(scores.max_score, 10) : 150);
-      const safePercentage = typeof scores?.percentage === 'number' ? scores.percentage : (typeof scores?.percentage === 'string' ? parseFloat(scores.percentage) : 0);
-      const pillar_scores = scores?.pillar_scores || {};
-
-      // Prepare summary data - pillars with scores
-      const summaryRows: Array<Record<string, string>> = [];
-
-      // Add pillar scores (these will be in the Question column)
-      if (pillar_scores) {
-        Object.entries(pillar_scores).forEach(([pillarId, pillarData]) => {
-          const pillar = wellnessPillars.find(p => p.id === pillarId);
-          const isPillarScoreObject = (data: number | PillarScore | undefined): data is PillarScore => {
-            return typeof data === 'object' && data !== null && 'score' in data;
-          };
-          const pillarScore = isPillarScoreObject(pillarData) ? pillarData.score : (typeof pillarData === 'number' ? pillarData : 0);
-          const pillarPercentage = isPillarScoreObject(pillarData) ? pillarData.percentage : (pillarScore / 25) * 100;
-          
-          summaryRows.push({
-            [t('pdf.columns.question')]: pillar?.name || pillarId,
-            [t('pdf.columns.answer')]: '',
-            [t('pdf.columns.score')]: `${pillarScore} / 25 (${pillarPercentage.toFixed(1)}%)`,
-          });
-        });
-      }
-
-      // Prepare detailed question-by-question data grouped by pillar
-      const questionsByPillar: Record<string, typeof wellnessQuestions> = {};
-      wellnessQuestions.forEach(q => {
-        if (!questionsByPillar[q.pillar]) {
-          questionsByPillar[q.pillar] = [];
-        }
-        const pillarQuestions = questionsByPillar[q.pillar];
-        if (pillarQuestions) {
-          pillarQuestions.push(q);
-        }
-      });
-
-      // Create detailed data rows with questions and answers
-      const detailedRows: Array<Record<string, string>> = [];
-
-      // Add questions grouped by pillar
-      Object.entries(questionsByPillar).forEach(([, pillarQuestions]) => {
-        // Add questions for this pillar
-        pillarQuestions.forEach((question) => {
-          const answerValue = answers[question.id] || '0';
-          const answerNum = parseInt(answerValue, 10) || 0;
-          const answerLabel = wellnessScale.find(s => s.value === answerNum)?.label || t('pdf.notAnswered');
-          
-          // Truncate long questions to fit in PDF (max 80 characters)
-          const truncatedQuestion = question.question.length > 80 
-            ? question.question.substring(0, 77) + '...'
-            : question.question;
-          
-          detailedRows.push({
-            [t('pdf.columns.question')]: truncatedQuestion,
-            [t('pdf.columns.answer')]: answerLabel,
-            [t('pdf.columns.score')]: `${answerNum}/5`,
-          });
-        });
-      });
-
-      // Separate summary (pillars) and detailed (questions) data
-      // Add section headers to clearly separate pillars from questions
-      const pillarHeader = {
-        [t('pdf.columns.question')]: '=== PILLAR SUMMARY ===',
-        [t('pdf.columns.answer')]: '',
-        [t('pdf.columns.score')]: '',
-      };
-      
-      const questionHeader = {
-        [t('pdf.columns.question')]: '=== QUESTION DETAILS ===',
-        [t('pdf.columns.answer')]: '',
-        [t('pdf.columns.score')]: '',
-      };
-      
-      // Combine sections with clear separation
-      const exportData = [
-        pillarHeader,
-        ...summaryRows,
-        { [t('pdf.columns.question')]: '', [t('pdf.columns.answer')]: '', [t('pdf.columns.score')]: '' }, // Empty row for spacing
-        questionHeader,
-        ...detailedRows,
-      ];
-
-      // Prepare title with overall score
-      const overallScoreText = `${isNaN(safeTotalScore) ? 0 : safeTotalScore} / ${isNaN(safeMaxScore) ? 150 : safeMaxScore} (${isNaN(safePercentage) ? 0 : safePercentage.toFixed(1)}%)`;
-      const reportTitle = `${t('report.title')} - ${new Date().toLocaleDateString(locale)}\n${t('report.overallScore')}: ${overallScoreText}`;
-
-      // Call the export API with simplified headers
-      const response = await apiClient.post(
-        '/v1/exports/export',
-        {
-          format: 'pdf',
-          data: exportData,
-          headers: [t('pdf.columns.question'), t('pdf.columns.answer'), t('pdf.columns.score')],
-          title: reportTitle,
-        },
-        {
-          responseType: 'blob',
-        }
-      );
-
-      // Handle blob response
-      let blob: Blob;
-      if (response.data instanceof Blob) {
-        blob = response.data;
-      } else if (response.data instanceof ArrayBuffer) {
-        blob = new Blob([response.data], { type: 'application/pdf' });
-      } else {
-        // Convert to blob if it's a string or other format
-        blob = new Blob([response.data], { type: 'application/pdf' });
-      }
-
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `wellness-assessment-report-${assessmentId || 'results'}-${new Date().toISOString().split('T')[0]}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      
-      showToast({
-        message: t('toast.downloadSuccess'),
-        type: 'success',
-      });
-    } catch (err: unknown) {
-      // Convert error to string to prevent React error #130
-      const errorMessage = formatError(err);
-      console.error('Error downloading PDF:', errorMessage);
-      showToast({
-        message: t('toast.downloadFailed'),
-        type: 'error',
-      });
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
 
   if (isLoading) {
     return (
@@ -412,34 +258,56 @@ function AssessmentResultsContent() {
           {/* Overall Score Card */}
           <MotionDiv variant="slideUp" duration="normal">
             <Card className="mb-8 bg-gradient-to-br from-arise-deep-teal to-arise-deep-teal/80 text-white">
-              <div className="text-center py-8">
-                <div className="flex items-center justify-center mb-4">
-                  <TrendingUp size={48} className="mr-4" />
-                  <div className="text-7xl font-bold">{isNaN(safePercentage) ? 0 : safePercentage.toFixed(0)}%</div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 py-8 px-6">
+                {/* Left side - Overall Score */}
+                <div className="flex flex-col items-center justify-center text-center">
+                  <div className="flex items-center justify-center mb-4">
+                    <TrendingUp size={48} className="mr-4" />
+                    <div className="text-7xl font-bold">{isNaN(safePercentage) ? 0 : safePercentage.toFixed(0)}%</div>
+                  </div>
+                  <h2 className="text-2xl font-bold mb-2">{t('overallScore.title')}</h2>
+                  <p className="text-white/90 text-lg">
+                    {t('overallScore.points', { score: isNaN(safeTotalScore) ? 0 : safeTotalScore, max: isNaN(safeMaxScore) ? 150 : safeMaxScore })}
+                  </p>
                 </div>
-                <h2 className="text-2xl font-bold mb-2">{t('overallScore.title')}</h2>
-                <p className="text-white/90 text-lg">
-                  {t('overallScore.points', { score: isNaN(safeTotalScore) ? 0 : safeTotalScore, max: isNaN(safeMaxScore) ? 150 : safeMaxScore })}
-                </p>
-                <div className="mt-6 flex justify-center">
-                  <Button 
-                    variant="outline" 
-                    className="bg-white text-arise-deep-teal hover:bg-gray-100"
-                    onClick={handleDownloadPDF}
-                    disabled={isDownloading}
-                  >
-                    {isDownloading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        {t('generating')}
-                      </>
-                    ) : (
-                      <>
-                        <Download className="w-4 h-4 mr-2" />
-                        {t('downloadReport')}
-                      </>
-                    )}
-                  </Button>
+
+                {/* Right side - Wellness Radar */}
+                <div className="flex flex-col items-center justify-center">
+                  <h3 className="text-xl font-bold mb-4 text-center">ARISE Wellness Radar</h3>
+                  <div className="bg-white rounded-lg p-4 w-full">
+                    <WellnessRadarChart 
+                      scores={(() => {
+                        // Transform pillar_scores to simple number map
+                        const simpleScores: Record<string, number> = {};
+                        Object.entries(pillar_scores).forEach(([key, value]) => {
+                          if (typeof value === 'number') {
+                            simpleScores[key] = value;
+                          } else if (typeof value === 'object' && value !== null && 'score' in value) {
+                            simpleScores[key] = typeof value.score === 'number' ? value.score : 0;
+                          }
+                        });
+                        return simpleScores;
+                      })()}
+                      labels={(() => {
+                        // Get translated pillar names
+                        const translatedLabels: Record<string, string> = {};
+                        wellnessPillars.forEach(pillar => {
+                          const pillarKey = pillar.id.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+                          try {
+                            const translated = t(`wellness.results.pillars.${pillarKey}`);
+                            if (translated && translated !== `wellness.results.pillars.${pillarKey}`) {
+                              translatedLabels[pillar.id] = translated;
+                            } else {
+                              translatedLabels[pillar.id] = pillar.name;
+                            }
+                          } catch (e) {
+                            translatedLabels[pillar.id] = pillar.name;
+                          }
+                        });
+                        return translatedLabels;
+                      })()}
+                    />
+                  </div>
                 </div>
               </div>
             </Card>
@@ -501,11 +369,11 @@ function AssessmentResultsContent() {
                       <div className="flex-1 min-w-0 overflow-hidden">
                         <h3 className="text-lg font-bold text-gray-900 mb-1 break-words overflow-wrap-anywhere">
                           {(() => {
-                            // Translate pillar name
-                            const pillarKey = pillar.id.replace(/_/g, '');
+                            // Translate pillar name - convert snake_case to camelCase
+                            const pillarKey = pillar.id.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
                             try {
-                              const translated = t(`dashboard.assessments.wellness.results.pillars.${pillarKey}`);
-                              if (translated && translated !== `dashboard.assessments.wellness.results.pillars.${pillarKey}`) {
+                              const translated = t(`wellness.results.pillars.${pillarKey}`);
+                              if (translated && translated !== `wellness.results.pillars.${pillarKey}`) {
                                 return translated;
                               }
                             } catch (e) {
@@ -623,10 +491,10 @@ function AssessmentResultsContent() {
                               return allScores.length > 0 && !isNaN(score) && score === Math.max(...allScores.filter(s => !isNaN(s)));
                             });
                             if (strongestPillar) {
-                              const pillarKey = strongestPillar.id.replace(/_/g, '');
+                              const pillarKey = strongestPillar.id.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
                               try {
-                                const translated = t(`dashboard.assessments.wellness.results.pillars.${pillarKey}`);
-                                if (translated && translated !== `dashboard.assessments.wellness.results.pillars.${pillarKey}`) {
+                                const translated = t(`wellness.results.pillars.${pillarKey}`);
+                                if (translated && translated !== `wellness.results.pillars.${pillarKey}`) {
                                   return translated;
                                 }
                               } catch (e) {
@@ -659,10 +527,10 @@ function AssessmentResultsContent() {
                               return allScores.length > 0 && !isNaN(score) && score === Math.min(...allScores.filter(s => !isNaN(s)));
                             });
                             if (weakestPillar) {
-                              const pillarKey = weakestPillar.id.replace(/_/g, '');
+                              const pillarKey = weakestPillar.id.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
                               try {
-                                const translated = t(`dashboard.assessments.wellness.results.pillars.${pillarKey}`);
-                                if (translated && translated !== `dashboard.assessments.wellness.results.pillars.${pillarKey}`) {
+                                const translated = t(`wellness.results.pillars.${pillarKey}`);
+                                if (translated && translated !== `wellness.results.pillars.${pillarKey}`) {
                                   return translated;
                                 }
                               } catch (e) {
@@ -677,83 +545,6 @@ function AssessmentResultsContent() {
                     </div>
                   </div>
                 )}
-              </div>
-            </Card>
-          </MotionDiv>
-
-          {/* Next Steps */}
-          <MotionDiv variant="fade" duration="normal">
-            <Card>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4 break-words">
-                NEXT STEPS
-              </h2>
-              {/* Use backend recommendations if available, otherwise show default next steps */}
-              {results.recommendations && typeof results.recommendations === 'object' && (
-                Array.isArray(results.recommendations) && results.recommendations.length > 0 ? (
-                  <ul className="space-y-3">
-                    {results.recommendations.map((rec: any, idx: number) => (
-                      <li key={idx} className="flex items-start break-words overflow-hidden">
-                        <div className="w-6 h-6 bg-arise-gold rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
-                          <span className="text-white text-sm font-bold">{idx + 1}</span>
-                        </div>
-                        <p className="text-gray-700 break-words whitespace-pre-wrap flex-1">
-                          {typeof rec === 'string' ? rec : (rec.title || rec.description || JSON.stringify(rec))}
-                        </p>
-                      </li>
-                    ))}
-                  </ul>
-                ) : typeof results.recommendations === 'object' && Object.keys(results.recommendations).length > 0 ? (
-                  <ul className="space-y-3">
-                    {Object.entries(results.recommendations).map(([key, value], idx) => (
-                      <li key={key} className="flex items-start break-words overflow-hidden">
-                        <div className="w-6 h-6 bg-arise-gold rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
-                          <span className="text-white text-sm font-bold">{idx + 1}</span>
-                        </div>
-                        <p className="text-gray-700 break-words whitespace-pre-wrap flex-1">
-                          {String(value)}
-                        </p>
-                      </li>
-                    ))}
-                  </ul>
-                ) : null
-              )}
-              {(!results.recommendations || (typeof results.recommendations === 'object' && Object.keys(results.recommendations).length === 0)) && (
-                <ul className="space-y-3">
-                  <li className="flex items-start break-words overflow-hidden">
-                    <div className="w-6 h-6 bg-arise-gold rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
-                      <span className="text-white text-sm font-bold">1</span>
-                    </div>
-                    <p className="text-gray-700 break-words whitespace-pre-wrap flex-1">
-                      Review your wellness scores across all six pillars to understand your current well-being status.
-                    </p>
-                  </li>
-                  <li className="flex items-start break-words overflow-hidden">
-                    <div className="w-6 h-6 bg-arise-gold rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
-                      <span className="text-white text-sm font-bold">2</span>
-                    </div>
-                    <p className="text-gray-700 break-words whitespace-pre-wrap flex-1">
-                      Focus on improving areas with lower scores by implementing small, sustainable changes in your daily routine.
-                    </p>
-                  </li>
-                  <li className="flex items-start break-words overflow-hidden">
-                    <div className="w-6 h-6 bg-arise-gold rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
-                      <span className="text-white text-sm font-bold">3</span>
-                    </div>
-                    <p className="text-gray-700 break-words whitespace-pre-wrap flex-1">
-                      Continue your leadership development journey by completing other assessments (MBTI, ARISE Conflict Style, 360° Feedback).
-                    </p>
-                  </li>
-                </ul>
-              )}
-              <div className="mt-6 flex gap-4 flex-wrap">
-                <Button 
-                  variant="primary"
-                  onClick={() => router.push('/dashboard/assessments')}
-                  className="flex items-center gap-2"
-                  style={{ backgroundColor: '#0F4C56', color: '#fff' }}
-                >
-                  {t('backToAssessments')}
-                </Button>
               </div>
             </Card>
           </MotionDiv>
