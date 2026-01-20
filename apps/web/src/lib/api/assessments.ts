@@ -350,6 +350,7 @@ export interface EvaluatorStatus {
   invitation_opened_at: string | null;
   started_at: string | null;
   completed_at: string | null;
+  assessment_id: number; // Which assessment this evaluator belongs to
 }
 
 /**
@@ -399,10 +400,17 @@ export const start360Feedback = async (evaluators: Evaluator360Data[]): Promise<
 /**
  * Get evaluators status for a 360 assessment
  * Uses apiClient to benefit from automatic token refresh on 401 errors
+ * @param assessmentId - The assessment ID to fetch evaluators for
+ * @param includeAll - If true, returns evaluators from ALL user's 360 assessments (fixes issue where evaluators are on older assessments)
  */
-export const get360Evaluators = async (assessmentId: number): Promise<EvaluatorsResponse> => {
+export const get360Evaluators = async (assessmentId: number, includeAll: boolean = true): Promise<EvaluatorsResponse> => {
   const response = await apiClient.get(
-    `/v1/assessments/${assessmentId}/360/evaluators`
+    `/v1/assessments/${assessmentId}/360/evaluators`,
+    {
+      params: {
+        include_all: includeAll
+      }
+    }
   );
   return response.data;
 };

@@ -134,7 +134,14 @@ const WellnessRadarChart: React.FC<WellnessRadarChartProps> = ({
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
             }}
             formatter={(value: number) => [`${value} / 25`, 'Score']}
-            labelStyle={{ fontWeight: 600, marginBottom: '0.25rem' }}
+            labelStyle={{ 
+              fontWeight: 600, 
+              marginBottom: '0.25rem',
+              color: '#000000'
+            }}
+            itemStyle={{
+              color: '#000000'
+            }}
           />
         </RadarChart>
       </ResponsiveContainer>

@@ -9,13 +9,13 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
-import { getAssessmentResults, AssessmentResult } from '@/lib/api/assessments';
+import { getAssessmentResults, AssessmentResult, getMyAssessments, Assessment } from '@/lib/api/assessments';
 import { mbtiTypes } from '@/data/mbtiQuestions';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import MotionDiv from '@/components/motion/MotionDiv';
 import RecommendationCard from '@/components/assessments/RecommendationCard';
-import { ArrowLeft, Download, Brain, FileText, Upload } from 'lucide-react';
+import { ArrowLeft, Download, Brain, FileText, Upload, Eye } from 'lucide-react';
 import { formatError } from '@/lib/utils/formatError';
 
 export default function MBTIResultsPage() {
@@ -27,17 +27,30 @@ export default function MBTIResultsPage() {
   const [results, setResults] = useState<AssessmentResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userAssessments, setUserAssessments] = useState<Assessment[]>([]);
   const retryCountRef = useRef(0);
 
   useEffect(() => {
     if (assessmentId) {
       loadResults();
+      loadUserAssessments();
     } else {
       // No assessment ID provided, redirect to upload page
       router.push('/dashboard/assessments/mbti/upload');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assessmentId]);
+
+  const loadUserAssessments = async () => {
+    try {
+      const assessments = await getMyAssessments();
+      setUserAssessments(assessments);
+    } catch (err) {
+      console.error('Failed to load user assessments:', err);
+      // Don't set error state, just continue without smart suggestions
+      setUserAssessments([]);
+    }
+  };
 
   const loadResults = async () => {
     try {
@@ -703,16 +716,98 @@ export default function MBTIResultsPage() {
                 <p className="text-gray-600 mb-4">
                   {t('nextSteps.description')}
                 </p>
-                <div className="flex gap-4 justify-center">
-                  <Button onClick={() => router.push('/dashboard/assessments/tki')}>
-                    {t('nextSteps.takeTKI')}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => router.push('/dashboard/assessments/wellness')}
-                  >
-                    {t('nextSteps.tryWellness')}
-                  </Button>
+                <div className="flex gap-4 justify-center flex-wrap">
+                  {(() => {
+                    // Check if user has completed TKI assessment
+                    const tkiAssessment = userAssessments.find(a => a.assessment_type === 'TKI');
+                    const isTKICompleted = tkiAssessment && tkiAssessment.status === 'COMPLETED';
+
+                    // Check if user has completed Wellness assessment
+                    const wellnessAssessment = userAssessments.find(a => a.assessment_type === 'WELLNESS');
+                    const isWellnessCompleted = wellnessAssessment && wellnessAssessment.status === 'COMPLETED';
+
+                    // Check if user has completed 360 Feedback
+                    const feedback360Assessment = userAssessments.find(a => a.assessment_type === 'THREE_SIXTY_SELF');
+                    const is360Completed = feedback360Assessment && feedback360Assessment.status === 'COMPLETED';
+
+                    const buttons = [];
+
+                    // TKI Button
+                    if (isTKICompleted) {
+                      buttons.push(
+                        <Button 
+                          key="tki"
+                          variant="outline"
+                          onClick={() => router.push(`/dashboard/assessments/tki/results?id=${tkiAssessment.id}`)}
+                          className="flex items-center gap-2"
+                        >
+                          <Eye size={16} />
+                          View Your Conflict Style Results
+                        </Button>
+                      );
+                    } else {
+                      buttons.push(
+                        <Button 
+                          key="tki"
+                          onClick={() => router.push('/dashboard/assessments/tki')}
+                        >
+                          {t('nextSteps.takeTKI')}
+                        </Button>
+                      );
+                    }
+
+                    // Wellness Button
+                    if (isWellnessCompleted) {
+                      buttons.push(
+                        <Button 
+                          key="wellness"
+                          variant="outline"
+                          onClick={() => router.push(`/dashboard/assessments/wellness/results?id=${wellnessAssessment.id}`)}
+                          className="flex items-center gap-2"
+                        >
+                          <Eye size={16} />
+                          View Your Wellness Results
+                        </Button>
+                      );
+                    } else {
+                      buttons.push(
+                        <Button
+                          key="wellness"
+                          variant="outline"
+                          onClick={() => router.push('/dashboard/assessments/wellness')}
+                        >
+                          {t('nextSteps.tryWellness')}
+                        </Button>
+                      );
+                    }
+
+                    // 360 Feedback Button - only if not completed
+                    if (!is360Completed) {
+                      buttons.push(
+                        <Button
+                          key="360"
+                          variant="outline"
+                          onClick={() => router.push('/dashboard/assessments/360-feedback')}
+                        >
+                          Try 360° Feedback
+                        </Button>
+                      );
+                    } else {
+                      buttons.push(
+                        <Button 
+                          key="360"
+                          variant="outline"
+                          onClick={() => router.push(`/dashboard/assessments/360-feedback/results?id=${feedback360Assessment.id}`)}
+                          className="flex items-center gap-2"
+                        >
+                          <Eye size={16} />
+                          View Your 360° Feedback Results
+                        </Button>
+                      );
+                    }
+
+                    return buttons;
+                  })()}
                 </div>
               </div>
             </Card>

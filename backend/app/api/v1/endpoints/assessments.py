@@ -1379,11 +1379,17 @@ async def get_development_goals_count(
 async def get_360_evaluators_status(
     assessment_id: int,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    include_all: bool = False  # New parameter to include evaluators from all user's 360 assessments
 ):
     """
-    Get the status of all evaluators for a specific 360 self-assessment
+    Get the status of all evaluators for a specific 360 self-assessment.
+    
+    If include_all=True, returns evaluators from ALL user's 360 assessments (fixes issue
+    where evaluators are on older assessments but dashboard shows newest assessment).
     """
+    from app.core.logging import logger
+    
     # Verify assessment exists and belongs to the current user
     assessment_result = await db.execute(
         select(Assessment)
@@ -1401,24 +1407,52 @@ async def get_360_evaluators_status(
             detail="360 Self-Assessment not found or does not belong to current user"
         )
 
-    # Get all evaluators for this assessment
-    evaluators_result = await db.execute(
-        select(Assessment360Evaluator)
-        .where(Assessment360Evaluator.assessment_id == assessment_id)
-        .order_by(Assessment360Evaluator.created_at)
-    )
-    evaluators = evaluators_result.scalars().all()
-
-    # Log for debugging
-    from app.core.logging import logger
-    logger.info(
-        f"Fetching evaluators for assessment {assessment_id}",
-        context={
-            "assessment_id": assessment_id,
-            "user_id": current_user.id,
-            "evaluators_count": len(evaluators)
-        }
-    )
+    # Get evaluators - either from this assessment only, or from all user's 360 assessments
+    if include_all:
+        # Get all user's 360 self-assessments
+        all_assessments_result = await db.execute(
+            select(Assessment.id)
+            .where(
+                Assessment.user_id == current_user.id,
+                Assessment.assessment_type == AssessmentType.THREE_SIXTY_SELF
+            )
+        )
+        all_assessment_ids = [row[0] for row in all_assessments_result.fetchall()]
+        
+        # Get evaluators from ALL assessments
+        evaluators_result = await db.execute(
+            select(Assessment360Evaluator)
+            .where(Assessment360Evaluator.assessment_id.in_(all_assessment_ids))
+            .order_by(Assessment360Evaluator.created_at)
+        )
+        evaluators = evaluators_result.scalars().all()
+        
+        logger.info(
+            f"Fetching evaluators from ALL user's 360 assessments (found {len(all_assessment_ids)} assessments)",
+            context={
+                "requested_assessment_id": assessment_id,
+                "all_assessment_ids": all_assessment_ids,
+                "user_id": current_user.id,
+                "evaluators_count": len(evaluators)
+            }
+        )
+    else:
+        # Get evaluators for this assessment only (original behavior)
+        evaluators_result = await db.execute(
+            select(Assessment360Evaluator)
+            .where(Assessment360Evaluator.assessment_id == assessment_id)
+            .order_by(Assessment360Evaluator.created_at)
+        )
+        evaluators = evaluators_result.scalars().all()
+        
+        logger.info(
+            f"Fetching evaluators for assessment {assessment_id}",
+            context={
+                "assessment_id": assessment_id,
+                "user_id": current_user.id,
+                "evaluators_count": len(evaluators)
+            }
+        )
 
     # Format response
     evaluators_list = []
@@ -1434,6 +1468,7 @@ async def get_360_evaluators_status(
             "invitation_opened_at": evaluator.invitation_opened_at.isoformat() if evaluator.invitation_opened_at else None,
             "started_at": evaluator.started_at.isoformat() if evaluator.started_at else None,
             "completed_at": evaluator.completed_at.isoformat() if evaluator.completed_at else None,
+            "assessment_id": evaluator.assessment_id,  # Include which assessment this evaluator belongs to
         })
         
         # Log each evaluator status for debugging
@@ -1443,14 +1478,16 @@ async def get_360_evaluators_status(
                 "evaluator_id": evaluator.id,
                 "evaluator_name": evaluator.evaluator_name,
                 "status": evaluator.status.value,
-                "completed_at": evaluator.completed_at.isoformat() if evaluator.completed_at else None
+                "completed_at": evaluator.completed_at.isoformat() if evaluator.completed_at else None,
+                "assessment_id": evaluator.assessment_id
             }
         )
 
     logger.info(
-        f"Returning {len(evaluators_list)} evaluators for assessment {assessment_id}",
+        f"Returning {len(evaluators_list)} evaluators",
         context={
             "assessment_id": assessment_id,
+            "include_all": include_all,
             "evaluators_count": len(evaluators_list),
             "completed_count": sum(1 for e in evaluators_list if e["status"].lower() == "completed")
         }

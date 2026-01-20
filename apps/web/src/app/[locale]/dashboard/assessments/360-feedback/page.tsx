@@ -342,7 +342,7 @@ export default function Feedback360Page() {
         <div className="flex items-center justify-center min-h-[80vh]">
           <div className="max-w-7xl w-full" style={{ marginLeft: '1.25%' }}>
             <MotionDiv key={currentQuestion} variant="slideUp" duration="fast">
-              <Card className="p-8" style={{ backgroundColor: '#D5DEE0', borderRadius: '24px' }}>
+              <Card className="p-8" style={{ backgroundColor: '#FFF', borderRadius: '24px' }}>
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
                   <div className="flex items-center gap-3">

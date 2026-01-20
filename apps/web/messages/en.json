@@ -488,7 +488,7 @@
           "nextSteps": {
             "title": "Continue Your Leadership Journey",
             "description": "Explore other assessments to gain deeper insights into your leadership style",
-            "takeTKI": "Take TKI Assessment",
+            "takeTKI": "Take ARISE Assessment",
             "try360": "Try 360° Feedback"
           },
           "errors": {
@@ -790,7 +790,7 @@
           "nextSteps": {
             "title": "Continue Your Leadership Journey",
             "description": "Explore other assessments to gain deeper insights",
-            "takeTKI": "Take TKI Assessment",
+            "takeTKI": "Take ARISE Assessment",
             "tryWellness": "Try Wellness Assessment"
           },
           "notFound": {

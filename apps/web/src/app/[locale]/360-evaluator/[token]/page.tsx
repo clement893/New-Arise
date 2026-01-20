@@ -17,7 +17,7 @@ import {
   feedback360Capabilities,
   feedback360Scale,
 } from '@/data/feedback360Questions';
-import { ArrowLeft, ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, Loader2, Check } from 'lucide-react';
 
 export default function Evaluator360Page() {
   const params = useParams();
@@ -286,13 +286,26 @@ export default function Evaluator360Page() {
                 onClick={() => handleSelectValue(option.value)}
                 className={`w-full rounded-lg border-2 p-4 text-left transition-all ${
                   selectedValue === option.value
-                    ? 'border-arise-teal bg-arise-teal/10'
-                    : 'border-gray-200 hover:border-arise-teal/50'
+                    ? 'border-arise-teal bg-arise-teal/20 shadow-md ring-2 ring-arise-teal ring-offset-2'
+                    : 'border-gray-200 hover:border-arise-teal/50 hover:bg-gray-50'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-gray-900">{option.label}</span>
-                  <span className="text-2xl font-bold text-arise-teal">{option.value}</span>
+                  <div className="flex items-center gap-3">
+                    <span className={`font-medium ${
+                      selectedValue === option.value ? 'text-arise-teal' : 'text-gray-900'
+                    }`}>
+                      {option.label}
+                    </span>
+                    {selectedValue === option.value && (
+                      <Check className="h-5 w-5 text-arise-teal" />
+                    )}
+                  </div>
+                  <span className={`text-2xl font-bold ${
+                    selectedValue === option.value ? 'text-arise-teal' : 'text-gray-400'
+                  }`}>
+                    {option.value}
+                  </span>
                 </div>
               </button>
             ))}

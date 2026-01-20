@@ -422,7 +422,7 @@
           "nextSteps": {
             "title": "Continuez votre parcours de leadership",
             "description": "Explorez d'autres assessments pour obtenir des insights plus approfondis sur votre style de leadership",
-            "takeTKI": "Passer l'assessment TKI",
+            "takeTKI": "Passer l'assessment ARISE",
             "try360": "Essayer le Feedback 360°"
           },
           "errors": {
@@ -724,7 +724,7 @@
           "nextSteps": {
             "title": "Continuez votre parcours de leadership",
             "description": "Explorez d'autres assessments pour obtenir des insights plus approfondis",
-            "takeTKI": "Passer l'assessment TKI",
+            "takeTKI": "Passer l'assessment ARISE",
             "tryWellness": "Essayer l'assessment Wellness"
           },
           "notFound": {

@@ -888,7 +888,7 @@ function AssessmentsContent() {
     
     // MBTI: Show "View Results" if completed, otherwise show two buttons
     if (assessment.assessmentType === 'MBTI') {
-      // If completed, show "View Results" button
+      // If completed, show "View Results" button that redirects to Results & Reports section
       if (assessment.status === 'completed' && safeAssessmentId) {
         return (
           <Button 
@@ -898,7 +898,7 @@ function AssessmentsContent() {
             onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => e.currentTarget.style.backgroundColor = 'rgba(15, 69, 77, 0.9)'}
             onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => e.currentTarget.style.backgroundColor = '#0F454D'}
             onClick={() => {
-              router.push(`/dashboard/assessments/mbti/results?id=${safeAssessmentId}`);
+              router.push('/dashboard/results');
             }}
           >
             <Eye size={16} />
@@ -942,7 +942,7 @@ function AssessmentsContent() {
     }
     
     if (hasAllAnswers && safeAssessmentId && !isNaN(safeAssessmentId)) {
-      // All questions answered: Show "View Results" button
+      // All questions answered: Show "View Results" button that redirects to Results & Reports section
       // If status is already completed, redirect directly. Otherwise, submit first.
       const isAlreadyCompleted = assessment.status === 'completed';
       
@@ -962,18 +962,12 @@ function AssessmentsContent() {
           disabled={isStarting && !isAlreadyCompleted}
           onClick={async () => {
             if (isAlreadyCompleted) {
-              // Already completed, redirect directly
-              if (assessment.assessmentType === 'TKI') {
-                router.push(`/dashboard/assessments/tki/results?id=${safeAssessmentId}`);
-              } else if (assessment.assessmentType === 'WELLNESS') {
-                router.push(`/dashboard/assessments/results?id=${safeAssessmentId}`);
-              } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
-                router.push(`/dashboard/assessments/360-feedback/results?id=${safeAssessmentId}`);
-              }
+              // Already completed, redirect to Results & Reports section
+              router.push('/dashboard/results');
               return;
             }
             
-            // Not yet completed, submit first then redirect
+            // Not yet completed, submit first then redirect to Results & Reports
             try {
               setStartingAssessment(assessment.assessmentType);
               await submitAssessment(safeAssessmentId);
@@ -982,24 +976,12 @@ function AssessmentsContent() {
                 console.error('Failed to refresh assessments after submission:', err);
                 // Continue anyway
               });
-              // Then redirect to results
-              if (assessment.assessmentType === 'TKI') {
-                router.push(`/dashboard/assessments/tki/results?id=${safeAssessmentId}`);
-              } else if (assessment.assessmentType === 'WELLNESS') {
-                router.push(`/dashboard/assessments/results?id=${safeAssessmentId}`);
-              } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
-                router.push(`/dashboard/assessments/360-feedback/results?id=${safeAssessmentId}`);
-              }
+              // Then redirect to Results & Reports section
+              router.push('/dashboard/results');
             } catch (err) {
               console.error('Failed to submit assessment:', err);
               // If submission fails, try to go to results anyway (might already be submitted)
-              if (assessment.assessmentType === 'TKI') {
-                router.push(`/dashboard/assessments/tki/results?id=${safeAssessmentId}`);
-              } else if (assessment.assessmentType === 'WELLNESS') {
-                router.push(`/dashboard/assessments/results?id=${safeAssessmentId}`);
-              } else if (assessment.assessmentType === 'THREE_SIXTY_SELF') {
-                router.push(`/dashboard/assessments/360-feedback/results?id=${safeAssessmentId}`);
-              }
+              router.push('/dashboard/results');
             } finally {
               setStartingAssessment(null);
             }
