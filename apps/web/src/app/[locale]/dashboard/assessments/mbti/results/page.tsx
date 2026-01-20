@@ -84,8 +84,24 @@ export default function MBTIResultsPage() {
       SN: t('dimensions.informationGathering'),
       TF: t('dimensions.decisionMaking'),
       JP: t('dimensions.lifestyle'),
+      // Support for direct dimension names from 16Personalities
+      Energy: 'Energy',
+      Mind: 'Mind',
+      Nature: 'Nature',
+      Tactics: 'Tactics',
+      Identity: 'Identity',
     };
     return labels[dimension] || dimension;
+  };
+
+  const getDimensionFromCode = (code: string): string => {
+    const mapping: Record<string, string> = {
+      'EI': 'Energy',
+      'SN': 'Mind',
+      'TF': 'Nature',
+      'JP': 'Tactics',
+    };
+    return mapping[code] || code;
   };
 
   const getPreferenceLabel = (preference: string): string => {
@@ -223,6 +239,14 @@ export default function MBTIResultsPage() {
     strengths: [],
   };
 
+  // Use personality description from URL import if available (more detailed)
+  const personalityDescription = (results.scores as any)?.personality_description || 
+                                  insights.description || 
+                                  typeInfo.description;
+
+  // Get dimension details if available (from URL import)
+  const dimensionDetails = (results.scores as any)?.dimension_details || {};
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto p-8">
@@ -305,7 +329,7 @@ export default function MBTIResultsPage() {
                   </div>
                   <div className="flex-1">
                     <h2 className="text-3xl font-bold text-gray-900 mb-2">{typeInfo.name}</h2>
-                    <p className="text-lg text-gray-700 mb-4">{typeInfo.description}</p>
+                    <p className="text-lg text-gray-700 mb-4">{personalityDescription}</p>
                     <div className="flex flex-wrap gap-2">
                       {typeInfo.strengths.map((strength, index) => (
                         <span
@@ -327,72 +351,31 @@ export default function MBTIResultsPage() {
           <MotionDiv variant="slideUp" duration="normal" delay={200} className="mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('dimensions.title')}</h2>
             <div className="grid gap-4">
-              {Object.entries(dimensionPreferences).map(
-                ([dimension, prefs]: [string, any], index) => {
-                  // Handle different data structures from OCR vs manual input
-                  let preference: string | undefined;
-                  let percentage: number = 50; // Default to 50% if not found
-                  let oppositePreference: string | undefined;
-                  let oppositePercentage: number = 50; // Default to 50% if not found
+              {/* Check if we have dimension_details from URL import (preferred) */}
+              {Object.keys(dimensionDetails).length > 0 ? (
+                // Render using dimension_details (from 16Personalities URL import)
+                ['Energy', 'Mind', 'Nature', 'Tactics', 'Identity'].map((dimName, index) => {
+                  const dimInfo = dimensionDetails[dimName];
+                  if (!dimInfo) return null;
 
-                  if (prefs && typeof prefs === 'object') {
-                    // Try to get preference from prefs.preference or infer from keys
-                    if (prefs.preference) {
-                      preference = prefs.preference;
-                    } else {
-                      // Try to infer from dimension (e.g., "EI" -> "E" or "I")
-                      const dimKeys = dimension.split('');
-                      if (dimKeys.length >= 2) {
-                        preference = dimKeys[0]; // Default to first letter
-                      }
-                    }
-
-                    if (preference) {
-                      // Get percentage value - could be in prefs[preference] or prefs[preference].value
-                      const prefValue = prefs[preference];
-                      if (typeof prefValue === 'number') {
-                        percentage = prefValue;
-                      } else if (prefValue && typeof prefValue === 'object' && typeof prefValue.value === 'number') {
-                        percentage = prefValue.value;
-                      } else if (typeof prefValue === 'string' && !isNaN(Number(prefValue))) {
-                        percentage = Number(prefValue);
-                      }
-
-                      // Get opposite preference
-                      const dimKeys = dimension.split('');
-                      oppositePreference = dimKeys.find(k => k !== preference) || dimKeys[1] || dimKeys[0];
-                      
-                      // Get opposite percentage
-                      const oppositeValue = oppositePreference ? prefs[oppositePreference] : undefined;
-                      if (typeof oppositeValue === 'number') {
-                        oppositePercentage = oppositeValue;
-                      } else if (oppositeValue && typeof oppositeValue === 'object' && typeof oppositeValue.value === 'number') {
-                        oppositePercentage = oppositeValue.value;
-                      } else if (typeof oppositeValue === 'string' && !isNaN(Number(oppositeValue))) {
-                        oppositePercentage = Number(oppositeValue);
-                      } else {
-                        // Calculate from percentage if opposite not found
-                        oppositePercentage = 100 - percentage;
-                      }
-                    }
-                  }
-
-                  // Ensure percentages are valid numbers
-                  percentage = isNaN(percentage) || percentage < 0 || percentage > 100 ? 50 : percentage;
-                  oppositePercentage = isNaN(oppositePercentage) || oppositePercentage < 0 || oppositePercentage > 100 
-                    ? (100 - percentage) 
-                    : oppositePercentage;
-
-                  // Ensure they sum to 100
-                  const total = percentage + oppositePercentage;
-                  if (total !== 100 && total > 0) {
-                    percentage = Math.round((percentage / total) * 100);
-                    oppositePercentage = 100 - percentage;
-                  }
+                  const { trait, percentage, description, image_url, image_alt } = dimInfo;
+                  
+                  // Calculate opposite percentage
+                  const oppositePercentage = 100 - percentage;
+                  
+                  // Get opposite trait name based on dimension
+                  const oppositeTraitMap: Record<string, Record<string, string>> = {
+                    'Energy': { 'Introverted': 'Extraverted', 'Extraverted': 'Introverted' },
+                    'Mind': { 'Observant': 'Intuitive', 'Intuitive': 'Observant' },
+                    'Nature': { 'Feeling': 'Thinking', 'Thinking': 'Feeling' },
+                    'Tactics': { 'Prospecting': 'Judging', 'Judging': 'Prospecting' },
+                    'Identity': { 'Turbulent': 'Assertive', 'Assertive': 'Turbulent' },
+                  };
+                  const oppositeTrait = oppositeTraitMap[dimName]?.[trait] || '';
 
                   return (
                     <MotionDiv
-                      key={dimension}
+                      key={dimName}
                       variant="slideUp"
                       duration="fast"
                       delay={300 + index * 100}
@@ -400,43 +383,165 @@ export default function MBTIResultsPage() {
                       <Card>
                         <div className="p-6">
                           <div className="flex items-center justify-between mb-3">
-                            <h3 className="font-semibold text-gray-900">
-                              {getDimensionLabel(dimension)}
+                            <h3 className="font-semibold text-gray-900 text-lg">
+                              {dimName}
                             </h3>
-                            {preference && (
-                              <span className="text-sm font-medium text-purple-600">
-                                {getPreferenceLabel(preference)}
-                              </span>
-                            )}
+                            <span className="text-sm font-medium text-purple-600">
+                              {percentage}% {trait}
+                            </span>
                           </div>
 
                           {/* Progress Bar */}
-                          <div className="relative h-8 bg-gray-200 rounded-full overflow-hidden mb-3">
+                          <div className="relative h-8 bg-gray-200 rounded-full overflow-hidden mb-4">
                             <div
                               className="absolute left-0 h-full bg-purple-600 transition-all duration-500"
                               style={{ width: `${percentage}%` }}
                             />
                             <div className="absolute inset-0 flex items-center justify-between px-4">
                               <span className="text-xs font-medium text-gray-700">
-                                {dimension[0]} ({oppositePercentage.toFixed(0)}%)
+                                {oppositeTrait} ({oppositePercentage}%)
                               </span>
                               <span className="text-xs font-medium text-white">
-                                {dimension[1]} ({percentage.toFixed(0)}%)
+                                {trait} ({percentage}%)
                               </span>
                             </div>
                           </div>
 
-                          {/* Description */}
-                          {insights.dimensions && insights.dimensions[dimension] && (
-                            <p className="text-sm text-gray-600">
-                              {insights.dimensions[dimension].description}
-                            </p>
+                          {/* Description with Image */}
+                          {description && (
+                            <div className="flex gap-4 items-start">
+                              {image_url && (
+                                <div className="flex-shrink-0">
+                                  <img 
+                                    src={image_url} 
+                                    alt={image_alt || trait}
+                                    className="w-32 h-24 object-contain"
+                                  />
+                                </div>
+                              )}
+                              <p className="text-sm text-gray-600 flex-1">
+                                {description}
+                              </p>
+                            </div>
                           )}
                         </div>
                       </Card>
                     </MotionDiv>
                   );
-                }
+                })
+              ) : (
+                // Fallback: Render using old dimensionPreferences format
+                Object.entries(dimensionPreferences).map(
+                  ([dimension, prefs]: [string, any], index) => {
+                    // Handle different data structures from OCR vs manual input
+                    let preference: string | undefined;
+                    let percentage: number = 50; // Default to 50% if not found
+                    let oppositePreference: string | undefined;
+                    let oppositePercentage: number = 50; // Default to 50% if not found
+
+                    if (prefs && typeof prefs === 'object') {
+                      // Try to get preference from prefs.preference or infer from keys
+                      if (prefs.preference) {
+                        preference = prefs.preference;
+                      } else {
+                        // Try to infer from dimension (e.g., "EI" -> "E" or "I")
+                        const dimKeys = dimension.split('');
+                        if (dimKeys.length >= 2) {
+                          preference = dimKeys[0]; // Default to first letter
+                        }
+                      }
+
+                      if (preference) {
+                        // Get percentage value - could be in prefs[preference] or prefs[preference].value
+                        const prefValue = prefs[preference];
+                        if (typeof prefValue === 'number') {
+                          percentage = prefValue;
+                        } else if (prefValue && typeof prefValue === 'object' && typeof prefValue.value === 'number') {
+                          percentage = prefValue.value;
+                        } else if (typeof prefValue === 'string' && !isNaN(Number(prefValue))) {
+                          percentage = Number(prefValue);
+                        }
+
+                        // Get opposite preference
+                        const dimKeys = dimension.split('');
+                        oppositePreference = dimKeys.find(k => k !== preference) || dimKeys[1] || dimKeys[0];
+                        
+                        // Get opposite percentage
+                        const oppositeValue = oppositePreference ? prefs[oppositePreference] : undefined;
+                        if (typeof oppositeValue === 'number') {
+                          oppositePercentage = oppositeValue;
+                        } else if (oppositeValue && typeof oppositeValue === 'object' && typeof oppositeValue.value === 'number') {
+                          oppositePercentage = oppositeValue.value;
+                        } else if (typeof oppositeValue === 'string' && !isNaN(Number(oppositeValue))) {
+                          oppositePercentage = Number(oppositeValue);
+                        } else {
+                          // Calculate from percentage if opposite not found
+                          oppositePercentage = 100 - percentage;
+                        }
+                      }
+                    }
+
+                    // Ensure percentages are valid numbers
+                    percentage = isNaN(percentage) || percentage < 0 || percentage > 100 ? 50 : percentage;
+                    oppositePercentage = isNaN(oppositePercentage) || oppositePercentage < 0 || oppositePercentage > 100 
+                      ? (100 - percentage) 
+                      : oppositePercentage;
+
+                    // Ensure they sum to 100
+                    const total = percentage + oppositePercentage;
+                    if (total !== 100 && total > 0) {
+                      percentage = Math.round((percentage / total) * 100);
+                      oppositePercentage = 100 - percentage;
+                    }
+
+                    return (
+                      <MotionDiv
+                        key={dimension}
+                        variant="slideUp"
+                        duration="fast"
+                        delay={300 + index * 100}
+                      >
+                        <Card>
+                          <div className="p-6">
+                            <div className="flex items-center justify-between mb-3">
+                              <h3 className="font-semibold text-gray-900">
+                                {getDimensionLabel(dimension)}
+                              </h3>
+                              {preference && (
+                                <span className="text-sm font-medium text-purple-600">
+                                  {getPreferenceLabel(preference)}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Progress Bar */}
+                            <div className="relative h-8 bg-gray-200 rounded-full overflow-hidden mb-3">
+                              <div
+                                className="absolute left-0 h-full bg-purple-600 transition-all duration-500"
+                                style={{ width: `${percentage}%` }}
+                              />
+                              <div className="absolute inset-0 flex items-center justify-between px-4">
+                                <span className="text-xs font-medium text-gray-700">
+                                  {dimension[0]} ({oppositePercentage.toFixed(0)}%)
+                                </span>
+                                <span className="text-xs font-medium text-white">
+                                  {dimension[1]} ({percentage.toFixed(0)}%)
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Description */}
+                            {insights.dimensions && insights.dimensions[dimension] && (
+                              <p className="text-sm text-gray-600">
+                                {insights.dimensions[dimension].description}
+                              </p>
+                            )}
+                          </div>
+                        </Card>
+                      </MotionDiv>
+                    );
+                  }
+                )
               )}
             </div>
           </MotionDiv>

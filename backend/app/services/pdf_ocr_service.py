@@ -1415,6 +1415,95 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
                 extracted_info['structured_data']['dimension_scores'] = dimension_scores
                 logger.info(f"Extracted dimension scores: {dimension_scores}")
             
+            # 5.7 Extract complete personality description
+            # Look for the main personality description (usually starts with "As an [TYPE]...")
+            personality_description = None
+            # Try to find sections with specific patterns
+            desc_patterns = [
+                r'As an ([A-Z]{4})(?:-[AT])?\s*\([^)]+\),\s*([^\.]+\.(?:[^\.]+\.){0,10})',  # "As an ISFP (Adventurer), you are..."
+                r'As an?\s+([A-Z]{4})(?:-[AT])?,\s*([^\.]+\.(?:[^\.]+\.){0,10})',  # Alternative pattern
+            ]
+            for pattern in desc_patterns:
+                matches = re.findall(pattern, extracted_info['text_content'], re.DOTALL)
+                if matches:
+                    # Get the full description (usually 2-3 paragraphs)
+                    match_pos = extracted_info['text_content'].find(f"As an {matches[0][0]}")
+                    if match_pos != -1:
+                        # Extract next ~1000 characters as description
+                        desc_text = extracted_info['text_content'][match_pos:match_pos+1500]
+                        # Clean up - take complete sentences
+                        sentences = desc_text.split('.')
+                        if len(sentences) >= 3:
+                            personality_description = '.'.join(sentences[:4]).strip() + '.'  # Take first 4 sentences
+                        else:
+                            personality_description = desc_text.strip()
+                        logger.info(f"Found personality description: {personality_description[:100]}...")
+                        break
+            
+            if personality_description:
+                extracted_info['structured_data']['personality_description'] = personality_description
+            
+            # 5.8 Extract dimension descriptions and images
+            # Parse the trait boxes to get descriptions for each dimension
+            dimension_details = {}
+            
+            # Find all traitbox divs
+            traitboxes = main_content.find_all('div', class_=re.compile(r'traitbox')) if main_content else []
+            logger.info(f"Found {len(traitboxes)} traitboxes to parse")
+            
+            for traitbox in traitboxes:
+                try:
+                    # Extract dimension name (Energy, Mind, Nature, Tactics, Identity)
+                    # Look for h4/h6 tags with pattern "Energy: 54% Introverted"
+                    header_tag = traitbox.find(['h4', 'h6'])
+                    if not header_tag:
+                        continue
+                    
+                    header_text = header_tag.get_text().strip()
+                    # Parse header like "Energy: 54% Introverted"
+                    header_match = re.match(r'([^:]+):\s*(\d+)%\s+([A-Za-z]+)', header_text)
+                    if not header_match:
+                        continue
+                    
+                    dimension_name = header_match.group(1).strip()  # "Energy", "Mind", etc.
+                    percentage = int(header_match.group(2))
+                    trait_raw = header_match.group(3).strip()
+                    trait = valid_traits.get(trait_raw.lower(), trait_raw)
+                    
+                    # Extract image URL
+                    img_tag = traitbox.find('img')
+                    image_url = None
+                    image_alt = None
+                    if img_tag:
+                        img_src = img_tag.get('src') or img_tag.get('data-src')
+                        if img_src:
+                            from urllib.parse import urljoin
+                            image_url = urljoin(url, img_src)
+                            image_alt = img_tag.get('alt', '')
+                    
+                    # Extract description (the <p> tag text)
+                    desc_tag = traitbox.find('p')
+                    description = desc_tag.get_text().strip() if desc_tag else None
+                    
+                    # Store dimension details
+                    dimension_details[dimension_name] = {
+                        'trait': trait,
+                        'percentage': percentage,
+                        'description': description,
+                        'image_url': image_url,
+                        'image_alt': image_alt
+                    }
+                    
+                    logger.info(f"Extracted {dimension_name}: {trait} {percentage}% - {description[:50] if description else 'No description'}...")
+                    
+                except Exception as e:
+                    logger.warning(f"Error parsing traitbox: {e}")
+                    continue
+            
+            if dimension_details:
+                extracted_info['structured_data']['dimension_details'] = dimension_details
+                logger.info(f"Extracted details for {len(dimension_details)} dimensions")
+            
             # 6. Extract images (optional, can be used for additional analysis)
             img_tags = soup.find_all('img')
             for img in img_tags[:5]:  # Limit to first 5 images to avoid excessive downloads
@@ -1567,6 +1656,16 @@ Important instructions for extracting percentages:
                 result = json.loads(content)
                 logger.info(f"Successfully parsed MBTI data: {result.get('mbti_type', 'unknown')}")
                 logger.debug(f"Full extracted data: {result}")
+                
+                # Add extracted personality description and dimension details if available
+                if 'personality_description' in structured_data:
+                    result['personality_description'] = structured_data['personality_description']
+                    logger.info(f"Added personality description ({len(result['personality_description'])} chars)")
+                
+                if 'dimension_details' in structured_data:
+                    result['dimension_details'] = structured_data['dimension_details']
+                    logger.info(f"Added dimension details for {len(result['dimension_details'])} dimensions")
+                
                 return result
             except json.JSONDecodeError as json_err:
                 logger.error(f"JSON parsing failed. Content was:\n{content}")
