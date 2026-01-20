@@ -192,23 +192,23 @@ export default function TKIResultsPage() {
 
             {/* Dominant & Secondary Modes */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div className="rounded-lg border shadow-sm bg-gradient-to-br from-arise-teal to-arise-teal-dark text-white p-6">
+              <div className="rounded-lg border shadow-sm bg-gradient-to-br from-arise-teal to-arise-teal-dark p-6">
                 <div className="text-center">
-                  <div className="text-4xl mb-3 text-white">{dominantModeInfo?.icon}</div>
-                  <h3 className="text-sm font-medium opacity-90 mb-2 text-white">{t('dominantMode')}</h3>
+                  <div className="text-4xl mb-3">{dominantModeInfo?.icon}</div>
+                  <h3 className="text-sm font-medium mb-2 text-white opacity-95">{t('dominantMode')}</h3>
                   <h2 className="text-3xl font-bold mb-2 text-white">{dominantModeInfo?.title}</h2>
-                  <p className="text-sm opacity-90 text-white">
+                  <p className="text-sm text-white opacity-95">
                     {t('responsesCount', { count: results.dominant_mode ? (results.mode_counts[results.dominant_mode] || 0) : 0, total: 30 })}
                   </p>
                 </div>
               </div>
 
-              <div className="rounded-lg border shadow-sm bg-gradient-to-br from-arise-gold to-arise-gold-dark text-white p-6">
+              <div className="rounded-lg border shadow-sm bg-gradient-to-br from-arise-gold to-arise-gold-dark p-6">
                 <div className="text-center">
-                  <div className="text-4xl mb-3 text-white">{secondaryModeInfo?.icon}</div>
-                  <h3 className="text-sm font-medium opacity-90 mb-2 text-white">{t('secondaryMode')}</h3>
+                  <div className="text-4xl mb-3">{secondaryModeInfo?.icon}</div>
+                  <h3 className="text-sm font-medium mb-2 text-white opacity-95">{t('secondaryMode')}</h3>
                   <h2 className="text-3xl font-bold mb-2 text-white">{secondaryModeInfo?.title}</h2>
-                  <p className="text-sm opacity-90 text-white">
+                  <p className="text-sm text-white opacity-95">
                     {t('responsesCount', { count: results.secondary_mode ? (results.mode_counts[results.secondary_mode] || 0) : 0, total: 30 })}
                   </p>
                 </div>

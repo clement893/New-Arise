@@ -292,6 +292,23 @@ export default function TKIAssessmentPage() {
               Explore your conflict management approach
             </p>
 
+            {/* Introductory Text */}
+            <div className="mb-8 text-gray-700 leading-relaxed">
+              <p className="mb-4">
+                Each conflict management style reflects a different balance between <strong>Assertiveness</strong>—standing up for your own needs—and <strong>Cooperation</strong>—considering and supporting the needs of the other person. This section will help you assess your conflict management tendencies and determine which of the five styles you are most likely to use depending on the occasion or situation.
+              </p>
+            </div>
+
+            {/* Conflict Management Diagram - Placeholder */}
+            {/* TODO: Add actual diagram image from CONTENT MASTER file */}
+            <div className="mb-8 bg-gray-50 rounded-lg p-6 border-2 border-gray-200">
+              <div className="text-center text-gray-500 italic">
+                [Conflict Management Styles Diagram]
+                <br />
+                <span className="text-xs">Diagram showing Assertiveness vs. Cooperation axes with 5 conflict management styles</span>
+              </div>
+            </div>
+
             <div className="mb-8">
               <h2 className="text-xl font-semibold text-arise-teal mb-4">
                 Five Conflict Management Modes
@@ -308,12 +325,10 @@ export default function TKIAssessmentPage() {
             </div>
 
             <div className="bg-arise-teal/10 p-4 rounded-lg mb-6">
-              <h3 className="font-semibold text-arise-teal mb-2">How it works:</h3>
+              <h3 className="font-semibold text-arise-teal mb-2">How to complete this section:</h3>
               <ul className="text-sm text-gray-700 space-y-1">
-                <li>• 30 questions with two options each</li>
-                <li>• Choose the statement that best describes your typical behavior</li>
+                <li>• 30 questions, for each you will be shown 2 statements, you need to select the statement that best describes you</li>
                 <li>• There are no right or wrong answers</li>
-                <li>• Takes approximately 10-15 minutes</li>
               </ul>
             </div>
 

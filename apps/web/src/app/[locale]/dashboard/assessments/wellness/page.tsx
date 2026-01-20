@@ -326,11 +326,16 @@ function WellnessAssessmentContent() {
               <Card className="max-w-3xl">
                 <div className="text-center mb-8">
                   <h1 className="text-4xl font-bold text-arise-deep-teal mb-4">
-                    Wellness Assessment
+                    LifeStyle and Wellness Assessment
                   </h1>
-                  <p className="text-gray-600 text-lg">
-                    This assessment will help you understand your overall well-being across six key pillars
-                  </p>
+                  <div className="text-gray-700 text-left mb-6 max-w-2xl mx-auto leading-relaxed">
+                    <p className="mb-4">
+                      Our overall well-being is essential to living a balanced, healthy, and fulfilling life. This survey is built around the <strong>6 Pillars of Wellness</strong> (inspired by the Harvard Medical School "Wellness & Coaching" teachings), providing a framework to better understand how you experience each area of your well-being.
+                    </p>
+                    <p>
+                      Your honest feedback is invaluable. It will help identify opportunities to offer resources, programs, and support designed to strengthen your health, build resilience, and enhance balance across all six foundational pillars.
+                    </p>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -594,7 +599,7 @@ function WellnessAssessmentContent() {
                 {/* Resources Section */}
                 {currentQuestion?.id && (
                   <div className="mb-8 rounded-lg border border-gray-200 bg-gray-50 p-4">
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-3">
                       <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -603,20 +608,46 @@ function WellnessAssessmentContent() {
                       </h3>
                     </div>
                     <div className="space-y-2">
-                      {/* Resource files - these should come from master excel */}
-                      {/* For now, placeholder structure - will need backend API to fetch actual resources */}
+                      {/* Resource links - these should come from master excel */}
+                      {/* Each resource opens in a new window (not downloadable) */}
+                      {/* TODO: Replace with actual resource URLs from backend/master excel */}
                       <a
-                        href={`/resources/wellness/${currentQuestion.id}.pdf`}
+                        href={`/resources/wellness/${currentQuestion.id}/guide.pdf`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-sm text-arise-deep-teal hover:text-arise-deep-teal/80 transition-colors"
-                        download
+                        className="flex items-center gap-2 text-sm text-arise-deep-teal hover:text-arise-deep-teal/80 hover:underline transition-colors cursor-pointer"
+                        onClick={(e) => {
+                          // Prevent navigation if resource doesn't exist yet
+                          // Remove this check once actual resources are available
+                          e.preventDefault();
+                          window.open(`/resources/wellness/${currentQuestion.id}/guide.pdf`, '_blank', 'noopener,noreferrer');
+                        }}
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg>
-                        Download Resource Guide
+                        <span>Resource Guide (opens in new window)</span>
                       </a>
+                      <a
+                        href={`/resources/wellness/${currentQuestion.id}/additional.pdf`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm text-arise-deep-teal hover:text-arise-deep-teal/80 hover:underline transition-colors cursor-pointer"
+                        onClick={(e) => {
+                          // Prevent navigation if resource doesn't exist yet
+                          // Remove this check once actual resources are available
+                          e.preventDefault();
+                          window.open(`/resources/wellness/${currentQuestion.id}/additional.pdf`, '_blank', 'noopener,noreferrer');
+                        }}
+                      >
+                        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        <span>Additional Resources (opens in new window)</span>
+                      </a>
+                      <p className="text-xs text-gray-500 italic mt-3">
+                        Note: Resources are individually clickable and open in a new window for easy reference while answering questions.
+                      </p>
                     </div>
                   </div>
                 )}
