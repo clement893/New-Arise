@@ -410,9 +410,9 @@ The following sections detail your results from each assessment, along with pers
                 if (entries.length === 2) {
                   const [pref1, pref2] = entries;
                   // Show the dominant preference
-                  if (Number(pref1[1]) > Number(pref2[1])) {
+                  if (pref1 && pref2 && Number(pref1[1]) > Number(pref2[1])) {
                     return `${pref1[0]} ${pref1[1]}%`;
-                  } else {
+                  } else if (pref1 && pref2) {
                     return `${pref2[0]} ${pref2[1]}%`;
                   }
                 }
