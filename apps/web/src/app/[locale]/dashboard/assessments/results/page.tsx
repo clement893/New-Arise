@@ -392,18 +392,7 @@ function AssessmentResultsContent() {
                         <span className="text-gray-600">{t('pillarScore.label')}</span>
                         <span 
                           className="font-bold text-arise-deep-teal cursor-help"
-                          title={(() => {
-                            const pillarKey = pillar.id.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
-                            try {
-                              const translated = tWellness(`pillars.${pillarKey}`);
-                              if (translated && !translated.includes('pillars.')) {
-                                return translated;
-                              }
-                            } catch (e) {
-                              // Fallback
-                            }
-                            return pillar.name;
-                          })()}
+                          title={pillar.name}
                         >
                           {pillarScore} / 25
                         </span>

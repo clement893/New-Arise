@@ -49,37 +49,66 @@ const WellnessRadarChart: React.FC<WellnessRadarChartProps> = ({
 
   const displayLabels = labels || defaultLabels;
 
-  // Transform scores into recharts format with shorter labels
-  const data = pillarOrder.map(pillarId => {
-    let label = displayLabels[pillarId] || pillarId;
+  // Custom tick component to handle multi-line labels
+  const CustomTick = ({ payload, x, y, textAnchor }: any) => {
+    const text = payload.value;
+    const words = text.split(' ');
     
-    // Shorten long labels to fit better
-    const labelMap: Record<string, string> = {
-      'Avoidance of Risky Substances': 'Avoidance of toxic substances',
-      'Stress Management': 'Stress Management',
-      'Social Connection': 'Social Connections',
-    };
+    // Split into multiple lines if needed
+    const lines: string[] = [];
+    let currentLine = '';
     
-    label = labelMap[label] || label;
+    words.forEach((word: string) => {
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+      if (testLine.length > 12 && currentLine) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    });
+    if (currentLine) lines.push(currentLine);
     
-    return {
-      pillar: label,
-      score: scores[pillarId] || 0,
-      fullMark: 25,
-    };
-  });
+    return (
+      <text 
+        x={x} 
+        y={y} 
+        textAnchor={textAnchor} 
+        fill="#4b5563"
+        fontSize={10}
+        fontWeight={500}
+      >
+        {lines.map((line, index) => (
+          <tspan 
+            key={index} 
+            x={x} 
+            dy={index === 0 ? 0 : 12}
+          >
+            {line}
+          </tspan>
+        ))}
+      </text>
+    );
+  };
+
+  // Transform scores into recharts format
+  const data = pillarOrder.map(pillarId => ({
+    pillar: displayLabels[pillarId] || pillarId,
+    score: scores[pillarId] || 0,
+    fullMark: 25,
+  }));
 
   return (
     <div className={`w-full ${className}`}>
-      <ResponsiveContainer width="100%" height={450}>
+      <ResponsiveContainer width="100%" height={480}>
         <RadarChart 
           data={data}
-          margin={{ top: 20, right: 60, bottom: 20, left: 60 }}
+          margin={{ top: 30, right: 80, bottom: 30, left: 80 }}
         >
           <PolarGrid stroke="#e5e7eb" strokeWidth={1} />
           <PolarAngleAxis
             dataKey="pillar"
-            tick={{ fill: '#4b5563', fontSize: 10, fontWeight: 500 }}
+            tick={<CustomTick />}
             tickLine={false}
           />
           <PolarRadiusAxis
