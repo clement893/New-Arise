@@ -313,8 +313,10 @@ export default function MBTIResultsPage() {
               <div className="p-8">
                 <div className="flex items-center gap-6">
                   <div className="flex-shrink-0">
-                    <div className="w-24 h-24 bg-purple-600 rounded-full flex items-center justify-center">
-                      <span className="text-4xl font-bold text-white">{mbtiType}</span>
+                    <div className="w-32 h-32 bg-purple-600 rounded-full flex items-center justify-center">
+                      <span className={`font-bold text-white ${mbtiType.length > 4 ? 'text-2xl' : 'text-4xl'}`}>
+                        {mbtiType}
+                      </span>
                     </div>
                   </div>
                   <div className="flex-1">
