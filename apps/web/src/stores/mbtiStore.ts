@@ -114,20 +114,43 @@ export const useMBTIStore = create<MBTIState>((set, get) => ({
     const { assessmentId, answers } = get();
 
     if (!assessmentId) {
-      throw new Error('No active assessment');
+      const error = 'No active assessment';
+      set({ error, isLoading: false });
+      throw new Error(error);
+    }
+
+    // Validation: Check if we have answers before submitting
+    if (answers.length === 0) {
+      const error = 'Cannot submit assessment: No answers provided. Please complete at least one question before submitting.';
+      console.error('[MBTI Store]', error);
+      set({ error, isLoading: false });
+      throw new Error(error);
     }
 
     if (answers.length < 40) {
-      throw new Error('Please answer all questions before submitting');
+      const error = 'Please answer all questions before submitting';
+      set({ error, isLoading: false });
+      throw new Error(error);
     }
 
+    console.log(`[MBTI Store] Submitting assessment ${assessmentId} with ${answers.length} answers`);
     try {
       set({ isLoading: true, error: null });
       await submitAssessment(assessmentId);
       set({ isLoading: false });
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to submit assessment';
+      // Check if error is due to no answers - reset corrupted state
+      if (errorMessage.includes('No answers provided') || errorMessage.includes('no answers')) {
+        console.error('[MBTI Store] Assessment has no answers, resetting corrupted state');
+        set({
+          error: 'Assessment has no saved answers. Please start over.',
+          isLoading: false,
+        });
+        throw new Error('Assessment has no saved answers. Please start over.');
+      }
       set({
-        error: error instanceof Error ? error.message : 'Failed to submit assessment',
+        error: errorMessage,
         isLoading: false,
       });
       throw error;

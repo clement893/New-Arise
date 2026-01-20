@@ -82,13 +82,38 @@ export const generateAssessmentPDF = async (assessment: AssessmentForPDF): Promi
     if (assessment.type === 'MBTI' && scores.mbti_type) {
       doc.text(`Personality Type: ${scores.mbti_type}`, 20, yPos);
       yPos += 7;
+      
+      // Dimension Preferences (format: EI: E: 46%, I: 54%)
       if (scores.dimension_preferences) {
         doc.text('Dimension Preferences:', 20, yPos);
         yPos += 7;
-        Object.entries(scores.dimension_preferences).forEach(([key, value]) => {
-          doc.text(`  ${key}: ${value}`, 25, yPos);
-          yPos += 6;
+        Object.entries(scores.dimension_preferences).forEach(([dimension, preferences]) => {
+          if (typeof preferences === 'object' && preferences !== null) {
+            // Format: "EI: E: 46%, I: 54%"
+            const formattedPrefs = Object.entries(preferences)
+              .map(([letter, value]) => `${letter}: ${value}%`)
+              .join(', ');
+            doc.text(`  ${dimension}: ${formattedPrefs}`, 25, yPos);
+            yPos += 6;
+          }
         });
+        yPos += 5;
+      }
+      
+      // Dimensions (overall scores if available)
+      if (scores.dimensions) {
+        doc.text('Dimensions:', 20, yPos);
+        yPos += 7;
+        Object.entries(scores.dimensions).forEach(([dimension, dimScores]) => {
+          if (typeof dimScores === 'object' && dimScores !== null) {
+            const formattedScores = Object.entries(dimScores)
+              .map(([letter, value]) => `${letter}: ${value}%`)
+              .join(', ');
+            doc.text(`  ${dimension}: ${formattedScores}`, 25, yPos);
+            yPos += 6;
+          }
+        });
+        yPos += 5;
       }
     }
 
@@ -153,10 +178,50 @@ export const generateAssessmentPDF = async (assessment: AssessmentForPDF): Promi
     const insights = assessment.detailedResult.insights;
     if (typeof insights === 'object') {
       Object.entries(insights).forEach(([key, value]) => {
-        const text = `${key}: ${typeof value === 'string' ? value : JSON.stringify(value)}`;
+        // Format based on data type
+        let formattedValue: string;
+        
+        if (typeof value === 'string') {
+          formattedValue = value;
+        } else if (Array.isArray(value)) {
+          // Format arrays as bullet points
+          formattedValue = '\n' + value.map(item => `  • ${item}`).join('\n');
+        } else if (typeof value === 'object' && value !== null) {
+          // Format objects based on their structure
+          if (key === 'leadership_capabilities') {
+            // Format leadership capabilities specially
+            formattedValue = '\n' + Object.entries(value).map(([capKey, capValue]: [string, any]) => {
+              if (typeof capValue === 'object' && capValue !== null) {
+                return `  • ${capValue.title || capKey}:\n    ${capValue.description || ''}`;
+              }
+              return `  • ${capKey}: ${capValue}`;
+            }).join('\n');
+          } else if (key === 'dimensions') {
+            // Format dimensions
+            formattedValue = '\n' + Object.entries(value).map(([dim, scores]) => {
+              if (typeof scores === 'object' && scores !== null) {
+                const formattedScores = Object.entries(scores)
+                  .map(([letter, val]) => `${letter}: ${val}%`)
+                  .join(', ');
+                return `  • ${dim}: ${formattedScores}`;
+              }
+              return `  • ${dim}: ${scores}`;
+            }).join('\n');
+          } else {
+            // Default object formatting
+            formattedValue = '\n' + Object.entries(value).map(([k, v]) => `  • ${k}: ${v}`).join('\n');
+          }
+        } else {
+          formattedValue = String(value);
+        }
+        
+        // Format key nicely (convert snake_case to Title Case)
+        const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        
+        const text = `${formattedKey}: ${formattedValue}`;
         const lines = doc.splitTextToSize(text, pageWidth - 40);
         doc.text(lines, 20, yPos);
-        yPos += lines.length * 6;
+        yPos += lines.length * 6 + 3;
         if (yPos > pageHeight - 30) {
           doc.addPage();
           yPos = 20;
@@ -351,6 +416,33 @@ The following sections detail your results from each assessment, along with pers
       if (assessment.type === 'MBTI' && scores.mbti_type) {
         doc.text(`Personality Type: ${scores.mbti_type}`, 25, yPos);
         yPos += 7;
+        
+        // Add dimension preferences if available
+        if (scores.dimension_preferences) {
+          const dimensionSummary = Object.entries(scores.dimension_preferences)
+            .map(([dimension, prefs]) => {
+              if (typeof prefs === 'object' && prefs !== null) {
+                const entries = Object.entries(prefs);
+                if (entries.length === 2) {
+                  const [pref1, pref2] = entries;
+                  // Show the dominant preference
+                  if (Number(pref1[1]) > Number(pref2[1])) {
+                    return `${pref1[0]} ${pref1[1]}%`;
+                  } else {
+                    return `${pref2[0]} ${pref2[1]}%`;
+                  }
+                }
+              }
+              return '';
+            })
+            .filter(Boolean)
+            .join(', ');
+          
+          if (dimensionSummary) {
+            doc.text(`Preferences: ${dimensionSummary}`, 25, yPos);
+            yPos += 7;
+          }
+        }
       }
 
       if (assessment.type === 'TKI' && scores.mode_scores) {

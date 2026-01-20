@@ -238,13 +238,28 @@ export const useWellnessStore = create<WellnessState>()(
 
       // Submit assessment for scoring
       submitAssessment: async () => {
-        const { assessmentId } = get();
+        const { assessmentId, answers } = get();
 
         if (!assessmentId) {
           set({ error: 'No active assessment' });
           return;
         }
 
+        // Validation: Check if we have any answers before submitting
+        const answerCount = Object.keys(answers).length;
+        if (answerCount === 0) {
+          const error = 'Cannot submit assessment: No answers provided. Please complete at least one question before submitting.';
+          console.error('[Wellness]', error);
+          set({ 
+            error, 
+            isLoading: false,
+            // Reset corrupted state
+            isCompleted: false,
+          });
+          return;
+        }
+
+        console.log(`[Wellness] Submitting assessment ${assessmentId} with ${answerCount} answers`);
         set({ isLoading: true, error: null });
 
         try {
@@ -305,6 +320,17 @@ export const useWellnessStore = create<WellnessState>()(
                 return;
               }
             }
+            // Check if error is due to no answers - reset corrupted state
+            if (errorDetail.includes('No answers provided') || errorDetail.includes('no answers')) {
+              console.error('[Wellness] Assessment has no answers, resetting corrupted state');
+              set({
+                error: 'Assessment has no saved answers. Please start over.',
+                isLoading: false,
+                isCompleted: false,
+                // Keep assessmentId to allow user to continue
+              });
+              return;
+            }
           }
           
           // Convert error to string to prevent React error #130
@@ -319,10 +345,24 @@ export const useWellnessStore = create<WellnessState>()(
 
       // Complete assessment (for compatibility)
       completeAssessment: async () => {
-        const { assessmentId, submitAssessment } = get();
+        const { assessmentId, answers, submitAssessment } = get();
         
         if (!assessmentId) {
           set({ error: 'No active assessment' });
+          return;
+        }
+
+        // Validation: Check if we have any answers before completing
+        const answerCount = Object.keys(answers).length;
+        if (answerCount === 0) {
+          const error = 'Cannot complete assessment: No answers provided. Please complete at least one question before submitting.';
+          console.error('[Wellness]', error);
+          set({ 
+            error, 
+            isLoading: false,
+            // Reset corrupted state
+            isCompleted: false,
+          });
           return;
         }
 
@@ -355,7 +395,7 @@ export const useWellnessStore = create<WellnessState>()(
           // If we can't check status, proceed with submission
           // Convert error to string to prevent React error #130
           const errMessage = formatError(err);
-          console.warn('Failed to check assessment status:', errMessage);
+          console.warn('[Wellness] Failed to check assessment status:', errMessage);
         }
 
         // If not completed, proceed with submission

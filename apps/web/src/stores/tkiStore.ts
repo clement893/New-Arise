@@ -208,9 +208,24 @@ export const useTKIStore = create<TKIState>()(
       },
 
       submitAssessment: async () => {
-        const { assessmentId } = get();
+        const { assessmentId, answers } = get();
         if (!assessmentId) return;
 
+        // Validation: Check if we have any answers before submitting
+        const answerCount = Object.keys(answers).length;
+        if (answerCount === 0) {
+          const error = 'Cannot submit assessment: No answers provided. Please complete at least one question before submitting.';
+          console.error('[TKI Store]', error);
+          set({ 
+            error, 
+            isLoading: false,
+            // Reset corrupted state
+            isCompleted: false,
+          });
+          return;
+        }
+
+        console.log(`[TKI Store] Submitting assessment ${assessmentId} with ${answerCount} answers`);
         set({ isLoading: true, error: null });
         try {
           await submitAssessment(assessmentId);
@@ -220,6 +235,16 @@ export const useTKIStore = create<TKIState>()(
           });
         } catch (error: unknown) {
           const errorMessage = extractErrorMessage(error, 'Failed to submit assessment');
+          // Check if error is due to no answers - reset corrupted state
+          if (errorMessage.includes('No answers provided') || errorMessage.includes('no answers')) {
+            console.error('[TKI Store] Assessment has no answers, resetting corrupted state');
+            set({
+              error: 'Assessment has no saved answers. Please start over.',
+              isLoading: false,
+              isCompleted: false,
+            });
+            return;
+          }
           set({
             error: errorMessage,
             isLoading: false,

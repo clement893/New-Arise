@@ -182,10 +182,10 @@ export default function TKIResultsPage() {
           <MotionDiv variant="slideUp" duration="normal">
 
             <div className="mb-8 pb-6">
-              <h1 className="text-4xl font-bold text-black mb-2">
+              <h1 className="text-4xl font-bold mb-2" style={{ color: '#FFF' }}>
                 {t('title')}
               </h1>
-              <p className="text-black">
+              <p style={{ color: '#FFF', opacity: 0.8 }}>
                 {t('subtitle')}
               </p>
             </div>
