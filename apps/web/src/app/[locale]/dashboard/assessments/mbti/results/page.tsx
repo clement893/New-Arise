@@ -749,7 +749,7 @@ export default function MBTIResultsPage() {
                     const buttons = [];
 
                     // TKI Button
-                    if (isTKICompleted) {
+                    if (isTKICompleted && tkiAssessment) {
                       buttons.push(
                         <Button 
                           key="tki"
@@ -773,7 +773,7 @@ export default function MBTIResultsPage() {
                     }
 
                     // Wellness Button
-                    if (isWellnessCompleted) {
+                    if (isWellnessCompleted && wellnessAssessment) {
                       buttons.push(
                         <Button 
                           key="wellness"
@@ -808,7 +808,7 @@ export default function MBTIResultsPage() {
                           Try 360° Feedback
                         </Button>
                       );
-                    } else {
+                    } else if (feedback360Assessment) {
                       buttons.push(
                         <Button 
                           key="360"
