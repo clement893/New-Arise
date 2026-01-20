@@ -15,6 +15,7 @@ import Card from '@/components/ui/Card';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 import { formatError } from '@/lib/utils/formatError';
 import { feedback360CapabilityIcons, DefaultIcon } from '@/lib/utils/assessmentIcons';
+import { get360Evaluators, type EvaluatorStatus } from '@/lib/api/assessments';
 
 export default function Feedback360Page() {
   const router = useRouter();
@@ -35,6 +36,7 @@ export default function Feedback360Page() {
 
   const [screen, setScreen] = useState<'intro' | 'questions' | 'complete'>('intro');
   const [selectedValue, setSelectedValue] = useState<number | null>(null);
+  const [evaluators, setEvaluators] = useState<EvaluatorStatus[]>([]);
 
   // Safety check: ensure feedback360Questions is loaded and currentQuestion is valid
   const question = feedback360Questions && feedback360Questions.length > 0 && currentQuestion >= 0 && currentQuestion < feedback360Questions.length
@@ -65,6 +67,23 @@ export default function Feedback360Page() {
       loadExistingAnswers(assessmentId);
     }
   }, [urlAssessmentId, assessmentId, loadExistingAnswers]);
+
+  // Load evaluators to check if contributors were already added
+  useEffect(() => {
+    const loadEvaluators = async () => {
+      if (effectiveAssessmentId) {
+        try {
+          const response = await get360Evaluators(effectiveAssessmentId);
+          setEvaluators(response.evaluators || []);
+        } catch (err) {
+          console.error('Failed to load evaluators:', err);
+          setEvaluators([]);
+        }
+      }
+    };
+    
+    loadEvaluators();
+  }, [effectiveAssessmentId]);
 
   useEffect(() => {
     // Load existing answer for current question
@@ -200,6 +219,8 @@ export default function Feedback360Page() {
   }
 
   if (screen === 'complete') {
+    const hasContributors = evaluators.length > 0;
+    
     return (
       <div className="min-h-screen bg-arise-teal p-8">
         <div className="mx-auto max-w-2xl">
@@ -215,11 +236,19 @@ export default function Feedback360Page() {
             </p>
 
             <div className="mb-8 rounded-lg bg-primary-50 p-6">
-              <p className="text-sm text-primary-800">
-                <strong>Next Step:</strong> Invite colleagues to provide their feedback on your
-                leadership. Their perspectives will be combined with your self-assessment to create
-                a comprehensive 360° view.
-              </p>
+              {hasContributors ? (
+                <p className="text-sm text-primary-800">
+                  <strong>Next Step:</strong> Your contributors have been invited to provide their feedback.
+                  Once they complete their assessments, you'll get a comprehensive 360° view of your leadership
+                  combining your self-assessment with their perspectives.
+                </p>
+              ) : (
+                <p className="text-sm text-primary-800">
+                  <strong>Next Step:</strong> Invite colleagues to provide their feedback on your
+                  leadership. Their perspectives will be combined with your self-assessment to create
+                  a comprehensive 360° view.
+                </p>
+              )}
             </div>
 
             <div className="flex gap-4">

@@ -114,6 +114,7 @@ export default function Card({
   hover = false,
   onClick,
   padding = true,
+  style: customStyle,
   ...props
 }: CardProps) {
   const { theme } = useGlobalTheme();
@@ -160,6 +161,8 @@ export default function Card({
         borderColor: 'var(--glassmorphism-card-border, var(--color-border))',
         // Enhanced shadow for glassmorphism (will use normal shadow if glassmorphism not enabled)
         boxShadow: 'var(--glassmorphism-shadow, var(--shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05)))',
+        // Merge with any passed-in styles (passed-in styles take precedence)
+        ...customStyle,
       } as React.CSSProperties}
       onClick={onClick ? (e: React.MouseEvent<HTMLDivElement>) => {
         // Only trigger card onClick if the click target is the card itself or a non-interactive element

@@ -391,9 +391,11 @@ function AssessmentResultsContent() {
                       <div className="flex justify-between text-sm mb-1">
                         <span className="text-gray-600">{t('pillarScore.label')}</span>
                         <span 
-                          className="font-bold text-arise-deep-teal cursor-help"
-                          title={pillar.name}
+                          className="relative font-bold text-arise-deep-teal cursor-help group"
                         >
+                          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-white text-black text-sm font-medium rounded-lg shadow-lg border border-gray-200 whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                            {pillar.name}
+                          </span>
                           {pillarScore} / 25
                         </span>
                       </div>
