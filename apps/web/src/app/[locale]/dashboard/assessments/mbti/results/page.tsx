@@ -216,7 +216,7 @@ export default function MBTIResultsPage() {
   const isFromOCR = results.scores?.source === 'pdf_ocr';
   
   // Extract base type without variant (e.g., "ISFP-T" -> "ISFP")
-  const baseType = mbtiType.split('-')[0];
+  const baseType = mbtiType.split('-')[0] || 'XXXX';
   const typeInfo = mbtiTypes[baseType] || {
     name: 'Unknown Type',
     description: 'Type description not available.',
