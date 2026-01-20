@@ -1591,9 +1591,13 @@ async def get_360_evaluator_assessment(
                 detail="Invalid invitation token"
             )
 
-        # Mark invitation as opened
+        # Mark invitation as opened and update status to in_progress
         if not evaluator.invitation_opened_at:
             evaluator.invitation_opened_at = datetime.now(timezone.utc)
+            # Update status to IN_PROGRESS when invitation is opened
+            if evaluator.status == AssessmentStatus.NOT_STARTED:
+                evaluator.status = AssessmentStatus.IN_PROGRESS
+                evaluator.started_at = datetime.now(timezone.utc)
             await db.commit()
 
         # Get user being evaluated - fetch user directly using assessment.user_id

@@ -437,11 +437,11 @@ export default function Feedback360ResultsPage() {
                   </div>
                   <div className="flex items-center gap-1">
                     <Clock className="h-4 w-4 text-primary-600" />
-                    <span>{t('contributorStatus.inProgress')} ({evaluators.filter((e) => e.status === 'in_progress' || e.status === 'IN_PROGRESS').length})</span>
+                    <span>{t('contributorStatus.inProgress')} ({evaluators.filter((e) => (e.status === 'in_progress' || e.status === 'IN_PROGRESS') || (e.invitation_opened_at && e.status !== 'completed' && e.status !== 'COMPLETED')).length})</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Mail className="h-4 w-4 text-gray-400" />
-                    <span>{t('contributorStatus.invitationSent')} ({evaluators.filter((e) => (e.status === 'not_started' || e.status === 'NOT_STARTED') && e.invitation_sent_at).length})</span>
+                    <span>{t('contributorStatus.invitationSent')} ({evaluators.filter((e) => (e.status === 'not_started' || e.status === 'NOT_STARTED') && e.invitation_sent_at && !e.invitation_opened_at).length})</span>
                   </div>
                 </div>
               </div>
@@ -529,7 +529,7 @@ export default function Feedback360ResultsPage() {
                   </div>
 
                   {/* Scores */}
-                  <div className="mb-4 grid gap-4 md:grid-cols-2">
+                  <div className="grid gap-4 md:grid-cols-2">
                     <div>
                       <div className="mb-2 flex items-center justify-between text-sm">
                         <span className="text-gray-600">{t('capabilities.selfAssessment')}</span>
@@ -539,7 +539,7 @@ export default function Feedback360ResultsPage() {
                       </div>
                       <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
                         <div
-                          className="h-full bg-arise-teal"
+                          className="h-full bg-arise-gold"
                           style={{ width: `${(capScore.self_score / 5) * 100}%` }}
                         />
                       </div>
@@ -564,16 +564,57 @@ export default function Feedback360ResultsPage() {
                       </div>
                     )}
                   </div>
-
-                  {/* Insight */}
-                  <div className="rounded-lg bg-gray-50 p-4">
-                    <p className="text-sm text-gray-700">{getInsight(capScore)}</p>
-                  </div>
                 </MotionDiv>
               );
             })}
           </div>
         </MotionDiv>
+
+        {/* Results & Analysis Section */}
+        {results.has_evaluator_responses && (
+          <MotionDiv
+            variant="slideUp"
+            duration="normal"
+            delay={0.3}
+            className="mb-8 rounded-lg bg-white p-8 shadow-lg"
+          >
+            <h2 className="mb-6 text-2xl font-semibold text-gray-900">
+              Results & Analysis: Self vs Contributors
+            </h2>
+
+            <div className="space-y-6">
+              {results.capability_scores.map((capScore) => {
+                const capInfo = feedback360Capabilities.find(
+                  (c) => c.id === capScore.capability
+                );
+                const capabilityTitle = capInfo?.title || capScore.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+                return (
+                  <div
+                    key={`analysis-${capScore.capability}`}
+                    className="rounded-lg border border-gray-200 p-6"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        {capabilityTitle}
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        {getGapIcon(capScore.gap)}
+                        <span className={`text-sm font-medium ${getGapColor(capScore.gap)}`}>
+                          {getGapLabel(capScore.gap)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="rounded-lg bg-gray-50 p-4">
+                      <p className="text-sm text-gray-700">{getInsight(capScore)}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </MotionDiv>
+        )}
 
         {/* Recommendations */}
         <MotionDiv

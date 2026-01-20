@@ -19,6 +19,18 @@ import {
 } from '@/data/feedback360Questions';
 import { ArrowLeft, ArrowRight, CheckCircle, Loader2, Check } from 'lucide-react';
 
+// Fonction pour traduire les rôles d'évaluateur
+const translateRole = (role: string): string => {
+  const roleTranslations: Record<string, string> = {
+    'peer': 'Collègue',
+    'manager': 'Gestionnaire',
+    'direct_report': 'Subordonné direct',
+    'self': 'Auto-évaluation',
+    'other': 'Autre',
+  };
+  return roleTranslations[role.toLowerCase()] || role;
+};
+
 export default function Evaluator360Page() {
   const params = useParams();
   // Extract token from params, handling both string and array cases
@@ -237,7 +249,7 @@ export default function Evaluator360Page() {
                 )}
               </p>
               <p className="text-sm text-gray-500 mt-1">
-                Rempli par: {evaluatorInfo.evaluator_name} ({evaluatorInfo.evaluator_role})
+                Rempli par: {evaluatorInfo.evaluator_name} ({translateRole(evaluatorInfo.evaluator_role)})
               </p>
             </div>
             <div className="text-right">
@@ -318,8 +330,10 @@ export default function Evaluator360Page() {
               onClick={handleBack}
               disabled={currentQuestion === 0}
             >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Précédent
+              <span className="flex items-center gap-4">
+                <ArrowLeft className="h-4 w-4" />
+                Précédent
+              </span>
             </Button>
 
             {currentQuestion === 29 ? (
@@ -329,15 +343,15 @@ export default function Evaluator360Page() {
                 className="bg-arise-gold hover:bg-arise-gold/90"
               >
                 {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <span className="flex items-center gap-4">
+                    <Loader2 className="h-4 w-4 animate-spin" />
                     Envoi en cours...
-                  </>
+                  </span>
                 ) : (
-                  <>
+                  <span className="flex items-center gap-4">
                     Soumettre
-                    <CheckCircle className="ml-2 h-4 w-4" />
-                  </>
+                    <CheckCircle className="h-4 w-4" />
+                  </span>
                 )}
               </Button>
             ) : (
@@ -346,8 +360,10 @@ export default function Evaluator360Page() {
                 disabled={selectedValue === null}
                 className="bg-arise-gold hover:bg-arise-gold/90"
               >
-                Suivant
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <span className="flex items-center gap-4">
+                  Suivant
+                  <ArrowRight className="h-4 w-4" />
+                </span>
               </Button>
             )}
           </div>
