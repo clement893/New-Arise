@@ -616,55 +616,6 @@ export default function Feedback360ResultsPage() {
           </MotionDiv>
         )}
 
-        {/* Recommendations */}
-        <MotionDiv
-          variant="slideUp"
-          duration="normal"
-          delay={0.4}
-          className="rounded-lg bg-white p-8 shadow-lg"
-        >
-          <h2 className="mb-6 text-2xl font-semibold text-gray-900">
-            {t('recommendations.title')}
-          </h2>
-
-          <div className="space-y-4">
-            {!results.has_evaluator_responses && evaluators.length === 0 && (
-              <div className="rounded-lg bg-primary-50 p-6">
-                <h3 className="mb-2 font-semibold text-primary-900">
-                  {t('recommendations.complete360.title')}
-                </h3>
-                <p className="mb-4 text-sm text-primary-800">
-                  {t('recommendations.complete360.description')}
-                </p>
-                <Button
-                  onClick={() => router.push('/dashboard/assessments/360-feedback/start')}
-                  className="bg-arise-gold hover:bg-arise-gold/90"
-                >
-                  {t('recommendations.complete360.button')}
-                </Button>
-              </div>
-            )}
-
-            <div className="rounded-lg bg-success-50 p-6">
-              <h3 className="mb-2 font-semibold text-success-900">
-                {t('recommendations.developmentPlan.title')}
-              </h3>
-              <p className="text-sm text-success-800">
-                {t('recommendations.developmentPlan.description')}
-              </p>
-            </div>
-
-            <div className="rounded-lg bg-purple-50 p-6">
-              <h3 className="mb-2 font-semibold text-purple-900">
-                {t('recommendations.coaching.title')}
-              </h3>
-              <p className="text-sm text-purple-800">
-                {t('recommendations.coaching.description')}
-              </p>
-            </div>
-          </div>
-        </MotionDiv>
-
         {/* Back to assessments button at bottom */}
         <div className="flex justify-center mt-8 mb-8">
           <Button

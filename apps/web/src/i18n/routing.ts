@@ -40,18 +40,18 @@ export const routing = defineRouting({
   locales,
 
   // Used when no locale matches
-  defaultLocale: 'en',
+  defaultLocale: 'fr',
 
   // Disable automatic locale detection from browser headers
-  // This ensures the root URL always serves English, not the browser's preferred language
+  // This ensures the root URL always serves French, not the browser's preferred language
   localeDetection: false,
 
   // Locale prefix strategy
   localePrefix: {
     mode: 'as-needed', // Only show locale prefix when not default
     prefixes: {
-      en: '', // English has no prefix
-      fr: '/fr',
+      fr: '', // French has no prefix (default)
+      en: '/en',
       ar: '/ar',
       he: '/he',
     },
