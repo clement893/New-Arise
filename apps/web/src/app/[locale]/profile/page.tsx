@@ -12,6 +12,7 @@ import { clsx } from 'clsx';
 import { usersAPI, apiClient } from '@/lib/api';
 import { useToast } from '@/lib/toast';
 import { transformApiUserToStoreUser, type ApiUserResponse } from '@/lib/auth/userTransform';
+import { SquarePen } from 'lucide-react';
 
 export default function ProfilePage() {
   const t = useTranslations('profile');
@@ -481,10 +482,17 @@ export default function ProfilePage() {
             <Button
               onClick={handleSave}
               disabled={isSaving || isLoading}
-              className="!bg-arise-gold-alt !text-arise-deep-teal-alt hover:!bg-arise-gold-alt/90 font-semibold px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-4 !bg-arise-gold-alt !text-arise-deep-teal-alt hover:!bg-arise-gold-alt/90 font-semibold px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ backgroundColor: 'var(--color-arise-gold-alt, #F4B860)', color: 'var(--color-arise-deep-teal-alt, #1B5E6B)' }}
             >
-              {isSaving ? t('saveButton.saving') : <span style={{ color: '#2E2E2E' }}>{t('saveButton.save')}</span>}
+              {isSaving ? (
+                t('saveButton.saving')
+              ) : (
+                <>
+                  <SquarePen className="w-4 h-4" />
+                  <span style={{ color: '#2E2E2E' }}>{t('saveButton.save')}</span>
+                </>
+              )}
             </Button>
           </div>
           </div>

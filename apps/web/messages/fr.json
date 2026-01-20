@@ -1802,7 +1802,7 @@
       "saving": "Enregistrement..."
     },
     "toast": {
-      "saveSuccess": "Profil mis à jour avec succès",
+      "saveSuccess": "Les modifications ont été effectuées",
       "partialSave": "Profil mis à jour, mais certaines informations supplémentaires n'ont pas pu être enregistrées"
     },
     "description": "Gérez les informations de votre profil et les paramètres du compte",

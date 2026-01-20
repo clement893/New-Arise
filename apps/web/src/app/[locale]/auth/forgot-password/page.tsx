@@ -97,7 +97,7 @@ function ForgotPasswordContent() {
 
             <div className="mt-6 text-center">
               <Link 
-                href="/auth/login" 
+                href="/login" 
                 className="text-primary-600 dark:text-primary-400 hover:underline"
               >
                 Back to Login
