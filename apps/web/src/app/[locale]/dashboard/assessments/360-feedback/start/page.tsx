@@ -587,8 +587,8 @@ export default function Start360FeedbackPage() {
                   onClick={addEvaluator}
                   className="flex items-center gap-2"
                   style={{ 
-                    border: '1px solid #D8B868',
-                    color: '#D8B868',
+                    border: '1px solid #0f4c56',
+                    color: '#0f4c56',
                     padding: '3px 6px'
                   }}
                 >
@@ -613,8 +613,8 @@ export default function Start360FeedbackPage() {
                     }}
                     disabled={isSubmitting}
                     style={{ 
-                      border: '1px solid #D8B868',
-                      color: '#D8B868',
+                      border: '1px solid #0f4c56',
+                      color: '#0f4c56',
                       padding: '6px 12px'
                     }}
                   >
@@ -626,8 +626,8 @@ export default function Start360FeedbackPage() {
                     onClick={handleSkip}
                     disabled={isSubmitting}
                     style={{ 
-                      border: '1px solid #D8B868',
-                      color: '#D8B868',
+                      border: '1px solid #0f4c56',
+                      color: '#0f4c56',
                       padding: '6px 12px'
                     }}
                   >

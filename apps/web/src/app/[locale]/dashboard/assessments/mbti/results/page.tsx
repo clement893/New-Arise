@@ -94,16 +94,6 @@ export default function MBTIResultsPage() {
     return labels[dimension] || dimension;
   };
 
-  const getDimensionFromCode = (code: string): string => {
-    const mapping: Record<string, string> = {
-      'EI': 'Energy',
-      'SN': 'Mind',
-      'TF': 'Nature',
-      'JP': 'Tactics',
-    };
-    return mapping[code] || code;
-  };
-
   const getPreferenceLabel = (preference: string): string => {
     const labels: Record<string, string> = {
       E: t('preferences.extraversion'),
