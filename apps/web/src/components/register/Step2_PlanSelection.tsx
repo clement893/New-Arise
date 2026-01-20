@@ -189,45 +189,34 @@ export function Step2_PlanSelection() {
                     : 'border-gray-200 hover:border-arise-deep-teal hover:rounded-lg'
                 } ${plan.is_popular ? 'ring-2 ring-arise-gold' : ''}`}
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-grow">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-bold text-arise-deep-teal">
-                        {plan.name}
-                        {plan.is_popular && (
-                          <span className="ml-2 text-sm bg-arise-gold text-arise-deep-teal px-2 py-1 rounded">
-                            Popular
-                          </span>
-                        )}
-                      </h3>
-                      <span className="text-lg font-semibold text-arise-gold">
-                        {formatPrice(plan)}
-                        {plan.amount && Number(plan.amount) > 0 && formatInterval(plan)}
-                      </span>
-                    </div>
-                    {plan.description && (
-                      <p className="text-gray-600 mb-3">{plan.description}</p>
-                    )}
-                    {features.length > 0 && (
-                      <ul className="space-y-2">
-                        {features.map((feature, index) => (
-                          <li key={index} className="flex items-center gap-2 text-gray-700">
-                            <Check className="w-4 h-4 text-arise-gold" />
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+                <div className="flex-grow">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                    <h3 className="text-xl font-bold text-arise-deep-teal">
+                      {plan.name}
+                      {plan.is_popular && (
+                        <span className="ml-2 text-sm bg-arise-gold text-arise-deep-teal px-2 py-1 rounded">
+                          Popular
+                        </span>
+                      )}
+                    </h3>
+                    <span className="text-lg font-semibold text-arise-gold">
+                      {formatPrice(plan)}
+                      {plan.amount && Number(plan.amount) > 0 && formatInterval(plan)}
+                    </span>
                   </div>
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ml-4 self-center ${
-                    selectedPlanId === plan.id
-                      ? 'border-arise-gold bg-arise-gold'
-                      : 'border-gray-300'
-                  }`}>
-                    {selectedPlanId === plan.id && (
-                      <Check className="w-4 h-4 text-white" />
-                    )}
-                  </div>
+                  {plan.description && (
+                    <p className="text-gray-600 mb-3 break-words">{plan.description}</p>
+                  )}
+                  {features.length > 0 && (
+                    <ul className="space-y-2">
+                      {features.map((feature, index) => (
+                        <li key={index} className="flex items-center gap-2 text-gray-700">
+                          <Check className="w-4 h-4 text-arise-gold" />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               </div>
             );
