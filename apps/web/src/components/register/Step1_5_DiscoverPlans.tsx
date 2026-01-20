@@ -57,7 +57,7 @@ export function Step1_5_DiscoverPlans() {
     },
   ];
 
-  const features: Feature[] = [
+  const allFeatures: Feature[] = [
     {
       id: 'professional-assessment',
       title: 'Professional Assessment',
@@ -78,7 +78,24 @@ export function Step1_5_DiscoverPlans() {
       title: 'Executive summary',
       description: 'Arise holistic leadership assessment',
     },
+    {
+      id: 'basic-assessment-summary',
+      title: 'Basic Assessment Summary',
+      description: 'Essential overview of your assessment results',
+    },
   ];
+
+  // Map features to plans
+  const planFeatureMap: Record<string, string[]> = {
+    'revelation': ['professional-assessment', '360-peer-evaluation', 'wellness-pulse', 'executive-summary'],
+    'self-exploration': ['professional-assessment', 'wellness-pulse', 'executive-summary'],
+    'wellness': ['wellness-pulse', 'basic-assessment-summary'],
+  };
+
+  // Filter features based on selected plan
+  const features = allFeatures.filter(feature => 
+    planFeatureMap[selectedPlanTab]?.includes(feature.id)
+  );
 
   const toggleFeature = (featureId: string) => {
     setSelectedFeatures((prev) => {
