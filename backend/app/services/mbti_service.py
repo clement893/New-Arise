@@ -443,11 +443,21 @@ def interpret_mbti_results(mbti_type: str, dimension_preferences: Dict[str, Any]
     }
 
     for dimension, prefs in dimension_preferences.items():
-        preference = prefs['preference']
+        # Handle both formats: with explicit 'preference' key or without
+        if 'preference' in prefs:
+            preference = prefs['preference']
+        else:
+            # Calculate preference from percentages (highest value)
+            # For example: {"E": 46, "I": 54} -> preference is "I"
+            preference = max(prefs.items(), key=lambda x: x[1])[0]
+        
+        # Get percentage for the preference
+        percentage = prefs.get(preference, 0)
+        
         insights['dimensions'][dimension] = {
             'preference': preference,
-            'percentage': prefs[preference],
-            'description': dimension_interpretations[dimension][preference],
+            'percentage': percentage,
+            'description': dimension_interpretations.get(dimension, {}).get(preference, 'No description available'),
         }
 
     return insights
