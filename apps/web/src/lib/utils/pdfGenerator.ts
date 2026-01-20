@@ -404,7 +404,7 @@ The following sections detail your results from each assessment, along with pers
         // Add dimension preferences if available
         if (scores.dimension_preferences) {
           const dimensionSummary = Object.entries(scores.dimension_preferences)
-            .map(([dimension, prefs]) => {
+            .map(([_dimension, prefs]) => {
               if (typeof prefs === 'object' && prefs !== null) {
                 const entries = Object.entries(prefs);
                 if (entries.length === 2) {
