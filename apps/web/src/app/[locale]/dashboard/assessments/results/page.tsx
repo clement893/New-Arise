@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
 import { Card, Button } from '@/components/ui';
@@ -18,7 +18,6 @@ import WellnessRadarChart from '@/components/assessments/charts/WellnessRadarCha
 
 function AssessmentResultsContent() {
   const t = useTranslations('dashboard.assessments.results');
-  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   // Ensure assessmentId is always a string or null, never an object
