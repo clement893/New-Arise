@@ -138,12 +138,12 @@ export function Step3_CreateAccount() {
 
         {selectedPlan && (
           <div className="mb-6 p-4 bg-arise-light-beige border-2 border-arise-gold rounded-lg">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Selected Plan</p>
                 <p className="text-lg font-semibold text-arise-deep-teal">{selectedPlan.name}</p>
               </div>
-              <div className="text-right">
+              <div className="sm:text-right">
                 <p className="text-xl font-bold text-arise-gold">
                   {formatPrice()}
                   {selectedPlan.amount && (typeof selectedPlan.amount === 'string' ? parseFloat(selectedPlan.amount) : selectedPlan.amount) > 0 && formatInterval()}

@@ -1,0 +1,40 @@
+╔══════════════════════════════════════════════════════════════╗
+║           ACTION IMMÉDIATE - Debug MBTI Extraction           ║
+╚══════════════════════════════════════════════════════════════╝
+
+ERREUR ACTUELLE:
+  ❌ "No MBTI data could be extracted from the provided source"
+  
+CAUSE:
+  ❓ Inconnue - besoin de logs détaillés
+
+SOLUTION:
+  ✅ Messages d'erreur améliorés prêts à déployer
+  ✅ Code prêt dans: backend/app/api/v1/endpoints/assessments.py
+
+╔══════════════════════════════════════════════════════════════╗
+║                  EXÉCUTEZ CES 3 COMMANDES:                   ║
+╚══════════════════════════════════════════════════════════════╝
+
+git add backend/app/api/v1/endpoints/assessments.py
+git commit -m "fix: Add detailed error messages for MBTI extraction debugging"
+git push origin main
+
+╔══════════════════════════════════════════════════════════════╗
+║                    PUIS DANS 5 MINUTES:                      ║
+╚══════════════════════════════════════════════════════════════╝
+
+1. Testez l'import depuis URL à nouveau
+2. Lisez le nouveau message d'erreur DÉTAILLÉ
+3. Le message vous dira exactement quoi faire
+
+MESSAGES ATTENDUS:
+  • Si "Playwright issue" → Chromium pas installé
+  • Si "Timeout" → Page trop lente
+  • Si "403" → Profil privé
+  
+TEMPS TOTAL: 5 minutes (deploy + test)
+
+╔══════════════════════════════════════════════════════════════╗
+║         DOCUMENTATION: COMMIT_DEBUG_MAINTENANT.md            ║
+╚══════════════════════════════════════════════════════════════╝

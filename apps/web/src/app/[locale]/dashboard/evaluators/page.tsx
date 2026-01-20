@@ -695,6 +695,16 @@ function EvaluatorsContent() {
               </Button>
             )}
           </div>
+          
+          {/* Email Notice */}
+          <div className="mt-4 rounded-lg bg-primary-50 p-4">
+            <div className="flex items-start gap-3">
+              <Mail className="mt-0.5 h-5 w-5 text-primary-600 flex-shrink-0" />
+              <p className="text-sm text-primary-800">
+                {t('emailNotice')}
+              </p>
+            </div>
+          </div>
         </div>
       </MotionDiv>
 

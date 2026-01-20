@@ -609,7 +609,9 @@ export default function MBTIPDFUploadPage() {
                   <ol className="space-y-1 ml-4 list-decimal">
                     <li>{locale === 'fr' ? 'Retournez sur' : 'Go back to'} <a href="https://www.16personalities.com" target="_blank" rel="noopener noreferrer" className="underline font-medium">16Personalities</a></li>
                     <li>{locale === 'fr' ? 'Connectez-vous à votre compte' : 'Log in to your account'}</li>
-                    <li>{locale === 'fr' ? 'Téléchargez votre PDF de résultats depuis votre profil' : 'Download your results PDF from your profile'}</li>
+                    <li>{locale === 'fr' ? 'Allez sur Votre Profil' : 'Go to Your Profile'}</li>
+                    <li>{locale === 'fr' ? 'Sélectionnez Vue d\'ensemble' : 'Select Overview'}</li>
+                    <li>{locale === 'fr' ? 'Téléchargez la Fiche d\'information' : 'Download Factsheet'}</li>
                     <li>{locale === 'fr' ? 'Revenez ici et téléchargez le fichier PDF' : 'Come back here and upload the PDF file'}</li>
                   </ol>
                 </div>

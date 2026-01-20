@@ -1932,20 +1932,42 @@ async def upload_mbti_pdf(
         if profile_url and not pdf_bytes:
             # First, try HTML parsing (faster and more direct)
             logger.info(f"Extracting MBTI data from 16Personalities profile URL using HTML parsing: {profile_url}")
+            html_error_msg = None
+            pdf_error_msg = None
+            
             try:
                 extracted_data = await ocr_service.extract_mbti_from_html_url(profile_url)
                 logger.info(f"Successfully extracted MBTI data from HTML: {extracted_data.get('mbti_type', 'unknown')}")
             except Exception as html_error:
-                logger.warning(f"HTML parsing failed: {html_error}. Falling back to PDF download...")
+                html_error_msg = str(html_error)
+                logger.warning(f"HTML parsing failed: {html_error_msg}. Falling back to PDF download...")
                 # Fall back to PDF download method
                 try:
                     pdf_bytes = await ocr_service.download_pdf_from_url(profile_url)
                     logger.info(f"Successfully downloaded PDF ({len(pdf_bytes)} bytes) from profile URL")
                 except Exception as download_error:
+                    pdf_error_msg = str(download_error)
                     logger.error(f"Both HTML parsing and PDF download failed", exc_info=True)
+                    
+                    # Provide detailed error message
+                    error_detail = f"Failed to extract data from URL.\n\n"
+                    error_detail += f"HTML parsing error: {html_error_msg}\n\n"
+                    error_detail += f"PDF download error: {pdf_error_msg}\n\n"
+                    
+                    # Add specific guidance based on error type
+                    if "Playwright" in html_error_msg or "playwright" in html_error_msg.lower():
+                        error_detail += "⚠️ Playwright issue detected. This usually means the browser engine is not properly installed on the server.\n"
+                        error_detail += "Please contact support to ensure Playwright and Chromium are installed on the production server."
+                    elif "Timeout" in html_error_msg or "timeout" in html_error_msg.lower():
+                        error_detail += "⏱️ The page took too long to load. Please try again or use the PDF upload option instead."
+                    elif "403" in html_error_msg or "forbidden" in html_error_msg.lower():
+                        error_detail += "🔒 Access forbidden. Please ensure your 16Personalities profile is set to PUBLIC in your profile settings."
+                    else:
+                        error_detail += "💡 Try uploading a PDF file instead: Go to your profile on 16personalities.com and download the PDF, then upload it here."
+                    
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
-                        detail=f"Failed to extract data from URL. HTML parsing error: {str(html_error)}. PDF download error: {str(download_error)}"
+                        detail=error_detail
                     )
         
         # If we have PDF bytes but no extracted data yet, extract from PDF

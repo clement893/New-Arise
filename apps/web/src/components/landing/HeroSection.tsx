@@ -17,14 +17,14 @@ export function HeroSection() {
       />
       {/* Vertical lines texture */}
       <div 
-        className="absolute inset-0 opacity-20"
+        className="absolute inset-0 opacity-40"
         style={{
           backgroundImage: `repeating-linear-gradient(
             90deg,
             transparent,
             transparent 3px,
-            rgba(255, 255, 255, 0.08) 3px,
-            rgba(255, 255, 255, 0.08) 4px
+            rgba(255, 255, 255, 0.2) 3px,
+            rgba(255, 255, 255, 0.2) 5px
           )`
         }}
       />
