@@ -416,14 +416,14 @@
         },
         "actions": {
           "takeTest": "Take the Free Personality Test",
-          "completedTest": "I've Already Completed the Test",
+          "completedTest": "I've completed the test, upload my Factsheet (PDF)",
           "readyToUpload": "Ready to Upload Your Results",
           "uploadPDF": "Upload Your PDF Results",
           "factsheetInstructions": {
-            "title": "How to Get Your PDF:",
-            "step1": "After completing the test on 16Personalities, scroll to the bottom of your results page",
-            "step2": "Look for the 'Download as PDF' or 'Save as PDF' button",
-            "step3": "Save the PDF and return here to upload it"
+            "title": "To find your Factsheet:",
+            "step1": "Go to Your Profile",
+            "step2": "Select Overview",
+            "step3": "Download Factsheet"
           }
         },
         "aboutMBTI": {

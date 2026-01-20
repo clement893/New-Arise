@@ -42,9 +42,8 @@ RUN apt-get update && apt-get install -y \
 FROM base AS deps
 COPY requirements.txt* ./
 RUN pip install --no-cache-dir --upgrade pip && \
-    if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi && \
-    playwright install chromium && \
-    playwright install-deps chromium
+    if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi
+# Note: Playwright browsers will be installed in the runner stage to ensure proper permissions
 
 # Production image
 FROM base AS runner
@@ -75,7 +74,14 @@ RUN chown -R appuser:appuser /app
 RUN chmod +x entrypoint.sh start.py 2>/dev/null || true && \
     chown appuser:appuser entrypoint.sh start.py 2>/dev/null || true
 
+# Install Playwright browsers as the appuser (so they go to the right home directory)
 USER appuser
+
+# Set environment variable for Playwright cache directory
+ENV PLAYWRIGHT_BROWSERS_PATH=/home/appuser/.cache/ms-playwright
+
+# Install Playwright browsers as appuser (system deps already installed in base image)
+RUN playwright install chromium
 
 EXPOSE 8000
 

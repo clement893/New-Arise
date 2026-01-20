@@ -350,14 +350,14 @@
         },
         "actions": {
           "takeTest": "Passer le test de personnalité gratuit",
-          "completedTest": "J'ai déjà complété le test",
+          "completedTest": "J'ai complété le test, téléverser ma Fiche descriptive (PDF)",
           "readyToUpload": "Prêt à téléverser vos résultats",
           "uploadPDF": "Téléverser vos résultats PDF",
           "factsheetInstructions": {
-            "title": "Comment obtenir votre PDF :",
-            "step1": "Après avoir complété le test sur 16Personalities, faites défiler jusqu'au bas de votre page de résultats",
-            "step2": "Cherchez le bouton 'Télécharger en PDF' ou 'Enregistrer en PDF'",
-            "step3": "Enregistrez le PDF et revenez ici pour le téléverser"
+            "title": "Pour trouver votre Fiche descriptive :",
+            "step1": "Allez à Votre Profil",
+            "step2": "Sélectionnez Aperçu",
+            "step3": "Téléchargez la Fiche descriptive"
           }
         },
         "aboutMBTI": {
