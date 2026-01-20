@@ -41,7 +41,7 @@ export function Step1_5_DiscoverPlans() {
       name: 'SELF EXPLORATION', 
       price: 250,
       included: [
-        'Professional Assessment (MBTI + ARISE Conflict Management)',
+        'Professional Assessment',
         'Wellness Pulse',
         'Executive Summary'
       ]
