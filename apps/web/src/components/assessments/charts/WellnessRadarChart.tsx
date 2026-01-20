@@ -49,21 +49,37 @@ const WellnessRadarChart: React.FC<WellnessRadarChartProps> = ({
 
   const displayLabels = labels || defaultLabels;
 
-  // Transform scores into recharts format
-  const data = pillarOrder.map(pillarId => ({
-    pillar: displayLabels[pillarId] || pillarId,
-    score: scores[pillarId] || 0,
-    fullMark: 25,
-  }));
+  // Transform scores into recharts format with shorter labels
+  const data = pillarOrder.map(pillarId => {
+    let label = displayLabels[pillarId] || pillarId;
+    
+    // Shorten long labels to fit better
+    const labelMap: Record<string, string> = {
+      'Avoidance of Risky Substances': 'Avoidance of toxic substances',
+      'Stress Management': 'Stress Management',
+      'Social Connection': 'Social Connections',
+    };
+    
+    label = labelMap[label] || label;
+    
+    return {
+      pillar: label,
+      score: scores[pillarId] || 0,
+      fullMark: 25,
+    };
+  });
 
   return (
     <div className={`w-full ${className}`}>
-      <ResponsiveContainer width="100%" height={400}>
-        <RadarChart data={data}>
+      <ResponsiveContainer width="100%" height={450}>
+        <RadarChart 
+          data={data}
+          margin={{ top: 20, right: 60, bottom: 20, left: 60 }}
+        >
           <PolarGrid stroke="#e5e7eb" strokeWidth={1} />
           <PolarAngleAxis
             dataKey="pillar"
-            tick={{ fill: '#4b5563', fontSize: 11, fontWeight: 500 }}
+            tick={{ fill: '#4b5563', fontSize: 10, fontWeight: 500 }}
             tickLine={false}
           />
           <PolarRadiusAxis

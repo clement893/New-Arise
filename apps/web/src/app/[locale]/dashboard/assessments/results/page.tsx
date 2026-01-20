@@ -17,6 +17,7 @@ import WellnessRadarChart from '@/components/assessments/charts/WellnessRadarCha
 
 function AssessmentResultsContent() {
   const t = useTranslations('dashboard.assessments.results');
+  const tWellness = useTranslations('dashboard.assessments.wellness.results');
   const router = useRouter();
   const searchParams = useSearchParams();
   // Ensure assessmentId is always a string or null, never an object
@@ -271,7 +272,7 @@ function AssessmentResultsContent() {
                 {/* Right side - Wellness Radar */}
                 <div className="flex flex-col items-center justify-center">
                   <h3 className="text-xl font-bold mb-4 text-center">ARISE Wellness Radar</h3>
-                  <div className="bg-white rounded-lg p-4 w-full">
+                  <div className="bg-white rounded-lg p-2 w-full overflow-visible">
                     <WellnessRadarChart 
                       scores={(() => {
                         // Transform pillar_scores to simple number map
@@ -291,8 +292,8 @@ function AssessmentResultsContent() {
                         wellnessPillars.forEach(pillar => {
                           const pillarKey = pillar.id.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
                           try {
-                            const translated = t(`wellness.results.pillars.${pillarKey}`);
-                            if (translated && translated !== `wellness.results.pillars.${pillarKey}`) {
+                            const translated = tWellness(`pillars.${pillarKey}`);
+                            if (translated && !translated.includes('pillars.')) {
                               translatedLabels[pillar.id] = translated;
                             } else {
                               translatedLabels[pillar.id] = pillar.name;
@@ -369,8 +370,8 @@ function AssessmentResultsContent() {
                             // Translate pillar name - convert snake_case to camelCase
                             const pillarKey = pillar.id.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
                             try {
-                              const translated = t(`wellness.results.pillars.${pillarKey}`);
-                              if (translated && translated !== `wellness.results.pillars.${pillarKey}`) {
+                              const translated = tWellness(`pillars.${pillarKey}`);
+                              if (translated && !translated.includes('pillars.')) {
                                 return translated;
                               }
                             } catch (e) {
@@ -389,7 +390,21 @@ function AssessmentResultsContent() {
                     <div className="mb-3">
                       <div className="flex justify-between text-sm mb-1">
                         <span className="text-gray-600">{t('pillarScore.label')}</span>
-                        <span className="font-bold text-arise-deep-teal">
+                        <span 
+                          className="font-bold text-arise-deep-teal cursor-help"
+                          title={(() => {
+                            const pillarKey = pillar.id.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+                            try {
+                              const translated = tWellness(`pillars.${pillarKey}`);
+                              if (translated && !translated.includes('pillars.')) {
+                                return translated;
+                              }
+                            } catch (e) {
+                              // Fallback
+                            }
+                            return pillar.name;
+                          })()}
+                        >
                           {pillarScore} / 25
                         </span>
                       </div>
@@ -490,8 +505,8 @@ function AssessmentResultsContent() {
                             if (strongestPillar) {
                               const pillarKey = strongestPillar.id.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
                               try {
-                                const translated = t(`wellness.results.pillars.${pillarKey}`);
-                                if (translated && translated !== `wellness.results.pillars.${pillarKey}`) {
+                                const translated = tWellness(`pillars.${pillarKey}`);
+                                if (translated && !translated.includes('pillars.')) {
                                   return translated;
                                 }
                               } catch (e) {
@@ -526,8 +541,8 @@ function AssessmentResultsContent() {
                             if (weakestPillar) {
                               const pillarKey = weakestPillar.id.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
                               try {
-                                const translated = t(`wellness.results.pillars.${pillarKey}`);
-                                if (translated && translated !== `wellness.results.pillars.${pillarKey}`) {
+                                const translated = tWellness(`pillars.${pillarKey}`);
+                                if (translated && !translated.includes('pillars.')) {
                                   return translated;
                                 }
                               } catch (e) {
