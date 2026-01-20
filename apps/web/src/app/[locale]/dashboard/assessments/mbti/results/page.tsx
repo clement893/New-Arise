@@ -214,7 +214,10 @@ export default function MBTIResultsPage() {
   const insights = results.insights || {};
   const recommendations = results.recommendations || [];
   const isFromOCR = results.scores?.source === 'pdf_ocr';
-  const typeInfo = mbtiTypes[mbtiType] || {
+  
+  // Extract base type without variant (e.g., "ISFP-T" -> "ISFP")
+  const baseType = mbtiType.split('-')[0];
+  const typeInfo = mbtiTypes[baseType] || {
     name: 'Unknown Type',
     description: 'Type description not available.',
     strengths: [],

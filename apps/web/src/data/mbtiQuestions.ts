@@ -582,7 +582,7 @@ export const mbtiTypes: Record<string, { name: string; description: string; stre
       strengths: ['Practical', 'Flexible', 'Logical', 'Hands-on'],
     },
     ISFP: {
-      name: 'The Composer',
+      name: 'Adventurer',
       description:
         'Flexible and charming artists, always ready to explore and experience something new.',
       strengths: ['Artistic', 'Sensitive', 'Flexible', 'Spontaneous'],

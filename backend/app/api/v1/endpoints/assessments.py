@@ -2050,11 +2050,20 @@ async def upload_mbti_pdf(
             )
             existing_result = check_result.first()
             
+            # Generate comprehensive insights including leadership capabilities
+            from app.services.mbti_service import interpret_mbti_results
+            
+            # Extract base MBTI type (remove -T or -A variant for insights generation)
+            base_mbti_type = mbti_type_clean
+            comprehensive_insights = interpret_mbti_results(base_mbti_type, dimension_preferences)
+            
+            # Merge extracted data with generated insights
             insights_json = json.dumps({
                 "description": extracted_data.get("description"),
                 "strengths": extracted_data.get("strengths", []),
                 "challenges": extracted_data.get("challenges", []),
-                "dimensions": extracted_data.get("dimension_preferences", {})
+                "dimensions": extracted_data.get("dimension_preferences", {}),
+                "leadership_capabilities": comprehensive_insights.get("leadership_capabilities", {})
             })
             recommendations_json = json.dumps({})
             scores_json = json.dumps(scores)
