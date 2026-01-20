@@ -132,7 +132,7 @@ export default function Evaluator360Page() {
   const tokenParam = params?.token;
   const token = Array.isArray(tokenParam) ? tokenParam[0] : (tokenParam as string);
   const localeParam = params?.locale;
-  const locale = Array.isArray(localeParam) ? localeParam[0] : (localeParam as string || 'en');
+  const locale: string = Array.isArray(localeParam) ? localeParam[0] : (localeParam || 'en') as string;
 
   const [evaluatorInfo, setEvaluatorInfo] = useState<EvaluatorAssessmentInfo | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
