@@ -1472,13 +1472,18 @@ async def reset_password(
     """
     logger.info(f"🔐 RESET PASSWORD ENDPOINT CALLED")
     logger.info(f"🔐 Request data received - Token present: {bool(reset_data.token)}, Password present: {bool(reset_data.new_password)}")
+    print(f"🔐 [DEBUG] Password reset endpoint called - Token: {bool(reset_data.token)}, Password: {bool(reset_data.new_password)}", flush=True)
     
     try:
         # Get client IP and user agent for audit logging
-        client_ip = request.client.host if request.client else None
-        user_agent = request.headers.get("user-agent")
-        
-        logger.info(f"🔐 Password reset request received - IP: {client_ip}")
+        try:
+            client_ip = request.client.host if request.client else None
+            user_agent = request.headers.get("user-agent")
+            logger.info(f"🔐 Password reset request received - IP: {client_ip}")
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to get client info: {e}")
+            client_ip = None
+            user_agent = None
         
         # Validate request data
         try:
@@ -1509,6 +1514,7 @@ async def reset_password(
             raise
         except Exception as validation_error:
             logger.error(f"❌ Request validation error: {type(validation_error).__name__}: {str(validation_error)}", exc_info=True)
+            print(f"❌ [ERROR] Validation error: {type(validation_error).__name__}: {str(validation_error)}", flush=True)
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Invalid request data: {str(validation_error)}"
@@ -1516,22 +1522,48 @@ async def reset_password(
         
         try:
             logger.info(f"🔐 Password reset attempt - Token length: {len(reset_data.token)}, Password length: {len(reset_data.new_password)}")
-            logger.info(f"🔐 SECRET_KEY configured: {'Yes' if settings.SECRET_KEY else 'No'}")
-            logger.info(f"🔐 ALGORITHM: {settings.ALGORITHM}")
+            
+            # Verify settings are loaded correctly
+            try:
+                has_secret = bool(settings.SECRET_KEY)
+                secret_len = len(settings.SECRET_KEY) if settings.SECRET_KEY else 0
+                logger.info(f"🔐 SECRET_KEY configured: {has_secret}, length: {secret_len}")
+                logger.info(f"🔐 ALGORITHM: {settings.ALGORITHM}")
+                print(f"🔐 [DEBUG] SECRET_KEY present: {has_secret}, length: {secret_len}, algorithm: {settings.ALGORITHM}", flush=True)
+                
+                if not settings.SECRET_KEY:
+                    logger.error("❌ SECRET_KEY is not configured!")
+                    print("❌ [CRITICAL] SECRET_KEY is not configured in settings!", flush=True)
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail="Server configuration error. Please contact support."
+                    )
+            except Exception as settings_error:
+                logger.error(f"❌ Error accessing settings: {type(settings_error).__name__}: {str(settings_error)}", exc_info=True)
+                print(f"❌ [ERROR] Settings access error: {type(settings_error).__name__}: {str(settings_error)}", flush=True)
+                raise
             
             # Decode and verify reset token
             try:
+                print(f"🔐 [DEBUG] Attempting to decode JWT token...", flush=True)
                 payload = jwt.decode(
                     reset_data.token,
                     settings.SECRET_KEY,
                     algorithms=[settings.ALGORITHM]
                 )
                 logger.info(f"✅ Token decoded successfully - Type: {payload.get('type')}, Email: {payload.get('sub')}")
+                print(f"✅ [DEBUG] Token decoded - Type: {payload.get('type')}, Email: {payload.get('sub')}", flush=True)
             except jwt.ExpiredSignatureError as e:
                 logger.warning(f"⚠️ Password reset token expired: {str(e)}")
+                print(f"⚠️ [DEBUG] Token expired: {str(e)}", flush=True)
                 raise
             except jwt.JWTError as e:
                 logger.warning(f"⚠️ Invalid JWT token: {type(e).__name__}: {str(e)}")
+                print(f"⚠️ [DEBUG] JWT error: {type(e).__name__}: {str(e)}", flush=True)
+                raise
+            except Exception as e:
+                logger.error(f"❌ Unexpected error decoding token: {type(e).__name__}: {str(e)}", exc_info=True)
+                print(f"❌ [ERROR] Unexpected JWT decode error: {type(e).__name__}: {str(e)}", flush=True)
                 raise
             
             # Verify token type
@@ -1553,14 +1585,33 @@ async def reset_password(
                 )
             
             # Normalize email
-            normalized_email = user_email.strip().lower()
-            logger.info(f"🔍 Looking up user with email: {normalized_email}")
+            try:
+                normalized_email = user_email.strip().lower()
+                logger.info(f"🔍 Looking up user with email: {normalized_email}")
+                print(f"🔍 [DEBUG] Looking up user: {normalized_email}", flush=True)
+            except Exception as e:
+                logger.error(f"❌ Error normalizing email: {type(e).__name__}: {str(e)}", exc_info=True)
+                print(f"❌ [ERROR] Email normalization error: {type(e).__name__}: {str(e)}", flush=True)
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Invalid email format"
+                )
             
             # Find user
-            result = await db.execute(
-                select(User).where(User.email == normalized_email)
-            )
-            user = result.scalar_one_or_none()
+            try:
+                print(f"🔍 [DEBUG] Executing database query...", flush=True)
+                result = await db.execute(
+                    select(User).where(User.email == normalized_email)
+                )
+                user = result.scalar_one_or_none()
+                print(f"🔍 [DEBUG] Database query complete - User found: {bool(user)}", flush=True)
+            except Exception as db_error:
+                logger.error(f"❌ Database error looking up user: {type(db_error).__name__}: {str(db_error)}", exc_info=True)
+                print(f"❌ [ERROR] Database query error: {type(db_error).__name__}: {str(db_error)}", flush=True)
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Database error. Please try again later."
+                )
             
             if not user:
                 logger.warning(f"⚠️ User not found for email: {normalized_email}")
@@ -1600,42 +1651,70 @@ async def reset_password(
             try:
                 logger.info(f"🔐 Hashing new password for user: {user.email}")
                 logger.info(f"🔐 Password to hash length: {len(reset_data.new_password)} characters")
+                print(f"🔐 [DEBUG] Starting password hash for user: {user.email}", flush=True)
                 
                 # Hash the password
                 try:
+                    print(f"🔐 [DEBUG] Calling get_password_hash...", flush=True)
                     hashed_password = get_password_hash(reset_data.new_password)
                     logger.info(f"✅ Password hashed successfully (length: {len(hashed_password)} characters)")
+                    print(f"✅ [DEBUG] Password hashed successfully", flush=True)
                 except Exception as hash_error:
                     logger.error(f"❌ Error hashing password: {type(hash_error).__name__}: {str(hash_error)}", exc_info=True)
-                    raise
+                    print(f"❌ [ERROR] Password hashing failed: {type(hash_error).__name__}: {str(hash_error)}", flush=True)
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail="Error processing password. Please try again."
+                    )
                 
                 # Update user password
                 try:
+                    print(f"🔐 [DEBUG] Assigning password to user object...", flush=True)
                     user.hashed_password = hashed_password
                     logger.info(f"✅ Password assigned to user object")
+                    print(f"✅ [DEBUG] Password assigned to user", flush=True)
                 except Exception as assign_error:
                     logger.error(f"❌ Error assigning password to user: {type(assign_error).__name__}: {str(assign_error)}", exc_info=True)
-                    raise
+                    print(f"❌ [ERROR] Password assignment failed: {type(assign_error).__name__}: {str(assign_error)}", flush=True)
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail="Error updating user. Please try again."
+                    )
                 
                 # Commit to database
                 try:
                     logger.info(f"💾 Committing password update to database...")
+                    print(f"💾 [DEBUG] Starting database commit...", flush=True)
                     await db.commit()
                     logger.info(f"✅ Database commit successful")
+                    print(f"✅ [DEBUG] Database commit successful", flush=True)
                 except Exception as commit_error:
                     logger.error(f"❌ Error committing to database: {type(commit_error).__name__}: {str(commit_error)}", exc_info=True)
-                    await db.rollback()
-                    raise
+                    print(f"❌ [ERROR] Database commit failed: {type(commit_error).__name__}: {str(commit_error)}", flush=True)
+                    try:
+                        await db.rollback()
+                        print(f"↩️ [DEBUG] Database rollback successful", flush=True)
+                    except Exception as rollback_error:
+                        print(f"❌ [ERROR] Rollback failed: {type(rollback_error).__name__}: {str(rollback_error)}", flush=True)
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail="Database error. Please try again later."
+                    )
                 
                 # Refresh user from database
                 try:
                     await db.refresh(user)
                     logger.info(f"✅ User refreshed from database")
+                    print(f"✅ [DEBUG] User refreshed from database", flush=True)
                 except Exception as refresh_error:
                     logger.warning(f"⚠️ Error refreshing user (non-critical): {type(refresh_error).__name__}: {str(refresh_error)}")
+                    print(f"⚠️ [DEBUG] User refresh failed (non-critical): {str(refresh_error)}", flush=True)
                     # Don't fail if refresh fails, password is already updated
                 
                 logger.info(f"✅ Password updated successfully in database for user: {user.email}")
+                print(f"✅ [DEBUG] Password reset completed successfully for: {user.email}", flush=True)
+            except HTTPException:
+                raise
             except Exception as e:
                 error_type = type(e).__name__
                 error_msg = str(e)
@@ -1645,7 +1724,10 @@ async def reset_password(
                     await db.rollback()
                 except Exception:
                     pass
-                raise
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="An error occurred while updating your password. Please try again."
+                )
             
             # Log successful password reset (use separate session to avoid conflicts)
             try:
@@ -1668,6 +1750,7 @@ async def reset_password(
                 logger.error(f"⚠️ Failed to log password reset completion (non-critical): {e}", exc_info=True)
             
             logger.info(f"Password reset successful for user: {user.email}")
+            print(f"✅ [SUCCESS] Password reset completed successfully for user: {user.email}", flush=True)
             
             return {
                 "message": "Password has been reset successfully"
@@ -1718,6 +1801,9 @@ async def reset_password(
             )
         except HTTPException:
             raise
+    except HTTPException:
+        # Re-raise HTTP exceptions (already properly formatted)
+        raise
     except Exception as e:
         error_type = type(e).__name__
         error_msg = str(e)
@@ -1734,6 +1820,7 @@ async def reset_password(
         if env == "development":
             detail = f"An error occurred while resetting your password: {error_type}: {error_msg}"
         else:
+            # In production, provide a helpful error message
             detail = "An error occurred while resetting your password. Please try again or request a new reset link."
         
         raise HTTPException(

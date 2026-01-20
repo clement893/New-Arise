@@ -136,10 +136,16 @@ class SecurityAuditLogger:
         # Use provided session or create a new one for audit logging
         # Creating a separate session ensures the log is saved even if the main transaction fails
         use_separate_session = db is None
-        if use_separate_session:
-            db = AsyncSessionLocal()
         
         try:
+            if use_separate_session:
+                try:
+                    db = AsyncSessionLocal()
+                except Exception as session_error:
+                    logger.error(f"❌ Failed to create audit log session: {type(session_error).__name__}: {str(session_error)}", exc_info=True)
+                    # Can't create session, can't log audit event
+                    return None
+            
             audit_log = SecurityAuditLog(
                 event_type=event_type.value,
                 description=description,
