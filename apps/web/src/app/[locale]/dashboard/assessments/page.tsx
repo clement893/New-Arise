@@ -898,7 +898,7 @@ function AssessmentsContent() {
             onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => e.currentTarget.style.backgroundColor = 'rgba(15, 69, 77, 0.9)'}
             onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => e.currentTarget.style.backgroundColor = '#0F454D'}
             onClick={() => {
-              router.push('/dashboard/results');
+              router.push('/dashboard/reports');
             }}
           >
             <Eye size={16} />
@@ -963,7 +963,7 @@ function AssessmentsContent() {
           onClick={async () => {
             if (isAlreadyCompleted) {
               // Already completed, redirect to Results & Reports section
-              router.push('/dashboard/results');
+              router.push('/dashboard/reports');
               return;
             }
             
@@ -977,11 +977,11 @@ function AssessmentsContent() {
                 // Continue anyway
               });
               // Then redirect to Results & Reports section
-              router.push('/dashboard/results');
+              router.push('/dashboard/reports');
             } catch (err) {
               console.error('Failed to submit assessment:', err);
               // If submission fails, try to go to results anyway (might already be submitted)
-              router.push('/dashboard/results');
+              router.push('/dashboard/reports');
             } finally {
               setStartingAssessment(null);
             }

@@ -153,10 +153,10 @@ function ResultsReportsContent() {
     return (
       <div className="space-y-8">
         <div className="mb-8 pb-6">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-4xl font-bold text-white mb-2">
             Results & Reports
           </h1>
-          <p className="text-gray-600">
+          <p className="text-white/80">
             View your assessment results and comprehensive leadership profile
           </p>
         </div>
@@ -171,10 +171,10 @@ function ResultsReportsContent() {
     <div className="space-y-8">
       {/* Header */}
       <div className="mb-8 pb-6">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">
+        <h1 className="text-4xl font-bold text-white mb-2">
           Results & Reports
         </h1>
-        <p className="text-gray-600">
+        <p className="text-white/80">
           View your assessment results and comprehensive leadership profile
         </p>
       </div>

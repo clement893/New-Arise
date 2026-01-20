@@ -44,6 +44,7 @@ export default function MBTIResultsPage() {
   const loadUserAssessments = async () => {
     try {
       const assessments = await getMyAssessments();
+      console.log('[MBTI Results] Loaded user assessments:', assessments);
       setUserAssessments(assessments);
     } catch (err) {
       console.error('Failed to load user assessments:', err);
@@ -718,17 +719,32 @@ export default function MBTIResultsPage() {
                 </p>
                 <div className="flex gap-4 justify-center flex-wrap">
                   {(() => {
+                    // Helper function to check if assessment is completed
+                    const isAssessmentCompleted = (assessment: Assessment | undefined) => {
+                      if (!assessment) return false;
+                      const status = (assessment.status || '').toUpperCase();
+                      // Check status or if it has results (completed_at or score_summary)
+                      return status === 'COMPLETED' || !!assessment.completed_at || !!assessment.score_summary;
+                    };
+
                     // Check if user has completed TKI assessment
                     const tkiAssessment = userAssessments.find(a => a.assessment_type === 'TKI');
-                    const isTKICompleted = tkiAssessment && tkiAssessment.status === 'COMPLETED';
+                    const isTKICompleted = isAssessmentCompleted(tkiAssessment);
 
                     // Check if user has completed Wellness assessment
                     const wellnessAssessment = userAssessments.find(a => a.assessment_type === 'WELLNESS');
-                    const isWellnessCompleted = wellnessAssessment && wellnessAssessment.status === 'COMPLETED';
+                    const isWellnessCompleted = isAssessmentCompleted(wellnessAssessment);
 
                     // Check if user has completed 360 Feedback
                     const feedback360Assessment = userAssessments.find(a => a.assessment_type === 'THREE_SIXTY_SELF');
-                    const is360Completed = feedback360Assessment && feedback360Assessment.status === 'COMPLETED';
+                    const is360Completed = isAssessmentCompleted(feedback360Assessment);
+
+                    // Debug logging
+                    console.log('[MBTI Results] Assessment completion status:', {
+                      TKI: { found: !!tkiAssessment, completed: isTKICompleted, assessment: tkiAssessment },
+                      Wellness: { found: !!wellnessAssessment, completed: isWellnessCompleted, assessment: wellnessAssessment },
+                      '360': { found: !!feedback360Assessment, completed: is360Completed, assessment: feedback360Assessment },
+                    });
 
                     const buttons = [];
 

@@ -322,17 +322,8 @@ function DashboardContent() {
             e.currentTarget.style.backgroundColor = 'transparent';
           }}
           onClick={() => {
-            // MBTI: Navigate to Results & Reports section
-            // Other assessments: Navigate to their specific results pages
-            if (evaluation.assessmentType === 'MBTI') {
-              router.push('/dashboard/results');
-            } else if (evaluation.assessmentType === 'TKI' && evaluation.assessmentId) {
-              router.push(`/dashboard/assessments/tki/results?id=${evaluation.assessmentId}`);
-            } else if (evaluation.assessmentType === 'WELLNESS' && evaluation.assessmentId) {
-              router.push(`/dashboard/assessments/results?id=${evaluation.assessmentId}`);
-            } else if (evaluation.assessmentType === 'THREE_SIXTY_SELF' && evaluation.assessmentId) {
-              router.push(`/dashboard/assessments/360-feedback/results?id=${evaluation.assessmentId}`);
-            }
+            // Navigate to Results & Reports section for all assessments
+            router.push('/dashboard/reports');
           }}
         >
           {t('actions.viewResults')}
@@ -363,30 +354,12 @@ function DashboardContent() {
             try {
               // Submit assessment first if not already submitted
               await submitAssessment(evaluation.assessmentId);
-              // Then redirect to results
-              // MBTI: Navigate to Results & Reports section
-              // Other assessments: Navigate to their specific results pages
-              if (evaluation.assessmentType === 'MBTI') {
-                router.push('/dashboard/results');
-              } else if (evaluation.assessmentType === 'TKI') {
-                router.push(`/dashboard/assessments/tki/results?id=${evaluation.assessmentId}`);
-              } else if (evaluation.assessmentType === 'WELLNESS') {
-                router.push(`/dashboard/assessments/results?id=${evaluation.assessmentId}`);
-              } else if (evaluation.assessmentType === 'THREE_SIXTY_SELF') {
-                router.push(`/dashboard/assessments/360-feedback/results?id=${evaluation.assessmentId}`);
-              }
+              // Then redirect to Results & Reports section
+              router.push('/dashboard/reports');
             } catch (err) {
               console.error('Failed to submit assessment:', err);
               // If submission fails, try to go to results anyway (might already be submitted)
-              if (evaluation.assessmentType === 'MBTI') {
-                router.push('/dashboard/results');
-              } else if (evaluation.assessmentType === 'TKI') {
-                router.push(`/dashboard/assessments/tki/results?id=${evaluation.assessmentId}`);
-              } else if (evaluation.assessmentType === 'WELLNESS') {
-                router.push(`/dashboard/assessments/results?id=${evaluation.assessmentId}`);
-              } else if (evaluation.assessmentType === 'THREE_SIXTY_SELF') {
-                router.push(`/dashboard/assessments/360-feedback/results?id=${evaluation.assessmentId}`);
-              }
+              router.push('/dashboard/reports');
             }
           }}
         >
@@ -612,7 +585,7 @@ function DashboardContent() {
                       onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
                         e.currentTarget.style.backgroundColor = 'transparent';
                       }}
-                      onClick={() => router.push('/dashboard/results')}
+                      onClick={() => router.push('/dashboard/reports')}
                     >
                       {t('progress.viewReports')}
                     </Button>

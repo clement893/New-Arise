@@ -233,46 +233,46 @@ function AssessmentResultsContent() {
             backgroundImage: 'url(/images/dashboard-bg.jpg)',
           }}
         />
-        <div className="relative z-10 p-8">
+        <div className="relative z-10 p-4 md:p-8">
           {/* Header */}
-          <div className="mb-8 pb-6">
+          <div className="mb-6 md:mb-8 pb-4 md:pb-6">
             <Button
               variant="primary"
               onClick={() => router.push('/dashboard/assessments')}
-              className="mb-4 flex items-center gap-4"
+              className="mb-3 md:mb-4 flex items-center gap-2 md:gap-4 text-sm md:text-base"
               style={{ backgroundColor: '#0F4C56', color: '#fff' }}
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-3 h-3 md:w-4 md:h-4" />
               {t('backToAssessments')}
             </Button>
-            <h1 className="text-4xl font-bold text-white mb-2">
+            <h1 className="text-2xl md:text-4xl font-bold text-white mb-1 md:mb-2">
               {t('title')}
             </h1>
-            <p className="text-white">
+            <p className="text-sm md:text-base text-white">
               {t('subtitle')}
             </p>
           </div>
 
           {/* Overall Score Card */}
           <MotionDiv variant="slideUp" duration="normal">
-            <Card className="mb-8 bg-gradient-to-br from-arise-deep-teal to-arise-deep-teal/80 text-white">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 py-8 px-6">
+            <Card className="mb-6 md:mb-8 bg-gradient-to-br from-arise-deep-teal to-arise-deep-teal/80 text-white">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
                 {/* Left side - Overall Score */}
-                <div className="flex flex-col items-center justify-center text-center">
-                  <div className="flex items-center justify-center mb-4">
-                    <TrendingUp size={48} className="mr-4" />
-                    <div className="text-7xl font-bold">{isNaN(safePercentage) ? 0 : safePercentage.toFixed(0)}%</div>
+                <div className="flex flex-col items-center justify-center text-center py-4 lg:py-0">
+                  <div className="flex items-center justify-center mb-3 lg:mb-4">
+                    <TrendingUp size={40} className="mr-3 lg:mr-4 lg:w-12 lg:h-12" />
+                    <div className="text-5xl lg:text-7xl font-bold">{isNaN(safePercentage) ? 0 : safePercentage.toFixed(0)}%</div>
                   </div>
-                  <h2 className="text-2xl font-bold mb-2">{t('overallScore.title')}</h2>
-                  <p className="text-white/90 text-lg">
+                  <h2 className="text-xl lg:text-2xl font-bold mb-1 lg:mb-2">{t('overallScore.title')}</h2>
+                  <p className="text-white/90 text-base lg:text-lg">
                     {t('overallScore.points', { score: isNaN(safeTotalScore) ? 0 : safeTotalScore, max: isNaN(safeMaxScore) ? 150 : safeMaxScore })}
                   </p>
                 </div>
 
                 {/* Right side - Wellness Radar */}
-                <div className="flex flex-col items-center justify-center">
-                  <h3 className="text-xl font-bold mb-4 text-center">ARISE Wellness Radar</h3>
-                  <div className="bg-white rounded-lg p-2 w-full overflow-visible">
+                <div className="flex flex-col items-center justify-center pb-4 lg:pb-0">
+                  <h3 className="text-lg lg:text-xl font-bold mb-2 lg:mb-4 text-center">ARISE Wellness Radar</h3>
+                  <div className="bg-white rounded-lg p-1 lg:p-2 w-full overflow-visible">
                     <WellnessRadarChart 
                       scores={(() => {
                         // Transform pillar_scores to simple number map
@@ -312,7 +312,7 @@ function AssessmentResultsContent() {
           </MotionDiv>
 
           {/* Pillar Scores */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
             {wellnessPillars.map((pillar, index) => {
               const rawPillarData = pillar_scores?.[pillar.id];
               const isPillarScoreObject = (data: number | PillarScore | undefined): data is PillarScore => {
@@ -362,10 +362,10 @@ function AssessmentResultsContent() {
                   delay={index * 0.1}
                 >
                   <Card className="hover:shadow-lg transition-shadow">
-                    <div className="flex items-start mb-4">
-                      <div className="text-4xl mr-4 flex-shrink-0">{pillar.icon}</div>
+                    <div className="flex items-start mb-3 md:mb-4">
+                      <div className="text-3xl md:text-4xl mr-3 md:mr-4 flex-shrink-0">{pillar.icon}</div>
                       <div className="flex-1 min-w-0 overflow-hidden">
-                        <h3 className="text-lg font-bold text-gray-900 mb-1 break-words overflow-wrap-anywhere">
+                        <h3 className="text-base md:text-lg font-bold text-gray-900 mb-1 break-words overflow-wrap-anywhere">
                           {(() => {
                             // Translate pillar name - convert snake_case to camelCase
                             const pillarKey = pillar.id.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
@@ -380,28 +380,28 @@ function AssessmentResultsContent() {
                             return pillar.name;
                           })()}
                         </h3>
-                        <p className="text-sm text-gray-600 break-words overflow-wrap-anywhere whitespace-pre-wrap">
+                        <p className="text-xs md:text-sm text-gray-600 break-words overflow-wrap-anywhere whitespace-pre-wrap">
                           {pillar.description}
                         </p>
                       </div>
                     </div>
                     
                     {/* Progress Bar */}
-                    <div className="mb-3">
-                      <div className="flex justify-between text-sm mb-1">
+                    <div className="mb-2 md:mb-3">
+                      <div className="flex justify-between text-xs md:text-sm mb-1">
                         <span className="text-gray-600">{t('pillarScore.label')}</span>
                         <span 
                           className="relative font-bold text-arise-deep-teal cursor-help group"
                         >
-                          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-white text-black text-sm font-medium rounded-lg shadow-lg border border-gray-200 whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 md:px-3 py-1 md:py-2 bg-white text-black text-xs md:text-sm font-medium rounded-lg shadow-lg border border-gray-200 whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                             {pillar.name}
                           </span>
                           {pillarScore} / 25
                         </span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div className="w-full bg-gray-200 rounded-full h-2 md:h-3">
                         <div
-                          className="bg-arise-gold rounded-full h-3 transition-all duration-500"
+                          className="bg-arise-gold rounded-full h-2 md:h-3 transition-all duration-500"
                           style={{ width: `${pillarPercentage}%` }}
                         />
                       </div>
@@ -409,7 +409,7 @@ function AssessmentResultsContent() {
                     
                     {/* Performance Level */}
                     <div className="text-center">
-                      <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+                      <span className={`inline-block px-2 md:px-3 py-0.5 md:py-1 rounded-full text-xs md:text-sm font-semibold ${
                         pillarPercentage >= 80 ? 'bg-success-100 text-success-800' :
                         pillarPercentage >= 60 ? 'bg-yellow-100 text-yellow-800' :
                         'bg-red-100 text-red-800'
@@ -427,9 +427,9 @@ function AssessmentResultsContent() {
 
           {/* Key Insights Section */}
           <MotionDiv variant="fade" duration="normal">
-            <Card className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                KEY {t('insights.title')}
+            <Card className="mb-6 md:mb-8">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4">
+                {t('insights.title')}
               </h2>
               <div className="space-y-4">
                 {/* Use backend insights if available, otherwise generate from scores */}

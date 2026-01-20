@@ -27,7 +27,7 @@ export default function DashboardCustomLayout({ children }: DashboardCustomLayou
   const navigation = [
     { name: t('items.dashboard'), href: '/dashboard', icon: LayoutDashboard },
     { name: t('items.assessments'), href: '/dashboard/assessments', icon: ClipboardList },
-    { name: t('items.resultsReports'), href: '/dashboard/results', icon: FileText },
+    { name: t('items.resultsReports'), href: '/dashboard/reports', icon: FileText },
     { name: t('items.developmentPlan'), href: '/dashboard/development-plan', icon: TrendingUp },
   ];
 

@@ -559,7 +559,7 @@ function DashboardContent() {
                       style={{ 
                         borderColor: '#799ba1', 
                       }}
-                      onClick={() => router.push('/dashboard/results')}
+                      onClick={() => router.push('/dashboard/reports')}
                     >
                       View Reports
                     </Button>
