@@ -267,6 +267,7 @@ export default function MBTIResultsPage() {
               </div>
               <Button 
                 variant="outline"
+                className="flex gap-4 items-center"
                 onClick={async () => {
                   try {
                     const { generateAssessmentPDF, downloadBlob } = await import('@/lib/utils/pdfGenerator');
@@ -301,7 +302,7 @@ export default function MBTIResultsPage() {
                   }
                 }}
               >
-                <Download className="w-4 h-4 mr-2" />
+                <Download className="w-4 h-4" />
                 {t('exportPdf')}
               </Button>
             </div>
