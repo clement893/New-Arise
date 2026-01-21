@@ -491,7 +491,7 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
         </Card>
       )}
 
-      {/* OVERALL RESULTS' STATEMENT */}
+      {/* OVERALL RESULTS' STATEMENT with Capabilities Categorization */}
       <Card className="bg-white">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
@@ -527,21 +527,7 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
             statement = 'The results suggest lower self-awareness, with noticeable differences between self-assessment and the perspectives provided by others. This may indicate that certain behaviors or leadership patterns are not fully recognized, or that expectations and impact are perceived differently by colleagues. This outcome represents an opportunity for constructive growth — encouraging deeper reflection, open discussion, and feedback-seeking to better understand and align internal perceptions with external observations. Increasing awareness in this way can significantly strengthen effectiveness, relationships, and overall leadership presence.';
             statementColor = '#FFC7CE';
           }
-          
-          return (
-            <div 
-              className="rounded-lg p-6"
-              style={{ backgroundColor: statementColor + '40' }}
-            >
-              <p className="text-gray-700 leading-relaxed">{statement}</p>
-            </div>
-          );
-        })()}
-      </Card>
 
-      {/* Capabilities Categorization - 3 Columns (without title) */}
-      <Card className="bg-white">
-        {(() => {
           // Filter capabilities by score range
           const growthCapabilities = transformedResults.capability_scores.filter(cap => {
             const score = transformedResults.has_evaluator_responses && cap.others_avg_score > 0
@@ -571,143 +557,148 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
           
           const columnCount = [hasGrowth, hasNeutral, hasStrengths].filter(Boolean).length;
           
-          if (columnCount === 0) {
-            return null;
-          }
-
-          const gridClass = columnCount === 1 ? 'md:grid-cols-1' : columnCount === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3';
-          
           return (
-            <div className={`grid ${gridClass} gap-6`}>
-          {/* Areas for Growth (1-2) */}
-          {hasGrowth && (
-            <div>
-              <h3 className="text-lg font-semibold text-red-700 mb-2 flex items-center gap-2">
-                <TrendingDown className="w-5 h-5" />
-                Areas for Growth
-              </h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Deepen self-reflection, actively seek feedback, and explore perception differences to strengthen impact and alignment.
-              </p>
-              <div className="space-y-3">
-                {growthCapabilities.map(cap => {
-                  const capInfo = feedback360Capabilities.find(c => c.id === cap.capability);
-                  const capabilityTitle = capInfo?.title || cap.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                  const capabilityIcon = capInfo?.icon || '📊';
-                  const score = transformedResults.has_evaluator_responses && cap.others_avg_score > 0
-                    ? cap.others_avg_score
-                    : cap.self_score;
+            <>
+              <div 
+                className="rounded-lg p-6 mb-6"
+                style={{ backgroundColor: statementColor + '40' }}
+              >
+                <p className="text-gray-700 leading-relaxed">{statement}</p>
+              </div>
 
-                  return (
-                    <div 
-                      key={cap.capability} 
-                      className="p-4 rounded-lg" 
-                      style={{ backgroundColor: '#FFC7CE40' }}
-                    >
-                      <div className="flex items-start gap-3">
-                        <span className="text-2xl">{capabilityIcon}</span>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-semibold text-gray-900 text-sm">{capabilityTitle}</h4>
-                            <span className="text-sm font-bold" style={{ color: '#FFC7CE' }}>
-                              {score.toFixed(1)}/5.0
-                            </span>
-                          </div>
-                        </div>
+              {columnCount > 0 && (
+                <div className={`grid ${columnCount === 1 ? 'md:grid-cols-1' : columnCount === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3'} gap-6`}>
+                  {/* Areas for Growth (1-2) */}
+                  {hasGrowth && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-red-700 mb-2 flex items-center gap-2">
+                        <TrendingDown className="w-5 h-5" />
+                        Areas for Growth
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-4">
+                        Deepen self-reflection, actively seek feedback, and explore perception differences to strengthen impact and alignment.
+                      </p>
+                      <div className="space-y-3">
+                        {growthCapabilities.map(cap => {
+                          const capInfo = feedback360Capabilities.find(c => c.id === cap.capability);
+                          const capabilityTitle = capInfo?.title || cap.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                          const capabilityIcon = capInfo?.icon || '📊';
+                          const score = transformedResults.has_evaluator_responses && cap.others_avg_score > 0
+                            ? cap.others_avg_score
+                            : cap.self_score;
+
+                          return (
+                            <div 
+                              key={cap.capability} 
+                              className="p-4 rounded-lg" 
+                              style={{ backgroundColor: '#FFC7CE40' }}
+                            >
+                              <div className="flex items-start gap-3">
+                                <span className="text-2xl">{capabilityIcon}</span>
+                                <div className="flex-1">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <h4 className="font-semibold text-gray-900 text-sm">{capabilityTitle}</h4>
+                                    <span className="text-sm font-bold" style={{ color: '#FFC7CE' }}>
+                                      {score.toFixed(1)}/5.0
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+                  )}
 
-          {/* Neutral (3) */}
-          {hasNeutral && (
-            <div>
-              <h3 className="text-lg font-semibold text-yellow-700 mb-2 flex items-center gap-2">
-                <Minus className="w-5 h-5" />
-                Neutral
-              </h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Focus on areas of gap, engage in feedback discussions, and seek specific examples to calibrate perceptions.
-              </p>
-              <div className="space-y-3">
-                {neutralCapabilities.map(cap => {
-                  const capInfo = feedback360Capabilities.find(c => c.id === cap.capability);
-                  const capabilityTitle = capInfo?.title || cap.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                  const capabilityIcon = capInfo?.icon || '📊';
-                  const score = transformedResults.has_evaluator_responses && cap.others_avg_score > 0
-                    ? cap.others_avg_score
-                    : cap.self_score;
+                  {/* Neutral (3) */}
+                  {hasNeutral && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-yellow-700 mb-2 flex items-center gap-2">
+                        <Minus className="w-5 h-5" />
+                        Neutral
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-4">
+                        Focus on areas of gap, engage in feedback discussions, and seek specific examples to calibrate perceptions.
+                      </p>
+                      <div className="space-y-3">
+                        {neutralCapabilities.map(cap => {
+                          const capInfo = feedback360Capabilities.find(c => c.id === cap.capability);
+                          const capabilityTitle = capInfo?.title || cap.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                          const capabilityIcon = capInfo?.icon || '📊';
+                          const score = transformedResults.has_evaluator_responses && cap.others_avg_score > 0
+                            ? cap.others_avg_score
+                            : cap.self_score;
 
-                  return (
-                    <div 
-                      key={cap.capability} 
-                      className="p-4 rounded-lg" 
-                      style={{ backgroundColor: '#FFEB9C40' }}
-                    >
-                      <div className="flex items-start gap-3">
-                        <span className="text-2xl">{capabilityIcon}</span>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-semibold text-gray-900 text-sm">{capabilityTitle}</h4>
-                            <span className="text-sm font-bold" style={{ color: '#FFEB9C' }}>
-                              {score.toFixed(1)}/5.0
-                            </span>
-                          </div>
-                        </div>
+                          return (
+                            <div 
+                              key={cap.capability} 
+                              className="p-4 rounded-lg" 
+                              style={{ backgroundColor: '#FFEB9C40' }}
+                            >
+                              <div className="flex items-start gap-3">
+                                <span className="text-2xl">{capabilityIcon}</span>
+                                <div className="flex-1">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <h4 className="font-semibold text-gray-900 text-sm">{capabilityTitle}</h4>
+                                    <span className="text-sm font-bold" style={{ color: '#FFEB9C' }}>
+                                      {score.toFixed(1)}/5.0
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+                  )}
 
-          {/* Strengths (4-5) */}
-          {hasStrengths && (
-            <div>
-              <h3 className="text-lg font-semibold text-green-700 mb-2 flex items-center gap-2">
-                <CheckCircle className="w-5 h-5" />
-                Strengths
-              </h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Continue leveraging strengths, use feedback as reinforcement for ongoing growth.
-              </p>
-              <div className="space-y-3">
-                {strengthCapabilities.map(cap => {
-                  const capInfo = feedback360Capabilities.find(c => c.id === cap.capability);
-                  const capabilityTitle = capInfo?.title || cap.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                  const capabilityIcon = capInfo?.icon || '📊';
-                  const score = transformedResults.has_evaluator_responses && cap.others_avg_score > 0
-                    ? cap.others_avg_score
-                    : cap.self_score;
+                  {/* Strengths (4-5) */}
+                  {hasStrengths && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-green-700 mb-2 flex items-center gap-2">
+                        <CheckCircle className="w-5 h-5" />
+                        Strengths
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-4">
+                        Continue leveraging strengths, use feedback as reinforcement for ongoing growth.
+                      </p>
+                      <div className="space-y-3">
+                        {strengthCapabilities.map(cap => {
+                          const capInfo = feedback360Capabilities.find(c => c.id === cap.capability);
+                          const capabilityTitle = capInfo?.title || cap.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                          const capabilityIcon = capInfo?.icon || '📊';
+                          const score = transformedResults.has_evaluator_responses && cap.others_avg_score > 0
+                            ? cap.others_avg_score
+                            : cap.self_score;
 
-                  return (
-                    <div 
-                      key={cap.capability} 
-                      className="p-4 rounded-lg" 
-                      style={{ backgroundColor: '#C6EFCE40' }}
-                    >
-                      <div className="flex items-start gap-3">
-                        <span className="text-2xl">{capabilityIcon}</span>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-semibold text-gray-900 text-sm">{capabilityTitle}</h4>
-                            <span className="text-sm font-bold" style={{ color: '#C6EFCE' }}>
-                              {score.toFixed(1)}/5.0
-                            </span>
-                          </div>
-                        </div>
+                          return (
+                            <div 
+                              key={cap.capability} 
+                              className="p-4 rounded-lg" 
+                              style={{ backgroundColor: '#C6EFCE40' }}
+                            >
+                              <div className="flex items-start gap-3">
+                                <span className="text-2xl">{capabilityIcon}</span>
+                                <div className="flex-1">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <h4 className="font-semibold text-gray-900 text-sm">{capabilityTitle}</h4>
+                                    <span className="text-sm font-bold" style={{ color: '#C6EFCE' }}>
+                                      {score.toFixed(1)}/5.0
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
+                  )}
+                </div>
+              )}
+            </>
           );
         })()}
       </Card>
