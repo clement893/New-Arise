@@ -450,7 +450,6 @@ function AssessmentResultsContent() {
                       }
                       return null;
                     })()}
-                  </div>
                   </Card>
                 </MotionDiv>
               );
