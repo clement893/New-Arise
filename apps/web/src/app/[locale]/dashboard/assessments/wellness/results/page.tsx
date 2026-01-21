@@ -239,6 +239,15 @@ export default function WellnessResultsPage() {
                           </div>
                         </div>
 
+                        {/* Recommendation */}
+                        {insightData?.recommendation && (
+                          <div className="mb-4 p-4 rounded-lg" style={{ backgroundColor: colorCode + '20' }}>
+                            <p className="text-sm text-gray-800 font-medium leading-relaxed">
+                              {insightData.recommendation}
+                            </p>
+                          </div>
+                        )}
+
                         {/* Actions */}
                         {insightData?.actions && insightData.actions.length > 0 && (
                           <div className="mt-4">

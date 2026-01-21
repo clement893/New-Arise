@@ -419,26 +419,40 @@ function AssessmentResultsContent() {
                     {/* Actions based on score */}
                     {(() => {
                       const insightData = getWellnessInsight(pillar.id, pillarScore);
-                      if (insightData && insightData.actions && insightData.actions.length > 0) {
+                      if (insightData) {
                         return (
                           <div className="mt-3 md:mt-4">
-                            <h4 className="text-xs md:text-sm font-semibold text-gray-900 mb-2">
-                              Recommended Actions:
-                            </h4>
-                            <ul className="space-y-1.5">
-                              {insightData.actions.map((action, actionIndex) => (
-                                <li 
-                                  key={actionIndex}
-                                  className="flex items-start gap-2 text-xs md:text-sm"
-                                >
-                                  <CheckCircle 
-                                    className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0 mt-0.5" 
-                                    style={{ color: getScoreColorCode(pillarScore) }} 
-                                  />
-                                  <span className="text-gray-700">{action}</span>
-                                </li>
-                              ))}
-                            </ul>
+                            {/* Recommendation */}
+                            {insightData.recommendation && (
+                              <div className="mb-3 md:mb-4 p-3 md:p-4 rounded-lg" style={{ backgroundColor: getScoreColorCode(pillarScore) + '20' }}>
+                                <p className="text-xs md:text-sm text-gray-800 font-medium leading-relaxed">
+                                  {insightData.recommendation}
+                                </p>
+                              </div>
+                            )}
+
+                            {/* Actions */}
+                            {insightData.actions && insightData.actions.length > 0 && (
+                              <div>
+                                <h4 className="text-xs md:text-sm font-semibold text-gray-900 mb-2">
+                                  Recommended Actions:
+                                </h4>
+                                <ul className="space-y-1.5">
+                                  {insightData.actions.map((action, actionIndex) => (
+                                    <li 
+                                      key={actionIndex}
+                                      className="flex items-start gap-2 text-xs md:text-sm"
+                                    >
+                                      <CheckCircle 
+                                        className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0 mt-0.5" 
+                                        style={{ color: getScoreColorCode(pillarScore) }} 
+                                      />
+                                      <span className="text-gray-700">{action}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
                           </div>
                         );
                       }
