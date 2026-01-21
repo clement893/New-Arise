@@ -821,9 +821,7 @@ function ResultsReportsContent() {
                       <AssessmentResultAccordion
                         assessmentId={assessment.id}
                         assessmentType={assessment.type}
-                        assessmentName={assessment.name}
                         isOpen={expandedAssessmentId === assessment.id}
-                        onToggle={() => handleViewDetails(assessment)}
                       />
                     </Card>
                   </div>
