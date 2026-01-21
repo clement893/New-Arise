@@ -187,6 +187,99 @@ export default function WellnessResultsPage() {
             </Card>
           </MotionDiv>
 
+          {/* Key Insights: Strengths and Areas for Growth */}
+          <MotionDiv variant="slideUp" duration="normal" delay={150} className="mb-8">
+            <Card>
+              <div className="p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Key Insights</h2>
+                
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Strengths */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-green-700 mb-4 flex items-center gap-2">
+                      <CheckCircle className="w-5 h-5" />
+                      Strengths
+                    </h3>
+                    <div className="space-y-3">
+                      {Object.entries(pillarScores)
+                        .filter(([, score]) => score >= 16)
+                        .map(([pillar, score]) => {
+                          const colorCode = getScoreColorCode(score as number);
+                          let levelText = '';
+                          if (score >= 21) {
+                            levelText = 'STRONG FOUNDATION - Healthy habits are established and practiced most of the time. Continuing to refine and maintain consistency will keep this pillar robust.';
+                          } else if (score >= 16) {
+                            levelText = 'CONSISTENCY STAGE - Good habits are in place and showing progress, though not always steady. With more regularity, this pillar can become a solid strength.';
+                          }
+                          
+                          return (
+                            <div key={pillar} className="p-4 rounded-lg" style={{ backgroundColor: colorCode + '15' }}>
+                              <div className="flex items-start gap-3">
+                                <span className="text-2xl">{pillarEmojis[pillar] || '📊'}</span>
+                                <div className="flex-1">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <h4 className="font-semibold text-gray-900">{pillarNames[pillar]}</h4>
+                                    <span className="text-sm font-bold" style={{ color: colorCode }}>
+                                      {score}/25
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-gray-600 leading-relaxed">{levelText}</p>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      {Object.entries(pillarScores).filter(([, score]) => score >= 16).length === 0 && (
+                        <p className="text-sm text-gray-500 italic">No strengths identified yet. Keep building your wellness habits!</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Areas for Growth */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-orange-700 mb-4 flex items-center gap-2">
+                      <CheckCircle className="w-5 h-5" />
+                      Areas for Growth
+                    </h3>
+                    <div className="space-y-3">
+                      {Object.entries(pillarScores)
+                        .filter(([, score]) => score < 16)
+                        .map(([pillar, score]) => {
+                          const colorCode = getScoreColorCode(score as number);
+                          let levelText = '';
+                          if (score >= 11) {
+                            levelText = 'EARLY DEVELOPMENT - Some positive habits are present, but they are irregular or not yet sustainable. Building consistency will strengthen this pillar.';
+                          } else {
+                            levelText = 'SIGNIFICANT GROWTH OPPORTUNITY - Currently limited or inconsistent practices in this area. A focused effort can create meaningful improvement in your overall well-being.';
+                          }
+                          
+                          return (
+                            <div key={pillar} className="p-4 rounded-lg" style={{ backgroundColor: colorCode + '15' }}>
+                              <div className="flex items-start gap-3">
+                                <span className="text-2xl">{pillarEmojis[pillar] || '📊'}</span>
+                                <div className="flex-1">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <h4 className="font-semibold text-gray-900">{pillarNames[pillar]}</h4>
+                                    <span className="text-sm font-bold" style={{ color: colorCode }}>
+                                      {score}/25
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-gray-600 leading-relaxed">{levelText}</p>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      {Object.entries(pillarScores).filter(([, score]) => score < 16).length === 0 && (
+                        <p className="text-sm text-gray-500 italic">Great work! All pillars are showing strong performance.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </MotionDiv>
+
           {/* Wellness Pillars with Insights */}
           <MotionDiv variant="slideUp" duration="normal" delay={200} className="mb-8">
             <div className="grid gap-6">
