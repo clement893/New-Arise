@@ -77,7 +77,7 @@ export default function AssessmentResultAccordion({
       case 'MBTI':
         return <MBTIResultContent results={results} />;
       case 'THREE_SIXTY_SELF':
-        return <ThreeSixtyResultContent results={results} />;
+        return <ThreeSixtyResultContent results={results} assessmentId={assessmentId} />;
       default:
         return (
           <div className="py-8 text-center text-gray-600">
