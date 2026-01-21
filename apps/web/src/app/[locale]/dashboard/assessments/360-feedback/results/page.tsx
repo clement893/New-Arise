@@ -608,7 +608,7 @@ export default function Feedback360ResultsPage() {
                         {/* Analysis */}
                         <div 
                           className="rounded-lg p-4"
-                          style={{ backgroundColor: insight.colorCode + '40' }}
+                          style={{ backgroundColor: insight.colorCode }}
                         >
                           <h4 className="font-semibold text-gray-900 mb-2 text-sm">Analysis</h4>
                           <p className="text-sm text-gray-700 leading-relaxed">{insight.analysis}</p>
@@ -617,7 +617,7 @@ export default function Feedback360ResultsPage() {
                         {/* Recommendations */}
                         <div 
                           className="rounded-lg p-4"
-                          style={{ backgroundColor: insight.colorCode + '40' }}
+                          style={{ backgroundColor: insight.colorCode }}
                         >
                           <h4 className="font-semibold text-gray-900 mb-2 text-sm">Recommendations</h4>
                           <p className="text-sm text-gray-700 leading-relaxed">{insight.recommendation}</p>
@@ -684,7 +684,7 @@ export default function Feedback360ResultsPage() {
                         {/* Analysis */}
                         <div 
                           className="rounded-lg p-4"
-                          style={{ backgroundColor: insight.colorCode + '40' }}
+                          style={{ backgroundColor: insight.colorCode }}
                         >
                           <h4 className="font-semibold text-gray-900 mb-2 text-sm">Analysis</h4>
                           <p className="text-sm text-gray-700 leading-relaxed">{insight.analysis}</p>
@@ -693,7 +693,7 @@ export default function Feedback360ResultsPage() {
                         {/* Recommendations */}
                         <div 
                           className="rounded-lg p-4"
-                          style={{ backgroundColor: insight.colorCode + '40' }}
+                          style={{ backgroundColor: insight.colorCode }}
                         >
                           <h4 className="font-semibold text-gray-900 mb-2 text-sm">Recommendations</h4>
                           <p className="text-sm text-gray-700 leading-relaxed">{insight.recommendation}</p>
@@ -787,7 +787,7 @@ export default function Feedback360ResultsPage() {
               <>
                 <div 
                   className="rounded-lg p-6 mb-6"
-                  style={{ backgroundColor: statementColor + '40' }}
+                  style={{ backgroundColor: statementColor }}
                 >
                   <p className="text-gray-700 leading-relaxed">{statement}</p>
                 </div>
@@ -817,7 +817,7 @@ export default function Feedback360ResultsPage() {
                               <div 
                                 key={cap.capability} 
                                 className="p-4 rounded-lg" 
-                                style={{ backgroundColor: '#FFC7CE40' }}
+                                style={{ backgroundColor: '#FFC7CE' }}
                               >
                                 <div className="flex items-start gap-3">
                                   <span className="text-2xl">{capabilityIcon}</span>
@@ -860,7 +860,7 @@ export default function Feedback360ResultsPage() {
                               <div 
                                 key={cap.capability} 
                                 className="p-4 rounded-lg" 
-                                style={{ backgroundColor: '#FFEB9C40' }}
+                                style={{ backgroundColor: '#FFEB9C' }}
                               >
                                 <div className="flex items-start gap-3">
                                   <span className="text-2xl">{capabilityIcon}</span>
@@ -903,7 +903,7 @@ export default function Feedback360ResultsPage() {
                               <div 
                                 key={cap.capability} 
                                 className="p-4 rounded-lg" 
-                                style={{ backgroundColor: '#C6EFCE40' }}
+                                style={{ backgroundColor: '#C6EFCE' }}
                               >
                                 <div className="flex items-start gap-3">
                                   <span className="text-2xl">{capabilityIcon}</span>
