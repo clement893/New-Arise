@@ -287,32 +287,23 @@ function AssessmentResultsContent() {
                     <TrendingUp size={40} className="mr-3 lg:mr-4 lg:w-12 lg:h-12" />
                     <div className="text-5xl lg:text-7xl font-bold">{isNaN(safePercentage) ? 0 : safePercentage.toFixed(0)}%</div>
                   </div>
-                  <h2 className="text-xl lg:text-2xl font-bold mb-1 lg:mb-2">{t('overallScore.title')}</h2>
+                  <h2 className="text-xl lg:text-2xl font-bold mb-1 lg:mb-2">
+                    {(() => {
+                      // Determine which range text to display based on percentage
+                      if (safePercentage < 60) {
+                        return t('overallScore.ranges.needsImprovement');
+                      } else if (safePercentage >= 60 && safePercentage <= 74) {
+                        return t('overallScore.ranges.developing');
+                      } else if (safePercentage >= 75 && safePercentage <= 85) {
+                        return t('overallScore.ranges.strong');
+                      } else {
+                        return t('overallScore.ranges.excellent');
+                      }
+                    })()}
+                  </h2>
                   <p className="text-white/90 text-base lg:text-lg">
                     {t('overallScore.points', { score: isNaN(safeTotalScore) ? 0 : safeTotalScore, max: isNaN(safeMaxScore) ? 150 : safeMaxScore })}
                   </p>
-                  
-                  {/* Score Ranges Guide */}
-                  <div className="mt-4 pt-4 border-t border-white/20">
-                    <div className="space-y-2 text-sm text-white/90">
-                      <div className="flex items-start gap-2">
-                        <span className="font-semibold whitespace-nowrap">{"< 60%"}</span>
-                        <span>{t('overallScore.ranges.needsImprovement')}</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="font-semibold whitespace-nowrap">60-74%</span>
-                        <span>{t('overallScore.ranges.developing')}</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="font-semibold whitespace-nowrap">75-85%</span>
-                        <span>{t('overallScore.ranges.strong')}</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="font-semibold whitespace-nowrap">86-100%</span>
-                        <span>{t('overallScore.ranges.excellent')}</span>
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
                 {/* Right side - Wellness Radar */}
