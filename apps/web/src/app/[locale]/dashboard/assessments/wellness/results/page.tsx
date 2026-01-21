@@ -183,33 +183,31 @@ export default function WellnessResultsPage() {
           {/* Overall Score */}
           <MotionDiv variant="slideUp" duration="normal" delay={100} className="mb-8">
             <Card className="bg-gradient-to-r from-teal-50 to-cyan-50 border-teal-200">
-              <div className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                      {t('overallScore.title')}
-                    </h2>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-5xl font-bold text-primary-700">{totalScore}</span>
-                      <span className="text-2xl text-gray-600">/ {maxScore}</span>
-                      <span className="text-xl text-primary-600 ml-4">({percentage.toFixed(1)}%)</span>
-                    </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                    {t('overallScore.title')}
+                  </h2>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-5xl font-bold text-primary-700">{totalScore}</span>
+                    <span className="text-2xl text-gray-600">/ {maxScore}</span>
+                    <span className="text-xl text-primary-600 ml-4">({percentage.toFixed(1)}%)</span>
                   </div>
-                  <Heart className="w-16 h-16 text-primary-600" />
                 </div>
-                <div className="mt-4 flex gap-4">
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-600 mb-1">{t('overallScore.strongestPillar')}</p>
-                    <p className="font-semibold text-gray-900">
-                      {pillarEmojis[strongestPillar]} {pillarNames[strongestPillar]}
-                    </p>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-600 mb-1">{t('overallScore.areaForGrowth')}</p>
-                    <p className="font-semibold text-gray-900">
-                      {pillarEmojis[weakestPillar]} {pillarNames[weakestPillar]}
-                    </p>
-                  </div>
+                <Heart className="w-16 h-16 text-primary-600" />
+              </div>
+              <div className="mt-4 flex gap-4">
+                <div className="flex-1">
+                  <p className="text-sm text-gray-600 mb-1">{t('overallScore.strongestPillar')}</p>
+                  <p className="font-semibold text-gray-900">
+                    {pillarEmojis[strongestPillar]} {pillarNames[strongestPillar]}
+                  </p>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-gray-600 mb-1">{t('overallScore.areaForGrowth')}</p>
+                  <p className="font-semibold text-gray-900">
+                    {pillarEmojis[weakestPillar]} {pillarNames[weakestPillar]}
+                  </p>
                 </div>
               </div>
             </Card>
