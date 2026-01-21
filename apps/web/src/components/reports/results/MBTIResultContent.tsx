@@ -5,10 +5,9 @@ import { AssessmentResult } from '@/lib/api/assessments';
 
 interface MBTIResultContentProps {
   results: AssessmentResult;
-  assessmentId: number;
 }
 
-export default function MBTIResultContent({ results, assessmentId }: MBTIResultContentProps) {
+export default function MBTIResultContent({ results }: MBTIResultContentProps) {
   // TODO: Implement full MBTI results display similar to the actual results page
   return (
     <div className="space-y-6">

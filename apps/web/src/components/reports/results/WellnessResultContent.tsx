@@ -10,10 +10,9 @@ import { getWellnessInsightWithLocale, getScoreColorCode } from '@/data/wellness
 
 interface WellnessResultContentProps {
   results: AssessmentResult;
-  assessmentId: number;
 }
 
-export default function WellnessResultContent({ results, assessmentId }: WellnessResultContentProps) {
+export default function WellnessResultContent({ results }: WellnessResultContentProps) {
   const t = useTranslations('dashboard.assessments.results');
   const tWellness = useTranslations('dashboard.assessments.wellness.results');
   const locale = useLocale();

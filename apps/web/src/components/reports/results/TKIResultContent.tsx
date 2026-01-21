@@ -5,10 +5,9 @@ import { AssessmentResult } from '@/lib/api/assessments';
 
 interface TKIResultContentProps {
   results: AssessmentResult;
-  assessmentId: number;
 }
 
-export default function TKIResultContent({ results, assessmentId }: TKIResultContentProps) {
+export default function TKIResultContent({ results }: TKIResultContentProps) {
   // TODO: Implement full TKI results display similar to the actual results page
   return (
     <div className="space-y-6">

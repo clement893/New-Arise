@@ -5,10 +5,9 @@ import { AssessmentResult } from '@/lib/api/assessments';
 
 interface ThreeSixtyResultContentProps {
   results: AssessmentResult;
-  assessmentId: number;
 }
 
-export default function ThreeSixtyResultContent({ results, assessmentId }: ThreeSixtyResultContentProps) {
+export default function ThreeSixtyResultContent({ results }: ThreeSixtyResultContentProps) {
   // TODO: Implement full 360 Feedback results display similar to the actual results page
   return (
     <div className="space-y-6">

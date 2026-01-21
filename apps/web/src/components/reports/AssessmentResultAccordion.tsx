@@ -71,13 +71,13 @@ export default function AssessmentResultAccordion({
     // Render appropriate content based on assessment type
     switch (assessmentType) {
       case 'WELLNESS':
-        return <WellnessResultContent results={results} assessmentId={assessmentId} />;
+        return <WellnessResultContent results={results} />;
       case 'TKI':
-        return <TKIResultContent results={results} assessmentId={assessmentId} />;
+        return <TKIResultContent results={results} />;
       case 'MBTI':
-        return <MBTIResultContent results={results} assessmentId={assessmentId} />;
+        return <MBTIResultContent results={results} />;
       case 'THREE_SIXTY_SELF':
-        return <ThreeSixtyResultContent results={results} assessmentId={assessmentId} />;
+        return <ThreeSixtyResultContent results={results} />;
       default:
         return (
           <div className="py-8 text-center text-gray-600">
