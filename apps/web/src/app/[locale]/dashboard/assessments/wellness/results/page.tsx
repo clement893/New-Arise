@@ -216,8 +216,7 @@ export default function WellnessResultsPage() {
           {/* Key Insights: Strengths and Areas for Growth */}
           <MotionDiv variant="slideUp" duration="normal" delay={150} className="mb-8">
             <Card>
-              <div className="p-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">{tr.keyInsights}</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">{tr.keyInsights}</h2>
                 
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Strengths */}
@@ -302,7 +301,6 @@ export default function WellnessResultsPage() {
                     </div>
                   </div>
                 </div>
-              </div>
             </Card>
           </MotionDiv>
 
@@ -325,7 +323,6 @@ export default function WellnessResultsPage() {
                     delay={300 + index * 100}
                   >
                     <Card className="overflow-hidden">
-                      <div className="p-6">
                         {/* Header: Icon and Title on same line */}
                         <div className="flex items-center gap-3 mb-3">
                           <span className="text-4xl">{pillarEmojis[pillar] || '📊'}</span>
@@ -386,7 +383,6 @@ export default function WellnessResultsPage() {
                             </ul>
                           </div>
                         )}
-                      </div>
                     </Card>
                   </MotionDiv>
                 );
@@ -424,24 +420,22 @@ export default function WellnessResultsPage() {
           {/* Next Steps */}
           <MotionDiv variant="slideUp" duration="normal" delay={1400} className="text-center">
             <Card className="bg-gray-50">
-              <div className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Continue Your Leadership Journey
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Explore other assessments to gain deeper insights into your leadership style
-                </p>
-                <div className="flex gap-4 justify-center">
-                  <Button onClick={() => router.push('/dashboard/assessments/tki')}>
-                    Take ARISE Assessment
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => router.push('/dashboard/assessments/360-feedback')}
-                  >
-                    Try 360° Feedback
-                  </Button>
-                </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Continue Your Leadership Journey
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Explore other assessments to gain deeper insights into your leadership style
+              </p>
+              <div className="flex gap-4 justify-center">
+                <Button onClick={() => router.push('/dashboard/assessments/tki')}>
+                  Take ARISE Assessment
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => router.push('/dashboard/assessments/360-feedback')}
+                >
+                  Try 360° Feedback
+                </Button>
               </div>
             </Card>
           </MotionDiv>

@@ -612,7 +612,7 @@ function ResultsReportsContent() {
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <Card className="w-full max-w-md p-6">
+          <Card className="w-full max-w-md">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
                 <AlertTriangle className="text-red-600" size={24} />
@@ -652,7 +652,7 @@ function ResultsReportsContent() {
 
       {/* Error Message */}
       {error && (
-        <Card className="mb-6 p-4 bg-red-50 border-red-200">
+        <Card className="mb-6 bg-red-50 border-red-200">
           <div className="flex items-start gap-3">
             <AlertTriangle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
             <div className="flex-1">
@@ -737,7 +737,8 @@ function ResultsReportsContent() {
           </div>
 
           {/* Assessment Results */}
-          <Card className="p-3 text-white border-0" style={{ backgroundColor: '#10454D' }}>
+          <Card className="text-white border-0" style={{ backgroundColor: '#10454D' }} padding={false}>
+            <div className="p-3">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(15, 76, 86, 0.1)' }}>
@@ -779,7 +780,7 @@ function ResultsReportsContent() {
               <div className="space-y-4">
                 {assessments.map((assessment) => (
                   <div key={assessment.id}>
-                    <Card className="p-4 border border-gray-200 hover:border-arise-deep-teal/30 transition-colors bg-white">
+                    <Card className="border border-gray-200 hover:border-arise-deep-teal/30 transition-colors bg-white">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4 flex-1">
                           <div className="w-16 h-16 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
@@ -828,6 +829,7 @@ function ResultsReportsContent() {
                 ))}
               </div>
             )}
+            </div>
           </Card>
 
           {/* Key Insights */}
@@ -849,7 +851,7 @@ function ResultsReportsContent() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {keyInsights.length > 0 ? (
                 keyInsights.map((insight) => (
-                <Card key={insight.id} className="p-4 border border-gray-200 bg-gray-50">
+                <Card key={insight.id} className="border border-gray-200 bg-gray-50">
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-arise-gold rounded-full mt-2 flex-shrink-0" />
                     <div className="flex-1">
