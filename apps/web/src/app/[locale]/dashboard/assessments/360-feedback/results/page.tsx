@@ -22,7 +22,7 @@ import { formatError } from '@/lib/utils/formatError';
 import { useLocale } from 'next-intl';
 
 // Type guard to check if a value is a PillarScore object
-function isPillarScore(value: number | PillarScore): value is PillarScore {
+function isPillarScore(value: unknown): value is PillarScore {
   return typeof value === 'object' && value !== null && 'score' in value;
 }
 
