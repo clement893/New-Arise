@@ -6,7 +6,7 @@ import { Card } from '@/components/ui';
 import { AssessmentResult, PillarScore, get360Evaluators, type EvaluatorStatus } from '@/lib/api/assessments';
 import { feedback360Capabilities } from '@/data/feedback360Questions';
 import { get360ScoreColorCode, getFeedback360InsightWithLocale } from '@/data/feedback360Insights';
-import { getFeedback360GapInsightWithLocale, get360GapColorCode, get360GapAwarenessLevel } from '@/data/feedback360GapInsights';
+import { getFeedback360GapInsightWithLocale } from '@/data/feedback360GapInsights';
 import { TrendingUp, TrendingDown, Minus, Users, CheckCircle, Clock, Mail, XCircle, Target } from 'lucide-react';
 
 // Type guard to check if a value is a PillarScore object
