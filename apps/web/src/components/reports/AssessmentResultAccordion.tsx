@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import { Card } from '@/components/ui';
 import { AssessmentType, getAssessmentResults } from '@/lib/api/assessments';
 import { useTranslations, useLocale } from 'next-intl';
 
