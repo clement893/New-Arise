@@ -364,29 +364,33 @@ function AssessmentResultsContent() {
                   delay={index * 0.1}
                 >
                   <Card className="hover:shadow-lg transition-shadow">
-                    <div className="flex items-start mb-3 md:mb-4">
-                      <div className="text-3xl md:text-4xl mr-3 md:mr-4 flex-shrink-0">{pillar.icon}</div>
-                      <div className="flex-1 min-w-0 overflow-hidden">
-                        <h3 className="text-base md:text-lg font-bold text-gray-900 mb-1 break-words overflow-wrap-anywhere">
-                          {(() => {
-                            // Translate pillar name - convert snake_case to camelCase
-                            const pillarKey = pillar.id.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
-                            try {
-                              const translated = tWellness(`pillars.${pillarKey}`);
-                              if (translated && !translated.includes('pillars.')) {
-                                return translated;
-                              }
-                            } catch (e) {
-                              // Fallback
+                    {/* Header: Icon and Title on same line */}
+                    <div className="flex items-center gap-3 mb-3 md:mb-4">
+                      <div className="text-3xl md:text-4xl flex-shrink-0">{pillar.icon}</div>
+                      <h3 className="text-base md:text-lg font-bold text-gray-900 break-words overflow-wrap-anywhere flex-1">
+                        {(() => {
+                          // Translate pillar name - convert snake_case to camelCase
+                          const pillarKey = pillar.id.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+                          try {
+                            const translated = tWellness(`pillars.${pillarKey}`);
+                            if (translated && !translated.includes('pillars.')) {
+                              return translated;
                             }
-                            return pillar.name;
-                          })()}
-                        </h3>
-                        <p className="text-xs md:text-sm text-gray-600 break-words overflow-wrap-anywhere whitespace-pre-wrap">
-                          {pillar.description}
-                        </p>
-                      </div>
+                          } catch (e) {
+                            // Fallback
+                          }
+                          return pillar.name;
+                        })()}
+                      </h3>
                     </div>
+
+                    {/* Description in full width below header */}
+                    <p className="text-xs md:text-sm text-gray-600 break-words overflow-wrap-anywhere whitespace-pre-wrap mb-3 md:mb-4">
+                      {(() => {
+                        const insightData = getWellnessInsight(pillar.id, pillarScore);
+                        return insightData?.assessment || pillar.description;
+                      })()}
+                    </p>
                     
                     {/* Progress Bar */}
                     <div className="mb-2 md:mb-3">
@@ -412,39 +416,29 @@ function AssessmentResultsContent() {
                       </div>
                     </div>
 
-                    {/* Description and Actions based on score */}
+                    {/* Actions based on score */}
                     {(() => {
                       const insightData = getWellnessInsight(pillar.id, pillarScore);
-                      if (insightData) {
+                      if (insightData && insightData.actions && insightData.actions.length > 0) {
                         return (
                           <div className="mt-3 md:mt-4">
-                            {/* Description */}
-                            <p className="text-xs md:text-sm text-gray-700 leading-relaxed mb-3">
-                              {insightData.assessment}
-                            </p>
-                            
-                            {/* Actions */}
-                            {insightData.actions && insightData.actions.length > 0 && (
-                              <div>
-                                <h4 className="text-xs md:text-sm font-semibold text-gray-900 mb-2">
-                                  Recommended Actions:
-                                </h4>
-                                <ul className="space-y-1.5">
-                                  {insightData.actions.map((action, actionIndex) => (
-                                    <li 
-                                      key={actionIndex}
-                                      className="flex items-start gap-2 text-xs md:text-sm"
-                                    >
-                                      <CheckCircle 
-                                        className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0 mt-0.5" 
-                                        style={{ color: getScoreColorCode(pillarScore) }} 
-                                      />
-                                      <span className="text-gray-700">{action}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
+                            <h4 className="text-xs md:text-sm font-semibold text-gray-900 mb-2">
+                              Recommended Actions:
+                            </h4>
+                            <ul className="space-y-1.5">
+                              {insightData.actions.map((action, actionIndex) => (
+                                <li 
+                                  key={actionIndex}
+                                  className="flex items-start gap-2 text-xs md:text-sm"
+                                >
+                                  <CheckCircle 
+                                    className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0 mt-0.5" 
+                                    style={{ color: getScoreColorCode(pillarScore) }} 
+                                  />
+                                  <span className="text-gray-700">{action}</span>
+                                </li>
+                              ))}
+                            </ul>
                           </div>
                         );
                       }

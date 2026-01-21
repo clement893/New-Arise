@@ -207,68 +207,57 @@ export default function WellnessResultsPage() {
                   >
                     <Card className="overflow-hidden">
                       <div className="p-6">
-                        {/* Header with pillar name and emoji */}
-                        <div className="flex items-start gap-3 mb-4">
+                        {/* Header: Icon and Title on same line */}
+                        <div className="flex items-center gap-3 mb-3">
                           <span className="text-4xl">{pillarEmojis[pillar] || '📊'}</span>
-                          <div className="flex-1">
-                            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                              {pillarDisplayName}
-                            </h3>
-                            <p className="text-sm text-gray-600 mb-3">
-                              {pillar === 'sleep' ? 'Rest and recovery patterns' :
-                               pillar === 'nutrition' ? 'Eating habits and diet quality' :
-                               pillar === 'movement' ? 'Physical activity and exercise' :
-                               pillar === 'avoidance_of_risky_substances' ? 'Substance use and health choices' :
-                               pillar === 'stress_management' ? 'Coping mechanisms and resilience' :
-                               pillar === 'social_connection' ? 'Relationships and support networks' :
-                               'Making healthy choices about alcohol, tobacco, medications, and other substances'}
-                            </p>
-                            
-                            {/* Score and Progress Bar */}
-                            <div className="mb-4">
-                              <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm font-medium text-gray-700">Score</span>
-                                <span className="text-sm font-bold text-gray-900">
-                                  {score as number} / 25
-                                </span>
-                              </div>
-                              <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
-                                <div
-                                  className="h-full rounded-full transition-all duration-500"
-                                  style={{
-                                    width: `${((score as number) / 25) * 100}%`,
-                                    backgroundColor: colorCode
-                                  }}
-                                />
-                              </div>
-                            </div>
+                          <h3 className="text-xl font-semibold text-gray-900 flex-1">
+                            {pillarDisplayName}
+                          </h3>
+                        </div>
 
-                            {/* Description based on score */}
-                            <p className="text-gray-700 leading-relaxed mb-4">
-                              {description}
-                            </p>
-
-                            {/* Actions */}
-                            {insightData?.actions && insightData.actions.length > 0 && (
-                              <div className="mt-4">
-                                <h4 className="text-sm font-semibold text-gray-900 mb-3">
-                                  Recommended Actions:
-                                </h4>
-                                <ul className="space-y-2">
-                                  {insightData.actions.map((action, actionIndex) => (
-                                    <li 
-                                      key={actionIndex}
-                                      className="flex items-start gap-2 text-sm"
-                                    >
-                                      <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: colorCode }} />
-                                      <span className="text-gray-700">{action}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
+                        {/* Description in full width below header */}
+                        <p className="text-sm text-gray-600 mb-4">
+                          {description}
+                        </p>
+                        
+                        {/* Score and Progress Bar */}
+                        <div className="mb-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium text-gray-700">Score</span>
+                            <span className="text-sm font-bold text-gray-900">
+                              {score as number} / 25
+                            </span>
+                          </div>
+                          <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all duration-500"
+                              style={{
+                                width: `${((score as number) / 25) * 100}%`,
+                                backgroundColor: colorCode
+                              }}
+                            />
                           </div>
                         </div>
+
+                        {/* Actions */}
+                        {insightData?.actions && insightData.actions.length > 0 && (
+                          <div className="mt-4">
+                            <h4 className="text-sm font-semibold text-gray-900 mb-3">
+                              Recommended Actions:
+                            </h4>
+                            <ul className="space-y-2">
+                              {insightData.actions.map((action, actionIndex) => (
+                                <li 
+                                  key={actionIndex}
+                                  className="flex items-start gap-2 text-sm"
+                                >
+                                  <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: colorCode }} />
+                                  <span className="text-gray-700">{action}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                       </div>
                     </Card>
                   </MotionDiv>
