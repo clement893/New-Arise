@@ -15,6 +15,7 @@ import { getMyAssessments, getAssessmentResults, get360Evaluators, getDevelopmen
 import { generateAssessmentPDF, generateAllAssessmentsZip, generateCompleteLeadershipProfilePDF, downloadBlob } from '@/lib/utils/pdfGenerator';
 import { checkMySuperAdminStatus } from '@/lib/api/admin';
 import { Trash2, AlertTriangle } from 'lucide-react';
+import AssessmentResultAccordion from '@/components/reports/AssessmentResultAccordion';
 
 interface AssessmentDisplay {
   id: number;
@@ -60,6 +61,7 @@ function ResultsReportsContent() {
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [expandedAssessmentId, setExpandedAssessmentId] = useState<number | null>(null);
 
   useEffect(() => {
     loadAssessments();
@@ -486,19 +488,8 @@ function ResultsReportsContent() {
   };
 
   const handleViewDetails = (assessment: AssessmentDisplay) => {
-    // Route to the appropriate results page based on assessment type
-    if (assessment.type === 'TKI') {
-      router.push(`/dashboard/assessments/tki/results?id=${assessment.id}`);
-    } else if (assessment.type === 'THREE_SIXTY_SELF') {
-      router.push(`/dashboard/assessments/360-feedback/results?id=${assessment.id}`);
-    } else if (assessment.type === 'WELLNESS') {
-      router.push(`/dashboard/assessments/results?id=${assessment.id}`);
-    } else if (assessment.type === 'MBTI') {
-      router.push(`/dashboard/assessments/mbti/results?id=${assessment.id}`);
-    } else {
-      // Default to general results page
-      router.push(`/dashboard/assessments/results?id=${assessment.id}`);
-    }
+    // Toggle accordion instead of navigating
+    setExpandedAssessmentId(prev => prev === assessment.id ? null : assessment.id);
   };
 
   const handleExportAll = async () => {
@@ -787,44 +778,55 @@ function ResultsReportsContent() {
             ) : (
               <div className="space-y-4">
                 {assessments.map((assessment) => (
-                  <Card key={assessment.id} className="p-4 border border-gray-200 hover:border-arise-deep-teal/30 transition-colors bg-white">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 flex-1">
-                        <div className="w-16 h-16 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
-                          <Brain className="text-arise-deep-teal" size={24} />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                            {assessment.name}
-                          </h3>
-                          <div className="flex items-center gap-4 text-sm text-gray-700">
-                            <span>{t('assessments.completed')} {assessment.completedDate}</span>
-                            <span>•</span>
-                            <span>{t('assessments.score')} {assessment.score}</span>
-                            <span>•</span>
-                            <span className="font-semibold text-arise-deep-teal">{assessment.result}</span>
+                  <div key={assessment.id}>
+                    <Card className="p-4 border border-gray-200 hover:border-arise-deep-teal/30 transition-colors bg-white">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4 flex-1">
+                          <div className="w-16 h-16 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
+                            <Brain className="text-arise-deep-teal" size={24} />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                              {assessment.name}
+                            </h3>
+                            <div className="flex items-center gap-4 text-sm text-gray-700">
+                              <span>{t('assessments.completed')} {assessment.completedDate}</span>
+                              <span>•</span>
+                              <span>{t('assessments.score')} {assessment.score}</span>
+                              <span>•</span>
+                              <span className="font-semibold text-arise-deep-teal">{assessment.result}</span>
+                            </div>
                           </div>
                         </div>
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            variant="arise-primary"
+                            size="sm"
+                            onClick={() => handleViewDetails(assessment)}
+                          >
+                            {expandedAssessmentId === assessment.id ? t('assessments.hideDetails') : t('assessments.viewDetails')}
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleDownloadAssessment(assessment)}
+                            title={t('assessments.downloadReport')}
+                          >
+                            <Download size={16} />
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Button 
-                          variant="arise-primary"
-                          size="sm"
-                          onClick={() => handleViewDetails(assessment)}
-                        >
-                          {t('assessments.viewDetails')}
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => handleDownloadAssessment(assessment)}
-                          title={t('assessments.downloadReport')}
-                        >
-                          <Download size={16} />
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
+                      
+                      {/* Accordion Content */}
+                      <AssessmentResultAccordion
+                        assessmentId={assessment.id}
+                        assessmentType={assessment.type}
+                        assessmentName={assessment.name}
+                        isOpen={expandedAssessmentId === assessment.id}
+                        onToggle={() => handleViewDetails(assessment)}
+                      />
+                    </Card>
+                  </div>
                 ))}
               </div>
             )}

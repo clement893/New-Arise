@@ -1285,6 +1285,7 @@
         "completed": "Complété :",
         "score": "Score :",
         "viewDetails": "Voir les détails",
+        "hideDetails": "Masquer les détails",
         "downloadReport": "Télécharger le rapport",
         "types": {
           "MBTI": "Personnalité MBTI",

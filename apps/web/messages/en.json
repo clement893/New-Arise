@@ -1210,6 +1210,7 @@
         "completed": "Completed:",
         "score": "Score:",
         "viewDetails": "View Details",
+        "hideDetails": "Hide Details",
         "downloadReport": "Download report",
         "types": {
           "MBTI": "MBTI Personality",
