@@ -14,7 +14,7 @@ import { wellnessPillars } from '@/data/wellnessQuestionsReal';
 import { ArrowLeft, TrendingUp } from 'lucide-react';
 import { formatError } from '@/lib/utils/formatError';
 import WellnessRadarChart from '@/components/assessments/charts/WellnessRadarChart';
-import { getWellnessInsightWithLocale, getScoreColorCode } from '@/data/wellnessInsights';
+import { getWellnessInsightWithLocale, getWellnessInsight, getScoreColorCode } from '@/data/wellnessInsights';
 import { CheckCircle } from 'lucide-react';
 
 function AssessmentResultsContent() {
