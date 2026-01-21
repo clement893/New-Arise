@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { AssessmentType, getAssessmentResults } from '@/lib/api/assessments';
-import { useTranslations, useLocale } from 'next-intl';
 
 // Import result content components
 import WellnessResultContent from './results/WellnessResultContent';
@@ -14,20 +13,14 @@ import ThreeSixtyResultContent from './results/ThreeSixtyResultContent';
 interface AssessmentResultAccordionProps {
   assessmentId: number;
   assessmentType: AssessmentType;
-  assessmentName: string;
   isOpen: boolean;
-  onToggle: () => void;
 }
 
 export default function AssessmentResultAccordion({
   assessmentId,
   assessmentType,
-  assessmentName,
   isOpen,
-  onToggle,
 }: AssessmentResultAccordionProps) {
-  const t = useTranslations('dashboard.reports');
-  const locale = useLocale();
   const [results, setResults] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
