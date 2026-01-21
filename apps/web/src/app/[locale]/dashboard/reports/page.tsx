@@ -495,7 +495,7 @@ function ResultsReportsContent() {
   const getScoreColor = (score: string): string | null => {
     // Extract percentage from score string (e.g., "85%" -> 85)
     const percentageMatch = score.match(/(\d+(?:\.\d+)?)/);
-    if (!percentageMatch) return null;
+    if (!percentageMatch || !percentageMatch[1]) return null;
     
     const percentage = parseFloat(percentageMatch[1]);
     if (isNaN(percentage)) return null;
