@@ -339,6 +339,7 @@ export function getWellnessInsight(pillar: string, score: number): WellnessPilla
     
     // Parse score range
     const [min, max] = insight.scoreRange.split('-').map(s => parseInt(s.trim()));
+    if (min === undefined || max === undefined) return false;
     return score >= min && score <= max;
   });
   
