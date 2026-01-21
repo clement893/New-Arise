@@ -112,7 +112,6 @@ export default function WellnessResultsPage() {
   const totalScore = results.scores.total_score || 0;
   const maxScore = results.scores.max_score || 150;
   const percentage = results.scores.percentage || 0;
-  const insights = results.insights || {};
   const recommendations = results.recommendations || [];
 
   // Find strongest and weakest pillars
