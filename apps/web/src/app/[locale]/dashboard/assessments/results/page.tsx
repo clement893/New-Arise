@@ -14,7 +14,7 @@ import { wellnessPillars } from '@/data/wellnessQuestionsReal';
 import { ArrowLeft, TrendingUp } from 'lucide-react';
 import { formatError } from '@/lib/utils/formatError';
 import WellnessRadarChart from '@/components/assessments/charts/WellnessRadarChart';
-import { getWellnessInsightWithLocale, getWellnessInsight, getScoreColorCode } from '@/data/wellnessInsights';
+import { getWellnessInsightWithLocale, getScoreColorCode } from '@/data/wellnessInsights';
 import { CheckCircle } from 'lucide-react';
 
 function AssessmentResultsContent() {
@@ -453,7 +453,7 @@ function AssessmentResultsContent() {
 
                     {/* Actions based on score */}
                     {(() => {
-                      const insightData = getWellnessInsight(pillar.id, pillarScore);
+                      const insightData = getWellnessInsightWithLocale(pillar.id, pillarScore, locale);
                       if (insightData) {
                         return (
                           <div className="mt-3 md:mt-4">
