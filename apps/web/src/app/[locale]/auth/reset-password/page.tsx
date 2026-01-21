@@ -65,7 +65,7 @@ function ResetPasswordContent() {
       setSuccess(true);
       // Redirect to login after 3 seconds
       setTimeout(() => {
-        router.push('/auth/login');
+        router.push('/login');
       }, 3000);
     } catch (err) {
       const axiosError = err as AxiosError<ApiErrorResponse>;
@@ -141,7 +141,7 @@ function ResetPasswordContent() {
 
             <div className="mt-6 text-center">
               <Link 
-                href="/auth/login" 
+                href="/login" 
                 className="text-primary-600 dark:text-primary-400 hover:underline"
               >
                 Back to Login
