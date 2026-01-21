@@ -225,27 +225,41 @@ export function getFeedback360Insight(
   capability: string,
   score: number
 ): Feedback360CapabilityInsight | null {
+  // Handle invalid inputs
+  if (!capability || score === undefined || score === null || isNaN(score)) {
+    return null;
+  }
+  
+  // Round score to nearest integer for matching (scores are on 1-5 scale)
+  const roundedScore = Math.max(1, Math.min(5, Math.round(score)));
+  
+  // Normalize capability name for comparison
+  const normalizedInputCapability = capability.toLowerCase().replace(/\s+/g, '_');
+  
   // Find the matching insight based on capability and score range
   const insights = feedback360Insights.filter(insight => {
     // Normalize capability name for comparison
     const normalizedCapability = insight.capability.toLowerCase().replace(/\s+/g, '_');
-    const normalizedInputCapability = capability.toLowerCase().replace(/\s+/g, '_');
     
-    // Check if capabilities match
-    const capabilityMatches = normalizedCapability === normalizedInputCapability ||
-                             normalizedCapability.includes(normalizedInputCapability) ||
-                             normalizedInputCapability.includes(normalizedCapability);
-    
-    if (!capabilityMatches) return false;
+    // Check if capabilities match exactly
+    if (normalizedCapability !== normalizedInputCapability) {
+      return false;
+    }
     
     // Parse score range
-    const [min, max] = insight.scoreRange.split('-').map(s => parseInt(s.trim()));
-    if (min === undefined) return false;
-    if (max === undefined) {
+    const rangeParts = insight.scoreRange.split('-').map(s => s.trim());
+    const min = parseInt(rangeParts[0]);
+    const max = rangeParts.length > 1 ? parseInt(rangeParts[1]) : undefined;
+    
+    if (isNaN(min)) return false;
+    
+    if (max === undefined || isNaN(max)) {
       // Single value range (e.g., "3")
-      return score === min;
+      return roundedScore === min;
     }
-    return score >= min && score <= max;
+    
+    // Range (e.g., "1-2" or "4-5")
+    return roundedScore >= min && roundedScore <= max;
   });
   
   return insights[0] || null;

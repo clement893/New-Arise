@@ -591,6 +591,16 @@ export default function Feedback360ResultsPage() {
                       locale
                     );
 
+                    // Debug log (can be removed later)
+                    if (!insight && (capScore.capability === 'communication' || capScore.capability === 'leadership_style')) {
+                      console.log('[360 Insights Debug]', {
+                        capability: capScore.capability,
+                        score: scoreForInsight,
+                        self_score: capScore.self_score,
+                        others_avg_score: capScore.others_avg_score
+                      });
+                    }
+
                     if (!insight) return null;
 
                     return (
