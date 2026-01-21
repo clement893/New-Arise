@@ -597,7 +597,7 @@ function WellnessAssessmentContent() {
                 </div>
 
                 {/* Resources Section */}
-                {currentQuestion?.id && (
+                {currentQuestion?.resources && currentQuestion.resources.length > 0 && (
                   <div className="mb-8 rounded-lg border border-gray-200 bg-gray-50 p-4">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
@@ -608,45 +608,22 @@ function WellnessAssessmentContent() {
                       </h3>
                     </div>
                     <div className="space-y-2">
-                      {/* Resource links - these should come from master excel */}
-                      {/* Each resource opens in a new window (not downloadable) */}
-                      {/* TODO: Replace with actual resource URLs from backend/master excel */}
-                      <a
-                        href={`/resources/wellness/${currentQuestion.id}/guide.pdf`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-sm text-arise-deep-teal hover:text-arise-deep-teal/80 hover:underline transition-colors cursor-pointer"
-                        onClick={(e) => {
-                          // Prevent navigation if resource doesn't exist yet
-                          // Remove this check once actual resources are available
-                          e.preventDefault();
-                          window.open(`/resources/wellness/${currentQuestion.id}/guide.pdf`, '_blank', 'noopener,noreferrer');
-                        }}
-                      >
-                        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                        <span>Resource Guide (opens in new window)</span>
-                      </a>
-                      <a
-                        href={`/resources/wellness/${currentQuestion.id}/additional.pdf`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-sm text-arise-deep-teal hover:text-arise-deep-teal/80 hover:underline transition-colors cursor-pointer"
-                        onClick={(e) => {
-                          // Prevent navigation if resource doesn't exist yet
-                          // Remove this check once actual resources are available
-                          e.preventDefault();
-                          window.open(`/resources/wellness/${currentQuestion.id}/additional.pdf`, '_blank', 'noopener,noreferrer');
-                        }}
-                      >
-                        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                        <span>Additional Resources (opens in new window)</span>
-                      </a>
+                      {currentQuestion.resources.map((resource, index) => (
+                        <a
+                          key={index}
+                          href={resource.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-sm text-arise-deep-teal hover:text-arise-deep-teal/80 hover:underline transition-colors cursor-pointer"
+                        >
+                          <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                          <span>{resource.text}</span>
+                        </a>
+                      ))}
                       <p className="text-xs text-gray-500 italic mt-3">
-                        Note: Resources are individually clickable and open in a new window for easy reference while answering questions.
+                        Click on each resource to open it in a new window for easy reference while answering this question.
                       </p>
                     </div>
                   </div>
