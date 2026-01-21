@@ -6,7 +6,6 @@ import { Card } from '@/components/ui';
 import { AssessmentResult, PillarScore, get360Evaluators, type EvaluatorStatus } from '@/lib/api/assessments';
 import { feedback360Capabilities } from '@/data/feedback360Questions';
 import { TrendingUp, TrendingDown, Minus, Users, CheckCircle, Clock, Mail, XCircle } from 'lucide-react';
-import MotionDiv from '@/components/motion/MotionDiv';
 
 // Type guard to check if a value is a PillarScore object
 function isPillarScore(value: number | PillarScore): value is PillarScore {
