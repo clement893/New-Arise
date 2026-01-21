@@ -470,123 +470,153 @@ function AssessmentResultsContent() {
               <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4">
                 {t('insights.title')}
               </h2>
-              <div className="space-y-4">
-                {/* Use backend insights if available, otherwise generate from scores */}
-                {results.insights && typeof results.insights === 'object' && Object.keys(results.insights).length > 0 ? (
-                  // Display backend insights
-                  <div className="space-y-4">
-                    {results.insights.strengths && (
-                      <div className="p-4 bg-success-50 rounded-lg break-words overflow-hidden">
-                        <h3 className="font-bold text-success-900 mb-2">{t('insights.strengths.title')}</h3>
-                        {Array.isArray(results.insights.strengths) ? (
-                          <ul className="list-disc list-inside space-y-1 text-success-800">
-                            {results.insights.strengths.map((strength: string, idx: number) => (
-                              <li key={idx} className="break-words">{strength}</li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p className="text-success-800 break-words whitespace-pre-wrap">{String(results.insights.strengths)}</p>
-                        )}
-                      </div>
-                    )}
-                    {results.insights.growth_areas && (
-                      <div className="p-4 bg-yellow-50 rounded-lg break-words overflow-hidden">
-                        <h3 className="font-bold text-yellow-900 mb-2">{t('insights.growth.title')}</h3>
-                        {Array.isArray(results.insights.growth_areas) ? (
-                          <ul className="list-disc list-inside space-y-1 text-yellow-800">
-                            {results.insights.growth_areas.map((area: string, idx: number) => (
-                              <li key={idx} className="break-words">{area}</li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p className="text-yellow-800 break-words whitespace-pre-wrap">{String(results.insights.growth_areas)}</p>
-                        )}
-                      </div>
-                    )}
-                    {results.insights.summary && (
-                      <div className="p-4 bg-blue-50 rounded-lg break-words overflow-hidden">
-                        <h3 className="font-bold text-blue-900 mb-2">Summary</h3>
-                        <p className="text-blue-800 break-words whitespace-pre-wrap">{String(results.insights.summary)}</p>
-                      </div>
-                    )}
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Strengths Section */}
+                <div>
+                  <h3 className="text-lg font-semibold text-green-700 mb-4 flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5" />
+                    {t('insights.strengths.title')}
+                  </h3>
+                  <div className="space-y-3">
+                    {(() => {
+                      const getPillarScore = (data: number | PillarScore | undefined): number => {
+                        if (typeof data === 'number') return data;
+                        if (typeof data === 'object' && data !== null && 'score' in data) {
+                          const scoreValue = data.score;
+                          return typeof scoreValue === 'number' ? scoreValue : (typeof scoreValue === 'string' ? parseFloat(scoreValue) : 0);
+                        }
+                        return 0;
+                      };
+
+                      const strengthPillars = wellnessPillars.filter(p => {
+                        const data = pillar_scores?.[p.id];
+                        const score = getPillarScore(data);
+                        return score >= 16;
+                      });
+
+                      if (strengthPillars.length === 0) {
+                        return (
+                          <p className="text-sm text-gray-500 italic">No strengths identified yet. Keep building your wellness habits!</p>
+                        );
+                      }
+
+                      return strengthPillars.map(pillar => {
+                        const data = pillar_scores?.[pillar.id];
+                        const score = getPillarScore(data);
+                        const colorCode = getScoreColorCode(score);
+                        
+                        let levelText = '';
+                        if (score >= 21) {
+                          levelText = 'STRONG FOUNDATION - Healthy habits are established and practiced most of the time. Continuing to refine and maintain consistency will keep this pillar robust.';
+                        } else if (score >= 16) {
+                          levelText = 'CONSISTENCY STAGE - Good habits are in place and showing progress, though not always steady. With more regularity, this pillar can become a solid strength.';
+                        }
+
+                        const pillarKey = pillar.id.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+                        let displayName = pillar.name;
+                        try {
+                          const translated = tWellness(`pillars.${pillarKey}`);
+                          if (translated && !translated.includes('pillars.')) {
+                            displayName = translated;
+                          }
+                        } catch (e) {
+                          // Use fallback name
+                        }
+
+                        return (
+                          <div key={pillar.id} className="p-4 rounded-lg" style={{ backgroundColor: colorCode + '15' }}>
+                            <div className="flex items-start gap-3">
+                              <span className="text-2xl">{pillar.icon}</span>
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between mb-2">
+                                  <h4 className="font-semibold text-gray-900">{displayName}</h4>
+                                  <span className="text-sm font-bold" style={{ color: colorCode }}>
+                                    {score}/25
+                                  </span>
+                                </div>
+                                <p className="text-xs text-gray-600 leading-relaxed">{levelText}</p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      });
+                    })()}
                   </div>
-                ) : (
-                  // Fallback: Generate insights from scores
-                  <div className="space-y-4">
-                    <div className="p-4 bg-success-50 rounded-lg break-words overflow-hidden">
-                      <h3 className="font-bold text-success-900 mb-2">{t('insights.strengths.title')}</h3>
-                      <p className="text-success-800 break-words whitespace-pre-wrap">
-                        {t('insights.strengths.description', { 
-                          pillar: (() => {
-                            const getPillarScore = (data: number | PillarScore | undefined): number => {
-                              if (typeof data === 'number') return data;
-                              if (typeof data === 'object' && data !== null && 'score' in data) {
-                                const scoreValue = data.score;
-                                return typeof scoreValue === 'number' ? scoreValue : (typeof scoreValue === 'string' ? parseFloat(scoreValue) : 0);
-                              }
-                              return 0;
-                            };
-                            const strongestPillar = wellnessPillars.find(p => {
-                              const data = pillar_scores?.[p.id];
-                              const score = getPillarScore(data);
-                              const allScores = Object.values(pillar_scores || {}).map(d => getPillarScore(d));
-                              return allScores.length > 0 && !isNaN(score) && score === Math.max(...allScores.filter(s => !isNaN(s)));
-                            });
-                            if (strongestPillar) {
-                              const pillarKey = strongestPillar.id.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
-                              try {
-                                const translated = tWellness(`pillars.${pillarKey}`);
-                                if (translated && !translated.includes('pillars.')) {
-                                  return translated;
-                                }
-                              } catch (e) {
-                                // Fallback
-                              }
-                              return strongestPillar.name;
-                            }
-                            return 'N/A';
-                          })()
-                        })}
-                      </p>
-                    </div>
-                    <div className="p-4 bg-yellow-50 rounded-lg break-words overflow-hidden">
-                      <h3 className="font-bold text-yellow-900 mb-2">{t('insights.growth.title')}</h3>
-                      <p className="text-yellow-800 break-words whitespace-pre-wrap">
-                        {t('insights.growth.description', { 
-                          pillar: (() => {
-                            const getPillarScore = (data: number | PillarScore | undefined): number => {
-                              if (typeof data === 'number') return data;
-                              if (typeof data === 'object' && data !== null && 'score' in data) {
-                                const scoreValue = data.score;
-                                return typeof scoreValue === 'number' ? scoreValue : (typeof scoreValue === 'string' ? parseFloat(scoreValue) : 0);
-                              }
-                              return 0;
-                            };
-                            const weakestPillar = wellnessPillars.find(p => {
-                              const data = pillar_scores?.[p.id];
-                              const score = getPillarScore(data);
-                              const allScores = Object.values(pillar_scores || {}).map(d => getPillarScore(d));
-                              return allScores.length > 0 && !isNaN(score) && score === Math.min(...allScores.filter(s => !isNaN(s)));
-                            });
-                            if (weakestPillar) {
-                              const pillarKey = weakestPillar.id.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
-                              try {
-                                const translated = tWellness(`pillars.${pillarKey}`);
-                                if (translated && !translated.includes('pillars.')) {
-                                  return translated;
-                                }
-                              } catch (e) {
-                                // Fallback
-                              }
-                              return weakestPillar.name;
-                            }
-                            return 'N/A';
-                          })()
-                        })}
-                      </p>
-                    </div>
+                </div>
+
+                {/* Areas for Growth Section */}
+                <div>
+                  <h3 className="text-lg font-semibold text-orange-700 mb-4 flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5" />
+                    {t('insights.growth.title')}
+                  </h3>
+                  <div className="space-y-3">
+                    {(() => {
+                      const getPillarScore = (data: number | PillarScore | undefined): number => {
+                        if (typeof data === 'number') return data;
+                        if (typeof data === 'object' && data !== null && 'score' in data) {
+                          const scoreValue = data.score;
+                          return typeof scoreValue === 'number' ? scoreValue : (typeof scoreValue === 'string' ? parseFloat(scoreValue) : 0);
+                        }
+                        return 0;
+                      };
+
+                      const growthPillars = wellnessPillars.filter(p => {
+                        const data = pillar_scores?.[p.id];
+                        const score = getPillarScore(data);
+                        return score < 16;
+                      });
+
+                      if (growthPillars.length === 0) {
+                        return (
+                          <p className="text-sm text-gray-500 italic">Great work! All pillars are showing strong performance.</p>
+                        );
+                      }
+
+                      return growthPillars.map(pillar => {
+                        const data = pillar_scores?.[pillar.id];
+                        const score = getPillarScore(data);
+                        const colorCode = getScoreColorCode(score);
+                        
+                        let levelText = '';
+                        if (score >= 11) {
+                          levelText = 'EARLY DEVELOPMENT - Some positive habits are present, but they are irregular or not yet sustainable. Building consistency will strengthen this pillar.';
+                        } else {
+                          levelText = 'SIGNIFICANT GROWTH OPPORTUNITY - Currently limited or inconsistent practices in this area. A focused effort can create meaningful improvement in your overall well-being.';
+                        }
+
+                        const pillarKey = pillar.id.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+                        let displayName = pillar.name;
+                        try {
+                          const translated = tWellness(`pillars.${pillarKey}`);
+                          if (translated && !translated.includes('pillars.')) {
+                            displayName = translated;
+                          }
+                        } catch (e) {
+                          // Use fallback name
+                        }
+
+                        return (
+                          <div key={pillar.id} className="p-4 rounded-lg" style={{ backgroundColor: colorCode + '15' }}>
+                            <div className="flex items-start gap-3">
+                              <span className="text-2xl">{pillar.icon}</span>
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between mb-2">
+                                  <h4 className="font-semibold text-gray-900">{displayName}</h4>
+                                  <span className="text-sm font-bold" style={{ color: colorCode }}>
+                                    {score}/25
+                                  </span>
+                                </div>
+                                <p className="text-xs text-gray-600 leading-relaxed">{levelText}</p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      });
+                    })()}
                   </div>
-                )}
+                </div>
               </div>
             </Card>
           </MotionDiv>
