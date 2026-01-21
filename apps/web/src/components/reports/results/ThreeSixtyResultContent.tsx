@@ -48,11 +48,14 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
 
   const transformResults = async () => {
     const scores = results.scores;
+    const comparisonData = results.comparison_data;
     
     // Load evaluators using the passed assessmentId
+    let evaluatorsList: EvaluatorStatus[] = [];
     try {
       const evaluatorsResponse = await get360Evaluators(assessmentId);
-      setEvaluators(evaluatorsResponse.evaluators || []);
+      evaluatorsList = evaluatorsResponse.evaluators || [];
+      setEvaluators(evaluatorsList);
     } catch (err) {
       console.warn('Failed to load evaluators:', err);
     }
@@ -67,6 +70,38 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
       'stress_management': 'stress_management',
     };
 
+    // Reverse map for looking up backend IDs from frontend IDs
+    const reverseCapabilityMap: Record<string, string> = {
+      'problem_solving_and_decision_making': 'problem_solving',
+      'communication': 'communication',
+      'team_culture': 'team_culture',
+      'leadership_style': 'leadership_style',
+      'change_management': 'change_management',
+      'stress_management': 'stress_management',
+    };
+
+    // Count completed evaluators
+    const completedCount = evaluatorsList.filter(
+      (e) => e.status === 'completed' || e.status === 'COMPLETED'
+    ).length;
+
+    const hasEvaluatorResponses = completedCount > 0;
+
+    // Calculate others_avg_score from comparison_data if available
+    let othersAvgScores: Record<string, number> = {};
+    if (comparisonData && typeof comparisonData === 'object') {
+      // Check if comparison_data has capability scores
+      if (comparisonData.capability_scores && typeof comparisonData.capability_scores === 'object') {
+        Object.entries(comparisonData.capability_scores).forEach(([capability, score]) => {
+          const rawScoreValue = isPillarScore(score) ? score.score : (typeof score === 'number' ? score : 0);
+          // Convert sum (max 25) to average (max 5.0) by dividing by 5
+          const averageScore = rawScoreValue / 5;
+          const mappedCapability = capabilityIdMap[capability] || capability;
+          othersAvgScores[mappedCapability] = averageScore;
+        });
+      }
+    }
+
     // Transform capability scores
     const capabilityScores: CapabilityScore[] = scores.capability_scores
       ? Object.entries(scores.capability_scores).map(([capability, score]) => {
@@ -77,22 +112,21 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
           // Map capability ID to frontend format
           const mappedCapability = capabilityIdMap[capability] || capability;
           
+          // Get others_avg_score from comparison_data if available
+          const othersAvgScore = othersAvgScores[mappedCapability] || 0;
+          
+          // Calculate gap (self_score - others_avg_score)
+          const gap = averageScore - othersAvgScore;
+          
           return {
             capability: mappedCapability,
             self_score: averageScore,
-            others_avg_score: 0, // Will be set if evaluator responses exist
-            gap: 0,
+            others_avg_score: othersAvgScore,
+            gap: gap,
             level: averageScore >= 4 ? 'high' : averageScore >= 2.5 ? 'moderate' : 'low',
           };
         })
       : [];
-
-    // Count completed evaluators
-    const completedCount = evaluators.filter(
-      (e) => e.status === 'completed' || e.status === 'COMPLETED'
-    ).length;
-
-    const hasEvaluatorResponses = completedCount > 0;
 
     // Calculate percentage if not provided
     let percentage = scores.percentage;

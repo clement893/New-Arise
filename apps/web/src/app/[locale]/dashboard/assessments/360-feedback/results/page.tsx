@@ -178,7 +178,9 @@ export default function Feedback360ResultsPage() {
 
       // Transform AssessmentResult to Results format
       const scores = response.scores;
+      const comparisonData = response.comparison_data;
       console.log('[360-Feedback Results] Raw scores from API:', JSON.stringify(scores, null, 2));
+      console.log('[360-Feedback Results] Comparison data from API:', JSON.stringify(comparisonData, null, 2));
       
       // Map backend capability IDs to frontend IDs
       const capabilityIdMap: Record<string, string> = {
@@ -190,6 +192,24 @@ export default function Feedback360ResultsPage() {
         'change_management': 'change_management',
         'stress_management': 'stress_management',
       };
+
+      // Check if there are evaluator responses
+      const hasEvaluatorResponses = completedCount > 0;
+
+      // Calculate others_avg_score from comparison_data if available
+      let othersAvgScores: Record<string, number> = {};
+      if (comparisonData && typeof comparisonData === 'object') {
+        // Check if comparison_data has capability scores
+        if (comparisonData.capability_scores && typeof comparisonData.capability_scores === 'object') {
+          Object.entries(comparisonData.capability_scores).forEach(([capability, score]) => {
+            const rawScoreValue = isPillarScore(score) ? score.score : (typeof score === 'number' ? score : 0);
+            // Convert sum (max 25) to average (max 5.0) by dividing by 5
+            const averageScore = rawScoreValue / 5;
+            const mappedCapability = capabilityIdMap[capability] || capability;
+            othersAvgScores[mappedCapability] = averageScore;
+          });
+        }
+      }
       
       // Transform capability scores
       // Backend returns sums (max 25 for 5 questions), frontend needs averages (max 5.0)
@@ -202,25 +222,30 @@ export default function Feedback360ResultsPage() {
             // Map capability ID to frontend format
             const mappedCapability = capabilityIdMap[capability] || capability;
             
+            // Get others_avg_score from comparison_data if available
+            const othersAvgScore = othersAvgScores[mappedCapability] || 0;
+            
+            // Calculate gap (self_score - others_avg_score)
+            const gap = averageScore - othersAvgScore;
+            
             console.log('[360-Feedback Results] Capability score:', {
               backendId: capability,
               frontendId: mappedCapability,
               rawSum: rawScoreValue,
-              average: averageScore
+              average: averageScore,
+              othersAvgScore: othersAvgScore,
+              gap: gap
             });
             
             return {
               capability: mappedCapability,
               self_score: averageScore,
-              others_avg_score: 0, // Will be set if evaluator responses exist
-              gap: 0,
+              others_avg_score: othersAvgScore,
+              gap: gap,
               level: averageScore >= 4 ? 'high' : averageScore >= 2.5 ? 'moderate' : 'low',
             };
           })
         : [];
-
-      // Check if there are evaluator responses
-      const hasEvaluatorResponses = completedCount > 0;
       
       // Calculate percentage if not provided or invalid
       let percentage = scores.percentage;
