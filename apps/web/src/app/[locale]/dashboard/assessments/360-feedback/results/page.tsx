@@ -657,116 +657,6 @@ export default function Feedback360ResultsPage() {
           </div>
         </MotionDiv>
 
-        {/* Results & Analysis Section */}
-        {results.has_evaluator_responses && (
-          <MotionDiv
-            variant="slideUp"
-            duration="normal"
-            delay={0.3}
-            className="mb-8 rounded-lg bg-white p-8 shadow-lg"
-          >
-            <h2 className="mb-6 text-2xl font-semibold text-gray-900">
-              Results & Analysis: Self vs Contributors
-            </h2>
-
-            <div className="space-y-6">
-              {results.capability_scores.map((capScore) => {
-                const capInfo = feedback360Capabilities.find(
-                  (c) => c.id === capScore.capability
-                );
-                const capabilityTitle = capInfo?.title || capScore.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-
-                // Calculate gap (self_score - others_avg_score)
-                const gap = capScore.self_score - capScore.others_avg_score;
-                
-                // Get gap insight
-                const gapInsight = getFeedback360GapInsightWithLocale(
-                  capScore.capability,
-                  gap,
-                  locale
-                );
-
-                // Get insight based on others_avg_score (since we have evaluator responses)
-                const scoreForInsight = capScore.others_avg_score > 0 ? capScore.others_avg_score : capScore.self_score;
-                const insight = getFeedback360InsightWithLocale(
-                  capScore.capability,
-                  scoreForInsight,
-                  locale
-                );
-
-                return (
-                  <div
-                    key={`analysis-${capScore.capability}`}
-                    className="rounded-lg border border-gray-200 p-6"
-                  >
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {capabilityTitle}
-                    </h3>
-                    <div className="flex items-center gap-2">
-                      {getGapIcon(capScore.gap)}
-                      <span className={`text-sm font-medium ${getGapColor(capScore.gap)}`}>
-                        {getGapLabel(capScore.gap)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Gap-based Overview and Recommendation */}
-                  {gapInsight && (
-                    <div className="space-y-3 mb-4">
-                      {/* Overview */}
-                      <div 
-                        className="rounded-lg p-4"
-                        style={{ backgroundColor: gapInsight.colorCode }}
-                      >
-                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Overview</h4>
-                        <p className="text-sm text-gray-700 leading-relaxed">{gapInsight.overview}</p>
-                      </div>
-
-                      {/* Recommendation */}
-                      <div 
-                        className="rounded-lg p-4"
-                        style={{ backgroundColor: gapInsight.colorCode }}
-                      >
-                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Recommendation</h4>
-                        <p className="text-sm text-gray-700 leading-relaxed">{gapInsight.recommendation}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Score-based Analysis and Recommendations */}
-                  {insight && (
-                    <div className="space-y-3 mb-4">
-                      {/* Analysis */}
-                      <div 
-                        className="rounded-lg p-4"
-                        style={{ backgroundColor: insight.colorCode }}
-                      >
-                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Analysis</h4>
-                        <p className="text-sm text-gray-700 leading-relaxed">{insight.analysis}</p>
-                      </div>
-
-                      {/* Recommendations */}
-                      <div 
-                        className="rounded-lg p-4"
-                        style={{ backgroundColor: insight.colorCode }}
-                      >
-                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Recommendations</h4>
-                        <p className="text-sm text-gray-700 leading-relaxed">{insight.recommendation}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="rounded-lg bg-gray-50 p-4">
-                    <p className="text-sm text-gray-700">{getInsight(capScore)}</p>
-                  </div>
-                  </div>
-                );
-              })}
-            </div>
-          </MotionDiv>
-        )}
-
         {/* OVERALL RESULTS' STATEMENT with Capabilities Categorization */}
         <MotionDiv
           variant="slideUp"
@@ -983,6 +873,116 @@ export default function Feedback360ResultsPage() {
             );
           })()}
         </MotionDiv>
+
+        {/* Results & Analysis Section */}
+        {results.has_evaluator_responses && (
+          <MotionDiv
+            variant="slideUp"
+            duration="normal"
+            delay={0.5}
+            className="mb-8 rounded-lg bg-white p-8 shadow-lg"
+          >
+            <h2 className="mb-6 text-2xl font-semibold text-gray-900">
+              Results & Analysis: Self vs Contributors
+            </h2>
+
+            <div className="space-y-6">
+              {results.capability_scores.map((capScore) => {
+                const capInfo = feedback360Capabilities.find(
+                  (c) => c.id === capScore.capability
+                );
+                const capabilityTitle = capInfo?.title || capScore.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+                // Calculate gap (self_score - others_avg_score)
+                const gap = capScore.self_score - capScore.others_avg_score;
+                
+                // Get gap insight
+                const gapInsight = getFeedback360GapInsightWithLocale(
+                  capScore.capability,
+                  gap,
+                  locale
+                );
+
+                // Get insight based on others_avg_score (since we have evaluator responses)
+                const scoreForInsight = capScore.others_avg_score > 0 ? capScore.others_avg_score : capScore.self_score;
+                const insight = getFeedback360InsightWithLocale(
+                  capScore.capability,
+                  scoreForInsight,
+                  locale
+                );
+
+                return (
+                  <div
+                    key={`analysis-${capScore.capability}`}
+                    className="rounded-lg border border-gray-200 p-6"
+                  >
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {capabilityTitle}
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      {getGapIcon(capScore.gap)}
+                      <span className={`text-sm font-medium ${getGapColor(capScore.gap)}`}>
+                        {getGapLabel(capScore.gap)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Gap-based Overview and Recommendation */}
+                  {gapInsight && (
+                    <div className="space-y-3 mb-4">
+                      {/* Overview */}
+                      <div 
+                        className="rounded-lg p-4"
+                        style={{ backgroundColor: gapInsight.colorCode }}
+                      >
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Overview</h4>
+                        <p className="text-sm text-gray-700 leading-relaxed">{gapInsight.overview}</p>
+                      </div>
+
+                      {/* Recommendation */}
+                      <div 
+                        className="rounded-lg p-4"
+                        style={{ backgroundColor: gapInsight.colorCode }}
+                      >
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Recommendation</h4>
+                        <p className="text-sm text-gray-700 leading-relaxed">{gapInsight.recommendation}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Score-based Analysis and Recommendations */}
+                  {insight && (
+                    <div className="space-y-3 mb-4">
+                      {/* Analysis */}
+                      <div 
+                        className="rounded-lg p-4"
+                        style={{ backgroundColor: insight.colorCode }}
+                      >
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Analysis</h4>
+                        <p className="text-sm text-gray-700 leading-relaxed">{insight.analysis}</p>
+                      </div>
+
+                      {/* Recommendations */}
+                      <div 
+                        className="rounded-lg p-4"
+                        style={{ backgroundColor: insight.colorCode }}
+                      >
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Recommendations</h4>
+                        <p className="text-sm text-gray-700 leading-relaxed">{insight.recommendation}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <p className="text-sm text-gray-700">{getInsight(capScore)}</p>
+                  </div>
+                  </div>
+                );
+              })}
+            </div>
+          </MotionDiv>
+        )}
 
         {/* Back to assessments button at bottom */}
         <div className="flex justify-center mt-8 mb-8">
