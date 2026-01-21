@@ -99,17 +99,19 @@ export default function TKIResultContent({ results }: TKIResultContentProps) {
     <div className="space-y-6">
       {/* Dominant & Secondary Modes */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="bg-gradient-to-br from-arise-teal to-arise-teal-dark text-white">
-          <div className="text-center">
-            <div className="text-4xl mb-3">{dominantModeInfo?.icon}</div>
-            <h3 className="text-sm font-medium mb-2 opacity-95">{t('dominantMode')}</h3>
-            <h2 className="text-3xl font-bold mb-2">{dominantModeInfo?.title}</h2>
-            <p className="text-sm opacity-95">
-              {t('responsesCount', { 
-                count: transformedResults.dominant_mode ? (transformedResults.mode_counts[transformedResults.dominant_mode] || 0) : 0, 
-                total: 30 
-              })}
-            </p>
+        <Card className="text-white" padding={false}>
+          <div className="h-full p-lg bg-arise-deep-teal">
+            <div className="text-center">
+              <div className="text-4xl mb-3">{dominantModeInfo?.icon}</div>
+              <h3 className="text-sm font-medium mb-2 opacity-95">{t('dominantMode')}</h3>
+              <h2 className="text-3xl font-bold mb-2">{dominantModeInfo?.title}</h2>
+              <p className="text-sm opacity-95">
+                {t('responsesCount', { 
+                  count: transformedResults.dominant_mode ? (transformedResults.mode_counts[transformedResults.dominant_mode] || 0) : 0, 
+                  total: 30 
+                })}
+              </p>
+            </div>
           </div>
         </Card>
 

@@ -923,17 +923,7 @@ function ResultsReportsContent() {
               <div className="space-y-4">
                 {assessments.map((assessment) => (
                   <div key={assessment.id}>
-                    <Card className="border border-gray-200 hover:border-arise-deep-teal/30 transition-colors bg-white relative">
-                      {/* Delete icon in top right corner */}
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handleDeleteAssessmentClick(assessment)}
-                        title={t('assessments.deleteAssessment') || 'Delete Assessment'}
-                        className="absolute top-2 right-2 text-red-600 hover:text-red-700 hover:bg-red-50 p-2"
-                      >
-                        <Trash2 size={16} />
-                      </Button>
+                    <Card className="border border-gray-200 hover:border-arise-deep-teal/30 transition-colors bg-white">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4 flex-1">
                           <div className="w-16 h-16 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
@@ -956,7 +946,7 @@ function ResultsReportsContent() {
                           {/* Color indicator for assessments with percentage scores */}
                           {hasScoreColor(assessment) && getScoreColor(assessment.score) && (
                             <div 
-                              className="w-4 h-8 rounded-sm flex-shrink-0"
+                              className="w-10 h-8 rounded-sm flex-shrink-0"
                               style={{ backgroundColor: getScoreColor(assessment.score) || '#E5E7EB' }}
                               title={`Score: ${assessment.score}`}
                             />
@@ -975,6 +965,15 @@ function ResultsReportsContent() {
                             title={t('assessments.downloadReport')}
                           >
                             <Download size={16} />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleDeleteAssessmentClick(assessment)}
+                            title={t('assessments.deleteAssessment') || 'Delete Assessment'}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 p-0"
+                          >
+                            <Trash2 size={14} />
                           </Button>
                         </div>
                       </div>
