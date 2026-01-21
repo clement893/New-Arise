@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
 import { Card, Button } from '@/components/ui';
@@ -14,14 +14,36 @@ import { wellnessPillars } from '@/data/wellnessQuestionsReal';
 import { ArrowLeft, TrendingUp } from 'lucide-react';
 import { formatError } from '@/lib/utils/formatError';
 import WellnessRadarChart from '@/components/assessments/charts/WellnessRadarChart';
-import { getWellnessInsight, getScoreColorCode } from '@/data/wellnessInsights';
+import { getWellnessInsightWithLocale, getScoreColorCode } from '@/data/wellnessInsights';
 import { CheckCircle } from 'lucide-react';
 
 function AssessmentResultsContent() {
   const t = useTranslations('dashboard.assessments.results');
   const tWellness = useTranslations('dashboard.assessments.wellness.results');
+  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
+  
+  // Translations for insight levels
+  const insightLevelTexts = {
+    en: {
+      strongFoundation: 'STRONG FOUNDATION - Healthy habits are established and practiced most of the time. Continuing to refine and maintain consistency will keep this pillar robust.',
+      consistencyStage: 'CONSISTENCY STAGE - Good habits are in place and showing progress, though not always steady. With more regularity, this pillar can become a solid strength.',
+      earlyDevelopment: 'EARLY DEVELOPMENT - Some positive habits are present, but they are irregular or not yet sustainable. Building consistency will strengthen this pillar.',
+      significantOpportunity: 'SIGNIFICANT GROWTH OPPORTUNITY - Currently limited or inconsistent practices in this area. A focused effort can create meaningful improvement in your overall well-being.',
+      noStrengths: 'No strengths identified yet. Keep building your wellness habits!',
+      allStrong: 'Great work! All pillars are showing strong performance.'
+    },
+    fr: {
+      strongFoundation: 'FONDATION SOLIDE - Les habitudes saines sont établies et pratiquées la plupart du temps. Continuer à les raffiner et maintenir la cohérence gardera ce pilier robuste.',
+      consistencyStage: 'STADE DE COHÉRENCE - Les bonnes habitudes sont en place et progressent, bien que pas toujours de façon régulière. Avec plus de régularité, ce pilier peut devenir une force solide.',
+      earlyDevelopment: 'DÉVELOPPEMENT PRÉCOCE - Certaines habitudes positives sont présentes, mais elles sont irrégulières ou pas encore durables. Construire la cohérence renforcera ce pilier.',
+      significantOpportunity: 'OPPORTUNITÉ DE CROISSANCE SIGNIFICATIVE - Pratiques actuellement limitées ou incohérentes dans ce domaine. Un effort concentré peut créer une amélioration significative de votre bien-être général.',
+      noStrengths: 'Aucune force identifiée pour le moment. Continuez à développer vos habitudes de bien-être!',
+      allStrong: 'Excellent travail! Tous les piliers montrent une forte performance.'
+    }
+  };
+  const levelText = insightLevelTexts[locale as 'en' | 'fr'] || insightLevelTexts.en;
   // Ensure assessmentId is always a string or null, never an object
   const assessmentId = searchParams ? searchParams.get('id') : null;
   
@@ -269,6 +291,28 @@ function AssessmentResultsContent() {
                   <p className="text-white/90 text-base lg:text-lg">
                     {t('overallScore.points', { score: isNaN(safeTotalScore) ? 0 : safeTotalScore, max: isNaN(safeMaxScore) ? 150 : safeMaxScore })}
                   </p>
+                  
+                  {/* Score Ranges Guide */}
+                  <div className="mt-4 pt-4 border-t border-white/20">
+                    <div className="space-y-2 text-sm text-white/90">
+                      <div className="flex items-start gap-2">
+                        <span className="font-semibold whitespace-nowrap">{"< 60%"}</span>
+                        <span>{t('overallScore.ranges.needsImprovement')}</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="font-semibold whitespace-nowrap">60-74%</span>
+                        <span>{t('overallScore.ranges.developing')}</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="font-semibold whitespace-nowrap">75-85%</span>
+                        <span>{t('overallScore.ranges.strong')}</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="font-semibold whitespace-nowrap">86-100%</span>
+                        <span>{t('overallScore.ranges.excellent')}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Right side - Wellness Radar */}
@@ -387,7 +431,7 @@ function AssessmentResultsContent() {
                     {/* Description in full width below header */}
                     <p className="text-xs md:text-sm text-gray-600 break-words overflow-wrap-anywhere whitespace-pre-wrap mb-3 md:mb-4">
                       {(() => {
-                        const insightData = getWellnessInsight(pillar.id, pillarScore);
+                        const insightData = getWellnessInsightWithLocale(pillar.id, pillarScore, locale);
                         return insightData?.assessment || pillar.description;
                       })()}
                     </p>
@@ -497,7 +541,7 @@ function AssessmentResultsContent() {
 
                       if (strengthPillars.length === 0) {
                         return (
-                          <p className="text-sm text-gray-500 italic">No strengths identified yet. Keep building your wellness habits!</p>
+                          <p className="text-sm text-gray-500 italic">{levelText.noStrengths}</p>
                         );
                       }
 
@@ -506,11 +550,11 @@ function AssessmentResultsContent() {
                         const score = getPillarScore(data);
                         const colorCode = getScoreColorCode(score);
                         
-                        let levelText = '';
+                        let levelTextContent = '';
                         if (score >= 21) {
-                          levelText = 'STRONG FOUNDATION - Healthy habits are established and practiced most of the time. Continuing to refine and maintain consistency will keep this pillar robust.';
+                          levelTextContent = levelText.strongFoundation;
                         } else if (score >= 16) {
-                          levelText = 'CONSISTENCY STAGE - Good habits are in place and showing progress, though not always steady. With more regularity, this pillar can become a solid strength.';
+                          levelTextContent = levelText.consistencyStage;
                         }
 
                         const pillarKey = pillar.id.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
@@ -535,7 +579,7 @@ function AssessmentResultsContent() {
                                     {score}/25
                                   </span>
                                 </div>
-                                <p className="text-xs text-gray-600 leading-relaxed">{levelText}</p>
+                                <p className="text-xs text-gray-600 leading-relaxed">{levelTextContent}</p>
                               </div>
                             </div>
                           </div>
@@ -570,7 +614,7 @@ function AssessmentResultsContent() {
 
                       if (growthPillars.length === 0) {
                         return (
-                          <p className="text-sm text-gray-500 italic">Great work! All pillars are showing strong performance.</p>
+                          <p className="text-sm text-gray-500 italic">{levelText.allStrong}</p>
                         );
                       }
 
@@ -579,11 +623,11 @@ function AssessmentResultsContent() {
                         const score = getPillarScore(data);
                         const colorCode = getScoreColorCode(score);
                         
-                        let levelText = '';
+                        let levelTextContent = '';
                         if (score >= 11) {
-                          levelText = 'EARLY DEVELOPMENT - Some positive habits are present, but they are irregular or not yet sustainable. Building consistency will strengthen this pillar.';
+                          levelTextContent = levelText.earlyDevelopment;
                         } else {
-                          levelText = 'SIGNIFICANT GROWTH OPPORTUNITY - Currently limited or inconsistent practices in this area. A focused effort can create meaningful improvement in your overall well-being.';
+                          levelTextContent = levelText.significantOpportunity;
                         }
 
                         const pillarKey = pillar.id.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
@@ -608,7 +652,7 @@ function AssessmentResultsContent() {
                                     {score}/25
                                   </span>
                                 </div>
-                                <p className="text-xs text-gray-600 leading-relaxed">{levelText}</p>
+                                <p className="text-xs text-gray-600 leading-relaxed">{levelTextContent}</p>
                               </div>
                             </div>
                           </div>

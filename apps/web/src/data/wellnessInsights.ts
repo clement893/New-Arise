@@ -14,8 +14,11 @@ export interface WellnessPillarInsight {
   scoreRange: string;
   colorCode: string;
   assessment: string;
+  assessmentFr?: string;
   recommendation: string;
+  recommendationFr?: string;
   actions: string[];
+  actionsFr?: string[];
 }
 
 export const wellnessInsights: WellnessPillarInsight[] = [
@@ -25,11 +28,18 @@ export const wellnessInsights: WellnessPillarInsight[] = [
     scoreRange: '5-10',
     colorCode: '#FFC7CE',
     assessment: 'Sleep is insufficient or irregular, leading to fatigue, reduced focus, and impaired performance. Poor sleep habits may negatively affect health and mood.',
+    assessmentFr: 'Le sommeil est insuffisant ou irrégulier, entraînant fatigue, concentration réduite et performance diminuée. De mauvaises habitudes de sommeil peuvent affecter négativement la santé et l\'humeur.',
     recommendation: 'Establish foundational sleep hygiene and consistent routines to improve rest, energy, and cognitive performance.',
+    recommendationFr: 'Établir une hygiène de sommeil fondamentale et des routines cohérentes pour améliorer le repos, l\'énergie et les performances cognitives.',
     actions: [
       'Set fixed sleep/wake times daily',
       'Remove screens 60 minutes before bed',
       'Create a dark, cool, quiet sleep environment'
+    ],
+    actionsFr: [
+      'Établir des horaires de sommeil/réveil fixes quotidiennement',
+      'Retirer les écrans 60 minutes avant le coucher',
+      'Créer un environnement de sommeil sombre, frais et silencieux'
     ]
   },
   {
@@ -319,6 +329,32 @@ export const wellnessInsights: WellnessPillarInsight[] = [
     ]
   }
 ];
+
+/**
+ * Get insight for a specific pillar based on score with locale support
+ */
+export function getWellnessInsightWithLocale(
+  pillar: string, 
+  score: number,
+  locale: string = 'en'
+): {
+  assessment: string;
+  recommendation: string;
+  actions: string[];
+  colorCode: string;
+} | null {
+  const insight = getWellnessInsight(pillar, score);
+  if (!insight) return null;
+  
+  const isFrench = locale === 'fr' || locale.startsWith('fr');
+  
+  return {
+    assessment: isFrench && insight.assessmentFr ? insight.assessmentFr : insight.assessment,
+    recommendation: isFrench && insight.recommendationFr ? insight.recommendationFr : insight.recommendation,
+    actions: isFrench && insight.actionsFr ? insight.actionsFr : insight.actions,
+    colorCode: insight.colorCode
+  };
+}
 
 /**
  * Get insight for a specific pillar based on score

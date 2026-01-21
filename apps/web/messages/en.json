@@ -576,7 +576,13 @@
         "backToAssessments": "Back to Assessments",
         "overallScore": {
           "title": "Overall Wellness Score",
-          "points": "{score} out of {max} points"
+          "points": "{score} out of {max} points",
+          "ranges": {
+            "needsImprovement": "Needs significant improvement",
+            "developing": "Developing, some good habits but inconsistent",
+            "strong": "Strong habits, mostly consistent",
+            "excellent": "Excellent overall health management"
+          }
         },
         "downloading": "Downloading...",
         "generating": "Generating...",

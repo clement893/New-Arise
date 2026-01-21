@@ -510,7 +510,13 @@
         "backToAssessments": "Retour aux assessments",
         "overallScore": {
           "title": "Score global de bien-être",
-          "points": "{score} sur {max} points"
+          "points": "{score} sur {max} points",
+          "ranges": {
+            "needsImprovement": "Nécessite une amélioration significative",
+            "developing": "En développement, certaines bonnes habitudes mais incohérentes",
+            "strong": "Habitudes solides, généralement cohérentes",
+            "excellent": "Excellente gestion globale de la santé"
+          }
         },
         "downloading": "Téléchargement...",
         "generating": "Génération...",

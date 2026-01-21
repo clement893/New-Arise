@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
 import { getAssessmentResults, AssessmentResult } from '@/lib/api/assessments';
@@ -16,10 +16,11 @@ import MotionDiv from '@/components/motion/MotionDiv';
 import RecommendationCard from '@/components/assessments/RecommendationCard';
 import { ArrowLeft, Download, Heart, CheckCircle } from 'lucide-react';
 import { formatError } from '@/lib/utils/formatError';
-import { getWellnessInsight, getScoreColorCode } from '@/data/wellnessInsights';
+import { getWellnessInsightWithLocale, getScoreColorCode } from '@/data/wellnessInsights';
 
 export default function WellnessResultsPage() {
   const t = useTranslations('dashboard.assessments.wellness.results');
+  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   const assessmentId = searchParams.get('id');
@@ -27,6 +28,33 @@ export default function WellnessResultsPage() {
   const [results, setResults] = useState<AssessmentResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Translations for insight levels and section headers
+  const translations = {
+    en: {
+      keyInsights: 'Key Insights',
+      strengths: 'Strengths',
+      areasForGrowth: 'Areas for Growth',
+      noStrengths: 'No strengths identified yet. Keep building your wellness habits!',
+      allStrong: 'Great work! All pillars are showing strong performance.',
+      strongFoundation: 'STRONG FOUNDATION - Healthy habits are established and practiced most of the time. Continuing to refine and maintain consistency will keep this pillar robust.',
+      consistencyStage: 'CONSISTENCY STAGE - Good habits are in place and showing progress, though not always steady. With more regularity, this pillar can become a solid strength.',
+      earlyDevelopment: 'EARLY DEVELOPMENT - Some positive habits are present, but they are irregular or not yet sustainable. Building consistency will strengthen this pillar.',
+      significantOpportunity: 'SIGNIFICANT GROWTH OPPORTUNITY - Currently limited or inconsistent practices in this area. A focused effort can create meaningful improvement in your overall well-being.'
+    },
+    fr: {
+      keyInsights: 'Insights clés',
+      strengths: 'Forces',
+      areasForGrowth: 'Domaines de croissance',
+      noStrengths: 'Aucune force identifiée pour le moment. Continuez à développer vos habitudes de bien-être!',
+      allStrong: 'Excellent travail! Tous les piliers montrent une forte performance.',
+      strongFoundation: 'FONDATION SOLIDE - Les habitudes saines sont établies et pratiquées la plupart du temps. Continuer à les raffiner et maintenir la cohérence gardera ce pilier robuste.',
+      consistencyStage: 'STADE DE COHÉRENCE - Les bonnes habitudes sont en place et progressent, bien que pas toujours de façon régulière. Avec plus de régularité, ce pilier peut devenir une force solide.',
+      earlyDevelopment: 'DÉVELOPPEMENT PRÉCOCE - Certaines habitudes positives sont présentes, mais elles sont irrégulières ou pas encore durables. Construire la cohérence renforcera ce pilier.',
+      significantOpportunity: 'OPPORTUNITÉ DE CROISSANCE SIGNIFICATIVE - Pratiques actuellement limitées ou incohérentes dans ce domaine. Un effort concentré peut créer une amélioration significative de votre bien-être général.'
+    }
+  };
+  const tr = translations[locale as 'en' | 'fr'] || translations.en;
 
   useEffect(() => {
     if (assessmentId) {
@@ -191,14 +219,14 @@ export default function WellnessResultsPage() {
           <MotionDiv variant="slideUp" duration="normal" delay={150} className="mb-8">
             <Card>
               <div className="p-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Key Insights</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">{tr.keyInsights}</h2>
                 
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Strengths */}
                   <div>
                     <h3 className="text-lg font-semibold text-green-700 mb-4 flex items-center gap-2">
                       <CheckCircle className="w-5 h-5" />
-                      Strengths
+                      {tr.strengths}
                     </h3>
                     <div className="space-y-3">
                       {Object.entries(pillarScores)
@@ -207,9 +235,9 @@ export default function WellnessResultsPage() {
                           const colorCode = getScoreColorCode(score as number);
                           let levelText = '';
                           if (score >= 21) {
-                            levelText = 'STRONG FOUNDATION - Healthy habits are established and practiced most of the time. Continuing to refine and maintain consistency will keep this pillar robust.';
+                            levelText = tr.strongFoundation;
                           } else if (score >= 16) {
-                            levelText = 'CONSISTENCY STAGE - Good habits are in place and showing progress, though not always steady. With more regularity, this pillar can become a solid strength.';
+                            levelText = tr.consistencyStage;
                           }
                           
                           return (
@@ -230,7 +258,7 @@ export default function WellnessResultsPage() {
                           );
                         })}
                       {Object.entries(pillarScores).filter(([, score]) => score >= 16).length === 0 && (
-                        <p className="text-sm text-gray-500 italic">No strengths identified yet. Keep building your wellness habits!</p>
+                        <p className="text-sm text-gray-500 italic">{tr.noStrengths}</p>
                       )}
                     </div>
                   </div>
@@ -239,7 +267,7 @@ export default function WellnessResultsPage() {
                   <div>
                     <h3 className="text-lg font-semibold text-orange-700 mb-4 flex items-center gap-2">
                       <CheckCircle className="w-5 h-5" />
-                      Areas for Growth
+                      {tr.areasForGrowth}
                     </h3>
                     <div className="space-y-3">
                       {Object.entries(pillarScores)
@@ -248,9 +276,9 @@ export default function WellnessResultsPage() {
                           const colorCode = getScoreColorCode(score as number);
                           let levelText = '';
                           if (score >= 11) {
-                            levelText = 'EARLY DEVELOPMENT - Some positive habits are present, but they are irregular or not yet sustainable. Building consistency will strengthen this pillar.';
+                            levelText = tr.earlyDevelopment;
                           } else {
-                            levelText = 'SIGNIFICANT GROWTH OPPORTUNITY - Currently limited or inconsistent practices in this area. A focused effort can create meaningful improvement in your overall well-being.';
+                            levelText = tr.significantOpportunity;
                           }
                           
                           return (
@@ -271,7 +299,7 @@ export default function WellnessResultsPage() {
                           );
                         })}
                       {Object.entries(pillarScores).filter(([, score]) => score < 16).length === 0 && (
-                        <p className="text-sm text-gray-500 italic">Great work! All pillars are showing strong performance.</p>
+                        <p className="text-sm text-gray-500 italic">{tr.allStrong}</p>
                       )}
                     </div>
                   </div>
@@ -284,7 +312,7 @@ export default function WellnessResultsPage() {
           <MotionDiv variant="slideUp" duration="normal" delay={200} className="mb-8">
             <div className="grid gap-6">
               {Object.entries(pillarScores).map(([pillar, score], index) => {
-                const insightData = getWellnessInsight(pillar, score as number);
+                const insightData = getWellnessInsightWithLocale(pillar, score as number, locale);
                 const colorCode = getScoreColorCode(score as number);
                 
                 // Fallback to generic insight if no specific insight is found
