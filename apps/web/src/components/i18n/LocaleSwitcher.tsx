@@ -8,6 +8,7 @@
 
 import { useLocale } from 'next-intl';
 import { locales, localeNames, localeNativeNames, isRTL, type Locale, usePathname, useRouter } from '@/i18n/routing';
+import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { Globe, Check } from 'lucide-react';
 import Button from '@/components/ui/Button';
@@ -17,15 +18,20 @@ export default function LocaleSwitcher() {
   const locale = useLocale() as Locale;
   const pathname = usePathname(); // Returns pathname WITHOUT locale prefix (next-intl behavior)
   const router = useRouter(); // Returns next-intl router with locale-aware navigation
+  const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLocaleChange = (newLocale: Locale) => {
     setIsOpen(false);
     
     // pathname from usePathname() already excludes the locale prefix
+    // Preserve query parameters when switching locale
+    const queryString = searchParams ? searchParams.toString() : '';
+    const pathnameWithQuery = queryString ? `${pathname}?${queryString}` : pathname;
+    
     // Use next-intl's router.push with locale option to properly handle locale switching
     // This automatically handles adding/removing locale prefixes based on routing config
-    router.push(pathname, { locale: newLocale });
+    router.push(pathnameWithQuery, { locale: newLocale });
   };
 
   return (

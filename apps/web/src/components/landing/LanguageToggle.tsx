@@ -2,6 +2,7 @@
 
 import { useLocale } from 'next-intl';
 import { useRouter, usePathname, type Locale } from '@/i18n/routing';
+import { useSearchParams } from 'next/navigation';
 import { clsx } from 'clsx';
 
 /**
@@ -12,15 +13,20 @@ export function LanguageToggle() {
   const locale = useLocale() as Locale;
   const pathname = usePathname(); // Returns pathname WITHOUT locale prefix (next-intl behavior)
   const router = useRouter(); // Returns next-intl router with locale-aware navigation
+  const searchParams = useSearchParams();
 
   const toggleLanguage = () => {
     // Toggle between 'fr' and 'en' only
     const newLocale: Locale = locale === 'fr' ? 'en' : 'fr';
     
     // pathname from usePathname() already excludes the locale prefix
+    // Preserve query parameters when switching locale
+    const queryString = searchParams ? searchParams.toString() : '';
+    const pathnameWithQuery = queryString ? `${pathname}?${queryString}` : pathname;
+    
     // Use next-intl's router.push with locale option to properly handle locale switching
     // This automatically handles adding/removing locale prefixes based on routing config
-    router.push(pathname, { locale: newLocale });
+    router.push(pathnameWithQuery, { locale: newLocale });
   };
 
   const isFrench = locale === 'fr';
