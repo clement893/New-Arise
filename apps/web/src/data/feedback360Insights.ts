@@ -248,8 +248,10 @@ export function getFeedback360Insight(
     
     // Parse score range
     const rangeParts = insight.scoreRange.split('-').map(s => s.trim());
-    const min = parseInt(rangeParts[0]);
-    const max = rangeParts.length > 1 ? parseInt(rangeParts[1]) : undefined;
+    const minStr = rangeParts[0];
+    if (!minStr) return false;
+    const min = parseInt(minStr);
+    const max = rangeParts.length > 1 ? parseInt(rangeParts[1] ?? '0') : undefined;
     
     if (isNaN(min)) return false;
     
