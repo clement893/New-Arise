@@ -11,7 +11,7 @@ import { Card, Loading } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import { FileText, Download, TrendingUp, Target, Users, Brain, Eye } from 'lucide-react';
 import Image from 'next/image';
-import { getMyAssessments, getAssessmentResults, get360Evaluators, getDevelopmentGoalsCount, deleteAllMyAssessments, Assessment as ApiAssessment, AssessmentType, AssessmentResult } from '@/lib/api/assessments';
+import { getMyAssessments, getAssessmentResults, get360Evaluators, getDevelopmentGoalsCount, deleteAllMyAssessments, deleteAssessment, Assessment as ApiAssessment, AssessmentType, AssessmentResult } from '@/lib/api/assessments';
 import { generateAssessmentPDF, generateAllAssessmentsZip, generateCompleteLeadershipProfilePDF, downloadBlob } from '@/lib/utils/pdfGenerator';
 import { checkMySuperAdminStatus } from '@/lib/api/admin';
 import { Trash2, AlertTriangle } from 'lucide-react';
@@ -61,7 +61,12 @@ function ResultsReportsContent() {
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [expandedAssessmentId, setExpandedAssessmentId] = useState<number | null>(null);
+  const [expandedAssessmentIds, setExpandedAssessmentIds] = useState<Set<number>>(new Set());
+  const [showDeleteAssessmentModal, setShowDeleteAssessmentModal] = useState(false);
+  const [assessmentToDelete, setAssessmentToDelete] = useState<AssessmentDisplay | null>(null);
+  const [deleteTitleInput, setDeleteTitleInput] = useState('');
+  const [deleteTitleError, setDeleteTitleError] = useState<string | null>(null);
+  const [isDeletingAssessment, setIsDeletingAssessment] = useState(false);
 
   useEffect(() => {
     loadAssessments();
@@ -488,8 +493,16 @@ function ResultsReportsContent() {
   };
 
   const handleViewDetails = (assessment: AssessmentDisplay) => {
-    // Toggle accordion instead of navigating
-    setExpandedAssessmentId(prev => prev === assessment.id ? null : assessment.id);
+    // Toggle accordion - allow multiple accordions to be open at once
+    setExpandedAssessmentIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(assessment.id)) {
+        newSet.delete(assessment.id);
+      } else {
+        newSet.add(assessment.id);
+      }
+      return newSet;
+    });
   };
 
   const handleExportAll = async () => {
@@ -583,6 +596,51 @@ function ResultsReportsContent() {
     }
   };
 
+  const handleDeleteAssessmentClick = (assessment: AssessmentDisplay) => {
+    setAssessmentToDelete(assessment);
+    setDeleteTitleInput('');
+    setDeleteTitleError(null);
+    setShowDeleteAssessmentModal(true);
+  };
+
+  const handleDeleteAssessmentConfirm = async () => {
+    if (!assessmentToDelete) return;
+
+    // Validate that the input matches the assessment name exactly
+    if (deleteTitleInput.trim() !== assessmentToDelete.name.trim()) {
+      setDeleteTitleError(t('errors.titleMismatch') || 'The title does not match. Please enter the exact assessment title.');
+      return;
+    }
+
+    try {
+      setIsDeletingAssessment(true);
+      setDeleteTitleError(null);
+      
+      await deleteAssessment(assessmentToDelete.id);
+      
+      // Reload assessments after deletion
+      await loadAssessments();
+      
+      setShowDeleteAssessmentModal(false);
+      setAssessmentToDelete(null);
+      setDeleteTitleInput('');
+      alert(t('errors.assessmentDeleted') || 'Assessment deleted successfully');
+    } catch (err: any) {
+      console.error('Failed to delete assessment:', err);
+      const errorMessage = err?.response?.data?.detail || err?.message || t('errors.deleteFailed');
+      setDeleteTitleError(errorMessage);
+    } finally {
+      setIsDeletingAssessment(false);
+    }
+  };
+
+  const handleDeleteAssessmentCancel = () => {
+    setShowDeleteAssessmentModal(false);
+    setAssessmentToDelete(null);
+    setDeleteTitleInput('');
+    setDeleteTitleError(null);
+  };
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -609,7 +667,7 @@ function ResultsReportsContent() {
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete All Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <Card className="w-full max-w-md">
@@ -644,6 +702,63 @@ function ResultsReportsContent() {
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white"
               >
                 {isDeleting ? t('deleteModal.deleting') : t('deleteModal.confirm')}
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Delete Single Assessment Confirmation Modal */}
+      {showDeleteAssessmentModal && assessmentToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <Card className="w-full max-w-md">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                <AlertTriangle className="text-red-600" size={24} />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">
+                {t('deleteAssessmentModal.title') || 'Delete Assessment'}
+              </h2>
+            </div>
+            <p className="text-gray-700 mb-4">
+              {t('deleteAssessmentModal.message') || 'This action cannot be undone. This will permanently delete the assessment and all its data.'}
+            </p>
+            <p className="text-gray-700 mb-4 font-medium">
+              {t('deleteAssessmentModal.enterTitle') || 'To confirm, please enter the assessment title:'}
+            </p>
+            <p className="text-sm font-semibold text-gray-900 mb-2 bg-gray-100 p-2 rounded">
+              {assessmentToDelete.name}
+            </p>
+            <input
+              type="text"
+              value={deleteTitleInput}
+              onChange={(e) => {
+                setDeleteTitleInput(e.target.value);
+                setDeleteTitleError(null);
+              }}
+              placeholder={t('deleteAssessmentModal.placeholder') || 'Enter assessment title'}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 mb-2"
+              disabled={isDeletingAssessment}
+            />
+            {deleteTitleError && (
+              <p className="text-red-600 text-sm mb-4">{deleteTitleError}</p>
+            )}
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={handleDeleteAssessmentCancel}
+                disabled={isDeletingAssessment}
+                className="flex-1"
+              >
+                {t('deleteAssessmentModal.cancel') || 'Cancel'}
+              </Button>
+              <Button
+                variant="danger"
+                onClick={handleDeleteAssessmentConfirm}
+                disabled={isDeletingAssessment || !deleteTitleInput.trim()}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+              >
+                {isDeletingAssessment ? (t('deleteAssessmentModal.deleting') || 'Deleting...') : (t('deleteAssessmentModal.confirm') || 'Confirm')}
               </Button>
             </div>
           </Card>
@@ -780,7 +895,17 @@ function ResultsReportsContent() {
               <div className="space-y-4">
                 {assessments.map((assessment) => (
                   <div key={assessment.id}>
-                    <Card className="border border-gray-200 hover:border-arise-deep-teal/30 transition-colors bg-white">
+                    <Card className="border border-gray-200 hover:border-arise-deep-teal/30 transition-colors bg-white relative">
+                      {/* Delete icon in top right corner */}
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleDeleteAssessmentClick(assessment)}
+                        title={t('assessments.deleteAssessment') || 'Delete Assessment'}
+                        className="absolute top-2 right-2 text-red-600 hover:text-red-700 hover:bg-red-50 p-2"
+                      >
+                        <Trash2 size={16} />
+                      </Button>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4 flex-1">
                           <div className="w-16 h-16 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
@@ -805,7 +930,7 @@ function ResultsReportsContent() {
                             size="sm"
                             onClick={() => handleViewDetails(assessment)}
                           >
-                            {expandedAssessmentId === assessment.id ? t('assessments.hideDetails') : t('assessments.viewDetails')}
+                            {expandedAssessmentIds.has(assessment.id) ? t('assessments.hideDetails') : t('assessments.viewDetails')}
                           </Button>
                           <Button 
                             variant="ghost" 
@@ -822,7 +947,7 @@ function ResultsReportsContent() {
                       <AssessmentResultAccordion
                         assessmentId={assessment.id}
                         assessmentType={assessment.type}
-                        isOpen={expandedAssessmentId === assessment.id}
+                        isOpen={expandedAssessmentIds.has(assessment.id)}
                       />
                     </Card>
                   </div>

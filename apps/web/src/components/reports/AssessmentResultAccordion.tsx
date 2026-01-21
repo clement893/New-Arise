@@ -56,15 +56,7 @@ export default function AssessmentResultAccordion({
       );
     }
 
-    if (error) {
-      return (
-        <div className="py-8 text-center">
-          <p className="text-red-600">{error}</p>
-        </div>
-      );
-    }
-
-    if (!results) {
+    if (error || !results) {
       return null;
     }
 

@@ -543,6 +543,17 @@ export const deleteAllMyAssessments = async (): Promise<{ message: string; delet
 };
 
 /**
+ * Delete a single assessment by ID
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
+ */
+export const deleteAssessment = async (assessmentId: number): Promise<{ message: string; assessment_id: number }> => {
+  const response = await apiClient.delete(
+    `/v1/assessments/${assessmentId}`
+  );
+  return response.data;
+};
+
+/**
  * Assessment Question types
  */
 export interface AssessmentQuestion {

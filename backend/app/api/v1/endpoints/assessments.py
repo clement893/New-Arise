@@ -2833,6 +2833,97 @@ async def delete_all_my_assessments(
         )
 
 
+@router.delete("/{assessment_id}", status_code=status.HTTP_200_OK)
+async def delete_assessment(
+    assessment_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Delete a single assessment for the current user
+    This will permanently delete the assessment, answers, results, and evaluators
+    """
+    from app.core.logging import logger
+    
+    try:
+        # Verify assessment exists and belongs to the current user
+        result = await db.execute(
+            select(Assessment)
+            .where(
+                Assessment.id == assessment_id,
+                Assessment.user_id == current_user.id
+            )
+        )
+        assessment = result.scalar_one_or_none()
+        
+        if not assessment:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Assessment not found"
+            )
+        
+        # Delete all related data using raw SQL to avoid ORM issues with answered_at column
+        # Database CASCADE will handle any remaining relationships, but we're explicit for clarity
+        
+        # 1. Delete assessment answers using raw SQL to avoid answered_at column issue
+        await db.execute(
+            text("""
+                DELETE FROM assessment_answers
+                WHERE assessment_id = :assessment_id
+            """),
+            {"assessment_id": assessment_id}
+        )
+        
+        # 2. Delete 360 evaluators using raw SQL
+        await db.execute(
+            text("""
+                DELETE FROM assessment_360_evaluators
+                WHERE assessment_id = :assessment_id
+            """),
+            {"assessment_id": assessment_id}
+        )
+        
+        # 3. Delete assessment results using raw SQL
+        await db.execute(
+            text("""
+                DELETE FROM assessment_results
+                WHERE assessment_id = :assessment_id
+            """),
+            {"assessment_id": assessment_id}
+        )
+        
+        # 4. Delete assessment itself using raw SQL
+        # This avoids triggering ORM cascade which tries to load answers with answered_at column
+        await db.execute(
+            text("""
+                DELETE FROM assessments
+                WHERE id = :assessment_id
+            """),
+            {"assessment_id": assessment_id}
+        )
+        
+        await db.commit()
+        
+        logger.info(
+            f"User {current_user.id} ({current_user.email}) deleted assessment {assessment_id}"
+        )
+        
+        return {
+            "message": "Assessment deleted successfully",
+            "assessment_id": assessment_id
+        }
+    except HTTPException:
+        await db.rollback()
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting assessment {assessment_id} for user {current_user.id}: {e}", exc_info=True)
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete assessment: {str(e)}"
+        )
+
+
 # ============================================================================
 # Question Management Endpoints
 # ============================================================================
