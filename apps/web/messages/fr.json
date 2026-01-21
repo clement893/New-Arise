@@ -1366,6 +1366,15 @@
         "confirm": "Confirmer la suppression",
         "deleting": "Suppression..."
       },
+      "deleteAssessmentModal": {
+        "title": "Supprimer l'assessment",
+        "message": "Cette action est irréversible. Cela supprimera définitivement l'assessment et toutes ses données.",
+        "enterTitle": "Pour confirmer, veuillez entrer le titre de l'assessment :",
+        "placeholder": "Entrer le titre de l'assessment",
+        "cancel": "Annuler",
+        "confirm": "Confirmer",
+        "deleting": "Suppression..."
+      },
       "errors": {
         "title": "Erreur",
         "loadFailed": "Échec du chargement des résultats d'assessments. Veuillez réessayer.",
@@ -1376,7 +1385,9 @@
         "downloadAssessmentFailed": "Échec du téléchargement de l'assessment. Veuillez réessayer.",
         "onlySuperAdmin": "Seuls les super administrateurs peuvent supprimer tous leurs assessments.",
         "deleteFailed": "Échec de la suppression des assessments",
-        "deleteSuccess": "Tous vos assessments ont été supprimés avec succès. ({count} assessments supprimés)"
+        "deleteSuccess": "Tous vos assessments ont été supprimés avec succès. ({count} assessments supprimés)",
+        "titleMismatch": "Le titre ne correspond pas. Veuillez entrer le titre exact de l'assessment.",
+        "assessmentDeleted": "Assessment supprimé avec succès"
       },
       "resetButton": "Réinitialiser tous les assessments",
       "cta": {

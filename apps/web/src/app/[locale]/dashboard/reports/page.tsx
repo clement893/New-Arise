@@ -608,7 +608,7 @@ function ResultsReportsContent() {
 
     // Validate that the input matches the assessment name exactly
     if (deleteTitleInput.trim() !== assessmentToDelete.name.trim()) {
-      setDeleteTitleError(t('errors.titleMismatch') || 'The title does not match. Please enter the exact assessment title.');
+      setDeleteTitleError(t('errors.titleMismatch'));
       return;
     }
 
@@ -624,7 +624,7 @@ function ResultsReportsContent() {
       setShowDeleteAssessmentModal(false);
       setAssessmentToDelete(null);
       setDeleteTitleInput('');
-      alert(t('errors.assessmentDeleted') || 'Assessment deleted successfully');
+      alert(t('errors.assessmentDeleted'));
     } catch (err: any) {
       console.error('Failed to delete assessment:', err);
       const errorMessage = err?.response?.data?.detail || err?.message || t('errors.deleteFailed');
@@ -717,14 +717,14 @@ function ResultsReportsContent() {
                 <AlertTriangle className="text-red-600" size={24} />
               </div>
               <h2 className="text-2xl font-bold text-gray-900">
-                {t('deleteAssessmentModal.title') || 'Delete Assessment'}
+                {t('deleteAssessmentModal.title')}
               </h2>
             </div>
             <p className="text-gray-700 mb-4">
-              {t('deleteAssessmentModal.message') || 'This action cannot be undone. This will permanently delete the assessment and all its data.'}
+              {t('deleteAssessmentModal.message')}
             </p>
             <p className="text-gray-700 mb-4 font-medium">
-              {t('deleteAssessmentModal.enterTitle') || 'To confirm, please enter the assessment title:'}
+              {t('deleteAssessmentModal.enterTitle')}
             </p>
             <p className="text-sm font-semibold text-gray-900 mb-2 bg-gray-100 p-2 rounded">
               {assessmentToDelete.name}
@@ -736,7 +736,7 @@ function ResultsReportsContent() {
                 setDeleteTitleInput(e.target.value);
                 setDeleteTitleError(null);
               }}
-              placeholder={t('deleteAssessmentModal.placeholder') || 'Enter assessment title'}
+              placeholder={t('deleteAssessmentModal.placeholder')}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 mb-2"
               disabled={isDeletingAssessment}
             />
@@ -750,7 +750,7 @@ function ResultsReportsContent() {
                 disabled={isDeletingAssessment}
                 className="flex-1"
               >
-                {t('deleteAssessmentModal.cancel') || 'Cancel'}
+                {t('deleteAssessmentModal.cancel')}
               </Button>
               <Button
                 variant="danger"
@@ -758,7 +758,7 @@ function ResultsReportsContent() {
                 disabled={isDeletingAssessment || !deleteTitleInput.trim()}
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white"
               >
-                {isDeletingAssessment ? (t('deleteAssessmentModal.deleting') || 'Deleting...') : (t('deleteAssessmentModal.confirm') || 'Confirm')}
+                {isDeletingAssessment ? t('deleteAssessmentModal.deleting') : t('deleteAssessmentModal.confirm')}
               </Button>
             </div>
           </Card>
@@ -902,9 +902,9 @@ function ResultsReportsContent() {
                         size="sm"
                         onClick={() => handleDeleteAssessmentClick(assessment)}
                         title={t('assessments.deleteAssessment') || 'Delete Assessment'}
-                        className="absolute top-2 right-2 text-red-600 hover:text-red-700 hover:bg-red-50 p-2"
+                        className="absolute top-2 right-2 text-red-600 hover:text-red-700 hover:bg-red-50 p-0"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} />
                       </Button>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4 flex-1">

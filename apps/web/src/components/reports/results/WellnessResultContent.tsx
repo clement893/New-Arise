@@ -63,10 +63,25 @@ export default function WellnessResultContent({ results }: WellnessResultContent
   };
   const levelText = insightLevelTexts[locale as 'en' | 'fr'] || insightLevelTexts.en;
 
+  // Get color based on percentage
+  const getScoreColor = (percentage: number): string => {
+    if (percentage < 60) return '#FFC7CE'; // Red
+    if (percentage >= 60 && percentage <= 74) return '#FFEB9C'; // Yellow
+    if (percentage >= 75 && percentage <= 85) return '#92D050'; // Light green
+    return '#00B050'; // Dark green (86-100%)
+  };
+
+  const scoreColor = getScoreColor(safePercentage);
+
   return (
     <div className="space-y-6">
       {/* Overall Score Card */}
-      <Card className="bg-gradient-to-br from-arise-deep-teal to-arise-deep-teal/80 text-white">
+      <Card 
+        className="text-white"
+        style={{ 
+          background: `linear-gradient(to bottom right, ${scoreColor}, ${scoreColor}dd)`,
+        }}
+      >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left side - Overall Score */}
           <div className="flex flex-col items-center justify-center text-center">

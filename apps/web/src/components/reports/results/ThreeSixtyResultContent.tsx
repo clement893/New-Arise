@@ -162,6 +162,16 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
     }
   };
 
+  // Get color based on percentage
+  const getScoreColor = (percentage: number): string => {
+    if (percentage < 60) return '#FFC7CE'; // Red
+    if (percentage >= 60 && percentage <= 74) return '#FFEB9C'; // Yellow
+    if (percentage >= 75 && percentage <= 85) return '#92D050'; // Light green
+    return '#00B050'; // Dark green (86-100%)
+  };
+
+  const scoreColor = getScoreColor(transformedResults.percentage);
+
   return (
     <div className="space-y-6">
       {/* Header Info */}
@@ -253,7 +263,12 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
       </Card>
 
       {/* Overall Score */}
-      <Card className="bg-gradient-to-br from-arise-deep-teal to-arise-deep-teal/80 text-white">
+      <Card 
+        className="text-white"
+        style={{ 
+          background: `linear-gradient(to bottom right, ${scoreColor}, ${scoreColor}dd)`,
+        }}
+      >
         <h2 className="text-2xl font-semibold mb-6">
           {t('overallScore.title')}
         </h2>
