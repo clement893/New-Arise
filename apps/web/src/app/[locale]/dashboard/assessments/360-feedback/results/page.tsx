@@ -475,226 +475,6 @@ export default function Feedback360ResultsPage() {
           </div>
         </MotionDiv>
 
-        {/* OVERALL RESULTS' STATEMENT */}
-        <MotionDiv
-          variant="slideUp"
-          duration="normal"
-          delay={0.15}
-          className="mb-8 rounded-lg bg-white p-8 shadow-lg"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
-              <Target className="text-arise-deep-teal" size={24} />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900">
-              OVERALL RESULTS' STATEMENT
-            </h2>
-          </div>
-          
-          {(() => {
-            // Calculate average score across all capabilities
-            const avgScore = results.capability_scores.length > 0
-              ? results.capability_scores.reduce((sum, cap) => {
-                  const score = results.has_evaluator_responses && cap.others_avg_score > 0
-                    ? cap.others_avg_score
-                    : cap.self_score;
-                  return sum + score;
-                }, 0) / results.capability_scores.length
-              : 0;
-            
-            const roundedAvgScore = Math.round(avgScore);
-            let statement = '';
-            let statementColor = '';
-            
-            if (roundedAvgScore >= 4) {
-              statement = 'Continue leveraging strengths, use feedback as reinforcement for ongoing growth.';
-              statementColor = '#C6EFCE';
-            } else if (roundedAvgScore >= 3) {
-              statement = 'Focus on areas of gap, engage in feedback discussions, and seek specific examples to calibrate perceptions.';
-              statementColor = '#FFEB9C';
-            } else {
-              statement = 'Deepen self-reflection, actively seek feedback, and explore perception differences to strengthen impact and alignment.';
-              statementColor = '#FFC7CE';
-            }
-            
-            return (
-              <div 
-                className="rounded-lg p-6"
-                style={{ backgroundColor: statementColor + '40' }}
-              >
-                <p className="text-gray-700 leading-relaxed">{statement}</p>
-              </div>
-            );
-          })()}
-        </MotionDiv>
-
-        {/* Capabilities Categorization - 3 Columns */}
-        <MotionDiv
-          variant="slideUp"
-          duration="normal"
-          delay={0.2}
-          className="mb-8 rounded-lg bg-white p-8 shadow-lg"
-        >
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-            Capabilities Overview
-          </h2>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Areas for Growth (1-2) */}
-            <div>
-              <h3 className="text-lg font-semibold text-red-700 mb-4 flex items-center gap-2">
-                <TrendingDown className="w-5 h-5" />
-                Areas for Growth
-              </h3>
-              <div className="space-y-3">
-                {(() => {
-                  const growthCapabilities = results.capability_scores.filter(cap => {
-                    const score = results.has_evaluator_responses && cap.others_avg_score > 0
-                      ? cap.others_avg_score
-                      : cap.self_score;
-                    return Math.round(score) >= 1 && Math.round(score) <= 2;
-                  });
-
-                  if (growthCapabilities.length === 0) {
-                    return <p className="text-sm text-gray-500 italic">No areas for growth identified.</p>;
-                  }
-
-                  return growthCapabilities.map(cap => {
-                    const capInfo = feedback360Capabilities.find(c => c.id === cap.capability);
-                    const capabilityTitle = capInfo?.title || cap.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                    const capabilityIcon = capInfo?.icon || '📊';
-                    const score = results.has_evaluator_responses && cap.others_avg_score > 0
-                      ? cap.others_avg_score
-                      : cap.self_score;
-
-                    return (
-                      <div 
-                        key={cap.capability} 
-                        className="p-4 rounded-lg" 
-                        style={{ backgroundColor: '#FFC7CE40' }}
-                      >
-                        <div className="flex items-start gap-3">
-                          <span className="text-2xl">{capabilityIcon}</span>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between mb-2">
-                              <h4 className="font-semibold text-gray-900 text-sm">{capabilityTitle}</h4>
-                              <span className="text-sm font-bold" style={{ color: '#FFC7CE' }}>
-                                {score.toFixed(1)}/5.0
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  });
-                })()}
-              </div>
-            </div>
-
-            {/* Neutral (3) */}
-            <div>
-              <h3 className="text-lg font-semibold text-yellow-700 mb-4 flex items-center gap-2">
-                <Minus className="w-5 h-5" />
-                Neutral
-              </h3>
-              <div className="space-y-3">
-                {(() => {
-                  const neutralCapabilities = results.capability_scores.filter(cap => {
-                    const score = results.has_evaluator_responses && cap.others_avg_score > 0
-                      ? cap.others_avg_score
-                      : cap.self_score;
-                    return Math.round(score) === 3;
-                  });
-
-                  if (neutralCapabilities.length === 0) {
-                    return <p className="text-sm text-gray-500 italic">No neutral capabilities identified.</p>;
-                  }
-
-                  return neutralCapabilities.map(cap => {
-                    const capInfo = feedback360Capabilities.find(c => c.id === cap.capability);
-                    const capabilityTitle = capInfo?.title || cap.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                    const capabilityIcon = capInfo?.icon || '📊';
-                    const score = results.has_evaluator_responses && cap.others_avg_score > 0
-                      ? cap.others_avg_score
-                      : cap.self_score;
-
-                    return (
-                      <div 
-                        key={cap.capability} 
-                        className="p-4 rounded-lg" 
-                        style={{ backgroundColor: '#FFEB9C40' }}
-                      >
-                        <div className="flex items-start gap-3">
-                          <span className="text-2xl">{capabilityIcon}</span>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between mb-2">
-                              <h4 className="font-semibold text-gray-900 text-sm">{capabilityTitle}</h4>
-                              <span className="text-sm font-bold" style={{ color: '#FFEB9C' }}>
-                                {score.toFixed(1)}/5.0
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  });
-                })()}
-              </div>
-            </div>
-
-            {/* Strengths (4-5) */}
-            <div>
-              <h3 className="text-lg font-semibold text-green-700 mb-4 flex items-center gap-2">
-                <CheckCircle className="w-5 h-5" />
-                Strengths
-              </h3>
-              <div className="space-y-3">
-                {(() => {
-                  const strengthCapabilities = results.capability_scores.filter(cap => {
-                    const score = results.has_evaluator_responses && cap.others_avg_score > 0
-                      ? cap.others_avg_score
-                      : cap.self_score;
-                    return Math.round(score) >= 4;
-                  });
-
-                  if (strengthCapabilities.length === 0) {
-                    return <p className="text-sm text-gray-500 italic">No strengths identified.</p>;
-                  }
-
-                  return strengthCapabilities.map(cap => {
-                    const capInfo = feedback360Capabilities.find(c => c.id === cap.capability);
-                    const capabilityTitle = capInfo?.title || cap.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                    const capabilityIcon = capInfo?.icon || '📊';
-                    const score = results.has_evaluator_responses && cap.others_avg_score > 0
-                      ? cap.others_avg_score
-                      : cap.self_score;
-
-                    return (
-                      <div 
-                        key={cap.capability} 
-                        className="p-4 rounded-lg" 
-                        style={{ backgroundColor: '#C6EFCE40' }}
-                      >
-                        <div className="flex items-start gap-3">
-                          <span className="text-2xl">{capabilityIcon}</span>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between mb-2">
-                              <h4 className="font-semibold text-gray-900 text-sm">{capabilityTitle}</h4>
-                              <span className="text-sm font-bold" style={{ color: '#C6EFCE' }}>
-                                {score.toFixed(1)}/5.0
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  });
-                })()}
-              </div>
-            </div>
-          </div>
-        </MotionDiv>
-
         {/* Capability Breakdown */}
         <MotionDiv
           variant="slideUp"
@@ -931,6 +711,237 @@ export default function Feedback360ResultsPage() {
             </div>
           </MotionDiv>
         )}
+
+        {/* OVERALL RESULTS' STATEMENT */}
+        <MotionDiv
+          variant="slideUp"
+          duration="normal"
+          delay={0.4}
+          className="mb-8 rounded-lg bg-white p-8 shadow-lg"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
+              <Target className="text-arise-deep-teal" size={24} />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900">
+              OVERALL RESULTS' STATEMENT
+            </h2>
+          </div>
+          
+          {(() => {
+            // Calculate average score across all capabilities
+            const avgScore = results.capability_scores.length > 0
+              ? results.capability_scores.reduce((sum, cap) => {
+                  const score = results.has_evaluator_responses && cap.others_avg_score > 0
+                    ? cap.others_avg_score
+                    : cap.self_score;
+                  return sum + score;
+                }, 0) / results.capability_scores.length
+              : 0;
+            
+            const roundedAvgScore = Math.round(avgScore);
+            let statement = '';
+            let statementColor = '';
+            
+            if (roundedAvgScore >= 4) {
+              statement = 'The results demonstrate a high level of self-awareness, as self-perception closely aligns with the perspectives of others across most evaluated capabilities. This indicates a strong understanding of how personal behaviors, strengths, and development areas are perceived by others. It reflects maturity, emotional intelligence, and authenticity in leadership interactions. Individuals with this profile tend to be effective at maintaining trust, adapting feedback, and fostering positive team dynamics.';
+              statementColor = '#C6EFCE';
+            } else if (roundedAvgScore >= 3) {
+              statement = 'The results indicate good self-awareness, showing that in several key areas there is alignment between self-perception and how others experience behaviors and impact. Some variations across capabilities suggest opportunities to deepen reflection and seek additional feedback to bridge minor perception gaps. This balanced profile highlights a generally accurate self-view, coupled with potential for further growth through targeted development and open dialogue.';
+              statementColor = '#FFEB9C';
+            } else {
+              statement = 'The results suggest lower self-awareness, with noticeable differences between self-assessment and the perspectives provided by others. This may indicate that certain behaviors or leadership patterns are not fully recognized, or that expectations and impact are perceived differently by colleagues. This outcome represents an opportunity for constructive growth — encouraging deeper reflection, open discussion, and feedback-seeking to better understand and align internal perceptions with external observations. Increasing awareness in this way can significantly strengthen effectiveness, relationships, and overall leadership presence.';
+              statementColor = '#FFC7CE';
+            }
+            
+            return (
+              <div 
+                className="rounded-lg p-6"
+                style={{ backgroundColor: statementColor + '40' }}
+              >
+                <p className="text-gray-700 leading-relaxed">{statement}</p>
+              </div>
+            );
+          })()}
+        </MotionDiv>
+
+        {/* Capabilities Categorization - 3 Columns (without title) */}
+        <MotionDiv
+          variant="slideUp"
+          duration="normal"
+          delay={0.5}
+          className="mb-8 rounded-lg bg-white p-8 shadow-lg"
+        >
+          {(() => {
+            // Filter capabilities by score range
+            const growthCapabilities = results.capability_scores.filter(cap => {
+              const score = results.has_evaluator_responses && cap.others_avg_score > 0
+                ? cap.others_avg_score
+                : cap.self_score;
+              return Math.round(score) >= 1 && Math.round(score) <= 2;
+            });
+
+            const neutralCapabilities = results.capability_scores.filter(cap => {
+              const score = results.has_evaluator_responses && cap.others_avg_score > 0
+                ? cap.others_avg_score
+                : cap.self_score;
+              return Math.round(score) === 3;
+            });
+
+            const strengthCapabilities = results.capability_scores.filter(cap => {
+              const score = results.has_evaluator_responses && cap.others_avg_score > 0
+                ? cap.others_avg_score
+                : cap.self_score;
+              return Math.round(score) >= 4;
+            });
+
+            // Only show columns that have capabilities
+            const hasGrowth = growthCapabilities.length > 0;
+            const hasNeutral = neutralCapabilities.length > 0;
+            const hasStrengths = strengthCapabilities.length > 0;
+            
+            const columnCount = [hasGrowth, hasNeutral, hasStrengths].filter(Boolean).length;
+            
+            if (columnCount === 0) {
+              return null;
+            }
+
+            const gridClass = columnCount === 1 ? 'md:grid-cols-1' : columnCount === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3';
+
+            return (
+              <div className={`grid ${gridClass} gap-6`}>
+            {/* Areas for Growth (1-2) */}
+            {hasGrowth && (
+              <div>
+                <h3 className="text-lg font-semibold text-red-700 mb-2 flex items-center gap-2">
+                  <TrendingDown className="w-5 h-5" />
+                  Areas for Growth
+                </h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  Deepen self-reflection, actively seek feedback, and explore perception differences to strengthen impact and alignment.
+                </p>
+                <div className="space-y-3">
+                  {growthCapabilities.map(cap => {
+                    const capInfo = feedback360Capabilities.find(c => c.id === cap.capability);
+                    const capabilityTitle = capInfo?.title || cap.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    const capabilityIcon = capInfo?.icon || '📊';
+                    const score = results.has_evaluator_responses && cap.others_avg_score > 0
+                      ? cap.others_avg_score
+                      : cap.self_score;
+
+                    return (
+                      <div 
+                        key={cap.capability} 
+                        className="p-4 rounded-lg" 
+                        style={{ backgroundColor: '#FFC7CE40' }}
+                      >
+                        <div className="flex items-start gap-3">
+                          <span className="text-2xl">{capabilityIcon}</span>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="font-semibold text-gray-900 text-sm">{capabilityTitle}</h4>
+                              <span className="text-sm font-bold" style={{ color: '#FFC7CE' }}>
+                                {score.toFixed(1)}/5.0
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Neutral (3) */}
+            {hasNeutral && (
+              <div>
+                <h3 className="text-lg font-semibold text-yellow-700 mb-2 flex items-center gap-2">
+                  <Minus className="w-5 h-5" />
+                  Neutral
+                </h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  Focus on areas of gap, engage in feedback discussions, and seek specific examples to calibrate perceptions.
+                </p>
+                <div className="space-y-3">
+                  {neutralCapabilities.map(cap => {
+                    const capInfo = feedback360Capabilities.find(c => c.id === cap.capability);
+                    const capabilityTitle = capInfo?.title || cap.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    const capabilityIcon = capInfo?.icon || '📊';
+                    const score = results.has_evaluator_responses && cap.others_avg_score > 0
+                      ? cap.others_avg_score
+                      : cap.self_score;
+
+                    return (
+                      <div 
+                        key={cap.capability} 
+                        className="p-4 rounded-lg" 
+                        style={{ backgroundColor: '#FFEB9C40' }}
+                      >
+                        <div className="flex items-start gap-3">
+                          <span className="text-2xl">{capabilityIcon}</span>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="font-semibold text-gray-900 text-sm">{capabilityTitle}</h4>
+                              <span className="text-sm font-bold" style={{ color: '#FFEB9C' }}>
+                                {score.toFixed(1)}/5.0
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Strengths (4-5) */}
+            {hasStrengths && (
+              <div>
+                <h3 className="text-lg font-semibold text-green-700 mb-2 flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5" />
+                  Strengths
+                </h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  Continue leveraging strengths, use feedback as reinforcement for ongoing growth.
+                </p>
+                <div className="space-y-3">
+                  {strengthCapabilities.map(cap => {
+                    const capInfo = feedback360Capabilities.find(c => c.id === cap.capability);
+                    const capabilityTitle = capInfo?.title || cap.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    const capabilityIcon = capInfo?.icon || '📊';
+                    const score = results.has_evaluator_responses && cap.others_avg_score > 0
+                      ? cap.others_avg_score
+                      : cap.self_score;
+
+                    return (
+                      <div 
+                        key={cap.capability} 
+                        className="p-4 rounded-lg" 
+                        style={{ backgroundColor: '#C6EFCE40' }}
+                      >
+                        <div className="flex items-start gap-3">
+                          <span className="text-2xl">{capabilityIcon}</span>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="font-semibold text-gray-900 text-sm">{capabilityTitle}</h4>
+                              <span className="text-sm font-bold" style={{ color: '#C6EFCE' }}>
+                                {score.toFixed(1)}/5.0
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+            );
+          })()}
+        </MotionDiv>
 
         {/* Back to assessments button at bottom */}
         <div className="flex justify-center mt-8 mb-8">
