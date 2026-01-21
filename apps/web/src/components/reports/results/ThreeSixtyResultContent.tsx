@@ -6,6 +6,7 @@ import { Card } from '@/components/ui';
 import { AssessmentResult, PillarScore, get360Evaluators, type EvaluatorStatus } from '@/lib/api/assessments';
 import { feedback360Capabilities } from '@/data/feedback360Questions';
 import { get360ScoreColorCode, getFeedback360InsightWithLocale } from '@/data/feedback360Insights';
+import { getFeedback360GapInsightWithLocale, get360GapColorCode, get360GapAwarenessLevel } from '@/data/feedback360GapInsights';
 import { TrendingUp, TrendingDown, Minus, Users, CheckCircle, Clock, Mail, XCircle, Target } from 'lucide-react';
 
 // Type guard to check if a value is a PillarScore object
@@ -433,6 +434,16 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
               );
               const capabilityTitle = capInfo?.title || capScore.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
+              // Calculate gap (self_score - others_avg_score)
+              const gap = capScore.self_score - capScore.others_avg_score;
+              
+              // Get gap insight
+              const gapInsight = getFeedback360GapInsightWithLocale(
+                capScore.capability,
+                gap,
+                locale
+              );
+
               // Get insight based on others_avg_score (since we have evaluator responses)
               const scoreForInsight = capScore.others_avg_score > 0 ? capScore.others_avg_score : capScore.self_score;
               const insight = getFeedback360InsightWithLocale(
@@ -458,7 +469,30 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
                     </div>
                   </div>
 
-                  {/* Analysis and Recommendations */}
+                  {/* Gap-based Overview and Recommendation */}
+                  {gapInsight && (
+                    <div className="space-y-3 mb-4">
+                      {/* Overview */}
+                      <div 
+                        className="rounded-lg p-4"
+                        style={{ backgroundColor: gapInsight.colorCode }}
+                      >
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Overview</h4>
+                        <p className="text-sm text-gray-700 leading-relaxed">{gapInsight.overview}</p>
+                      </div>
+
+                      {/* Recommendation */}
+                      <div 
+                        className="rounded-lg p-4"
+                        style={{ backgroundColor: gapInsight.colorCode }}
+                      >
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Recommendation</h4>
+                        <p className="text-sm text-gray-700 leading-relaxed">{gapInsight.recommendation}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Score-based Analysis and Recommendations */}
                   {insight && (
                     <div className="space-y-3 mb-4">
                       {/* Analysis */}
