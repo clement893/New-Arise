@@ -15,6 +15,7 @@ import {
 import { useFeedback360Store } from '@/stores/feedback360Store';
 import { feedback360Capabilities } from '@/data/feedback360Questions';
 import { get360ScoreColorCode, getFeedback360InsightWithLocale } from '@/data/feedback360Insights';
+import { getFeedback360GapInsightWithLocale } from '@/data/feedback360GapInsights';
 import Button from '@/components/ui/Button';
 import { ArrowLeft, TrendingUp, TrendingDown, Minus, Users, CheckCircle, Clock, Mail, XCircle, Eye, Target } from 'lucide-react';
 import { formatError } from '@/lib/utils/formatError';
