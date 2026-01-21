@@ -52,7 +52,7 @@ export default function WellnessResultsPage() {
     sleep: t('pillars.sleep'),
     nutrition: t('pillars.nutrition'),
     movement: t('pillars.movement'),
-    avoidance_of_risky_substances: 'Avoidance of Toxic Substances',
+    avoidance_of_risky_substances: 'Avoidance of Risky Substances',
     stress_management: t('pillars.stressManagement'),
     social_connection: t('pillars.socialConnection'),
   };

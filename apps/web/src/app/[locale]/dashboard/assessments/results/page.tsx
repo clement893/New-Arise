@@ -14,6 +14,8 @@ import { wellnessPillars } from '@/data/wellnessQuestionsReal';
 import { ArrowLeft, TrendingUp } from 'lucide-react';
 import { formatError } from '@/lib/utils/formatError';
 import WellnessRadarChart from '@/components/assessments/charts/WellnessRadarChart';
+import { getWellnessInsight, getScoreColorCode } from '@/data/wellnessInsights';
+import { CheckCircle } from 'lucide-react';
 
 function AssessmentResultsContent() {
   const t = useTranslations('dashboard.assessments.results');
@@ -401,24 +403,54 @@ function AssessmentResultsContent() {
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2 md:h-3">
                         <div
-                          className="bg-arise-gold rounded-full h-2 md:h-3 transition-all duration-500"
-                          style={{ width: `${pillarPercentage}%` }}
+                          className="rounded-full h-2 md:h-3 transition-all duration-500"
+                          style={{ 
+                            width: `${pillarPercentage}%`,
+                            backgroundColor: getScoreColorCode(pillarScore)
+                          }}
                         />
                       </div>
                     </div>
-                    
-                    {/* Performance Level */}
-                    <div className="text-center">
-                      <span className={`inline-block px-2 md:px-3 py-0.5 md:py-1 rounded-full text-xs md:text-sm font-semibold ${
-                        pillarPercentage >= 80 ? 'bg-success-100 text-success-800' :
-                        pillarPercentage >= 60 ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
-                        {pillarPercentage >= 80 ? t('performance.excellent') :
-                         pillarPercentage >= 60 ? t('performance.good') :
-                         t('performance.needsAttention')}
-                      </span>
-                    </div>
+
+                    {/* Description and Actions based on score */}
+                    {(() => {
+                      const insightData = getWellnessInsight(pillar.id, pillarScore);
+                      if (insightData) {
+                        return (
+                          <div className="mt-3 md:mt-4">
+                            {/* Description */}
+                            <p className="text-xs md:text-sm text-gray-700 leading-relaxed mb-3">
+                              {insightData.assessment}
+                            </p>
+                            
+                            {/* Actions */}
+                            {insightData.actions && insightData.actions.length > 0 && (
+                              <div>
+                                <h4 className="text-xs md:text-sm font-semibold text-gray-900 mb-2">
+                                  Recommended Actions:
+                                </h4>
+                                <ul className="space-y-1.5">
+                                  {insightData.actions.map((action, actionIndex) => (
+                                    <li 
+                                      key={actionIndex}
+                                      className="flex items-start gap-2 text-xs md:text-sm"
+                                    >
+                                      <CheckCircle 
+                                        className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0 mt-0.5" 
+                                        style={{ color: getScoreColorCode(pillarScore) }} 
+                                      />
+                                      <span className="text-gray-700">{action}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
                   </Card>
                 </MotionDiv>
               );

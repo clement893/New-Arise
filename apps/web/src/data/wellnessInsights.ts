@@ -169,9 +169,9 @@ export const wellnessInsights: WellnessPillarInsight[] = [
     ]
   },
 
-  // AVOIDANCE OF TOXIC SUBSTANCES INSIGHTS
+  // AVOIDANCE OF RISKY SUBSTANCES INSIGHTS
   {
-    pillar: 'Avoidance of Toxic Substances',
+    pillar: 'Avoidance of Risky Substances',
     scoreRange: '5-10',
     colorCode: '#FFC7CE',
     assessment: 'High or frequent exposure to toxic substances (alcohol, nicotine, drugs) negatively impacts health and performance.',
@@ -183,7 +183,7 @@ export const wellnessInsights: WellnessPillarInsight[] = [
     ]
   },
   {
-    pillar: 'Avoidance of Toxic Substances',
+    pillar: 'Avoidance of Risky Substances',
     scoreRange: '11-15',
     colorCode: '#FFEB9C',
     assessment: 'Occasional or moderate use of substances, but habits may still pose risks over time.',
@@ -195,7 +195,7 @@ export const wellnessInsights: WellnessPillarInsight[] = [
     ]
   },
   {
-    pillar: 'Avoidance of Toxic Substances',
+    pillar: 'Avoidance of Risky Substances',
     scoreRange: '16-20',
     colorCode: '#92D050',
     assessment: 'Healthy habits and self-regulation are present, with minimal reliance on substances for coping or social settings. Occasional consumption may still be habitual rather than intentional.',
@@ -207,7 +207,7 @@ export const wellnessInsights: WellnessPillarInsight[] = [
     ]
   },
   {
-    pillar: 'Avoidance of Toxic Substances',
+    pillar: 'Avoidance of Risky Substances',
     scoreRange: '21-25',
     colorCode: '#00B050',
     assessment: 'Avoidance of toxic substances is strong, supporting optimal health. Opportunities remain in educating and supporting others in healthy choices.',
