@@ -210,15 +210,25 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
                   </div>
                   <div className="ml-3 flex-shrink-0">
                     {evaluator.status === 'completed' || evaluator.status === 'COMPLETED' ? (
-                      <CheckCircle className="h-5 w-5 text-success-600" title={t('contributorStatus.completed')} />
+                      <span title={t('contributorStatus.completed')}>
+                        <CheckCircle className="h-5 w-5 text-success-600" />
+                      </span>
                     ) : evaluator.status === 'in_progress' || evaluator.status === 'IN_PROGRESS' ? (
-                      <Clock className="h-5 w-5 text-primary-600" title={t('contributorStatus.inProgress')} />
+                      <span title={t('contributorStatus.inProgress')}>
+                        <Clock className="h-5 w-5 text-primary-600" />
+                      </span>
                     ) : evaluator.invitation_opened_at ? (
-                      <Mail className="h-5 w-5 text-yellow-600" title={t('contributorStatus.invitationOpened')} />
+                      <span title={t('contributorStatus.invitationOpened')}>
+                        <Mail className="h-5 w-5 text-yellow-600" />
+                      </span>
                     ) : evaluator.invitation_sent_at ? (
-                      <Mail className="h-5 w-5 text-gray-400" title={t('contributorStatus.invitationSent')} />
+                      <span title={t('contributorStatus.invitationSent')}>
+                        <Mail className="h-5 w-5 text-gray-400" />
+                      </span>
                     ) : (
-                      <XCircle className="h-5 w-5 text-gray-400" title={t('contributorStatus.notInvited')} />
+                      <span title={t('contributorStatus.notInvited')}>
+                        <XCircle className="h-5 w-5 text-gray-400" />
+                      </span>
                     )}
                   </div>
                 </div>
