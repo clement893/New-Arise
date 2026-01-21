@@ -80,10 +80,10 @@ export default function AssessmentResultAccordion({
   };
 
   return (
-    <div className="">
+    <div className="border-t border-gray-200 mt-4">
       <div 
-        className={`pt-4 transition-all duration-300 ease-in-out overflow-hidden ${
-          isOpen ? 'max-h-[10000px] opacity-100' : 'max-h-0 opacity-0'
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${
+          isOpen ? 'max-h-[10000px] opacity-100 pt-4' : 'max-h-0 opacity-0'
         }`}
       >
         <div className="pb-4">

@@ -492,6 +492,34 @@ function ResultsReportsContent() {
     return names[type] || type;
   };
 
+  const getScoreColor = (score: string): string | null => {
+    // Extract percentage from score string (e.g., "85%" -> 85)
+    const percentageMatch = score.match(/(\d+(?:\.\d+)?)/);
+    if (!percentageMatch) return null;
+    
+    const percentage = parseFloat(percentageMatch[1]);
+    if (isNaN(percentage)) return null;
+
+    // Determine color based on percentage ranges
+    if (percentage < 60) {
+      return '#FFC7CE'; // Red
+    } else if (percentage >= 60 && percentage <= 74) {
+      return '#FFEB9C'; // Yellow
+    } else if (percentage >= 75 && percentage <= 85) {
+      return '#92D050'; // Light Green
+    } else if (percentage >= 86 && percentage <= 100) {
+      return '#00B050'; // Dark Green
+    }
+    
+    return null;
+  };
+
+  const hasScoreColor = (assessment: AssessmentDisplay): boolean => {
+    // Only show color indicator for assessments with percentage scores
+    // Wellness and 360° Feedback typically have percentage scores
+    return assessment.type === 'WELLNESS' || assessment.type === 'THREE_SIXTY_SELF';
+  };
+
   const handleViewDetails = (assessment: AssessmentDisplay) => {
     // Toggle accordion - allow multiple accordions to be open at once
     setExpandedAssessmentIds(prev => {
@@ -608,7 +636,7 @@ function ResultsReportsContent() {
 
     // Validate that the input matches the assessment name exactly
     if (deleteTitleInput.trim() !== assessmentToDelete.name.trim()) {
-      setDeleteTitleError(t('errors.titleMismatch'));
+      setDeleteTitleError(t('errors.titleMismatch') || 'The title does not match. Please enter the exact assessment title.');
       return;
     }
 
@@ -624,7 +652,7 @@ function ResultsReportsContent() {
       setShowDeleteAssessmentModal(false);
       setAssessmentToDelete(null);
       setDeleteTitleInput('');
-      alert(t('errors.assessmentDeleted'));
+      alert(t('errors.assessmentDeleted') || 'Assessment deleted successfully');
     } catch (err: any) {
       console.error('Failed to delete assessment:', err);
       const errorMessage = err?.response?.data?.detail || err?.message || t('errors.deleteFailed');
@@ -717,14 +745,14 @@ function ResultsReportsContent() {
                 <AlertTriangle className="text-red-600" size={24} />
               </div>
               <h2 className="text-2xl font-bold text-gray-900">
-                {t('deleteAssessmentModal.title')}
+                {t('deleteAssessmentModal.title') || 'Delete Assessment'}
               </h2>
             </div>
             <p className="text-gray-700 mb-4">
-              {t('deleteAssessmentModal.message')}
+              {t('deleteAssessmentModal.message') || 'This action cannot be undone. This will permanently delete the assessment and all its data.'}
             </p>
             <p className="text-gray-700 mb-4 font-medium">
-              {t('deleteAssessmentModal.enterTitle')}
+              {t('deleteAssessmentModal.enterTitle') || 'To confirm, please enter the assessment title:'}
             </p>
             <p className="text-sm font-semibold text-gray-900 mb-2 bg-gray-100 p-2 rounded">
               {assessmentToDelete.name}
@@ -736,7 +764,7 @@ function ResultsReportsContent() {
                 setDeleteTitleInput(e.target.value);
                 setDeleteTitleError(null);
               }}
-              placeholder={t('deleteAssessmentModal.placeholder')}
+              placeholder={t('deleteAssessmentModal.placeholder') || 'Enter assessment title'}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 mb-2"
               disabled={isDeletingAssessment}
             />
@@ -750,7 +778,7 @@ function ResultsReportsContent() {
                 disabled={isDeletingAssessment}
                 className="flex-1"
               >
-                {t('deleteAssessmentModal.cancel')}
+                {t('deleteAssessmentModal.cancel') || 'Cancel'}
               </Button>
               <Button
                 variant="danger"
@@ -758,7 +786,7 @@ function ResultsReportsContent() {
                 disabled={isDeletingAssessment || !deleteTitleInput.trim()}
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white"
               >
-                {isDeletingAssessment ? t('deleteAssessmentModal.deleting') : t('deleteAssessmentModal.confirm')}
+                {isDeletingAssessment ? (t('deleteAssessmentModal.deleting') || 'Deleting...') : (t('deleteAssessmentModal.confirm') || 'Confirm')}
               </Button>
             </div>
           </Card>
@@ -902,9 +930,9 @@ function ResultsReportsContent() {
                         size="sm"
                         onClick={() => handleDeleteAssessmentClick(assessment)}
                         title={t('assessments.deleteAssessment') || 'Delete Assessment'}
-                        className="absolute top-2 right-2 text-red-600 hover:text-red-700 hover:bg-red-50 p-0"
+                        className="absolute top-2 right-2 text-red-600 hover:text-red-700 hover:bg-red-50 p-2"
                       >
-                        <Trash2 size={14} />
+                        <Trash2 size={16} />
                       </Button>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4 flex-1">
@@ -925,6 +953,14 @@ function ResultsReportsContent() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
+                          {/* Color indicator for assessments with percentage scores */}
+                          {hasScoreColor(assessment) && getScoreColor(assessment.score) && (
+                            <div 
+                              className="w-4 h-8 rounded-sm flex-shrink-0"
+                              style={{ backgroundColor: getScoreColor(assessment.score) || '#E5E7EB' }}
+                              title={`Score: ${assessment.score}`}
+                            />
+                          )}
                           <Button 
                             variant="arise-primary"
                             size="sm"

@@ -1291,15 +1291,6 @@
         "confirm": "Confirm Deletion",
         "deleting": "Deleting..."
       },
-      "deleteAssessmentModal": {
-        "title": "Delete Assessment",
-        "message": "This action cannot be undone. This will permanently delete the assessment and all its data.",
-        "enterTitle": "To confirm, please enter the assessment title:",
-        "placeholder": "Enter assessment title",
-        "cancel": "Cancel",
-        "confirm": "Confirm",
-        "deleting": "Deleting..."
-      },
       "errors": {
         "title": "Error",
         "loadFailed": "Failed to load assessment results. Please try again.",
@@ -1310,9 +1301,7 @@
         "downloadAssessmentFailed": "Failed to download assessment. Please try again.",
         "onlySuperAdmin": "Only super admins can delete all their assessments.",
         "deleteFailed": "Failed to delete assessments",
-        "deleteSuccess": "All your assessments have been successfully deleted. ({count} assessments deleted)",
-        "titleMismatch": "The title does not match. Please enter the exact assessment title.",
-        "assessmentDeleted": "Assessment deleted successfully"
+        "deleteSuccess": "All your assessments have been successfully deleted. ({count} assessments deleted)"
       },
       "resetButton": "Reset All Assessments",
       "cta": {
