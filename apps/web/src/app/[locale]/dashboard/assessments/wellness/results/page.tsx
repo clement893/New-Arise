@@ -13,11 +13,10 @@ import { getAssessmentResults, AssessmentResult } from '@/lib/api/assessments';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import MotionDiv from '@/components/motion/MotionDiv';
-import WellnessBarChart from '@/components/assessments/charts/WellnessBarChart';
-import InsightCard from '@/components/assessments/InsightCard';
 import RecommendationCard from '@/components/assessments/RecommendationCard';
-import { ArrowLeft, Download, Heart } from 'lucide-react';
+import { ArrowLeft, Download, Heart, CheckCircle } from 'lucide-react';
 import { formatError } from '@/lib/utils/formatError';
+import { getWellnessInsight, getScoreColorCode } from '@/data/wellnessInsights';
 
 export default function WellnessResultsPage() {
   const t = useTranslations('dashboard.assessments.wellness.results');
@@ -49,19 +48,11 @@ export default function WellnessResultsPage() {
     }
   };
 
-  const getPillarLevel = (score: number): 'low' | 'moderate' | 'high' | 'very_high' => {
-    const percentage = (score / 25) * 100;
-    if (percentage >= 80) return 'very_high';
-    if (percentage >= 60) return 'high';
-    if (percentage >= 40) return 'moderate';
-    return 'low';
-  };
-
   const pillarNames: Record<string, string> = {
     sleep: t('pillars.sleep'),
     nutrition: t('pillars.nutrition'),
-    hydration: t('pillars.hydration'),
     movement: t('pillars.movement'),
+    avoidance_of_risky_substances: 'Avoidance of Toxic Substances',
     stress_management: t('pillars.stressManagement'),
     social_connection: t('pillars.socialConnection'),
   };
@@ -69,8 +60,8 @@ export default function WellnessResultsPage() {
   const pillarEmojis: Record<string, string> = {
     sleep: '😴',
     nutrition: '🥗',
-    hydration: '💧',
     movement: '🏃',
+    avoidance_of_risky_substances: '🚭',
     stress_management: '🧘',
     social_connection: '🤝',
   };
@@ -197,41 +188,90 @@ export default function WellnessResultsPage() {
             </Card>
           </MotionDiv>
 
-          {/* Bar Chart */}
+          {/* Wellness Pillars with Insights */}
           <MotionDiv variant="slideUp" duration="normal" delay={200} className="mb-8">
-            <Card>
-              <div className="p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('profile.title')}</h2>
-                <WellnessBarChart scores={pillarScores} />
-              </div>
-            </Card>
-          </MotionDiv>
-
-          {/* Insights */}
-          <MotionDiv variant="slideUp" duration="normal" delay={300} className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('insights.title')}</h2>
-            <div className="grid gap-4">
+            <div className="grid gap-6">
               {Object.entries(pillarScores).map(([pillar, score], index) => {
-                const level = getPillarLevel(score as number);
-                const insight = insights[pillar];
+                const insightData = getWellnessInsight(pillar, score as number);
+                const colorCode = getScoreColorCode(score as number);
+                
+                // Fallback to generic insight if no specific insight is found
+                const pillarDisplayName = pillarNames[pillar] || pillar.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                const description = insightData?.assessment || `Your ${pillarDisplayName.toLowerCase()} score is ${score} out of 25.`;
 
                 return (
                   <MotionDiv
                     key={pillar}
                     variant="slideUp"
                     duration="fast"
-                    delay={400 + index * 100}
+                    delay={300 + index * 100}
                   >
-                    <InsightCard
-                      title={`${pillarEmojis[pillar] || '📊'} ${pillarNames[pillar] || pillar}`}
-                      level={level}
-                      score={score as number}
-                      maxScore={25}
-                      description={
-                        insight?.description ||
-                        `Your ${(pillarNames[pillar] || pillar).toLowerCase()} score indicates ${level} performance in this area.`
-                      }
-                    />
+                    <Card className="overflow-hidden">
+                      <div className="p-6">
+                        {/* Header with pillar name and emoji */}
+                        <div className="flex items-start gap-3 mb-4">
+                          <span className="text-4xl">{pillarEmojis[pillar] || '📊'}</span>
+                          <div className="flex-1">
+                            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                              {pillarDisplayName}
+                            </h3>
+                            <p className="text-sm text-gray-600 mb-3">
+                              {pillar === 'sleep' ? 'Rest and recovery patterns' :
+                               pillar === 'nutrition' ? 'Eating habits and diet quality' :
+                               pillar === 'movement' ? 'Physical activity and exercise' :
+                               pillar === 'avoidance_of_risky_substances' ? 'Substance use and health choices' :
+                               pillar === 'stress_management' ? 'Coping mechanisms and resilience' :
+                               pillar === 'social_connection' ? 'Relationships and support networks' :
+                               'Making healthy choices about alcohol, tobacco, medications, and other substances'}
+                            </p>
+                            
+                            {/* Score and Progress Bar */}
+                            <div className="mb-4">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm font-medium text-gray-700">Score</span>
+                                <span className="text-sm font-bold text-gray-900">
+                                  {score as number} / 25
+                                </span>
+                              </div>
+                              <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full rounded-full transition-all duration-500"
+                                  style={{
+                                    width: `${((score as number) / 25) * 100}%`,
+                                    backgroundColor: colorCode
+                                  }}
+                                />
+                              </div>
+                            </div>
+
+                            {/* Description based on score */}
+                            <p className="text-gray-700 leading-relaxed mb-4">
+                              {description}
+                            </p>
+
+                            {/* Actions */}
+                            {insightData?.actions && insightData.actions.length > 0 && (
+                              <div className="mt-4">
+                                <h4 className="text-sm font-semibold text-gray-900 mb-3">
+                                  Recommended Actions:
+                                </h4>
+                                <ul className="space-y-2">
+                                  {insightData.actions.map((action, actionIndex) => (
+                                    <li 
+                                      key={actionIndex}
+                                      className="flex items-start gap-2 text-sm"
+                                    >
+                                      <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: colorCode }} />
+                                      <span className="text-gray-700">{action}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
                   </MotionDiv>
                 );
               })}

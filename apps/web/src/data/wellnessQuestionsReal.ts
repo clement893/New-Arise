@@ -361,37 +361,37 @@ export const wellnessPillars = [
     id: "avoidance_of_risky_substances",
     name: "Avoidance of Risky Substances",
     description: "Making healthy choices about alcohol, tobacco, medications, and other substances",
-    icon: "??"
+    icon: "🚭"
   },
   {
     id: "movement",
     name: "Movement",
     description: "Regular physical activity, strength training, and flexibility exercises",
-    icon: "??"
+    icon: "🏃"
   },
   {
     id: "nutrition",
     name: "Nutrition",
     description: "Balanced diet with fruits, vegetables, and proper hydration",
-    icon: "??"
+    icon: "🥗"
   },
   {
     id: "sleep",
     name: "Sleep",
     description: "Quality rest with consistent sleep schedule and restorative sleep",
-    icon: "??"
+    icon: "😴"
   },
   {
     id: "social_connection",
     name: "Social Connection",
     description: "Strong relationships and positive social interactions",
-    icon: "??"
+    icon: "🤝"
   },
   {
     id: "stress_management",
     name: "Stress Management",
     description: "Healthy coping strategies and work-life balance",
-    icon: "??"
+    icon: "🧘"
   }
 ];
 
