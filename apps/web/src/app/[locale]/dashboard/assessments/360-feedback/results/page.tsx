@@ -14,9 +14,11 @@ import {
 } from '@/lib/api/assessments';
 import { useFeedback360Store } from '@/stores/feedback360Store';
 import { feedback360Capabilities } from '@/data/feedback360Questions';
+import { get360ScoreColorCode, getFeedback360InsightWithLocale } from '@/data/feedback360Insights';
 import Button from '@/components/ui/Button';
 import { ArrowLeft, TrendingUp, TrendingDown, Minus, Users, CheckCircle, Clock, Mail, XCircle, Eye } from 'lucide-react';
 import { formatError } from '@/lib/utils/formatError';
+import { useLocale } from 'next-intl';
 
 // Type guard to check if a value is a PillarScore object
 function isPillarScore(value: number | PillarScore): value is PillarScore {
@@ -42,6 +44,7 @@ interface Results {
 
 export default function Feedback360ResultsPage() {
   const t = useTranslations('dashboard.assessments.360.results');
+  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { assessmentId } = useFeedback360Store();
@@ -533,14 +536,20 @@ export default function Feedback360ResultsPage() {
                     <div>
                       <div className="mb-2 flex items-center justify-between text-sm">
                         <span className="text-gray-600">{t('capabilities.selfAssessment')}</span>
-                        <span className="font-semibold text-gray-900">
+                        <span 
+                          className="font-semibold"
+                          style={{ color: get360ScoreColorCode(capScore.self_score) }}
+                        >
                           {capScore.self_score.toFixed(1)} / 5.0
                         </span>
                       </div>
                       <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
                         <div
-                          className="h-full bg-arise-gold"
-                          style={{ width: `${(capScore.self_score / 5) * 100}%` }}
+                          className="h-full"
+                          style={{ 
+                            width: `${(capScore.self_score / 5) * 100}%`,
+                            backgroundColor: get360ScoreColorCode(capScore.self_score)
+                          }}
                         />
                       </div>
                     </div>
@@ -549,21 +558,63 @@ export default function Feedback360ResultsPage() {
                       <div>
                         <div className="mb-2 flex items-center justify-between text-sm">
                           <span className="text-gray-600">Others' Average</span>
-                          <span className="font-semibold text-gray-900">
+                          <span 
+                            className="font-semibold"
+                            style={{ color: get360ScoreColorCode(capScore.others_avg_score) }}
+                          >
                             {capScore.others_avg_score.toFixed(1)} / 5.0
                           </span>
                         </div>
                         <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
                           <div
-                            className="h-full bg-primary-500"
+                            className="h-full"
                             style={{
                               width: `${(capScore.others_avg_score / 5) * 100}%`,
+                              backgroundColor: get360ScoreColorCode(capScore.others_avg_score)
                             }}
                           />
                         </div>
                       </div>
                     )}
                   </div>
+
+                  {/* Analysis and Recommendations based on score */}
+                  {(() => {
+                    // Use self_score for insights (or others_avg_score if available and preferred)
+                    const scoreForInsight = results.has_evaluator_responses && capScore.others_avg_score > 0
+                      ? capScore.others_avg_score
+                      : capScore.self_score;
+                    
+                    const insight = getFeedback360InsightWithLocale(
+                      capScore.capability,
+                      scoreForInsight,
+                      locale
+                    );
+
+                    if (!insight) return null;
+
+                    return (
+                      <div className="mt-4 space-y-3">
+                        {/* Analysis */}
+                        <div 
+                          className="rounded-lg p-4"
+                          style={{ backgroundColor: insight.colorCode + '40' }}
+                        >
+                          <h4 className="font-semibold text-gray-900 mb-2 text-sm">Analysis</h4>
+                          <p className="text-sm text-gray-700 leading-relaxed">{insight.analysis}</p>
+                        </div>
+
+                        {/* Recommendations */}
+                        <div 
+                          className="rounded-lg p-4"
+                          style={{ backgroundColor: insight.colorCode + '40' }}
+                        >
+                          <h4 className="font-semibold text-gray-900 mb-2 text-sm">Recommendations</h4>
+                          <p className="text-sm text-gray-700 leading-relaxed">{insight.recommendation}</p>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </MotionDiv>
               );
             })}
@@ -594,21 +645,56 @@ export default function Feedback360ResultsPage() {
                     key={`analysis-${capScore.capability}`}
                     className="rounded-lg border border-gray-200 p-6"
                   >
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {capabilityTitle}
-                      </h3>
-                      <div className="flex items-center gap-2">
-                        {getGapIcon(capScore.gap)}
-                        <span className={`text-sm font-medium ${getGapColor(capScore.gap)}`}>
-                          {getGapLabel(capScore.gap)}
-                        </span>
-                      </div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {capabilityTitle}
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      {getGapIcon(capScore.gap)}
+                      <span className={`text-sm font-medium ${getGapColor(capScore.gap)}`}>
+                        {getGapLabel(capScore.gap)}
+                      </span>
                     </div>
+                  </div>
 
-                    <div className="rounded-lg bg-gray-50 p-4">
-                      <p className="text-sm text-gray-700">{getInsight(capScore)}</p>
-                    </div>
+                  {/* Analysis and Recommendations */}
+                  {(() => {
+                    // Get insight based on others_avg_score (since we have evaluator responses)
+                    const scoreForInsight = capScore.others_avg_score > 0 ? capScore.others_avg_score : capScore.self_score;
+                    const insight = getFeedback360InsightWithLocale(
+                      capScore.capability,
+                      scoreForInsight,
+                      locale
+                    );
+
+                    if (!insight) return null;
+
+                    return (
+                      <div className="space-y-3 mb-4">
+                        {/* Analysis */}
+                        <div 
+                          className="rounded-lg p-4"
+                          style={{ backgroundColor: insight.colorCode + '40' }}
+                        >
+                          <h4 className="font-semibold text-gray-900 mb-2 text-sm">Analysis</h4>
+                          <p className="text-sm text-gray-700 leading-relaxed">{insight.analysis}</p>
+                        </div>
+
+                        {/* Recommendations */}
+                        <div 
+                          className="rounded-lg p-4"
+                          style={{ backgroundColor: insight.colorCode + '40' }}
+                        >
+                          <h4 className="font-semibold text-gray-900 mb-2 text-sm">Recommendations</h4>
+                          <p className="text-sm text-gray-700 leading-relaxed">{insight.recommendation}</p>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <p className="text-sm text-gray-700">{getInsight(capScore)}</p>
+                  </div>
                   </div>
                 );
               })}

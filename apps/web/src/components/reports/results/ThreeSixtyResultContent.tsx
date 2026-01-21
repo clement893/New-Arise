@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Card } from '@/components/ui';
 import { AssessmentResult, PillarScore, get360Evaluators, type EvaluatorStatus } from '@/lib/api/assessments';
 import { feedback360Capabilities } from '@/data/feedback360Questions';
+import { get360ScoreColorCode, getFeedback360InsightWithLocale } from '@/data/feedback360Insights';
 import { TrendingUp, TrendingDown, Minus, Users, CheckCircle, Clock, Mail, XCircle } from 'lucide-react';
 
 // Type guard to check if a value is a PillarScore object
@@ -36,6 +37,7 @@ interface ThreeSixtyResultContentProps {
 
 export default function ThreeSixtyResultContent({ results, assessmentId }: ThreeSixtyResultContentProps) {
   const t = useTranslations('dashboard.assessments.360.results');
+  const locale = useLocale();
   const [evaluators, setEvaluators] = useState<EvaluatorStatus[]>([]);
   const [transformedResults, setTransformedResults] = useState<Results | null>(null);
 
@@ -322,14 +324,20 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
                   <div>
                     <div className="mb-2 flex items-center justify-between text-sm">
                       <span className="text-gray-600">{t('capabilities.selfAssessment')}</span>
-                      <span className="font-semibold text-gray-900">
+                      <span 
+                        className="font-semibold"
+                        style={{ color: get360ScoreColorCode(capScore.self_score) }}
+                      >
                         {capScore.self_score.toFixed(1)} / 5.0
                       </span>
                     </div>
                     <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
                       <div
-                        className="h-full bg-arise-gold"
-                        style={{ width: `${(capScore.self_score / 5) * 100}%` }}
+                        className="h-full"
+                        style={{ 
+                          width: `${(capScore.self_score / 5) * 100}%`,
+                          backgroundColor: get360ScoreColorCode(capScore.self_score)
+                        }}
                       />
                     </div>
                   </div>
@@ -338,15 +346,19 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
                     <div>
                       <div className="mb-2 flex items-center justify-between text-sm">
                         <span className="text-gray-600">Others' Average</span>
-                        <span className="font-semibold text-gray-900">
+                        <span 
+                          className="font-semibold"
+                          style={{ color: get360ScoreColorCode(capScore.others_avg_score) }}
+                        >
                           {capScore.others_avg_score.toFixed(1)} / 5.0
                         </span>
                       </div>
                       <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
                         <div
-                          className="h-full bg-primary-500"
+                          className="h-full"
                           style={{
                             width: `${(capScore.others_avg_score / 5) * 100}%`,
+                            backgroundColor: get360ScoreColorCode(capScore.others_avg_score)
                           }}
                         />
                       </div>
@@ -354,10 +366,43 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
                   )}
                 </div>
 
-                {/* Insight */}
-                <div className="mt-4 rounded-lg bg-gray-50 p-4">
-                  <p className="text-sm text-gray-700">{getInsight(capScore)}</p>
-                </div>
+                {/* Analysis and Recommendations based on score */}
+                {(() => {
+                  // Use self_score for insights (or others_avg_score if available and preferred)
+                  const scoreForInsight = transformedResults.has_evaluator_responses && capScore.others_avg_score > 0
+                    ? capScore.others_avg_score
+                    : capScore.self_score;
+                  
+                  const insight = getFeedback360InsightWithLocale(
+                    capScore.capability,
+                    scoreForInsight,
+                    locale
+                  );
+
+                  if (!insight) return null;
+
+                  return (
+                    <div className="mt-4 space-y-3">
+                      {/* Analysis */}
+                      <div 
+                        className="rounded-lg p-4"
+                        style={{ backgroundColor: insight.colorCode + '40' }}
+                      >
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Analysis</h4>
+                        <p className="text-sm text-gray-700 leading-relaxed">{insight.analysis}</p>
+                      </div>
+
+                      {/* Recommendations */}
+                      <div 
+                        className="rounded-lg p-4"
+                        style={{ backgroundColor: insight.colorCode + '40' }}
+                      >
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Recommendations</h4>
+                        <p className="text-sm text-gray-700 leading-relaxed">{insight.recommendation}</p>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             );
           })}
@@ -378,6 +423,14 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
               );
               const capabilityTitle = capInfo?.title || capScore.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
+              // Get insight based on others_avg_score (since we have evaluator responses)
+              const scoreForInsight = capScore.others_avg_score > 0 ? capScore.others_avg_score : capScore.self_score;
+              const insight = getFeedback360InsightWithLocale(
+                capScore.capability,
+                scoreForInsight,
+                locale
+              );
+
               return (
                 <div
                   key={`analysis-${capScore.capability}`}
@@ -394,6 +447,29 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
                       </span>
                     </div>
                   </div>
+
+                  {/* Analysis and Recommendations */}
+                  {insight && (
+                    <div className="space-y-3 mb-4">
+                      {/* Analysis */}
+                      <div 
+                        className="rounded-lg p-4"
+                        style={{ backgroundColor: insight.colorCode + '40' }}
+                      >
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Analysis</h4>
+                        <p className="text-sm text-gray-700 leading-relaxed">{insight.analysis}</p>
+                      </div>
+
+                      {/* Recommendations */}
+                      <div 
+                        className="rounded-lg p-4"
+                        style={{ backgroundColor: insight.colorCode + '40' }}
+                      >
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Recommendations</h4>
+                        <p className="text-sm text-gray-700 leading-relaxed">{insight.recommendation}</p>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="rounded-lg bg-gray-50 p-4">
                     <p className="text-sm text-gray-700">{getInsight(capScore)}</p>
