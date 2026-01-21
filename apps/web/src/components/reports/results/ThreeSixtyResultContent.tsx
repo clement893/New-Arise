@@ -10,7 +10,7 @@ import { getFeedback360GapInsightWithLocale } from '@/data/feedback360GapInsight
 import { TrendingUp, TrendingDown, Minus, Users, CheckCircle, Clock, Mail, XCircle, Target } from 'lucide-react';
 
 // Type guard to check if a value is a PillarScore object
-function isPillarScore(value: number | PillarScore): value is PillarScore {
+function isPillarScore(value: unknown): value is PillarScore {
   return typeof value === 'object' && value !== null && 'score' in value;
 }
 
@@ -63,16 +63,6 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
     // Map backend capability IDs to frontend IDs
     const capabilityIdMap: Record<string, string> = {
       'problem_solving': 'problem_solving_and_decision_making',
-      'communication': 'communication',
-      'team_culture': 'team_culture',
-      'leadership_style': 'leadership_style',
-      'change_management': 'change_management',
-      'stress_management': 'stress_management',
-    };
-
-    // Reverse map for looking up backend IDs from frontend IDs
-    const reverseCapabilityMap: Record<string, string> = {
-      'problem_solving_and_decision_making': 'problem_solving',
       'communication': 'communication',
       'team_culture': 'team_culture',
       'leadership_style': 'leadership_style',
