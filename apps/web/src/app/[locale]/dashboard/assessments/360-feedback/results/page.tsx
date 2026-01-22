@@ -903,14 +903,6 @@ export default function Feedback360ResultsPage() {
                   locale
                 );
 
-                // Get insight based on others_avg_score (since we have evaluator responses)
-                const scoreForInsight = capScore.others_avg_score > 0 ? capScore.others_avg_score : capScore.self_score;
-                const insight = getFeedback360InsightWithLocale(
-                  capScore.capability,
-                  scoreForInsight,
-                  locale
-                );
-
                 return (
                   <div
                     key={`analysis-${capScore.capability}`}
@@ -930,7 +922,7 @@ export default function Feedback360ResultsPage() {
 
                   {/* Gap-based Overview and Recommendation */}
                   {gapInsight && (
-                    <div className="space-y-3 mb-4">
+                    <div className="space-y-3">
                       {/* Overview */}
                       <div 
                         className="rounded-lg p-4"
@@ -950,33 +942,6 @@ export default function Feedback360ResultsPage() {
                       </div>
                     </div>
                   )}
-
-                  {/* Score-based Analysis and Recommendations */}
-                  {insight && (
-                    <div className="space-y-3 mb-4">
-                      {/* Analysis */}
-                      <div 
-                        className="rounded-lg p-4"
-                        style={{ backgroundColor: insight.colorCode }}
-                      >
-                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Analysis</h4>
-                        <p className="text-sm text-gray-700 leading-relaxed">{insight.analysis}</p>
-                      </div>
-
-                      {/* Recommendations */}
-                      <div 
-                        className="rounded-lg p-4"
-                        style={{ backgroundColor: insight.colorCode }}
-                      >
-                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Recommendations</h4>
-                        <p className="text-sm text-gray-700 leading-relaxed">{insight.recommendation}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="rounded-lg bg-gray-50 p-4">
-                    <p className="text-sm text-gray-700">{getInsight(capScore)}</p>
-                  </div>
                   </div>
                 );
               })}
