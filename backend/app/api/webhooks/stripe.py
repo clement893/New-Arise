@@ -153,6 +153,14 @@ async def handle_checkout_completed(event_object: dict, db: AsyncSession, subscr
         logger.error(f"Invalid user_id or plan_id in checkout metadata: {e}")
         return
     
+    # Verify plan exists and log plan details for debugging
+    plan = await subscription_service.get_plan(plan_id)
+    if not plan:
+        logger.error(f"Plan {plan_id} from checkout metadata does not exist in database")
+        return
+    
+    logger.info(f"Checkout completed: user_id={user_id}, plan_id={plan_id}, plan_name={plan.name}, plan_amount={plan.amount}")
+    
     # Check if subscription already exists with this Stripe subscription ID (race condition protection)
     if subscription_id:
         result = await db.execute(
@@ -199,11 +207,19 @@ async def handle_checkout_completed(event_object: dict, db: AsyncSession, subscr
             
             stripe_subscription = stripe.Subscription.retrieve(subscription_id)
             
+            # Verify plan exists before updating
+            plan = await subscription_service.get_plan(plan_id)
+            if not plan:
+                logger.error(f"Cannot update subscription: Plan {plan_id} does not exist")
+                return
+            
             # Update the existing subscription with new Stripe subscription ID and plan
             existing_subscription.stripe_subscription_id = subscription_id
             existing_subscription.plan_id = plan_id
             if customer_id:
                 existing_subscription.stripe_customer_id = customer_id
+            
+            logger.info(f"Updating subscription {existing_subscription.id}: old_plan_id={existing_subscription.plan_id}, new_plan_id={plan_id}, new_plan_name={plan.name}")
             
             if stripe_subscription.current_period_start:
                 existing_subscription.current_period_start = datetime.fromtimestamp(
@@ -267,6 +283,7 @@ async def handle_checkout_completed(event_object: dict, db: AsyncSession, subscr
             # Continue without Stripe details
     
     # Create new subscription (only if user doesn't have an active one)
+    logger.info(f"Creating new subscription: user_id={user_id}, plan_id={plan_id}, plan_name={plan.name}, plan_amount={plan.amount}, stripe_subscription_id={subscription_id}")
     await subscription_service.create_subscription(
         user_id=user_id,
         plan_id=plan_id,
@@ -276,6 +293,7 @@ async def handle_checkout_completed(event_object: dict, db: AsyncSession, subscr
         current_period_start=current_period_start,
         current_period_end=current_period_end,
     )
+    logger.info(f"Subscription created successfully: user_id={user_id}, plan_id={plan_id}, plan_name={plan.name}")
 
 
 def _parse_subscription_periods(event_object: dict) -> tuple[datetime | None, datetime | None]:

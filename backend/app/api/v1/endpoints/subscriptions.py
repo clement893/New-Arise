@@ -174,18 +174,25 @@ async def create_checkout_session(
     stripe_service: StripeService = Depends(get_stripe_service),
 ):
     """Create Stripe checkout session"""
+    from app.core.logging import logger
+    
     plan = await subscription_service.get_plan(checkout_data.plan_id)
     if not plan:
+        logger.error(f"Checkout session creation failed: Plan {checkout_data.plan_id} not found")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Plan not found"
         )
     
     if not plan.stripe_price_id:
+        logger.error(f"Checkout session creation failed: Plan {plan.id} ({plan.name}) has no stripe_price_id")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Plan is not configured for Stripe"
         )
+    
+    # Log plan details for debugging
+    logger.info(f"Creating checkout session: user_id={current_user.id}, plan_id={plan.id}, plan_name={plan.name}, plan_amount={plan.amount}, stripe_price_id={plan.stripe_price_id}")
     
     session = await stripe_service.create_checkout_session(
         user=current_user,
@@ -194,6 +201,8 @@ async def create_checkout_session(
         cancel_url=checkout_data.cancel_url,
         trial_days=checkout_data.trial_days,
     )
+    
+    logger.info(f"Checkout session created: session_id={session.get('session_id')}, user_id={current_user.id}, plan_id={plan.id}, plan_name={plan.name}")
     
     return CheckoutSessionResponse(**session)
 

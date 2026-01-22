@@ -8,7 +8,7 @@ import { useAuthStore } from '@/lib/store';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Loading from '@/components/ui/Loading';
-import { queryKeys } from '@/lib/query/queryKeys';
+import { queryKeys } from '@/lib/query/queries';
 
 // Note: Client Components are already dynamic by nature.
 // Route segment config (export const dynamic) only works in Server Components.

@@ -100,8 +100,11 @@ class StripeService:
                 "metadata": {
                     "user_id": str(user.id),
                     "plan_id": str(plan.id),
+                    "plan_name": plan.name,  # Add plan name for debugging
                 }
             }
+            
+            logger.info(f"Creating Stripe checkout session: user_id={user.id}, plan_id={plan.id}, plan_name={plan.name}, plan_amount={plan.amount}, stripe_price_id={plan.stripe_price_id}")
 
             if trial_days:
                 session_params["subscription_data"] = {

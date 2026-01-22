@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getErrorMessage, getErrorDetail } from '@/lib/errors';
+import { logger } from '@/lib/logger';
 import { useMySubscription, useSubscriptionPayments, useCreateCheckoutSession, useCancelSubscription, useSubscriptionPlans, useUpgradePlan } from '@/lib/query/queries';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -141,17 +142,29 @@ function SubscriptionsContent() {
           
           const planIdNum = parseInt(planId, 10);
           
+          // Log plan selection for debugging
+          logger.debug('Processing plan selection', {
+            planId,
+            planIdNum,
+            period,
+            hasSubscription: !!subscription,
+            subscriptionStatus: subscription?.status,
+            subscriptionPlanId: subscription?.plan_id
+          });
+          
           // Check if user already has an active subscription
           const hasActiveSubscription = subscription && (subscription.status === 'active' || subscription.status === 'trial');
           
           if (hasActiveSubscription) {
             // Use upgrade endpoint instead of checkout
+            logger.info(`Upgrading subscription: current_plan_id=${subscription.plan_id}, new_plan_id=${planIdNum}`);
             await upgradePlanMutation.mutateAsync(planIdNum);
             setError('');
             // Redirect to success page
             router.push(`/subscriptions/success?plan=${planId}&period=${period}&upgraded=true`);
           } else {
             // Create new checkout session
+            logger.info(`Creating checkout session: plan_id=${planIdNum}, period=${period}`);
             const response = await createCheckoutMutation.mutateAsync({
               plan_id: planIdNum,
               success_url: `${window.location.origin}/subscriptions/success?plan=${planId}&period=${period}`,

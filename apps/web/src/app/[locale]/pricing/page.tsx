@@ -140,9 +140,21 @@ export default function PricingPage() {
           name: p.name, 
           interval: p.interval, 
           interval_count: p.interval_count,
-          amount: p.amount, 
+          amount: p.amount,
+          amount_dollars: p.amount / 100,
           status: p.status,
           is_popular: p.is_popular
+        }))
+      });
+      
+      // Log plan mapping for debugging
+      logger.info('Plans loaded and mapped', {
+        plans: fetchedPlans.map(p => ({
+          db_id: p.id,
+          name: p.name,
+          amount_cents: p.amount,
+          amount_dollars: p.amount / 100,
+          display_id: String(p.id) // This is what will be used in the URL
         }))
       });
       
