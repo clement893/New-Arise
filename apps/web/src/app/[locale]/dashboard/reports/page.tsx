@@ -104,19 +104,28 @@ function ResultsReportsContent() {
       // Exclude contributor assessments (assessments where user is an evaluator, not the person being evaluated)
       const completedAssessments = apiAssessments.filter(
         (a: ApiAssessment) => {
-          // Exclude contributor assessments
-          // Check if is_contributor_assessment is explicitly true
-          const isContributor = a.is_contributor_assessment === true;
-          // Check if user_being_evaluated exists and has content (not empty object)
-          const hasUserBeingEvaluated = a.user_being_evaluated && 
-            (a.user_being_evaluated.name || a.user_being_evaluated.email);
+          // STRICT FILTER: Exclude contributor assessments
+          // For 360° assessments, if user_being_evaluated exists, it's ALWAYS a contributor assessment
+          // (self-assessments never have user_being_evaluated set)
+          const hasUserBeingEvaluated = a.user_being_evaluated !== undefined && 
+                                       a.user_being_evaluated !== null &&
+                                       (a.user_being_evaluated.name || a.user_being_evaluated.email);
           
-          if (isContributor || hasUserBeingEvaluated) {
+          // Check if is_contributor_assessment is explicitly true
+          const isContributorFlag = a.is_contributor_assessment === true;
+          
+          // For THREE_SIXTY_SELF assessments, if user_being_evaluated exists, it's a contributor assessment
+          const is360Contributor = a.assessment_type === 'THREE_SIXTY_SELF' && hasUserBeingEvaluated;
+          
+          // Exclude if any of these conditions are true
+          if (isContributorFlag || hasUserBeingEvaluated || is360Contributor) {
             console.log('[Reports Page] Excluding contributor assessment:', {
               id: a.id,
               type: a.assessment_type,
               is_contributor_assessment: a.is_contributor_assessment,
-              user_being_evaluated: a.user_being_evaluated
+              user_being_evaluated: a.user_being_evaluated,
+              hasUserBeingEvaluated,
+              is360Contributor
             });
             return false;
           }
@@ -168,10 +177,24 @@ function ResultsReportsContent() {
       // Load detailed results for all completed assessments to generate insights
       // Double-check: exclude any contributor assessments that might have slipped through
       const assessmentsToTransform = sortedAssessments.filter((a: ApiAssessment) => {
-        const isContributor = a.is_contributor_assessment === true;
-        const hasUserBeingEvaluated = a.user_being_evaluated && 
-          (a.user_being_evaluated.name || a.user_being_evaluated.email);
-        return !isContributor && !hasUserBeingEvaluated;
+        const hasUserBeingEvaluated = a.user_being_evaluated !== undefined && 
+                                     a.user_being_evaluated !== null &&
+                                     (a.user_being_evaluated.name || a.user_being_evaluated.email);
+        const isContributorFlag = a.is_contributor_assessment === true;
+        const is360Contributor = a.assessment_type === 'THREE_SIXTY_SELF' && hasUserBeingEvaluated;
+        
+        const shouldExclude = isContributorFlag || hasUserBeingEvaluated || is360Contributor;
+        
+        if (shouldExclude) {
+          console.log('[Reports Page] Double-check: Excluding contributor assessment:', {
+            id: a.id,
+            type: a.assessment_type,
+            is_contributor_assessment: a.is_contributor_assessment,
+            user_being_evaluated: a.user_being_evaluated
+          });
+        }
+        
+        return !shouldExclude;
       });
       
       console.log('[Reports Page] Assessments to transform (after double-check):', assessmentsToTransform.length);
