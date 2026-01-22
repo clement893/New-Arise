@@ -209,6 +209,126 @@ function AssessmentsContent() {
     }
   };
   
+  // Helper function to create default assessments based on plan when API fails
+  const createDefaultAssessmentsFromPlan = (): AssessmentDisplay[] => {
+    const defaultAssessments: AssessmentDisplay[] = [];
+    
+    // Get plan from cache or subscription data
+    let planName = '';
+    let planFeatures: Record<string, boolean> = {};
+    
+    try {
+      // Try to get from subscription data
+      const actualSubscriptionData = subscriptionData?.data?.data || subscriptionData?.data;
+      if (actualSubscriptionData?.plan) {
+        planName = actualSubscriptionData.plan.name?.toUpperCase() || '';
+        if (actualSubscriptionData.plan.features) {
+          try {
+            planFeatures = JSON.parse(actualSubscriptionData.plan.features);
+          } catch (e) {
+            // Ignore
+          }
+        }
+      } else {
+        // Try to get from cache
+        if (typeof window !== 'undefined') {
+          try {
+            const cachedSubscription = localStorage.getItem('subscription_cache');
+            if (cachedSubscription) {
+              const parsed = JSON.parse(cachedSubscription);
+              if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) {
+                const cachedData = parsed.data;
+                if (cachedData?.plan) {
+                  planName = cachedData.plan.name?.toUpperCase() || '';
+                  if (cachedData.plan.features) {
+                    try {
+                      planFeatures = JSON.parse(cachedData.plan.features);
+                    } catch (e) {
+                      // Ignore
+                    }
+                  }
+                }
+              }
+            }
+          } catch (e) {
+            // Ignore
+          }
+        }
+      }
+    } catch (error) {
+      console.error('[Assessments] Error getting plan for default assessments:', error);
+    }
+    
+    console.log('[Assessments] Creating default assessments for plan:', planName, planFeatures);
+    
+    // If no plan found, show all assessments to avoid blocking the user
+    if (!planName) {
+      console.log('[Assessments] No plan found, showing all assessments as default');
+      return Object.entries(ASSESSMENT_CONFIG)
+        .filter(([type]) => type !== '360_evaluator')
+        .map(([type, config]) => {
+          let apiType: AssessmentType;
+          if (type === '360_self') {
+            apiType = 'THREE_SIXTY_SELF';
+          } else {
+            apiType = type.toUpperCase() as AssessmentType;
+          }
+          return {
+            id: type,
+            title: config.title,
+            description: config.description,
+            status: 'available' as const,
+            icon: config.icon,
+            externalLink: config.externalLink,
+            requiresEvaluators: config.requiresEvaluators,
+            assessmentType: apiType,
+          };
+        });
+    }
+    
+    // Create assessments based on plan
+    Object.entries(ASSESSMENT_CONFIG)
+      .filter(([type]) => type !== '360_evaluator')
+      .forEach(([type, config]) => {
+        let apiType: AssessmentType;
+        if (type === '360_self') {
+          apiType = 'THREE_SIXTY_SELF';
+        } else if (type === '360_evaluator') {
+          apiType = 'THREE_SIXTY_EVALUATOR';
+        } else {
+          apiType = type.toUpperCase() as AssessmentType;
+        }
+        
+        // Check if assessment is available for this plan using checkPlanFeatures directly
+        let isAvailable = false;
+        try {
+          isAvailable = checkPlanFeatures(planName, JSON.stringify(planFeatures), apiType);
+        } catch (e) {
+          console.error('[Assessments] Error checking plan features:', e);
+          // If error, show assessment to avoid blocking
+          isAvailable = true;
+        }
+        
+        if (isAvailable) {
+          defaultAssessments.push({
+            id: type,
+            title: config.title,
+            description: config.description,
+            status: 'available',
+            icon: config.icon,
+            externalLink: config.externalLink,
+            requiresEvaluators: config.requiresEvaluators,
+            assessmentType: apiType,
+          });
+        } else {
+          console.log('[Assessments] Assessment not available for plan:', type, planName);
+        }
+      });
+    
+    console.log('[Assessments] Created default assessments:', defaultAssessments.length, defaultAssessments.map(a => a.title));
+    return defaultAssessments;
+  };
+
   // Helper function to check plan features
   const checkPlanFeatures = (planName: string, planFeatures: string | null | undefined, assessmentType: string): boolean => {
     try {
@@ -706,9 +826,16 @@ function AssessmentsContent() {
               console.error('[Assessments] Error loading from cache:', cacheError);
             }
           }
-          // If no cache, set error but don't block - show empty state
-          setError('Your session has expired. Please refresh the page or log in again.');
-          setAssessments([]);
+          // If no cache, create default assessments based on plan
+          console.log('[Assessments] No cache available, creating default assessments based on plan');
+          const defaultAssessments = createDefaultAssessmentsFromPlan();
+          if (defaultAssessments.length > 0) {
+            setAssessments(defaultAssessments);
+            setError('Your session has expired. Please refresh the page or log in again.');
+          } else {
+            setError('Your session has expired. Please refresh the page or log in again.');
+            setAssessments([]);
+          }
           setIsLoading(false);
           return;
         }
