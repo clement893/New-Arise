@@ -22,6 +22,7 @@ import {
 import { getMyAssessments, Assessment as ApiAssessment, AssessmentType, get360Evaluators, EvaluatorStatus, submitAssessment } from '@/lib/api/assessments';
 import InviteAdditionalEvaluatorsModal from '@/components/360/InviteAdditionalEvaluatorsModal';
 import { determineAssessmentStatus } from '@/lib/utils/assessmentStatus';
+import { useMySubscription } from '@/lib/query/queries';
 
 // Mapping of assessment types to display info
 const ASSESSMENT_CONFIG: Record<string, { title: string; description: string; icon: typeof Brain; externalLink?: string }> = {
@@ -51,6 +52,7 @@ const ASSESSMENT_CONFIG: Record<string, { title: string; description: string; ic
 function DashboardContent() {
   const { user } = useAuthStore();
   const router = useRouter();
+  const { data: subscriptionData } = useMySubscription();
   const [isLoading, setIsLoading] = useState(true);
   const [assessments, setAssessments] = useState<ApiAssessment[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -140,9 +142,128 @@ function DashboardContent() {
     );
   }
 
+  // Helper function to normalize plan name (remove price and extra spaces)
+  const normalizePlanName = (planName: string): string => {
+    if (!planName) return '';
+    let normalized = planName.toUpperCase().trim();
+    normalized = normalized.replace(/\s*\$\d+.*$/i, '').trim();
+    normalized = normalized.replace(/\s+/g, ' ').trim();
+    return normalized;
+  };
+
+  // Helper function to check if an assessment is available for the current plan
+  const isAssessmentAvailableForPlan = (assessmentType: AssessmentType): boolean => {
+    try {
+      // Get subscription data from React Query response
+      const actualSubscriptionData = subscriptionData?.data?.data || subscriptionData?.data;
+      
+      // Helper function to get plan from cache
+      const getPlanFromCache = (): { planName: string; planFeatures: string | null } | null => {
+        if (typeof window === 'undefined') return null;
+        try {
+          const cachedSubscription = localStorage.getItem('subscription_cache');
+          if (cachedSubscription) {
+            const parsed = JSON.parse(cachedSubscription);
+            if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) {
+              const cachedData = parsed.data;
+              if (cachedData?.plan) {
+                return {
+                  planName: (cachedData.plan.name?.toUpperCase() || '').replace(/\s*\$\d+.*$/i, '').trim(),
+                  planFeatures: cachedData.plan.features || null
+                };
+              }
+            }
+          }
+        } catch (e) {
+          // Ignore cache errors
+        }
+        return null;
+      };
+
+      // Get plan name and features
+      let planName = '';
+      let planFeatures: string | null = null;
+
+      if (actualSubscriptionData?.plan) {
+        planName = normalizePlanName(actualSubscriptionData.plan.name || '');
+        planFeatures = actualSubscriptionData.plan.features || null;
+      } else {
+        const cachedPlan = getPlanFromCache();
+        if (cachedPlan) {
+          planName = cachedPlan.planName;
+          planFeatures = cachedPlan.planFeatures;
+        }
+      }
+
+      // If no plan found, show all assessments
+      if (!planName) {
+        return true;
+      }
+
+      // Parse plan features
+      let features: Record<string, boolean> = {};
+      const hasFeatures = !!planFeatures;
+      if (planFeatures) {
+        try {
+          features = JSON.parse(planFeatures);
+        } catch (e) {
+          // If parsing fails, fall back to plan-name-based rules
+        }
+      }
+
+      // REVELATION plan: all assessments available
+      if (planName === 'REVELATION') {
+        return true;
+      }
+
+      // SELF EXPLORATION plan: Professional Assessment (TKI) + Wellness Pulse
+      if (planName === 'SELF EXPLORATION') {
+        if (assessmentType === 'TKI' || assessmentType === 'WELLNESS') {
+          // If features are available, check the feature flag; otherwise, allow by default
+          if (hasFeatures) {
+            if (assessmentType === 'TKI' && features.professional_assessment !== undefined) {
+              return features.professional_assessment === true;
+            }
+            if (assessmentType === 'WELLNESS' && features.wellness_pulse !== undefined) {
+              return features.wellness_pulse === true;
+            }
+          }
+          // Fallback: SELF EXPLORATION includes TKI and WELLNESS by default
+          return true;
+        }
+        // MBTI and 360 are not available in SELF EXPLORATION
+        return false;
+      }
+
+      // WELLNESS plan: only Wellness Pulse
+      if (planName === 'WELLNESS') {
+        if (assessmentType === 'WELLNESS') {
+          // If features are available, check the feature flag; otherwise, allow by default
+          if (hasFeatures && features.wellness_pulse !== undefined) {
+            return features.wellness_pulse === true;
+          }
+          // Fallback: WELLNESS plan includes WELLNESS assessment by default
+          return true;
+        }
+        // All other assessments are not available in WELLNESS plan
+        return false;
+      }
+
+      // Default: allow if not explicitly restricted
+      return true;
+    } catch (error) {
+      // If any error occurs, show all assessments to avoid blocking the user
+      return true;
+    }
+  };
+
   // Calculate progress data from real assessments
   const assessmentTypes: AssessmentType[] = ['MBTI', 'TKI', 'THREE_SIXTY_SELF', 'WELLNESS'];
-  const progressItems = assessmentTypes.map(type => {
+  
+  // Filter assessment types based on plan
+  const availableAssessmentTypes = assessmentTypes.filter(type => isAssessmentAvailableForPlan(type));
+  
+  const progressItems = availableAssessmentTypes.map(type => {
     const assessment = assessments.find(a => a.assessment_type === type);
     let percentage = 0;
     let color = 'gray';
@@ -200,9 +321,9 @@ function DashboardContent() {
     };
   });
 
-  const overallProgress = Math.round(
-    progressItems.reduce((sum, item) => sum + item.percentage, 0) / progressItems.length
-  );
+  const overallProgress = progressItems.length > 0
+    ? Math.round(progressItems.reduce((sum, item) => sum + item.percentage, 0) / progressItems.length)
+    : 0;
 
   const progressData = {
     overall: overallProgress,
@@ -222,7 +343,7 @@ function DashboardContent() {
     externalLink?: string;
   };
 
-  const evaluations = assessmentTypes
+  const evaluations = availableAssessmentTypes
     .map(type => {
       const config = ASSESSMENT_CONFIG[type];
       if (!config) {
