@@ -105,29 +105,31 @@ function ResultsReportsContent() {
       const completedAssessments = apiAssessments.filter(
         (a: ApiAssessment) => {
           // STRICT FILTER: Exclude contributor assessments
-          // For 360° assessments, if user_being_evaluated exists, it's ALWAYS a contributor assessment
-          // (self-assessments never have user_being_evaluated set)
-          const hasUserBeingEvaluated = a.user_being_evaluated !== undefined && 
-                                       a.user_being_evaluated !== null &&
-                                       (a.user_being_evaluated.name || a.user_being_evaluated.email);
-          
-          // Check if is_contributor_assessment is explicitly true
-          const isContributorFlag = a.is_contributor_assessment === true;
-          
-          // For THREE_SIXTY_SELF assessments, if user_being_evaluated exists, it's a contributor assessment
-          const is360Contributor = a.assessment_type === 'THREE_SIXTY_SELF' && hasUserBeingEvaluated;
-          
-          // Exclude if any of these conditions are true
-          if (isContributorFlag || hasUserBeingEvaluated || is360Contributor) {
-            console.log('[Reports Page] Excluding contributor assessment:', {
+          // Rule 1: If is_contributor_assessment is explicitly true, exclude it
+          if (a.is_contributor_assessment === true) {
+            console.log('[Reports Page] Excluding contributor assessment (flag):', {
               id: a.id,
               type: a.assessment_type,
-              is_contributor_assessment: a.is_contributor_assessment,
-              user_being_evaluated: a.user_being_evaluated,
-              hasUserBeingEvaluated,
-              is360Contributor
+              is_contributor_assessment: a.is_contributor_assessment
             });
             return false;
+          }
+          
+          // Rule 2: If user_being_evaluated exists (even if empty object), it's a contributor assessment
+          // Self-assessments NEVER have user_being_evaluated set (it's always null/undefined)
+          if (a.user_being_evaluated !== undefined && a.user_being_evaluated !== null) {
+            // Check if it's a non-empty object
+            const hasContent = a.user_being_evaluated.name || a.user_being_evaluated.email;
+            // Even if empty object, if the field exists, it's suspicious - exclude for 360 assessments
+            if (a.assessment_type === 'THREE_SIXTY_SELF' || hasContent) {
+              console.log('[Reports Page] Excluding contributor assessment (user_being_evaluated):', {
+                id: a.id,
+                type: a.assessment_type,
+                user_being_evaluated: a.user_being_evaluated,
+                hasContent
+              });
+              return false;
+            }
           }
           
           const status = (a.status || '').toUpperCase();
@@ -177,24 +179,28 @@ function ResultsReportsContent() {
       // Load detailed results for all completed assessments to generate insights
       // Double-check: exclude any contributor assessments that might have slipped through
       const assessmentsToTransform = sortedAssessments.filter((a: ApiAssessment) => {
-        const hasUserBeingEvaluated = a.user_being_evaluated !== undefined && 
-                                     a.user_being_evaluated !== null &&
-                                     (a.user_being_evaluated.name || a.user_being_evaluated.email);
-        const isContributorFlag = a.is_contributor_assessment === true;
-        const is360Contributor = a.assessment_type === 'THREE_SIXTY_SELF' && hasUserBeingEvaluated;
-        
-        const shouldExclude = isContributorFlag || hasUserBeingEvaluated || is360Contributor;
-        
-        if (shouldExclude) {
-          console.log('[Reports Page] Double-check: Excluding contributor assessment:', {
+        // Same strict filtering logic as above
+        if (a.is_contributor_assessment === true) {
+          console.log('[Reports Page] Double-check: Excluding contributor assessment (flag):', {
             id: a.id,
-            type: a.assessment_type,
-            is_contributor_assessment: a.is_contributor_assessment,
-            user_being_evaluated: a.user_being_evaluated
+            type: a.assessment_type
           });
+          return false;
         }
         
-        return !shouldExclude;
+        if (a.user_being_evaluated !== undefined && a.user_being_evaluated !== null) {
+          const hasContent = a.user_being_evaluated.name || a.user_being_evaluated.email;
+          if (a.assessment_type === 'THREE_SIXTY_SELF' || hasContent) {
+            console.log('[Reports Page] Double-check: Excluding contributor assessment (user_being_evaluated):', {
+              id: a.id,
+              type: a.assessment_type,
+              user_being_evaluated: a.user_being_evaluated
+            });
+            return false;
+          }
+        }
+        
+        return true;
       });
       
       console.log('[Reports Page] Assessments to transform (after double-check):', assessmentsToTransform.length);

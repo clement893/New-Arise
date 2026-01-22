@@ -172,6 +172,7 @@
           "emailNotice": "Veuillez informer vos contributeurs qu'ils ont été sélectionnés pour participer à votre programme pilote de développement du leadership holistique ARISE et qu'on leur demandera de répondre à un court sondage sur votre style de leadership. Ils recevront un courriel de Nukleo Digital (hello@nukleo.digital), ils devraient vérifier leurs pourriels au cas où. Nous apprécions grandement que les contributeurs prennent le temps de répondre au sondage. Cela alimentera non seulement votre croissance et votre développement personnels, mais contribuera également à faire de ce programme de leadership holistique de nouvelle génération un succès.",
           "back": "Retour",
           "refresh": "Actualiser",
+          "addContributor": "Ajouter un contributeur",
           "addContributors": "Ajouter des contributeurs",
           "summary": {
             "total": "Total",

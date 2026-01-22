@@ -691,7 +691,7 @@ function EvaluatorsContent() {
                 style={{ width: 'fit-content' }}
               >
                 <Plus size={16} style={{ marginRight: '4px' }} />
-                {t('addContributors')}
+                {t('addContributor')}
               </Button>
             )}
           </div>
@@ -810,7 +810,7 @@ function EvaluatorsContent() {
                         className="font-semibold flex flex-row items-center gap-2"
                       >
                         <Plus size={20} />
-                        {t('addContributors')}
+                        {t('addContributor')}
                       </Button>
                     )}
                   </div>
