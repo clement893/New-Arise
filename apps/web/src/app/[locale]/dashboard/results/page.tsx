@@ -38,6 +38,14 @@ function ResultsReportsContent() {
       setError(null);
       const apiAssessments = await getMyAssessments();
       
+      // Debug: log assessments to see if user_being_evaluated is present
+      console.log('[Results Page] All assessments:', apiAssessments.map(a => ({
+        id: a.id,
+        type: a.assessment_type,
+        status: a.status,
+        user_being_evaluated: a.user_being_evaluated
+      })));
+      
       // Filter only completed assessments
       const completedAssessments = apiAssessments.filter(
         (a: ApiAssessment) => a.status === 'COMPLETED'

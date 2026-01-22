@@ -196,20 +196,37 @@ async def list_assessments(
     Get list of all assessments for the current user
     Includes both self-assessments and evaluator assessments (where user is a contributor)
     """
+    # First, get all evaluator assessment IDs where current user is the evaluator
+    # This will help us exclude them from self-assessments
+    evaluator_assessment_ids_result = await db.execute(
+        select(Assessment360Evaluator.evaluator_assessment_id)
+        .where(
+            Assessment360Evaluator.evaluator_email == current_user.email,
+            Assessment360Evaluator.evaluator_assessment_id.isnot(None)
+        )
+    )
+    evaluator_assessment_ids = [row[0] for row in evaluator_assessment_ids_result.fetchall() if row[0] is not None]
+
     # Get self-assessments (excluding evaluator assessments)
+    # Evaluator assessments have the same user_id as the person being evaluated, so we exclude them
+    where_clause = (
+        Assessment.user_id == current_user.id,
+        Assessment.assessment_type != AssessmentType.THREE_SIXTY_EVALUATOR
+    )
+    if evaluator_assessment_ids:
+        where_clause = where_clause + (Assessment.id.notin_(evaluator_assessment_ids),)
+    
     result = await db.execute(
         select(Assessment, User)
         .join(User, Assessment.user_id == User.id)
-        .where(
-            Assessment.user_id == current_user.id,
-            Assessment.assessment_type != AssessmentType.THREE_SIXTY_EVALUATOR
-        )
+        .where(*where_clause)
         .order_by(Assessment.created_at.desc())
     )
     results = result.all()
 
     # Get evaluator assessments (where user is a contributor)
-    # First, find all evaluator records where current user is the evaluator
+    # Find all evaluator records where current user is the evaluator
+    from app.core.logging import logger
     evaluator_records_result = await db.execute(
         select(Assessment360Evaluator)
         .where(
@@ -218,6 +235,7 @@ async def list_assessments(
         )
     )
     evaluator_records = evaluator_records_result.scalars().all()
+    logger.info(f"[my-assessments] Found {len(evaluator_records)} evaluator records for user {current_user.email}")
     
     evaluator_results = []
     for evaluator_record in evaluator_records:
@@ -246,6 +264,7 @@ async def list_assessments(
                     evaluated_user = evaluated_user_result.scalar_one_or_none()
                     
                     if evaluated_user:
+                        logger.info(f"[my-assessments] Adding evaluator assessment {evaluator_assessment.id} for evaluated user {evaluated_user.email}")
                         evaluator_results.append((evaluator_record, evaluator_assessment, evaluated_user))
 
     # Format response
@@ -895,8 +914,9 @@ async def get_assessment_results(
         # Check if assessment belongs to the user
         has_access = assessment.user_id == current_user.id
 
-        # If not, check if it's an evaluator assessment and user owns the parent 360° assessment
-        if not has_access and assessment.assessment_type == AssessmentType.THREE_SIXTY_EVALUATOR:
+        # If not, check if it's an evaluator assessment (linked via evaluator_assessment_id)
+        # Note: Evaluator assessments are created with type THREE_SIXTY_SELF, not THREE_SIXTY_EVALUATOR
+        if not has_access:
             # Find the evaluator record that links this assessment
             evaluator_result = await db.execute(
                 select(Assessment360Evaluator)
@@ -1884,6 +1904,27 @@ async def submit_360_evaluator_assessment(
         # Update evaluator status
         evaluator.status = AssessmentStatus.COMPLETED
         evaluator.completed_at = datetime.now(timezone.utc)
+
+        # Create assessment result (same as in submit_assessment endpoint)
+        try:
+            scores_json = json.dumps(scores)
+            await db.execute(
+                text("""
+                    INSERT INTO assessment_results (assessment_id, user_id, scores, generated_at, updated_at)
+                    VALUES (:assessment_id, :user_id, CAST(:scores AS jsonb), NOW(), NOW())
+                    ON CONFLICT (assessment_id) DO UPDATE
+                    SET scores = CAST(:scores AS jsonb), updated_at = NOW()
+                """),
+                {
+                    "assessment_id": evaluator_assessment.id,
+                    "user_id": evaluator_assessment.user_id,
+                    "scores": scores_json
+                }
+            )
+        except Exception as e:
+            logger.error(f"Error creating assessment result for evaluator assessment {evaluator_assessment.id}: {e}", exc_info=True)
+            # Don't fail the whole submission if result creation fails, but log it
+            # The assessment is still marked as completed
 
         await db.commit()
 
