@@ -70,16 +70,6 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
       'stress_management': 'stress_management',
     };
 
-    // Reverse map for looking up backend IDs from frontend IDs
-    const reverseCapabilityMap: Record<string, string> = {
-      'problem_solving_and_decision_making': 'problem_solving',
-      'communication': 'communication',
-      'team_culture': 'team_culture',
-      'leadership_style': 'leadership_style',
-      'change_management': 'change_management',
-      'stress_management': 'stress_management',
-    };
-
     // Count completed evaluators
     const completedCount = evaluatorsList.filter(
       (e) => e.status === 'completed' || e.status === 'COMPLETED'
