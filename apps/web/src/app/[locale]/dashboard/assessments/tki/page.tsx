@@ -64,19 +64,10 @@ export default function TKIAssessmentPage() {
         const id = parseInt(urlAssessmentId, 10);
         if (!isNaN(id)) {
           try {
-            // Assessment ID from URL, load existing answers
+            // Assessment ID from URL, load existing answers but always show intro first
             await loadExistingAnswers(id);
-            // Only hide intro if we successfully loaded (assessment exists)
-            if (assessmentId !== null) {
-              setShowIntro(false);
-            } else {
-              // Assessment doesn't exist, show intro to start new one
-              setShowIntro(true);
-              // Clean up URL parameter
-              const newParams = new URLSearchParams(searchParams.toString());
-              newParams.delete('assessmentId');
-              router.replace(`/dashboard/assessments/tki${newParams.toString() ? '?' + newParams.toString() : ''}`, { scroll: false });
-            }
+            // Always show intro first, user can click "Start Assessment" to continue
+            setShowIntro(true);
           } catch (err) {
             // If assessment not found, show intro
             const error = err as { message?: string; response?: { status?: number } };
@@ -98,15 +89,10 @@ export default function TKIAssessmentPage() {
       
       if (assessmentId) {
         try {
-          // Assessment ID exists in store, load existing answers
+          // Assessment ID exists in store, load existing answers but always show intro first
           await loadExistingAnswers(assessmentId);
-          // Only hide intro if we successfully loaded (assessment still exists)
-          if (assessmentId !== null) {
-            setShowIntro(false);
-          } else {
-            // Assessment was deleted, show intro
-            setShowIntro(true);
-          }
+          // Always show intro first, user can click "Start Assessment" to continue
+          setShowIntro(true);
         } catch (err) {
           // If assessment not found, show intro
           const error = err as { message?: string; response?: { status?: number } };
@@ -128,14 +114,10 @@ export default function TKIAssessmentPage() {
           
           if (tkiAssessment && tkiAssessment.id) {
             try {
-              // Load existing answers and navigate to last question
+              // Load existing answers but always show intro first
               await loadExistingAnswers(tkiAssessment.id);
-              // Only hide intro if we successfully loaded
-              if (assessmentId !== null) {
-                setShowIntro(false);
-              } else {
-                setShowIntro(true);
-              }
+              // Always show intro first, user can click "Start Assessment" to continue
+              setShowIntro(true);
             } catch (err) {
               // If assessment not found, show intro
               const error = err as { message?: string; response?: { status?: number } };
@@ -170,8 +152,28 @@ export default function TKIAssessmentPage() {
   }, [currentQuestion, answers, currentQuestionData]);
 
   const handleStart = async () => {
-    await startAssessment();
-    setShowIntro(false);
+    try {
+      // Check if there's an existing assessment
+      const assessments = await getMyAssessments();
+      const tkiAssessment = assessments.find(
+        a => a.assessment_type === 'TKI' && 
+        (a.status === 'IN_PROGRESS' || a.status === 'in_progress' || a.status === 'NOT_STARTED' || a.status === 'not_started')
+      );
+      
+      if (tkiAssessment && tkiAssessment.id) {
+        // Load existing assessment and go to questions
+        await loadExistingAnswers(tkiAssessment.id);
+        setShowIntro(false);
+      } else {
+        // No existing assessment, create a new one
+        await startAssessment();
+        setShowIntro(false);
+      }
+    } catch (error) {
+      const errorMessage = formatError(error);
+      console.error('[TKI] Failed to start assessment:', errorMessage);
+      alert('Error: Unable to start the assessment. Please try again.');
+    }
   };
 
   const handleSelectAnswer = async (answer: 'A' | 'B') => {
@@ -282,16 +284,17 @@ export default function TKIAssessmentPage() {
 
   if (showIntro) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-arise-teal via-arise-teal-dark to-arise-teal flex items-center justify-center p-4">
-        <MotionDiv variant="slideUp" duration="normal" className="max-w-4xl w-full">
-          <Card className="bg-white p-8">
-            <h1 className="text-3xl font-bold text-arise-teal mb-4 text-center">
+      <div className="min-h-screen bg-arise-teal p-8">
+        <div className="mx-auto max-w-4xl">
+          <MotionDiv
+            variant="slideUp"
+            duration="normal"
+            className="rounded-lg bg-white p-8 shadow-lg"
+          >
+            <h1 className="mb-4 text-3xl font-bold text-gray-900 text-center">
               ARISE Conflict Style Assessment
             </h1>
-            <p className="text-gray-600 mb-6 text-center">
-              Explore your conflict management approach
-            </p>
-
+            
             {/* Introductory Text */}
             <div className="mb-8 text-gray-700 leading-relaxed">
               <p className="mb-4">
@@ -299,56 +302,57 @@ export default function TKIAssessmentPage() {
               </p>
             </div>
 
-            {/* Conflict Management Diagram - Placeholder */}
-            {/* TODO: Add actual diagram image from CONTENT MASTER file */}
-            <div className="mb-8 bg-gray-50 rounded-lg p-6 border-2 border-gray-200">
-              <div className="text-center text-gray-500 italic">
-                [Conflict Management Styles Diagram]
-                <br />
-                <span className="text-xs">Diagram showing Assertiveness vs. Cooperation axes with 5 conflict management styles</span>
-              </div>
-            </div>
-
+            {/* Five Conflict Management Styles */}
             <div className="mb-8">
-              <h2 className="text-xl font-semibold text-arise-teal mb-4">
-                Five Conflict Management Modes
+              <h2 className="mb-4 text-xl font-semibold text-gray-900">
+                Five Conflict Management Styles
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {tkiModes.map((mode) => (
-                  <div key={mode.id} className="p-4 bg-arise-beige rounded-lg">
-                    <div className="text-3xl mb-2">{mode.icon}</div>
-                    <h3 className="font-semibold text-arise-teal mb-1">{mode.title}</h3>
-                    <p className="text-sm text-gray-600">{mode.description}</p>
+                  <div
+                    key={mode.id}
+                    className="flex items-start gap-3 rounded-lg border border-gray-200 p-4"
+                  >
+                    <span className="text-2xl">{mode.icon}</span>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">{mode.title}</h3>
+                      <p className="text-sm text-gray-600">{mode.description}</p>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="bg-arise-teal/10 p-4 rounded-lg mb-6">
-              <h3 className="font-semibold text-arise-teal mb-2">How to complete this section:</h3>
-              <ul className="text-sm text-gray-700 space-y-1">
-                <li>• 30 questions, for each you will be shown 2 statements, you need to select the statement that best describes you</li>
-                <li>• There are no right or wrong answers</li>
+            {/* How to complete section */}
+            <div className="mb-8 rounded-lg bg-primary-50 p-6">
+              <h3 className="mb-3 text-xl font-semibold text-primary-900">
+                How to complete this section
+              </h3>
+              <ul className="space-y-2 text-sm text-primary-800">
+                <li>
+                  • 30 questions, for each you will be shown 2 statements, you need to select the statement that best describes you
+                </li>
+                <li>
+                  • There are no right or wrong answers
+                </li>
               </ul>
             </div>
 
-            <div className="flex justify-center">
-              <Button
-                onClick={handleStart}
-                disabled={isLoading}
-                className="bg-arise-gold hover:bg-arise-gold-dark text-white px-8 py-3"
-              >
-                {isLoading ? 'Starting...' : 'Start Assessment'}
-              </Button>
-            </div>
+            <Button
+              onClick={handleStart}
+              disabled={isLoading}
+              className="w-full bg-arise-gold hover:bg-arise-gold/90 text-white"
+            >
+              {isLoading ? 'Starting...' : 'Start Assessment'}
+            </Button>
 
             {error && (
-              <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm text-center">
+              <p className="mt-4 text-center text-sm text-red-600">
                 {typeof error === 'string' ? error : formatError(error)}
-              </div>
+              </p>
             )}
-          </Card>
-        </MotionDiv>
+          </MotionDiv>
+        </div>
       </div>
     );
   }
