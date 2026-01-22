@@ -159,12 +159,9 @@ function WellnessAssessmentContent() {
             try {
               await loadExistingAnswers(wellnessAssessment.id);
               
-              // After loading, check if we should show intro or questions
-              const { currentStep: updatedStep } = useWellnessStore.getState();
-              if (updatedStep === 'questions') {
-                // We have an in-progress assessment, skip intro and show questions
-                setShowIntro(false);
-              }
+              // Always show intro first, even if assessment is in progress
+              // User can click "Start Assessment" or "Continue Assessment" to proceed
+              setShowIntro(true);
             } catch (loadErr) {
               const loadErrMessage = formatError(loadErr);
               console.error('[Wellness] Failed to load existing answers:', loadErrMessage);
@@ -364,22 +361,43 @@ function WellnessAssessmentContent() {
                         // Reset any stale completion state before starting
                         useWellnessStore.setState({ isCompleted: false });
                         setShowCompletion(false);
-                        await startAssessment();
-                        // Verify assessmentId was set
-                        const { assessmentId: newAssessmentId, isCompleted: newIsCompleted } = useWellnessStore.getState();
-                        if (!newAssessmentId) {
-                          console.error('[Wellness] startAssessment did not set assessmentId');
-                          alert('Error: Unable to start the assessment. Please try again.');
-                          return;
+                        
+                        // Check if there's an existing assessment
+                        const assessments = await getMyAssessments();
+                        const wellnessAssessment = assessments.find(
+                          a => a.assessment_type === 'WELLNESS'
+                        );
+                        
+                        if (wellnessAssessment && wellnessAssessment.id) {
+                          // Load existing assessment
+                          const status = determineAssessmentStatus(wellnessAssessment, 'WELLNESS');
+                          if (status === 'completed') {
+                            // Assessment is completed, redirect to results
+                            router.push(`/dashboard/assessments/results?id=${wellnessAssessment.id}`);
+                            return;
+                          }
+                          // Load existing answers and go to questions
+                          await loadExistingAnswers(wellnessAssessment.id);
+                          setShowIntro(false);
+                        } else {
+                          // No existing assessment, create a new one
+                          await startAssessment();
+                          // Verify assessmentId was set
+                          const { assessmentId: newAssessmentId, isCompleted: newIsCompleted } = useWellnessStore.getState();
+                          if (!newAssessmentId) {
+                            console.error('[Wellness] startAssessment did not set assessmentId');
+                            alert('Error: Unable to start the assessment. Please try again.');
+                            return;
+                          }
+                          // Double-check that isCompleted is false after starting
+                          if (newIsCompleted) {
+                            console.warn('[Wellness] isCompleted is true after startAssessment - resetting');
+                            useWellnessStore.setState({ isCompleted: false });
+                          }
+                          console.log(`[Wellness] Assessment started with ID: ${newAssessmentId}`);
+                          setShowIntro(false);
                         }
-                        // Double-check that isCompleted is false after starting
-                        if (newIsCompleted) {
-                          console.warn('[Wellness] isCompleted is true after startAssessment - resetting');
-                          useWellnessStore.setState({ isCompleted: false });
-                        }
-                        console.log(`[Wellness] Assessment started with ID: ${newAssessmentId}`);
                         setShowCompletion(false);
-                        setShowIntro(false);
                       } catch (error) {
                         const errorMessage = formatError(error);
                         console.error('[Wellness] Failed to start assessment:', errorMessage);
