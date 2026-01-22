@@ -391,7 +391,9 @@ function AssessmentsContent() {
         // Check if assessment is available for this plan using checkPlanFeatures directly
         let isAvailable = false;
         try {
-          isAvailable = checkPlanFeatures(planName, JSON.stringify(planFeatures), apiType);
+          // Pass null if planFeatures is empty (no features available), otherwise stringify
+          const planFeaturesString = Object.keys(planFeatures).length > 0 ? JSON.stringify(planFeatures) : null;
+          isAvailable = checkPlanFeatures(planName, planFeaturesString, apiType);
         } catch (e) {
           console.error('[Assessments] Error checking plan features:', e);
           // If error, show assessment to avoid blocking
@@ -446,13 +448,13 @@ function AssessmentsContent() {
 
       // Parse plan features
       let features: Record<string, boolean> = {};
+      const hasFeatures = !!planFeatures;
       if (planFeatures) {
         try {
           features = JSON.parse(planFeatures);
         } catch (e) {
           console.error('[Assessments] Failed to parse plan features:', e);
-          // If parsing fails, show all assessments to avoid blocking the user
-          return true;
+          // If parsing fails, fall back to plan-name-based rules
         }
       }
 
@@ -467,15 +469,29 @@ function AssessmentsContent() {
         console.warn('[Assessments] SELF EXPLORATION plan - checking features');
         // TKI = Professional Assessment (ARISE Conflict Style)
         if (assessmentType === 'TKI' || assessmentType === 'tki') {
-          const available = features.professional_assessment === true;
-          console.warn('[Assessments] TKI available:', available, 'feature:', features.professional_assessment);
-          return available;
+          // If features are available, check the feature flag; otherwise, allow by default for SELF EXPLORATION
+          if (hasFeatures && features.professional_assessment !== undefined) {
+            const available = features.professional_assessment === true;
+            console.warn('[Assessments] TKI available (from features):', available, 'feature:', features.professional_assessment);
+            return available;
+          } else {
+            // Fallback: SELF EXPLORATION includes TKI by default
+            console.warn('[Assessments] TKI available (plan-based fallback for SELF EXPLORATION)');
+            return true;
+          }
         }
         // WELLNESS = Wellness Pulse
         if (assessmentType === 'WELLNESS' || assessmentType === 'wellness') {
-          const available = features.wellness_pulse === true;
-          console.warn('[Assessments] WELLNESS available:', available, 'feature:', features.wellness_pulse);
-          return available;
+          // If features are available, check the feature flag; otherwise, allow by default for SELF EXPLORATION
+          if (hasFeatures && features.wellness_pulse !== undefined) {
+            const available = features.wellness_pulse === true;
+            console.warn('[Assessments] WELLNESS available (from features):', available, 'feature:', features.wellness_pulse);
+            return available;
+          } else {
+            // Fallback: SELF EXPLORATION includes WELLNESS by default
+            console.warn('[Assessments] WELLNESS available (plan-based fallback for SELF EXPLORATION)');
+            return true;
+          }
         }
         // MBTI and 360 are not available in SELF EXPLORATION
         if (assessmentType === 'MBTI' || assessmentType === 'mbti') {
@@ -496,9 +512,16 @@ function AssessmentsContent() {
         console.warn('[Assessments] WELLNESS plan - checking features');
         // Only WELLNESS is available
         if (assessmentType === 'WELLNESS' || assessmentType === 'wellness') {
-          const available = features.wellness_pulse === true;
-          console.warn('[Assessments] WELLNESS available:', available, 'feature:', features.wellness_pulse);
-          return available;
+          // If features are available, check the feature flag; otherwise, allow by default for WELLNESS plan
+          if (hasFeatures && features.wellness_pulse !== undefined) {
+            const available = features.wellness_pulse === true;
+            console.warn('[Assessments] WELLNESS available (from features):', available, 'feature:', features.wellness_pulse);
+            return available;
+          } else {
+            // Fallback: WELLNESS plan includes WELLNESS assessment by default
+            console.warn('[Assessments] WELLNESS available (plan-based fallback for WELLNESS plan)');
+            return true;
+          }
         }
         // All other assessments are not available in WELLNESS plan
         console.warn('[Assessments] Assessment not available in WELLNESS plan:', assessmentType);
