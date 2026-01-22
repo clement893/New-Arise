@@ -65,7 +65,7 @@ const WellnessBarChart: React.FC<WellnessBarChartProps> = ({ scores, className =
             angle={-45}
             textAnchor="end"
             height={100}
-            tick={{ fill: '#6b7280', fontSize: 12 }}
+            tick={{ fill: '#6b7280', fontSize: 16 }}
           />
           <YAxis
             domain={[0, 25]}

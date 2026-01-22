@@ -76,7 +76,7 @@ const WellnessRadarChart: React.FC<WellnessRadarChartProps> = ({
         y={y} 
         textAnchor={textAnchor} 
         fill="#4b5563"
-        fontSize={isMobile ? 8 : 10}
+        fontSize={isMobile ? 12 : 14}
         fontWeight={500}
       >
         {lines.map((line, index) => (

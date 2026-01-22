@@ -136,7 +136,8 @@
           "sendInvitations": "Envoyer les invitations et commencer",
           "processing": "Traitement...",
           "sending": "Envoi...",
-          "addContributor": "Ajouter un contributeur"
+          "addContributor": "Ajouter un contributeur",
+          "relationshipWithYou": "Relation avec vous"
         },
         "page": {
           "title": "Mes",
@@ -181,10 +182,10 @@
             "pending": "En attente"
           },
           "roles": {
-            "PEER": "Pair / Collègue",
-            "MANAGER": "Manager / Supérieur",
-            "DIRECT_REPORT": "Collaborateur direct / Collaborateur",
-            "STAKEHOLDER": "Partie prenante / Client"
+            "PEER": "Pair",
+            "MANAGER": "Manager",
+            "DIRECT_REPORT": "Collaborateur direct",
+            "STAKEHOLDER": "Partie prenante"
           },
           "time": {
             "lessThanMinute": "Il y a moins d'une minute",
@@ -234,10 +235,10 @@
         }
       },
       "roles": {
-        "peer": "Pair / Collègue",
-        "manager": "Manager / Supérieur",
-        "directReport": "Subordonné / Collaborateur",
-        "stakeholder": "Partie prenante / Client"
+        "peer": "Pair",
+        "manager": "Manager",
+        "directReport": "Collaborateur direct",
+        "stakeholder": "Partie prenante"
       },
       "errors": {
         "displayError": "Erreur d'affichage. Veuillez actualiser la page.",

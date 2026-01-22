@@ -90,8 +90,14 @@ function ResultsReportsContent() {
       const apiAssessments = await getMyAssessments();
       
       // Filter only completed assessments (handle both 'COMPLETED' and 'completed' formats, and also check for results)
+      // Exclude contributor assessments (assessments where user is an evaluator, not the person being evaluated)
       const completedAssessments = apiAssessments.filter(
         (a: ApiAssessment) => {
+          // Exclude contributor assessments
+          if (a.is_contributor_assessment === true || a.user_being_evaluated) {
+            return false;
+          }
+          
           const status = (a.status || '').toUpperCase();
           // Include if status is completed (in any case), or if it has a score_summary (finalized with results)
           // or if it has completed_at set (indicating it was finalized)

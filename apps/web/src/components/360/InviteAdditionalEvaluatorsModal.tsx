@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { Card } from '@/components/ui';
@@ -22,13 +23,6 @@ interface InviteAdditionalEvaluatorsModalProps {
   onSuccess?: () => void;
 }
 
-const ROLE_LABELS: Record<EvaluatorRole, string> = {
-  PEER: 'Pair / Collègue',
-  MANAGER: 'Manager / Supérieur',
-  DIRECT_REPORT: 'Rapport direct / Collaborateur',
-  STAKEHOLDER: 'Partie prenante / Client',
-};
-
 const ROLE_OPTIONS: EvaluatorRole[] = ['PEER', 'MANAGER', 'DIRECT_REPORT', 'STAKEHOLDER'];
 
 export default function InviteAdditionalEvaluatorsModal({
@@ -37,6 +31,15 @@ export default function InviteAdditionalEvaluatorsModal({
   assessmentId,
   onSuccess,
 }: InviteAdditionalEvaluatorsModalProps) {
+  const t = useTranslations('dashboard.assessments.evaluators');
+  
+  const ROLE_LABELS: Record<EvaluatorRole, string> = {
+    PEER: t('page.roles.PEER'),
+    MANAGER: t('page.roles.MANAGER'),
+    DIRECT_REPORT: t('page.roles.DIRECT_REPORT'),
+    STAKEHOLDER: t('page.roles.STAKEHOLDER'),
+  };
+  
   const [evaluators, setEvaluators] = useState<EvaluatorForm[]>([
     { name: '', email: '', role: 'PEER' },
   ]);

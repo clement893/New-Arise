@@ -202,7 +202,8 @@
           "sendInvitations": "Send invitations and start",
           "processing": "Processing...",
           "sending": "Sending...",
-          "addContributor": "Add a contributor"
+          "addContributor": "Add a contributor",
+          "relationshipWithYou": "Relationship with you"
         },
         "page": {
           "title": "My",
@@ -247,10 +248,10 @@
             "pending": "Pending"
           },
           "roles": {
-            "PEER": "Peer / Colleague",
-            "MANAGER": "Manager / Superior",
-            "DIRECT_REPORT": "Direct Report / Collaborator",
-            "STAKEHOLDER": "Stakeholder / Client"
+            "PEER": "Peer",
+            "MANAGER": "Manager",
+            "DIRECT_REPORT": "Direct Report",
+            "STAKEHOLDER": "Stakeholder"
           },
           "time": {
             "lessThanMinute": "Less than a minute ago",
@@ -300,10 +301,10 @@
         }
       },
       "roles": {
-        "peer": "Peer / Colleague",
-        "manager": "Manager / Superior",
-        "directReport": "Direct Report / Collaborator",
-        "stakeholder": "Stakeholder / Client"
+        "peer": "Peer",
+        "manager": "Manager",
+        "directReport": "Direct Report",
+        "stakeholder": "Stakeholder"
       },
       "errors": {
         "displayError": "Display error. Please refresh the page.",

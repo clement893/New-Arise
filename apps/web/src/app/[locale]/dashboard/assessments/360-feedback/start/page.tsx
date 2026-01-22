@@ -21,19 +21,19 @@ interface EvaluatorForm {
   role: EvaluatorRole;
 }
 
-const ROLE_LABELS: Record<EvaluatorRole, string> = {
-  PEER: 'Pair / Collègue',
-  MANAGER: 'Manager / Supérieur',
-  DIRECT_REPORT: 'Rapport direct / Collaborateur',
-  STAKEHOLDER: 'Partie prenante / Client',
-};
-
 export default function Start360FeedbackPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const assessmentId = searchParams.get('assessmentId');
   const t = useTranslations('dashboard.assessments.evaluators');
   const tCommon = useTranslations('common');
+  
+  const ROLE_LABELS: Record<EvaluatorRole, string> = {
+    PEER: t('page.roles.PEER'),
+    MANAGER: t('page.roles.MANAGER'),
+    DIRECT_REPORT: t('page.roles.DIRECT_REPORT'),
+    STAKEHOLDER: t('page.roles.STAKEHOLDER'),
+  };
   
   const [evaluators, setEvaluators] = useState<EvaluatorForm[]>([
     { name: '', email: '', role: 'PEER' },
@@ -149,19 +149,19 @@ export default function Start360FeedbackPage() {
     for (let i = 0; i < evaluators.length; i++) {
       const evaluator = evaluators[i];
       if (!evaluator) {
-        setError(`Contributor ${i + 1} is invalid`);
+        setError(`Contributor is invalid`);
         return false;
       }
       if (!evaluator.name.trim()) {
-        setError(`Contributor ${i + 1} name is required`);
+        setError(`Contributor name is required`);
         return false;
       }
       if (!evaluator.email.trim()) {
-        setError(`Contributor ${i + 1} email is required`);
+        setError(`Contributor email is required`);
         return false;
       }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(evaluator.email)) {
-        setError(`Contributor ${i + 1} email is not valid`);
+        setError(`Contributor email is not valid`);
         return false;
       }
     }
@@ -494,7 +494,7 @@ export default function Start360FeedbackPage() {
                           {index + 1}
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 text-left">
-                          Contributor {index + 1}
+                          Contributor
                         </h3>
                       </div>
                       {evaluators.length > 1 && (
@@ -554,7 +554,7 @@ export default function Start360FeedbackPage() {
                         htmlFor={`role-${index}`}
                         className="mb-2 block text-sm font-medium text-gray-700"
                       >
-                        Relation avec vous *
+                        {t('startPage.relationshipWithYou')} *
                       </label>
                       <select
                         id={`role-${index}`}
