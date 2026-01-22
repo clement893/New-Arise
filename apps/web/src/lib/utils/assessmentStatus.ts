@@ -18,7 +18,7 @@ export function determineAssessmentStatus(
     answer_count?: number;
     total_questions?: number;
   } | undefined,
-  assessmentType?: 'MBTI' | 'TKI' | 'WELLNESS' | 'THREE_SIXTY_SELF'
+  assessmentType?: 'MBTI' | 'TKI' | 'WELLNESS' | 'THREE_SIXTY_SELF' | 'THREE_SIXTY_EVALUATOR'
 ): 'completed' | 'in-progress' | 'available' {
   if (!apiAssessment) {
     return 'available';
