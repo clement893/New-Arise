@@ -88,7 +88,7 @@ export default function InviteAdditionalEvaluatorsModal({
     console.log('🔍 Validating form with evaluators:', evaluators);
     
     if (!evaluators || evaluators.length === 0) {
-      const errorMsg = 'Au moins un évaluateur est requis';
+      const errorMsg = t('modal.errors.atLeastOneRequired');
       console.error('❌ Validation failed:', errorMsg);
       setError(errorMsg);
       return false;
@@ -97,25 +97,25 @@ export default function InviteAdditionalEvaluatorsModal({
     for (let i = 0; i < evaluators.length; i++) {
       const evaluator = evaluators[i];
       if (!evaluator) {
-        const errorMsg = `L'évaluateur ${i + 1} est invalide`;
+        const errorMsg = t('modal.errors.invalidEvaluator', { number: i + 1 });
         console.error('❌ Validation failed:', errorMsg);
         setError(errorMsg);
         return false;
       }
       if (!evaluator.name || !evaluator.name.trim()) {
-        const errorMsg = `Le nom de l'évaluateur ${i + 1} est requis`;
+        const errorMsg = t('modal.errors.nameRequired', { number: i + 1 });
         console.error('❌ Validation failed:', errorMsg);
         setError(errorMsg);
         return false;
       }
       if (!evaluator.email || !evaluator.email.trim()) {
-        const errorMsg = `L'email de l'évaluateur ${i + 1} est requis`;
+        const errorMsg = t('modal.errors.emailRequired', { number: i + 1 });
         console.error('❌ Validation failed:', errorMsg);
         setError(errorMsg);
         return false;
       }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(evaluator.email.trim())) {
-        const errorMsg = `L'email de l'évaluateur ${i + 1} n'est pas valide`;
+        const errorMsg = t('modal.errors.emailInvalid', { number: i + 1 });
         console.error('❌ Validation failed:', errorMsg, evaluator.email);
         setError(errorMsg);
         return false;
@@ -126,7 +126,7 @@ export default function InviteAdditionalEvaluatorsModal({
     const emails = evaluators.filter((e): e is EvaluatorForm => e !== undefined).map((e) => e.email.toLowerCase().trim());
     const uniqueEmails = new Set(emails);
     if (uniqueEmails.size !== emails.length) {
-      const errorMsg = 'Les emails des évaluateurs doivent être uniques';
+      const errorMsg = t('modal.errors.duplicateEmails');
       console.error('❌ Validation failed:', errorMsg, { emails, uniqueEmails: Array.from(uniqueEmails) });
       setError(errorMsg);
       return false;
@@ -153,7 +153,7 @@ export default function InviteAdditionalEvaluatorsModal({
     // Validate assessmentId
     if (!assessmentId || assessmentId <= 0) {
       console.error('❌ Invalid assessmentId:', assessmentId);
-      setError('ID d\'assessment invalide. Veuillez rafraîchir la page.');
+      setError(t('modal.errors.invalidAssessmentId'));
       return;
     }
 
@@ -191,7 +191,7 @@ export default function InviteAdditionalEvaluatorsModal({
     } catch (err: unknown) {
       setIsSubmitting(false);
       // Extract error message safely
-      let errorMessage = 'Une erreur est survenue lors de l\'invitation des évaluateurs';
+      let errorMessage = t('modal.errors.inviteFailed');
       
       if (err && typeof err === 'object') {
         const errorObj = err as Record<string, unknown>;
@@ -234,7 +234,7 @@ export default function InviteAdditionalEvaluatorsModal({
         <div className="p-6">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-2xl font-bold text-gray-900">
-              Ajouter des évaluateurs
+              {t('modal.title')}
             </h2>
             <button
               onClick={handleClose}
@@ -262,17 +262,17 @@ export default function InviteAdditionalEvaluatorsModal({
                 </svg>
               </div>
               <h3 className="mb-2 text-lg font-semibold text-gray-900">
-                Invitations envoyées !
+                {t('modal.successTitle')}
               </h3>
               <p className="text-gray-600">
-                Les évaluateurs ont été invités avec succès.
+                {t('modal.successMessage')}
               </p>
             </div>
           ) : (
             <form onSubmit={handleSubmit}>
               <div className="mb-6">
                 <p className="text-gray-600">
-                  Invitez des collègues à fournir un feedback sur votre leadership.
+                  {t('modal.description')}
                 </p>
               </div>
 
@@ -290,7 +290,7 @@ export default function InviteAdditionalEvaluatorsModal({
                   >
                     <div className="mb-3 flex items-center justify-between">
                       <span className="text-sm font-medium text-gray-700">
-                        Évaluateur {index + 1}
+                        {t('modal.evaluatorLabel')}
                       </span>
                       {evaluators.length > 1 && (
                         <button
@@ -306,11 +306,11 @@ export default function InviteAdditionalEvaluatorsModal({
                     <div className="grid gap-4 md:grid-cols-3">
                       <div>
                         <label className="mb-1 block text-xs font-medium text-gray-700">
-                          Nom
+                          {t('modal.name')}
                         </label>
                         <Input
                           type="text"
-                          placeholder="Jean Dupont"
+                          placeholder={t('modal.namePlaceholder')}
                           value={evaluator.name}
                           onChange={(e) =>
                             updateEvaluator(index, 'name', e.target.value)
@@ -321,11 +321,11 @@ export default function InviteAdditionalEvaluatorsModal({
 
                       <div>
                         <label className="mb-1 block text-xs font-medium text-gray-700">
-                          Email
+                          {t('modal.email')}
                         </label>
                         <Input
                           type="email"
-                          placeholder="jean@example.com"
+                          placeholder={t('modal.emailPlaceholder')}
                           value={evaluator.email}
                           onChange={(e) =>
                             updateEvaluator(index, 'email', e.target.value)
@@ -336,7 +336,7 @@ export default function InviteAdditionalEvaluatorsModal({
 
                       <div>
                         <label className="mb-1 block text-xs font-medium text-gray-700">
-                          Relation
+                          {t('modal.relation')}
                         </label>
                         <select
                           className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-arise-deep-teal focus:outline-none focus:ring-1 focus:ring-arise-deep-teal"
@@ -365,7 +365,7 @@ export default function InviteAdditionalEvaluatorsModal({
                   className="w-full flex flex-row items-center gap-2"
                 >
                   <Plus className="h-4 w-4" />
-                  Ajouter un évaluateur
+                  {t('modal.addEvaluator')}
                 </Button>
               </div>
 
@@ -377,7 +377,7 @@ export default function InviteAdditionalEvaluatorsModal({
                   onClick={handleClose}
                   disabled={isSubmitting}
                 >
-                  Annuler
+                  {t('modal.cancel')}
                 </Button>
                 <Button
                   type="submit"
@@ -385,7 +385,7 @@ export default function InviteAdditionalEvaluatorsModal({
                   className="flex-1"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 'Envoi en cours...' : 'Envoyer les invitations'}
+                  {isSubmitting ? t('modal.sending') : t('modal.sendInvitations')}
                 </Button>
               </div>
             </form>

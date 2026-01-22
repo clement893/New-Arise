@@ -139,6 +139,32 @@
           "addContributor": "Ajouter un contributeur",
           "relationshipWithYou": "Relation avec vous"
         },
+        "modal": {
+          "title": "Ajouter des évaluateurs",
+          "description": "Invitez des collègues à fournir un feedback sur votre leadership.",
+          "evaluatorLabel": "Évaluateur",
+          "name": "Nom",
+          "namePlaceholder": "Jean Dupont",
+          "email": "Email",
+          "emailPlaceholder": "jean@example.com",
+          "relation": "Relation",
+          "addEvaluator": "Ajouter un évaluateur",
+          "cancel": "Annuler",
+          "sending": "Envoi en cours...",
+          "sendInvitations": "Envoyer les invitations",
+          "successTitle": "Invitations envoyées !",
+          "successMessage": "Les évaluateurs ont été invités avec succès.",
+          "errors": {
+            "atLeastOneRequired": "Au moins un évaluateur est requis",
+            "invalidEvaluator": "L'évaluateur {number} est invalide",
+            "nameRequired": "Le nom de l'évaluateur {number} est requis",
+            "emailRequired": "L'email de l'évaluateur {number} est requis",
+            "emailInvalid": "L'email de l'évaluateur {number} n'est pas valide",
+            "duplicateEmails": "Les emails des évaluateurs doivent être uniques",
+            "invalidAssessmentId": "ID d'assessment invalide. Veuillez rafraîchir la page.",
+            "inviteFailed": "Une erreur est survenue lors de l'invitation des évaluateurs"
+          }
+        },
         "page": {
           "title": "Mes",
           "titleHighlight": "Contributeurs",

@@ -205,6 +205,32 @@
           "addContributor": "Add a contributor",
           "relationshipWithYou": "Relationship with you"
         },
+        "modal": {
+          "title": "Add Evaluators",
+          "description": "Invite colleagues to provide feedback on your leadership.",
+          "evaluatorLabel": "Contributor",
+          "name": "Name",
+          "namePlaceholder": "John Doe",
+          "email": "Email",
+          "emailPlaceholder": "john@example.com",
+          "relation": "Relation",
+          "addEvaluator": "Add an evaluator",
+          "cancel": "Cancel",
+          "sending": "Sending...",
+          "sendInvitations": "Send invitations",
+          "successTitle": "Invitations sent!",
+          "successMessage": "Evaluators have been successfully invited.",
+          "errors": {
+            "atLeastOneRequired": "At least one evaluator is required",
+            "invalidEvaluator": "Evaluator {number} is invalid",
+            "nameRequired": "Evaluator {number} name is required",
+            "emailRequired": "Evaluator {number} email is required",
+            "emailInvalid": "Evaluator {number} email is not valid",
+            "duplicateEmails": "Evaluator emails must be unique",
+            "invalidAssessmentId": "Invalid assessment ID. Please refresh the page.",
+            "inviteFailed": "An error occurred while inviting evaluators"
+          }
+        },
         "page": {
           "title": "My",
           "titleHighlight": "Contributors",

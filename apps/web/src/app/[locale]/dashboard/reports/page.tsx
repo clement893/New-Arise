@@ -89,12 +89,35 @@ function ResultsReportsContent() {
       setError(null);
       const apiAssessments = await getMyAssessments();
       
+      // Debug: log all assessments to see their structure
+      console.log('[Reports Page] All assessments:', apiAssessments.map(a => ({
+        id: a.id,
+        type: a.assessment_type,
+        status: a.status,
+        is_contributor_assessment: a.is_contributor_assessment,
+        user_being_evaluated: a.user_being_evaluated,
+        has_user_being_evaluated: !!a.user_being_evaluated,
+        user_being_evaluated_keys: a.user_being_evaluated ? Object.keys(a.user_being_evaluated) : []
+      })));
+      
       // Filter only completed assessments (handle both 'COMPLETED' and 'completed' formats, and also check for results)
       // Exclude contributor assessments (assessments where user is an evaluator, not the person being evaluated)
       const completedAssessments = apiAssessments.filter(
         (a: ApiAssessment) => {
           // Exclude contributor assessments
-          if (a.is_contributor_assessment === true || a.user_being_evaluated) {
+          // Check if is_contributor_assessment is explicitly true
+          const isContributor = a.is_contributor_assessment === true;
+          // Check if user_being_evaluated exists and has content (not empty object)
+          const hasUserBeingEvaluated = a.user_being_evaluated && 
+            (a.user_being_evaluated.name || a.user_being_evaluated.email);
+          
+          if (isContributor || hasUserBeingEvaluated) {
+            console.log('[Reports Page] Excluding contributor assessment:', {
+              id: a.id,
+              type: a.assessment_type,
+              is_contributor_assessment: a.is_contributor_assessment,
+              user_being_evaluated: a.user_being_evaluated
+            });
             return false;
           }
           
@@ -104,6 +127,8 @@ function ResultsReportsContent() {
           return status === 'COMPLETED' || !!a.score_summary || !!a.completed_at;
         }
       );
+      
+      console.log('[Reports Page] Filtered assessments (after excluding contributors):', completedAssessments.length, completedAssessments.map(a => ({ id: a.id, type: a.assessment_type })));
 
       // Sort by completed_at (most recent first), then by created_at, then by id as fallback
       const sortedAssessments = [...completedAssessments].sort((a, b) => {
@@ -141,8 +166,18 @@ function ResultsReportsContent() {
       }
 
       // Load detailed results for all completed assessments to generate insights
+      // Double-check: exclude any contributor assessments that might have slipped through
+      const assessmentsToTransform = sortedAssessments.filter((a: ApiAssessment) => {
+        const isContributor = a.is_contributor_assessment === true;
+        const hasUserBeingEvaluated = a.user_being_evaluated && 
+          (a.user_being_evaluated.name || a.user_being_evaluated.email);
+        return !isContributor && !hasUserBeingEvaluated;
+      });
+      
+      console.log('[Reports Page] Assessments to transform (after double-check):', assessmentsToTransform.length);
+      
       const transformedAssessments: AssessmentDisplay[] = await Promise.all(
-        sortedAssessments.map(async (assessment: ApiAssessment) => {
+        assessmentsToTransform.map(async (assessment: ApiAssessment) => {
           const completedDate = assessment.completed_at 
             ? new Date(assessment.completed_at).toLocaleDateString(locale)
             : 'N/A';
