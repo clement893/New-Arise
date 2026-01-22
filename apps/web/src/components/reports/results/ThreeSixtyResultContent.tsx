@@ -166,29 +166,6 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
     return 'text-gray-600';
   };
 
-  const getInsight = (capability: CapabilityScore) => {
-    const capInfo = feedback360Capabilities.find((c) => c.id === capability.capability);
-    const capName = capInfo?.title || capability.capability;
-
-    if (!transformedResults.has_evaluator_responses) {
-      if (capability.self_score >= 4) {
-        return t('insights.selfOnly.high', { capability: capName });
-      } else if (capability.self_score <= 2.5) {
-        return t('insights.selfOnly.low', { capability: capName });
-      } else {
-        return t('insights.selfOnly.moderate', { capability: capName });
-      }
-    }
-
-    if (capability.gap > 0.5) {
-      return t('insights.withContributors.selfHigher', { capability: capName });
-    } else if (capability.gap < -0.5) {
-      return t('insights.withContributors.othersHigher', { capability: capName });
-    } else {
-      return t('insights.withContributors.aligned', { capability: capName });
-    }
-  };
-
   return (
     <div className="space-y-6">
       {/* Header Info */}
