@@ -8,7 +8,7 @@ import { apiClient } from '@/lib/api';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-export type AssessmentType = 'WELLNESS' | 'TKI' | 'THREE_SIXTY_SELF' | 'MBTI';
+export type AssessmentType = 'WELLNESS' | 'TKI' | 'THREE_SIXTY_SELF' | 'THREE_SIXTY_EVALUATOR' | 'MBTI';
 // Backend returns lowercase with underscores: "completed", "in_progress", "not_started"
 export type AssessmentStatus = 'not_started' | 'in_progress' | 'completed' | 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
 
@@ -22,6 +22,7 @@ function convertAssessmentTypeForBackend(type: AssessmentType): string {
     'TKI': 'tki',
     'WELLNESS': 'wellness',
     'THREE_SIXTY_SELF': '360_self',
+    'THREE_SIXTY_EVALUATOR': '360_evaluator',
   };
   return mapping[type] || type.toLowerCase();
 }
@@ -265,6 +266,8 @@ function convertAssessmentTypeFromBackend(backendType: string): AssessmentType {
     'tki': 'TKI',
     'wellness': 'WELLNESS',
     '360_self': 'THREE_SIXTY_SELF',
+    '360_evaluator': 'THREE_SIXTY_EVALUATOR',
+    'three_sixty_evaluator': 'THREE_SIXTY_EVALUATOR',
   };
   return mapping[backendType.toLowerCase()] || backendType.toUpperCase() as AssessmentType;
 }

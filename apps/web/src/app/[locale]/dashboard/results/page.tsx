@@ -125,6 +125,7 @@ function ResultsReportsContent() {
       TKI: 'ARISE Conflict Style',
       WELLNESS: 'Wellness Assessment',
       THREE_SIXTY_SELF: '360° Feedback',
+      THREE_SIXTY_EVALUATOR: '360° Evaluator',
     };
     return names[type] || type;
   };

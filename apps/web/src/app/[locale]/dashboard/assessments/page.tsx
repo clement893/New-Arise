@@ -802,7 +802,7 @@ function AssessmentsContent() {
       });
       
       const displayAssessments: AssessmentDisplay[] = Object.entries(ASSESSMENT_CONFIG)
-        .filter(([type]) => type !== '360_evaluator') // Skip 360_evaluator as it's not a valid AssessmentType
+        .filter(([type]) => type !== '360_evaluator') // Skip 360_evaluator as it's handled separately
         .filter(([type]) => {
           // Filter assessments based on plan
           // Map config keys to AssessmentType

@@ -536,6 +536,7 @@ function ResultsReportsContent() {
       TKI: t('assessments.types.TKI'),
       WELLNESS: t('assessments.types.WELLNESS'),
       THREE_SIXTY_SELF: t('assessments.types.THREE_SIXTY_SELF'),
+      THREE_SIXTY_EVALUATOR: t('assessments.types.THREE_SIXTY_EVALUATOR') || '360° Evaluator',
     };
     return names[type] || type;
   };
