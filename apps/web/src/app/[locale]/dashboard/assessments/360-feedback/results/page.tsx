@@ -523,15 +523,6 @@ export default function Feedback360ResultsPage() {
                         )}
                       </div>
                     </div>
-
-                    {results.has_evaluator_responses && (
-                      <div className="flex items-center gap-2">
-                        {getGapIcon(capScore.gap)}
-                        <span className={`text-sm font-medium ${getGapColor(capScore.gap)}`}>
-                          {getGapLabel(capScore.gap)}
-                        </span>
-                      </div>
-                    )}
                   </div>
 
                   {/* Analysis and Recommendations based on score */}
@@ -851,23 +842,23 @@ export default function Feedback360ResultsPage() {
                   </div>
 
                   {/* Others' Average */}
-                  {results.has_evaluator_responses && capScore.others_avg_score > 0 && (
+                  {results.has_evaluator_responses && (
                     <div className="mb-4">
                       <div className="mb-2 flex items-center justify-between text-sm">
                         <span className="text-gray-600">Others' Average</span>
                         <span 
                           className="font-semibold"
-                          style={{ color: get360ScoreColorCode(capScore.others_avg_score) }}
+                          style={{ color: get360ScoreColorCode(capScore.others_avg_score || 0) }}
                         >
-                          {capScore.others_avg_score.toFixed(1)} / 5.0
+                          {(capScore.others_avg_score || 0).toFixed(1)} / 5.0
                         </span>
                       </div>
                       <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
                         <div
                           className="h-full"
                           style={{
-                            width: `${(capScore.others_avg_score / 5) * 100}%`,
-                            backgroundColor: get360ScoreColorCode(capScore.others_avg_score)
+                            width: `${((capScore.others_avg_score || 0) / 5) * 100}%`,
+                            backgroundColor: get360ScoreColorCode(capScore.others_avg_score || 0)
                           }}
                         />
                       </div>
