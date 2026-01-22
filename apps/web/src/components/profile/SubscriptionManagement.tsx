@@ -115,6 +115,19 @@ export default function SubscriptionManagement() {
         currency: sub.plan?.currency?.toUpperCase() || 'EUR',
         billing_period: (sub.plan?.interval?.toLowerCase() === 'year' ? 'year' : 'month') as 'month' | 'year',
       });
+      
+      // Cache subscription data for use in other pages (like assessments)
+      if (typeof window !== 'undefined' && sub.plan) {
+        try {
+          localStorage.setItem('subscription_cache', JSON.stringify({
+            data: actualData,
+            timestamp: Date.now()
+          }));
+          logger.debug('SubscriptionManagement: Cached subscription data');
+        } catch (e) {
+          // Ignore cache errors
+        }
+      }
     } else if (!subscriptionLoading) {
       logger.debug('SubscriptionManagement: No subscription data found', {
         hasSubscriptionData: !!subscriptionData,

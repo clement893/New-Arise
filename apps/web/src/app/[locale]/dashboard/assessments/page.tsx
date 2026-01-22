@@ -138,21 +138,81 @@ function AssessmentsContent() {
         hasSubscriptionData: !!subscriptionData,
         hasData: !!subscriptionData?.data,
         hasNestedData: !!subscriptionData?.data?.data,
+        subscriptionLoading,
+        subscriptionError,
         actualData: actualSubscriptionData,
         plan: actualSubscriptionData?.plan,
         planName: actualSubscriptionData?.plan?.name,
         planFeatures: actualSubscriptionData?.plan?.features
       });
       
+      // If subscription is still loading, show all assessments temporarily
+      if (subscriptionLoading) {
+        console.log('[Assessments] Subscription still loading, showing all assessments temporarily');
+        return true;
+      }
+      
+      // If there's an error but we have cached data, try to use it
+      if (subscriptionError && !actualSubscriptionData) {
+        console.log('[Assessments] Subscription error but no data, trying to load from cache');
+        // Try to load from localStorage cache (same as profile page)
+        if (typeof window !== 'undefined') {
+          try {
+            const cachedSubscription = localStorage.getItem('subscription_cache');
+            if (cachedSubscription) {
+              const parsed = JSON.parse(cachedSubscription);
+              if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) { // 5 minutes cache
+                const cachedData = parsed.data;
+                if (cachedData?.plan) {
+                  console.log('[Assessments] Using cached subscription data:', cachedData.plan.name);
+                  const planName = cachedData.plan.name?.toUpperCase() || '';
+                  const planFeatures = cachedData.plan.features;
+                  return checkPlanFeatures(planName, planFeatures, assessmentType);
+                }
+              }
+            }
+          } catch (e) {
+            console.error('[Assessments] Error loading cached subscription:', e);
+          }
+        }
+        // If no cache, show all assessments to avoid blocking the user
+        console.log('[Assessments] No cached data, showing all assessments');
+        return true;
+      }
+      
       // If no subscription, show all assessments (for testing/development)
       if (!actualSubscriptionData?.plan) {
         console.log('[Assessments] No plan found, showing all assessments');
         return true;
       }
-
+      
+      // Cache the subscription data for future use
+      if (typeof window !== 'undefined' && actualSubscriptionData?.plan) {
+        try {
+          localStorage.setItem('subscription_cache', JSON.stringify({
+            data: actualSubscriptionData,
+            timestamp: Date.now()
+          }));
+        } catch (e) {
+          // Ignore cache errors
+        }
+      }
+      
       const planName = actualSubscriptionData.plan.name?.toUpperCase() || '';
       const planFeatures = actualSubscriptionData.plan.features;
       
+      return checkPlanFeatures(planName, planFeatures, assessmentType);
+    } catch (error) {
+      // If any error occurs, show all assessments to avoid blocking the user
+      console.error('[Assessments] Error checking assessment availability:', error);
+      return true;
+    }
+  };
+  
+  // Helper function to check plan features
+  const checkPlanFeatures = (planName: string, planFeatures: string | null | undefined, assessmentType: string): boolean => {
+    try {
+
       console.log('[Assessments] Plan found:', {
         planName,
         planFeatures,
@@ -180,11 +240,13 @@ function AssessmentsContent() {
       // SELF EXPLORATION plan: Professional Assessment (TKI) + Wellness Pulse + Executive Summary
       if (planName === 'SELF EXPLORATION') {
         console.log('[Assessments] SELF EXPLORATION plan - checking features');
+        // TKI = Professional Assessment (ARISE Conflict Style)
         if (assessmentType === 'TKI' || assessmentType === 'tki') {
           const available = features.professional_assessment === true;
           console.log('[Assessments] TKI available:', available, 'feature:', features.professional_assessment);
           return available;
         }
+        // WELLNESS = Wellness Pulse
         if (assessmentType === 'WELLNESS' || assessmentType === 'wellness') {
           const available = features.wellness_pulse === true;
           console.log('[Assessments] WELLNESS available:', available, 'feature:', features.wellness_pulse);
@@ -195,7 +257,7 @@ function AssessmentsContent() {
           console.log('[Assessments] MBTI not available in SELF EXPLORATION');
           return false;
         }
-        if (assessmentType === 'THREE_SIXTY_SELF' || assessmentType === '360_self') {
+        if (assessmentType === 'THREE_SIXTY_SELF' || assessmentType === '360_self' || assessmentType === 'THREE_SIXTY_EVALUATOR' || assessmentType === '360_evaluator') {
           console.log('[Assessments] 360 not available in SELF EXPLORATION');
           return false;
         }
@@ -207,6 +269,7 @@ function AssessmentsContent() {
       // WELLNESS plan: only Wellness Pulse + Basic Assessment Summary
       if (planName === 'WELLNESS') {
         console.log('[Assessments] WELLNESS plan - checking features');
+        // Only WELLNESS is available
         if (assessmentType === 'WELLNESS' || assessmentType === 'wellness') {
           const available = features.wellness_pulse === true;
           console.log('[Assessments] WELLNESS available:', available, 'feature:', features.wellness_pulse);
@@ -218,12 +281,14 @@ function AssessmentsContent() {
       }
 
       // Default: if plan has the feature, allow the assessment
-      // Map assessment types to feature keys
+      // Map assessment types to feature keys (handle both uppercase and lowercase)
       const featureMap: Record<string, string> = {
         'TKI': 'professional_assessment',
         'tki': 'professional_assessment',
         'THREE_SIXTY_SELF': '360_feedback',
         '360_self': '360_feedback',
+        'THREE_SIXTY_EVALUATOR': '360_feedback',
+        '360_evaluator': '360_feedback',
         'WELLNESS': 'wellness_pulse',
         'wellness': 'wellness_pulse',
       };
@@ -246,7 +311,7 @@ function AssessmentsContent() {
       return true;
     } catch (error) {
       // If any error occurs, show all assessments to avoid blocking the user
-      console.error('[Assessments] Error checking assessment availability:', error);
+      console.error('[Assessments] Error checking plan features:', error);
       return true;
     }
   };
@@ -686,7 +751,24 @@ function AssessmentsContent() {
         }
         
         // Normalize the type to ensure it matches the expected format
-        const normalizedType = String(assessment.assessment_type).toUpperCase() as AssessmentType;
+        // Backend returns lowercase: 'mbti', 'tki', 'wellness', '360_self', '360_evaluator'
+        // Frontend expects uppercase: 'MBTI', 'TKI', 'WELLNESS', 'THREE_SIXTY_SELF', 'THREE_SIXTY_EVALUATOR'
+        let normalizedType: AssessmentType;
+        const backendType = String(assessment.assessment_type).toLowerCase();
+        
+        // Map backend types to frontend types
+        const typeMapping: Record<string, AssessmentType> = {
+          'mbti': 'MBTI',
+          'tki': 'TKI',
+          'wellness': 'WELLNESS',
+          '360_self': 'THREE_SIXTY_SELF',
+          'three_sixty_self': 'THREE_SIXTY_SELF',
+          '360_evaluator': 'THREE_SIXTY_EVALUATOR',
+          'three_sixty_evaluator': 'THREE_SIXTY_EVALUATOR',
+        };
+        
+        normalizedType = typeMapping[backendType] || String(assessment.assessment_type).toUpperCase() as AssessmentType;
+        
         const existing = existingAssessmentsMap.get(normalizedType);
         // Keep the most recent assessment of each type
         if (!existing || new Date(assessment.created_at) > new Date(existing.created_at)) {
@@ -723,9 +805,12 @@ function AssessmentsContent() {
         .filter(([type]) => type !== '360_evaluator') // Skip 360_evaluator as it's not a valid AssessmentType
         .filter(([type]) => {
           // Filter assessments based on plan
+          // Map config keys to AssessmentType
           let apiType: AssessmentType;
           if (type === '360_self') {
             apiType = 'THREE_SIXTY_SELF';
+          } else if (type === '360_evaluator') {
+            apiType = 'THREE_SIXTY_EVALUATOR';
           } else {
             apiType = type.toUpperCase() as AssessmentType;
           }
@@ -735,10 +820,12 @@ function AssessmentsContent() {
         })
         .map(([type, config]) => {
         // Map lowercase type to uppercase for API
-        // Special handling for 360_self -> THREE_SIXTY_SELF
+        // Special handling for 360_self -> THREE_SIXTY_SELF and 360_evaluator -> THREE_SIXTY_EVALUATOR
         let apiType: AssessmentType;
         if (type === '360_self') {
           apiType = 'THREE_SIXTY_SELF';
+        } else if (type === '360_evaluator') {
+          apiType = 'THREE_SIXTY_EVALUATOR';
         } else {
           apiType = type.toUpperCase() as AssessmentType;
         }
