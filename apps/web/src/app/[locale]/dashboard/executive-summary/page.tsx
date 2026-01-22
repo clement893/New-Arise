@@ -35,7 +35,9 @@ function ExecutiveSummaryContent() {
     
     // Check if user has access to Executive Summary based on their plan
     if (actualSubscriptionData?.plan) {
-      const planName = actualSubscriptionData.plan.name?.toUpperCase() || '';
+      // Normalize plan name to handle cases like "WELLNESS $99" -> "WELLNESS"
+      const rawPlanName = actualSubscriptionData.plan.name?.toUpperCase() || '';
+      const planName = rawPlanName.replace(/\s*\$\d+.*$/i, '').trim();
       const planFeatures = actualSubscriptionData.plan.features;
       
       // Parse plan features

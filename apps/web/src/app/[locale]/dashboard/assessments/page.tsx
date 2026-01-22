@@ -79,6 +79,38 @@ function AssessmentsContent() {
   const pathname = usePathname();
   const { user } = useAuthStore();
   const { data: subscriptionData, isLoading: subscriptionLoading, error: subscriptionError } = useMySubscription();
+  
+  // DEBUG: Log subscription hook status immediately
+  useEffect(() => {
+    console.warn('🔍 [Assessments] Component mounted/updated');
+    console.warn('🔍 [Assessments] Subscription hook status:', {
+      hasData: !!subscriptionData,
+      isLoading: subscriptionLoading,
+      hasError: !!subscriptionError,
+      errorStatus: subscriptionError?.response?.status,
+      dataStructure: subscriptionData ? Object.keys(subscriptionData) : 'no data',
+      rawData: subscriptionData
+    });
+    
+    // Check cache immediately
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem('subscription_cache');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          console.warn('🔍 [Assessments] Cache found:', {
+            planName: parsed.data?.plan?.name,
+            timestamp: parsed.timestamp,
+            age: parsed.timestamp ? Math.round((Date.now() - parsed.timestamp) / 1000) + 's' : 'unknown'
+          });
+        } else {
+          console.warn('🔍 [Assessments] No cache in localStorage');
+        }
+      } catch (e) {
+        console.error('🔍 [Assessments] Error reading cache:', e);
+      }
+    }
+  }, [subscriptionData, subscriptionLoading, subscriptionError]);
   const [showEvaluatorModal, setShowEvaluatorModal] = useState(false);
   const [evaluators, setEvaluators] = useState<Record<number, EvaluatorStatus[]>>({});
   const isInitialMount = useRef(true);
@@ -133,78 +165,125 @@ function AssessmentsContent() {
       // But sometimes it's just subscriptionData.data directly
       const actualSubscriptionData = subscriptionData?.data?.data || subscriptionData?.data;
       
-      console.log('[Assessments] Checking availability for:', assessmentType);
-      console.log('[Assessments] Subscription data structure:', {
+      console.warn('🔍 [Assessments] Checking availability for:', assessmentType);
+      console.warn('[Assessments] Subscription data structure:', {
         hasSubscriptionData: !!subscriptionData,
         hasData: !!subscriptionData?.data,
         hasNestedData: !!subscriptionData?.data?.data,
         subscriptionLoading,
-        subscriptionError,
+        subscriptionError: subscriptionError ? {
+          message: subscriptionError.message,
+          response: subscriptionError.response?.status,
+          status: subscriptionError.response?.statusText
+        } : null,
         actualData: actualSubscriptionData,
         plan: actualSubscriptionData?.plan,
         planName: actualSubscriptionData?.plan?.name,
         planFeatures: actualSubscriptionData?.plan?.features
       });
       
-      // If subscription is still loading, show all assessments temporarily
+      // Helper function to get plan from cache
+      const getPlanFromCache = (): { planName: string; planFeatures: string | null } | null => {
+        if (typeof window === 'undefined') return null;
+        try {
+          const cachedSubscription = localStorage.getItem('subscription_cache');
+          if (cachedSubscription) {
+            const parsed = JSON.parse(cachedSubscription);
+            if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) { // 5 minutes cache
+              const cachedData = parsed.data;
+              if (cachedData?.plan) {
+                console.warn('[Assessments] Cache found and valid:', {
+                  planName: cachedData.plan.name,
+                  timestamp: parsed.timestamp,
+                  age: Date.now() - parsed.timestamp
+                });
+                return {
+                  planName: (cachedData.plan.name?.toUpperCase() || '').replace(/\s*\$\d+.*$/i, '').trim(),
+                  planFeatures: cachedData.plan.features || null
+                };
+              }
+            } else {
+              console.warn('[Assessments] Cache expired:', {
+                timestamp: parsed.timestamp,
+                now: Date.now(),
+                age: parsed.timestamp ? Date.now() - parsed.timestamp : 'unknown'
+              });
+            }
+          } else {
+            console.warn('[Assessments] No cache in localStorage');
+          }
+        } catch (e) {
+          console.error('[Assessments] Error reading cache:', e);
+        }
+        return null;
+      };
+      
+      // If subscription is still loading, try cache first, otherwise show all temporarily
       if (subscriptionLoading) {
-        console.log('[Assessments] Subscription still loading, showing all assessments temporarily');
+        const cachedPlan = getPlanFromCache();
+        if (cachedPlan) {
+          console.warn('[Assessments] Subscription loading, using cache:', cachedPlan.planName);
+          return checkPlanFeatures(cachedPlan.planName, cachedPlan.planFeatures, assessmentType);
+        }
+        console.warn('[Assessments] Subscription still loading, no cache, showing all assessments temporarily');
         return true;
       }
       
-      // If there's an error but we have cached data, try to use it
-      if (subscriptionError && !actualSubscriptionData) {
-        console.log('[Assessments] Subscription error but no data, trying to load from cache');
-        // Try to load from localStorage cache (same as profile page)
+      // If we have valid subscription data, use it and cache it
+      if (actualSubscriptionData?.plan) {
+        // Cache the subscription data for future use
         if (typeof window !== 'undefined') {
           try {
-            const cachedSubscription = localStorage.getItem('subscription_cache');
-            if (cachedSubscription) {
-              const parsed = JSON.parse(cachedSubscription);
-              if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) { // 5 minutes cache
-                const cachedData = parsed.data;
-                if (cachedData?.plan) {
-                  console.log('[Assessments] Using cached subscription data:', cachedData.plan.name);
-                  const planName = cachedData.plan.name?.toUpperCase() || '';
-                  const planFeatures = cachedData.plan.features;
-                  return checkPlanFeatures(planName, planFeatures, assessmentType);
-                }
-              }
-            }
+            localStorage.setItem('subscription_cache', JSON.stringify({
+              data: actualSubscriptionData,
+              timestamp: Date.now()
+            }));
+            console.warn('[Assessments] Cached subscription data:', actualSubscriptionData.plan.name);
           } catch (e) {
-            console.error('[Assessments] Error loading cached subscription:', e);
+            console.error('[Assessments] Error caching subscription:', e);
           }
         }
-        // If no cache, show all assessments to avoid blocking the user
-        console.log('[Assessments] No cached data, showing all assessments');
-        return true;
+        
+        // Normalize plan name to handle cases like "WELLNESS $99" -> "WELLNESS"
+        const planName = actualSubscriptionData.plan.name?.toUpperCase() || '';
+        const planFeatures = actualSubscriptionData.plan.features;
+        return checkPlanFeatures(planName, planFeatures, assessmentType);
       }
       
-      // If no subscription, show all assessments (for testing/development)
-      if (!actualSubscriptionData?.plan) {
-        console.log('[Assessments] No plan found, showing all assessments');
-        return true;
+      // If no subscription data, try cache
+      const cachedPlan = getPlanFromCache();
+      if (cachedPlan) {
+        console.warn('[Assessments] No subscription data, using cache:', cachedPlan.planName);
+        return checkPlanFeatures(cachedPlan.planName, cachedPlan.planFeatures, assessmentType);
       }
       
-      // Cache the subscription data for future use
-      if (typeof window !== 'undefined' && actualSubscriptionData?.plan) {
+      // If no cache either, show all assessments to avoid blocking the user (but log it)
+      console.warn('[Assessments] No subscription data and no cache, showing all assessments as fallback');
+      return true;
+    } catch (error) {
+      // If any error occurs, try cache first, then show all assessments
+      console.error('[Assessments] Error checking assessment availability:', error);
+      if (typeof window !== 'undefined') {
         try {
-          localStorage.setItem('subscription_cache', JSON.stringify({
-            data: actualSubscriptionData,
-            timestamp: Date.now()
-          }));
+          const cachedSubscription = localStorage.getItem('subscription_cache');
+          if (cachedSubscription) {
+            const parsed = JSON.parse(cachedSubscription);
+            if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) {
+              const cachedData = parsed.data;
+              if (cachedData?.plan) {
+                console.warn('[Assessments] Error occurred, using cache as fallback:', cachedData.plan.name);
+                // Normalize plan name to handle cases like "WELLNESS $99" -> "WELLNESS"
+                const rawPlanName = cachedData.plan.name?.toUpperCase() || '';
+                const planName = rawPlanName.replace(/\s*\$\d+.*$/i, '').trim();
+                const planFeatures = cachedData.plan.features;
+                return checkPlanFeatures(planName, planFeatures, assessmentType);
+              }
+            }
+          }
         } catch (e) {
-          // Ignore cache errors
+          // Ignore cache errors in error handler
         }
       }
-      
-      const planName = actualSubscriptionData.plan.name?.toUpperCase() || '';
-      const planFeatures = actualSubscriptionData.plan.features;
-      
-      return checkPlanFeatures(planName, planFeatures, assessmentType);
-    } catch (error) {
-      // If any error occurs, show all assessments to avoid blocking the user
-      console.error('[Assessments] Error checking assessment availability:', error);
       return true;
     }
   };
@@ -221,7 +300,9 @@ function AssessmentsContent() {
       // Try to get from subscription data
       const actualSubscriptionData = subscriptionData?.data?.data || subscriptionData?.data;
       if (actualSubscriptionData?.plan) {
-        planName = actualSubscriptionData.plan.name?.toUpperCase() || '';
+        // Normalize plan name to handle cases like "WELLNESS $99" -> "WELLNESS"
+        const rawPlanName = actualSubscriptionData.plan.name?.toUpperCase() || '';
+        planName = rawPlanName.replace(/\s*\$\d+.*$/i, '').trim();
         if (actualSubscriptionData.plan.features) {
           try {
             planFeatures = JSON.parse(actualSubscriptionData.plan.features);
@@ -239,7 +320,9 @@ function AssessmentsContent() {
               if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) {
                 const cachedData = parsed.data;
                 if (cachedData?.plan) {
-                  planName = cachedData.plan.name?.toUpperCase() || '';
+                  // Normalize plan name to handle cases like "WELLNESS $99" -> "WELLNESS"
+                  const rawPlanName = cachedData.plan.name?.toUpperCase() || '';
+                  planName = rawPlanName.replace(/\s*\$\d+.*$/i, '').trim();
                   if (cachedData.plan.features) {
                     try {
                       planFeatures = JSON.parse(cachedData.plan.features);
@@ -259,11 +342,11 @@ function AssessmentsContent() {
       console.error('[Assessments] Error getting plan for default assessments:', error);
     }
     
-    console.log('[Assessments] Creating default assessments for plan:', planName, planFeatures);
+    console.warn('[Assessments] Creating default assessments for plan:', planName, planFeatures);
     
     // If no plan found, show all assessments to avoid blocking the user
     if (!planName) {
-      console.log('[Assessments] No plan found, showing all assessments as default');
+      console.warn('[Assessments] No plan found, showing all assessments as default');
       return Object.entries(ASSESSMENT_CONFIG)
         .filter(([type]) => type !== '360_evaluator')
         .map(([type, config]) => {
@@ -321,20 +404,36 @@ function AssessmentsContent() {
             assessmentType: apiType,
           });
         } else {
-          console.log('[Assessments] Assessment not available for plan:', type, planName);
+          console.warn('[Assessments] Assessment not available for plan:', type, planName);
         }
       });
     
-    console.log('[Assessments] Created default assessments:', defaultAssessments.length, defaultAssessments.map(a => a.title));
+    console.warn('[Assessments] Created default assessments:', defaultAssessments.length, defaultAssessments.map(a => a.title));
     return defaultAssessments;
+  };
+
+  // Helper function to normalize plan name (remove price and extra spaces)
+  const normalizePlanName = (planName: string): string => {
+    if (!planName) return '';
+    // Remove price information (e.g., "WELLNESS $99" -> "WELLNESS")
+    // Remove anything after $ or any price pattern
+    let normalized = planName.toUpperCase().trim();
+    // Remove price patterns like "$99", "$249", "$299", etc.
+    normalized = normalized.replace(/\s*\$\d+.*$/i, '').trim();
+    // Remove extra spaces
+    normalized = normalized.replace(/\s+/g, ' ').trim();
+    return normalized;
   };
 
   // Helper function to check plan features
   const checkPlanFeatures = (planName: string, planFeatures: string | null | undefined, assessmentType: string): boolean => {
     try {
+      // Normalize plan name to handle cases like "WELLNESS $99" -> "WELLNESS"
+      const normalizedPlanName = normalizePlanName(planName);
 
-      console.log('[Assessments] Plan found:', {
+      console.warn('[Assessments] Plan found:', {
         planName,
+        normalizedPlanName,
         planFeatures,
         assessmentType
       });
@@ -352,51 +451,51 @@ function AssessmentsContent() {
       }
 
       // REVELATION plan: all assessments available
-      if (planName === 'REVELATION') {
-        console.log('[Assessments] REVELATION plan - all assessments available');
+      if (normalizedPlanName === 'REVELATION') {
+        console.warn('[Assessments] REVELATION plan - all assessments available');
         return true;
       }
 
       // SELF EXPLORATION plan: Professional Assessment (TKI) + Wellness Pulse + Executive Summary
-      if (planName === 'SELF EXPLORATION') {
-        console.log('[Assessments] SELF EXPLORATION plan - checking features');
+      if (normalizedPlanName === 'SELF EXPLORATION') {
+        console.warn('[Assessments] SELF EXPLORATION plan - checking features');
         // TKI = Professional Assessment (ARISE Conflict Style)
         if (assessmentType === 'TKI' || assessmentType === 'tki') {
           const available = features.professional_assessment === true;
-          console.log('[Assessments] TKI available:', available, 'feature:', features.professional_assessment);
+          console.warn('[Assessments] TKI available:', available, 'feature:', features.professional_assessment);
           return available;
         }
         // WELLNESS = Wellness Pulse
         if (assessmentType === 'WELLNESS' || assessmentType === 'wellness') {
           const available = features.wellness_pulse === true;
-          console.log('[Assessments] WELLNESS available:', available, 'feature:', features.wellness_pulse);
+          console.warn('[Assessments] WELLNESS available:', available, 'feature:', features.wellness_pulse);
           return available;
         }
         // MBTI and 360 are not available in SELF EXPLORATION
         if (assessmentType === 'MBTI' || assessmentType === 'mbti') {
-          console.log('[Assessments] MBTI not available in SELF EXPLORATION');
+          console.warn('[Assessments] MBTI not available in SELF EXPLORATION');
           return false;
         }
         if (assessmentType === 'THREE_SIXTY_SELF' || assessmentType === '360_self' || assessmentType === 'THREE_SIXTY_EVALUATOR' || assessmentType === '360_evaluator') {
-          console.log('[Assessments] 360 not available in SELF EXPLORATION');
+          console.warn('[Assessments] 360 not available in SELF EXPLORATION');
           return false;
         }
-        // Default for SELF EXPLORATION: allow if not explicitly restricted
-        console.log('[Assessments] Default for SELF EXPLORATION - allowing');
-        return true;
+        // Default for SELF EXPLORATION: deny if not explicitly allowed
+        console.warn('[Assessments] Default for SELF EXPLORATION - denying (only TKI and WELLNESS allowed)');
+        return false;
       }
 
       // WELLNESS plan: only Wellness Pulse + Basic Assessment Summary
-      if (planName === 'WELLNESS') {
-        console.log('[Assessments] WELLNESS plan - checking features');
+      if (normalizedPlanName === 'WELLNESS') {
+        console.warn('[Assessments] WELLNESS plan - checking features');
         // Only WELLNESS is available
         if (assessmentType === 'WELLNESS' || assessmentType === 'wellness') {
           const available = features.wellness_pulse === true;
-          console.log('[Assessments] WELLNESS available:', available, 'feature:', features.wellness_pulse);
+          console.warn('[Assessments] WELLNESS available:', available, 'feature:', features.wellness_pulse);
           return available;
         }
         // All other assessments are not available in WELLNESS plan
-        console.log('[Assessments] Assessment not available in WELLNESS plan:', assessmentType);
+        console.warn('[Assessments] Assessment not available in WELLNESS plan:', assessmentType);
         return false;
       }
 
@@ -416,18 +515,18 @@ function AssessmentsContent() {
       const featureKey = featureMap[assessmentType];
       if (featureKey) {
         const available = features[featureKey] === true;
-        console.log('[Assessments] Checking feature map:', { assessmentType, featureKey, available, featureValue: features[featureKey] });
+        console.warn('[Assessments] Checking feature map:', { assessmentType, featureKey, available, featureValue: features[featureKey] });
         return available;
       }
 
       // MBTI: only available in REVELATION (handled above)
       if (assessmentType === 'MBTI' || assessmentType === 'mbti') {
-        console.log('[Assessments] MBTI not available in plan:', planName);
+        console.warn('[Assessments] MBTI not available in plan:', planName);
         return false;
       }
 
       // Default: allow if not explicitly restricted
-      console.log('[Assessments] Default - allowing assessment:', assessmentType);
+      console.warn('[Assessments] Default - allowing assessment:', assessmentType);
       return true;
     } catch (error) {
       // If any error occurs, show all assessments to avoid blocking the user
@@ -780,8 +879,10 @@ function AssessmentsContent() {
   }, [assessments, isLoading]); // Only depend on assessments and isLoading to avoid infinite loop
 
   const loadAssessments = async () => {
+    console.warn('🔍 [Assessments] loadAssessments called');
     // Don't load if user is not authenticated
     if (!user) {
+      console.warn('🔍 [Assessments] No user, skipping load');
       setIsLoading(false);
       return;
     }
@@ -789,6 +890,7 @@ function AssessmentsContent() {
     try {
       setIsLoading(true);
       setError(null);
+      console.warn('🔍 [Assessments] Starting to load assessments');
       
       // Get assessments from API
       let allApiAssessments: ApiAssessment[] = [];
@@ -827,7 +929,7 @@ function AssessmentsContent() {
             }
           }
           // If no cache, create default assessments based on plan
-          console.log('[Assessments] No cache available, creating default assessments based on plan');
+          console.warn('[Assessments] No cache available, creating default assessments based on plan');
           const defaultAssessments = createDefaultAssessmentsFromPlan();
           if (defaultAssessments.length > 0) {
             setAssessments(defaultAssessments);

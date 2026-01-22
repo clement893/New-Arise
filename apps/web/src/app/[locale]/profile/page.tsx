@@ -32,6 +32,19 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   
+  // Helper function to normalize plan name for display (remove price if present)
+  const normalizePlanNameForDisplay = (planName: string): string => {
+    if (!planName) return '';
+    // Remove price information (e.g., "WELLNESS $99" -> "WELLNESS")
+    // But keep the original if it doesn't contain a price pattern
+    const hasPrice = /\$\d+/.test(planName);
+    if (hasPrice) {
+      // Extract just the plan name part before the price
+      return planName.replace(/\s*\$\d+.*$/i, '').trim();
+    }
+    return planName.trim();
+  };
+
   // Get current plan name from subscription
   const getCurrentPlanName = (): string => {
     try {
@@ -40,7 +53,8 @@ export default function ProfilePage() {
       
       // Try to get from subscription data
       if (actualSubscriptionData?.plan?.name) {
-        return actualSubscriptionData.plan.name;
+        // Normalize plan name for display (remove price if present)
+        return normalizePlanNameForDisplay(actualSubscriptionData.plan.name);
       }
       
       // Try to get from cache
@@ -52,7 +66,8 @@ export default function ProfilePage() {
             if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) {
               const cachedData = parsed.data;
               if (cachedData?.plan?.name) {
-                return cachedData.plan.name;
+                // Normalize plan name for display (remove price if present)
+                return normalizePlanNameForDisplay(cachedData.plan.name);
               }
             }
           }
