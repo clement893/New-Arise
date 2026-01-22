@@ -11,6 +11,7 @@ import {
   PillarScore,
   get360Evaluators,
   type EvaluatorStatus,
+  type AssessmentResult,
 } from '@/lib/api/assessments';
 import { useFeedback360Store } from '@/stores/feedback360Store';
 import { feedback360Capabilities } from '@/data/feedback360Questions';
@@ -196,8 +197,10 @@ export default function Feedback360ResultsPage() {
       // Check if there are evaluator responses
       const hasEvaluatorResponses = completedCount > 0;
 
-      // Calculate others_avg_score from comparison_data if available
+      // Calculate others_avg_score from comparison_data if available, otherwise from evaluator assessments
       let othersAvgScores: Record<string, number> = {};
+      
+      // First, try to get from comparison_data
       if (comparisonData && typeof comparisonData === 'object') {
         // Check if comparison_data has capability scores
         if (comparisonData.capability_scores && typeof comparisonData.capability_scores === 'object') {
@@ -208,6 +211,68 @@ export default function Feedback360ResultsPage() {
             const mappedCapability = capabilityIdMap[capability] || capability;
             othersAvgScores[mappedCapability] = averageScore;
           });
+        }
+      }
+      
+      // If comparison_data doesn't have scores, calculate from evaluator assessments
+      if (Object.keys(othersAvgScores).length === 0 && hasEvaluatorResponses) {
+        try {
+          // Get completed evaluators with their assessment IDs
+          const completedEvaluators = evaluatorsResponse.evaluators?.filter(
+            (e) => (e.status === 'completed' || e.status === 'COMPLETED') && e.evaluator_assessment_id
+          ) || [];
+          
+          if (completedEvaluators.length > 0) {
+            // Fetch results for each evaluator's assessment
+            const evaluatorResultsPromises = completedEvaluators.map(async (evaluator) => {
+              try {
+                if (!evaluator.evaluator_assessment_id) {
+                  return null;
+                }
+                const evaluatorResults = await getAssessmentResults(evaluator.evaluator_assessment_id);
+                return evaluatorResults;
+              } catch (err) {
+                console.warn(`Failed to load results for evaluator ${evaluator.id}:`, err);
+                return null;
+              }
+            });
+            
+            const evaluatorResultsList = await Promise.all(evaluatorResultsPromises);
+            const validResults = evaluatorResultsList.filter((r): r is AssessmentResult => r !== null && r !== undefined && r.scores !== undefined);
+            
+            if (validResults.length > 0) {
+              // Calculate average scores across all evaluators for each capability
+              const capabilityTotals: Record<string, number[]> = {};
+              
+              validResults.forEach((result) => {
+                if (result && result.scores?.capability_scores) {
+                  Object.entries(result.scores.capability_scores).forEach(([capability, score]) => {
+                    const rawScoreValue = isPillarScore(score) ? score.score : (typeof score === 'number' ? score : 0);
+                    // Convert sum (max 25) to average (max 5.0) by dividing by 5
+                    const averageScore = rawScoreValue / 5;
+                    
+                    // Map backend capability ID to frontend format
+                    const mappedCapability = capabilityIdMap[capability] || capability;
+                    
+                    if (!capabilityTotals[mappedCapability]) {
+                      capabilityTotals[mappedCapability] = [];
+                    }
+                    capabilityTotals[mappedCapability].push(averageScore);
+                  });
+                }
+              });
+              
+              // Calculate averages
+              Object.entries(capabilityTotals).forEach(([capability, scores]) => {
+                if (scores.length > 0) {
+                  const average = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+                  othersAvgScores[capability] = average;
+                }
+              });
+            }
+          }
+        } catch (err) {
+          console.warn('Failed to calculate evaluator scores:', err);
         }
       }
       

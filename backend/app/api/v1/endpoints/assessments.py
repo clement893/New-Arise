@@ -1469,6 +1469,7 @@ async def get_360_evaluators_status(
             "started_at": evaluator.started_at.isoformat() if evaluator.started_at else None,
             "completed_at": evaluator.completed_at.isoformat() if evaluator.completed_at else None,
             "assessment_id": evaluator.assessment_id,  # Include which assessment this evaluator belongs to
+            "evaluator_assessment_id": evaluator.evaluator_assessment_id,  # Include evaluator's assessment ID for fetching results
         })
         
         # Log each evaluator status for debugging

@@ -351,6 +351,7 @@ export interface EvaluatorStatus {
   started_at: string | null;
   completed_at: string | null;
   assessment_id: number; // Which assessment this evaluator belongs to
+  evaluator_assessment_id: number | null; // The evaluator's own assessment ID for fetching results
 }
 
 /**
