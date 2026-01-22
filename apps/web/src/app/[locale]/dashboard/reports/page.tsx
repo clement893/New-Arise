@@ -181,11 +181,13 @@ function ResultsReportsContent() {
           return isSelfAssessment;
         });
         // If we have multiple and filtered to zero, keep the oldest one (most likely the self-assessment)
-        const final360 = filtered360.length > 0 ? filtered360 : [threeSixtyAssessments.sort((a, b) => {
+        const sorted360 = threeSixtyAssessments.sort((a, b) => {
           const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
           const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
           return dateA - dateB; // Oldest first
-        })[0]];
+        });
+        const oldest360 = sorted360[0];
+        const final360 = filtered360.length > 0 ? filtered360 : (oldest360 ? [oldest360] : []);
         // Replace 360 assessments in completedAssessments
         const otherAssessments = completedAssessments.filter(a => a.assessment_type !== 'THREE_SIXTY_SELF');
         completedAssessments.length = 0;
