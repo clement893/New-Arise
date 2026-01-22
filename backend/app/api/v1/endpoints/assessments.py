@@ -311,8 +311,9 @@ async def list_assessments(
         elif user.email:
             user_name = user.email.split("@")[0]
 
-        # Check if this assessment is a contributor assessment (linked to an evaluator record)
-        is_contributor = assessment.id in evaluator_assessment_id_set
+        # Check if this assessment is a contributor assessment
+        # Use the database field if available, otherwise fall back to checking evaluator_assessment_id_set
+        is_contributor = getattr(assessment, 'is_contributor_assessment', False) or assessment.id in evaluator_assessment_id_set
         
         response.append(AssessmentListItem(
             id=assessment.id,
@@ -1849,7 +1850,8 @@ async def submit_360_evaluator_assessment(
                 user_id=evaluator.assessment.user_id,  # Same user being evaluated
                 assessment_type=AssessmentType.THREE_SIXTY_SELF,  # Use same type as main assessment
                 status=AssessmentStatus.IN_PROGRESS,
-                started_at=datetime.now(timezone.utc) if not evaluator.started_at else evaluator.started_at
+                started_at=datetime.now(timezone.utc) if not evaluator.started_at else evaluator.started_at,
+                is_contributor_assessment=True  # Mark as contributor assessment
             )
             db.add(evaluator_assessment)
             await db.flush()  # Get the ID

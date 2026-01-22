@@ -76,6 +76,9 @@ class Assessment(Base):
     raw_score = Column(JSON, nullable=True)
     processed_score = Column(JSON, nullable=True)
 
+    # Flag pour identifier les assessments de contributeurs (évaluateurs)
+    is_contributor_assessment = Column(Boolean, default=False, nullable=False, server_default='false')
+
     # Relations
     answers = relationship("AssessmentAnswer", back_populates="assessment", cascade="all, delete-orphan")
     result = relationship("AssessmentResult", back_populates="assessment", uselist=False, cascade="all, delete-orphan")
