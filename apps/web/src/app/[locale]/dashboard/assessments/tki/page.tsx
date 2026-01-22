@@ -338,6 +338,15 @@ export default function TKIAssessmentPage() {
               </ul>
             </div>
 
+            {/* ARISE TKI Pictogram Image */}
+            <div className="mb-8 flex justify-center">
+              <img
+                src="/images/arise-tki-pictogram.png"
+                alt="ARISE TKI Pictogram"
+                className="max-w-full h-auto rounded-lg shadow-md"
+              />
+            </div>
+
             <Button
               onClick={handleStart}
               disabled={isLoading}
