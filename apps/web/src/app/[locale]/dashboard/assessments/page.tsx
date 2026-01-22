@@ -175,8 +175,12 @@ function AssessmentsContent() {
         subscriptionLoading,
         subscriptionError: subscriptionError ? {
           message: subscriptionError.message,
-          response: subscriptionError.response?.status,
-          status: subscriptionError.response?.statusText
+          response: subscriptionError && typeof subscriptionError === 'object' && 'response' in subscriptionError
+            ? (subscriptionError as { response?: { status?: number } }).response?.status
+            : undefined,
+          status: subscriptionError && typeof subscriptionError === 'object' && 'response' in subscriptionError
+            ? (subscriptionError as { response?: { statusText?: string } }).response?.statusText
+            : undefined
         } : null,
         actualData: actualSubscriptionData,
         plan: actualSubscriptionData?.plan,
