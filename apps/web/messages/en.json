@@ -1279,6 +1279,15 @@
         "downloadButton": "Download Complete Leadership Profile",
         "generatingPdf": "Generating PDF..."
       },
+      "deleteAssessmentModal": {
+        "title": "Delete Assessment",
+        "message": "This action cannot be undone. This will permanently delete the assessment and all associated data, including responses, results, and any 360° feedback contributors.",
+        "enterTitle": "To confirm deletion, please enter the assessment title:",
+        "placeholder": "Type the assessment title to confirm",
+        "cancel": "Cancel",
+        "confirm": "Delete Assessment",
+        "deleting": "Deleting..."
+      },
       "deleteModal": {
         "title": "Confirm Deletion",
         "message": "Are you sure you want to delete <strong>ALL</strong> your assessments? This action is <strong>irreversible</strong> and will permanently delete:",

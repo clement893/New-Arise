@@ -54,6 +54,8 @@ export default function Feedback360ResultsPage() {
   const [evaluators, setEvaluators] = useState<EvaluatorStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isContributorAssessment, setIsContributorAssessment] = useState(false);
+  const [evaluatedPersonName, setEvaluatedPersonName] = useState<string | null>(null);
 
   useEffect(() => {
     loadResults();
@@ -120,7 +122,22 @@ export default function Feedback360ResultsPage() {
       // Find the assessment to check its status
       const assessment = assessments.find((a) => a.id === id);
       
-      console.log('[360-Feedback Results] Assessment found:', assessment ? { id: assessment.id, type: assessment.assessment_type, status: assessment.status, answer_count: assessment.answer_count, total_questions: assessment.total_questions } : 'none');
+      // Check if this is a contributor assessment
+      const isContributor = assessment?.user_being_evaluated !== undefined && assessment.user_being_evaluated !== null;
+      setIsContributorAssessment(isContributor);
+      if (isContributor && assessment?.user_being_evaluated?.name) {
+        setEvaluatedPersonName(assessment.user_being_evaluated.name);
+      }
+      
+      console.log('[360-Feedback Results] Assessment found:', assessment ? { 
+        id: assessment.id, 
+        type: assessment.assessment_type, 
+        status: assessment.status, 
+        answer_count: assessment.answer_count, 
+        total_questions: assessment.total_questions,
+        user_being_evaluated: assessment.user_being_evaluated,
+        isContributor
+      } : 'none');
       
       if (!assessment) {
         // Assessment not found, redirect to assessments page
@@ -170,8 +187,14 @@ export default function Feedback360ResultsPage() {
         throw resultsError;
       }
 
-      const evaluatorsResponse = await get360Evaluators(id).catch(() => ({ evaluators: [] })); // Don't fail if evaluators endpoint fails
-      setEvaluators(evaluatorsResponse.evaluators || []);
+      // Only load evaluators if this is NOT a contributor assessment
+      // Contributor assessments don't have evaluators (they ARE the evaluator)
+      if (!isContributor) {
+        const evaluatorsResponse = await get360Evaluators(id).catch(() => ({ evaluators: [] })); // Don't fail if evaluators endpoint fails
+        setEvaluators(evaluatorsResponse.evaluators || []);
+      } else {
+        setEvaluators([]);
+      }
 
       const completedCount = evaluatorsResponse.evaluators?.filter(
         (e) => e.status === 'completed' || e.status === 'COMPLETED'
@@ -429,23 +452,37 @@ export default function Feedback360ResultsPage() {
               {t('title')}
             </h1>
 
-            {results.has_evaluator_responses ? (
-              <div className="flex items-center gap-2 text-gray-600">
-                <Users className="h-5 w-5" />
-                <span>
-                  {t('basedOnFeedback', { count: results.evaluator_count })}
-                </span>
-              </div>
-            ) : (
-              <div className="rounded-lg bg-primary-50 p-4">
-                <p className="text-sm text-primary-800">
-                  <strong>{t('note')}</strong> {t('selfAssessmentOnly')}
+            {/* Only show this section if NOT a contributor assessment */}
+            {!isContributorAssessment && (
+              <>
+                {results.has_evaluator_responses ? (
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Users className="h-5 w-5" />
+                    <span>
+                      {t('basedOnFeedback', { count: results.evaluator_count })}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="rounded-lg bg-primary-50 p-4">
+                    <p className="text-sm text-primary-800">
+                      <strong>{t('note')}</strong> {t('selfAssessmentOnly')}
+                    </p>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Show contributor info if this is a contributor assessment */}
+            {isContributorAssessment && evaluatedPersonName && (
+              <div className="rounded-lg bg-arise-deep-teal/10 p-4">
+                <p className="text-sm text-gray-800">
+                  <strong>Contributor Assessment:</strong> This is your feedback assessment for <strong>{evaluatedPersonName}</strong>
                 </p>
               </div>
             )}
 
-            {/* Contributors Status Section */}
-            {evaluators.length > 0 && (
+            {/* Contributors Status Section - Only show if NOT a contributor assessment */}
+            {!isContributorAssessment && evaluators.length > 0 && (
               <div className="mt-6 rounded-lg border border-gray-200 p-4">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-gray-900">
@@ -861,7 +898,8 @@ export default function Feedback360ResultsPage() {
         </MotionDiv>
 
         {/* Results & Analysis Section */}
-        {results.has_evaluator_responses && (
+        {/* Only show "Results & Analysis: Self vs Contributors" section if NOT a contributor assessment */}
+        {!isContributorAssessment && results.has_evaluator_responses && (
           <MotionDiv
             variant="slideUp"
             duration="normal"
@@ -903,6 +941,28 @@ export default function Feedback360ResultsPage() {
                       <span className={`text-sm font-medium ${getGapColor(capScore.gap)}`}>
                         {getGapLabel(capScore.gap)}
                       </span>
+                    </div>
+                  </div>
+
+                  {/* Self Average */}
+                  <div className="mb-4">
+                    <div className="mb-2 flex items-center justify-between text-sm">
+                      <span className="text-gray-600">Self Average</span>
+                      <span 
+                        className="font-semibold"
+                        style={{ color: get360ScoreColorCode(capScore.self_score || 0) }}
+                      >
+                        {(capScore.self_score || 0).toFixed(1)} / 5.0
+                      </span>
+                    </div>
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                      <div
+                        className="h-full"
+                        style={{
+                          width: `${((capScore.self_score || 0) / 5) * 100}%`,
+                          backgroundColor: get360ScoreColorCode(capScore.self_score || 0)
+                        }}
+                      />
                     </div>
                   </div>
 

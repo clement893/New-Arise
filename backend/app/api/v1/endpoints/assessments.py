@@ -226,16 +226,17 @@ async def list_assessments(
 
     # Get evaluator assessments (where user is a contributor)
     # Find all evaluator records where current user is the evaluator
+    # Use case-insensitive email comparison to handle email variations
     from app.core.logging import logger
     evaluator_records_result = await db.execute(
         select(Assessment360Evaluator)
         .where(
-            Assessment360Evaluator.evaluator_email == current_user.email,
+            func.lower(Assessment360Evaluator.evaluator_email) == func.lower(current_user.email),
             Assessment360Evaluator.evaluator_assessment_id.isnot(None)
         )
     )
     evaluator_records = evaluator_records_result.scalars().all()
-    logger.info(f"[my-assessments] Found {len(evaluator_records)} evaluator records for user {current_user.email}")
+    logger.info(f"[my-assessments] Found {len(evaluator_records)} evaluator records for user {current_user.email} (case-insensitive match)")
     
     evaluator_results = []
     for evaluator_record in evaluator_records:

@@ -680,6 +680,28 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
                     </div>
                   </div>
 
+                  {/* Self Average */}
+                  <div className="mb-4">
+                    <div className="mb-2 flex items-center justify-between text-sm">
+                      <span className="text-gray-600">Self Average</span>
+                      <span 
+                        className="font-semibold"
+                        style={{ color: get360ScoreColorCode(capScore.self_score || 0) }}
+                      >
+                        {(capScore.self_score || 0).toFixed(1)} / 5.0
+                      </span>
+                    </div>
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                      <div
+                        className="h-full"
+                        style={{
+                          width: `${((capScore.self_score || 0) / 5) * 100}%`,
+                          backgroundColor: get360ScoreColorCode(capScore.self_score || 0)
+                        }}
+                      />
+                    </div>
+                  </div>
+
                   {/* Others' Average */}
                   {transformedResults.has_evaluator_responses && (
                     <div className="mb-4">

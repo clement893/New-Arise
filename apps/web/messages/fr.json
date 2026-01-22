@@ -1354,6 +1354,15 @@
         "downloadButton": "Télécharger le profil de leadership complet",
         "generatingPdf": "Génération du PDF..."
       },
+      "deleteAssessmentModal": {
+        "title": "Supprimer l'assessment",
+        "message": "Cette action est irréversible. Cette suppression supprimera définitivement l'assessment et toutes les données associées, y compris les réponses, les résultats et tous les contributeurs 360°.",
+        "enterTitle": "Pour confirmer la suppression, veuillez saisir le titre de l'assessment :",
+        "placeholder": "Saisissez le titre de l'assessment pour confirmer",
+        "cancel": "Annuler",
+        "confirm": "Supprimer l'assessment",
+        "deleting": "Suppression en cours..."
+      },
       "deleteModal": {
         "title": "Confirmer la suppression",
         "message": "Êtes-vous sûr de vouloir supprimer <strong>TOUS</strong> vos assessments ? Cette action est <strong>irréversible</strong> et supprimera définitivement :",
