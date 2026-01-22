@@ -10,6 +10,7 @@ import {
   Target, 
   Users, 
   Heart,
+  UserCheck,
   TrendingUp,
   Download,
   ArrowLeft
@@ -124,10 +125,11 @@ function ExecutiveSummaryContent() {
   }
 
   const assessmentTypes: AssessmentType[] = ['MBTI', 'TKI', 'THREE_SIXTY_SELF', 'WELLNESS'];
-  const assessmentConfig = {
+  const assessmentConfig: Record<AssessmentType, { icon: typeof Brain; title: string; color: string }> = {
     MBTI: { icon: Brain, title: 'MBTI Personality', color: '#0F4C56' },
     TKI: { icon: Target, title: 'ARISE Conflict Style', color: '#0F4C56' },
     THREE_SIXTY_SELF: { icon: Users, title: '360° Feedback', color: '#0F4C56' },
+    THREE_SIXTY_EVALUATOR: { icon: UserCheck, title: '360° Evaluator', color: '#0F4C56' },
     WELLNESS: { icon: Heart, title: 'Wellness Assessment', color: '#0F4C56' },
   };
 
