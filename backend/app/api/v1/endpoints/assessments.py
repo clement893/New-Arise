@@ -50,6 +50,7 @@ class AssessmentListItem(BaseModel):
     answer_count: Optional[int] = 0  # Number of answers provided
     total_questions: Optional[int] = 30  # Total number of questions (30 for most assessments)
     created_at: Optional[datetime] = None
+    user_being_evaluated: Optional[Dict[str, Any]] = None  # For evaluator assessments: name and email of the person being evaluated
 
     class Config:
         from_attributes = True
@@ -193,20 +194,64 @@ async def list_assessments(
 ):
     """
     Get list of all assessments for the current user
+    Includes both self-assessments and evaluator assessments (where user is a contributor)
     """
+    # Get self-assessments (excluding evaluator assessments)
     result = await db.execute(
         select(Assessment, User)
         .join(User, Assessment.user_id == User.id)
         .where(
             Assessment.user_id == current_user.id,
-            Assessment.assessment_type != AssessmentType.THREE_SIXTY_EVALUATOR  # Exclude evaluator assessments
+            Assessment.assessment_type != AssessmentType.THREE_SIXTY_EVALUATOR
         )
         .order_by(Assessment.created_at.desc())
     )
     results = result.all()
 
+    # Get evaluator assessments (where user is a contributor)
+    # First, find all evaluator records where current user is the evaluator
+    evaluator_records_result = await db.execute(
+        select(Assessment360Evaluator)
+        .where(
+            Assessment360Evaluator.evaluator_email == current_user.email,
+            Assessment360Evaluator.evaluator_assessment_id.isnot(None)
+        )
+    )
+    evaluator_records = evaluator_records_result.scalars().all()
+    
+    evaluator_results = []
+    for evaluator_record in evaluator_records:
+        # Get the evaluator's assessment
+        if evaluator_record.evaluator_assessment_id:
+            assessment_result = await db.execute(
+                select(Assessment)
+                .where(Assessment.id == evaluator_record.evaluator_assessment_id)
+            )
+            evaluator_assessment = assessment_result.scalar_one_or_none()
+            
+            if evaluator_assessment and evaluator_assessment.status == AssessmentStatus.COMPLETED:
+                # Get the parent assessment (the THREE_SIXTY_SELF assessment)
+                parent_assessment_result = await db.execute(
+                    select(Assessment)
+                    .where(Assessment.id == evaluator_record.assessment_id)
+                )
+                parent_assessment = parent_assessment_result.scalar_one_or_none()
+                
+                if parent_assessment:
+                    # Get the user being evaluated (owner of the parent assessment)
+                    evaluated_user_result = await db.execute(
+                        select(User)
+                        .where(User.id == parent_assessment.user_id)
+                    )
+                    evaluated_user = evaluated_user_result.scalar_one_or_none()
+                    
+                    if evaluated_user:
+                        evaluator_results.append((evaluator_record, evaluator_assessment, evaluated_user))
+
     # Format response
     response = []
+    
+    # Add self-assessments
     for assessment, user in results:
         score_summary = None
         if assessment.processed_score:
@@ -254,8 +299,57 @@ async def list_assessments(
             score_summary=score_summary,
             answer_count=answer_count,
             total_questions=total_questions,
-            created_at=assessment.created_at
+            created_at=assessment.created_at,
+            user_being_evaluated=None
         ))
+    
+    # Add evaluator assessments (where user is a contributor)
+    for evaluator, assessment, evaluated_user in evaluator_results:
+        score_summary = None
+        if assessment.processed_score:
+            score_summary = {
+                "total_score": assessment.processed_score.get("total_score"),
+            }
+
+        # Count answers for this assessment
+        answer_count_result = await db.execute(
+            select(func.count(AssessmentAnswer.id))
+            .where(AssessmentAnswer.assessment_id == assessment.id)
+        )
+        answer_count = answer_count_result.scalar() or 0
+
+        # Get total questions from configuration
+        total_questions = get_total_questions(assessment.assessment_type)
+
+        # Get name of the person being evaluated
+        evaluated_user_name = None
+        if evaluated_user.first_name or evaluated_user.last_name:
+            evaluated_user_name = f"{evaluated_user.first_name or ''} {evaluated_user.last_name or ''}".strip()
+        elif evaluated_user.email:
+            evaluated_user_name = evaluated_user.email.split("@")[0]
+
+        # Convert to THREE_SIXTY_SELF type for display purposes (it's actually an evaluator assessment)
+        response.append(AssessmentListItem(
+            id=assessment.id,
+            user_id=assessment.user_id,
+            user_email=evaluated_user.email,
+            user_name=evaluated_user_name,
+            assessment_type=AssessmentType.THREE_SIXTY_SELF.value,  # Display as 360 feedback
+            status=assessment.status.value,
+            started_at=assessment.started_at,
+            completed_at=assessment.completed_at,
+            score_summary=score_summary,
+            answer_count=answer_count,
+            total_questions=total_questions,
+            created_at=assessment.created_at,
+            user_being_evaluated={
+                "name": evaluated_user_name,
+                "email": evaluated_user.email
+            }
+        ))
+
+    # Sort all assessments by created_at descending (most recent first)
+    response.sort(key=lambda x: x.created_at or datetime.min.replace(tzinfo=timezone.utc), reverse=True)
 
     return response
 

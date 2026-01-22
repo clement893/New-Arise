@@ -46,6 +46,10 @@ export interface Assessment {
   answer_count?: number;
   total_questions?: number;
   score_summary?: Record<string, any>; // Summary of scores from processed_score
+  user_being_evaluated?: {
+    name: string;
+    email: string;
+  }; // For evaluator assessments: name and email of the person being evaluated
 }
 
 export interface AssessmentAnswer {

@@ -66,15 +66,26 @@ function ResultsReportsContent() {
             result = 'Wellness Score';
           } else if (assessment.assessment_type === 'THREE_SIXTY_SELF' && summary.total_score) {
             score = `${Math.round(summary.total_score)}%`;
-            result = '360° Feedback';
+            // If this is an evaluator assessment, show contributor name
+            if (assessment.user_being_evaluated?.name) {
+              result = `360° Feedback - Contributor : ${assessment.user_being_evaluated.name}`;
+            } else {
+              result = '360° Feedback';
+            }
           } else if (summary.percentage) {
             score = `${Math.round(summary.percentage)}%`;
           }
         }
 
+        // For 360 feedback assessments where user is a contributor, include contributor name
+        let assessmentName = getAssessmentName(assessment.assessment_type);
+        if (assessment.assessment_type === 'THREE_SIXTY_SELF' && assessment.user_being_evaluated?.name) {
+          assessmentName = `360° Feedback - Contributor : ${assessment.user_being_evaluated.name}`;
+        }
+
         return {
           id: assessment.id,
-          name: getAssessmentName(assessment.assessment_type),
+          name: assessmentName,
           type: assessment.assessment_type,
           status: 'completed',
           completedDate,
