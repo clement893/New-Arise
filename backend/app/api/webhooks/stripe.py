@@ -153,16 +153,21 @@ async def handle_checkout_completed(event_object: dict, db: AsyncSession, subscr
         logger.error(f"Invalid user_id or plan_id in checkout metadata: {e}")
         return
     
-    # Check if subscription already exists (race condition protection)
+    # Check if subscription already exists with this Stripe subscription ID (race condition protection)
     if subscription_id:
         result = await db.execute(
             select(Subscription).where(
                 Subscription.stripe_subscription_id == subscription_id
             )
         )
-        existing = result.scalar_one_or_none()
-        if existing:
+        existing_by_stripe_id = result.scalar_one_or_none()
+        if existing_by_stripe_id:
             logger.info(f"Subscription {subscription_id} already exists, skipping creation")
+            # Update plan if it changed
+            if existing_by_stripe_id.plan_id != plan_id:
+                logger.info(f"Updating existing subscription {existing_by_stripe_id.id} to plan {plan_id}")
+                existing_by_stripe_id.plan_id = plan_id
+                await db.commit()
             return
     
     # For checkout.session.completed, subscription_id might be None for one-time payments
@@ -173,6 +178,62 @@ async def handle_checkout_completed(event_object: dict, db: AsyncSession, subscr
         # If it's not a subscription, we might not want to create a subscription record
         # For now, we'll skip creation if no subscription_id
         return
+    
+    # Check if user already has an active subscription (for plan changes)
+    # If so, we should update it instead of creating a new one
+    existing_subscription = await subscription_service.get_user_subscription(
+        user_id=user_id,
+        active_only=True,
+        include_plan=False
+    )
+    
+    if existing_subscription:
+        # User already has an active subscription - this is a plan change
+        logger.info(f"User {user_id} already has active subscription {existing_subscription.id}, updating to plan {plan_id}")
+        
+        # Get subscription details from Stripe
+        try:
+            # Initialize Stripe if needed
+            if not stripe.api_key and hasattr(settings, 'STRIPE_SECRET_KEY') and settings.STRIPE_SECRET_KEY:
+                stripe.api_key = settings.STRIPE_SECRET_KEY
+            
+            stripe_subscription = stripe.Subscription.retrieve(subscription_id)
+            
+            # Update the existing subscription with new Stripe subscription ID and plan
+            existing_subscription.stripe_subscription_id = subscription_id
+            existing_subscription.plan_id = plan_id
+            if customer_id:
+                existing_subscription.stripe_customer_id = customer_id
+            
+            if stripe_subscription.current_period_start:
+                existing_subscription.current_period_start = datetime.fromtimestamp(
+                    stripe_subscription.current_period_start, 
+                    tz=timezone.utc
+                )
+            
+            if stripe_subscription.current_period_end:
+                existing_subscription.current_period_end = datetime.fromtimestamp(
+                    stripe_subscription.current_period_end,
+                    tz=timezone.utc
+                )
+            
+            if stripe_subscription.trial_end:
+                existing_subscription.trial_end = datetime.fromtimestamp(
+                    stripe_subscription.trial_end, 
+                    tz=timezone.utc
+                )
+                from app.models.subscription import SubscriptionStatus
+                existing_subscription.status = SubscriptionStatus.TRIALING
+            else:
+                from app.models.subscription import SubscriptionStatus
+                existing_subscription.status = SubscriptionStatus.ACTIVE
+            
+            await db.commit()
+            logger.info(f"Updated subscription {existing_subscription.id} to plan {plan_id}")
+            return
+        except Exception as e:
+            logger.error(f"Error updating existing subscription: {e}", exc_info=True)
+            # Fall through to create new subscription if update fails
     
     # Get subscription details from Stripe if subscription_id exists
     trial_end = None
@@ -205,7 +266,7 @@ async def handle_checkout_completed(event_object: dict, db: AsyncSession, subscr
             logger.warning(f"Could not retrieve Stripe subscription details: {e}")
             # Continue without Stripe details
     
-    # Create subscription
+    # Create new subscription (only if user doesn't have an active one)
     await subscription_service.create_subscription(
         user_id=user_id,
         plan_id=plan_id,

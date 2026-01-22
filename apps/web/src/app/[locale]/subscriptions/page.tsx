@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getErrorMessage, getErrorDetail } from '@/lib/errors';
-import { useMySubscription, useSubscriptionPayments, useCreateCheckoutSession, useCancelSubscription, useSubscriptionPlans } from '@/lib/query/queries';
+import { useMySubscription, useSubscriptionPayments, useCreateCheckoutSession, useCancelSubscription, useSubscriptionPlans, useUpgradePlan } from '@/lib/query/queries';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Alert from '@/components/ui/Alert';
@@ -42,6 +42,7 @@ function SubscriptionsContent() {
   const { data: paymentsData, isLoading: paymentsLoading } = useSubscriptionPayments();
   const { data: plansData, isLoading: plansLoading } = useSubscriptionPlans(true);
   const createCheckoutMutation = useCreateCheckoutSession();
+  const upgradePlanMutation = useUpgradePlan();
   const cancelSubscriptionMutation = useCancelSubscription();
   
   const [subscription, setSubscription] = useState<Subscription | null>(null);
@@ -129,24 +130,40 @@ function SubscriptionsContent() {
     const period = searchParams.get('period') as 'month' | 'year' | null;
     const checkoutKey = planId && period ? `${planId}-${period}` : '';
     
-    // Only trigger if we have both params and we haven't processed this exact checkout yet
-    if (planId && period && checkoutKey !== processedCheckout && !createCheckoutMutation.isPending) {
+    // Wait for subscription data to load before processing
+    // Only trigger if we have both params, haven't processed this exact checkout yet, and subscription data is loaded
+    if (planId && period && checkoutKey !== processedCheckout && !subscriptionLoading && !createCheckoutMutation.isPending && !upgradePlanMutation.isPending) {
       // Call handleSubscribe directly to avoid dependency issues
       (async () => {
         try {
           setProcessedCheckout(checkoutKey);
           setError('');
-          const response = await createCheckoutMutation.mutateAsync({
-            plan_id: parseInt(planId, 10),
-            success_url: `${window.location.origin}/subscriptions/success?plan=${planId}&period=${period}`,
-            cancel_url: `${window.location.origin}/subscriptions`,
-          });
           
-          // Backend returns 'url' not 'checkout_url' (see CheckoutSessionResponse schema)
-          if (response.data?.url) {
-            window.location.href = response.data.url;
+          const planIdNum = parseInt(planId, 10);
+          
+          // Check if user already has an active subscription
+          const hasActiveSubscription = subscription && (subscription.status === 'active' || subscription.status === 'trial');
+          
+          if (hasActiveSubscription) {
+            // Use upgrade endpoint instead of checkout
+            await upgradePlanMutation.mutateAsync(planIdNum);
+            setError('');
+            // Redirect to success page
+            router.push(`/subscriptions/success?plan=${planId}&period=${period}&upgraded=true`);
           } else {
-            router.push(`/subscriptions/success?plan=${planId}&period=${period}`);
+            // Create new checkout session
+            const response = await createCheckoutMutation.mutateAsync({
+              plan_id: planIdNum,
+              success_url: `${window.location.origin}/subscriptions/success?plan=${planId}&period=${period}`,
+              cancel_url: `${window.location.origin}/subscriptions`,
+            });
+            
+            // Backend returns 'url' not 'checkout_url' (see CheckoutSessionResponse schema)
+            if (response.data?.url) {
+              window.location.href = response.data.url;
+            } else {
+              router.push(`/subscriptions/success?plan=${planId}&period=${period}`);
+            }
           }
         } catch (err: unknown) {
           const errorDetail = getErrorDetail(err);
@@ -157,7 +174,7 @@ function SubscriptionsContent() {
         }
       })();
     }
-  }, [searchParams, processedCheckout, createCheckoutMutation, router]);
+  }, [searchParams, processedCheckout, createCheckoutMutation, upgradePlanMutation, router, subscription, subscriptionLoading]);
 
   const handleCancelSubscription = async () => {
     if (!confirm('Are you sure you want to cancel your subscription? It will remain active until the end of the current period.')) {
@@ -194,16 +211,29 @@ function SubscriptionsContent() {
   const handleSelectPlan = async (planId: number) => {
     try {
       setError('');
-      const response = await createCheckoutMutation.mutateAsync({
-        plan_id: planId,
-        success_url: `${window.location.origin}/subscriptions/success?plan=${planId}`,
-        cancel_url: `${window.location.origin}/subscriptions`,
-      });
       
-      if (response.data?.url) {
-        window.location.href = response.data.url;
+      // Check if user already has an active subscription
+      const hasActiveSubscription = subscription && (subscription.status === 'active' || subscription.status === 'trial');
+      
+      if (hasActiveSubscription) {
+        // Use upgrade endpoint instead of checkout
+        await upgradePlanMutation.mutateAsync(planId);
+        setError('');
+        // Redirect to success page
+        router.push(`/subscriptions/success?plan=${planId}&upgraded=true`);
       } else {
-        router.push(`/subscriptions/success?plan=${planId}`);
+        // Create new checkout session
+        const response = await createCheckoutMutation.mutateAsync({
+          plan_id: planId,
+          success_url: `${window.location.origin}/subscriptions/success?plan=${planId}`,
+          cancel_url: `${window.location.origin}/subscriptions`,
+        });
+        
+        if (response.data?.url) {
+          window.location.href = response.data.url;
+        } else {
+          router.push(`/subscriptions/success?plan=${planId}`);
+        }
       }
     } catch (err: unknown) {
       const errorDetail = getErrorDetail(err);
@@ -265,8 +295,8 @@ function SubscriptionsContent() {
                     key={plan.id}
                     plan={plan}
                     onSelect={handleSelectPlan}
-                    isLoading={createCheckoutMutation.isPending}
-                    currentPlanId={undefined}
+                    isLoading={createCheckoutMutation.isPending || upgradePlanMutation.isPending}
+                    currentPlanId={subscription ? parseInt(subscription.plan_id, 10) : undefined}
                   />
                 ))}
               </div>

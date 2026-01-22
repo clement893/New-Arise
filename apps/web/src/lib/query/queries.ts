@@ -198,6 +198,17 @@ export function useCreatePortalSession() {
   });
 }
 
+export function useUpgradePlan() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (planId: number) => subscriptionsAPI.upgradePlan(planId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.me });
+    },
+  });
+}
+
 // Teams Hooks
 export function useTeams() {
   return useQuery({

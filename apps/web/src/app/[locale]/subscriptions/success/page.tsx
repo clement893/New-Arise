@@ -3,10 +3,12 @@
 import { useEffect, useState, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/lib/store';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Loading from '@/components/ui/Loading';
+import { queryKeys } from '@/lib/query/queryKeys';
 
 // Note: Client Components are already dynamic by nature.
 // Route segment config (export const dynamic) only works in Server Components.
@@ -16,6 +18,7 @@ import Loading from '@/components/ui/Loading';
 function SubscriptionSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const { isAuthenticated } = useAuthStore();
   const [planName, setPlanName] = useState('');
   const [billingPeriod, setBillingPeriod] = useState<'month' | 'year'>('month');
@@ -42,7 +45,11 @@ function SubscriptionSuccessContent() {
     }
 
     initializeData();
-  }, [isAuthenticated, router, initializeData]);
+    
+    // Invalidate subscription queries to refresh data after payment
+    queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.me });
+    queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.payments });
+  }, [isAuthenticated, router, initializeData, queryClient]);
 
   if (!isAuthenticated()) {
     return null;
