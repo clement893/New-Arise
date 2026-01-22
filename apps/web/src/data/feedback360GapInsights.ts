@@ -146,17 +146,28 @@ export function getFeedback360GapInsightWithLocale(
   const isFrench = locale === 'fr' || locale.startsWith('fr');
   
   // Determine color and awareness level based on gap
+  // Gap ranges:
+  // 0: Self perception is exactly the same as the group average (#C6EFCE)
+  // 0.1-0.5: Self perception is slightly higher than the group average (#FFEB9C)
+  // -0.5 to -0.1: Self perception is slightly lower than the group average (#FFEB9C)
+  // > 0.5: Self perception is significantly higher than the group average (#FFC7CE)
+  // < -0.5: Self perception is significantly lower than the group average (#FFC7CE)
   let colorCode = '#C6EFCE';
   let awarenessLevel = '1️⃣ High Self-Awareness';
   
-  const absGap = Math.abs(gap);
-  if (absGap === 0) {
+  if (gap === 0) {
     colorCode = '#C6EFCE';
     awarenessLevel = '1️⃣ High Self-Awareness';
-  } else if (absGap >= 0.1 && absGap <= 0.5) {
+  } else if (gap >= 0.1 && gap <= 0.5) {
     colorCode = '#FFEB9C';
     awarenessLevel = '2️⃣ Good-Partial Self-Awareness';
-  } else if (absGap > 0.5) {
+  } else if (gap >= -0.5 && gap <= -0.1) {
+    colorCode = '#FFEB9C';
+    awarenessLevel = '2️⃣ Good-Partial Self-Awareness';
+  } else if (gap > 0.5) {
+    colorCode = '#FFC7CE';
+    awarenessLevel = '3️⃣ Limited Self-Awareness';
+  } else if (gap < -0.5) {
     colorCode = '#FFC7CE';
     awarenessLevel = '3️⃣ Limited Self-Awareness';
   }
@@ -198,30 +209,50 @@ export function getFeedback360GapInsight(
 
 /**
  * Get color code for a gap value
+ * Gap ranges:
+ * 0: Self perception is exactly the same as the group average (#C6EFCE)
+ * 0.1-0.5: Self perception is slightly higher than the group average (#FFEB9C)
+ * -0.5 to -0.1: Self perception is slightly lower than the group average (#FFEB9C)
+ * > 0.5: Self perception is significantly higher than the group average (#FFC7CE)
+ * < -0.5: Self perception is significantly lower than the group average (#FFC7CE)
  */
 export function get360GapColorCode(gap: number): string {
-  const absGap = Math.abs(gap);
-  
-  if (absGap === 0) {
+  if (gap === 0) {
     return '#C6EFCE'; // Green - High Self-Awareness
-  } else if (absGap >= 0.1 && absGap <= 0.5) {
-    return '#FFEB9C'; // Yellow - Good-Partial Self-Awareness
-  } else {
-    return '#FFC7CE'; // Red - Limited Self-Awareness
+  } else if (gap >= 0.1 && gap <= 0.5) {
+    return '#FFEB9C'; // Yellow - Good-Partial Self-Awareness (slightly higher)
+  } else if (gap >= -0.5 && gap <= -0.1) {
+    return '#FFEB9C'; // Yellow - Good-Partial Self-Awareness (slightly lower)
+  } else if (gap > 0.5) {
+    return '#FFC7CE'; // Red - Limited Self-Awareness (significantly higher)
+  } else if (gap < -0.5) {
+    return '#FFC7CE'; // Red - Limited Self-Awareness (significantly lower)
   }
+  // Default fallback
+  return '#C6EFCE';
 }
 
 /**
  * Get awareness level label for a gap value
+ * Gap ranges:
+ * 0: Self perception is exactly the same as the group average
+ * 0.1-0.5: Self perception is slightly higher than the group average
+ * -0.5 to -0.1: Self perception is slightly lower than the group average
+ * > 0.5: Self perception is significantly higher than the group average
+ * < -0.5: Self perception is significantly lower than the group average
  */
 export function get360GapAwarenessLevel(gap: number): string {
-  const absGap = Math.abs(gap);
-  
-  if (absGap === 0) {
+  if (gap === 0) {
     return '1️⃣ High Self-Awareness';
-  } else if (absGap >= 0.1 && absGap <= 0.5) {
+  } else if (gap >= 0.1 && gap <= 0.5) {
     return '2️⃣ Good-Partial Self-Awareness';
-  } else {
+  } else if (gap >= -0.5 && gap <= -0.1) {
+    return '2️⃣ Good-Partial Self-Awareness';
+  } else if (gap > 0.5) {
+    return '3️⃣ Limited Self-Awareness';
+  } else if (gap < -0.5) {
     return '3️⃣ Limited Self-Awareness';
   }
+  // Default fallback
+  return '1️⃣ High Self-Awareness';
 }
