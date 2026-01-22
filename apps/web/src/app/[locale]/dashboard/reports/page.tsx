@@ -196,17 +196,19 @@ function ResultsReportsContent() {
       } else if (threeSixtyAssessments.length === 1) {
         // Even if there's only one, double-check it's not a contributor assessment
         const single360 = threeSixtyAssessments[0];
-        const hasUserBeingEvaluated = single360.user_being_evaluated !== undefined && single360.user_being_evaluated !== null;
-        const isContributor = single360.is_contributor_assessment === true;
-        if (hasUserBeingEvaluated || isContributor) {
-          console.log('[Reports Page] Single 360 assessment is a contributor assessment, removing it:', {
-            id: single360.id,
-            hasUserBeingEvaluated,
-            isContributor
-          });
-          const otherAssessments = completedAssessments.filter(a => a.assessment_type !== 'THREE_SIXTY_SELF');
-          completedAssessments.length = 0;
-          completedAssessments.push(...otherAssessments);
+        if (single360) {
+          const hasUserBeingEvaluated = single360.user_being_evaluated !== undefined && single360.user_being_evaluated !== null;
+          const isContributor = single360.is_contributor_assessment === true;
+          if (hasUserBeingEvaluated || isContributor) {
+            console.log('[Reports Page] Single 360 assessment is a contributor assessment, removing it:', {
+              id: single360.id,
+              hasUserBeingEvaluated,
+              isContributor
+            });
+            const otherAssessments = completedAssessments.filter(a => a.assessment_type !== 'THREE_SIXTY_SELF');
+            completedAssessments.length = 0;
+            completedAssessments.push(...otherAssessments);
+          }
         }
       }
       
