@@ -13,6 +13,7 @@ import { usersAPI, apiClient } from '@/lib/api';
 import { useToast } from '@/lib/toast';
 import { transformApiUserToStoreUser, type ApiUserResponse } from '@/lib/auth/userTransform';
 import { SquarePen } from 'lucide-react';
+import { useMySubscription } from '@/lib/query/queries';
 
 export default function ProfilePage() {
   const t = useTranslations('profile');
@@ -20,6 +21,7 @@ export default function ProfilePage() {
   const searchParams = useSearchParams();
   const { user, setUser } = useAuthStore();
   const { showToast } = useToast();
+  const { data: subscriptionData } = useMySubscription();
   
   // Initialize activeTab from URL parameter or default to 'profile'
   const [activeTab, setActiveTab] = useState<'profile' | 'subscription'>(() => {
@@ -29,6 +31,44 @@ export default function ProfilePage() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  
+  // Get current plan name from subscription
+  const getCurrentPlanName = (): string => {
+    try {
+      // Get subscription data from React Query response
+      const actualSubscriptionData = subscriptionData?.data?.data || subscriptionData?.data;
+      
+      // Try to get from subscription data
+      if (actualSubscriptionData?.plan?.name) {
+        return actualSubscriptionData.plan.name;
+      }
+      
+      // Try to get from cache
+      if (typeof window !== 'undefined') {
+        try {
+          const cachedSubscription = localStorage.getItem('subscription_cache');
+          if (cachedSubscription) {
+            const parsed = JSON.parse(cachedSubscription);
+            if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) {
+              const cachedData = parsed.data;
+              if (cachedData?.plan?.name) {
+                return cachedData.plan.name;
+              }
+            }
+          }
+        } catch (e) {
+          // Ignore cache errors
+        }
+      }
+    } catch (error) {
+      console.error('[Profile] Error getting plan name:', error);
+    }
+    
+    // Fallback to translation if no plan found
+    return t('planLabel');
+  };
+  
+  const currentPlanName = getCurrentPlanName();
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -282,7 +322,7 @@ export default function ProfilePage() {
               <div>
                 <h3 className="text-xl font-bold text-gray-900">{user?.name || t('nameFallback')}</h3>
                 <span className="inline-block px-3 py-1 bg-arise-deep-teal-alt/10 text-arise-deep-teal-alt rounded-full text-xs font-medium mt-1">
-                  {t('planLabel')}
+                  {currentPlanName}
                 </span>
               </div>
             </div>

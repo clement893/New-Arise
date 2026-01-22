@@ -671,7 +671,50 @@ function AssessmentsContent() {
       setError(null);
       
       // Get assessments from API
-      const allApiAssessments: ApiAssessment[] = await getMyAssessments();
+      let allApiAssessments: ApiAssessment[] = [];
+      try {
+        allApiAssessments = await getMyAssessments();
+      } catch (apiError: any) {
+        // If we get a 401, try to use cached assessments
+        if (apiError?.response?.status === 401) {
+          console.warn('[Assessments] 401 Unauthorized - trying to use cached assessments');
+          // Try to load from cache
+          if (typeof window !== 'undefined') {
+            try {
+              const cached = sessionStorage.getItem('assessments_cache');
+              if (cached) {
+                const parsed = JSON.parse(cached);
+                if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) {
+                  const cachedAssessments = parsed.data || [];
+                  if (cachedAssessments.length > 0) {
+                    console.log('[Assessments] Using cached assessments due to 401 error');
+                    // Restore icons from ASSESSMENT_CONFIG
+                    const restoredAssessments = cachedAssessments.map((assessment: any) => {
+                      const config = ASSESSMENT_CONFIG[assessment.id];
+                      return {
+                        ...assessment,
+                        icon: config?.icon || Heart,
+                      };
+                    });
+                    setAssessments(restoredAssessments);
+                    setIsLoading(false);
+                    return;
+                  }
+                }
+              }
+            } catch (cacheError) {
+              console.error('[Assessments] Error loading from cache:', cacheError);
+            }
+          }
+          // If no cache, set error but don't block - show empty state
+          setError('Your session has expired. Please refresh the page or log in again.');
+          setAssessments([]);
+          setIsLoading(false);
+          return;
+        }
+        // Re-throw other errors
+        throw apiError;
+      }
       // Filter out evaluator assessments (360_evaluator) - these are created for each evaluator and shouldn't appear in user's list
       const apiAssessments = allApiAssessments.filter(
         (a) => {
