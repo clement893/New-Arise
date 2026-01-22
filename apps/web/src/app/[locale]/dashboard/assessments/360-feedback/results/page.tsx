@@ -534,53 +534,6 @@ export default function Feedback360ResultsPage() {
                     )}
                   </div>
 
-                  {/* Scores */}
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div>
-                      <div className="mb-2 flex items-center justify-between text-sm">
-                        <span className="text-gray-600">{t('capabilities.selfAssessment')}</span>
-                        <span 
-                          className="font-semibold"
-                          style={{ color: get360ScoreColorCode(capScore.self_score) }}
-                        >
-                          {capScore.self_score.toFixed(1)} / 5.0
-                        </span>
-                      </div>
-                      <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
-                        <div
-                          className="h-full"
-                          style={{ 
-                            width: `${(capScore.self_score / 5) * 100}%`,
-                            backgroundColor: get360ScoreColorCode(capScore.self_score)
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    {results.has_evaluator_responses && (
-                      <div>
-                        <div className="mb-2 flex items-center justify-between text-sm">
-                          <span className="text-gray-600">Others' Average</span>
-                          <span 
-                            className="font-semibold"
-                            style={{ color: get360ScoreColorCode(capScore.others_avg_score) }}
-                          >
-                            {capScore.others_avg_score.toFixed(1)} / 5.0
-                          </span>
-                        </div>
-                        <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
-                          <div
-                            className="h-full"
-                            style={{
-                              width: `${(capScore.others_avg_score / 5) * 100}%`,
-                              backgroundColor: get360ScoreColorCode(capScore.others_avg_score)
-                            }}
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
                   {/* Analysis and Recommendations based on score */}
                   {(() => {
                     // Use self_score for insights (or others_avg_score if available and preferred)
@@ -738,13 +691,13 @@ export default function Feedback360ResultsPage() {
                             return (
                               <div 
                                 key={cap.capability} 
-                                className="p-4 rounded-lg" 
+                                className="p-2 rounded-lg" 
                                 style={{ backgroundColor: '#FFC7CE' }}
                               >
                                 <div className="flex items-start gap-3">
                                   <span className="text-2xl">{capabilityIcon}</span>
                                   <div className="flex-1">
-                                    <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center justify-between">
                                       <h4 className="font-semibold text-gray-900 text-sm">{capabilityTitle}</h4>
                                       <span className="text-sm font-bold" style={{ color: '#FFC7CE' }}>
                                         {score.toFixed(1)}/5.0
@@ -781,13 +734,13 @@ export default function Feedback360ResultsPage() {
                             return (
                               <div 
                                 key={cap.capability} 
-                                className="p-4 rounded-lg" 
+                                className="p-2 rounded-lg" 
                                 style={{ backgroundColor: '#FFEB9C' }}
                               >
                                 <div className="flex items-start gap-3">
                                   <span className="text-2xl">{capabilityIcon}</span>
                                   <div className="flex-1">
-                                    <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center justify-between">
                                       <h4 className="font-semibold text-gray-900 text-sm">{capabilityTitle}</h4>
                                       <span className="text-sm font-bold" style={{ color: '#FFEB9C' }}>
                                         {score.toFixed(1)}/5.0
@@ -824,13 +777,13 @@ export default function Feedback360ResultsPage() {
                             return (
                               <div 
                                 key={cap.capability} 
-                                className="p-4 rounded-lg" 
+                                className="p-2 rounded-lg" 
                                 style={{ backgroundColor: '#C6EFCE' }}
                               >
                                 <div className="flex items-start gap-3">
                                   <span className="text-2xl">{capabilityIcon}</span>
                                   <div className="flex-1">
-                                    <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center justify-between">
                                       <h4 className="font-semibold text-gray-900 text-sm">{capabilityTitle}</h4>
                                       <span className="text-sm font-bold" style={{ color: '#C6EFCE' }}>
                                         {score.toFixed(1)}/5.0
@@ -896,6 +849,30 @@ export default function Feedback360ResultsPage() {
                       </span>
                     </div>
                   </div>
+
+                  {/* Others' Average */}
+                  {results.has_evaluator_responses && capScore.others_avg_score > 0 && (
+                    <div className="mb-4">
+                      <div className="mb-2 flex items-center justify-between text-sm">
+                        <span className="text-gray-600">Others' Average</span>
+                        <span 
+                          className="font-semibold"
+                          style={{ color: get360ScoreColorCode(capScore.others_avg_score) }}
+                        >
+                          {capScore.others_avg_score.toFixed(1)} / 5.0
+                        </span>
+                      </div>
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                        <div
+                          className="h-full"
+                          style={{
+                            width: `${(capScore.others_avg_score / 5) * 100}%`,
+                            backgroundColor: get360ScoreColorCode(capScore.others_avg_score)
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
 
                   {/* Gap-based Overview and Recommendation */}
                   {gapInsight && (
