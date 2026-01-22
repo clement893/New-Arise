@@ -78,7 +78,7 @@ function AssessmentsContent() {
   const router = useRouter();
   const pathname = usePathname();
   const { user } = useAuthStore();
-  const { data: subscriptionData } = useMySubscription();
+  const { data: subscriptionData, isLoading: subscriptionLoading, error: subscriptionError } = useMySubscription();
   const [showEvaluatorModal, setShowEvaluatorModal] = useState(false);
   const [evaluators, setEvaluators] = useState<Record<number, EvaluatorStatus[]>>({});
   const isInitialMount = useRef(true);
@@ -130,15 +130,34 @@ function AssessmentsContent() {
       // Get subscription data from React Query response
       // React Query wraps axios response in { data: AxiosResponse }
       // So subscriptionData.data is the AxiosResponse, and subscriptionData.data.data is the actual data
+      // But sometimes it's just subscriptionData.data directly
       const actualSubscriptionData = subscriptionData?.data?.data || subscriptionData?.data;
+      
+      console.log('[Assessments] Checking availability for:', assessmentType);
+      console.log('[Assessments] Subscription data structure:', {
+        hasSubscriptionData: !!subscriptionData,
+        hasData: !!subscriptionData?.data,
+        hasNestedData: !!subscriptionData?.data?.data,
+        actualData: actualSubscriptionData,
+        plan: actualSubscriptionData?.plan,
+        planName: actualSubscriptionData?.plan?.name,
+        planFeatures: actualSubscriptionData?.plan?.features
+      });
       
       // If no subscription, show all assessments (for testing/development)
       if (!actualSubscriptionData?.plan) {
+        console.log('[Assessments] No plan found, showing all assessments');
         return true;
       }
 
       const planName = actualSubscriptionData.plan.name?.toUpperCase() || '';
       const planFeatures = actualSubscriptionData.plan.features;
+      
+      console.log('[Assessments] Plan found:', {
+        planName,
+        planFeatures,
+        assessmentType
+      });
 
       // Parse plan features
       let features: Record<string, boolean> = {};
@@ -154,34 +173,47 @@ function AssessmentsContent() {
 
       // REVELATION plan: all assessments available
       if (planName === 'REVELATION') {
+        console.log('[Assessments] REVELATION plan - all assessments available');
         return true;
       }
 
       // SELF EXPLORATION plan: Professional Assessment (TKI) + Wellness Pulse + Executive Summary
       if (planName === 'SELF EXPLORATION') {
+        console.log('[Assessments] SELF EXPLORATION plan - checking features');
         if (assessmentType === 'TKI' || assessmentType === 'tki') {
-          return features.professional_assessment === true;
+          const available = features.professional_assessment === true;
+          console.log('[Assessments] TKI available:', available, 'feature:', features.professional_assessment);
+          return available;
         }
         if (assessmentType === 'WELLNESS' || assessmentType === 'wellness') {
-          return features.wellness_pulse === true;
+          const available = features.wellness_pulse === true;
+          console.log('[Assessments] WELLNESS available:', available, 'feature:', features.wellness_pulse);
+          return available;
         }
         // MBTI and 360 are not available in SELF EXPLORATION
         if (assessmentType === 'MBTI' || assessmentType === 'mbti') {
+          console.log('[Assessments] MBTI not available in SELF EXPLORATION');
           return false;
         }
         if (assessmentType === 'THREE_SIXTY_SELF' || assessmentType === '360_self') {
+          console.log('[Assessments] 360 not available in SELF EXPLORATION');
           return false;
         }
         // Default for SELF EXPLORATION: allow if not explicitly restricted
+        console.log('[Assessments] Default for SELF EXPLORATION - allowing');
         return true;
       }
 
       // WELLNESS plan: only Wellness Pulse + Basic Assessment Summary
       if (planName === 'WELLNESS') {
+        console.log('[Assessments] WELLNESS plan - checking features');
         if (assessmentType === 'WELLNESS' || assessmentType === 'wellness') {
-          return features.wellness_pulse === true;
+          const available = features.wellness_pulse === true;
+          console.log('[Assessments] WELLNESS available:', available, 'feature:', features.wellness_pulse);
+          return available;
         }
         // All other assessments are not available in WELLNESS plan
+        console.log('[Assessments] Assessment not available in WELLNESS plan:', assessmentType);
         return false;
       }
 
@@ -198,15 +230,19 @@ function AssessmentsContent() {
 
       const featureKey = featureMap[assessmentType];
       if (featureKey) {
-        return features[featureKey] === true;
+        const available = features[featureKey] === true;
+        console.log('[Assessments] Checking feature map:', { assessmentType, featureKey, available, featureValue: features[featureKey] });
+        return available;
       }
 
       // MBTI: only available in REVELATION (handled above)
       if (assessmentType === 'MBTI' || assessmentType === 'mbti') {
+        console.log('[Assessments] MBTI not available in plan:', planName);
         return false;
       }
 
       // Default: allow if not explicitly restricted
+      console.log('[Assessments] Default - allowing assessment:', assessmentType);
       return true;
     } catch (error) {
       // If any error occurs, show all assessments to avoid blocking the user
@@ -674,7 +710,14 @@ function AssessmentsContent() {
       // Build display assessments list
       console.log('[Assessments] Building display assessments list...');
       console.log('[Assessments] ASSESSMENT_CONFIG keys:', Object.keys(ASSESSMENT_CONFIG));
-      console.log('[Assessments] Subscription data:', subscriptionData);
+      console.log('[Assessments] Subscription data:', {
+        subscriptionData,
+        subscriptionLoading,
+        subscriptionError,
+        hasData: !!subscriptionData,
+        hasNestedData: !!subscriptionData?.data,
+        actualData: subscriptionData?.data?.data || subscriptionData?.data
+      });
       
       const displayAssessments: AssessmentDisplay[] = Object.entries(ASSESSMENT_CONFIG)
         .filter(([type]) => type !== '360_evaluator') // Skip 360_evaluator as it's not a valid AssessmentType
@@ -1341,7 +1384,7 @@ function AssessmentsContent() {
               {safeAssessments.length === 0 && !isLoading ? (
                 <Card className="p-8 text-center">
                   <p className="text-gray-600 mb-4">
-                    {t('noAssessmentsAvailable') || 'No assessments available for your current plan.'}
+                    {t('noAssessmentsAvailable')}
                   </p>
                   <p className="text-sm text-gray-500">
                     Please contact support or upgrade your plan to access more assessments.

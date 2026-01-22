@@ -164,6 +164,7 @@
       "refreshing": "Refreshing...",
       "retry": "Retry",
       "refreshPage": "Refresh Page",
+      "noAssessmentsAvailable": "No assessments available for your current plan.",
       "status": {
         "completed": "Completed",
         "inProgress": "In Progress",

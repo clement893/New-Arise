@@ -98,6 +98,7 @@
       "refreshing": "Actualisation...",
       "retry": "Réessayer",
       "refreshPage": "Actualiser la page",
+      "noAssessmentsAvailable": "Aucun assessment disponible pour votre plan actuel.",
       "status": {
         "completed": "Complété",
         "inProgress": "En cours",
