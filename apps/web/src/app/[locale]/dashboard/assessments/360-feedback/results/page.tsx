@@ -189,8 +189,9 @@ export default function Feedback360ResultsPage() {
 
       // Only load evaluators if this is NOT a contributor assessment
       // Contributor assessments don't have evaluators (they ARE the evaluator)
+      let evaluatorsResponse: { evaluators: EvaluatorStatus[] } = { evaluators: [] };
       if (!isContributor) {
-        const evaluatorsResponse = await get360Evaluators(id).catch(() => ({ evaluators: [] })); // Don't fail if evaluators endpoint fails
+        evaluatorsResponse = await get360Evaluators(id).catch(() => ({ evaluators: [] })); // Don't fail if evaluators endpoint fails
         setEvaluators(evaluatorsResponse.evaluators || []);
       } else {
         setEvaluators([]);
