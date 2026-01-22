@@ -89,6 +89,14 @@ function ResultsReportsContent() {
       setError(null);
       const apiAssessments = await getMyAssessments();
       
+      // Safety check: if apiAssessments is not an array, return early
+      if (!Array.isArray(apiAssessments)) {
+        console.error('[Reports Page] apiAssessments is not an array:', apiAssessments);
+        setAssessments([]);
+        setIsLoading(false);
+        return;
+      }
+      
       // Debug: log all assessments to see their structure
       console.log('[Reports Page] All assessments:', apiAssessments.map(a => ({
         id: a.id,
@@ -148,22 +156,56 @@ function ResultsReportsContent() {
       
       // Additional safety check: For THREE_SIXTY_SELF assessments, if there are multiple,
       // only keep the one without user_being_evaluated (the self-assessment)
+      // This is critical because contributors' assessments might not be properly marked
       const threeSixtyAssessments = completedAssessments.filter(a => a.assessment_type === 'THREE_SIXTY_SELF');
       if (threeSixtyAssessments.length > 1) {
         console.log('[Reports Page] Multiple 360 assessments found, filtering to keep only self-assessment:', threeSixtyAssessments.map(a => ({
           id: a.id,
           has_user_being_evaluated: !!a.user_being_evaluated,
-          is_contributor: a.is_contributor_assessment
+          is_contributor: a.is_contributor_assessment,
+          user_being_evaluated: a.user_being_evaluated
         })));
         // Remove all 360 assessments that have user_being_evaluated or is_contributor_assessment
-        const filtered360 = threeSixtyAssessments.filter(a => 
-          !a.user_being_evaluated && a.is_contributor_assessment !== true
-        );
+        // Keep only the one that is clearly a self-assessment (no user_being_evaluated, not marked as contributor)
+        const filtered360 = threeSixtyAssessments.filter(a => {
+          const hasUserBeingEvaluated = a.user_being_evaluated !== undefined && a.user_being_evaluated !== null;
+          const isContributor = a.is_contributor_assessment === true;
+          const isSelfAssessment = !hasUserBeingEvaluated && !isContributor;
+          if (!isSelfAssessment) {
+            console.log('[Reports Page] Excluding 360 assessment (multiple check):', {
+              id: a.id,
+              hasUserBeingEvaluated,
+              isContributor
+            });
+          }
+          return isSelfAssessment;
+        });
+        // If we have multiple and filtered to zero, keep the oldest one (most likely the self-assessment)
+        const final360 = filtered360.length > 0 ? filtered360 : [threeSixtyAssessments.sort((a, b) => {
+          const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+          const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+          return dateA - dateB; // Oldest first
+        })[0]];
         // Replace 360 assessments in completedAssessments
         const otherAssessments = completedAssessments.filter(a => a.assessment_type !== 'THREE_SIXTY_SELF');
         completedAssessments.length = 0;
-        completedAssessments.push(...otherAssessments, ...filtered360);
+        completedAssessments.push(...otherAssessments, ...final360);
         console.log('[Reports Page] After filtering multiple 360 assessments:', completedAssessments.filter(a => a.assessment_type === 'THREE_SIXTY_SELF').length);
+      } else if (threeSixtyAssessments.length === 1) {
+        // Even if there's only one, double-check it's not a contributor assessment
+        const single360 = threeSixtyAssessments[0];
+        const hasUserBeingEvaluated = single360.user_being_evaluated !== undefined && single360.user_being_evaluated !== null;
+        const isContributor = single360.is_contributor_assessment === true;
+        if (hasUserBeingEvaluated || isContributor) {
+          console.log('[Reports Page] Single 360 assessment is a contributor assessment, removing it:', {
+            id: single360.id,
+            hasUserBeingEvaluated,
+            isContributor
+          });
+          const otherAssessments = completedAssessments.filter(a => a.assessment_type !== 'THREE_SIXTY_SELF');
+          completedAssessments.length = 0;
+          completedAssessments.push(...otherAssessments);
+        }
       }
       
       console.log('[Reports Page] Filtered assessments (after excluding contributors):', completedAssessments.length, completedAssessments.map(a => ({ id: a.id, type: a.assessment_type })));
