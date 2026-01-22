@@ -87,7 +87,9 @@ function AssessmentsContent() {
       hasData: !!subscriptionData,
       isLoading: subscriptionLoading,
       hasError: !!subscriptionError,
-      errorStatus: subscriptionError?.response?.status,
+      errorStatus: subscriptionError && typeof subscriptionError === 'object' && 'response' in subscriptionError
+        ? (subscriptionError as { response?: { status?: number } }).response?.status
+        : undefined,
       dataStructure: subscriptionData ? Object.keys(subscriptionData) : 'no data',
       rawData: subscriptionData
     });
