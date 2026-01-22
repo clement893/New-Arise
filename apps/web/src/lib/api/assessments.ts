@@ -50,6 +50,7 @@ export interface Assessment {
     name: string;
     email: string;
   }; // For evaluator assessments: name and email of the person being evaluated
+  is_contributor_assessment?: boolean; // True if this is an assessment where the current user is a contributor/evaluator
 }
 
 export interface AssessmentAnswer {

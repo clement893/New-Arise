@@ -51,6 +51,7 @@ class AssessmentListItem(BaseModel):
     total_questions: Optional[int] = 30  # Total number of questions (30 for most assessments)
     created_at: Optional[datetime] = None
     user_being_evaluated: Optional[Dict[str, Any]] = None  # For evaluator assessments: name and email of the person being evaluated
+    is_contributor_assessment: bool = False  # True if this is an assessment where the current user is a contributor/evaluator
 
     class Config:
         from_attributes = True
@@ -271,6 +272,9 @@ async def list_assessments(
     # Format response
     response = []
     
+    # Create a set of evaluator assessment IDs for quick lookup
+    evaluator_assessment_id_set = {evaluator_record.evaluator_assessment_id for evaluator_record in evaluator_records if evaluator_record.evaluator_assessment_id}
+    
     # Add self-assessments
     for assessment, user in results:
         score_summary = None
@@ -307,6 +311,9 @@ async def list_assessments(
         elif user.email:
             user_name = user.email.split("@")[0]
 
+        # Check if this assessment is a contributor assessment (linked to an evaluator record)
+        is_contributor = assessment.id in evaluator_assessment_id_set
+        
         response.append(AssessmentListItem(
             id=assessment.id,
             user_id=assessment.user_id,
@@ -320,7 +327,8 @@ async def list_assessments(
             answer_count=answer_count,
             total_questions=total_questions,
             created_at=assessment.created_at,
-            user_being_evaluated=None
+            user_being_evaluated=None,
+            is_contributor_assessment=is_contributor
         ))
     
     # Add evaluator assessments (where user is a contributor)
@@ -365,7 +373,8 @@ async def list_assessments(
             user_being_evaluated={
                 "name": evaluated_user_name,
                 "email": evaluated_user.email
-            }
+            },
+            is_contributor_assessment=True  # These are always contributor assessments
         ))
 
     # Sort all assessments by created_at descending (most recent first)

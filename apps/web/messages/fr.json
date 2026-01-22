@@ -1360,7 +1360,7 @@
         "enterTitle": "Pour confirmer la suppression, veuillez saisir le titre de l'assessment :",
         "placeholder": "Saisissez le titre de l'assessment pour confirmer",
         "cancel": "Annuler",
-        "confirm": "Supprimer l'assessment",
+        "confirm": "Confirmer",
         "deleting": "Suppression en cours..."
       },
       "deleteModal": {

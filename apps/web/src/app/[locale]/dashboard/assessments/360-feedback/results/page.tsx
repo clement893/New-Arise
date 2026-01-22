@@ -123,7 +123,9 @@ export default function Feedback360ResultsPage() {
       const assessment = assessments.find((a) => a.id === id);
       
       // Check if this is a contributor assessment
-      const isContributor = assessment?.user_being_evaluated !== undefined && assessment.user_being_evaluated !== null;
+      // Use is_contributor_assessment field if available, otherwise fallback to user_being_evaluated check
+      const isContributor = assessment?.is_contributor_assessment === true || 
+                           (assessment?.user_being_evaluated !== undefined && assessment.user_being_evaluated !== null);
       setIsContributorAssessment(isContributor);
       if (isContributor && assessment?.user_being_evaluated?.name) {
         setEvaluatedPersonName(assessment.user_being_evaluated.name);

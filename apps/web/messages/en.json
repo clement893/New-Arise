@@ -1285,7 +1285,7 @@
         "enterTitle": "To confirm deletion, please enter the assessment title:",
         "placeholder": "Type the assessment title to confirm",
         "cancel": "Cancel",
-        "confirm": "Delete Assessment",
+        "confirm": "Confirm",
         "deleting": "Deleting..."
       },
       "deleteModal": {

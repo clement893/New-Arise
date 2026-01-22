@@ -75,7 +75,10 @@ function ResultsReportsContent() {
           } else if (assessment.assessment_type === 'THREE_SIXTY_SELF' && summary.total_score) {
             score = `${Math.round(summary.total_score)}%`;
             // If this is an evaluator assessment, show contributor name
-            if (assessment.user_being_evaluated?.name) {
+            // Check if this is a contributor assessment
+            const isContributor = assessment.is_contributor_assessment === true || 
+                                 (assessment.user_being_evaluated !== undefined && assessment.user_being_evaluated !== null);
+            if (isContributor && assessment.user_being_evaluated?.name) {
               result = `360° Feedback - Contributor : ${assessment.user_being_evaluated.name}`;
             } else {
               result = '360° Feedback';
@@ -87,8 +90,11 @@ function ResultsReportsContent() {
 
         // For 360 feedback assessments where user is a contributor, include contributor name
         let assessmentName = getAssessmentName(assessment.assessment_type);
-        if (assessment.assessment_type === 'THREE_SIXTY_SELF' && assessment.user_being_evaluated?.name) {
-          assessmentName = `360° Feedback - Contributor : ${assessment.user_being_evaluated.name}`;
+            // Check if this is a contributor assessment
+            const isContributor = assessment.is_contributor_assessment === true || 
+                                 (assessment.user_being_evaluated !== undefined && assessment.user_being_evaluated !== null);
+            if (assessment.assessment_type === 'THREE_SIXTY_SELF' && isContributor && assessment.user_being_evaluated?.name) {
+              assessmentName = `360° Feedback - Contributor : ${assessment.user_being_evaluated.name}`;
         }
 
         return {
