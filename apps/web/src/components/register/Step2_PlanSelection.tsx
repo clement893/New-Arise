@@ -21,6 +21,7 @@ interface Plan {
 export function Step2_PlanSelection() {
   const { setSelectedPlan: setStorePlan, setStep } = useRegistrationStore();
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
+  const [hoveredPlanId, setHoveredPlanId] = useState<number | null>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -142,6 +143,69 @@ export function Step2_PlanSelection() {
     }
   };
 
+  // Extract feature keys from a plan's features JSON
+  const getFeatureKeys = (features: string | null | undefined): Set<string> => {
+    if (!features) return new Set();
+    try {
+      const parsed = JSON.parse(features);
+      return new Set(
+        Object.entries(parsed)
+          .filter(([_, value]) => typeof value !== 'boolean' || value === true)
+          .map(([key]) => key)
+      );
+    } catch {
+      return new Set();
+    }
+  };
+
+  // Get the price of a plan in cents
+  const getPlanPrice = (plan: Plan): number => {
+    const amountInCents = typeof plan.amount === 'string' ? parseFloat(plan.amount) : (plan.amount || 0);
+    return amountInCents;
+  };
+
+  // Find the next plan (more expensive) for a given plan
+  const getNextPlan = (currentPlan: Plan): Plan | null => {
+    const currentPrice = getPlanPrice(currentPlan);
+    const sortedPlans = [...plans].sort((a, b) => getPlanPrice(a) - getPlanPrice(b));
+    const nextPlan = sortedPlans.find(plan => getPlanPrice(plan) > currentPrice);
+    return nextPlan || null;
+  };
+
+  // Check if a plan should be visible based on the selected/hovered plan
+  const shouldShowPlan = (plan: Plan, referencePlanId: number | null): boolean => {
+    // If no plan is hovered/selected, show all plans
+    if (!referencePlanId) return true;
+
+    const referencePlan = plans.find(p => p.id === referencePlanId);
+    if (!referencePlan) return true;
+
+    // Get the next plan (more expensive) for the reference plan
+    const nextPlan = getNextPlan(referencePlan);
+    
+    // If there's no next plan (reference is the most expensive), show all plans
+    if (!nextPlan) return true;
+
+    // Get features of the current plan and the next plan
+    const currentPlanFeatures = getFeatureKeys(plan.features);
+    const nextPlanFeatures = getFeatureKeys(nextPlan.features);
+
+    // Show the plan only if all its features are included in the next plan
+    // OR if it's the reference plan or the next plan itself
+    if (plan.id === referencePlanId || plan.id === nextPlan.id) {
+      return true;
+    }
+
+    // Check if all features of the current plan are in the next plan
+    for (const feature of currentPlanFeatures) {
+      if (!nextPlanFeatures.has(feature)) {
+        return false; // This plan has a feature not in the next plan, hide it
+      }
+    }
+
+    return true; // All features are included, show it
+  };
+
   if (isLoading) {
     return (
       <div className="w-full max-w-4xl mx-auto p-6">
@@ -179,15 +243,20 @@ export function Step2_PlanSelection() {
         <div className="space-y-4 mb-8">
           {plans.map((plan) => {
             const features = parseFeatures(plan.features);
+            const isVisible = shouldShowPlan(plan, hoveredPlanId || selectedPlanId);
             return (
               <div
                 key={plan.id}
                 onClick={() => handlePlanSelect(plan)}
+                onMouseEnter={() => setHoveredPlanId(plan.id)}
+                onMouseLeave={() => setHoveredPlanId(null)}
                 className={`p-6 border-2 rounded-lg cursor-pointer transition-all duration-300 ${
                   selectedPlanId === plan.id
                     ? 'border-arise-gold bg-arise-light-beige'
                     : 'border-gray-200 hover:border-arise-deep-teal hover:rounded-lg'
-                } ${plan.is_popular ? 'ring-2 ring-arise-gold' : ''}`}
+                } ${plan.is_popular ? 'ring-2 ring-arise-gold' : ''} ${
+                  !isVisible ? 'opacity-0 max-h-0 overflow-hidden pointer-events-none' : 'opacity-100 max-h-[1000px]'
+                }`}
               >
                 <div className="flex-grow">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">

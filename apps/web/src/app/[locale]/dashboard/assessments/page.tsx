@@ -55,6 +55,7 @@ import { startAssessment } from '@/lib/api/assessments';
 import InviteAdditionalEvaluatorsModal from '@/components/360/InviteAdditionalEvaluatorsModal';
 import { formatError } from '@/lib/utils/formatError';
 import { useAuthStore } from '@/lib/store';
+import { useMySubscription } from '@/lib/query/queries';
 
 interface AssessmentDisplay {
   id: string;
@@ -77,6 +78,7 @@ function AssessmentsContent() {
   const router = useRouter();
   const pathname = usePathname();
   const { user } = useAuthStore();
+  const { data: subscriptionData } = useMySubscription();
   const [showEvaluatorModal, setShowEvaluatorModal] = useState(false);
   const [evaluators, setEvaluators] = useState<Record<number, EvaluatorStatus[]>>({});
   const isInitialMount = useRef(true);
@@ -577,9 +579,100 @@ function AssessmentsContent() {
         allTypes: Array.from(existingAssessmentsMap.keys())
       }));
       
+      // Helper function to check if an assessment is available based on plan features
+      const isAssessmentAvailable = (assessmentType: string): boolean => {
+        // Get subscription data from React Query response
+        // React Query wraps axios response in { data: AxiosResponse }
+        // So subscriptionData.data is the AxiosResponse, and subscriptionData.data.data is the actual data
+        const actualSubscriptionData = subscriptionData?.data?.data || subscriptionData?.data;
+        
+        // If no subscription, show all assessments (for testing/development)
+        if (!actualSubscriptionData?.plan) {
+          return true;
+        }
+
+        const planName = actualSubscriptionData.plan.name?.toUpperCase() || '';
+        const planFeatures = actualSubscriptionData.plan.features;
+
+        // Parse plan features
+        let features: Record<string, boolean> = {};
+        if (planFeatures) {
+          try {
+            features = JSON.parse(planFeatures);
+          } catch (e) {
+            console.error('[Assessments] Failed to parse plan features:', e);
+          }
+        }
+
+        // REVELATION plan: all assessments available
+        if (planName === 'REVELATION') {
+          return true;
+        }
+
+        // SELF EXPLORATION plan: Professional Assessment (TKI) + Wellness Pulse + Executive Summary
+        if (planName === 'SELF EXPLORATION') {
+          if (assessmentType === 'TKI' || assessmentType === 'tki') {
+            return features.professional_assessment === true;
+          }
+          if (assessmentType === 'WELLNESS' || assessmentType === 'wellness') {
+            return features.wellness_pulse === true;
+          }
+          // MBTI and 360 are not available in SELF EXPLORATION
+          if (assessmentType === 'MBTI' || assessmentType === 'mbti') {
+            return false;
+          }
+          if (assessmentType === 'THREE_SIXTY_SELF' || assessmentType === '360_self') {
+            return false;
+          }
+        }
+
+        // WELLNESS plan: only Wellness Pulse + Basic Assessment Summary
+        if (planName === 'WELLNESS') {
+          if (assessmentType === 'WELLNESS' || assessmentType === 'wellness') {
+            return features.wellness_pulse === true;
+          }
+          // All other assessments are not available in WELLNESS plan
+          return false;
+        }
+
+        // Default: if plan has the feature, allow the assessment
+        // Map assessment types to feature keys
+        const featureMap: Record<string, string> = {
+          'TKI': 'professional_assessment',
+          'tki': 'professional_assessment',
+          'THREE_SIXTY_SELF': '360_feedback',
+          '360_self': '360_feedback',
+          'WELLNESS': 'wellness_pulse',
+          'wellness': 'wellness_pulse',
+        };
+
+        const featureKey = featureMap[assessmentType];
+        if (featureKey) {
+          return features[featureKey] === true;
+        }
+
+        // MBTI: only available in REVELATION (handled above)
+        if (assessmentType === 'MBTI' || assessmentType === 'mbti') {
+          return false;
+        }
+
+        // Default: allow if not explicitly restricted
+        return true;
+      };
+
       // Build display assessments list
       const displayAssessments: AssessmentDisplay[] = Object.entries(ASSESSMENT_CONFIG)
         .filter(([type]) => type !== '360_evaluator') // Skip 360_evaluator as it's not a valid AssessmentType
+        .filter(([type]) => {
+          // Filter assessments based on plan
+          let apiType: AssessmentType;
+          if (type === '360_self') {
+            apiType = 'THREE_SIXTY_SELF';
+          } else {
+            apiType = type.toUpperCase() as AssessmentType;
+          }
+          return isAssessmentAvailable(apiType);
+        })
         .map(([type, config]) => {
         // Map lowercase type to uppercase for API
         // Special handling for 360_self -> THREE_SIXTY_SELF

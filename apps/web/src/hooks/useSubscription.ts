@@ -16,6 +16,7 @@ interface Subscription {
     amount: number;
     currency: string;
     interval: string;
+    features?: string | null; // JSON string with plan features
   };
   status: string;
   current_period_start: string;

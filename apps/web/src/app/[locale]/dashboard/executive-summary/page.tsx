@@ -16,17 +16,54 @@ import {
 } from 'lucide-react';
 import { getMyAssessments, getAssessmentResults, AssessmentType } from '@/lib/api/assessments';
 import { formatError } from '@/lib/utils/formatError';
+import { useMySubscription } from '@/lib/query/queries';
 
 function ExecutiveSummaryContent() {
   const router = useRouter();
+  const { data: subscriptionData } = useMySubscription();
   const [assessments, setAssessments] = useState<any[]>([]);
   const [results, setResults] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Get subscription data from React Query response
+    // React Query wraps axios response in { data: AxiosResponse }
+    // So subscriptionData.data is the AxiosResponse, and subscriptionData.data.data is the actual data
+    const actualSubscriptionData = subscriptionData?.data?.data || subscriptionData?.data;
+    
+    // Check if user has access to Executive Summary based on their plan
+    if (actualSubscriptionData?.plan) {
+      const planName = actualSubscriptionData.plan.name?.toUpperCase() || '';
+      const planFeatures = actualSubscriptionData.plan.features;
+      
+      // Parse plan features
+      let features: Record<string, boolean> = {};
+      if (planFeatures) {
+        try {
+          features = JSON.parse(planFeatures);
+        } catch (e) {
+          console.error('[Executive Summary] Failed to parse plan features:', e);
+        }
+      }
+
+      // WELLNESS plan doesn't have access to Executive Summary
+      if (planName === 'WELLNESS') {
+        setError('Executive Summary is not available in your current plan. Please upgrade to SELF EXPLORATION or REVELATION to access this feature.');
+        setIsLoading(false);
+        return;
+      }
+
+      // SELF EXPLORATION and REVELATION have access if executive_summary feature is true
+      if (planName !== 'REVELATION' && features.executive_summary !== true) {
+        setError('Executive Summary is not available in your current plan. Please upgrade to access this feature.');
+        setIsLoading(false);
+        return;
+      }
+    }
+
     loadSummaryData();
-  }, []);
+  }, [subscriptionData]);
 
   const loadSummaryData = async () => {
     try {
