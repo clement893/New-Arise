@@ -105,7 +105,7 @@ function ResultsReportsContent() {
       const completedAssessments = apiAssessments.filter(
         (a: ApiAssessment) => {
           // STRICT FILTER: Exclude contributor assessments
-          // Rule 1: If is_contributor_assessment is explicitly true, exclude it
+          // Rule 1: If is_contributor_assessment is explicitly true, exclude it (even if undefined/null)
           if (a.is_contributor_assessment === true) {
             console.log('[Reports Page] Excluding contributor assessment (flag):', {
               id: a.id,
@@ -118,15 +118,22 @@ function ResultsReportsContent() {
           // Rule 2: If user_being_evaluated exists (even if empty object), it's a contributor assessment
           // Self-assessments NEVER have user_being_evaluated set (it's always null/undefined)
           if (a.user_being_evaluated !== undefined && a.user_being_evaluated !== null) {
-            // Check if it's a non-empty object
-            const hasContent = a.user_being_evaluated.name || a.user_being_evaluated.email;
-            // Even if empty object, if the field exists, it's suspicious - exclude for 360 assessments
-            if (a.assessment_type === 'THREE_SIXTY_SELF' || hasContent) {
-              console.log('[Reports Page] Excluding contributor assessment (user_being_evaluated):', {
+            // For THREE_SIXTY_SELF assessments, ANY user_being_evaluated (even empty) means it's a contributor assessment
+            if (a.assessment_type === 'THREE_SIXTY_SELF') {
+              console.log('[Reports Page] Excluding contributor assessment (360 with user_being_evaluated):', {
                 id: a.id,
                 type: a.assessment_type,
-                user_being_evaluated: a.user_being_evaluated,
-                hasContent
+                user_being_evaluated: a.user_being_evaluated
+              });
+              return false;
+            }
+            // For other types, check if it has content
+            const hasContent = a.user_being_evaluated.name || a.user_being_evaluated.email;
+            if (hasContent) {
+              console.log('[Reports Page] Excluding contributor assessment (user_being_evaluated with content):', {
+                id: a.id,
+                type: a.assessment_type,
+                user_being_evaluated: a.user_being_evaluated
               });
               return false;
             }
@@ -138,6 +145,26 @@ function ResultsReportsContent() {
           return status === 'COMPLETED' || !!a.score_summary || !!a.completed_at;
         }
       );
+      
+      // Additional safety check: For THREE_SIXTY_SELF assessments, if there are multiple,
+      // only keep the one without user_being_evaluated (the self-assessment)
+      const threeSixtyAssessments = completedAssessments.filter(a => a.assessment_type === 'THREE_SIXTY_SELF');
+      if (threeSixtyAssessments.length > 1) {
+        console.log('[Reports Page] Multiple 360 assessments found, filtering to keep only self-assessment:', threeSixtyAssessments.map(a => ({
+          id: a.id,
+          has_user_being_evaluated: !!a.user_being_evaluated,
+          is_contributor: a.is_contributor_assessment
+        })));
+        // Remove all 360 assessments that have user_being_evaluated or is_contributor_assessment
+        const filtered360 = threeSixtyAssessments.filter(a => 
+          !a.user_being_evaluated && a.is_contributor_assessment !== true
+        );
+        // Replace 360 assessments in completedAssessments
+        const otherAssessments = completedAssessments.filter(a => a.assessment_type !== 'THREE_SIXTY_SELF');
+        completedAssessments.length = 0;
+        completedAssessments.push(...otherAssessments, ...filtered360);
+        console.log('[Reports Page] After filtering multiple 360 assessments:', completedAssessments.filter(a => a.assessment_type === 'THREE_SIXTY_SELF').length);
+      }
       
       console.log('[Reports Page] Filtered assessments (after excluding contributors):', completedAssessments.length, completedAssessments.map(a => ({ id: a.id, type: a.assessment_type })));
 
@@ -189,9 +216,19 @@ function ResultsReportsContent() {
         }
         
         if (a.user_being_evaluated !== undefined && a.user_being_evaluated !== null) {
+          // For THREE_SIXTY_SELF assessments, ANY user_being_evaluated means it's a contributor assessment
+          if (a.assessment_type === 'THREE_SIXTY_SELF') {
+            console.log('[Reports Page] Double-check: Excluding contributor assessment (360 with user_being_evaluated):', {
+              id: a.id,
+              type: a.assessment_type,
+              user_being_evaluated: a.user_being_evaluated
+            });
+            return false;
+          }
+          // For other types, check if it has content
           const hasContent = a.user_being_evaluated.name || a.user_being_evaluated.email;
-          if (a.assessment_type === 'THREE_SIXTY_SELF' || hasContent) {
-            console.log('[Reports Page] Double-check: Excluding contributor assessment (user_being_evaluated):', {
+          if (hasContent) {
+            console.log('[Reports Page] Double-check: Excluding contributor assessment (user_being_evaluated with content):', {
               id: a.id,
               type: a.assessment_type,
               user_being_evaluated: a.user_being_evaluated
