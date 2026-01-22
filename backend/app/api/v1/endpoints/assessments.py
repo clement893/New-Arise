@@ -776,22 +776,53 @@ async def get_assessment_results(
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Get results for a completed assessment
+    Get results for a completed assessment.
+    
+    Allows access if:
+    1. The assessment belongs to the current user, OR
+    2. The assessment is an evaluator assessment (360°) and the current user owns the parent 360° assessment
     """
     from app.core.logging import logger
 
     try:
-        # First verify the assessment exists and belongs to the user
+        # First verify the assessment exists
         assessment_result = await db.execute(
             select(Assessment)
-            .where(
-                Assessment.id == assessment_id,
-                Assessment.user_id == current_user.id
-            )
+            .where(Assessment.id == assessment_id)
         )
         assessment = assessment_result.scalar_one_or_none()
 
         if not assessment:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Assessment not found"
+            )
+
+        # Check if assessment belongs to the user
+        has_access = assessment.user_id == current_user.id
+
+        # If not, check if it's an evaluator assessment and user owns the parent 360° assessment
+        if not has_access and assessment.assessment_type == AssessmentType.THREE_SIXTY_EVALUATOR:
+            # Find the evaluator record that links this assessment
+            evaluator_result = await db.execute(
+                select(Assessment360Evaluator)
+                .where(Assessment360Evaluator.evaluator_assessment_id == assessment_id)
+            )
+            evaluator = evaluator_result.scalar_one_or_none()
+
+            if evaluator:
+                # Check if the parent assessment belongs to the current user
+                parent_assessment_result = await db.execute(
+                    select(Assessment)
+                    .where(
+                        Assessment.id == evaluator.assessment_id,
+                        Assessment.user_id == current_user.id
+                    )
+                )
+                parent_assessment = parent_assessment_result.scalar_one_or_none()
+                has_access = parent_assessment is not None
+
+        if not has_access:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Assessment not found"

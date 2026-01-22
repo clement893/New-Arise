@@ -1287,6 +1287,7 @@
         "viewDetails": "Voir les détails",
         "hideDetails": "Masquer les détails",
         "downloadReport": "Télécharger le rapport",
+        "deleteAssessment": "Supprimer l'assessment",
         "types": {
           "MBTI": "Personnalité MBTI",
           "TKI": "Style de conflit ARISE",
