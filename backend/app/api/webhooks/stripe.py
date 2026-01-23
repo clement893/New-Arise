@@ -213,8 +213,23 @@ async def handle_checkout_completed(event_object: dict, db: AsyncSession, subscr
                 logger.error(f"Cannot update subscription: Plan {plan_id} does not exist")
                 return
             
-            # Store old plan_id for logging
+            # Store old plan_id and old stripe_subscription_id for logging
             old_plan_id = existing_subscription.plan_id
+            old_stripe_subscription_id = existing_subscription.stripe_subscription_id
+            
+            # If the old Stripe subscription ID is different from the new one, cancel the old subscription in Stripe
+            # This happens when Stripe creates a new subscription instead of updating the existing one
+            if old_stripe_subscription_id and old_stripe_subscription_id != subscription_id:
+                try:
+                    logger.info(f"Cancelling old Stripe subscription {old_stripe_subscription_id} (new subscription is {subscription_id})")
+                    stripe.Subscription.delete(old_stripe_subscription_id)
+                    logger.info(f"Successfully cancelled old Stripe subscription {old_stripe_subscription_id}")
+                except stripe.StripeError as e:
+                    # If subscription is already cancelled or doesn't exist, that's OK
+                    if e.code == 'resource_missing':
+                        logger.info(f"Old Stripe subscription {old_stripe_subscription_id} already deleted or doesn't exist")
+                    else:
+                        logger.warning(f"Could not cancel old Stripe subscription {old_stripe_subscription_id}: {e}")
             
             # Verify the plan in Stripe matches what we expect
             # Get the price_id from Stripe subscription to verify
@@ -245,7 +260,7 @@ async def handle_checkout_completed(event_object: dict, db: AsyncSession, subscr
             if customer_id:
                 existing_subscription.stripe_customer_id = customer_id
             
-            logger.info(f"Updating subscription {existing_subscription.id}: old_plan_id={old_plan_id}, new_plan_id={plan_id}, new_plan_name={plan.name}, stripe_price_id={plan.stripe_price_id}")
+            logger.info(f"Updating subscription {existing_subscription.id}: old_plan_id={old_plan_id}, new_plan_id={plan_id}, new_plan_name={plan.name}, stripe_price_id={plan.stripe_price_id}, old_stripe_subscription_id={old_stripe_subscription_id}, new_stripe_subscription_id={subscription_id}")
             
             if stripe_subscription.current_period_start:
                 existing_subscription.current_period_start = datetime.fromtimestamp(
