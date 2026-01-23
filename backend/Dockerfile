@@ -109,9 +109,8 @@ ENV PYTHONUNBUFFERED=1
 HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
     CMD sh -c 'PORT=${PORT:-8000}; python -c "import urllib.request; import sys; import socket; socket.setdefaulttimeout(5); url=f\"http://localhost:{PORT}/api/v1/health/\"; r=urllib.request.urlopen(url, timeout=5); sys.exit(0 if r.getcode()==200 else 1)"' || exit 1
 
-# Use direct uvicorn command - Railway will set PORT env var automatically
-# Use exec form with sh -c to allow PORT env var expansion
-# This ensures Railway can see output immediately
-ENTRYPOINT ["/bin/sh", "-c"]
-CMD ["python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info --access-log"]
+# Use shell form CMD to allow PORT env var expansion
+# Railway will set PORT automatically, we use ${PORT:-8000} as fallback
+# Shell form ensures Railway can see output immediately
+CMD python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info --access-log
 
