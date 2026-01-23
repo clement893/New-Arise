@@ -92,9 +92,9 @@ RUN playwright install chromium
 RUN playwright --version && \
     ls -la /home/appuser/.cache/ms-playwright/ || echo "Playwright cache directory created"
 
-# Stay as appuser for startup - Railway may work better with non-root user
-# Don't switch back to root
-USER appuser
+# Switch back to root for startup - Railway may need root to execute commands
+# We'll switch to appuser in the entrypoint.sh if needed
+USER root
 
 EXPOSE 8000
 
