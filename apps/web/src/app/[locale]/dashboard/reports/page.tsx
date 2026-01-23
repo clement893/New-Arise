@@ -862,57 +862,57 @@ function ResultsReportsContent() {
         </div>
       )}
 
-      {/* Delete Single Assessment Confirmation Modal */}
-      {showDeleteAssessmentModal && assessmentToDelete && (
+      {/* Reset Single Assessment Confirmation Modal */}
+      {showResetAssessmentModal && assessmentToReset && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <Card className="w-full max-w-md">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                <AlertTriangle className="text-red-600" size={24} />
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                <AlertTriangle className="text-orange-600" size={24} />
               </div>
               <h2 className="text-2xl font-bold text-gray-900">
-                {t('deleteAssessmentModal.title') || 'Delete Assessment'}
+                {t('resetAssessmentModal.title') || 'Reset Assessment'}
               </h2>
             </div>
             <p className="text-gray-700 mb-4">
-              {t('deleteAssessmentModal.message') || 'This action cannot be undone. This will permanently delete the assessment and all its data.'}
+              {t('resetAssessmentModal.message') || 'This will reset the assessment to its initial state. All your answers and results will be deleted, but the assessment itself will be kept. You can start it again from the assessments page.'}
             </p>
             <p className="text-gray-700 mb-4 font-medium">
-              {t('deleteAssessmentModal.enterTitle') || 'To confirm, please enter the assessment title:'}
+              {t('resetAssessmentModal.enterTitle') || 'To confirm, please enter the assessment title:'}
             </p>
             <p className="text-sm font-semibold text-gray-900 mb-2 bg-gray-100 p-2 rounded">
-              {assessmentToDelete.name}
+              {assessmentToReset.name}
             </p>
             <input
               type="text"
-              value={deleteTitleInput}
+              value={resetTitleInput}
               onChange={(e) => {
-                setDeleteTitleInput(e.target.value);
-                setDeleteTitleError(null);
+                setResetTitleInput(e.target.value);
+                setResetTitleError(null);
               }}
-              placeholder={t('deleteAssessmentModal.placeholder') || 'Enter assessment title'}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 mb-2"
-              disabled={isDeletingAssessment}
+              placeholder={t('resetAssessmentModal.placeholder') || 'Enter assessment title'}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 mb-2"
+              disabled={isResettingAssessment}
             />
-            {deleteTitleError && (
-              <p className="text-red-600 text-sm mb-4">{deleteTitleError}</p>
+            {resetTitleError && (
+              <p className="text-red-600 text-sm mb-4">{resetTitleError}</p>
             )}
             <div className="flex gap-3">
               <Button
                 variant="outline"
-                onClick={handleDeleteAssessmentCancel}
-                disabled={isDeletingAssessment}
+                onClick={handleResetAssessmentCancel}
+                disabled={isResettingAssessment}
                 className="flex-1"
               >
-                {t('deleteAssessmentModal.cancel') || 'Cancel'}
+                {t('resetAssessmentModal.cancel') || 'Cancel'}
               </Button>
               <Button
-                variant="danger"
-                onClick={handleDeleteAssessmentConfirm}
-                disabled={isDeletingAssessment || !deleteTitleInput.trim()}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                variant="arise-primary"
+                onClick={handleResetAssessmentConfirm}
+                disabled={isResettingAssessment || !resetTitleInput.trim()}
+                className="flex-1"
               >
-                {isDeletingAssessment ? (t('deleteAssessmentModal.deleting') || 'Deleting...') : (t('deleteAssessmentModal.confirm') || 'Confirm')}
+                {isResettingAssessment ? (t('resetAssessmentModal.resetting') || 'Resetting...') : (t('resetAssessmentModal.confirm') || 'Reset')}
               </Button>
             </div>
           </Card>
@@ -1104,9 +1104,9 @@ function ResultsReportsContent() {
                           <Button 
                             variant="ghost" 
                             size="sm"
-                            onClick={() => handleDeleteAssessmentClick(assessment)}
-                            title={t('assessments.deleteAssessment') || 'Delete Assessment'}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 p-0"
+                            onClick={() => handleResetAssessmentClick(assessment)}
+                            title={t('assessments.resetAssessment') || 'Reset Assessment'}
+                            className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 p-0"
                           >
                             <Trash2 size={14} />
                           </Button>

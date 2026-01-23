@@ -1251,6 +1251,7 @@
         "hideDetails": "Hide Details",
         "downloadReport": "Download report",
         "deleteAssessment": "Delete Assessment",
+        "resetAssessment": "Reset Assessment",
         "types": {
           "MBTI": "MBTI Personality",
           "TKI": "ARISE Conflict Style",
@@ -1326,6 +1327,15 @@
         "confirm": "Confirm",
         "deleting": "Deleting..."
       },
+      "resetAssessmentModal": {
+        "title": "Reset Assessment",
+        "message": "This will reset the assessment to its initial state. All your answers and results will be deleted, but the assessment itself will be kept. You can start it again from the assessments page.",
+        "enterTitle": "To confirm, please enter the assessment title:",
+        "placeholder": "Type the assessment title to confirm",
+        "cancel": "Cancel",
+        "confirm": "Reset",
+        "resetting": "Resetting..."
+      },
       "deleteModal": {
         "title": "Confirm Deletion",
         "message": "Are you sure you want to delete <strong>ALL</strong> your assessments? This action is <strong>irreversible</strong> and will permanently delete:",
@@ -1349,7 +1359,9 @@
         "downloadAssessmentFailed": "Failed to download assessment. Please try again.",
         "onlySuperAdmin": "Only super admins can delete all their assessments.",
         "deleteFailed": "Failed to delete assessments",
-        "deleteSuccess": "All your assessments have been successfully deleted. ({count} assessments deleted)"
+        "deleteSuccess": "All your assessments have been successfully deleted. ({count} assessments deleted)",
+        "resetFailed": "Failed to reset assessment",
+        "assessmentReset": "Assessment reset successfully. You can now start it again from the assessments page."
       },
       "resetButton": "Reset All Assessments",
       "cta": {
