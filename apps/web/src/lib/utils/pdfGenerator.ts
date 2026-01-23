@@ -706,10 +706,6 @@ const generate360PDF = async (
     doc.text('Contributor Status', 20, yPos);
     yPos += 10;
     
-    // Draw border around contributors section
-    const contributorsStartY = yPos;
-    let contributorsHeight = 0;
-    
     evaluatorsList.forEach((evaluator, index) => {
       if (index > 0 && index % 3 === 0) {
         yPos += 15; // New row
@@ -765,13 +761,11 @@ const generate360PDF = async (
       
       if (col === 2) {
         yPos += 40; // Next row
-        contributorsHeight += 40;
       }
     });
     
     if (evaluatorsList.length % 3 !== 0) {
       yPos += 40;
-      contributorsHeight += 40;
     }
     
     // Status legend
