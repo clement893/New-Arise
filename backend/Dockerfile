@@ -112,8 +112,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
 # Use WORKDIR to ensure we're in /app when script runs
 WORKDIR /app
 
-# Start uvicorn directly - simplest possible approach
-# Railway may have issues with shell scripts, so use direct Python command
-# Use shell form to allow PORT environment variable expansion
-CMD python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info --access-log
+# Use the existing entrypoint.sh script - it's already configured and tested
+# Make sure it's executable and use it as ENTRYPOINT
+ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
 
