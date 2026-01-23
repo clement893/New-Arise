@@ -495,6 +495,7 @@ const generateWellnessPDF = async (
 
 /**
  * Generate 360° Feedback Assessment PDF
+ * Matches the structure of ThreeSixtyResultContent component
  */
 const generate360PDF = async (
   doc: any,
@@ -502,6 +503,16 @@ const generate360PDF = async (
   pageWidth: number,
   pageHeight: number
 ): Promise<void> => {
+  // Dynamic imports for 360 data
+  const { feedback360Capabilities } = await import('@/data/feedback360Questions');
+  const { getFeedback360InsightWithLocale, get360ScoreColorCode } = await import('@/data/feedback360Insights');
+  const { getFeedback360GapInsightWithLocale } = await import('@/data/feedback360GapInsights');
+  
+  // Try to get locale from browser or default to 'en'
+  const locale = typeof window !== 'undefined' 
+    ? (document.documentElement.lang || navigator.language?.split('-')[0] || 'en')
+    : 'en';
+
   let yPos = 20;
   const results = assessment.detailedResult;
   if (!results?.scores) return;
@@ -513,6 +524,61 @@ const generate360PDF = async (
   const maxScore = scores.max_score || 150;
   const comparisonData = results.comparison_data;
 
+  // Helper to check if value is PillarScore
+  const isPillarScore = (value: unknown): value is PillarScore => {
+    return typeof value === 'object' && value !== null && 'score' in value;
+  };
+
+  // Map backend capability IDs to frontend IDs
+  const capabilityIdMap: Record<string, string> = {
+    'problem_solving': 'problem_solving_and_decision_making',
+    'communication': 'communication',
+    'team_culture': 'team_culture',
+    'leadership_style': 'leadership_style',
+    'change_management': 'change_management',
+    'stress_management': 'stress_management',
+  };
+
+  // Calculate others_avg_score from comparison_data
+  let othersAvgScores: Record<string, number> = {};
+  if (comparisonData && typeof comparisonData === 'object') {
+    if (comparisonData.capability_scores && typeof comparisonData.capability_scores === 'object') {
+      Object.entries(comparisonData.capability_scores).forEach(([capability, score]) => {
+        const rawScoreValue = isPillarScore(score) ? score.score : (typeof score === 'number' ? score : 0);
+        const averageScore = rawScoreValue / 5;
+        const mappedCapability = capabilityIdMap[capability] || capability;
+        othersAvgScores[mappedCapability] = averageScore;
+      });
+    }
+  }
+
+  // Transform capability scores (same logic as ThreeSixtyResultContent)
+  interface CapabilityScore {
+    capability: string;
+    self_score: number;
+    others_avg_score: number;
+    gap: number;
+    level: string;
+  }
+
+  const transformedCapabilityScores: CapabilityScore[] = Object.entries(capabilityScores).map(([capability, score]) => {
+    const rawScoreValue = isPillarScore(score) ? score.score : (typeof score === 'number' ? score : 0);
+    const averageScore = rawScoreValue / 5;
+    const mappedCapability = capabilityIdMap[capability] || capability;
+    const othersAvgScore = othersAvgScores[mappedCapability] || 0;
+    const gap = averageScore - othersAvgScore;
+    
+    return {
+      capability: mappedCapability,
+      self_score: averageScore,
+      others_avg_score: othersAvgScore,
+      gap: gap,
+      level: averageScore >= 4 ? 'high' : averageScore >= 2.5 ? 'moderate' : 'low',
+    };
+  });
+
+  const hasEvaluatorResponses = Object.values(othersAvgScores).some(score => score > 0);
+
   // Title
   doc.setFontSize(20);
   doc.setFont('helvetica', 'bold');
@@ -521,96 +587,434 @@ const generate360PDF = async (
   doc.setFontSize(12);
   doc.setFont('helvetica', 'normal');
   doc.text(`Completed: ${assessment.completedDate}`, pageWidth / 2, yPos, { align: 'center' });
-  yPos += 15;
+  yPos += 10;
 
-  // Overall Score Section
-  yPos = addSectionTitle(doc, 'Overall Score', yPos, pageHeight);
-  doc.setFontSize(14);
+  // Note about self-assessment only or evaluator count
+  if (hasEvaluatorResponses) {
+    const evaluatorCount = Object.values(othersAvgScores).filter(score => score > 0).length;
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Based on your self-assessment and feedback from ${evaluatorCount} contributor(s)`, 20, yPos);
+    doc.setTextColor(0, 0, 0);
+    yPos += 8;
+  } else {
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Note: These results are based solely on your self-assessment. Invite colleagues to get a complete 360° view.', 20, yPos);
+    doc.setTextColor(0, 0, 0);
+    yPos += 8;
+  }
+  yPos += 10;
+
+  // Overall Score Section (with teal background simulation)
+  yPos = checkNewPage(doc, yPos, pageHeight, 80);
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Overall Leadership Score', 20, yPos);
+  yPos += 10;
+  
+  // Draw teal background rectangle
+  const scoreBoxHeight = 50;
+  const scoreBoxY = yPos - 5;
+  doc.setFillColor(15, 76, 86); // Teal color #0F4C56
+  doc.rect(20, scoreBoxY, pageWidth - 40, scoreBoxHeight, 'F');
+  
+  // Score text in white
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(36);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`${percentage.toFixed(1)}%`, pageWidth / 2, scoreBoxY + 20, { align: 'center' });
+  doc.setFontSize(12);
   doc.setFont('helvetica', 'normal');
-  doc.text(`Score: ${percentage.toFixed(1)}%`, 20, yPos);
-  yPos += 8;
-  doc.text(`Points: ${totalScore} / ${maxScore}`, 20, yPos);
-  yPos += 15;
+  doc.text(`Points: ${totalScore} / ${maxScore}`, pageWidth / 2, scoreBoxY + 35, { align: 'center' });
+  doc.setTextColor(0, 0, 0);
+  yPos = scoreBoxY + scoreBoxHeight + 15;
 
-  // Capability Breakdown
+  // Leadership Capabilities Section
   yPos = addSectionTitle(doc, 'Leadership Capabilities', yPos, pageHeight);
   doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
 
-  const capabilityEntries = Object.entries(capabilityScores);
-  for (const [capabilityId, capabilityData] of capabilityEntries) {
-    yPos = checkNewPage(doc, yPos, pageHeight, 40);
-    const capabilityName = capabilityId.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  for (const capScore of transformedCapabilityScores) {
+    yPos = checkNewPage(doc, yPos, pageHeight, 100);
     
-    // Get self score
-    let selfScore = 0;
-    if (typeof capabilityData === 'number') {
-      selfScore = capabilityData / 5; // Convert from sum (max 25) to average (max 5.0)
-    } else if (typeof capabilityData === 'object' && capabilityData !== null) {
-      selfScore = (capabilityData as any).self_score || ((capabilityData as any).score || 0) / 5;
-    }
-
-    // Get others average if available
-    let othersAvg = 0;
-    if (comparisonData && typeof comparisonData === 'object') {
-      const compScores = (comparisonData as any).capability_scores;
-      if (compScores && compScores[capabilityId]) {
-        const compScore = compScores[capabilityId];
-        othersAvg = typeof compScore === 'number' 
-          ? compScore / 5 
-          : (compScore as any).score ? (compScore as any).score / 5 : 0;
-      }
-    }
-
+    const capInfo = feedback360Capabilities.find(c => c.id === capScore.capability);
+    const capabilityTitle = capInfo?.title || capScore.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    const capabilityDescription = capInfo?.description || '';
+    
+    // Capability Header (no emoji - just title)
     doc.setFont('helvetica', 'bold');
-    doc.text(`${capabilityName}:`, 20, yPos);
-    yPos += 7;
-    doc.setFont('helvetica', 'normal');
-    doc.text(`  Self Assessment: ${selfScore.toFixed(1)} / 5.0`, 25, yPos);
-    yPos += 7;
-    if (othersAvg > 0) {
-      doc.text(`  Others' Average: ${othersAvg.toFixed(1)} / 5.0`, 25, yPos);
-      yPos += 7;
-      const gap = selfScore - othersAvg;
-      doc.text(`  Gap: ${gap > 0 ? '+' : ''}${gap.toFixed(1)}`, 25, yPos);
-      yPos += 7;
+    doc.setFontSize(14);
+    doc.text(capabilityTitle, 20, yPos);
+    yPos += 8;
+    
+    if (capabilityDescription) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      const descLines = doc.splitTextToSize(capabilityDescription, pageWidth - 40);
+      doc.text(descLines, 20, yPos);
+      yPos += descLines.length * 5 + 8;
     }
-    yPos += 5;
+
+    // Get insight based on score (use others_avg_score if available, otherwise self_score)
+    const scoreForInsight = hasEvaluatorResponses && capScore.others_avg_score > 0
+      ? capScore.others_avg_score
+      : capScore.self_score;
+    
+    const insight = getFeedback360InsightWithLocale(
+      capScore.capability,
+      scoreForInsight,
+      locale
+    );
+
+    if (insight) {
+      // Analysis box with colored background
+      yPos = checkNewPage(doc, yPos, pageHeight, 60);
+      const colorCode = insight.colorCode;
+      const r = parseInt(colorCode.slice(1, 3), 16);
+      const g = parseInt(colorCode.slice(3, 5), 16);
+      const b = parseInt(colorCode.slice(5, 7), 16);
+      
+      doc.setFillColor(r, g, b);
+      const analysisBoxY = yPos;
+      const analysisLines = doc.splitTextToSize(insight.analysis, pageWidth - 50);
+      const analysisBoxHeight = analysisLines.length * 5 + 15;
+      doc.rect(20, analysisBoxY, pageWidth - 40, analysisBoxHeight, 'F');
+      
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(0, 0, 0);
+      doc.text('Analysis', 25, analysisBoxY + 8);
+      yPos = analysisBoxY + 15;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.text(analysisLines, 25, yPos);
+      yPos += analysisLines.length * 5 + 10;
+
+      // Recommendations box with colored background
+      yPos = checkNewPage(doc, yPos, pageHeight, 60);
+      const recBoxY = yPos;
+      const recLines = doc.splitTextToSize(insight.recommendation, pageWidth - 50);
+      const recBoxHeight = recLines.length * 5 + 15;
+      doc.rect(20, recBoxY, pageWidth - 40, recBoxHeight, 'F');
+      
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.text('Recommendations', 25, recBoxY + 8);
+      yPos = recBoxY + 15;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.text(recLines, 25, yPos);
+      yPos += recLines.length * 5 + 10;
+    }
+    
+    yPos += 5; // Space between capabilities
   }
 
-  // Insights Section
-  if (results.insights) {
-    yPos = addSectionTitle(doc, 'Insights', yPos, pageHeight);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    
-    const insightsText = typeof results.insights === 'string' 
-      ? results.insights 
-      : JSON.stringify(results.insights, null, 2);
-    const lines = doc.splitTextToSize(insightsText, pageWidth - 40);
-    doc.text(lines, 20, yPos);
-    yPos += lines.length * 6 + 10;
+  // OVERALL RESULTS' STATEMENT Section
+  yPos = addSectionTitle(doc, 'OVERALL RESULTS\' STATEMENT', yPos, pageHeight);
+  
+  // Calculate average score
+  const avgScore = transformedCapabilityScores.length > 0
+    ? transformedCapabilityScores.reduce((sum, cap) => {
+        const score = hasEvaluatorResponses && cap.others_avg_score > 0
+          ? cap.others_avg_score
+          : cap.self_score;
+        return sum + score;
+      }, 0) / transformedCapabilityScores.length
+    : 0;
+  
+  const roundedAvgScore = Math.round(avgScore);
+  let statement = '';
+  let statementColor = '';
+  
+  if (roundedAvgScore >= 4) {
+    statement = 'The results demonstrate a high level of self-awareness, as self-perception closely aligns with the perspectives of others across most evaluated capabilities. This indicates a strong understanding of how personal behaviors, strengths, and development areas are perceived by others. It reflects maturity, emotional intelligence, and authenticity in leadership interactions. Individuals with this profile tend to be effective at maintaining trust, adapting feedback, and fostering positive team dynamics.';
+    statementColor = '#C6EFCE';
+  } else if (roundedAvgScore >= 3) {
+    statement = 'The results indicate good self-awareness, showing that in several key areas there is alignment between self-perception and how others experience behaviors and impact. Some variations across capabilities suggest opportunities to deepen reflection and seek additional feedback to bridge minor perception gaps. This balanced profile highlights a generally accurate self-view, coupled with potential for further growth through targeted development and open dialogue.';
+    statementColor = '#FFEB9C';
+  } else {
+    statement = 'The results suggest lower self-awareness, with noticeable differences between self-assessment and the perspectives provided by others. This may indicate that certain behaviors or leadership patterns are not fully recognized, or that expectations and impact are perceived differently by colleagues. This outcome represents an opportunity for constructive growth — encouraging deeper reflection, open discussion, and feedback-seeking to better understand and align internal perceptions with external observations. Increasing awareness in this way can significantly strengthen effectiveness, relationships, and overall leadership presence.';
+    statementColor = '#FFC7CE';
   }
 
-  // Recommendations Section
-  if (results.recommendations) {
-    yPos = addSectionTitle(doc, 'Recommendations', yPos, pageHeight);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
+  // Statement box with colored background
+  yPos = checkNewPage(doc, yPos, pageHeight, 80);
+  const statementBoxY = yPos;
+  const statementLines = doc.splitTextToSize(statement, pageWidth - 50);
+  const statementBoxHeight = statementLines.length * 5 + 15;
+  
+  const stmtR = parseInt(statementColor.slice(1, 3), 16);
+  const stmtG = parseInt(statementColor.slice(3, 5), 16);
+  const stmtB = parseInt(statementColor.slice(5, 7), 16);
+  doc.setFillColor(stmtR, stmtG, stmtB);
+  doc.rect(20, statementBoxY, pageWidth - 40, statementBoxHeight, 'F');
+  
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.setTextColor(0, 0, 0);
+  doc.text(statementLines, 25, statementBoxY + 10);
+  yPos = statementBoxY + statementBoxHeight + 15;
+
+  // Categorize capabilities: Areas for Growth (1-2), Neutral (3), Strengths (4-5)
+  const growthCapabilities = transformedCapabilityScores.filter(cap => {
+    const score = hasEvaluatorResponses && cap.others_avg_score > 0
+      ? cap.others_avg_score
+      : cap.self_score;
+    return Math.round(score) >= 1 && Math.round(score) <= 2;
+  });
+
+  const neutralCapabilities = transformedCapabilityScores.filter(cap => {
+    const score = hasEvaluatorResponses && cap.others_avg_score > 0
+      ? cap.others_avg_score
+      : cap.self_score;
+    return Math.round(score) === 3;
+  });
+
+  const strengthCapabilities = transformedCapabilityScores.filter(cap => {
+    const score = hasEvaluatorResponses && cap.others_avg_score > 0
+      ? cap.others_avg_score
+      : cap.self_score;
+    return Math.round(score) >= 4;
+  });
+
+  // Display categorized capabilities
+  const hasGrowth = growthCapabilities.length > 0;
+  const hasNeutral = neutralCapabilities.length > 0;
+  const hasStrengths = strengthCapabilities.length > 0;
+
+  if (hasGrowth || hasNeutral || hasStrengths) {
+    yPos = checkNewPage(doc, yPos, pageHeight, 100);
     
-    const recommendations = Array.isArray(results.recommendations)
-      ? results.recommendations
-      : typeof results.recommendations === 'object'
-      ? Object.values(results.recommendations)
-      : [];
+    // Areas for Growth
+    if (hasGrowth) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.setTextColor(200, 0, 0); // Red
+      doc.text('Areas for Growth', 20, yPos);
+      doc.setTextColor(0, 0, 0);
+      yPos += 8;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.text('Deepen self-reflection, actively seek feedback, and explore perception differences to strengthen impact and alignment.', 20, yPos);
+      yPos += 10;
+      
+      growthCapabilities.forEach(cap => {
+        yPos = checkNewPage(doc, yPos, pageHeight, 30);
+        const capInfo = feedback360Capabilities.find(c => c.id === cap.capability);
+        const capabilityTitle = capInfo?.title || cap.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        const score = hasEvaluatorResponses && cap.others_avg_score > 0
+          ? cap.others_avg_score
+          : cap.self_score;
+        
+        // Colored box
+        doc.setFillColor(255, 199, 206); // #FFC7CE
+        doc.rect(20, yPos - 5, pageWidth - 40, 15, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text(capabilityTitle, 25, yPos + 3);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`${score.toFixed(1)}/5.0`, pageWidth - 30, yPos + 3, { align: 'right' });
+        yPos += 12;
+      });
+      yPos += 5;
+    }
+
+    // Neutral
+    if (hasNeutral) {
+      yPos = checkNewPage(doc, yPos, pageHeight, 50);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.setTextColor(200, 150, 0); // Yellow/Orange
+      doc.text('Neutral', 20, yPos);
+      doc.setTextColor(0, 0, 0);
+      yPos += 8;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.text('Focus on areas of gap, engage in feedback discussions, and seek specific examples to calibrate perceptions.', 20, yPos);
+      yPos += 10;
+      
+      neutralCapabilities.forEach(cap => {
+        yPos = checkNewPage(doc, yPos, pageHeight, 30);
+        const capInfo = feedback360Capabilities.find(c => c.id === cap.capability);
+        const capabilityTitle = capInfo?.title || cap.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        const score = hasEvaluatorResponses && cap.others_avg_score > 0
+          ? cap.others_avg_score
+          : cap.self_score;
+        
+        // Colored box
+        doc.setFillColor(255, 235, 156); // #FFEB9C
+        doc.rect(20, yPos - 5, pageWidth - 40, 15, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text(capabilityTitle, 25, yPos + 3);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`${score.toFixed(1)}/5.0`, pageWidth - 30, yPos + 3, { align: 'right' });
+        yPos += 12;
+      });
+      yPos += 5;
+    }
+
+    // Strengths
+    if (hasStrengths) {
+      yPos = checkNewPage(doc, yPos, pageHeight, 50);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.setTextColor(0, 150, 0); // Green
+      doc.text('Strengths', 20, yPos);
+      doc.setTextColor(0, 0, 0);
+      yPos += 8;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.text('Continue leveraging strengths, use feedback as reinforcement for ongoing growth.', 20, yPos);
+      yPos += 10;
+      
+      strengthCapabilities.forEach(cap => {
+        yPos = checkNewPage(doc, yPos, pageHeight, 30);
+        const capInfo = feedback360Capabilities.find(c => c.id === cap.capability);
+        const capabilityTitle = capInfo?.title || cap.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        const score = hasEvaluatorResponses && cap.others_avg_score > 0
+          ? cap.others_avg_score
+          : cap.self_score;
+        
+        // Colored box
+        doc.setFillColor(198, 239, 206); // #C6EFCE
+        doc.rect(20, yPos - 5, pageWidth - 40, 15, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text(capabilityTitle, 25, yPos + 3);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`${score.toFixed(1)}/5.0`, pageWidth - 30, yPos + 3, { align: 'right' });
+        yPos += 12;
+      });
+    }
+  }
+
+  // Results & Analysis: Self vs Contributors (if evaluators responded)
+  if (hasEvaluatorResponses) {
+    yPos = addSectionTitle(doc, 'Results & Analysis: Self vs Contributors', yPos, pageHeight);
     
-    recommendations.forEach((rec, index) => {
-      yPos = checkNewPage(doc, yPos, pageHeight);
-      const text = typeof rec === 'string' ? `${index + 1}. ${rec}` : `${index + 1}. ${JSON.stringify(rec)}`;
-      const lines = doc.splitTextToSize(text, pageWidth - 40);
-      doc.text(lines, 20, yPos);
-      yPos += lines.length * 6 + 3;
-    });
+    for (const capScore of transformedCapabilityScores) {
+      yPos = checkNewPage(doc, yPos, pageHeight, 120);
+      
+      const capInfo = feedback360Capabilities.find(c => c.id === capScore.capability);
+      const capabilityTitle = capInfo?.title || capScore.capability.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      
+      // Capability title
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text(capabilityTitle, 20, yPos);
+      
+      // Gap label
+      let gapLabel = '';
+      if (capScore.gap > 0.5) gapLabel = 'Self-rating higher';
+      else if (capScore.gap < -0.5) gapLabel = 'Others rate higher';
+      else gapLabel = 'Aligned';
+      
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.text(gapLabel, pageWidth - 25, yPos, { align: 'right' });
+      yPos += 12;
+
+      // Self Average with progress bar
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.text('Self Average', 20, yPos);
+      const selfColorCode = get360ScoreColorCode(capScore.self_score);
+      const selfR = parseInt(selfColorCode.slice(1, 3), 16);
+      const selfG = parseInt(selfColorCode.slice(3, 5), 16);
+      const selfB = parseInt(selfColorCode.slice(5, 7), 16);
+      doc.setTextColor(selfR, selfG, selfB);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${capScore.self_score.toFixed(1)} / 5.0`, pageWidth - 25, yPos, { align: 'right' });
+      doc.setTextColor(0, 0, 0);
+      yPos += 8;
+      
+      // Progress bar for self
+      const selfBarWidth = ((capScore.self_score / 5) * 100) * ((pageWidth - 40) / 100);
+      const barHeight = 4;
+      doc.setFillColor(selfR, selfG, selfB);
+      doc.rect(20, yPos, selfBarWidth, barHeight, 'F');
+      doc.setDrawColor(200, 200, 200);
+      doc.rect(20, yPos, pageWidth - 40, barHeight, 'S');
+      yPos += 12;
+
+      // Others' Average with progress bar
+      if (capScore.others_avg_score > 0) {
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.text('Others\' Average', 20, yPos);
+        const othersColorCode = get360ScoreColorCode(capScore.others_avg_score);
+        const othersR = parseInt(othersColorCode.slice(1, 3), 16);
+        const othersG = parseInt(othersColorCode.slice(3, 5), 16);
+        const othersB = parseInt(othersColorCode.slice(5, 7), 16);
+        doc.setTextColor(othersR, othersG, othersB);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${capScore.others_avg_score.toFixed(1)} / 5.0`, pageWidth - 25, yPos, { align: 'right' });
+        doc.setTextColor(0, 0, 0);
+        yPos += 8;
+        
+        // Progress bar for others
+        const othersBarWidth = ((capScore.others_avg_score / 5) * 100) * ((pageWidth - 40) / 100);
+        doc.setFillColor(othersR, othersG, othersB);
+        doc.rect(20, yPos, othersBarWidth, barHeight, 'F');
+        doc.setDrawColor(200, 200, 200);
+        doc.rect(20, yPos, pageWidth - 40, barHeight, 'S');
+        yPos += 12;
+      }
+
+      // Gap-based Overview and Recommendation
+      const gapInsight = getFeedback360GapInsightWithLocale(
+        capScore.capability,
+        capScore.gap,
+        locale
+      );
+
+      if (gapInsight) {
+        const gapColorCode = gapInsight.colorCode;
+        const gapR = parseInt(gapColorCode.slice(1, 3), 16);
+        const gapG = parseInt(gapColorCode.slice(3, 5), 16);
+        const gapB = parseInt(gapColorCode.slice(5, 7), 16);
+        
+        // Overview box
+        yPos = checkNewPage(doc, yPos, pageHeight, 60);
+        const overviewBoxY = yPos;
+        const overviewLines = doc.splitTextToSize(gapInsight.overview, pageWidth - 50);
+        const overviewBoxHeight = overviewLines.length * 5 + 15;
+        doc.setFillColor(gapR, gapG, gapB);
+        doc.rect(20, overviewBoxY, pageWidth - 40, overviewBoxHeight, 'F');
+        
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0);
+        doc.text('Overview', 25, overviewBoxY + 8);
+        yPos = overviewBoxY + 15;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.text(overviewLines, 25, yPos);
+        yPos += overviewLines.length * 5 + 10;
+
+        // Recommendation box
+        yPos = checkNewPage(doc, yPos, pageHeight, 60);
+        const recBoxY = yPos;
+        const recLines = doc.splitTextToSize(gapInsight.recommendation, pageWidth - 50);
+        const recBoxHeight = recLines.length * 5 + 15;
+        doc.setFillColor(gapR, gapG, gapB);
+        doc.rect(20, recBoxY, pageWidth - 40, recBoxHeight, 'F');
+        
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text('Recommendation', 25, recBoxY + 8);
+        yPos = recBoxY + 15;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.text(recLines, 25, yPos);
+        yPos += recLines.length * 5 + 10;
+      }
+      
+      yPos += 5; // Space between capabilities
+    }
   }
 };
 
