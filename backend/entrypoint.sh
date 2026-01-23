@@ -5,6 +5,14 @@
 # Redirect stderr to stdout so Railway captures everything
 exec 2>&1
 
+# Ensure script fails loudly on any error after this point
+set -u  # Fail on undefined variables
+
+# Force flush output immediately
+echo "ENTRYPOINT: Script starting..." >&2
+echo "ENTRYPOINT: Script starting..."
+sleep 0.1  # Small delay to ensure output is flushed
+
 # Force unbuffered output for immediate visibility
 # Python unbuffered mode
 export PYTHONUNBUFFERED=1
@@ -255,11 +263,24 @@ if [ $IMPORT_EXIT -ne 0 ]; then
     echo "Import error output:"
     echo "$IMPORT_OUTPUT"
     echo "This usually means there's a syntax error or import error in the code."
+    echo "Attempting to get more details..."
+    python -c "import sys; sys.path.insert(0, '.'); from app.main import app" 2>&1 || true
+    echo "=========================================="
+    echo "CRITICAL: Cannot start server - import failed"
+    echo "=========================================="
     exit 1
 fi
 echo "$IMPORT_OUTPUT"
 
 echo "✓ Application import test passed"
+
+# Test that uvicorn can actually start (quick test)
+echo "Testing uvicorn availability..."
+if ! python -c "import uvicorn; print('✓ Uvicorn available')" 2>&1; then
+    echo "❌ ERROR: Uvicorn not available!"
+    exit 1
+fi
+echo "✓ Uvicorn is available"
 echo ""
 echo "=========================================="
 echo "🚀 Starting Uvicorn server..."
@@ -315,6 +336,9 @@ echo ""
 # Use --log-level info to see startup messages
 echo "=========================================="
 echo "EXECUTING: python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+echo "=========================================="
+echo "Starting server NOW - all output will be visible below"
+echo "If server fails to start, errors will appear here"
 echo "=========================================="
 exec python -m uvicorn app.main:app \
     --host 0.0.0.0 \
