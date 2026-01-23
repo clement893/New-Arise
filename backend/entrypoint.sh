@@ -5,11 +5,29 @@
 # Redirect stderr to stdout so Railway captures everything
 exec 2>&1
 
+# CRITICAL: Output immediately to confirm script is running
+# Railway needs to see output right away - output to both stdout and stderr
+echo "==========================================" 1>&2
+echo "ENTRYPOINT SCRIPT EXECUTING NOW" 1>&2
+echo "==========================================" 1>&2
+echo "Timestamp: $(date)" 1>&2
+echo "Working directory: $(pwd)" 1>&2
+echo "User: $(whoami)" 1>&2
+echo "Script path: $0" 1>&2
+echo "==========================================" 1>&2
+echo "=========================================="
+echo "ENTRYPOINT SCRIPT EXECUTING NOW"
+echo "=========================================="
+echo "Timestamp: $(date)"
+echo "Working directory: $(pwd)"
+echo "User: $(whoami)"
+echo "Script path: $0"
+echo "=========================================="
+
 # Ensure script fails loudly on any error after this point
 set -u  # Fail on undefined variables
 
 # Force flush output immediately
-echo "ENTRYPOINT: Script starting..." >&2
 echo "ENTRYPOINT: Script starting..."
 sleep 0.1  # Small delay to ensure output is flushed
 
