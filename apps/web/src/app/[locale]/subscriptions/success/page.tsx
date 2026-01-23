@@ -22,8 +22,8 @@ function SubscriptionSuccessContent() {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuthStore();
-  // Use dashboard.subscription namespace and access success keys
-  const t = useTranslations('dashboard.subscription');
+  // Use the full namespace path for translations
+  const t = useTranslations('dashboard.subscription.success');
   const [planName, setPlanName] = useState('');
   const [billingPeriod, setBillingPeriod] = useState<'month' | 'year'>('month');
   const [isLoadingPlan, setIsLoadingPlan] = useState(true);
@@ -139,7 +139,7 @@ function SubscriptionSuccessContent() {
         <Card className="w-full max-w-2xl">
           <div className="p-8 text-center">
             <Loading />
-            <p className="mt-4 text-muted-foreground">{t('success.loadingDetails')}</p>
+            <p className="mt-4 text-muted-foreground">{t('loadingDetails')}</p>
           </div>
         </Card>
       </div>
@@ -168,55 +168,55 @@ function SubscriptionSuccessContent() {
           </div>
 
           <h1 className="text-4xl font-bold text-foreground mb-4">
-            {t('success.title')}
+            {t('title')}
           </h1>
           <p className="text-xl text-muted-foreground mb-8">
             {planName 
               ? (
                   <>
-                    {t('success.messagePrefix')} <strong>{planName}</strong> {t('success.messageSuffix')}
+                    {t('messagePrefix')} <strong>{planName}</strong> {t('messageSuffix')}
                   </>
                 )
-              : t('success.messageFallback')
+              : t('messageFallback')
             }
           </p>
 
           {/* Subscription Details */}
           <div className="bg-muted rounded-lg p-6 mb-8 text-left">
-            <h2 className="text-lg font-semibold text-foreground mb-4">{t('success.detailsTitle')}</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-4">{t('detailsTitle')}</h2>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">{t('success.plan')}</span>
+                <span className="text-muted-foreground">{t('plan')}</span>
                 <span className="font-medium text-foreground">{planName}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">{t('success.period')}</span>
+                <span className="text-muted-foreground">{t('period')}</span>
                 <span className="font-medium text-foreground">
-                  {billingPeriod === 'month' ? t('success.periodMonth') : t('success.periodYear')}
+                  {billingPeriod === 'month' ? t('periodMonth') : t('periodYear')}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">{t('success.status')}</span>
-                <span className="font-medium text-green-600 dark:text-green-400">{t('success.statusActive')}</span>
+                <span className="text-muted-foreground">{t('status')}</span>
+                <span className="font-medium text-green-600 dark:text-green-400">{t('statusActive')}</span>
               </div>
             </div>
           </div>
 
           {/* Next Steps */}
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-foreground mb-4">{t('success.nextStepsTitle')}</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-4">{t('nextStepsTitle')}</h3>
             <ul className="text-left space-y-2 text-muted-foreground">
               <li className="flex items-start">
                 <span className="text-green-600 mr-2">✓</span>
-                <span>{t('success.step1')}</span>
+                <span>{t('step1')}</span>
               </li>
               <li className="flex items-start">
                 <span className="text-green-600 mr-2">✓</span>
-                <span>{t('success.step2')}</span>
+                <span>{t('step2')}</span>
               </li>
               <li className="flex items-start">
                 <span className="text-green-600 mr-2">✓</span>
-                <span>{t('success.step3')}</span>
+                <span>{t('step3')}</span>
               </li>
             </ul>
           </div>
@@ -239,12 +239,12 @@ function SubscriptionSuccessContent() {
               }}
             >
               <Button>
-                {t('success.goToDashboard')}
+                {t('goToDashboard')}
               </Button>
             </Link>
             <Link href="/subscriptions">
               <Button variant="outline">
-                {t('success.manageSubscription')}
+                {t('manageSubscription')}
               </Button>
             </Link>
           </div>
@@ -255,7 +255,7 @@ function SubscriptionSuccessContent() {
 }
 
 export default function SubscriptionSuccessPage() {
-  const t = useTranslations('dashboard.subscription');
+  const t = useTranslations('dashboard.subscription.success');
   
   return (
     <Suspense
@@ -264,7 +264,7 @@ export default function SubscriptionSuccessPage() {
           <Card className="w-full max-w-2xl">
             <div className="p-8 text-center">
               <Loading />
-              <p className="mt-4 text-muted-foreground">{t('success.loading')}</p>
+              <p className="mt-4 text-muted-foreground">{t('loading')}</p>
             </div>
           </Card>
         </div>
