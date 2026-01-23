@@ -5,11 +5,9 @@ import Card from '@/components/ui/Card';
 import Loading from '@/components/ui/Loading';
 import Button from '@/components/ui/Button';
 import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
 
 export default function SubscriptionDiagnosticPage() {
   const router = useRouter();
-  const t = useTranslations('subscriptions');
   const { data, isLoading, error, refetch } = useSubscriptionDiagnostic();
 
   if (isLoading) {
