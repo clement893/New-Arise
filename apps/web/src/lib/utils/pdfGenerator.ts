@@ -194,7 +194,11 @@ const generateWellnessPDF = async (
       // Draw polygon
       for (let i = 0; i < points.length; i++) {
         const next = (i + 1) % points.length;
-        doc.line(points[i].x, points[i].y, points[next].x, points[next].y);
+        const currentPoint = points[i];
+        const nextPoint = points[next];
+        if (currentPoint && nextPoint) {
+          doc.line(currentPoint.x, currentPoint.y, nextPoint.x, nextPoint.y);
+        }
       }
     }
     
@@ -237,15 +241,19 @@ const generateWellnessPDF = async (
     doc.setLineWidth(1.5);
     
     // Draw filled polygon using path() function
-    if (scorePoints.length > 0) {
+    if (scorePoints.length > 0 && scorePoints[0]) {
       // Build path array for jsPDF
+      const firstPoint = scorePoints[0];
       const pathArray: Array<{ op: string; c: number[] }> = [
-        { op: 'm', c: [scorePoints[0].x, scorePoints[0].y] } // Move to first point
+        { op: 'm', c: [firstPoint.x, firstPoint.y] } // Move to first point
       ];
       
       // Add lines to all other points
       for (let i = 1; i < scorePoints.length; i++) {
-        pathArray.push({ op: 'l', c: [scorePoints[i].x, scorePoints[i].y] });
+        const point = scorePoints[i];
+        if (point) {
+          pathArray.push({ op: 'l', c: [point.x, point.y] });
+        }
       }
       
       // Close the path
