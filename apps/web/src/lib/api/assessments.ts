@@ -563,6 +563,18 @@ export const deleteAssessment = async (assessmentId: number): Promise<{ message:
 };
 
 /**
+ * Reset an assessment to its initial state (not started)
+ * This will delete all answers and results, but keep the assessment itself
+ * Uses apiClient to benefit from automatic token refresh on 401 errors
+ */
+export const resetAssessment = async (assessmentId: number): Promise<{ message: string; assessment_id: number; status: string }> => {
+  const response = await apiClient.post(
+    `/v1/assessments/${assessmentId}/reset`
+  );
+  return response.data;
+};
+
+/**
  * Assessment Question types
  */
 export interface AssessmentQuestion {

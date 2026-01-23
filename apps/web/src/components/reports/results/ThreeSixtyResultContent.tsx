@@ -347,15 +347,43 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
           {t('overallScore.title')}
         </h2>
 
-        <div className="flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
           <div className="text-center">
             <div className="text-6xl font-bold mb-2">
               {transformedResults.percentage}%
             </div>
-            <div className="text-white/90">
+            <div className="text-white/90 mb-4">
               {t('overallScore.points', { score: transformedResults.total_score, max: transformedResults.max_score })}
             </div>
           </div>
+          
+          {/* Self vs Contributors Average */}
+          {transformedResults.has_evaluator_responses && transformedResults.capability_scores.length > 0 && (() => {
+            // Calculate contributors average percentage
+            // Each capability has others_avg_score (0-5), convert to percentage and average
+            const contributorsPercentages = transformedResults.capability_scores
+              .map(cap => ((cap.others_avg_score || 0) / 5) * 100)
+              .filter(p => p > 0);
+            
+            const contributorsPercentage = contributorsPercentages.length > 0
+              ? Math.round((contributorsPercentages.reduce((sum, p) => sum + p, 0) / contributorsPercentages.length) * 10) / 10
+              : 0;
+            
+            return (
+              <div className="flex items-center gap-6 text-white/90">
+                <div className="text-center">
+                  <div className="text-2xl font-semibold">
+                    {t('overallScore.selfScore', { score: transformedResults.percentage })}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-semibold">
+                    {t('overallScore.contributorsAvg', { score: contributorsPercentage })}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </Card>
 
@@ -803,6 +831,60 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
           </div>
         </Card>
       )}
+
+      {/* Overall Self-Awareness Block */}
+      {transformedResults.has_evaluator_responses && transformedResults.capability_scores.length > 0 && (() => {
+        // Count how many capabilities have "red" gap (Limited Self-awareness)
+        // Red gap means: gap < -0.5 or gap > 0.5
+        const redGapCount = transformedResults.capability_scores.filter(cap => {
+          const roundedGap = Math.round(cap.gap * 10) / 10;
+          return !(roundedGap >= -0.5 && roundedGap <= 0.5);
+        }).length;
+
+        // Determine self-awareness level based on red count (out of 6 capabilities)
+        let awarenessLevel: 'high' | 'good' | 'low';
+        let awarenessText: string;
+        let backgroundColor: string;
+
+        if (redGapCount <= 2) {
+          // 0-2 red: High Self-Awareness (Green)
+          awarenessLevel = 'high';
+          awarenessText = t('overallSelfAwareness.high');
+          backgroundColor = '#C6EFCE'; // Green
+        } else if (redGapCount <= 4) {
+          // 3-4 red: Good Self-Awareness (Yellow)
+          awarenessLevel = 'good';
+          awarenessText = t('overallSelfAwareness.good');
+          backgroundColor = '#FFEB9C'; // Yellow
+        } else {
+          // 5-6 red: Low Self-Awareness (Red)
+          awarenessLevel = 'low';
+          awarenessText = t('overallSelfAwareness.low');
+          backgroundColor = '#FFC7CE'; // Red
+        }
+
+        return (
+          <Card className="bg-white">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              {t('overallSelfAwareness.title')}
+            </h2>
+            <div 
+              className="rounded-lg p-6"
+              style={{ backgroundColor }}
+            >
+              <p className="text-lg font-semibold text-gray-900 text-center">
+                {awarenessText}
+              </p>
+              <p className="text-sm text-gray-700 text-center mt-2">
+                {t('overallSelfAwareness.description', { 
+                  count: redGapCount, 
+                  total: transformedResults.capability_scores.length 
+                })}
+              </p>
+            </div>
+          </Card>
+        );
+      })()}
     </div>
   );
 }

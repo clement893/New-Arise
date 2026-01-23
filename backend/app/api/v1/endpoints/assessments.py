@@ -3103,6 +3103,89 @@ async def delete_assessment(
         )
 
 
+@router.post("/{assessment_id}/reset", status_code=status.HTTP_200_OK)
+async def reset_assessment(
+    assessment_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Reset an assessment to its initial state (not started)
+    This will delete all answers and results, but keep the assessment itself
+    The assessment status will be reset to NOT_STARTED
+    """
+    from app.core.logging import logger
+    
+    try:
+        # Verify assessment exists and belongs to the current user
+        result = await db.execute(
+            select(Assessment)
+            .where(
+                Assessment.id == assessment_id,
+                Assessment.user_id == current_user.id
+            )
+        )
+        assessment = result.scalar_one_or_none()
+        
+        if not assessment:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Assessment not found"
+            )
+        
+        # Delete all related data using raw SQL to avoid ORM issues with answered_at column
+        
+        # 1. Delete assessment answers using raw SQL
+        await db.execute(
+            text("""
+                DELETE FROM assessment_answers
+                WHERE assessment_id = :assessment_id
+            """),
+            {"assessment_id": assessment_id}
+        )
+        
+        # 2. Delete assessment results using raw SQL
+        await db.execute(
+            text("""
+                DELETE FROM assessment_results
+                WHERE assessment_id = :assessment_id
+            """),
+            {"assessment_id": assessment_id}
+        )
+        
+        # 3. Reset assessment status and metadata
+        # Note: We keep evaluators for 360° assessments as they can be reused
+        assessment.status = AssessmentStatus.NOT_STARTED
+        assessment.started_at = None
+        assessment.completed_at = None
+        assessment.raw_score = None
+        assessment.processed_score = None
+        assessment.updated_at = datetime.now(timezone.utc)
+        
+        await db.commit()
+        await db.refresh(assessment)
+        
+        logger.info(
+            f"User {current_user.id} ({current_user.email}) reset assessment {assessment_id}"
+        )
+        
+        return {
+            "message": "Assessment reset successfully",
+            "assessment_id": assessment_id,
+            "status": assessment.status.value
+        }
+    except HTTPException:
+        await db.rollback()
+        raise
+    except Exception as e:
+        logger.error(f"Error resetting assessment {assessment_id} for user {current_user.id}: {e}", exc_info=True)
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to reset assessment: {str(e)}"
+        )
+
+
 # ============================================================================
 # Question Management Endpoints
 # ============================================================================

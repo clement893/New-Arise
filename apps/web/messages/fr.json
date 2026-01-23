@@ -478,7 +478,16 @@
           },
           "overallScore": {
             "title": "Score global de leadership",
-            "points": "{score} sur {max} points"
+            "points": "{score} sur {max} points",
+            "selfScore": "Auto-évaluation ({score}%)",
+            "contributorsAvg": "Moyenne des contributeurs ({score}%)"
+          },
+          "overallSelfAwareness": {
+            "title": "Conscience de soi globale",
+            "high": "Conscience de soi élevée",
+            "good": "Bonne conscience de soi",
+            "low": "Faible conscience de soi",
+            "description": "{count} {count, plural, one {capacité} other {capacités}} sur {total} montrent une conscience de soi limitée"
           },
           "capabilities": {
             "title": "Capacités de leadership",

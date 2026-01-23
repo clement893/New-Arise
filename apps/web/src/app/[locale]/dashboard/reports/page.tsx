@@ -12,7 +12,7 @@ import { Card, Loading } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import { FileText, Download, TrendingUp, Target, Users, Brain, Eye } from 'lucide-react';
 import Image from 'next/image';
-import { getMyAssessments, getAssessmentResults, get360Evaluators, getDevelopmentGoalsCount, deleteAllMyAssessments, deleteAssessment, Assessment as ApiAssessment, AssessmentType, AssessmentResult } from '@/lib/api/assessments';
+import { getMyAssessments, getAssessmentResults, get360Evaluators, getDevelopmentGoalsCount, deleteAllMyAssessments, resetAssessment, Assessment as ApiAssessment, AssessmentType, AssessmentResult } from '@/lib/api/assessments';
 import { generateAssessmentPDF, generateAllAssessmentsZip, generateCompleteLeadershipProfilePDF, downloadBlob } from '@/lib/utils/pdfGenerator';
 import { checkMySuperAdminStatus } from '@/lib/api/admin';
 import { Trash2, AlertTriangle } from 'lucide-react';
@@ -64,11 +64,11 @@ function ResultsReportsContent() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [expandedAssessmentIds, setExpandedAssessmentIds] = useState<Set<number>>(new Set());
-  const [showDeleteAssessmentModal, setShowDeleteAssessmentModal] = useState(false);
-  const [assessmentToDelete, setAssessmentToDelete] = useState<AssessmentDisplay | null>(null);
-  const [deleteTitleInput, setDeleteTitleInput] = useState('');
-  const [deleteTitleError, setDeleteTitleError] = useState<string | null>(null);
-  const [isDeletingAssessment, setIsDeletingAssessment] = useState(false);
+  const [showResetAssessmentModal, setShowResetAssessmentModal] = useState(false);
+  const [assessmentToReset, setAssessmentToReset] = useState<AssessmentDisplay | null>(null);
+  const [resetTitleInput, setResetTitleInput] = useState('');
+  const [resetTitleError, setResetTitleError] = useState<string | null>(null);
+  const [isResettingAssessment, setIsResettingAssessment] = useState(false);
   const assessmentRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
   useEffect(() => {
@@ -750,49 +750,49 @@ function ResultsReportsContent() {
     }
   };
 
-  const handleDeleteAssessmentClick = (assessment: AssessmentDisplay) => {
-    setAssessmentToDelete(assessment);
-    setDeleteTitleInput('');
-    setDeleteTitleError(null);
-    setShowDeleteAssessmentModal(true);
+  const handleResetAssessmentClick = (assessment: AssessmentDisplay) => {
+    setAssessmentToReset(assessment);
+    setResetTitleInput('');
+    setResetTitleError(null);
+    setShowResetAssessmentModal(true);
   };
 
-  const handleDeleteAssessmentConfirm = async () => {
-    if (!assessmentToDelete) return;
+  const handleResetAssessmentConfirm = async () => {
+    if (!assessmentToReset) return;
 
     // Validate that the input matches the assessment name exactly
-    if (deleteTitleInput.trim() !== assessmentToDelete.name.trim()) {
-      setDeleteTitleError(t('errors.titleMismatch') || 'The title does not match. Please enter the exact assessment title.');
+    if (resetTitleInput.trim() !== assessmentToReset.name.trim()) {
+      setResetTitleError(t('errors.titleMismatch') || 'The title does not match. Please enter the exact assessment title.');
       return;
     }
 
     try {
-      setIsDeletingAssessment(true);
-      setDeleteTitleError(null);
+      setIsResettingAssessment(true);
+      setResetTitleError(null);
       
-      await deleteAssessment(assessmentToDelete.id);
+      await resetAssessment(assessmentToReset.id);
       
-      // Reload assessments after deletion
+      // Reload assessments after reset
       await loadAssessments();
       
-      setShowDeleteAssessmentModal(false);
-      setAssessmentToDelete(null);
-      setDeleteTitleInput('');
-      alert(t('errors.assessmentDeleted') || 'Assessment deleted successfully');
+      setShowResetAssessmentModal(false);
+      setAssessmentToReset(null);
+      setResetTitleInput('');
+      alert(t('errors.assessmentReset') || 'Assessment reset successfully. You can now start it again from the assessments page.');
     } catch (err: any) {
-      console.error('Failed to delete assessment:', err);
-      const errorMessage = err?.response?.data?.detail || err?.message || t('errors.deleteFailed');
-      setDeleteTitleError(errorMessage);
+      console.error('Failed to reset assessment:', err);
+      const errorMessage = err?.response?.data?.detail || err?.message || t('errors.resetFailed');
+      setResetTitleError(errorMessage);
     } finally {
-      setIsDeletingAssessment(false);
+      setIsResettingAssessment(false);
     }
   };
 
-  const handleDeleteAssessmentCancel = () => {
-    setShowDeleteAssessmentModal(false);
-    setAssessmentToDelete(null);
-    setDeleteTitleInput('');
-    setDeleteTitleError(null);
+  const handleResetAssessmentCancel = () => {
+    setShowResetAssessmentModal(false);
+    setAssessmentToReset(null);
+    setResetTitleInput('');
+    setResetTitleError(null);
   };
 
   return (

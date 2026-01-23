@@ -544,7 +544,16 @@
           },
           "overallScore": {
             "title": "Overall Leadership Score",
-            "points": "{score} out of {max} points"
+            "points": "{score} out of {max} points",
+            "selfScore": "Self ({score}%)",
+            "contributorsAvg": "Contributors avg ({score}%)"
+          },
+          "overallSelfAwareness": {
+            "title": "Overall Self-Awareness",
+            "high": "High Self-Awareness",
+            "good": "Good Self-Awareness",
+            "low": "Low Self-Awareness",
+            "description": "{count} {count, plural, one {capability} other {capabilities}} out of {total} show limited self-awareness"
           },
           "capabilities": {
             "title": "Leadership Capabilities",
