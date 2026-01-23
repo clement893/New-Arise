@@ -112,7 +112,15 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
 # Use WORKDIR to ensure we're in /app when script runs
 WORKDIR /app
 
-# Use entrypoint.sh script - it has all the logging and error handling
-# Use exec form for better signal handling
-ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
+# Start uvicorn directly - bypass all scripts to see if Railway can execute it
+# Write to stderr first to ensure visibility, then start uvicorn
+# Use shell form to allow environment variable expansion
+CMD set -x && \
+    echo "=== DOCKERFILE CMD STARTED ===" >&2 && \
+    echo "PORT=${PORT:-8000}" >&2 && \
+    echo "PWD=$(pwd)" >&2 && \
+    echo "USER=$(whoami)" >&2 && \
+    echo "Python: $(which python)" >&2 && \
+    echo "Starting uvicorn directly..." >&2 && \
+    python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level debug --access-log 2>&1
 
