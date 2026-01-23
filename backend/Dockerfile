@@ -92,6 +92,10 @@ RUN playwright install chromium
 RUN playwright --version && \
     ls -la /home/appuser/.cache/ms-playwright/ || echo "Playwright cache directory created"
 
+# Switch back to root for startup - Railway may need root to execute commands
+# We'll switch to appuser in the CMD if needed
+USER root
+
 EXPOSE 8000
 
 # Set Python to unbuffered mode for immediate log visibility
@@ -108,9 +112,10 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
 # Use WORKDIR to ensure we're in /app when script runs
 WORKDIR /app
 
-# Start uvicorn directly - bypass entrypoint script to diagnose the issue
+# Start uvicorn directly as root to diagnose the issue
 # Railway may be ignoring startCommand, so we'll use CMD directly
-# This will help us see if the app can start at all
+# Running as root temporarily to see if permissions are the issue
 # Use PORT environment variable (Railway sets this automatically)
-CMD ["/bin/sh", "-c", "echo '=== DOCKERFILE CMD STARTED ===' && echo 'PORT=${PORT:-8000}' && echo 'Starting uvicorn...' && python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info --access-log"]
+# Write to both stdout and stderr to ensure visibility
+CMD ["/bin/sh", "-c", "echo '=== DOCKERFILE CMD STARTED ===' >&2 && echo 'PORT=${PORT:-8000}' >&2 && echo 'Starting uvicorn as $(whoami)...' >&2 && python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info --access-log 2>&1"]
 
