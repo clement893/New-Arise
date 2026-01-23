@@ -1987,6 +1987,27 @@
         "cancelFailed": "Erreur lors de l'annulation de l'abonnement",
         "resumeFailed": "Erreur lors de la reprise de l'abonnement",
         "subscribeFailed": "Erreur lors de l'abonnement au plan"
+      },
+      "success": {
+        "title": "Abonnement confirmé !",
+        "messagePrefix": "Merci pour votre confiance. Votre abonnement",
+        "messageSuffix": "est maintenant actif.",
+        "messageFallback": "Merci pour votre confiance. Votre abonnement sélectionné est maintenant actif.",
+        "detailsTitle": "Détails de votre abonnement",
+        "plan": "Plan:",
+        "period": "Période:",
+        "status": "Statut:",
+        "statusActive": "Actif",
+        "periodMonth": "Mensuel",
+        "periodYear": "Annuel",
+        "nextStepsTitle": "Prochaines étapes",
+        "step1": "Vous pouvez maintenant accéder à toutes les fonctionnalités de votre plan",
+        "step2": "Un email de confirmation a été envoyé à votre adresse",
+        "step3": "Vous pouvez gérer votre abonnement depuis la page Mes Abonnements",
+        "goToDashboard": "Aller au tableau de bord",
+        "manageSubscription": "Gérer mon abonnement",
+        "loadingDetails": "Chargement des détails de l'abonnement...",
+        "loading": "Chargement..."
       }
     },
     "admin": {

@@ -58,6 +58,31 @@
     "unauthorized": "غير مصرح",
     "forbidden": "محظور",
     "serverError": "خطأ في الخادم"
+  },
+  "dashboard": {
+    "subscription": {
+      "success": {
+        "title": "تم تأكيد الاشتراك!",
+        "messagePrefix": "شكراً لثقتك. اشتراكك",
+        "messageSuffix": "نشط الآن.",
+        "messageFallback": "شكراً لثقتك. الاشتراك المحدد نشط الآن.",
+        "detailsTitle": "تفاصيل الاشتراك",
+        "plan": "الخطة:",
+        "period": "الفترة:",
+        "status": "الحالة:",
+        "statusActive": "نشط",
+        "periodMonth": "شهري",
+        "periodYear": "سنوي",
+        "nextStepsTitle": "الخطوات التالية",
+        "step1": "يمكنك الآن الوصول إلى جميع ميزات خطتك",
+        "step2": "تم إرسال بريد تأكيد إلى عنوانك",
+        "step3": "يمكنك إدارة اشتراكك من صفحة اشتراكاتي",
+        "goToDashboard": "الذهاب إلى لوحة التحكم",
+        "manageSubscription": "إدارة اشتراكي",
+        "loadingDetails": "جاري تحميل تفاصيل الاشتراك...",
+        "loading": "جاري التحميل..."
+      }
+    }
   }
 }
 

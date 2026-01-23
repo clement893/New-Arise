@@ -30,7 +30,7 @@ function DashboardContent() {
   const t = useTranslations('dashboard.main');
   const { user } = useAuthStore();
   const router = useRouter();
-  const { data: subscriptionData } = useMySubscription();
+  const { data: subscriptionData, refetch: refetchSubscription } = useMySubscription();
   
   // Mapping of assessment types to display info - translated
   const ASSESSMENT_CONFIG: Record<string, { title: string; description: string; icon: typeof Brain; externalLink?: string }> = {
@@ -70,6 +70,27 @@ function DashboardContent() {
       setIsLoading(false);
     }
   }, [user]);
+
+  // Refresh subscription data when coming from payment success page
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.get('refresh') === 'true') {
+      // Clear subscription cache and force refetch
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.removeItem('subscription_cache');
+        } catch (e) {
+          // Ignore localStorage errors
+        }
+      }
+      // Force refetch subscription data
+      refetchSubscription();
+      // Remove refresh parameter from URL
+      searchParams.delete('refresh');
+      const newUrl = window.location.pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '');
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, [refetchSubscription]);
 
   useEffect(() => {
     // Load evaluators if user has a 360 feedback assessment

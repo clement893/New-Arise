@@ -58,6 +58,31 @@
     "unauthorized": "לא מורשה",
     "forbidden": "אסור",
     "serverError": "שגיאת שרת"
+  },
+  "dashboard": {
+    "subscription": {
+      "success": {
+        "title": "המנוי אושר!",
+        "messagePrefix": "תודה על האמון. המנוי שלך",
+        "messageSuffix": "פעיל כעת.",
+        "messageFallback": "תודה על האמון. המנוי שנבחר פעיל כעת.",
+        "detailsTitle": "פרטי המנוי",
+        "plan": "תוכנית:",
+        "period": "תקופה:",
+        "status": "סטטוס:",
+        "statusActive": "פעיל",
+        "periodMonth": "חודשי",
+        "periodYear": "שנתי",
+        "nextStepsTitle": "השלבים הבאים",
+        "step1": "כעת תוכל לגשת לכל התכונות של התוכנית שלך",
+        "step2": "אימייל אישור נשלח לכתובת שלך",
+        "step3": "תוכל לנהל את המנוי שלך מדף המנויים שלי",
+        "goToDashboard": "עבור ללוח הבקרה",
+        "manageSubscription": "נהל את המנוי שלי",
+        "loadingDetails": "טוען פרטי מנוי...",
+        "loading": "טוען..."
+      }
+    }
   }
 }
 

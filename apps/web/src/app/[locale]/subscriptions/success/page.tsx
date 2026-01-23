@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/lib/store';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -21,6 +22,7 @@ function SubscriptionSuccessContent() {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuthStore();
+  const t = useTranslations('dashboard.subscription.success');
   const [planName, setPlanName] = useState('');
   const [billingPeriod, setBillingPeriod] = useState<'month' | 'year'>('month');
   const [isLoadingPlan, setIsLoadingPlan] = useState(true);
@@ -35,20 +37,36 @@ function SubscriptionSuccessContent() {
   // Also try to get plan name from current subscription
   const { data: subscriptionData } = useMySubscription();
 
+  // Helper function to normalize plan name (remove price and extra spaces)
+  const normalizePlanName = useCallback((planName: string): string => {
+    if (!planName) return '';
+    // Remove price information (e.g., "REVELATION $299" -> "REVELATION")
+    let normalized = planName.trim();
+    // Remove price patterns like "$99", "$249", "$299", etc.
+    normalized = normalized.replace(/\s*\$\d+.*$/i, '').trim();
+    // Remove extra spaces
+    normalized = normalized.replace(/\s+/g, ' ').trim();
+    return normalized;
+  }, []);
+
   const initializeData = useCallback(() => {
     const period = searchParams.get('period') as 'month' | 'year' | null;
     setBillingPeriod(period || 'month');
     
     // Try to get plan name from API first
     if (planData?.data?.name) {
-      setPlanName(planData.data.name);
+      const rawName = planData.data.name;
+      const normalized = normalizePlanName(rawName);
+      setPlanName(normalized || rawName);
       setIsLoadingPlan(false);
-      logger.debug('Plan name loaded from API', { planId, planName: planData.data.name });
+      logger.debug('Plan name loaded from API', { planId, rawName, normalized });
     } else if (subscriptionData?.data?.plan?.name) {
       // Fallback to subscription plan name
-      setPlanName(subscriptionData.data.plan.name);
+      const rawName = subscriptionData.data.plan.name;
+      const normalized = normalizePlanName(rawName);
+      setPlanName(normalized || rawName);
       setIsLoadingPlan(false);
-      logger.debug('Plan name loaded from subscription', { planName: subscriptionData.data.plan.name });
+      logger.debug('Plan name loaded from subscription', { rawName, normalized });
     } else if (planIdParam && !isNaN(Number(planIdParam))) {
       // If we have a numeric plan ID but no data yet, show loading
       setIsLoadingPlan(planLoading);
@@ -67,7 +85,7 @@ function SubscriptionSuccessContent() {
       setPlanName(planNames[planIdParam || ''] || planIdParam || 'Plan');
       setIsLoadingPlan(false);
     }
-  }, [searchParams, planData, subscriptionData, planIdParam, planId, planLoading]);
+  }, [searchParams, planData, subscriptionData, planIdParam, planId, planLoading, normalizePlanName]);
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -77,9 +95,21 @@ function SubscriptionSuccessContent() {
 
     initializeData();
     
-    // Invalidate subscription queries to refresh data after payment
+    // Invalidate ALL subscription-related queries to refresh data after payment
+    // This ensures the dashboard and profile pages will show updated subscription
     queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.me });
     queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.payments });
+    queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.plans() });
+    
+    // Also invalidate any cached subscription data in localStorage
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem('subscription_cache');
+        logger.debug('Cleared subscription cache from localStorage');
+      } catch (e) {
+        // Ignore localStorage errors
+      }
+    }
   }, [isAuthenticated, router, initializeData, queryClient, planData, subscriptionData]);
 
   if (!isAuthenticated()) {
@@ -92,7 +122,7 @@ function SubscriptionSuccessContent() {
         <Card className="w-full max-w-2xl">
           <div className="p-8 text-center">
             <Loading />
-            <p className="mt-4 text-muted-foreground">Chargement des détails de l'abonnement...</p>
+            <p className="mt-4 text-muted-foreground">{t('loadingDetails')}</p>
           </div>
         </Card>
       </div>
@@ -121,62 +151,83 @@ function SubscriptionSuccessContent() {
           </div>
 
           <h1 className="text-4xl font-bold text-foreground mb-4">
-            Abonnement confirmé !
+            {t('title')}
           </h1>
           <p className="text-xl text-muted-foreground mb-8">
-            Merci pour votre confiance. Votre abonnement <strong>{planName || 'sélectionné'}</strong> est maintenant actif.
+            {planName 
+              ? (
+                  <>
+                    {t('messagePrefix')} <strong>{planName}</strong> {t('messageSuffix')}
+                  </>
+                )
+              : t('messageFallback')
+            }
           </p>
 
           {/* Subscription Details */}
           <div className="bg-muted rounded-lg p-6 mb-8 text-left">
-            <h2 className="text-lg font-semibold text-foreground mb-4">Détails de votre abonnement</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-4">{t('detailsTitle')}</h2>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Plan:</span>
+                <span className="text-muted-foreground">{t('plan')}</span>
                 <span className="font-medium text-foreground">{planName}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Période:</span>
+                <span className="text-muted-foreground">{t('period')}</span>
                 <span className="font-medium text-foreground">
-                  {billingPeriod === 'month' ? 'Mensuel' : 'Annuel'}
+                  {billingPeriod === 'month' ? t('periodMonth') : t('periodYear')}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Statut:</span>
-                <span className="font-medium text-green-600 dark:text-green-400">Actif</span>
+                <span className="text-muted-foreground">{t('status')}</span>
+                <span className="font-medium text-green-600 dark:text-green-400">{t('statusActive')}</span>
               </div>
             </div>
           </div>
 
           {/* Next Steps */}
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Prochaines étapes</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-4">{t('nextStepsTitle')}</h3>
             <ul className="text-left space-y-2 text-muted-foreground">
               <li className="flex items-start">
                 <span className="text-green-600 mr-2">✓</span>
-                <span>Vous pouvez maintenant accéder à toutes les fonctionnalités de votre plan</span>
+                <span>{t('step1')}</span>
               </li>
               <li className="flex items-start">
                 <span className="text-green-600 mr-2">✓</span>
-                <span>Un email de confirmation a été envoyé à votre adresse</span>
+                <span>{t('step2')}</span>
               </li>
               <li className="flex items-start">
                 <span className="text-green-600 mr-2">✓</span>
-                <span>Vous pouvez gérer votre abonnement depuis la page Mes Abonnements</span>
+                <span>{t('step3')}</span>
               </li>
             </ul>
           </div>
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/dashboard">
+            <Link 
+              href="/dashboard?refresh=true"
+              onClick={() => {
+                // Force refresh of subscription data when navigating to dashboard
+                queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.me });
+                // Clear localStorage cache
+                if (typeof window !== 'undefined') {
+                  try {
+                    localStorage.removeItem('subscription_cache');
+                  } catch (e) {
+                    // Ignore localStorage errors
+                  }
+                }
+              }}
+            >
               <Button>
-                Aller au tableau de bord
+                {t('goToDashboard')}
               </Button>
             </Link>
             <Link href="/subscriptions">
               <Button variant="outline">
-                Gérer mon abonnement
+                {t('manageSubscription')}
               </Button>
             </Link>
           </div>
@@ -194,7 +245,7 @@ export default function SubscriptionSuccessPage() {
           <Card className="w-full max-w-2xl">
             <div className="p-8 text-center">
               <Loading />
-              <p className="mt-4 text-muted-foreground">Chargement...</p>
+              <p className="mt-4 text-muted-foreground">{t('loading')}</p>
             </div>
           </Card>
         </div>
