@@ -303,6 +303,14 @@ const generateWellnessPDF = async (
         const lineY = labelY + (lineIndex - (lines.length - 1) / 2) * 4;
         doc.text(line, labelX, lineY, { align });
       });
+      
+      // Draw score below the label
+      const scoreY = labelY + (lines.length * 4) + 3;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(15, 76, 86); // Teal color
+      doc.text(`${dataPoint.score}`, labelX, scoreY, { align });
+      doc.setTextColor(75, 85, 99); // Reset to dark gray
     }
     
     yPos = chartCenterY + chartRadius + 30;
@@ -324,12 +332,11 @@ const generateWellnessPDF = async (
     const pillarPercentage = (pillarScore / 25) * 100;
     const insightData = getWellnessInsightWithLocale(pillar.id, pillarScore, locale);
 
-    // Pillar header with icon and name
-    // Try to use emoji directly - if it doesn't render, it will show as text
+    // Pillar header with name (no emoji - jsPDF doesn't support emojis well with Helvetica)
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
-    // Use emoji directly - jsPDF should handle it, but if it doesn't, we'll see the name
-    doc.text(`${pillar.icon} ${pillar.name}`, 20, yPos);
+    // Just use the name without emoji to avoid encoding issues
+    doc.text(pillar.name, 20, yPos);
     yPos += 8;
 
     // Assessment/Description
@@ -426,8 +433,8 @@ const generateWellnessPDF = async (
         : 'CONSISTENCY STAGE - Good habits are in place and showing progress.';
 
       doc.setFont('helvetica', 'bold');
-      // Use emoji directly
-      doc.text(`${pillar.icon} ${pillar.name} (${score}/25)`, 25, yPos);
+      // No emoji - just use the name
+      doc.text(`${pillar.name} (${score}/25)`, 25, yPos);
       yPos += 7;
       doc.setFont('helvetica', 'normal');
       const levelLines = doc.splitTextToSize(levelText, pageWidth - 50);
@@ -468,8 +475,8 @@ const generateWellnessPDF = async (
         : 'SIGNIFICANT GROWTH OPPORTUNITY - Currently limited or inconsistent practices.';
 
       doc.setFont('helvetica', 'bold');
-      // Use emoji directly
-      doc.text(`${pillar.icon} ${pillar.name} (${score}/25)`, 25, yPos);
+      // No emoji - just use the name
+      doc.text(`${pillar.name} (${score}/25)`, 25, yPos);
       yPos += 7;
       doc.setFont('helvetica', 'normal');
       const levelLines = doc.splitTextToSize(levelText, pageWidth - 50);
