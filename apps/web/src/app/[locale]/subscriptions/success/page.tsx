@@ -22,8 +22,8 @@ function SubscriptionSuccessContent() {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuthStore();
-  // Use the full namespace path for translations
-  const t = useTranslations('dashboard.subscription.success');
+  // Use the subscriptionSuccess namespace at root level
+  const t = useTranslations('subscriptionSuccess');
   const [planName, setPlanName] = useState('');
   const [billingPeriod, setBillingPeriod] = useState<'month' | 'year'>('month');
   const [isLoadingPlan, setIsLoadingPlan] = useState(true);
@@ -255,7 +255,7 @@ function SubscriptionSuccessContent() {
 }
 
 export default function SubscriptionSuccessPage() {
-  const t = useTranslations('dashboard.subscription.success');
+  const t = useTranslations('subscriptionSuccess');
   
   return (
     <Suspense

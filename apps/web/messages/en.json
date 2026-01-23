@@ -3910,5 +3910,26 @@
         }
       }
     }
+  },
+  "subscriptionSuccess": {
+    "title": "Subscription Confirmed!",
+    "messagePrefix": "Thank you for your trust. Your",
+    "messageSuffix": "subscription is now active.",
+    "messageFallback": "Thank you for your trust. Your selected subscription is now active.",
+    "detailsTitle": "Subscription Details",
+    "plan": "Plan:",
+    "period": "Period:",
+    "status": "Status:",
+    "statusActive": "Active",
+    "periodMonth": "Monthly",
+    "periodYear": "Annual",
+    "nextStepsTitle": "Next Steps",
+    "step1": "You can now access all features of your plan",
+    "step2": "A confirmation email has been sent to your address",
+    "step3": "You can manage your subscription from the My Subscriptions page",
+    "goToDashboard": "Go to Dashboard",
+    "manageSubscription": "Manage My Subscription",
+    "loadingDetails": "Loading subscription details...",
+    "loading": "Loading..."
   }
 }

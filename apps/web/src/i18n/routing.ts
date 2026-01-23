@@ -6,27 +6,23 @@
 import { defineRouting } from 'next-intl/routing';
 import { createNavigation } from 'next-intl/navigation';
 
-// Supported locales
-export const locales = ['en', 'fr', 'ar', 'he'] as const;
+// Supported locales - Only English and French for now
+export const locales = ['en', 'fr'] as const;
 export type Locale = (typeof locales)[number];
 
-// RTL locales
-export const rtlLocales: Locale[] = ['ar', 'he'];
+// RTL locales (empty for now since we only support en and fr)
+export const rtlLocales: Locale[] = [];
 
 // Locale display names
 export const localeNames: Record<Locale, string> = {
   en: 'English',
   fr: 'Français',
-  ar: 'العربية',
-  he: 'עברית',
 };
 
 // Locale native names
 export const localeNativeNames: Record<Locale, string> = {
   en: 'English',
   fr: 'Français',
-  ar: 'العربية',
-  he: 'עברית',
 };
 
 // Check if locale is RTL
@@ -52,8 +48,6 @@ export const routing = defineRouting({
     prefixes: {
       en: '', // English has no prefix (default)
       fr: '/fr',
-      ar: '/ar',
-      he: '/he',
     },
   },
 });
