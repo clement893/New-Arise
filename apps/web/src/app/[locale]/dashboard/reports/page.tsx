@@ -632,8 +632,24 @@ function ResultsReportsContent() {
     try {
       setIsGeneratingPDF(true);
 
+      // Ensure we have detailed results - load if not available
+      let detailedResult = assessment.detailedResult;
+      if (!detailedResult) {
+        try {
+          detailedResult = await getAssessmentResults(assessment.id);
+        } catch (err) {
+          console.warn('Could not load detailed results for PDF:', err);
+        }
+      }
+
+      // Create assessment object with detailed results for PDF generation
+      const assessmentForPDF = {
+        ...assessment,
+        detailedResult: detailedResult || assessment.detailedResult,
+      };
+
       // Generate PDF for this assessment
-      const pdfBlob = await generateAssessmentPDF(assessment);
+      const pdfBlob = await generateAssessmentPDF(assessmentForPDF);
       
       // Download the PDF
       const fileName = `${assessment.name.replace(/\s+/g, '_')}_${assessment.id}.pdf`;
