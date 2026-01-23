@@ -141,75 +141,159 @@ const generateWellnessPDF = async (
   doc.text(`Points: ${totalScore} / ${maxScore}`, 20, yPos);
   yPos += 15;
 
-  // Wellness Radar Chart - Visual Representation
+  // Wellness Radar Chart - Draw actual radar/spider chart
   yPos = addSectionTitle(doc, 'ARISE Wellness Radar', yPos, pageHeight);
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
   
-  // Create radar data with visual bars
-  const radarData: Array<{ name: string; icon: string; score: number; percentage: number }> = [];
-  for (const pillar of wellnessPillars) {
+  // Prepare radar data
+  const pillarOrder = [
+    'sleep',
+    'nutrition',
+    'movement',
+    'avoidance_of_risky_substances',
+    'stress_management',
+    'social_connection',
+  ];
+  
+  const radarData: Array<{ name: string; score: number }> = [];
+  for (const pillarId of pillarOrder) {
+    const pillar = wellnessPillars.find(p => p.id === pillarId);
+    if (!pillar) continue;
+    
     const rawPillarData = pillarScores[pillar.id];
     const pillarScore = getPillarScore(rawPillarData);
-    if (pillarScore === 0 && !rawPillarData) continue;
-    
-    const pillarPercentage = (pillarScore / 25) * 100;
     radarData.push({
       name: pillar.name,
-      icon: pillar.icon,
-      score: pillarScore,
-      percentage: pillarPercentage
+      score: pillarScore
     });
   }
 
-  // Display radar data with visual bars
   if (radarData.length > 0) {
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.text('Pillar', 20, yPos);
-    doc.text('Score', pageWidth - 60, yPos, { align: 'right' });
-    yPos += 8;
+    yPos = checkNewPage(doc, yPos, pageHeight, 120);
     
-    doc.setDrawColor(200, 200, 200);
-    doc.line(20, yPos, pageWidth - 20, yPos);
-    yPos += 5;
+    // Radar chart dimensions
+    const chartCenterX = pageWidth / 2;
+    const chartCenterY = yPos + 50;
+    const chartRadius = 40; // Maximum radius for score of 25
+    const numAxes = radarData.length;
+    const angleStep = (2 * Math.PI) / numAxes;
     
+    // Draw concentric circles (grid lines) for scores 0, 5, 10, 15, 20, 25
+    doc.setDrawColor(229, 231, 235); // Light gray
+    doc.setLineWidth(0.5);
+    for (let level = 1; level <= 5; level++) {
+      const radius = (chartRadius * level) / 5;
+      // Draw hexagon
+      const points: Array<{ x: number; y: number }> = [];
+      for (let i = 0; i < numAxes; i++) {
+        const angle = (i * angleStep) - (Math.PI / 2); // Start from top
+        points.push({
+          x: chartCenterX + radius * Math.cos(angle),
+          y: chartCenterY + radius * Math.sin(angle)
+        });
+      }
+      // Draw polygon
+      for (let i = 0; i < points.length; i++) {
+        const next = (i + 1) % points.length;
+        doc.line(points[i].x, points[i].y, points[next].x, points[next].y);
+      }
+    }
+    
+    // Draw axes (lines from center to outer edge)
+    doc.setDrawColor(229, 231, 235);
+    doc.setLineWidth(0.5);
+    for (let i = 0; i < numAxes; i++) {
+      const angle = (i * angleStep) - (Math.PI / 2);
+      const endX = chartCenterX + chartRadius * Math.cos(angle);
+      const endY = chartCenterY + chartRadius * Math.sin(angle);
+      doc.line(chartCenterX, chartCenterY, endX, endY);
+    }
+    
+    // Draw score labels on axes (0, 5, 10, 15, 20, 25)
+    doc.setFontSize(8);
+    doc.setTextColor(107, 114, 128); // Gray
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
+    for (let level = 0; level <= 5; level++) {
+      const radius = (chartRadius * level) / 5;
+      const labelX = chartCenterX + (radius + 3) * Math.cos(-Math.PI / 2);
+      const labelY = chartCenterY + (radius + 3) * Math.sin(-Math.PI / 2);
+      doc.text(`${level * 5}`, labelX, labelY, { align: 'left' });
+    }
     
-    radarData.forEach((data) => {
-      yPos = checkNewPage(doc, yPos, pageHeight, 25);
+    // Draw filled area (radar polygon) for scores
+    const scorePoints: Array<{ x: number; y: number }> = [];
+    for (let i = 0; i < radarData.length; i++) {
+      const angle = (i * angleStep) - (Math.PI / 2);
+      const score = radarData[i].score;
+      const radius = (chartRadius * score) / 25;
+      scorePoints.push({
+        x: chartCenterX + radius * Math.cos(angle),
+        y: chartCenterY + radius * Math.sin(angle)
+      });
+    }
+    
+    // Fill the polygon using path() function
+    doc.setFillColor(15, 76, 86); // Teal color #0F4C56
+    doc.setDrawColor(15, 76, 86);
+    doc.setLineWidth(1.5);
+    
+    // Draw filled polygon using path() function
+    if (scorePoints.length > 0) {
+      // Build path array for jsPDF
+      const pathArray: Array<{ op: string; c: number[] }> = [
+        { op: 'm', c: [scorePoints[0].x, scorePoints[0].y] } // Move to first point
+      ];
       
-      // Pillar name (without emoji to avoid encoding issues)
-      doc.text(data.name, 25, yPos);
+      // Add lines to all other points
+      for (let i = 1; i < scorePoints.length; i++) {
+        pathArray.push({ op: 'l', c: [scorePoints[i].x, scorePoints[i].y] });
+      }
       
-      // Visual bar representation
-      const barStartX = pageWidth - 80;
-      const barWidth = 50;
-      const barHeight = 4;
-      const barFillWidth = (barWidth * data.percentage) / 100;
+      // Close the path
+      pathArray.push({ op: 'h', c: [] });
       
-      // Background bar
-      doc.setDrawColor(220, 220, 220);
-      doc.setFillColor(220, 220, 220);
-      doc.rect(barStartX, yPos - 3, barWidth, barHeight, 'FD');
+      // Draw and fill the path
+      doc.path(pathArray);
+      doc.fillStroke(); // Fill and stroke the polygon
+    }
+    
+    // Draw axis labels (pillar names)
+    doc.setFontSize(9);
+    doc.setTextColor(75, 85, 99); // Dark gray
+    doc.setFont('helvetica', 'normal');
+    for (let i = 0; i < radarData.length; i++) {
+      const angle = (i * angleStep) - (Math.PI / 2);
+      const labelRadius = chartRadius + 15;
+      const labelX = chartCenterX + labelRadius * Math.cos(angle);
+      const labelY = chartCenterY + labelRadius * Math.sin(angle);
       
-      // Filled portion with color based on score
-      const colorCode = getScoreColorCode(data.score);
-      const r = parseInt(colorCode.slice(1, 3), 16);
-      const g = parseInt(colorCode.slice(3, 5), 16);
-      const b = parseInt(colorCode.slice(5, 7), 16);
-      doc.setFillColor(r, g, b);
-      doc.rect(barStartX, yPos - 3, barFillWidth, barHeight, 'F');
+      // Adjust text alignment based on angle
+      let align: 'left' | 'center' | 'right' = 'center';
+      if (Math.abs(Math.cos(angle)) < 0.1) {
+        // Vertical alignment
+        align = 'center';
+      } else if (Math.cos(angle) > 0) {
+        align = 'left';
+      } else {
+        align = 'right';
+      }
       
-      // Score text
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(0, 0, 0);
-      doc.text(`${data.score}/25`, pageWidth - 25, yPos, { align: 'right' });
+      // Split long labels into multiple lines
+      const label = radarData[i].name;
+      const words = label.split(' ');
+      const maxWordsPerLine = 2;
+      const lines: string[] = [];
+      for (let j = 0; j < words.length; j += maxWordsPerLine) {
+        lines.push(words.slice(j, j + maxWordsPerLine).join(' '));
+      }
       
-      yPos += 10;
-    });
-    yPos += 10;
+      // Draw each line
+      lines.forEach((line, lineIndex) => {
+        const lineY = labelY + (lineIndex - (lines.length - 1) / 2) * 4;
+        doc.text(line, labelX, lineY, { align });
+      });
+    }
+    
+    yPos = chartCenterY + chartRadius + 30;
   }
 
   // Pillar Scores Section - Detailed
