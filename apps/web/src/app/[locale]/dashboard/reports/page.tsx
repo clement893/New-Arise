@@ -3,9 +3,10 @@
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter, Link } from '@/i18n/routing';
+import { useSearchParams } from 'next/navigation';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import { Card, Loading } from '@/components/ui';
 import Button from '@/components/ui/Button';
@@ -47,6 +48,7 @@ function ResultsReportsContent() {
   const tWellness = useTranslations('dashboard.assessments.wellness.results');
   const locale = useLocale();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [assessments, setAssessments] = useState<AssessmentDisplay[]>([]);
   const [keyInsights, setKeyInsights] = useState<KeyInsight[]>([]);
   const [stats, setStats] = useState<DashboardStats>({
@@ -67,11 +69,70 @@ function ResultsReportsContent() {
   const [deleteTitleInput, setDeleteTitleInput] = useState('');
   const [deleteTitleError, setDeleteTitleError] = useState<string | null>(null);
   const [isDeletingAssessment, setIsDeletingAssessment] = useState(false);
+  const assessmentRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
   useEffect(() => {
     loadAssessments();
     checkSuperAdminStatus();
   }, []);
+
+  // Auto-open accordion based on URL parameters
+  useEffect(() => {
+    if (assessments.length === 0 || isLoading) return;
+    
+    const openParam = searchParams.get('open');
+    const idParam = searchParams.get('id');
+    
+    if (openParam === 'tki') {
+      // Find TKI assessment - by ID if provided, otherwise the latest TKI
+      let tkiAssessment: AssessmentDisplay | undefined;
+      if (idParam) {
+        const assessmentId = parseInt(idParam, 10);
+        tkiAssessment = assessments.find(a => a.id === assessmentId && a.type === 'TKI');
+      } else {
+        tkiAssessment = assessments.find(a => a.type === 'TKI');
+      }
+      
+      if (tkiAssessment && !expandedAssessmentIds.has(tkiAssessment.id)) {
+        // Open the accordion
+        setExpandedAssessmentIds(prev => new Set([...prev, tkiAssessment!.id]));
+        
+        // Scroll to the assessment after a short delay to ensure it's rendered
+        setTimeout(() => {
+          const element = assessmentRefs.current.get(tkiAssessment!.id);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Remove URL parameters after opening
+            router.replace('/dashboard/reports', { scroll: false });
+          }
+        }, 300);
+      }
+    } else if (openParam === '360') {
+      // Find 360° Feedback assessment - by ID if provided, otherwise the latest 360
+      let feedback360Assessment: AssessmentDisplay | undefined;
+      if (idParam) {
+        const assessmentId = parseInt(idParam, 10);
+        feedback360Assessment = assessments.find(a => a.id === assessmentId && a.type === 'THREE_SIXTY_SELF');
+      } else {
+        feedback360Assessment = assessments.find(a => a.type === 'THREE_SIXTY_SELF');
+      }
+      
+      if (feedback360Assessment && !expandedAssessmentIds.has(feedback360Assessment.id)) {
+        // Open the accordion
+        setExpandedAssessmentIds(prev => new Set([...prev, feedback360Assessment!.id]));
+        
+        // Scroll to the assessment after a short delay to ensure it's rendered
+        setTimeout(() => {
+          const element = assessmentRefs.current.get(feedback360Assessment!.id);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Remove URL parameters after opening
+            router.replace('/dashboard/reports', { scroll: false });
+          }
+        }, 300);
+      }
+    }
+  }, [assessments, isLoading, searchParams, expandedAssessmentIds, router]);
 
   const checkSuperAdminStatus = async () => {
     try {
@@ -987,7 +1048,16 @@ function ResultsReportsContent() {
             ) : (
               <div className="space-y-4">
                 {assessments.map((assessment) => (
-                  <div key={assessment.id}>
+                  <div 
+                    key={assessment.id}
+                    ref={(el) => {
+                      if (el) {
+                        assessmentRefs.current.set(assessment.id, el);
+                      } else {
+                        assessmentRefs.current.delete(assessment.id);
+                      }
+                    }}
+                  >
                     <Card className="border border-gray-200 hover:border-arise-deep-teal/30 transition-colors bg-white">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4 flex-1">

@@ -9,7 +9,7 @@ import { FileText, Scale, AlertCircle } from 'lucide-react';
 
 export default function TermsOfServicePage() {
   const t = useTranslations('terms');
-  const lastUpdated = 'January 2024';
+  const lastUpdated = 'January 2026';
 
   return (
     <div className="min-h-screen bg-white">

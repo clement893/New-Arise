@@ -8,7 +8,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import PricingCardSimple from '@/components/ui/PricingCardSimple';
-import BillingPeriodToggle from '@/components/ui/BillingPeriodToggle';
 import FAQItem from '@/components/ui/FAQItem';
 import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
@@ -46,7 +45,7 @@ interface ApiPlan {
 
 export default function PricingPage() {
   const t = useTranslations('pricing');
-  const [billingPeriod, setBillingPeriod] = useState<'month' | 'year'>('month');
+  const [billingPeriod] = useState<'month' | 'year'>('month'); // Fixed to 'month', no toggle
   const [plans, setPlans] = useState<Plan[]>([]);
   const [apiPlans, setApiPlans] = useState<ApiPlan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -234,11 +233,19 @@ export default function PricingPage() {
     }
   }, []);
 
-  // Remap plans when billingPeriod changes (no need to reload from API)
+  // Remap plans when apiPlans change (billingPeriod is fixed to 'month')
   useEffect(() => {
     if (apiPlans.length > 0) {
       const mappedPlans = apiPlans.map(mapApiPlanToDisplayPlan);
-      setPlans(mappedPlans);
+      // Sort plans: popular first, then by price ascending
+      const sortedPlans = mappedPlans.sort((a, b) => {
+        // Popular plans first
+        if (a.popular && !b.popular) return -1;
+        if (!a.popular && b.popular) return 1;
+        // Then sort by price ascending
+        return a.price - b.price;
+      });
+      setPlans(sortedPlans);
     }
   }, [apiPlans, mapApiPlanToDisplayPlan]);
 
@@ -308,10 +315,6 @@ export default function PricingPage() {
             </div>
           </div>
         </MotionDiv>
-
-        <div className="text-center mb-12">
-          <BillingPeriodToggle value={billingPeriod} onChange={setBillingPeriod} />
-        </div>
 
         {error && (
           <Alert variant="error" className="mb-6 max-w-3xl mx-auto">

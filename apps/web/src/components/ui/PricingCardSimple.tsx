@@ -60,7 +60,7 @@ export default function   PricingCardSimple({
           ) : (
             <div className="flex items-baseline gap-2">
               <span className="text-4xl md:text-5xl font-bold" style={{ color: '#0F4C56' }}>
-                {priceString}€
+                ${priceString}
               </span>
               <span className="text-lg md:text-xl" style={{ color: '#6B7280' }}>
                 {t('perMonth')}

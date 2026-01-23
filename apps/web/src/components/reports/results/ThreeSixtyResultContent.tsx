@@ -228,6 +228,29 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
     return 'text-gray-600';
   };
 
+  // Get Gap Analysis statement based on gap value
+  const getGapAnalysisStatement = (gap: number): { text: string; color: string } => {
+    // Round gap to 1 decimal place for comparison
+    const roundedGap = Math.round(gap * 10) / 10;
+    
+    if (roundedGap === 0) {
+      return {
+        text: locale === 'fr' ? 'Conscience de soi élevée' : 'High Self Awareness',
+        color: '#C6EFCE' // Green
+      };
+    } else if (roundedGap >= -0.5 && roundedGap <= 0.5) {
+      return {
+        text: locale === 'fr' ? 'Bonne conscience de soi partielle' : 'Good Partial Self-Awareness',
+        color: '#FFEB9C' // Yellow
+      };
+    } else {
+      return {
+        text: locale === 'fr' ? 'Conscience de soi limitée' : 'Limited Self-awareness',
+        color: '#FFC7CE' // Red
+      };
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Info */}
@@ -723,6 +746,32 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
                           }}
                         />
                       </div>
+                    </div>
+                  )}
+
+                  {/* Gap Analysis Results Statement */}
+                  {transformedResults.has_evaluator_responses && (
+                    <div className="mb-4">
+                      {(() => {
+                        const gapAnalysis = getGapAnalysisStatement(capScore.gap);
+                        return (
+                          <div 
+                            className="rounded-lg p-3 border-2"
+                            style={{ 
+                              backgroundColor: gapAnalysis.color,
+                              borderColor: gapAnalysis.color,
+                              borderWidth: '2px'
+                            }}
+                          >
+                            <p className="text-sm font-semibold text-gray-900 text-center">
+                              <strong>Gap Analysis Results:</strong> {gapAnalysis.text}
+                            </p>
+                            <p className="text-xs text-gray-700 text-center mt-1">
+                              Gap: {capScore.gap > 0 ? '+' : ''}{capScore.gap.toFixed(2)} (Self: {capScore.self_score.toFixed(1)} vs Others: {capScore.others_avg_score.toFixed(1)})
+                            </p>
+                          </div>
+                        );
+                      })()}
                     </div>
                   )}
 

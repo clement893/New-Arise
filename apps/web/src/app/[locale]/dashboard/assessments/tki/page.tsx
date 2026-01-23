@@ -259,7 +259,7 @@ export default function TKIAssessmentPage() {
 
             <div className="flex gap-4 justify-center">
               <Button
-                onClick={() => router.push(`/dashboard/assessments/tki/results?id=${effectiveAssessmentId || assessmentId}`)}
+                onClick={() => router.push(`/dashboard/reports?open=tki&id=${effectiveAssessmentId || assessmentId}`)}
                 className="text-white"
                 style={{ backgroundColor: '#0F4C56' }}
                 onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => e.currentTarget.style.backgroundColor = 'rgba(15, 76, 86, 0.9)'}

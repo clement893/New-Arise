@@ -10,7 +10,7 @@ import { Link } from '@/i18n/routing';
 
 export default function PrivacyPolicyPage() {
   const t = useTranslations('privacy');
-  const lastUpdated = 'January 2024';
+  const lastUpdated = 'January 2026';
 
   return (
     <div className="min-h-screen bg-white">

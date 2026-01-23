@@ -133,7 +133,12 @@ export default function Feedback360Page() {
   const handleSubmit = async () => {
     try {
       await submitAssessment();
-      router.push('/dashboard/assessments/360-feedback/results');
+      const assessmentIdToUse = effectiveAssessmentId || assessmentId;
+      if (assessmentIdToUse) {
+        router.push(`/dashboard/reports?open=360&id=${assessmentIdToUse}`);
+      } else {
+        router.push('/dashboard/reports?open=360');
+      }
     } catch (err) {
       // Error is already handled by the store and displayed to user
       // Only log in development for debugging

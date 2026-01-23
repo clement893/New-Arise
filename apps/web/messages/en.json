@@ -3280,7 +3280,7 @@
       "title": "2. Description of Service",
       "text": "ARISE provides a comprehensive leadership development platform that includes:",
       "items": [
-        "Personality and behavioral assessments (MBTI, TKI, 360° Feedback, Wellness)",
+        "Personality and behavioral assessments (MBTI, ARISE Conflict Management Style, 360° Feedback, Wellness)",
         "Personalized leadership profiles and insights",
         "Personal growth plans and recommendations",
         "Coaching services and resources",
@@ -3751,7 +3751,7 @@
     },
     "members": {
       "gabriela": {
-        "role": "Founder, CEO",
+        "role": "Co-Founder",
         "bio": "Gabi has over 25 years of experience in Human Resources—including 15 years in executive leadership—building high-performing cultures, transforming work environments, and enabling organizations to achieve both their strategic objectives and the continuous development of their people.",
         "expertise": "Human Resources, Organizational Culture, Leadership Development, Wellness Coaching",
         "education": "Brazilian psychologist from Universidade Estácio de Sá with specialization in Organizational Behavior. Myers-Briggs accreditation. Certifications in Wellness Coaching and Lifestyle Medicine from Harvard Medical School.",

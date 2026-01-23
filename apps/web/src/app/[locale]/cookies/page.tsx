@@ -9,7 +9,7 @@ import { Cookie, Settings, BarChart, Target } from 'lucide-react';
 
 export default function CookiePolicyPage() {
   const t = useTranslations('cookies');
-  const lastUpdated = 'January 2024';
+  const lastUpdated = 'January 2026';
 
   return (
     <div className="min-h-screen bg-white">

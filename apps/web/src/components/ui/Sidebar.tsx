@@ -311,7 +311,7 @@ export default function Sidebar({
             <img 
               src="/images/arise-logo.png" 
               alt="ARISE" 
-              className="h-8 w-auto object-contain"
+              className="h-20 w-auto object-contain"
             />
           )}
         </Link>
