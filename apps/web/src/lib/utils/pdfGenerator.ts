@@ -226,8 +226,10 @@ const generateWellnessPDF = async (
     // Draw filled area (radar polygon) for scores
     const scorePoints: Array<{ x: number; y: number }> = [];
     for (let i = 0; i < radarData.length; i++) {
+      const dataPoint = radarData[i];
+      if (!dataPoint) continue;
       const angle = (i * angleStep) - (Math.PI / 2);
-      const score = radarData[i].score;
+      const score = dataPoint.score;
       const radius = (chartRadius * score) / 25;
       scorePoints.push({
         x: chartCenterX + radius * Math.cos(angle),
@@ -269,6 +271,8 @@ const generateWellnessPDF = async (
     doc.setTextColor(75, 85, 99); // Dark gray
     doc.setFont('helvetica', 'normal');
     for (let i = 0; i < radarData.length; i++) {
+      const dataPoint = radarData[i];
+      if (!dataPoint) continue;
       const angle = (i * angleStep) - (Math.PI / 2);
       const labelRadius = chartRadius + 15;
       const labelX = chartCenterX + labelRadius * Math.cos(angle);
@@ -286,7 +290,7 @@ const generateWellnessPDF = async (
       }
       
       // Split long labels into multiple lines
-      const label = radarData[i].name;
+      const label = dataPoint.name;
       const words = label.split(' ');
       const maxWordsPerLine = 2;
       const lines: string[] = [];
