@@ -92,9 +92,9 @@ RUN playwright install chromium
 RUN playwright --version && \
     ls -la /home/appuser/.cache/ms-playwright/ || echo "Playwright cache directory created"
 
-# Switch back to root for startup - Railway may need root to execute commands
-# We'll switch to appuser in the CMD if needed
-USER root
+# Stay as appuser for startup - Railway may work better with non-root user
+# Don't switch back to root
+USER appuser
 
 EXPOSE 8000
 
@@ -112,14 +112,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
 # Use WORKDIR to ensure we're in /app when script runs
 WORKDIR /app
 
-# Use CMD instead of ENTRYPOINT - Railway may handle CMD better
-# Start with explicit logging to ensure we see output
-# Use shell form to allow environment variable expansion
-CMD echo "=== DOCKERFILE CMD EXECUTED ===" && \
-    echo "PORT=${PORT:-8000}" && \
-    echo "PWD=$(pwd)" && \
-    echo "USER=$(whoami)" && \
-    echo "Python: $(which python)" && \
-    echo "Starting uvicorn..." && \
-    exec python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info --access-log
+# Use entrypoint.sh script - it has all the logging and error handling
+# Use exec form for better signal handling
+ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
 
