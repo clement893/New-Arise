@@ -231,8 +231,8 @@ async def handle_checkout_completed(event_object: dict, db: AsyncSession, subscr
                     else:
                         logger.warning(f"Could not cancel old Stripe subscription {old_stripe_subscription_id}: {e}")
             
-            # Verify the plan in Stripe matches what we expect
-            # Get the price_id from Stripe subscription to verify
+            # ALWAYS use the plan from Stripe as the source of truth
+            # Get the price_id from Stripe subscription
             stripe_price_id = None
             if stripe_subscription.items:
                 items_obj = stripe_subscription.items
@@ -241,18 +241,24 @@ async def handle_checkout_completed(event_object: dict, db: AsyncSession, subscr
                 elif isinstance(items_obj, list) and len(items_obj) > 0:
                     stripe_price_id = items_obj[0].price.id
             
-            if stripe_price_id and plan.stripe_price_id != stripe_price_id:
-                logger.warning(f"Plan mismatch: metadata says plan_id={plan_id} (stripe_price_id={plan.stripe_price_id}), but Stripe subscription has price_id={stripe_price_id}")
-                # Try to find the correct plan by stripe_price_id
+            if stripe_price_id:
+                # Find plan by stripe_price_id (Stripe is the source of truth)
                 from app.models import Plan
                 plan_result = await db.execute(
                     select(Plan).where(Plan.stripe_price_id == stripe_price_id)
                 )
-                correct_plan = plan_result.scalar_one_or_none()
-                if correct_plan:
-                    logger.info(f"Found correct plan by stripe_price_id: plan_id={correct_plan.id}, plan_name={correct_plan.name}")
-                    plan_id = correct_plan.id
-                    plan = correct_plan
+                stripe_plan = plan_result.scalar_one_or_none()
+                
+                if stripe_plan:
+                    # Use the plan from Stripe, not from metadata
+                    if stripe_plan.id != plan_id:
+                        logger.info(f"Plan from Stripe ({stripe_plan.id} - {stripe_plan.name}) differs from metadata ({plan_id} - {plan.name}). Using Stripe plan as source of truth.")
+                    plan_id = stripe_plan.id
+                    plan = stripe_plan
+                else:
+                    logger.warning(f"Plan with stripe_price_id {stripe_price_id} not found in database. Using metadata plan_id={plan_id} as fallback.")
+            else:
+                logger.warning(f"Could not get price_id from Stripe subscription. Using metadata plan_id={plan_id} as fallback.")
             
             # Update the existing subscription with new Stripe subscription ID and plan
             existing_subscription.stripe_subscription_id = subscription_id
@@ -287,8 +293,14 @@ async def handle_checkout_completed(event_object: dict, db: AsyncSession, subscr
             
             await db.commit()
             await db.refresh(existing_subscription)  # Refresh to ensure we have latest data
-            logger.info(f"Updated subscription {existing_subscription.id} to plan {plan_id} (plan name: {plan.name})")
-            logger.info(f"Verification: subscription.plan_id={existing_subscription.plan_id}, expected={plan_id}")
+            
+            # Verify the update was successful
+            if existing_subscription.plan_id != plan_id:
+                logger.error(f"CRITICAL: Plan update failed! subscription.plan_id={existing_subscription.plan_id}, expected={plan_id}")
+            else:
+                logger.info(f"✅ Successfully updated subscription {existing_subscription.id} to plan {plan_id} ({plan.name})")
+                logger.info(f"Verification: subscription.plan_id={existing_subscription.plan_id}, subscription.stripe_subscription_id={existing_subscription.stripe_subscription_id}")
+            
             return
         except Exception as e:
             logger.error(f"Error updating existing subscription: {e}", exc_info=True)

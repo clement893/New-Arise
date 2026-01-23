@@ -455,11 +455,26 @@ async def sync_subscription_from_stripe(
         if not stripe.api_key and hasattr(settings, 'STRIPE_SECRET_KEY') and settings.STRIPE_SECRET_KEY:
             stripe.api_key = settings.STRIPE_SECRET_KEY
         
-        stripe_subscription = stripe.Subscription.retrieve(subscription.stripe_subscription_id)
+        stripe_subscription = stripe.Subscription.retrieve(
+            subscription.stripe_subscription_id,
+            expand=['items']
+        )
         
-        # Get plan_id from Stripe subscription items
-        if stripe_subscription.items and stripe_subscription.items.data:
-            stripe_price_id = stripe_subscription.items.data[0].price.id
+        # Safely access items - check if it's a property with data attribute
+        items_data = None
+        if hasattr(stripe_subscription, 'items'):
+            items_obj = stripe_subscription.items
+            # Check if items is a ListObject with data attribute
+            if hasattr(items_obj, 'data') and items_obj.data:
+                items_data = items_obj.data
+            # Fallback: if items is a list directly
+            elif isinstance(items_obj, list) and len(items_obj) > 0:
+                items_data = items_obj
+        
+        if items_data and len(items_data) > 0:
+            stripe_price_id = items_data[0].price.id
+            
+            logger.info(f"Syncing subscription {subscription.id}: Stripe has price_id={stripe_price_id}, current DB plan_id={subscription.plan_id}")
             
             # Find plan by stripe_price_id
             plan_result = await db.execute(
@@ -470,13 +485,16 @@ async def sync_subscription_from_stripe(
             if stripe_plan:
                 # Update plan if different
                 if subscription.plan_id != stripe_plan.id:
-                    logger.info(f"Syncing subscription {subscription.id}: updating plan from {subscription.plan_id} to {stripe_plan.id} ({stripe_plan.name})")
+                    logger.info(f"Syncing subscription {subscription.id}: updating plan from {subscription.plan_id} ({subscription.plan_id}) to {stripe_plan.id} ({stripe_plan.name})")
                     subscription.plan_id = stripe_plan.id
                     await db.commit()
+                    logger.info(f"Successfully updated subscription {subscription.id} to plan {stripe_plan.id} ({stripe_plan.name})")
                 else:
                     logger.debug(f"Subscription {subscription.id} already has correct plan {stripe_plan.id}")
             else:
                 logger.warning(f"Plan with stripe_price_id {stripe_price_id} not found in database")
+        else:
+            logger.warning(f"Could not get items from Stripe subscription {subscription.stripe_subscription_id}")
         
         # Update periods from Stripe
         if stripe_subscription.current_period_start:
