@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useQueryClient } from '@tanstack/react-query';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/lib/store';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -24,7 +24,6 @@ function SubscriptionSuccessContent() {
   const { isAuthenticated } = useAuthStore();
   // Use dashboard namespace and access subscription.success keys
   const t = useTranslations('dashboard');
-  const locale = useLocale();
   const [planName, setPlanName] = useState('');
   const [billingPeriod, setBillingPeriod] = useState<'month' | 'year'>('month');
   const [isLoadingPlan, setIsLoadingPlan] = useState(true);
