@@ -544,6 +544,9 @@ export const subscriptionsAPI = {
   upgradePlan: (planId: number) => {
     return apiClient.post(`/v1/subscriptions/upgrade/${planId}`);
   },
+  syncSubscription: () => {
+    return apiClient.post('/v1/subscriptions/sync');
+  },
   getPayments: () => {
     return apiClient.get('/v1/subscriptions/payments');
   },

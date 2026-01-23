@@ -9,7 +9,7 @@ import { useAuthStore } from '@/lib/store';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Loading from '@/components/ui/Loading';
-import { queryKeys, useSubscriptionPlan, useMySubscription } from '@/lib/query/queries';
+import { queryKeys, useSubscriptionPlan, useMySubscription, useSyncSubscription } from '@/lib/query/queries';
 import { logger } from '@/lib/logger';
 
 // Note: Client Components are already dynamic by nature.
@@ -33,10 +33,23 @@ function SubscriptionSuccessContent() {
   const planId = planIdParam ? parseInt(planIdParam, 10) : null;
   
   // Fetch plan details from API if planId is a number
+  // Disable query if no planId to avoid unnecessary requests
   const { data: planData, isLoading: planLoading } = useSubscriptionPlan(planId || 0);
   
   // Also try to get plan name from current subscription
-  const { data: subscriptionData } = useMySubscription();
+  // This might fail with 401 initially after Stripe redirect, that's OK
+  const { data: subscriptionData, error: subscriptionError } = useMySubscription();
+  const syncSubscriptionMutation = useSyncSubscription();
+  
+  // Log subscription errors for debugging (but don't block UI)
+  useEffect(() => {
+    if (subscriptionError) {
+      logger.debug('Subscription fetch error (may be expected after Stripe redirect)', {
+        error: subscriptionError,
+        planId
+      });
+    }
+  }, [subscriptionError, planId]);
 
   // Helper function to normalize plan name (remove price and extra spaces)
   const normalizePlanName = useCallback((planName: string): string => {
@@ -61,71 +74,129 @@ function SubscriptionSuccessContent() {
       setPlanName(normalized || rawName);
       setIsLoadingPlan(false);
       logger.debug('Plan name loaded from API', { planId, rawName, normalized });
-    } else if (subscriptionData?.data?.plan?.name) {
-      // Fallback to subscription plan name
+      return;
+    }
+    
+    // Fallback to subscription plan name (might not be available immediately after Stripe redirect)
+    if (subscriptionData?.data?.plan?.name) {
       const rawName = subscriptionData.data.plan.name;
       const normalized = normalizePlanName(rawName);
       setPlanName(normalized || rawName);
       setIsLoadingPlan(false);
       logger.debug('Plan name loaded from subscription', { rawName, normalized });
-    } else if (planIdParam && !isNaN(Number(planIdParam))) {
-      // If we have a numeric plan ID but no data yet, show loading
-      setIsLoadingPlan(planLoading);
-      if (!planLoading) {
-        // If loading is done but no data, use the ID as fallback
-        setPlanName(`Plan ${planIdParam}`);
-        setIsLoadingPlan(false);
-      }
-    } else {
-      // Fallback for non-numeric plan IDs
-      const planNames: Record<string, string> = {
-        starter: 'Starter',
-        professional: 'Professional',
-        enterprise: 'Enterprise',
-      };
-      setPlanName(planNames[planIdParam || ''] || planIdParam || 'Plan');
-      setIsLoadingPlan(false);
+      return;
     }
+    
+    // If we have a numeric plan ID, try to use it
+    if (planIdParam && !isNaN(Number(planIdParam))) {
+      // If still loading, keep loading state
+      if (planLoading) {
+        setIsLoadingPlan(true);
+        return;
+      }
+      
+      // If loading is done but no data, use the ID as fallback
+      // This can happen if the API call fails (e.g., 401)
+      setPlanName(`Plan ${planIdParam}`);
+      setIsLoadingPlan(false);
+      logger.debug('Using plan ID as fallback', { planId: planIdParam });
+      return;
+    }
+    
+    // Fallback for non-numeric plan IDs
+    const planNames: Record<string, string> = {
+      starter: 'Starter',
+      professional: 'Professional',
+      enterprise: 'Enterprise',
+      revelation: 'REVELATION',
+      'self-exploration': 'SELF EXPLORATION',
+      wellness: 'WELLNESS',
+    };
+    const fallbackName = planNames[planIdParam?.toLowerCase() || ''] || planIdParam || 'Plan';
+    setPlanName(fallbackName);
+    setIsLoadingPlan(false);
+    logger.debug('Using fallback plan name', { planIdParam, fallbackName });
   }, [searchParams, planData, subscriptionData, planIdParam, planId, planLoading, normalizePlanName]);
 
   useEffect(() => {
     if (!isAuthenticated()) {
-      router.push('/auth/login');
-      return;
+      // Wait a bit for auth to initialize after returning from Stripe
+      const authCheckTimeout = setTimeout(() => {
+        if (!isAuthenticated()) {
+          router.push('/auth/login');
+        }
+      }, 2000);
+      return () => clearTimeout(authCheckTimeout);
     }
 
-    initializeData();
-    
-    // Clear localStorage cache immediately
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.removeItem('subscription_cache');
-        logger.debug('Cleared subscription cache from localStorage');
-      } catch (e) {
-        // Ignore localStorage errors
+    // Wait a bit before initializing to let auth settle after Stripe redirect
+    const initTimeout = setTimeout(() => {
+      initializeData();
+      
+      // Clear localStorage cache immediately
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.removeItem('subscription_cache');
+          logger.debug('Cleared subscription cache from localStorage');
+        } catch (e) {
+          // Ignore localStorage errors
+        }
       }
-    }
-    
-    // Poll for subscription update (webhook might take a few seconds)
-    const pollInterval = setInterval(async () => {
-      // Invalidate and refetch subscription data
-      await queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.me });
-      await queryClient.refetchQueries({ queryKey: queryKeys.subscriptions.me });
-    }, 2000); // Poll every 2 seconds
-    
-    // Stop polling after 30 seconds
-    const timeout = setTimeout(() => {
-      clearInterval(pollInterval);
-    }, 30000);
-    
-    // Initial invalidation
-    queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.me });
-    queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.payments });
-    queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.plans() });
+      
+      // Wait 3 seconds before starting to poll (give webhook time to process)
+      const pollStartTimeout = setTimeout(() => {
+        // Try to sync subscription from Stripe first (force update)
+        syncSubscriptionMutation.mutate(undefined, {
+          onError: (err) => {
+            logger.debug('Sync subscription failed (may be expected)', err);
+          }
+        });
+        
+        // Poll for subscription update (webhook might take a few seconds)
+        const pollInterval = setInterval(async () => {
+          try {
+            // Try to sync subscription from Stripe
+            await syncSubscriptionMutation.mutateAsync(undefined);
+            // Invalidate and refetch subscription data
+            await queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.me });
+            await queryClient.refetchQueries({ queryKey: queryKeys.subscriptions.me });
+          } catch (err) {
+            // Ignore errors during polling (might be 401 if auth not ready)
+            logger.debug('Polling error (expected during auth initialization)', err);
+          }
+        }, 3000); // Poll every 3 seconds
+        
+        // Stop polling after 30 seconds
+        const pollStopTimeout = setTimeout(() => {
+          clearInterval(pollInterval);
+        }, 30000);
+        
+        // Store interval and timeout for cleanup
+        (window as any).__subscriptionPollInterval = pollInterval;
+        (window as any).__subscriptionPollStopTimeout = pollStopTimeout;
+      }, 3000);
+      
+      // Initial invalidation (but don't wait for it)
+      queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.me }).catch(() => {});
+      queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.payments }).catch(() => {});
+      queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.plans() }).catch(() => {});
+      
+      // Store timeout for cleanup
+      (window as any).__subscriptionInitTimeout = initTimeout;
+      (window as any).__subscriptionPollStartTimeout = pollStartTimeout;
+    }, 1000);
     
     return () => {
-      clearInterval(pollInterval);
-      clearTimeout(timeout);
+      clearTimeout(initTimeout);
+      if ((window as any).__subscriptionPollStartTimeout) {
+        clearTimeout((window as any).__subscriptionPollStartTimeout);
+      }
+      if ((window as any).__subscriptionPollInterval) {
+        clearInterval((window as any).__subscriptionPollInterval);
+      }
+      if ((window as any).__subscriptionPollStopTimeout) {
+        clearTimeout((window as any).__subscriptionPollStopTimeout);
+      }
     };
   }, [isAuthenticated, router, initializeData, queryClient]);
 

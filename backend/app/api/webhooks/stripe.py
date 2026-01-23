@@ -213,13 +213,16 @@ async def handle_checkout_completed(event_object: dict, db: AsyncSession, subscr
                 logger.error(f"Cannot update subscription: Plan {plan_id} does not exist")
                 return
             
+            # Store old plan_id for logging
+            old_plan_id = existing_subscription.plan_id
+            
             # Update the existing subscription with new Stripe subscription ID and plan
             existing_subscription.stripe_subscription_id = subscription_id
             existing_subscription.plan_id = plan_id
             if customer_id:
                 existing_subscription.stripe_customer_id = customer_id
             
-            logger.info(f"Updating subscription {existing_subscription.id}: old_plan_id={existing_subscription.plan_id}, new_plan_id={plan_id}, new_plan_name={plan.name}")
+            logger.info(f"Updating subscription {existing_subscription.id}: old_plan_id={old_plan_id}, new_plan_id={plan_id}, new_plan_name={plan.name}")
             
             if stripe_subscription.current_period_start:
                 existing_subscription.current_period_start = datetime.fromtimestamp(
@@ -341,6 +344,8 @@ async def handle_subscription_updated(
     subscription_service: SubscriptionService
 ):
     """Handle customer.subscription.updated event"""
+    from app.core.config import settings
+    
     subscription_id = event_object.get("id")
     if not subscription_id:
         logger.warning("customer.subscription.updated event missing subscription ID")
@@ -350,6 +355,44 @@ async def handle_subscription_updated(
     status = map_stripe_status(status_str)
     period_start, period_end = _parse_subscription_periods(event_object)
     
+    # Get subscription from database
+    result = await db.execute(
+        select(Subscription).where(
+            Subscription.stripe_subscription_id == subscription_id
+        )
+    )
+    subscription = result.scalar_one_or_none()
+    
+    if not subscription:
+        logger.warning(f"Could not find subscription {subscription_id} in database")
+        return
+    
+    # Check if plan changed in Stripe
+    try:
+        if not stripe.api_key and hasattr(settings, 'STRIPE_SECRET_KEY') and settings.STRIPE_SECRET_KEY:
+            stripe.api_key = settings.STRIPE_SECRET_KEY
+        
+        stripe_subscription = stripe.Subscription.retrieve(subscription_id)
+        
+        # Get plan_id from Stripe subscription items
+        if stripe_subscription.items and stripe_subscription.items.data:
+            stripe_price_id = stripe_subscription.items.data[0].price.id
+            
+            # Find plan by stripe_price_id
+            from app.models import Plan
+            plan_result = await db.execute(
+                select(Plan).where(Plan.stripe_price_id == stripe_price_id)
+            )
+            stripe_plan = plan_result.scalar_one_or_none()
+            
+            if stripe_plan and subscription.plan_id != stripe_plan.id:
+                logger.info(f"Plan changed in Stripe: updating subscription {subscription.id} from plan {subscription.plan_id} to plan {stripe_plan.id} ({stripe_plan.name})")
+                subscription.plan_id = stripe_plan.id
+    except Exception as e:
+        logger.warning(f"Could not check plan change from Stripe: {e}")
+        # Continue with status update even if plan check fails
+    
+    # Update subscription status and periods
     result = await subscription_service.update_subscription_status(
         stripe_subscription_id=subscription_id,
         status=status,

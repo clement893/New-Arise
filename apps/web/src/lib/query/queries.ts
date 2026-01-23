@@ -132,8 +132,17 @@ export function useMySubscription() {
         if (response?.status === 404) {
           return false;
         }
+        // Don't retry on 401 immediately - might be auth initialization issue
+        // Will retry once after token refresh
+        if (response?.status === 401 && failureCount > 0) {
+          return false;
+        }
       }
       return failureCount < 2;
+    },
+    retryDelay: (attemptIndex) => {
+      // Wait longer between retries for auth issues
+      return Math.min(1000 * 2 ** attemptIndex, 5000);
     },
   });
 }
@@ -206,6 +215,17 @@ export function useUpgradePlan() {
   
   return useMutation({
     mutationFn: (planId: number) => subscriptionsAPI.upgradePlan(planId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.me });
+    },
+  });
+}
+
+export function useSyncSubscription() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: () => subscriptionsAPI.syncSubscription(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.me });
     },

@@ -7,6 +7,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from datetime import datetime, timezone
 
 from app.core.database import get_db
 from app.core.cache import cached
@@ -362,6 +363,98 @@ async def upgrade_subscription(
     )
     
     return SubscriptionResponse.model_validate(updated_subscription)
+
+
+@router.post("/sync", response_model=SubscriptionResponse)
+async def sync_subscription_from_stripe(
+    current_user: User = Depends(get_current_user),
+    subscription_service: SubscriptionService = Depends(get_subscription_service),
+    stripe_service: StripeService = Depends(get_stripe_service),
+    db: AsyncSession = Depends(get_db),
+):
+    """Sync subscription from Stripe (useful after payment to ensure plan is updated)"""
+    from app.core.logging import logger
+    from app.models import Plan
+    from datetime import timezone
+    
+    subscription = await subscription_service.get_user_subscription(
+        current_user.id,
+        active_only=True,
+        include_plan=False
+    )
+    
+    if not subscription:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No active subscription found"
+        )
+    
+    if not subscription.stripe_subscription_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Subscription has no Stripe subscription ID"
+        )
+    
+    try:
+        # Get subscription from Stripe
+        import stripe
+        from app.core.config import settings
+        
+        if not stripe.api_key and hasattr(settings, 'STRIPE_SECRET_KEY') and settings.STRIPE_SECRET_KEY:
+            stripe.api_key = settings.STRIPE_SECRET_KEY
+        
+        stripe_subscription = stripe.Subscription.retrieve(subscription.stripe_subscription_id)
+        
+        # Get plan_id from Stripe subscription items
+        if stripe_subscription.items and stripe_subscription.items.data:
+            stripe_price_id = stripe_subscription.items.data[0].price.id
+            
+            # Find plan by stripe_price_id
+            plan_result = await db.execute(
+                select(Plan).where(Plan.stripe_price_id == stripe_price_id)
+            )
+            stripe_plan = plan_result.scalar_one_or_none()
+            
+            if stripe_plan:
+                # Update plan if different
+                if subscription.plan_id != stripe_plan.id:
+                    logger.info(f"Syncing subscription {subscription.id}: updating plan from {subscription.plan_id} to {stripe_plan.id} ({stripe_plan.name})")
+                    subscription.plan_id = stripe_plan.id
+                    await db.commit()
+                else:
+                    logger.debug(f"Subscription {subscription.id} already has correct plan {stripe_plan.id}")
+            else:
+                logger.warning(f"Plan with stripe_price_id {stripe_price_id} not found in database")
+        
+        # Update periods from Stripe
+        if stripe_subscription.current_period_start:
+            subscription.current_period_start = datetime.fromtimestamp(
+                stripe_subscription.current_period_start,
+                tz=timezone.utc
+            )
+        if stripe_subscription.current_period_end:
+            subscription.current_period_end = datetime.fromtimestamp(
+                stripe_subscription.current_period_end,
+                tz=timezone.utc
+            )
+        
+        await db.commit()
+        
+        # Reload with plan relationship
+        updated_subscription = await subscription_service.get_user_subscription(
+            current_user.id,
+            include_plan=True,
+            active_only=True
+        )
+        
+        return SubscriptionResponse.model_validate(updated_subscription)
+        
+    except Exception as e:
+        logger.error(f"Error syncing subscription from Stripe: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to sync subscription: {str(e)}"
+        )
 
 
 @router.get("/payments", response_model=List[InvoiceResponse])
