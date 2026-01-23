@@ -918,11 +918,11 @@ const generate360PDF = async (
     statementColor = '#FFC7CE';
   }
 
-  // Statement box with colored background - full width text, reduced block, framed
+  // Statement box with colored background - aligned like other blocks, full width text
   yPos = checkNewPage(doc, yPos, pageHeight, 80);
   const statementBoxY = yPos;
-  // Use minimal margins for full width (10px on each side instead of 20)
-  const statementWidth = pageWidth - 20; // Full width with minimal margins
+  // Use same margins as other blocks (20px on each side)
+  const statementWidth = pageWidth - 40; // Same width as other blocks
   const statementLines = doc.splitTextToSize(statement, statementWidth);
   const statementBoxHeight = statementLines.length * 5 + 8; // Reduced padding
   
@@ -930,14 +930,14 @@ const generate360PDF = async (
   const stmtG = parseInt(statementColor.slice(3, 5), 16);
   const stmtB = parseInt(statementColor.slice(5, 7), 16);
   doc.setFillColor(stmtR, stmtG, stmtB);
-  // Frame the block to page edges (minimal margins)
-  doc.rect(10, statementBoxY, statementWidth, statementBoxHeight, 'F');
+  // Frame the block aligned like other blocks (20px margin on each side)
+  doc.rect(20, statementBoxY, statementWidth, statementBoxHeight, 'F');
   
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
   doc.setTextColor(0, 0, 0);
-  // Text starts at 10 (same as block) to use full width
-  doc.text(statementLines, 10, statementBoxY + 5);
+  // Text with padding inside the box - full width text within the block
+  doc.text(statementLines, 25, statementBoxY + 5);
   yPos = statementBoxY + statementBoxHeight + 12;
 
   // Categorize capabilities: Areas for Growth (1-2), Neutral (3), Strengths (4-5)
