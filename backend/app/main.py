@@ -49,6 +49,14 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     import os
     import asyncio
     
+    # CRITICAL: Print immediately to confirm lifespan is being called
+    print("=" * 50, file=sys.stderr)
+    print("LIFESPAN FUNCTION CALLED - App is starting", file=sys.stderr)
+    print("=" * 50, file=sys.stderr)
+    print("=" * 50)
+    print("LIFESPAN FUNCTION CALLED - App is starting")
+    print("=" * 50)
+    
     # Background initialization tasks - these run after the app has started serving requests
     # This allows healthchecks to succeed even if initialization takes time
     async def background_init():
@@ -178,6 +186,16 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Note: In FastAPI lifespan, the event loop is always running, so create_task should work
     init_task = asyncio.create_task(background_init())
     
+    # CRITICAL: Print before yielding to confirm we're about to start serving
+    print("=" * 50, file=sys.stderr)
+    print("YIELDING - App is now ready to serve requests", file=sys.stderr)
+    print("Health endpoint should be available at /api/v1/health/", file=sys.stderr)
+    print("=" * 50, file=sys.stderr)
+    print("=" * 50)
+    print("YIELDING - App is now ready to serve requests")
+    print("Health endpoint should be available at /api/v1/health/")
+    print("=" * 50)
+    
     # CRITICAL: Yield IMMEDIATELY to allow the app to start serving requests
     # This ensures the health endpoint is available immediately for Railway healthchecks
     # All initialization happens in the background via init_task
@@ -213,13 +231,23 @@ def create_app() -> FastAPI:
     import os
     import sys
     
+    # CRITICAL: Print immediately to confirm create_app is being called
+    print("=" * 50, file=sys.stderr)
+    print("CREATE_APP FUNCTION CALLED", file=sys.stderr)
+    print("=" * 50, file=sys.stderr)
+    print("=" * 50)
+    print("CREATE_APP FUNCTION CALLED")
+    print("=" * 50)
+    
     # Try to import logger, but don't fail if it's not available
     try:
         from app.core.logging import logger
+        print("Logger imported successfully", file=sys.stderr)
     except Exception as e:
         print(f"WARNING: Failed to import logger: {e}", file=sys.stderr)
         logger = None
     
+    print("Creating FastAPI app instance...", file=sys.stderr)
     app = FastAPI(
         title=settings.PROJECT_NAME,
         version=settings.VERSION,
@@ -477,12 +505,25 @@ def create_app() -> FastAPI:
 
     app.openapi = custom_openapi
 
+    print("=" * 50, file=sys.stderr)
+    print("CREATE_APP COMPLETED SUCCESSFULLY", file=sys.stderr)
+    print("=" * 50, file=sys.stderr)
+    print("=" * 50)
+    print("CREATE_APP COMPLETED SUCCESSFULLY")
+    print("=" * 50)
+    
     return app
 
 
 # Create app instance with error handling
+print("=" * 50)
+print("MODULE LEVEL: About to create app instance")
+print("=" * 50)
 try:
     app = create_app()
+    print("=" * 50)
+    print("MODULE LEVEL: App instance created successfully")
+    print("=" * 50)
 except Exception as e:
     import sys
     import traceback
