@@ -193,20 +193,20 @@ const generateWellnessPDF = async (
       yPos += recLines.length * 5 + 5;
     }
 
-    // Recommended Actions
-    if (insightData?.actions && insightData.actions.length > 0) {
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(10);
-      doc.text('Recommended Actions:', 20, yPos);
-      yPos += 7;
-      doc.setFont('helvetica', 'normal');
-      insightData.actions.forEach((action, idx) => {
-        yPos = checkNewPage(doc, yPos, pageHeight, 20);
-        const actionLines = doc.splitTextToSize(`• ${action}`, pageWidth - 50);
-        doc.text(actionLines, 25, yPos);
-        yPos += actionLines.length * 5 + 3;
-      });
-    }
+      // Recommended Actions
+      if (insightData?.actions && insightData.actions.length > 0) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text('Recommended Actions:', 20, yPos);
+        yPos += 7;
+        doc.setFont('helvetica', 'normal');
+        insightData.actions.forEach((action) => {
+          yPos = checkNewPage(doc, yPos, pageHeight, 20);
+          const actionLines = doc.splitTextToSize(`• ${action}`, pageWidth - 50);
+          doc.text(actionLines, 25, yPos);
+          yPos += actionLines.length * 5 + 3;
+        });
+      }
 
     yPos += 10; // Space between pillars
   }
