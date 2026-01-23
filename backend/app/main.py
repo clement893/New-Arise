@@ -210,8 +210,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 def create_app() -> FastAPI:
     """Create and configure FastAPI application"""
-    from app.core.logging import logger
     import os
+    import sys
+    
+    # Try to import logger, but don't fail if it's not available
+    try:
+        from app.core.logging import logger
+    except Exception as e:
+        print(f"WARNING: Failed to import logger: {e}", file=sys.stderr)
+        logger = None
     
     app = FastAPI(
         title=settings.PROJECT_NAME,
@@ -250,23 +257,29 @@ def create_app() -> FastAPI:
     # We need to let errors propagate to CORS middleware so it can add headers
     @app.middleware("http")
     async def log_requests_middleware(request: Request, call_next):
-        from app.core.logging import logger
+        try:
+            from app.core.logging import logger
+        except:
+            logger = None
         from starlette.responses import Response
         import time
         start_time = time.time()
-        logger.info(f"Incoming request: {request.method} {request.url.path} from {request.client.host if request.client else 'unknown'}")
+        if logger:
+            logger.info(f"Incoming request: {request.method} {request.url.path} from {request.client.host if request.client else 'unknown'}")
         try:
             response = await call_next(request)
             process_time = time.time() - start_time
             # Ensure response is a Response instance before accessing status_code
-            if isinstance(response, Response):
-                logger.info(f"Request completed: {request.method} {request.url.path} - {response.status_code} ({process_time:.4f}s)")
-            else:
-                logger.info(f"Request completed: {request.method} {request.url.path} ({process_time:.4f}s)")
+            if logger:
+                if isinstance(response, Response):
+                    logger.info(f"Request completed: {request.method} {request.url.path} - {response.status_code} ({process_time:.4f}s)")
+                else:
+                    logger.info(f"Request completed: {request.method} {request.url.path} ({process_time:.4f}s)")
             return response
         except Exception as e:
             process_time = time.time() - start_time
-            logger.error(f"Request failed: {request.method} {request.url.path} - {str(e)} ({process_time:.4f}s)", exc_info=True)
+            if logger:
+                logger.error(f"Request failed: {request.method} {request.url.path} - {str(e)} ({process_time:.4f}s)", exc_info=True)
             # Re-raise the exception so CORS middleware can catch it and add headers
             # The CORS middleware will handle the error response with proper headers
             raise
@@ -319,7 +332,8 @@ def create_app() -> FastAPI:
             header_name="X-Tenant-ID",
             query_param="tenant_id",
         )
-        logger.info(f"Tenancy middleware enabled (mode: {TenancyConfig.get_mode()})")
+        if logger:
+            logger.info(f"Tenancy middleware enabled (mode: {TenancyConfig.get_mode()})")
 
     # CSRF Protection Middleware (after CORS, before routes)
     # Skip CSRF for webhooks and public endpoints
@@ -329,17 +343,21 @@ def create_app() -> FastAPI:
             secret_key=settings.SECRET_KEY,
             cookie_name="csrf_token",
         )
-        logger.info("CSRF protection enabled")
+        if logger:
+            logger.info("CSRF protection enabled")
     else:
-        logger.warning("CSRF protection is DISABLED - not recommended for production")
+        if logger:
+            logger.warning("CSRF protection is DISABLED - not recommended for production")
 
     # Rate Limiting (after CORS to allow preflight requests)
     # Can be disabled by setting DISABLE_RATE_LIMITING=true in environment
     if not os.getenv("DISABLE_RATE_LIMITING", "").lower() == "true":
         app = setup_rate_limiting(app)
-        logger.info("Rate limiting enabled")
+        if logger:
+            logger.info("Rate limiting enabled")
     else:
-        logger.warning("Rate limiting is DISABLED - not recommended for production")
+        if logger:
+            logger.warning("Rate limiting is DISABLED - not recommended for production")
 
     # Include API router
     app.include_router(api_router, prefix=settings.API_V1_STR)
@@ -462,5 +480,25 @@ def create_app() -> FastAPI:
     return app
 
 
-app = create_app()
+# Create app instance with error handling
+try:
+    app = create_app()
+except Exception as e:
+    import sys
+    import traceback
+    print("=" * 50, file=sys.stderr)
+    print("CRITICAL ERROR: Failed to create app", file=sys.stderr)
+    print("=" * 50, file=sys.stderr)
+    print(f"Error: {e}", file=sys.stderr)
+    print("Traceback:", file=sys.stderr)
+    traceback.print_exc(file=sys.stderr)
+    print("=" * 50, file=sys.stderr)
+    # Create a minimal app so uvicorn can at least start and we can see the error
+    app = FastAPI(title="Error", version="1.0.0")
+    @app.get("/")
+    async def error_root():
+        return {"status": "error", "message": "Application failed to initialize", "error": str(e)}
+    @app.get("/api/v1/health/")
+    async def error_health():
+        return {"status": "error", "message": "Application failed to initialize", "error": str(e)}
 
