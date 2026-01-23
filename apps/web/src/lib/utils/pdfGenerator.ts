@@ -918,23 +918,27 @@ const generate360PDF = async (
     statementColor = '#FFC7CE';
   }
 
-  // Statement box with colored background - full width text, reduced block
+  // Statement box with colored background - full width text, reduced block, framed
   yPos = checkNewPage(doc, yPos, pageHeight, 80);
   const statementBoxY = yPos;
-  const statementLines = doc.splitTextToSize(statement, pageWidth - 40); // Full width (was 50)
-  const statementBoxHeight = statementLines.length * 5 + 10; // Reduced padding (was 15)
+  // Use minimal margins for full width (10px on each side instead of 20)
+  const statementWidth = pageWidth - 20; // Full width with minimal margins
+  const statementLines = doc.splitTextToSize(statement, statementWidth);
+  const statementBoxHeight = statementLines.length * 5 + 8; // Reduced padding
   
   const stmtR = parseInt(statementColor.slice(1, 3), 16);
   const stmtG = parseInt(statementColor.slice(3, 5), 16);
   const stmtB = parseInt(statementColor.slice(5, 7), 16);
   doc.setFillColor(stmtR, stmtG, stmtB);
-  doc.rect(20, statementBoxY, pageWidth - 40, statementBoxHeight, 'F');
+  // Frame the block to page edges (minimal margins)
+  doc.rect(10, statementBoxY, statementWidth, statementBoxHeight, 'F');
   
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
   doc.setTextColor(0, 0, 0);
-  doc.text(statementLines, 20, statementBoxY + 6); // Full width padding (was 25, now 20)
-  yPos = statementBoxY + statementBoxHeight + 12; // Reduced spacing
+  // Text starts at 10 (same as block) to use full width
+  doc.text(statementLines, 10, statementBoxY + 5);
+  yPos = statementBoxY + statementBoxHeight + 12;
 
   // Categorize capabilities: Areas for Growth (1-2), Neutral (3), Strengths (4-5)
   const growthCapabilities = transformedCapabilityScores.filter(cap => {
