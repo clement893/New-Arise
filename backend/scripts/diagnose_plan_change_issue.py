@@ -11,7 +11,7 @@ from decimal import Decimal
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.core.database import async_session_maker
+from app.core.database import AsyncSessionLocal
 from app.models import Plan, Subscription, User
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -22,7 +22,7 @@ from app.core.config import settings
 
 async def diagnose_plan_change_issue(email: str = None, user_id: int = None):
     """Diagnostiquer pourquoi le plan ne change pas"""
-    async with async_session_maker() as db:
+    async with AsyncSessionLocal() as db:
         print("=" * 80)
         print("DIAGNOSTIC DU PROBLÈME DE CHANGEMENT DE PLAN")
         print("=" * 80)

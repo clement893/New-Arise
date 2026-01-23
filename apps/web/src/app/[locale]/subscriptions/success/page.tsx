@@ -210,7 +210,7 @@ function SubscriptionSuccessContent() {
         <Card className="w-full max-w-2xl">
           <div className="p-8 text-center">
             <Loading />
-            <p className="mt-4 text-muted-foreground">{t('loadingDetails')}</p>
+            <p className="mt-4 text-muted-foreground">{String(t('loadingDetails'))}</p>
           </div>
         </Card>
       </div>
@@ -239,51 +239,51 @@ function SubscriptionSuccessContent() {
           </div>
 
           <h1 className="text-4xl font-bold text-foreground mb-4">
-            {t('title')}
+            {String(t('title'))}
           </h1>
           <p className="text-xl text-muted-foreground mb-8">
             {planName 
-              ? `${t('messagePrefix')} ${planName} ${t('messageSuffix')}`
-              : t('messageFallback')
+              ? `${String(t('messagePrefix'))} ${planName} ${String(t('messageSuffix'))}`
+              : String(t('messageFallback'))
             }
           </p>
 
           {/* Subscription Details */}
           <div className="bg-muted rounded-lg p-6 mb-8 text-left">
-            <h2 className="text-lg font-semibold text-foreground mb-4">{t('detailsTitle')}</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-4">{String(t('detailsTitle'))}</h2>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">{t('plan')}</span>
+                <span className="text-muted-foreground">{String(t('plan'))}</span>
                 <span className="font-medium text-foreground">{planName || 'Loading...'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">{t('period')}</span>
+                <span className="text-muted-foreground">{String(t('period'))}</span>
                 <span className="font-medium text-foreground">
-                  {billingPeriod === 'month' ? t('periodMonth') : t('periodYear')}
+                  {billingPeriod === 'month' ? String(t('periodMonth')) : String(t('periodYear'))}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">{t('status')}</span>
-                <span className="font-medium text-green-600 dark:text-green-400">{t('statusActive')}</span>
+                <span className="text-muted-foreground">{String(t('status'))}</span>
+                <span className="font-medium text-green-600 dark:text-green-400">{String(t('statusActive'))}</span>
               </div>
             </div>
           </div>
 
           {/* Next Steps */}
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-foreground mb-4">{t('nextStepsTitle')}</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-4">{String(t('nextStepsTitle'))}</h3>
             <ul className="text-left space-y-2 text-muted-foreground">
               <li className="flex items-start">
                 <span className="text-green-600 mr-2">✓</span>
-                <span>{t('step1')}</span>
+                <span>{String(t('step1'))}</span>
               </li>
               <li className="flex items-start">
                 <span className="text-green-600 mr-2">✓</span>
-                <span>{t('step2')}</span>
+                <span>{String(t('step2'))}</span>
               </li>
               <li className="flex items-start">
                 <span className="text-green-600 mr-2">✓</span>
-                <span>{t('step3')}</span>
+                <span>{String(t('step3'))}</span>
               </li>
             </ul>
           </div>
@@ -306,12 +306,12 @@ function SubscriptionSuccessContent() {
               }}
             >
               <Button>
-                {t('goToDashboard')}
+                {String(t('goToDashboard'))}
               </Button>
             </Link>
             <Link href="/subscriptions">
               <Button variant="outline">
-                {t('manageSubscription')}
+                {String(t('manageSubscription'))}
               </Button>
             </Link>
           </div>
@@ -331,7 +331,7 @@ export default function SubscriptionSuccessPage() {
           <Card className="w-full max-w-2xl">
             <div className="p-8 text-center">
               <Loading />
-              <p className="mt-4 text-muted-foreground">{t('loading')}</p>
+              <p className="mt-4 text-muted-foreground">{String(t('loading'))}</p>
             </div>
           </Card>
         </div>
