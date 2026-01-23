@@ -105,16 +105,12 @@ ENV PYTHONUNBUFFERED=1
 HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
     CMD sh -c 'PORT=${PORT:-8000}; python -c "import urllib.request; import sys; import socket; socket.setdefaulttimeout(5); url=f\"http://localhost:{PORT}/api/v1/health/\"; r=urllib.request.urlopen(url, timeout=5); sys.exit(0 if r.getcode()==200 else 1)"' || exit 1
 
-# Use entrypoint.sh as the entrypoint
-# Railway will use startCommand from railway.json if set, otherwise this ENTRYPOINT
-# The entrypoint.sh script handles migrations in background and starts Uvicorn
-# Note: When both ENTRYPOINT and CMD are set, CMD becomes arguments to ENTRYPOINT
-# So we only set ENTRYPOINT, and Railway's startCommand will override if needed
 # Use WORKDIR to ensure we're in /app when script runs
 WORKDIR /app
 
-# Try CMD as fallback - Railway may ignore startCommand in some cases
-# This ensures uvicorn starts even if entrypoint script fails
-# Use exec form to ensure proper signal handling
-CMD ["/bin/sh", "-c", "echo '=== DOCKERFILE CMD STARTED ===' && /bin/sh /app/entrypoint.sh"]
+# Start uvicorn directly - bypass entrypoint script to diagnose the issue
+# Railway may be ignoring startCommand, so we'll use CMD directly
+# This will help us see if the app can start at all
+# Use PORT environment variable (Railway sets this automatically)
+CMD ["/bin/sh", "-c", "echo '=== DOCKERFILE CMD STARTED ===' && echo 'PORT=${PORT:-8000}' && echo 'Starting uvicorn...' && python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info --access-log"]
 
