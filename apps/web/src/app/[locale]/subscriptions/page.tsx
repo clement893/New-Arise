@@ -309,7 +309,7 @@ function SubscriptionsContent() {
                     plan={plan}
                     onSelect={handleSelectPlan}
                     isLoading={createCheckoutMutation.isPending || upgradePlanMutation.isPending}
-                    currentPlanId={subscription ? parseInt(subscription.plan_id, 10) : undefined}
+                    currentPlanId={undefined}
                   />
                 ))}
               </div>
