@@ -82,6 +82,9 @@ function DashboardContent() {
   // Refresh subscription data when coming from payment success page
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
+    let pollInterval: NodeJS.Timeout | null = null;
+    let timeout: NodeJS.Timeout | null = null;
+    
     if (searchParams.get('refresh') === 'true') {
       // Clear subscription cache immediately
       if (typeof window !== 'undefined') {
@@ -96,25 +99,32 @@ function DashboardContent() {
       refetchSubscription();
       
       // Also poll for updates (webhook might take a few seconds)
-      const pollInterval = setInterval(() => {
+      pollInterval = setInterval(() => {
         refetchSubscription();
       }, 2000); // Poll every 2 seconds
       
       // Stop polling after 20 seconds
-      const timeout = setTimeout(() => {
-        clearInterval(pollInterval);
+      timeout = setTimeout(() => {
+        if (pollInterval) {
+          clearInterval(pollInterval);
+        }
       }, 20000);
       
       // Remove refresh parameter from URL
       searchParams.delete('refresh');
       const newUrl = window.location.pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '');
       window.history.replaceState({}, '', newUrl);
-      
-      return () => {
-        clearInterval(pollInterval);
-        clearTimeout(timeout);
-      };
     }
+    
+    // Always return cleanup function
+    return () => {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+    };
   }, [refetchSubscription]);
 
   useEffect(() => {
