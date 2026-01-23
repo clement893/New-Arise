@@ -114,5 +114,6 @@ WORKDIR /app
 
 # Start uvicorn directly - simplest possible approach
 # Railway may have issues with shell scripts, so use direct Python command
-CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--log-level", "info", "--access-log"]
+# Use shell form to allow PORT environment variable expansion
+CMD python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info --access-log
 
