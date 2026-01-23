@@ -49,7 +49,7 @@ const checkNewPage = (doc: any, yPos: number, pageHeight: number, margin: number
 };
 
 // Helper function to add section title
-const addSectionTitle = (doc: any, title: string, yPos: number, pageWidth: number, pageHeight: number): number => {
+const addSectionTitle = (doc: any, title: string, yPos: number, pageHeight: number): number => {
   yPos = checkNewPage(doc, yPos, pageHeight, 50);
   doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
@@ -88,7 +88,7 @@ const generateWellnessPDF = async (
   yPos += 15;
 
   // Overall Score Section
-  yPos = addSectionTitle(doc, 'Overall Score', yPos, pageWidth, pageHeight);
+  yPos = addSectionTitle(doc, 'Overall Score', yPos, pageHeight);
   doc.setFontSize(14);
   doc.setFont('helvetica', 'normal');
   doc.text(`Score: ${percentage.toFixed(0)}%`, 20, yPos);
@@ -97,7 +97,7 @@ const generateWellnessPDF = async (
   yPos += 15;
 
   // Pillar Scores Section
-  yPos = addSectionTitle(doc, 'Wellness Pillar Scores', yPos, pageWidth, pageHeight);
+  yPos = addSectionTitle(doc, 'Wellness Pillar Scores', yPos, pageHeight);
   doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
 
@@ -125,7 +125,7 @@ const generateWellnessPDF = async (
 
   // Insights Section
   if (results.insights) {
-    yPos = addSectionTitle(doc, 'Key Insights', yPos, pageWidth, pageHeight);
+    yPos = addSectionTitle(doc, 'Key Insights', yPos, pageHeight);
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
     
@@ -139,7 +139,7 @@ const generateWellnessPDF = async (
 
   // Recommendations Section
   if (results.recommendations) {
-    yPos = addSectionTitle(doc, 'Recommendations', yPos, pageWidth, pageHeight);
+    yPos = addSectionTitle(doc, 'Recommendations', yPos, pageHeight);
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
     
@@ -190,7 +190,7 @@ const generate360PDF = async (
   yPos += 15;
 
   // Overall Score Section
-  yPos = addSectionTitle(doc, 'Overall Score', yPos, pageWidth, pageHeight);
+  yPos = addSectionTitle(doc, 'Overall Score', yPos, pageHeight);
   doc.setFontSize(14);
   doc.setFont('helvetica', 'normal');
   doc.text(`Score: ${percentage.toFixed(1)}%`, 20, yPos);
@@ -199,7 +199,7 @@ const generate360PDF = async (
   yPos += 15;
 
   // Capability Breakdown
-  yPos = addSectionTitle(doc, 'Leadership Capabilities', yPos, pageWidth, pageHeight);
+  yPos = addSectionTitle(doc, 'Leadership Capabilities', yPos, pageHeight);
   doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
 
@@ -246,7 +246,7 @@ const generate360PDF = async (
 
   // Insights Section
   if (results.insights) {
-    yPos = addSectionTitle(doc, 'Insights', yPos, pageWidth, pageHeight);
+    yPos = addSectionTitle(doc, 'Insights', yPos, pageHeight);
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
     
@@ -260,7 +260,7 @@ const generate360PDF = async (
 
   // Recommendations Section
   if (results.recommendations) {
-    yPos = addSectionTitle(doc, 'Recommendations', yPos, pageWidth, pageHeight);
+    yPos = addSectionTitle(doc, 'Recommendations', yPos, pageHeight);
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
     
@@ -309,7 +309,7 @@ const generateMBTIPDF = async (
   yPos += 15;
 
   // Personality Type Section
-  yPos = addSectionTitle(doc, 'Personality Type', yPos, pageWidth, pageHeight);
+  yPos = addSectionTitle(doc, 'Personality Type', yPos, pageHeight);
   doc.setFontSize(18);
   doc.setFont('helvetica', 'bold');
   doc.text(mbtiType, 20, yPos);
@@ -327,7 +327,7 @@ const generateMBTIPDF = async (
 
   // Dimension Breakdown
   if (Object.keys(dimensionPreferences).length > 0) {
-    yPos = addSectionTitle(doc, 'Dimension Preferences', yPos, pageWidth, pageHeight);
+    yPos = addSectionTitle(doc, 'Dimension Preferences', yPos, pageHeight);
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
 
@@ -346,7 +346,7 @@ const generateMBTIPDF = async (
 
   // Leadership Capabilities
   if (insights.leadership_capabilities && typeof insights.leadership_capabilities === 'object') {
-    yPos = addSectionTitle(doc, 'Leadership Capabilities Analysis', yPos, pageWidth, pageHeight);
+    yPos = addSectionTitle(doc, 'Leadership Capabilities Analysis', yPos, pageHeight);
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
 
@@ -373,7 +373,7 @@ const generateMBTIPDF = async (
 
   // Recommendations Section
   if (results.recommendations) {
-    yPos = addSectionTitle(doc, 'Recommendations', yPos, pageWidth, pageHeight);
+    yPos = addSectionTitle(doc, 'Recommendations', yPos, pageHeight);
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
     
@@ -427,7 +427,7 @@ const generateTKIPDF = async (
   const secondaryMode = sortedModes[1]?.[0] || '';
 
   // Dominant and Secondary Modes
-  yPos = addSectionTitle(doc, 'Conflict Mode Profile', yPos, pageWidth, pageHeight);
+  yPos = addSectionTitle(doc, 'Conflict Mode Profile', yPos, pageHeight);
   doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
   doc.text('Dominant Mode:', 20, yPos);
@@ -445,7 +445,7 @@ const generateTKIPDF = async (
   }
 
   // All Modes Breakdown
-  yPos = addSectionTitle(doc, 'All Conflict Modes', yPos, pageWidth, pageHeight);
+  yPos = addSectionTitle(doc, 'All Conflict Modes', yPos, pageHeight);
   doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
 
@@ -462,7 +462,7 @@ const generateTKIPDF = async (
 
   // Insights Section
   if (insights && Object.keys(insights).length > 0) {
-    yPos = addSectionTitle(doc, 'Insights', yPos, pageWidth, pageHeight);
+    yPos = addSectionTitle(doc, 'Insights', yPos, pageHeight);
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
     
@@ -476,7 +476,7 @@ const generateTKIPDF = async (
 
   // Recommendations Section
   if (results.recommendations) {
-    yPos = addSectionTitle(doc, 'Key Recommendations', yPos, pageWidth, pageHeight);
+    yPos = addSectionTitle(doc, 'Key Recommendations', yPos, pageHeight);
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
     
