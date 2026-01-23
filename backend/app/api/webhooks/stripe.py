@@ -199,13 +199,17 @@ async def handle_checkout_completed(event_object: dict, db: AsyncSession, subscr
         # User already has an active subscription - this is a plan change
         logger.info(f"User {user_id} already has active subscription {existing_subscription.id}, updating to plan {plan_id}")
         
-        # Get subscription details from Stripe
-        try:
-            # Initialize Stripe if needed
-            if not stripe.api_key and hasattr(settings, 'STRIPE_SECRET_KEY') and settings.STRIPE_SECRET_KEY:
-                stripe.api_key = settings.STRIPE_SECRET_KEY
-            
-            stripe_subscription = stripe.Subscription.retrieve(subscription_id)
+            # Get subscription details from Stripe
+            try:
+                # Initialize Stripe if needed
+                if not stripe.api_key and hasattr(settings, 'STRIPE_SECRET_KEY') and settings.STRIPE_SECRET_KEY:
+                    stripe.api_key = settings.STRIPE_SECRET_KEY
+                
+                # Expand items to get price_id
+                stripe_subscription = stripe.Subscription.retrieve(
+                    subscription_id,
+                    expand=['items']
+                )
             
             # Verify plan exists before updating
             plan = await subscription_service.get_plan(plan_id)
@@ -234,12 +238,22 @@ async def handle_checkout_completed(event_object: dict, db: AsyncSession, subscr
             # ALWAYS use the plan from Stripe as the source of truth
             # Get the price_id from Stripe subscription
             stripe_price_id = None
+            logger.debug(f"Checking Stripe subscription items for subscription_id={subscription_id}")
+            logger.debug(f"stripe_subscription.items type: {type(stripe_subscription.items)}")
+            logger.debug(f"stripe_subscription.items: {stripe_subscription.items}")
+            
             if stripe_subscription.items:
                 items_obj = stripe_subscription.items
                 if hasattr(items_obj, 'data') and items_obj.data and len(items_obj.data) > 0:
                     stripe_price_id = items_obj.data[0].price.id
+                    logger.info(f"Found stripe_price_id from items.data: {stripe_price_id}")
                 elif isinstance(items_obj, list) and len(items_obj) > 0:
                     stripe_price_id = items_obj[0].price.id
+                    logger.info(f"Found stripe_price_id from items list: {stripe_price_id}")
+                else:
+                    logger.warning(f"Stripe subscription items exists but is empty or invalid: {items_obj}")
+            else:
+                logger.warning(f"Stripe subscription has no items attribute")
             
             if stripe_price_id:
                 # Find plan by stripe_price_id (Stripe is the source of truth)
@@ -255,10 +269,11 @@ async def handle_checkout_completed(event_object: dict, db: AsyncSession, subscr
                         logger.info(f"Plan from Stripe ({stripe_plan.id} - {stripe_plan.name}) differs from metadata ({plan_id} - {plan.name}). Using Stripe plan as source of truth.")
                     plan_id = stripe_plan.id
                     plan = stripe_plan
+                    logger.info(f"✅ Using plan from Stripe: plan_id={plan_id}, plan_name={plan.name}, stripe_price_id={stripe_price_id}")
                 else:
-                    logger.warning(f"Plan with stripe_price_id {stripe_price_id} not found in database. Using metadata plan_id={plan_id} as fallback.")
+                    logger.warning(f"⚠️ Plan with stripe_price_id {stripe_price_id} not found in database. Using metadata plan_id={plan_id} as fallback.")
             else:
-                logger.warning(f"Could not get price_id from Stripe subscription. Using metadata plan_id={plan_id} as fallback.")
+                logger.warning(f"⚠️ Could not get price_id from Stripe subscription. Using metadata plan_id={plan_id} as fallback.")
             
             # Update the existing subscription with new Stripe subscription ID and plan
             existing_subscription.stripe_subscription_id = subscription_id
@@ -318,6 +333,7 @@ async def handle_checkout_completed(event_object: dict, db: AsyncSession, subscr
             if not stripe.api_key and hasattr(settings, 'STRIPE_SECRET_KEY') and settings.STRIPE_SECRET_KEY:
                 stripe.api_key = settings.STRIPE_SECRET_KEY
             
+            # Note: items are not needed here, only periods
             stripe_subscription = stripe.Subscription.retrieve(subscription_id)
             
             if stripe_subscription.trial_end:
