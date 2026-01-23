@@ -112,9 +112,18 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
 # Use WORKDIR to ensure we're in /app when script runs
 WORKDIR /app
 
-# Use ENTRYPOINT to ensure Railway executes our command
-# Railway may be ignoring CMD, so we'll use ENTRYPOINT instead
-# This will definitely produce output if Railway executes it
-ENTRYPOINT ["/bin/sh", "-c"]
-CMD ["echo '=== ENTRYPOINT+CMD EXECUTED ===' >&2 && echo 'PORT=${PORT:-8000}' >&2 && echo 'Starting uvicorn as $(whoami) in $(pwd)...' >&2 && python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info --access-log 2>&1"]
+# Create a simple startup script that will definitely produce output
+# This will help us diagnose if Railway is executing anything at all
+RUN echo '#!/bin/sh' > /app/start.sh && \
+    echo 'echo "=== START.SH SCRIPT STARTED ===" >&2' >> /app/start.sh && \
+    echo 'echo "PORT=${PORT:-8000}" >&2' >> /app/start.sh && \
+    echo 'echo "User: $(whoami)" >&2' >> /app/start.sh && \
+    echo 'echo "PWD: $(pwd)" >&2' >> /app/start.sh && \
+    echo 'echo "Python: $(which python)" >&2' >> /app/start.sh && \
+    echo 'echo "Starting uvicorn..." >&2' >> /app/start.sh && \
+    echo 'exec python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info --access-log' >> /app/start.sh && \
+    chmod +x /app/start.sh
+
+# Use the startup script
+ENTRYPOINT ["/app/start.sh"]
 
