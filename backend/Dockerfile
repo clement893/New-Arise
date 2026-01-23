@@ -112,10 +112,9 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
 # Use WORKDIR to ensure we're in /app when script runs
 WORKDIR /app
 
-# Start uvicorn directly as root to diagnose the issue
-# Railway may be ignoring startCommand, so we'll use CMD directly
-# Running as root temporarily to see if permissions are the issue
-# Use PORT environment variable (Railway sets this automatically)
-# Write to both stdout and stderr to ensure visibility
-CMD ["/bin/sh", "-c", "echo '=== DOCKERFILE CMD STARTED ===' >&2 && echo 'PORT=${PORT:-8000}' >&2 && echo 'Starting uvicorn as $(whoami)...' >&2 && python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info --access-log 2>&1"]
+# Use ENTRYPOINT to ensure Railway executes our command
+# Railway may be ignoring CMD, so we'll use ENTRYPOINT instead
+# This will definitely produce output if Railway executes it
+ENTRYPOINT ["/bin/sh", "-c"]
+CMD ["echo '=== ENTRYPOINT+CMD EXECUTED ===' >&2 && echo 'PORT=${PORT:-8000}' >&2 && echo 'Starting uvicorn as $(whoami) in $(pwd)...' >&2 && python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info --access-log 2>&1"]
 
