@@ -495,6 +495,125 @@ async def sync_subscription_from_stripe(
         )
 
 
+@router.get("/diagnostic", response_model=dict)
+async def diagnostic_subscription(
+    current_user: User = Depends(get_current_user),
+    subscription_service: SubscriptionService = Depends(get_subscription_service),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Diagnostic endpoint to check subscription and plan status
+    Useful for debugging plan change issues
+    """
+    from app.core.logging import logger
+    from app.models import Plan, Subscription
+    from sqlalchemy.orm import selectinload
+    import stripe
+    from app.core.config import settings
+    
+    diagnostic = {
+        "user": {
+            "id": current_user.id,
+            "email": current_user.email,
+            "name": f"{current_user.first_name} {current_user.last_name}"
+        },
+        "subscriptions": [],
+        "active_subscription": None,
+        "plans": [],
+        "stripe_comparison": {},
+        "errors": []
+    }
+    
+    try:
+        # Get all subscriptions
+        result = await db.execute(
+            select(Subscription)
+            .options(selectinload(Subscription.plan))
+            .where(Subscription.user_id == current_user.id)
+            .order_by(Subscription.created_at.desc())
+        )
+        subscriptions = result.scalars().all()
+        
+        for sub in subscriptions:
+            sub_data = {
+                "id": sub.id,
+                "status": sub.status,
+                "plan_id": sub.plan_id,
+                "plan_name": sub.plan.name if sub.plan else None,
+                "plan_amount": float(sub.plan.amount) / 100 if sub.plan and sub.plan.amount else None,
+                "stripe_subscription_id": sub.stripe_subscription_id,
+                "stripe_customer_id": sub.stripe_customer_id,
+                "created_at": sub.created_at.isoformat() if sub.created_at else None,
+                "current_period_start": sub.current_period_start.isoformat() if sub.current_period_start else None,
+                "current_period_end": sub.current_period_end.isoformat() if sub.current_period_end else None,
+            }
+            diagnostic["subscriptions"].append(sub_data)
+            
+            # Check Stripe if subscription ID exists
+            if sub.stripe_subscription_id:
+                try:
+                    if not stripe.api_key and hasattr(settings, 'STRIPE_SECRET_KEY') and settings.STRIPE_SECRET_KEY:
+                        stripe.api_key = settings.STRIPE_SECRET_KEY
+                    
+                    stripe_sub = stripe.Subscription.retrieve(sub.stripe_subscription_id)
+                    
+                    if stripe_sub.items and stripe_sub.items.data:
+                        stripe_price_id = stripe_sub.items.data[0].price.id
+                        
+                        # Find plan by stripe_price_id
+                        plan_result = await db.execute(
+                            select(Plan).where(Plan.stripe_price_id == stripe_price_id)
+                        )
+                        stripe_plan = plan_result.scalar_one_or_none()
+                        
+                        diagnostic["stripe_comparison"][str(sub.id)] = {
+                            "stripe_price_id": stripe_price_id,
+                            "stripe_plan_id": stripe_plan.id if stripe_plan else None,
+                            "stripe_plan_name": stripe_plan.name if stripe_plan else None,
+                            "db_plan_id": sub.plan_id,
+                            "db_plan_name": sub.plan.name if sub.plan else None,
+                            "inconsistency": stripe_plan.id != sub.plan_id if stripe_plan else None
+                        }
+                except Exception as e:
+                    diagnostic["errors"].append(f"Erreur Stripe pour subscription {sub.id}: {str(e)}")
+        
+        # Get active subscription
+        active_sub = None
+        for sub in subscriptions:
+            if sub.status in ['ACTIVE', 'TRIALING']:
+                active_sub = sub
+                break
+        
+        if active_sub:
+            diagnostic["active_subscription"] = {
+                "id": active_sub.id,
+                "status": active_sub.status,
+                "plan_id": active_sub.plan_id,
+                "plan_name": active_sub.plan.name if active_sub.plan else None,
+                "plan_amount": float(active_sub.plan.amount) / 100 if active_sub.plan and active_sub.plan.amount else None,
+            }
+        
+        # List all plans
+        result = await db.execute(
+            select(Plan).where(Plan.status == 'active').order_by(Plan.amount)
+        )
+        plans = result.scalars().all()
+        
+        for plan in plans:
+            diagnostic["plans"].append({
+                "id": plan.id,
+                "name": plan.name,
+                "amount": float(plan.amount) / 100 if plan.amount else 0,
+                "stripe_price_id": plan.stripe_price_id,
+            })
+        
+    except Exception as e:
+        logger.error(f"Error in diagnostic endpoint: {e}", exc_info=True)
+        diagnostic["errors"].append(f"Erreur lors du diagnostic: {str(e)}")
+    
+    return diagnostic
+
+
 @router.get("/payments", response_model=List[InvoiceResponse])
 async def get_my_payments(
     current_user: User = Depends(get_current_user),
