@@ -5,7 +5,7 @@
  * NOTE: These functions must only run on the client side as they use browser APIs
  */
 
-import type { AssessmentResult } from '@/lib/api/assessments';
+import type { AssessmentResult, PillarScore } from '@/lib/api/assessments';
 
 // Dynamic imports to ensure these only load on client side
 let jsPDF: any;
@@ -67,6 +67,15 @@ const generateWellnessPDF = async (
   pageWidth: number,
   pageHeight: number
 ): Promise<void> => {
+  // Dynamic imports for wellness data
+  const { wellnessPillars } = await import('@/data/wellnessQuestionsReal');
+  const { getWellnessInsightWithLocale, getScoreColorCode } = await import('@/data/wellnessInsights');
+  
+  // Try to get locale from browser or default to 'en'
+  const locale = typeof window !== 'undefined' 
+    ? (document.documentElement.lang || navigator.language?.split('-')[0] || 'en')
+    : 'en';
+
   let yPos = 20;
   const results = assessment.detailedResult;
   if (!results?.scores) return;
@@ -76,6 +85,15 @@ const generateWellnessPDF = async (
   const percentage = typeof scores.percentage === 'number' ? scores.percentage : 0;
   const totalScore = scores.total_score || 0;
   const maxScore = scores.max_score || 150;
+
+  // Helper to get pillar score
+  const getPillarScore = (data: number | PillarScore | undefined): number => {
+    if (typeof data === 'number') return data;
+    if (typeof data === 'object' && data !== null && 'score' in data) {
+      return typeof data.score === 'number' ? data.score : 0;
+    }
+    return 0;
+  };
 
   // Title
   doc.setFontSize(20);
@@ -89,73 +107,207 @@ const generateWellnessPDF = async (
 
   // Overall Score Section
   yPos = addSectionTitle(doc, 'Overall Score', yPos, pageHeight);
-  doc.setFontSize(14);
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`${percentage.toFixed(0)}%`, 20, yPos);
+  yPos += 10;
+  
+  // Score category
+  doc.setFontSize(12);
   doc.setFont('helvetica', 'normal');
-  doc.text(`Score: ${percentage.toFixed(0)}%`, 20, yPos);
+  let scoreCategory = '';
+  if (percentage < 60) {
+    scoreCategory = 'Needs Improvement';
+  } else if (percentage >= 60 && percentage <= 74) {
+    scoreCategory = 'Developing';
+  } else if (percentage >= 75 && percentage <= 85) {
+    scoreCategory = 'Strong';
+  } else {
+    scoreCategory = 'Excellent';
+  }
+  doc.text(scoreCategory, 20, yPos);
   yPos += 8;
+  doc.setFontSize(11);
   doc.text(`Points: ${totalScore} / ${maxScore}`, 20, yPos);
   yPos += 15;
 
-  // Pillar Scores Section
+  // Pillar Scores Section - Detailed
   yPos = addSectionTitle(doc, 'Wellness Pillar Scores', yPos, pageHeight);
   doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
 
-  const pillarEntries = Object.entries(pillarScores).sort(([, a], [, b]) => {
-    const aScore = typeof a === 'number' ? a : (a as any).score || 0;
-    const bScore = typeof b === 'number' ? b : (b as any).score || 0;
-    return bScore - aScore;
+  // Process each pillar in order
+  for (const pillar of wellnessPillars) {
+    const rawPillarData = pillarScores[pillar.id];
+    const pillarScore = getPillarScore(rawPillarData);
+    if (pillarScore === 0 && !rawPillarData) continue; // Skip if no data
+
+    yPos = checkNewPage(doc, yPos, pageHeight, 60);
+    
+    const pillarPercentage = (pillarScore / 25) * 100;
+    const insightData = getWellnessInsightWithLocale(pillar.id, pillarScore, locale);
+
+    // Pillar header with icon and name
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text(`${pillar.icon} ${pillar.name}`, 20, yPos);
+    yPos += 8;
+
+    // Assessment/Description
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    const assessmentText = insightData?.assessment || pillar.description;
+    const assessmentLines = doc.splitTextToSize(assessmentText, pageWidth - 40);
+    doc.text(assessmentLines, 20, yPos);
+    yPos += assessmentLines.length * 5 + 5;
+
+    // Score with visual bar representation
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text(`Score: ${pillarScore} / 25 (${pillarPercentage.toFixed(0)}%)`, 20, yPos);
+    yPos += 7;
+
+    // Visual progress bar (simple rectangle)
+    const barWidth = (pageWidth - 40) * (pillarPercentage / 100);
+    const barHeight = 5;
+    const colorCode = getScoreColorCode(pillarScore);
+    // Convert hex to RGB
+    const r = parseInt(colorCode.slice(1, 3), 16);
+    const g = parseInt(colorCode.slice(3, 5), 16);
+    const b = parseInt(colorCode.slice(5, 7), 16);
+    doc.setFillColor(r, g, b);
+    doc.rect(20, yPos, barWidth, barHeight, 'F');
+    doc.setDrawColor(200, 200, 200);
+    doc.rect(20, yPos, pageWidth - 40, barHeight, 'S');
+    yPos += 10;
+
+    // Recommendation
+    if (insightData?.recommendation) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.text('Recommendation:', 20, yPos);
+      yPos += 7;
+      doc.setFont('helvetica', 'normal');
+      const recLines = doc.splitTextToSize(insightData.recommendation, pageWidth - 40);
+      doc.text(recLines, 25, yPos);
+      yPos += recLines.length * 5 + 5;
+    }
+
+    // Recommended Actions
+    if (insightData?.actions && insightData.actions.length > 0) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.text('Recommended Actions:', 20, yPos);
+      yPos += 7;
+      doc.setFont('helvetica', 'normal');
+      insightData.actions.forEach((action, idx) => {
+        yPos = checkNewPage(doc, yPos, pageHeight, 20);
+        const actionLines = doc.splitTextToSize(`• ${action}`, pageWidth - 50);
+        doc.text(actionLines, 25, yPos);
+        yPos += actionLines.length * 5 + 3;
+      });
+    }
+
+    yPos += 10; // Space between pillars
+  }
+
+  // Key Insights Section - Strengths and Areas for Growth
+  yPos = addSectionTitle(doc, 'Key Insights', yPos, pageHeight);
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+
+  // Separate pillars into strengths and growth areas
+  const strengthPillars = wellnessPillars.filter(p => {
+    const score = getPillarScore(pillarScores[p.id]);
+    return score >= 16;
   });
 
-  for (const [pillarId, pillarData] of pillarEntries) {
-    yPos = checkNewPage(doc, yPos, pageHeight);
-    const pillarScore = typeof pillarData === 'number' 
-      ? pillarData 
-      : (pillarData as any).score || 0;
-    const pillarName = pillarId.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-    const percentage = (pillarScore / 25) * 100;
-    
+  const growthPillars = wellnessPillars.filter(p => {
+    const score = getPillarScore(pillarScores[p.id]);
+    return score < 16;
+  });
+
+  // Strengths Section
+  if (strengthPillars.length > 0) {
+    yPos = checkNewPage(doc, yPos, pageHeight, 40);
     doc.setFont('helvetica', 'bold');
-    doc.text(`${pillarName}:`, 20, yPos);
-    yPos += 7;
+    doc.setFontSize(12);
+    doc.setTextColor(0, 128, 0); // Green
+    doc.text('Strengths', 20, yPos);
+    doc.setTextColor(0, 0, 0); // Black
+    yPos += 8;
     doc.setFont('helvetica', 'normal');
-    doc.text(`  Score: ${pillarScore} / 25 (${percentage.toFixed(0)}%)`, 25, yPos);
+    doc.setFontSize(10);
+
+    strengthPillars.forEach(pillar => {
+      yPos = checkNewPage(doc, yPos, pageHeight, 30);
+      const score = getPillarScore(pillarScores[pillar.id]);
+      const colorCode = getScoreColorCode(score);
+      const levelText = score >= 21 
+        ? 'STRONG FOUNDATION - Healthy habits are established and practiced most of the time.'
+        : 'CONSISTENCY STAGE - Good habits are in place and showing progress.';
+
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${pillar.icon} ${pillar.name} (${score}/25)`, 25, yPos);
+      yPos += 7;
+      doc.setFont('helvetica', 'normal');
+      const levelLines = doc.splitTextToSize(levelText, pageWidth - 50);
+      doc.text(levelLines, 25, yPos);
+      yPos += levelLines.length * 5 + 5;
+    });
+  } else {
+    yPos = checkNewPage(doc, yPos, pageHeight, 20);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(0, 128, 0);
+    doc.text('Strengths', 20, yPos);
+    doc.setTextColor(0, 0, 0);
+    yPos += 8;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text('No strengths identified yet. Keep building your wellness habits!', 25, yPos);
     yPos += 10;
   }
 
-  // Insights Section
-  if (results.insights) {
-    yPos = addSectionTitle(doc, 'Key Insights', yPos, pageHeight);
-    doc.setFontSize(11);
+  // Areas for Growth Section
+  if (growthPillars.length > 0) {
+    yPos = checkNewPage(doc, yPos, pageHeight, 40);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(255, 140, 0); // Orange
+    doc.text('Areas for Growth', 20, yPos);
+    doc.setTextColor(0, 0, 0); // Black
+    yPos += 8;
     doc.setFont('helvetica', 'normal');
-    
-    const insightsText = typeof results.insights === 'string' 
-      ? results.insights 
-      : JSON.stringify(results.insights, null, 2);
-    const lines = doc.splitTextToSize(insightsText, pageWidth - 40);
-    doc.text(lines, 20, yPos);
-    yPos += lines.length * 6 + 10;
-  }
+    doc.setFontSize(10);
 
-  // Recommendations Section
-  if (results.recommendations) {
-    yPos = addSectionTitle(doc, 'Recommendations', yPos, pageHeight);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    
-    const recommendations = Array.isArray(results.recommendations)
-      ? results.recommendations
-      : typeof results.recommendations === 'object'
-      ? Object.values(results.recommendations)
-      : [];
-    
-    recommendations.forEach((rec, index) => {
-      yPos = checkNewPage(doc, yPos, pageHeight);
-      const text = typeof rec === 'string' ? `${index + 1}. ${rec}` : `${index + 1}. ${JSON.stringify(rec)}`;
-      const lines = doc.splitTextToSize(text, pageWidth - 40);
-      doc.text(lines, 20, yPos);
-      yPos += lines.length * 6 + 3;
+    growthPillars.forEach(pillar => {
+      yPos = checkNewPage(doc, yPos, pageHeight, 30);
+      const score = getPillarScore(pillarScores[pillar.id]);
+      const levelText = score >= 11
+        ? 'EARLY DEVELOPMENT - Some positive habits are present, but they are irregular.'
+        : 'SIGNIFICANT GROWTH OPPORTUNITY - Currently limited or inconsistent practices.';
+
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${pillar.icon} ${pillar.name} (${score}/25)`, 25, yPos);
+      yPos += 7;
+      doc.setFont('helvetica', 'normal');
+      const levelLines = doc.splitTextToSize(levelText, pageWidth - 50);
+      doc.text(levelLines, 25, yPos);
+      yPos += levelLines.length * 5 + 5;
     });
+  } else {
+    yPos = checkNewPage(doc, yPos, pageHeight, 20);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(255, 140, 0);
+    doc.text('Areas for Growth', 20, yPos);
+    doc.setTextColor(0, 0, 0);
+    yPos += 8;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text('Great work! All pillars are showing strong performance.', 25, yPos);
+    yPos += 10;
   }
 };
 
