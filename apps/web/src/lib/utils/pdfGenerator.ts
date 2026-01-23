@@ -1326,6 +1326,7 @@ const generateMBTIPDF = async (
 
 /**
  * Generate TKI Assessment PDF
+ * Matches the structure of TKIResultContent component
  */
 const generateTKIPDF = async (
   doc: any,
@@ -1333,13 +1334,110 @@ const generateTKIPDF = async (
   pageWidth: number,
   pageHeight: number
 ): Promise<void> => {
+  // Dynamic imports for TKI data
+  const { tkiModes, tkiQuestions } = await import('@/data/tkiQuestions');
+  
+  // Try to get locale from browser or default to 'en'
+  const locale = typeof window !== 'undefined' 
+    ? (document.documentElement.lang || navigator.language?.split('-')[0] || 'en')
+    : 'en';
+
+  // Load translations - we'll need to access them via a helper
+  // For now, we'll use the mode data directly and add translations where needed
   let yPos = 20;
   const results = assessment.detailedResult;
   if (!results?.scores) return;
 
   const scores = results.scores;
-  const modeScores = scores.mode_scores || {};
-  const insights = results.insights || {};
+  const scoresAny = scores as any;
+  
+  // Handle different possible score structures (same as TKIResultContent)
+  let modeScores: Record<string, number> = {};
+  
+  if (scores.mode_scores) {
+    modeScores = scores.mode_scores;
+  } else if (scoresAny.mode_counts) {
+    modeScores = scoresAny.mode_counts;
+  } else {
+    const possibleModes = ['competing', 'collaborating', 'avoiding', 'accommodating', 'compromising'];
+    possibleModes.forEach(mode => {
+      if (typeof scoresAny[mode] === 'number') {
+        modeScores[mode] = scoresAny[mode];
+      }
+    });
+  }
+
+  // Find dominant and secondary modes
+  const sortedModes = Object.entries(modeScores)
+    .sort(([, a], [, b]) => (b as number) - (a as number));
+
+  const dominantMode = scoresAny.dominant_mode || sortedModes[0]?.[0] || '';
+  const secondaryMode = scoresAny.secondary_mode || sortedModes[1]?.[0] || '';
+
+  // Helper functions (same as TKIResultContent)
+  const getModeInfo = (modeId: string) => {
+    return tkiModes.find(m => m.id === modeId) || null;
+  };
+
+  const getModePercentage = (count: number) => {
+    const totalQuestions = tkiQuestions?.length || 30;
+    return Math.round((count / totalQuestions) * 100);
+  };
+
+  const getModeLevel = (count: number): { label: string; color: string } => {
+    const percentage = getModePercentage(count);
+    if (percentage >= 40) {
+      return { label: 'High', color: '#10B981' }; // success-600
+    } else if (percentage >= 20) {
+      return { label: 'Moderate', color: '#F59E0B' }; // yellow-600
+    } else {
+      return { label: 'Low', color: '#6B7280' }; // gray-500
+    }
+  };
+
+  const getModeInsight = (modeId: string, count: number): string => {
+    const percentage = getModePercentage(count);
+    const level = percentage >= 40 ? 'high' : percentage >= 20 ? 'moderate' : 'low';
+    
+    // Map insights (simplified - in real implementation, these would come from translations)
+    const insights: Record<string, Record<string, string>> = {
+      competing: {
+        high: 'You tend to pursue your own concerns assertively, which can be effective in emergencies or when quick decisions are needed.',
+        moderate: 'You use competing when necessary, balancing it with other approaches.',
+        low: 'You rarely use a competing approach, preferring more collaborative or accommodating styles.'
+      },
+      collaborating: {
+        high: 'You excel at finding win-win solutions that fully satisfy both parties. This is ideal for complex issues requiring diverse perspectives.',
+        moderate: 'You use collaboration when appropriate, though you may also rely on other conflict modes.',
+        low: 'You may benefit from developing your collaborative skills to find more integrative solutions.'
+      },
+      compromising: {
+        high: 'You frequently seek middle-ground solutions, which can be efficient when time is limited or when goals are moderately important.',
+        moderate: 'You use compromise as one of several conflict management tools in your repertoire.',
+        low: 'You tend to favor other approaches over compromise, which may mean you seek more complete solutions.'
+      },
+      avoiding: {
+        high: 'You often postpone or withdraw from conflicts. While useful for trivial issues, overuse may leave important matters unresolved.',
+        moderate: 'You strategically avoid conflicts when appropriate, such as when emotions are high or more information is needed.',
+        low: 'You rarely avoid conflicts, preferring to address issues directly.'
+      },
+      accommodating: {
+        high: 'You frequently yield to others\' concerns. This builds goodwill but may lead to your needs being overlooked if overused.',
+        moderate: 'You accommodate others when it makes sense, balancing their needs with your own.',
+        low: 'You rarely accommodate others, which may indicate a strong focus on your own goals.'
+      }
+    };
+    
+    return insights[modeId]?.[level] || '';
+  };
+
+  const dominantModeInfo = getModeInfo(dominantMode);
+  const secondaryModeInfo = getModeInfo(secondaryMode);
+
+  // Sort modes by count for display
+  const sortedModesList = Object.entries(modeScores)
+    .sort(([, a], [, b]) => b - a)
+    .map(([modeId, count]) => ({ modeId, count }));
 
   // Title
   doc.setFontSize(20);
@@ -1351,80 +1449,193 @@ const generateTKIPDF = async (
   doc.text(`Completed: ${assessment.completedDate}`, pageWidth / 2, yPos, { align: 'center' });
   yPos += 15;
 
-  // Find dominant and secondary modes
-  const sortedModes = Object.entries(modeScores)
-    .sort(([, a], [, b]) => (b as number) - (a as number));
-  const dominantMode = sortedModes[0]?.[0] || '';
-  const secondaryMode = sortedModes[1]?.[0] || '';
-
-  // Dominant and Secondary Modes
-  yPos = addSectionTitle(doc, 'Conflict Mode Profile', yPos, pageHeight);
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Dominant Mode:', 20, yPos);
-  yPos += 8;
+  // Dominant & Secondary Modes (two side-by-side cards)
+  yPos = checkNewPage(doc, yPos, pageHeight, 100);
+  
+  // Dominant Mode Card (teal background)
+  const cardWidth = (pageWidth - 50) / 2;
+  const cardHeight = 60;
+  const dominantCardX = 20;
+  const dominantCardY = yPos;
+  
+  doc.setFillColor(15, 76, 86); // ARISE deep teal
+  doc.rect(dominantCardX, dominantCardY, cardWidth, cardHeight, 'F');
+  
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(32);
   doc.setFont('helvetica', 'normal');
-  doc.text(`  ${dominantMode.replace(/\b\w/g, c => c.toUpperCase())} (${modeScores[dominantMode] || 0} responses)`, 25, yPos);
-  yPos += 10;
-  if (secondaryMode) {
-    doc.setFont('helvetica', 'bold');
-    doc.text('Secondary Mode:', 20, yPos);
-    yPos += 8;
-    doc.setFont('helvetica', 'normal');
-    doc.text(`  ${secondaryMode.replace(/\b\w/g, c => c.toUpperCase())} (${modeScores[secondaryMode] || 0} responses)`, 25, yPos);
-    yPos += 10;
-  }
+  // Icon as text (emoji won't work well, so we'll use text representation)
+  const dominantIcon = dominantModeInfo?.icon || '⚔️';
+  doc.text(dominantIcon, dominantCardX + cardWidth / 2, dominantCardY + 12, { align: 'center' });
+  
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Dominant Mode', dominantCardX + cardWidth / 2, dominantCardY + 20, { align: 'center' });
+  
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.text(dominantModeInfo?.title || dominantMode, dominantCardX + cardWidth / 2, dominantCardY + 32, { align: 'center' });
+  
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  const dominantCount = modeScores[dominantMode] || 0;
+  doc.text(`${dominantCount} out of 30 responses`, dominantCardX + cardWidth / 2, dominantCardY + 42, { align: 'center' });
+  
+  // Secondary Mode Card (gold gradient - using gold color)
+  const secondaryCardX = dominantCardX + cardWidth + 10;
+  const secondaryCardY = yPos;
+  
+  doc.setFillColor(212, 175, 55); // Gold color approximation
+  doc.rect(secondaryCardX, secondaryCardY, cardWidth, cardHeight, 'F');
+  
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(32);
+  doc.setFont('helvetica', 'normal');
+  const secondaryIcon = secondaryModeInfo?.icon || '⚖️';
+  doc.text(secondaryIcon, secondaryCardX + cardWidth / 2, secondaryCardY + 12, { align: 'center' });
+  
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Secondary Mode', secondaryCardX + cardWidth / 2, secondaryCardY + 20, { align: 'center' });
+  
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.text(secondaryModeInfo?.title || secondaryMode, secondaryCardX + cardWidth / 2, secondaryCardY + 32, { align: 'center' });
+  
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  const secondaryCount = modeScores[secondaryMode] || 0;
+  doc.text(`${secondaryCount} out of 30 responses`, secondaryCardX + cardWidth / 2, secondaryCardY + 42, { align: 'center' });
+  
+  doc.setTextColor(0, 0, 0);
+  yPos = dominantCardY + cardHeight + 15;
 
   // All Modes Breakdown
-  yPos = addSectionTitle(doc, 'All Conflict Modes', yPos, pageHeight);
+  yPos = addSectionTitle(doc, 'Your Conflict Management Profile', yPos, pageHeight);
   doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
 
-  sortedModes.forEach(([mode, count]) => {
-    yPos = checkNewPage(doc, yPos, pageHeight);
-    const percentage = Math.round((count as number / 30) * 100);
+  sortedModesList.forEach(({ modeId, count }) => {
+    yPos = checkNewPage(doc, yPos, pageHeight, 80);
+    
+    const modeInfo = getModeInfo(modeId);
+    const level = getModeLevel(count);
+    const percentage = getModePercentage(count);
+    const insight = getModeInsight(modeId, count);
+
+    // Mode header with icon, title, description, and level
     doc.setFont('helvetica', 'bold');
-    doc.text(`${mode.replace(/\b\w/g, c => c.toUpperCase())}:`, 20, yPos);
-    yPos += 7;
+    doc.setFontSize(12);
+    // Icon as text
+    const modeIcon = modeInfo?.icon || '⚔️';
+    doc.text(modeIcon, 20, yPos);
+    doc.text(modeInfo?.title || modeId, 35, yPos);
+    
+    // Level on the right
+    const levelColor = level.color;
+    const levelR = parseInt(levelColor.slice(1, 3), 16);
+    const levelG = parseInt(levelColor.slice(3, 5), 16);
+    const levelB = parseInt(levelColor.slice(5, 7), 16);
+    doc.setTextColor(levelR, levelG, levelB);
+    doc.text(level.label, pageWidth - 25, yPos, { align: 'right' });
+    doc.setTextColor(0, 0, 0);
+    yPos += 6;
+    
+    // Description
+    if (modeInfo?.description) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      const descLines = doc.splitTextToSize(modeInfo.description, pageWidth - 40);
+      doc.text(descLines, 20, yPos);
+      yPos += descLines.length * 5 + 5;
+    }
+
+    // Progress Bar
+    yPos += 3;
+    doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
-    doc.text(`  Responses: ${count} (${percentage}%)`, 25, yPos);
-    yPos += 10;
+    doc.text(`${count} responses`, 20, yPos);
+    doc.text(`${percentage}%`, pageWidth - 25, yPos, { align: 'right' });
+    yPos += 6;
+    
+    // Draw progress bar
+    const barWidth = pageWidth - 40;
+    const barHeight = 3;
+    const filledWidth = (percentage / 100) * barWidth;
+    doc.setFillColor(15, 76, 86); // ARISE teal
+    doc.rect(20, yPos, filledWidth, barHeight, 'F');
+    doc.setDrawColor(200, 200, 200);
+    doc.rect(20, yPos, barWidth, barHeight, 'S');
+    yPos += 8;
+
+    // Insight (if available)
+    if (insight) {
+      yPos += 3;
+      doc.setFillColor(245, 245, 220); // Beige color #F5F5DC
+      const insightBoxY = yPos;
+      const insightLines = doc.splitTextToSize(insight, pageWidth - 50);
+      const insightBoxHeight = insightLines.length * 5 + 10;
+      doc.rect(20, insightBoxY, pageWidth - 40, insightBoxHeight, 'F');
+      
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0);
+      doc.text(insightLines, 25, insightBoxY + 6);
+      yPos = insightBoxY + insightBoxHeight + 5;
+    }
+    
+    yPos += 5; // Space between modes
   });
 
-  // Insights Section
-  if (insights && Object.keys(insights).length > 0) {
-    yPos = addSectionTitle(doc, 'Insights', yPos, pageHeight);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    
-    const insightsText = typeof insights === 'string' 
-      ? insights 
-      : JSON.stringify(insights, null, 2);
-    const lines = doc.splitTextToSize(insightsText, pageWidth - 40);
-    doc.text(lines, 20, yPos);
-    yPos += lines.length * 6 + 10;
-  }
-
-  // Recommendations Section
-  if (results.recommendations) {
-    yPos = addSectionTitle(doc, 'Key Recommendations', yPos, pageHeight);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    
-    const recommendations = Array.isArray(results.recommendations)
-      ? results.recommendations
-      : typeof results.recommendations === 'object'
-      ? Object.values(results.recommendations)
-      : [];
-    
-    recommendations.forEach((rec, index) => {
-      yPos = checkNewPage(doc, yPos, pageHeight);
-      const text = typeof rec === 'string' ? `${index + 1}. ${rec}` : `${index + 1}. ${JSON.stringify(rec)}`;
-      const lines = doc.splitTextToSize(text, pageWidth - 40);
-      doc.text(lines, 20, yPos);
-      yPos += lines.length * 6 + 3;
-    });
-  }
+  // KEY Recommendations Section
+  yPos = checkNewPage(doc, yPos, pageHeight, 100);
+  yPos += 5;
+  
+  // Recommendations box with gold background
+  const recBoxY = yPos;
+  doc.setFillColor(255, 248, 220); // Gold/10 background
+  doc.setDrawColor(212, 175, 55); // Gold border
+  doc.setLineWidth(2);
+  doc.rect(20, recBoxY, pageWidth - 40, 60, 'FD'); // Filled and drawn
+  
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0);
+  doc.text('KEY Recommendations', 25, recBoxY + 10);
+  yPos = recBoxY + 20;
+  
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  
+  // Leverage
+  doc.setFont('helvetica', 'bold');
+  doc.text('Leverage your strengths:', 25, yPos);
+  yPos += 6;
+  doc.setFont('helvetica', 'normal');
+  const leverageText = `Your dominant ${dominantModeInfo?.title.toLowerCase() || dominantMode} style can be very effective in appropriate situations. Continue to use it when it serves you well.`;
+  const leverageLines = doc.splitTextToSize(leverageText, pageWidth - 50);
+  doc.text(leverageLines, 25, yPos);
+  yPos += leverageLines.length * 5 + 8;
+  
+  // Flexibility
+  doc.setFont('helvetica', 'bold');
+  doc.text('Develop flexibility:', 25, yPos);
+  yPos += 6;
+  doc.setFont('helvetica', 'normal');
+  const flexibilityText = 'Consider situations where your less-used modes might be more effective. Expanding your conflict management repertoire will make you a more adaptable leader.';
+  const flexibilityLines = doc.splitTextToSize(flexibilityText, pageWidth - 50);
+  doc.text(flexibilityLines, 25, yPos);
+  yPos += flexibilityLines.length * 5 + 8;
+  
+  // Context
+  doc.setFont('helvetica', 'bold');
+  doc.text('Context matters:', 25, yPos);
+  yPos += 6;
+  doc.setFont('helvetica', 'normal');
+  const contextText = 'No single conflict mode is best in all situations. The most effective leaders can flex between different approaches based on the context, relationship, and importance of the issue.';
+  const contextLines = doc.splitTextToSize(contextText, pageWidth - 50);
+  doc.text(contextLines, 25, yPos);
+  yPos += contextLines.length * 5 + 10;
 };
 
 /**
