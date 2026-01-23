@@ -228,7 +228,15 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
         return;
       }
       
-      const isAuth = finalHasUser && finalHasTokens;
+      // IMPORTANT: If we have a user in the store, trust it even if tokens check fails
+      // This handles cases where:
+      // 1. Tokens are in httpOnly cookies but not in sessionStorage
+      // 2. sessionStorage was cleared but cookies still exist
+      // 3. Timing issues after login/navigation
+      // The backend will validate tokens via cookies on the next API call
+      // If user exists, authorize (backend will validate tokens on API calls)
+      // Prefer user in store over token check, as tokens may be in httpOnly cookies
+      const isAuth = finalHasUser;
       
       if (process.env.NODE_ENV === 'development') {
         logger.debug('ProtectedRoute auth check', {
@@ -259,11 +267,16 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
         if (justLoggedIn) {
           logger.debug('Just logged in but auth check failed, waiting before redirect', { pathname });
           await new Promise(resolve => setTimeout(resolve, 500));
-          // Re-check after wait
+          // Re-check after wait - check user in store (tokens may be in httpOnly cookies)
           const storeStateAfterWait = useAuthStore.getState();
           const tokenAfterWait = TokenStorage.getToken();
-          if (storeStateAfterWait.user && tokenAfterWait) {
-            logger.debug('User and token found after wait, authorizing', { pathname });
+          // If user exists in store, authorize even without token in sessionStorage
+          // (tokens may be in httpOnly cookies)
+          if (storeStateAfterWait.user) {
+            logger.debug('User found in store after wait, authorizing (tokens may be in cookies)', { 
+              pathname,
+              hasTokenInStorage: !!tokenAfterWait 
+            });
             setIsAuthorized(true);
             checkingRef.current = false;
             setIsChecking(false);

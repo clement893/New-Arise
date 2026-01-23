@@ -547,6 +547,9 @@ export const subscriptionsAPI = {
   syncSubscription: () => {
     return apiClient.post('/v1/subscriptions/sync');
   },
+  getDiagnostic: () => {
+    return apiClient.get('/v1/subscriptions/diagnostic');
+  },
   getPayments: () => {
     return apiClient.get('/v1/subscriptions/payments');
   },

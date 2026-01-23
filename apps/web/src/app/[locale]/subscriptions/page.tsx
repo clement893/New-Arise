@@ -270,6 +270,15 @@ function SubscriptionsContent() {
         </Alert>
       )}
 
+      {/* Diagnostic Link */}
+      <div className="mb-6 flex justify-end">
+        <Link href="/subscriptions/diagnostic">
+          <Button variant="outline" size="sm">
+            🔍 Diagnostic
+          </Button>
+        </Link>
+      </div>
+
       {loading ? (
         <Card>
           <div className="py-12 text-center">

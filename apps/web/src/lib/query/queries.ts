@@ -232,6 +232,15 @@ export function useSyncSubscription() {
   });
 }
 
+export function useSubscriptionDiagnostic() {
+  return useQuery({
+    queryKey: [...queryKeys.subscriptions.me, 'diagnostic'],
+    queryFn: () => subscriptionsAPI.getDiagnostic(),
+    staleTime: 0, // Always fetch fresh
+    retry: false, // Don't retry on error
+  });
+}
+
 // Teams Hooks
 export function useTeams() {
   return useQuery({
