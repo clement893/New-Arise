@@ -8,7 +8,8 @@ import { useAuthStore } from '@/lib/store';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Loading from '@/components/ui/Loading';
-import { queryKeys } from '@/lib/query/queries';
+import { queryKeys, useSubscriptionPlan, useMySubscription } from '@/lib/query/queries';
+import { logger } from '@/lib/logger';
 
 // Note: Client Components are already dynamic by nature.
 // Route segment config (export const dynamic) only works in Server Components.
@@ -22,21 +23,51 @@ function SubscriptionSuccessContent() {
   const { isAuthenticated } = useAuthStore();
   const [planName, setPlanName] = useState('');
   const [billingPeriod, setBillingPeriod] = useState<'month' | 'year'>('month');
+  const [isLoadingPlan, setIsLoadingPlan] = useState(true);
+
+  // Get plan ID from URL
+  const planIdParam = searchParams.get('plan');
+  const planId = planIdParam ? parseInt(planIdParam, 10) : null;
+  
+  // Fetch plan details from API if planId is a number
+  const { data: planData, isLoading: planLoading } = useSubscriptionPlan(planId || 0);
+  
+  // Also try to get plan name from current subscription
+  const { data: subscriptionData } = useMySubscription();
 
   const initializeData = useCallback(() => {
-    const plan = searchParams.get('plan');
     const period = searchParams.get('period') as 'month' | 'year' | null;
-
-    // Map plan IDs to names
-    const planNames: Record<string, string> = {
-      starter: 'Starter',
-      professional: 'Professional',
-      enterprise: 'Enterprise',
-    };
-
-    setPlanName(planNames[plan || ''] || plan || '');
     setBillingPeriod(period || 'month');
-  }, [searchParams]);
+    
+    // Try to get plan name from API first
+    if (planData?.data?.name) {
+      setPlanName(planData.data.name);
+      setIsLoadingPlan(false);
+      logger.debug('Plan name loaded from API', { planId, planName: planData.data.name });
+    } else if (subscriptionData?.data?.plan?.name) {
+      // Fallback to subscription plan name
+      setPlanName(subscriptionData.data.plan.name);
+      setIsLoadingPlan(false);
+      logger.debug('Plan name loaded from subscription', { planName: subscriptionData.data.plan.name });
+    } else if (planIdParam && !isNaN(Number(planIdParam))) {
+      // If we have a numeric plan ID but no data yet, show loading
+      setIsLoadingPlan(planLoading);
+      if (!planLoading) {
+        // If loading is done but no data, use the ID as fallback
+        setPlanName(`Plan ${planIdParam}`);
+        setIsLoadingPlan(false);
+      }
+    } else {
+      // Fallback for non-numeric plan IDs
+      const planNames: Record<string, string> = {
+        starter: 'Starter',
+        professional: 'Professional',
+        enterprise: 'Enterprise',
+      };
+      setPlanName(planNames[planIdParam || ''] || planIdParam || 'Plan');
+      setIsLoadingPlan(false);
+    }
+  }, [searchParams, planData, subscriptionData, planIdParam, planId, planLoading]);
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -49,10 +80,23 @@ function SubscriptionSuccessContent() {
     // Invalidate subscription queries to refresh data after payment
     queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.me });
     queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.payments });
-  }, [isAuthenticated, router, initializeData, queryClient]);
+  }, [isAuthenticated, router, initializeData, queryClient, planData, subscriptionData]);
 
   if (!isAuthenticated()) {
     return null;
+  }
+
+  if (isLoadingPlan) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-muted dark:to-muted flex items-center justify-center px-4">
+        <Card className="w-full max-w-2xl">
+          <div className="p-8 text-center">
+            <Loading />
+            <p className="mt-4 text-muted-foreground">Chargement des détails de l'abonnement...</p>
+          </div>
+        </Card>
+      </div>
+    );
   }
 
   return (
@@ -80,7 +124,7 @@ function SubscriptionSuccessContent() {
             Abonnement confirmé !
           </h1>
           <p className="text-xl text-muted-foreground mb-8">
-            Merci pour votre confiance. Votre abonnement <strong>{planName}</strong> est maintenant actif.
+            Merci pour votre confiance. Votre abonnement <strong>{planName || 'sélectionné'}</strong> est maintenant actif.
           </p>
 
           {/* Subscription Details */}
