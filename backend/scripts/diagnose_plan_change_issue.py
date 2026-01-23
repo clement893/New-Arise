@@ -15,21 +15,24 @@ from decimal import Decimal
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Check if DATABASE_URL is set
-if not os.getenv('DATABASE_URL'):
-    print("=" * 80)
-    print("❌ ERREUR: DATABASE_URL n'est pas défini")
-    print("=" * 80)
+# Import settings first - it will load DATABASE_URL from Railway service variables if available
+try:
+    from app.core.config import settings
+    # Check if DATABASE_URL is available in settings
+    database_url = getattr(settings, 'DATABASE_URL', None)
+    if not database_url:
+        # Try environment variable as fallback
+        database_url = os.getenv('DATABASE_URL')
+except Exception as e:
+    print(f"⚠️  Erreur lors du chargement des settings: {e}")
+    database_url = os.getenv('DATABASE_URL')
+
+# Only warn if not found, but don't exit - let the connection attempt fail with a better error
+if not database_url:
+    print("⚠️  AVERTISSEMENT: DATABASE_URL n'est pas défini")
+    print("   Le script va essayer de se connecter quand même...")
+    print("   Si la connexion échoue, assurez-vous d'utiliser 'railway run' pour exécuter ce script.")
     print()
-    print("Ce script doit être exécuté via Railway CLI pour avoir accès à la base de données:")
-    print()
-    print("  1. Installer Railway CLI: npm install -g @railway/cli")
-    print("  2. Se connecter: railway login")
-    print("  3. Lier le projet: railway link")
-    print("  4. Exécuter: railway run python backend/scripts/diagnose_plan_change_issue.py --email votre@email.com")
-    print()
-    print("Ou configurer DATABASE_URL dans votre environnement local.")
-    sys.exit(1)
 
 from app.core.database import AsyncSessionLocal
 from app.models import Plan, Subscription, User
@@ -37,7 +40,6 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from datetime import datetime
 import stripe
-from app.core.config import settings
 
 
 async def diagnose_plan_change_issue(email: str = None, user_id: int = None):
