@@ -105,11 +105,15 @@ const generateWellnessPDF = async (
   doc.text(`Completed: ${assessment.completedDate}`, pageWidth / 2, yPos, { align: 'center' });
   yPos += 15;
 
-  // Overall Score Section
-  yPos = addSectionTitle(doc, 'Overall Score', yPos, pageHeight);
+  // Overall Score Section - Title and percentage on same line
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Overall Score', 20, yPos);
+  // Calculate position for percentage
+  const titleWidth = doc.getTextWidth('Overall Score');
   doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
-  doc.text(`${percentage.toFixed(0)}%`, 20, yPos);
+  doc.text(`${percentage.toFixed(0)}%`, 20 + titleWidth + 5, yPos);
   yPos += 10;
   
   // Score category with full text
