@@ -112,18 +112,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
 # Use WORKDIR to ensure we're in /app when script runs
 WORKDIR /app
 
-# Create a simple startup script that will definitely produce output
-# This will help us diagnose if Railway is executing anything at all
-RUN echo '#!/bin/sh' > /app/start.sh && \
-    echo 'echo "=== START.SH SCRIPT STARTED ===" >&2' >> /app/start.sh && \
-    echo 'echo "PORT=${PORT:-8000}" >&2' >> /app/start.sh && \
-    echo 'echo "User: $(whoami)" >&2' >> /app/start.sh && \
-    echo 'echo "PWD: $(pwd)" >&2' >> /app/start.sh && \
-    echo 'echo "Python: $(which python)" >&2' >> /app/start.sh && \
-    echo 'echo "Starting uvicorn..." >&2' >> /app/start.sh && \
-    echo 'exec python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info --access-log' >> /app/start.sh && \
-    chmod +x /app/start.sh
-
-# Use the startup script
-ENTRYPOINT ["/app/start.sh"]
+# Start uvicorn directly - simplest possible approach
+# Railway may have issues with shell scripts, so use direct Python command
+CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--log-level", "info", "--access-log"]
 

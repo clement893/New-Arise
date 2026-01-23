@@ -516,11 +516,18 @@ def create_app() -> FastAPI:
 
 
 # Create app instance with error handling
+import sys
+print("=" * 50, file=sys.stderr)
+print("MODULE LEVEL: About to create app instance", file=sys.stderr)
+print("=" * 50, file=sys.stderr)
 print("=" * 50)
 print("MODULE LEVEL: About to create app instance")
 print("=" * 50)
 try:
     app = create_app()
+    print("=" * 50, file=sys.stderr)
+    print("MODULE LEVEL: App instance created successfully", file=sys.stderr)
+    print("=" * 50, file=sys.stderr)
     print("=" * 50)
     print("MODULE LEVEL: App instance created successfully")
     print("=" * 50)
