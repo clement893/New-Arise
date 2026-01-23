@@ -507,6 +507,7 @@ const generate360PDF = async (
   const { feedback360Capabilities } = await import('@/data/feedback360Questions');
   const { getFeedback360InsightWithLocale, get360ScoreColorCode } = await import('@/data/feedback360Insights');
   const { getFeedback360GapInsightWithLocale } = await import('@/data/feedback360GapInsights');
+  const { get360Evaluators, getAssessmentResults } = await import('@/lib/api/assessments');
   
   // Try to get locale from browser or default to 'en'
   const locale = typeof window !== 'undefined' 
@@ -539,8 +540,27 @@ const generate360PDF = async (
     'stress_management': 'stress_management',
   };
 
-  // Calculate others_avg_score from comparison_data
+  // Load evaluators (same as ThreeSixtyResultContent)
+  let evaluatorsList: any[] = [];
+  try {
+    const evaluatorsResponse = await get360Evaluators(assessment.id);
+    evaluatorsList = evaluatorsResponse.evaluators || [];
+  } catch (err) {
+    console.warn('Failed to load evaluators for PDF:', err);
+  }
+
+  // Count completed evaluators
+  const completedCount = evaluatorsList.filter(
+    (e) => e.status === 'completed' || e.status === 'COMPLETED'
+  ).length;
+
+  const hasEvaluatorResponses = completedCount > 0;
+
+  // Calculate others_avg_score from comparison_data if available, otherwise from evaluator assessments
+  // (Same logic as ThreeSixtyResultContent)
   let othersAvgScores: Record<string, number> = {};
+  
+  // First, try to get from comparison_data
   if (comparisonData && typeof comparisonData === 'object') {
     if (comparisonData.capability_scores && typeof comparisonData.capability_scores === 'object') {
       Object.entries(comparisonData.capability_scores).forEach(([capability, score]) => {
@@ -549,6 +569,68 @@ const generate360PDF = async (
         const mappedCapability = capabilityIdMap[capability] || capability;
         othersAvgScores[mappedCapability] = averageScore;
       });
+    }
+  }
+  
+  // If comparison_data doesn't have scores, calculate from evaluator assessments
+  if (Object.keys(othersAvgScores).length === 0 && hasEvaluatorResponses) {
+    try {
+      // Get completed evaluators with their assessment IDs
+      const completedEvaluators = evaluatorsList.filter(
+        (e) => (e.status === 'completed' || e.status === 'COMPLETED') && e.evaluator_assessment_id
+      );
+      
+      if (completedEvaluators.length > 0) {
+        // Fetch results for each evaluator's assessment
+        const evaluatorResultsPromises = completedEvaluators.map(async (evaluator) => {
+          try {
+            if (!evaluator.evaluator_assessment_id) {
+              return null;
+            }
+            const evaluatorResults = await getAssessmentResults(evaluator.evaluator_assessment_id);
+            return evaluatorResults;
+          } catch (err) {
+            console.warn(`Failed to load results for evaluator ${evaluator.id}:`, err);
+            return null;
+          }
+        });
+        
+        const evaluatorResultsList = await Promise.all(evaluatorResultsPromises);
+        const validResults = evaluatorResultsList.filter((r): r is AssessmentResult => r !== null && r !== undefined && r.scores !== undefined);
+        
+        if (validResults.length > 0) {
+          // Calculate average scores across all evaluators for each capability
+          const capabilityTotals: Record<string, number[]> = {};
+          
+          validResults.forEach((result) => {
+            if (result && result.scores?.capability_scores) {
+              Object.entries(result.scores.capability_scores).forEach(([capability, score]) => {
+                const rawScoreValue = isPillarScore(score) ? score.score : (typeof score === 'number' ? score : 0);
+                // Convert sum (max 25) to average (max 5.0) by dividing by 5
+                const averageScore = rawScoreValue / 5;
+                
+                // Map backend capability ID to frontend format
+                const mappedCapability = capabilityIdMap[capability] || capability;
+                
+                if (!capabilityTotals[mappedCapability]) {
+                  capabilityTotals[mappedCapability] = [];
+                }
+                capabilityTotals[mappedCapability].push(averageScore);
+              });
+            }
+          });
+          
+          // Calculate averages
+          Object.entries(capabilityTotals).forEach(([capability, scores]) => {
+            if (scores.length > 0) {
+              const average = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+              othersAvgScores[capability] = average;
+            }
+          });
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to calculate evaluator scores:', err);
     }
   }
 
@@ -577,8 +659,6 @@ const generate360PDF = async (
     };
   });
 
-  const hasEvaluatorResponses = Object.values(othersAvgScores).some(score => score > 0);
-
   // Title
   doc.setFontSize(20);
   doc.setFont('helvetica', 'bold');
@@ -587,24 +667,127 @@ const generate360PDF = async (
   doc.setFontSize(12);
   doc.setFont('helvetica', 'normal');
   doc.text(`Completed: ${assessment.completedDate}`, pageWidth / 2, yPos, { align: 'center' });
+  yPos += 15;
+
+  // Header Info Section (same as ThreeSixtyResultContent)
+  yPos = checkNewPage(doc, yPos, pageHeight, 100);
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.text('360° Feedback Assessment Results', 20, yPos);
   yPos += 10;
 
-  // Note about self-assessment only or evaluator count
   if (hasEvaluatorResponses) {
-    const evaluatorCount = Object.values(othersAvgScores).filter(score => score > 0).length;
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Based on your self-assessment and feedback from ${evaluatorCount} contributor(s)`, 20, yPos);
-    doc.setTextColor(0, 0, 0);
-    yPos += 8;
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Based on your self-assessment and feedback from ${completedCount} contributor(s)`, 20, yPos);
+    yPos += 10;
   } else {
+    // Note box with background
+    const noteBoxY = yPos;
+    const noteText = 'Note: These results are based solely on your self-assessment. Invite colleagues to get a complete 360° view.';
+    const noteLines = doc.splitTextToSize(noteText, pageWidth - 50);
+    const noteBoxHeight = noteLines.length * 5 + 15;
+    doc.setFillColor(240, 248, 255); // Light blue background
+    doc.rect(20, noteBoxY, pageWidth - 40, noteBoxHeight, 'F');
+    doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text('Note: These results are based solely on your self-assessment. Invite colleagues to get a complete 360° view.', 20, yPos);
-    doc.setTextColor(0, 0, 0);
-    yPos += 8;
+    doc.text('Note:', 25, noteBoxY + 8);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text(noteLines, 25, noteBoxY + 15);
+    yPos = noteBoxY + noteBoxHeight + 10;
   }
-  yPos += 10;
+
+  // Contributors Status Section (same as ThreeSixtyResultContent)
+  if (evaluatorsList.length > 0) {
+    yPos = checkNewPage(doc, yPos, pageHeight, 150);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Contributor Status', 20, yPos);
+    yPos += 10;
+    
+    // Draw border around contributors section
+    const contributorsStartY = yPos;
+    let contributorsHeight = 0;
+    
+    evaluatorsList.forEach((evaluator, index) => {
+      if (index > 0 && index % 3 === 0) {
+        yPos += 15; // New row
+      }
+      
+      const col = index % 3;
+      const xPos = 20 + (col * ((pageWidth - 40) / 3));
+      const boxWidth = (pageWidth - 50) / 3;
+      
+      // Evaluator box
+      doc.setDrawColor(200, 200, 200);
+      doc.rect(xPos, yPos, boxWidth, 35, 'S');
+      
+      // Name
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      const nameLines = doc.splitTextToSize(evaluator.name || 'Unknown', boxWidth - 10);
+      doc.text(nameLines, xPos + 5, yPos + 6);
+      
+      // Email
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      const emailLines = doc.splitTextToSize(evaluator.email || '', boxWidth - 10);
+      doc.text(emailLines, xPos + 5, yPos + 12);
+      
+      // Role
+      doc.setFontSize(7);
+      doc.setTextColor(150, 150, 150);
+      doc.text(evaluator.role || '', xPos + 5, yPos + 18);
+      doc.setTextColor(0, 0, 0);
+      
+      // Status icon (text representation)
+      let statusText = '';
+      if (evaluator.status === 'completed' || evaluator.status === 'COMPLETED') {
+        statusText = '✓ Completed';
+        doc.setTextColor(0, 150, 0);
+      } else if (evaluator.status === 'in_progress' || evaluator.status === 'IN_PROGRESS') {
+        statusText = '⏱ In Progress';
+        doc.setTextColor(15, 76, 86);
+      } else if (evaluator.invitation_opened_at) {
+        statusText = '✉ Opened';
+        doc.setTextColor(200, 150, 0);
+      } else if (evaluator.invitation_sent_at) {
+        statusText = '✉ Sent';
+        doc.setTextColor(150, 150, 150);
+      } else {
+        statusText = '✗ Not Invited';
+        doc.setTextColor(150, 150, 150);
+      }
+      doc.setFontSize(8);
+      doc.text(statusText, xPos + 5, yPos + 28);
+      doc.setTextColor(0, 0, 0);
+      
+      if (col === 2) {
+        yPos += 40; // Next row
+        contributorsHeight += 40;
+      }
+    });
+    
+    if (evaluatorsList.length % 3 !== 0) {
+      yPos += 40;
+      contributorsHeight += 40;
+    }
+    
+    // Status legend
+    yPos += 10;
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
+    const completedCount = evaluatorsList.filter((e) => e.status === 'completed' || e.status === 'COMPLETED').length;
+    const inProgressCount = evaluatorsList.filter((e) => (e.status === 'in_progress' || e.status === 'IN_PROGRESS')).length;
+    const sentCount = evaluatorsList.filter((e) => e.invitation_sent_at && !e.invitation_opened_at).length;
+    
+    doc.text(`✓ Completed (${completedCount})`, 20, yPos);
+    doc.text(`⏱ In Progress (${inProgressCount})`, 100, yPos);
+    doc.text(`✉ Invitation Sent (${sentCount})`, 180, yPos);
+    doc.setTextColor(0, 0, 0);
+    yPos += 15;
+  }
 
   // Overall Score Section (with teal background simulation)
   yPos = checkNewPage(doc, yPos, pageHeight, 80);
