@@ -1105,7 +1105,12 @@ const generate360PDF = async (
       doc.text(gapLabel, pageWidth - 25, yPos, { align: 'right' });
       yPos += 12;
 
-      // Self Average with progress bar
+      // Self Average and Others' Average on the same line
+      const barHeight = 4;
+      const halfWidth = (pageWidth - 40) / 2; // Half width for each section
+      const middleX = pageWidth / 2; // Middle of the page
+      
+      // Self Average on the left side
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(10);
       doc.text('Self Average', 20, yPos);
@@ -1115,42 +1120,42 @@ const generate360PDF = async (
       const selfB = parseInt(selfColorCode.slice(5, 7), 16);
       doc.setTextColor(selfR, selfG, selfB);
       doc.setFont('helvetica', 'bold');
-      doc.text(`${capScore.self_score.toFixed(1)} / 5.0`, pageWidth - 25, yPos, { align: 'right' });
+      doc.text(`${capScore.self_score.toFixed(1)} / 5.0`, 20 + halfWidth - 25, yPos, { align: 'right' });
       doc.setTextColor(0, 0, 0);
-      yPos += 8;
+      yPos += 4; // Reduced spacing between title and bar
       
       // Progress bar for self
-      const selfBarWidth = ((capScore.self_score / 5) * 100) * ((pageWidth - 40) / 100);
-      const barHeight = 4;
+      const selfBarWidth = ((capScore.self_score / 5) * 100) * (halfWidth / 100);
       doc.setFillColor(selfR, selfG, selfB);
       doc.rect(20, yPos, selfBarWidth, barHeight, 'F');
       doc.setDrawColor(200, 200, 200);
-      doc.rect(20, yPos, pageWidth - 40, barHeight, 'S');
-      yPos += 12;
-
-      // Others' Average with progress bar
+      doc.rect(20, yPos, halfWidth, barHeight, 'S');
+      
+      // Others' Average on the right side (if available)
       if (capScore.others_avg_score > 0) {
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
-        doc.text('Others\' Average', 20, yPos);
         const othersColorCode = get360ScoreColorCode(capScore.others_avg_score);
         const othersR = parseInt(othersColorCode.slice(1, 3), 16);
         const othersG = parseInt(othersColorCode.slice(3, 5), 16);
         const othersB = parseInt(othersColorCode.slice(5, 7), 16);
+        
+        // Title and score for Others' Average
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.text('Others\' Average', middleX + 10, yPos - 4); // Same yPos as Self Average title
         doc.setTextColor(othersR, othersG, othersB);
         doc.setFont('helvetica', 'bold');
-        doc.text(`${capScore.others_avg_score.toFixed(1)} / 5.0`, pageWidth - 25, yPos, { align: 'right' });
+        doc.text(`${capScore.others_avg_score.toFixed(1)} / 5.0`, pageWidth - 25, yPos - 4, { align: 'right' });
         doc.setTextColor(0, 0, 0);
-        yPos += 8;
         
         // Progress bar for others
-        const othersBarWidth = ((capScore.others_avg_score / 5) * 100) * ((pageWidth - 40) / 100);
+        const othersBarWidth = ((capScore.others_avg_score / 5) * 100) * (halfWidth / 100);
         doc.setFillColor(othersR, othersG, othersB);
-        doc.rect(20, yPos, othersBarWidth, barHeight, 'F');
+        doc.rect(middleX + 10, yPos, othersBarWidth, barHeight, 'F');
         doc.setDrawColor(200, 200, 200);
-        doc.rect(20, yPos, pageWidth - 40, barHeight, 'S');
-        yPos += 12;
+        doc.rect(middleX + 10, yPos, halfWidth, barHeight, 'S');
       }
+      
+      yPos += 12; // Space after both bars
 
       // Gap-based Overview and Recommendation
       const gapInsight = getFeedback360GapInsightWithLocale(
