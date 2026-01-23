@@ -242,7 +242,6 @@ const generateWellnessPDF = async (
     strengthPillars.forEach(pillar => {
       yPos = checkNewPage(doc, yPos, pageHeight, 30);
       const score = getPillarScore(pillarScores[pillar.id]);
-      const colorCode = getScoreColorCode(score);
       const levelText = score >= 21 
         ? 'STRONG FOUNDATION - Healthy habits are established and practiced most of the time.'
         : 'CONSISTENCY STAGE - Good habits are in place and showing progress.';
