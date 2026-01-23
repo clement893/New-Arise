@@ -842,23 +842,19 @@ export default function ThreeSixtyResultContent({ results, assessmentId }: Three
         }).length;
 
         // Determine self-awareness level based on red count (out of 6 capabilities)
-        let awarenessLevel: 'high' | 'good' | 'low';
         let awarenessText: string;
         let backgroundColor: string;
 
         if (redGapCount <= 2) {
           // 0-2 red: High Self-Awareness (Green)
-          awarenessLevel = 'high';
           awarenessText = t('overallSelfAwareness.high');
           backgroundColor = '#C6EFCE'; // Green
         } else if (redGapCount <= 4) {
           // 3-4 red: Good Self-Awareness (Yellow)
-          awarenessLevel = 'good';
           awarenessText = t('overallSelfAwareness.good');
           backgroundColor = '#FFEB9C'; // Yellow
         } else {
           // 5-6 red: Low Self-Awareness (Red)
-          awarenessLevel = 'low';
           awarenessText = t('overallSelfAwareness.low');
           backgroundColor = '#FFC7CE'; // Red
         }
