@@ -49,6 +49,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     import os
     import asyncio
     
+    # CRITICAL: Yield immediately to allow app to start serving requests
+    # This ensures healthchecks can succeed even if initialization fails
     # Use print for critical startup messages to ensure they're visible even if logging fails
     print("=" * 50, file=sys.stderr)
     print("FastAPI Application Starting...", file=sys.stderr)
@@ -64,12 +66,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         print(f"WARNING: Unexpected error initializing logger: {e}", file=sys.stderr)
         logger = None
     
-    # Log environment info early
-    if logger:
-        logger.info(f"CORS Origins configured: {settings.CORS_ORIGINS}")
-        logger.info(f"ENVIRONMENT: {os.getenv('ENVIRONMENT', 'NOT SET')}")
-        logger.info(f"RAILWAY_ENVIRONMENT: {os.getenv('RAILWAY_ENVIRONMENT', 'NOT SET')}")
-        logger.info(f"RAILWAY_SERVICE_NAME: {os.getenv('RAILWAY_SERVICE_NAME', 'NOT SET')}")
+    # Log environment info early (but don't block on it)
+    try:
+        if logger:
+            logger.info(f"CORS Origins configured: {settings.CORS_ORIGINS}")
+            logger.info(f"ENVIRONMENT: {os.getenv('ENVIRONMENT', 'NOT SET')}")
+            logger.info(f"RAILWAY_ENVIRONMENT: {os.getenv('RAILWAY_ENVIRONMENT', 'NOT SET')}")
+            logger.info(f"RAILWAY_SERVICE_NAME: {os.getenv('RAILWAY_SERVICE_NAME', 'NOT SET')}")
+    except Exception as e:
+        print(f"WARNING: Failed to log environment info: {e}", file=sys.stderr)
     
     print("=" * 50, file=sys.stderr)
     print("✓ FastAPI Application Ready - Starting server", file=sys.stderr)

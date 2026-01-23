@@ -15,10 +15,14 @@ from sqlalchemy import text
 try:
     from app.core.database import AsyncSessionLocal, engine, get_engine, get_async_session_local
     DATABASE_AVAILABLE = True
-except Exception:
+except Exception as e:
     AsyncSessionLocal = None
     engine = None
+    get_engine = None
+    get_async_session_local = None
     DATABASE_AVAILABLE = False
+    # Store error for debugging but don't crash
+    _database_import_error = str(e)
 
 try:
     from app.core.cache import cache_backend
@@ -106,7 +110,7 @@ async def readiness_check() -> Dict[str, Any]:
         try:
             # Try to get session factory if not already initialized
             session_factory = AsyncSessionLocal
-            if session_factory is None:
+            if session_factory is None and get_async_session_local is not None:
                 session_factory = get_async_session_local()
             
             if session_factory is None:
@@ -193,7 +197,7 @@ async def startup_check() -> Dict[str, Any]:
         try:
             # Try to get session factory if not already initialized
             session_factory = AsyncSessionLocal
-            if session_factory is None:
+            if session_factory is None and get_async_session_local is not None:
                 session_factory = get_async_session_local()
             
             if session_factory is None:
@@ -205,7 +209,7 @@ async def startup_check() -> Dict[str, Any]:
                 async with session_factory() as session:
                     result = await session.execute(text("SELECT 1"))
                     result.scalar()
-                    db_engine = engine if engine is not None else get_engine()
+                    db_engine = engine if engine is not None else (get_engine() if get_engine is not None else None)
                     checks["checks"]["database"] = {
                         "status": "healthy",
                         "connection_pool_size": db_engine.pool.size() if db_engine else None,
