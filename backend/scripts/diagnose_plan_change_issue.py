@@ -44,6 +44,19 @@ import stripe
 
 async def diagnose_plan_change_issue(email: str = None, user_id: int = None):
     """Diagnostiquer pourquoi le plan ne change pas"""
+    # Debug: Check if DATABASE_URL is available
+    try:
+        from app.core.config import settings
+        db_url = getattr(settings, 'DATABASE_URL', None)
+        if db_url:
+            # Mask password in URL for security
+            masked_url = str(db_url).split('@')[-1] if '@' in str(db_url) else '***'
+            print(f"🔍 DEBUG: DATABASE_URL trouvé (host: {masked_url})")
+        else:
+            print("⚠️  DEBUG: DATABASE_URL non trouvé dans settings")
+    except Exception as e:
+        print(f"⚠️  DEBUG: Erreur lors du chargement des settings: {e}")
+    
     try:
         async with AsyncSessionLocal() as db:
             print("=" * 80)
@@ -175,23 +188,53 @@ async def diagnose_plan_change_issue(email: str = None, user_id: int = None):
         error_type = type(e).__name__
         error_message = str(e)
         
+        # Check what environment variables are available
+        print("\n" + "=" * 80)
+        print("🔍 DEBUG: Variables d'environnement disponibles")
+        print("=" * 80)
+        railway_vars = {k: v for k, v in os.environ.items() if 'RAILWAY' in k or 'DATABASE' in k}
+        if railway_vars:
+            for k, v in railway_vars.items():
+                # Mask sensitive values
+                if 'PASSWORD' in k or 'SECRET' in k or 'KEY' in k:
+                    print(f"   {k}: ***")
+                elif 'URL' in k and '@' in str(v):
+                    # Mask password in URL
+                    masked = str(v).split('@')[-1] if '@' in str(v) else '***'
+                    print(f"   {k}: ...@{masked}")
+                else:
+                    print(f"   {k}: {v}")
+        else:
+            print("   Aucune variable Railway/Database trouvée")
+        print()
+        
         if "getaddrinfo failed" in error_message or "11001" in error_message:
             print("=" * 80)
             print("❌ ERREUR DE CONNEXION À LA BASE DE DONNÉES")
             print("=" * 80)
             print()
             print("Le script ne peut pas se connecter à la base de données.")
-            print("Cela signifie que vous exécutez le script en local sans accès à Railway.")
             print()
-            print("SOLUTION: Exécutez le script via Railway CLI:")
+            print("VÉRIFICATIONS:")
+            print("  1. ✅ Railway CLI installé")
+            print("  2. ✅ Projet lié au backend (@modele/backend)")
+            print("  3. ❌ Connexion à la base de données échouée")
             print()
-            print("  1. Installer Railway CLI: npm install -g @railway/cli")
-            print("  2. Se connecter: railway login")
-            print("  3. Lier le projet: railway link")
-            print("  4. Exécuter: railway run python backend/scripts/diagnose_plan_change_issue.py --email votre@email.com")
+            print("SOLUTIONS POSSIBLES:")
             print()
-            print("Cela donnera au script accès aux variables d'environnement de Railway,")
-            print("notamment DATABASE_URL qui est nécessaire pour se connecter à la base de données.")
+            print("  A. Vérifier que DATABASE_URL est défini dans Railway:")
+            print("     - Allez sur https://railway.app")
+            print("     - Ouvrez votre projet 'New-Arise'")
+            print("     - Ouvrez le service '@modele/backend'")
+            print("     - Vérifiez l'onglet 'Variables'")
+            print("     - Cherchez 'DATABASE_URL' ou 'POSTGRES_URL'")
+            print()
+            print("  B. Si DATABASE_URL n'existe pas, Railway peut utiliser POSTGRES_URL:")
+            print("     - Railway crée automatiquement POSTGRES_URL pour les services PostgreSQL")
+            print("     - Le backend devrait mapper POSTGRES_URL vers DATABASE_URL")
+            print()
+            print("  C. Essayer avec la variable Railway directement:")
+            print("     railway run --service @modele/backend python backend/scripts/diagnose_plan_change_issue.py --email timmm@gmail.com")
             print()
         else:
             print("=" * 80)
