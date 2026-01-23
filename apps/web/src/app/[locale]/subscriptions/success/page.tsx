@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useQueryClient } from '@tanstack/react-query';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useAuthStore } from '@/lib/store';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -22,6 +22,7 @@ function SubscriptionSuccessContent() {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuthStore();
+  const locale = useLocale();
   // Use the subscriptionSuccess namespace at root level
   const t = useTranslations('subscriptionSuccess');
   const [planName, setPlanName] = useState('');
@@ -242,8 +243,8 @@ function SubscriptionSuccessContent() {
             {String(t('title'))}
           </h1>
           <p className="text-xl text-muted-foreground mb-8">
-            {planName 
-              ? `${String(t('messagePrefix'))} ${planName} ${String(t('messageSuffix'))}`
+            {planName && planName.trim()
+              ? `${String(t('messagePrefix'))} ${String(planName)} ${String(t('messageSuffix'))}`
               : String(t('messageFallback'))
             }
           </p>
@@ -309,7 +310,7 @@ function SubscriptionSuccessContent() {
                 {String(t('goToDashboard'))}
               </Button>
             </Link>
-            <Link href="/subscriptions">
+            <Link href={`/${locale}/profile?tab=subscription`}>
               <Button variant="outline">
                 {String(t('manageSubscription'))}
               </Button>
