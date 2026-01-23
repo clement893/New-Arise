@@ -1337,11 +1337,6 @@ const generateTKIPDF = async (
   // Dynamic imports for TKI data
   const { tkiModes, tkiQuestions } = await import('@/data/tkiQuestions');
   
-  // Try to get locale from browser or default to 'en'
-  const locale = typeof window !== 'undefined' 
-    ? (document.documentElement.lang || navigator.language?.split('-')[0] || 'en')
-    : 'en';
-
   // Load translations - we'll need to access them via a helper
   // For now, we'll use the mode data directly and add translations where needed
   let yPos = 20;
