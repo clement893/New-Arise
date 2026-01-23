@@ -243,11 +243,7 @@ function SubscriptionSuccessContent() {
           </h1>
           <p className="text-xl text-muted-foreground mb-8">
             {planName 
-              ? (
-                  <>
-                    {t('messagePrefix')} <strong>{planName}</strong> {t('messageSuffix')}
-                  </>
-                )
+              ? `${t('messagePrefix')} ${planName} ${t('messageSuffix')}`
               : t('messageFallback')
             }
           </p>
@@ -258,7 +254,7 @@ function SubscriptionSuccessContent() {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{t('plan')}</span>
-                <span className="font-medium text-foreground">{planName}</span>
+                <span className="font-medium text-foreground">{planName || 'Loading...'}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{t('period')}</span>

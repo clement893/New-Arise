@@ -179,10 +179,12 @@ class StripeService:
             return False
 
         if not new_plan.stripe_price_id:
-            logger.warning(f"Plan {new_plan.id} has no stripe_price_id")
+            logger.error(f"Plan {new_plan.id} ({new_plan.name}) has no stripe_price_id - cannot update subscription")
             return False
 
         try:
+            logger.info(f"Updating Stripe subscription {subscription.stripe_subscription_id}: old_plan_id={subscription.plan_id}, new_plan_id={new_plan.id}, new_plan_name={new_plan.name}, new_stripe_price_id={new_plan.stripe_price_id}")
+            
             # Get current subscription to find subscription item ID
             stripe_subscription = stripe.Subscription.retrieve(subscription.stripe_subscription_id)
             
@@ -192,6 +194,14 @@ class StripeService:
 
             # Get the subscription item ID (should be only one for our use case)
             subscription_item_id = stripe_subscription.items.data[0].id
+            current_stripe_price_id = stripe_subscription.items.data[0].price.id
+            
+            logger.info(f"Current Stripe price_id: {current_stripe_price_id}, Target Stripe price_id: {new_plan.stripe_price_id}")
+            
+            # If already on the same price, no need to update
+            if current_stripe_price_id == new_plan.stripe_price_id:
+                logger.info(f"Subscription already on price {new_plan.stripe_price_id}, no update needed")
+                return True
             
             # If there are multiple items, log a warning but use the first one
             if len(stripe_subscription.items.data) > 1:
@@ -201,7 +211,7 @@ class StripeService:
                 )
 
             # Update subscription with new price
-            stripe.Subscription.modify(
+            updated_stripe_subscription = stripe.Subscription.modify(
                 subscription.stripe_subscription_id,
                 items=[{
                     "id": subscription_item_id,  # Use subscription item ID, not subscription ID
@@ -209,11 +219,20 @@ class StripeService:
                 }],
                 proration_behavior="always_invoice",
             )
-            logger.info(f"Updated subscription {subscription.id} to plan {new_plan.id}")
-            return True
+            
+            # Verify the update
+            if updated_stripe_subscription.items.data[0].price.id == new_plan.stripe_price_id:
+                logger.info(f"Successfully updated Stripe subscription {subscription.stripe_subscription_id} to plan {new_plan.id} ({new_plan.name})")
+                return True
+            else:
+                logger.error(f"Stripe subscription update failed: expected price_id={new_plan.stripe_price_id}, got {updated_stripe_subscription.items.data[0].price.id}")
+                return False
 
         except stripe.StripeError as e:
-            logger.error(f"Stripe error updating subscription {subscription.id}: {e}")
+            logger.error(f"Stripe error updating subscription {subscription.id}: {e}", exc_info=True)
+            return False
+        except Exception as e:
+            logger.error(f"Unexpected error updating subscription {subscription.id}: {e}", exc_info=True)
             return False
 
     async def create_subscription_with_payment_method(

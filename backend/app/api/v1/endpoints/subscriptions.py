@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from datetime import datetime, timezone
+from app.core.logging import logger
 
 from app.core.database import get_db
 from app.core.cache import cached
@@ -344,16 +345,51 @@ async def upgrade_subscription(
             detail="Plan not found"
         )
     
+    # Log before upgrade
+    logger.info(f"Upgrading subscription: subscription_id={subscription.id}, old_plan_id={subscription.plan_id}, new_plan_id={plan_id}, new_plan_name={plan.name}")
+    
     updated_subscription = await subscription_service.upgrade_plan(
         subscription.id,
         plan_id
     )
     
     if not updated_subscription:
+        logger.error(f"Upgrade failed: subscription_id={subscription.id}, new_plan_id={plan_id}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to upgrade subscription"
         )
+    
+    # Force sync from Stripe to ensure consistency (webhook might be delayed)
+    try:
+        if updated_subscription.stripe_subscription_id:
+            import stripe
+            from app.core.config import settings
+            
+            if not stripe.api_key and hasattr(settings, 'STRIPE_SECRET_KEY') and settings.STRIPE_SECRET_KEY:
+                stripe.api_key = settings.STRIPE_SECRET_KEY
+            
+            # Get subscription from Stripe to verify
+            stripe_sub = stripe.Subscription.retrieve(updated_subscription.stripe_subscription_id)
+            
+            if stripe_sub.items and stripe_sub.items.data:
+                stripe_price_id = stripe_sub.items.data[0].price.id
+                
+                # Find plan by stripe_price_id
+                from app.models import Plan
+                plan_result = await db.execute(
+                    select(Plan).where(Plan.stripe_price_id == stripe_price_id)
+                )
+                stripe_plan = plan_result.scalar_one_or_none()
+                
+                if stripe_plan and updated_subscription.plan_id != stripe_plan.id:
+                    logger.warning(f"Plan mismatch after upgrade: DB has {updated_subscription.plan_id}, Stripe has {stripe_plan.id}, fixing...")
+                    updated_subscription.plan_id = stripe_plan.id
+                    await db.commit()
+                    logger.info(f"Fixed plan mismatch: now plan_id={stripe_plan.id}")
+    except Exception as e:
+        logger.warning(f"Could not verify/sync plan from Stripe after upgrade: {e}")
+        # Continue anyway, the upgrade might still have worked
     
     # Reload with plan relationship
     updated_subscription = await subscription_service.get_user_subscription(
@@ -361,6 +397,8 @@ async def upgrade_subscription(
         include_plan=True,
         active_only=True  # Get active subscription after upgrade
     )
+    
+    logger.info(f"Upgrade completed: subscription_id={updated_subscription.id}, plan_id={updated_subscription.plan_id}, plan_name={updated_subscription.plan.name if updated_subscription.plan else 'N/A'}")
     
     return SubscriptionResponse.model_validate(updated_subscription)
 

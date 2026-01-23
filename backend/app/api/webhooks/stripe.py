@@ -248,10 +248,13 @@ async def handle_checkout_completed(event_object: dict, db: AsyncSession, subscr
                 existing_subscription.status = SubscriptionStatus.ACTIVE
             
             await db.commit()
-            logger.info(f"Updated subscription {existing_subscription.id} to plan {plan_id}")
+            await db.refresh(existing_subscription)  # Refresh to ensure we have latest data
+            logger.info(f"Updated subscription {existing_subscription.id} to plan {plan_id} (plan name: {plan.name})")
+            logger.info(f"Verification: subscription.plan_id={existing_subscription.plan_id}, expected={plan_id}")
             return
         except Exception as e:
             logger.error(f"Error updating existing subscription: {e}", exc_info=True)
+            await db.rollback()  # Rollback on error
             # Fall through to create new subscription if update fails
     
     # Get subscription details from Stripe if subscription_id exists
