@@ -112,24 +112,105 @@ const generateWellnessPDF = async (
   doc.text(`${percentage.toFixed(0)}%`, 20, yPos);
   yPos += 10;
   
-  // Score category
+  // Score category with full text
   doc.setFontSize(12);
   doc.setFont('helvetica', 'normal');
   let scoreCategory = '';
+  const isFrench = locale === 'fr' || locale.startsWith('fr');
   if (percentage < 60) {
-    scoreCategory = 'Needs Improvement';
+    scoreCategory = isFrench 
+      ? 'Nécessite une amélioration significative'
+      : 'Needs significant improvement';
   } else if (percentage >= 60 && percentage <= 74) {
-    scoreCategory = 'Developing';
+    scoreCategory = isFrench
+      ? 'En développement, certaines bonnes habitudes mais incohérentes'
+      : 'Developing, some good habits but inconsistent';
   } else if (percentage >= 75 && percentage <= 85) {
-    scoreCategory = 'Strong';
+    scoreCategory = isFrench
+      ? 'Habitudes solides, généralement cohérentes'
+      : 'Strong habits, mostly consistent';
   } else {
-    scoreCategory = 'Excellent';
+    scoreCategory = isFrench
+      ? 'Excellente gestion globale de la santé'
+      : 'Excellent overall health management';
   }
-  doc.text(scoreCategory, 20, yPos);
-  yPos += 8;
+  const categoryLines = doc.splitTextToSize(scoreCategory, pageWidth - 40);
+  doc.text(categoryLines, 20, yPos);
+  yPos += categoryLines.length * 6 + 5;
   doc.setFontSize(11);
   doc.text(`Points: ${totalScore} / ${maxScore}`, 20, yPos);
   yPos += 15;
+
+  // Wellness Radar Chart - Visual Representation
+  yPos = addSectionTitle(doc, 'ARISE Wellness Radar', yPos, pageHeight);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  
+  // Create radar data with visual bars
+  const radarData: Array<{ name: string; icon: string; score: number; percentage: number }> = [];
+  for (const pillar of wellnessPillars) {
+    const rawPillarData = pillarScores[pillar.id];
+    const pillarScore = getPillarScore(rawPillarData);
+    if (pillarScore === 0 && !rawPillarData) continue;
+    
+    const pillarPercentage = (pillarScore / 25) * 100;
+    radarData.push({
+      name: pillar.name,
+      icon: pillar.icon,
+      score: pillarScore,
+      percentage: pillarPercentage
+    });
+  }
+
+  // Display radar data with visual bars
+  if (radarData.length > 0) {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text('Pillar', 20, yPos);
+    doc.text('Score', pageWidth - 60, yPos, { align: 'right' });
+    yPos += 8;
+    
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, yPos, pageWidth - 20, yPos);
+    yPos += 5;
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    
+    radarData.forEach((data) => {
+      yPos = checkNewPage(doc, yPos, pageHeight, 25);
+      
+      // Pillar name (without emoji to avoid encoding issues)
+      doc.text(data.name, 25, yPos);
+      
+      // Visual bar representation
+      const barStartX = pageWidth - 80;
+      const barWidth = 50;
+      const barHeight = 4;
+      const barFillWidth = (barWidth * data.percentage) / 100;
+      
+      // Background bar
+      doc.setDrawColor(220, 220, 220);
+      doc.setFillColor(220, 220, 220);
+      doc.rect(barStartX, yPos - 3, barWidth, barHeight, 'FD');
+      
+      // Filled portion with color based on score
+      const colorCode = getScoreColorCode(data.score);
+      const r = parseInt(colorCode.slice(1, 3), 16);
+      const g = parseInt(colorCode.slice(3, 5), 16);
+      const b = parseInt(colorCode.slice(5, 7), 16);
+      doc.setFillColor(r, g, b);
+      doc.rect(barStartX, yPos - 3, barFillWidth, barHeight, 'F');
+      
+      // Score text
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0, 0, 0);
+      doc.text(`${data.score}/25`, pageWidth - 25, yPos, { align: 'right' });
+      
+      yPos += 10;
+    });
+    yPos += 10;
+  }
 
   // Pillar Scores Section - Detailed
   yPos = addSectionTitle(doc, 'Wellness Pillar Scores', yPos, pageHeight);
@@ -148,8 +229,10 @@ const generateWellnessPDF = async (
     const insightData = getWellnessInsightWithLocale(pillar.id, pillarScore, locale);
 
     // Pillar header with icon and name
+    // Try to use emoji directly - if it doesn't render, it will show as text
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
+    // Use emoji directly - jsPDF should handle it, but if it doesn't, we'll see the name
     doc.text(`${pillar.icon} ${pillar.name}`, 20, yPos);
     yPos += 8;
 
@@ -247,6 +330,7 @@ const generateWellnessPDF = async (
         : 'CONSISTENCY STAGE - Good habits are in place and showing progress.';
 
       doc.setFont('helvetica', 'bold');
+      // Use emoji directly
       doc.text(`${pillar.icon} ${pillar.name} (${score}/25)`, 25, yPos);
       yPos += 7;
       doc.setFont('helvetica', 'normal');
@@ -288,6 +372,7 @@ const generateWellnessPDF = async (
         : 'SIGNIFICANT GROWTH OPPORTUNITY - Currently limited or inconsistent practices.';
 
       doc.setFont('helvetica', 'bold');
+      // Use emoji directly
       doc.text(`${pillar.icon} ${pillar.name} (${score}/25)`, 25, yPos);
       yPos += 7;
       doc.setFont('helvetica', 'normal');
