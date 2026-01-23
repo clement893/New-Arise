@@ -39,6 +39,463 @@ interface AssessmentForPDF {
   detailedResult?: AssessmentResult;
 }
 
+// Helper function to check if we need a new page
+const checkNewPage = (doc: any, yPos: number, pageHeight: number, margin: number = 30): number => {
+  if (yPos > pageHeight - margin) {
+    doc.addPage();
+    return 20;
+  }
+  return yPos;
+};
+
+// Helper function to add section title
+const addSectionTitle = (doc: any, title: string, yPos: number, pageWidth: number, pageHeight: number): number => {
+  yPos = checkNewPage(doc, yPos, pageHeight, 50);
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text(title, 20, yPos);
+  yPos += 10;
+  return yPos;
+};
+
+/**
+ * Generate Wellness Assessment PDF
+ */
+const generateWellnessPDF = async (
+  doc: any,
+  assessment: AssessmentForPDF,
+  pageWidth: number,
+  pageHeight: number
+): Promise<void> => {
+  let yPos = 20;
+  const results = assessment.detailedResult;
+  if (!results?.scores) return;
+
+  const scores = results.scores;
+  const pillarScores = scores.pillar_scores || {};
+  const percentage = typeof scores.percentage === 'number' ? scores.percentage : 0;
+  const totalScore = scores.total_score || 0;
+  const maxScore = scores.max_score || 150;
+
+  // Title
+  doc.setFontSize(20);
+  doc.setFont('helvetica', 'bold');
+  doc.text(assessment.name, pageWidth / 2, yPos, { align: 'center' });
+  yPos += 10;
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Completed: ${assessment.completedDate}`, pageWidth / 2, yPos, { align: 'center' });
+  yPos += 15;
+
+  // Overall Score Section
+  yPos = addSectionTitle(doc, 'Overall Score', yPos, pageWidth, pageHeight);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Score: ${percentage.toFixed(0)}%`, 20, yPos);
+  yPos += 8;
+  doc.text(`Points: ${totalScore} / ${maxScore}`, 20, yPos);
+  yPos += 15;
+
+  // Pillar Scores Section
+  yPos = addSectionTitle(doc, 'Wellness Pillar Scores', yPos, pageWidth, pageHeight);
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+
+  const pillarEntries = Object.entries(pillarScores).sort(([, a], [, b]) => {
+    const aScore = typeof a === 'number' ? a : (a as any).score || 0;
+    const bScore = typeof b === 'number' ? b : (b as any).score || 0;
+    return bScore - aScore;
+  });
+
+  for (const [pillarId, pillarData] of pillarEntries) {
+    yPos = checkNewPage(doc, yPos, pageHeight);
+    const pillarScore = typeof pillarData === 'number' 
+      ? pillarData 
+      : (pillarData as any).score || 0;
+    const pillarName = pillarId.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    const percentage = (pillarScore / 25) * 100;
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${pillarName}:`, 20, yPos);
+    yPos += 7;
+    doc.setFont('helvetica', 'normal');
+    doc.text(`  Score: ${pillarScore} / 25 (${percentage.toFixed(0)}%)`, 25, yPos);
+    yPos += 10;
+  }
+
+  // Insights Section
+  if (results.insights) {
+    yPos = addSectionTitle(doc, 'Key Insights', yPos, pageWidth, pageHeight);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    
+    const insightsText = typeof results.insights === 'string' 
+      ? results.insights 
+      : JSON.stringify(results.insights, null, 2);
+    const lines = doc.splitTextToSize(insightsText, pageWidth - 40);
+    doc.text(lines, 20, yPos);
+    yPos += lines.length * 6 + 10;
+  }
+
+  // Recommendations Section
+  if (results.recommendations) {
+    yPos = addSectionTitle(doc, 'Recommendations', yPos, pageWidth, pageHeight);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    
+    const recommendations = Array.isArray(results.recommendations)
+      ? results.recommendations
+      : typeof results.recommendations === 'object'
+      ? Object.values(results.recommendations)
+      : [];
+    
+    recommendations.forEach((rec, index) => {
+      yPos = checkNewPage(doc, yPos, pageHeight);
+      const text = typeof rec === 'string' ? `${index + 1}. ${rec}` : `${index + 1}. ${JSON.stringify(rec)}`;
+      const lines = doc.splitTextToSize(text, pageWidth - 40);
+      doc.text(lines, 20, yPos);
+      yPos += lines.length * 6 + 3;
+    });
+  }
+};
+
+/**
+ * Generate 360° Feedback Assessment PDF
+ */
+const generate360PDF = async (
+  doc: any,
+  assessment: AssessmentForPDF,
+  pageWidth: number,
+  pageHeight: number
+): Promise<void> => {
+  let yPos = 20;
+  const results = assessment.detailedResult;
+  if (!results?.scores) return;
+
+  const scores = results.scores;
+  const capabilityScores = scores.capability_scores || {};
+  const percentage = typeof scores.percentage === 'number' ? scores.percentage : 0;
+  const totalScore = scores.total_score || 0;
+  const maxScore = scores.max_score || 150;
+  const comparisonData = results.comparison_data;
+
+  // Title
+  doc.setFontSize(20);
+  doc.setFont('helvetica', 'bold');
+  doc.text(assessment.name, pageWidth / 2, yPos, { align: 'center' });
+  yPos += 10;
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Completed: ${assessment.completedDate}`, pageWidth / 2, yPos, { align: 'center' });
+  yPos += 15;
+
+  // Overall Score Section
+  yPos = addSectionTitle(doc, 'Overall Score', yPos, pageWidth, pageHeight);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Score: ${percentage.toFixed(1)}%`, 20, yPos);
+  yPos += 8;
+  doc.text(`Points: ${totalScore} / ${maxScore}`, 20, yPos);
+  yPos += 15;
+
+  // Capability Breakdown
+  yPos = addSectionTitle(doc, 'Leadership Capabilities', yPos, pageWidth, pageHeight);
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+
+  const capabilityEntries = Object.entries(capabilityScores);
+  for (const [capabilityId, capabilityData] of capabilityEntries) {
+    yPos = checkNewPage(doc, yPos, pageHeight, 40);
+    const capabilityName = capabilityId.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    
+    // Get self score
+    let selfScore = 0;
+    if (typeof capabilityData === 'number') {
+      selfScore = capabilityData / 5; // Convert from sum (max 25) to average (max 5.0)
+    } else if (typeof capabilityData === 'object' && capabilityData !== null) {
+      selfScore = (capabilityData as any).self_score || ((capabilityData as any).score || 0) / 5;
+    }
+
+    // Get others average if available
+    let othersAvg = 0;
+    if (comparisonData && typeof comparisonData === 'object') {
+      const compScores = (comparisonData as any).capability_scores;
+      if (compScores && compScores[capabilityId]) {
+        const compScore = compScores[capabilityId];
+        othersAvg = typeof compScore === 'number' 
+          ? compScore / 5 
+          : (compScore as any).score ? (compScore as any).score / 5 : 0;
+      }
+    }
+
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${capabilityName}:`, 20, yPos);
+    yPos += 7;
+    doc.setFont('helvetica', 'normal');
+    doc.text(`  Self Assessment: ${selfScore.toFixed(1)} / 5.0`, 25, yPos);
+    yPos += 7;
+    if (othersAvg > 0) {
+      doc.text(`  Others' Average: ${othersAvg.toFixed(1)} / 5.0`, 25, yPos);
+      yPos += 7;
+      const gap = selfScore - othersAvg;
+      doc.text(`  Gap: ${gap > 0 ? '+' : ''}${gap.toFixed(1)}`, 25, yPos);
+      yPos += 7;
+    }
+    yPos += 5;
+  }
+
+  // Insights Section
+  if (results.insights) {
+    yPos = addSectionTitle(doc, 'Insights', yPos, pageWidth, pageHeight);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    
+    const insightsText = typeof results.insights === 'string' 
+      ? results.insights 
+      : JSON.stringify(results.insights, null, 2);
+    const lines = doc.splitTextToSize(insightsText, pageWidth - 40);
+    doc.text(lines, 20, yPos);
+    yPos += lines.length * 6 + 10;
+  }
+
+  // Recommendations Section
+  if (results.recommendations) {
+    yPos = addSectionTitle(doc, 'Recommendations', yPos, pageWidth, pageHeight);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    
+    const recommendations = Array.isArray(results.recommendations)
+      ? results.recommendations
+      : typeof results.recommendations === 'object'
+      ? Object.values(results.recommendations)
+      : [];
+    
+    recommendations.forEach((rec, index) => {
+      yPos = checkNewPage(doc, yPos, pageHeight);
+      const text = typeof rec === 'string' ? `${index + 1}. ${rec}` : `${index + 1}. ${JSON.stringify(rec)}`;
+      const lines = doc.splitTextToSize(text, pageWidth - 40);
+      doc.text(lines, 20, yPos);
+      yPos += lines.length * 6 + 3;
+    });
+  }
+};
+
+/**
+ * Generate MBTI Assessment PDF
+ */
+const generateMBTIPDF = async (
+  doc: any,
+  assessment: AssessmentForPDF,
+  pageWidth: number,
+  pageHeight: number
+): Promise<void> => {
+  let yPos = 20;
+  const results = assessment.detailedResult;
+  if (!results?.scores) return;
+
+  const scores = results.scores;
+  const mbtiType = scores.mbti_type || 'XXXX';
+  const dimensionPreferences = scores.dimension_preferences || {};
+  const insights = results.insights || {};
+
+  // Title
+  doc.setFontSize(20);
+  doc.setFont('helvetica', 'bold');
+  doc.text(assessment.name, pageWidth / 2, yPos, { align: 'center' });
+  yPos += 10;
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Completed: ${assessment.completedDate}`, pageWidth / 2, yPos, { align: 'center' });
+  yPos += 15;
+
+  // Personality Type Section
+  yPos = addSectionTitle(doc, 'Personality Type', yPos, pageWidth, pageHeight);
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.text(mbtiType, 20, yPos);
+  yPos += 12;
+
+  // Type Description
+  if (insights.personality_type || insights.description) {
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    const description = insights.personality_type || insights.description || '';
+    const lines = doc.splitTextToSize(description, pageWidth - 40);
+    doc.text(lines, 20, yPos);
+    yPos += lines.length * 6 + 10;
+  }
+
+  // Dimension Breakdown
+  if (Object.keys(dimensionPreferences).length > 0) {
+    yPos = addSectionTitle(doc, 'Dimension Preferences', yPos, pageWidth, pageHeight);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+
+    Object.entries(dimensionPreferences).forEach(([dimension, prefs]) => {
+      yPos = checkNewPage(doc, yPos, pageHeight);
+      if (typeof prefs === 'object' && prefs !== null) {
+        const formattedPrefs = Object.entries(prefs)
+          .map(([letter, value]) => `${letter}: ${value}%`)
+          .join(', ');
+        doc.text(`${dimension}: ${formattedPrefs}`, 25, yPos);
+        yPos += 7;
+      }
+    });
+    yPos += 5;
+  }
+
+  // Leadership Capabilities
+  if (insights.leadership_capabilities && typeof insights.leadership_capabilities === 'object') {
+    yPos = addSectionTitle(doc, 'Leadership Capabilities Analysis', yPos, pageWidth, pageHeight);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+
+    Object.entries(insights.leadership_capabilities).forEach(([capKey, capValue]: [string, any]) => {
+      yPos = checkNewPage(doc, yPos, pageHeight, 40);
+      if (typeof capValue === 'object' && capValue !== null) {
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${capKey.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}:`, 20, yPos);
+        yPos += 7;
+        if (capValue.title) {
+          doc.setFont('helvetica', 'bold');
+          doc.text(`  ${capValue.title}`, 25, yPos);
+          yPos += 7;
+        }
+        if (capValue.description) {
+          doc.setFont('helvetica', 'normal');
+          const lines = doc.splitTextToSize(capValue.description, pageWidth - 50);
+          doc.text(lines, 25, yPos);
+          yPos += lines.length * 6 + 5;
+        }
+      }
+    });
+  }
+
+  // Recommendations Section
+  if (results.recommendations) {
+    yPos = addSectionTitle(doc, 'Recommendations', yPos, pageWidth, pageHeight);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    
+    const recommendations = Array.isArray(results.recommendations)
+      ? results.recommendations
+      : typeof results.recommendations === 'object'
+      ? Object.values(results.recommendations)
+      : [];
+    
+    recommendations.forEach((rec, index) => {
+      yPos = checkNewPage(doc, yPos, pageHeight);
+      const text = typeof rec === 'string' ? `${index + 1}. ${rec}` : `${index + 1}. ${JSON.stringify(rec)}`;
+      const lines = doc.splitTextToSize(text, pageWidth - 40);
+      doc.text(lines, 20, yPos);
+      yPos += lines.length * 6 + 3;
+    });
+  }
+};
+
+/**
+ * Generate TKI Assessment PDF
+ */
+const generateTKIPDF = async (
+  doc: any,
+  assessment: AssessmentForPDF,
+  pageWidth: number,
+  pageHeight: number
+): Promise<void> => {
+  let yPos = 20;
+  const results = assessment.detailedResult;
+  if (!results?.scores) return;
+
+  const scores = results.scores;
+  const modeScores = scores.mode_scores || {};
+  const insights = results.insights || {};
+
+  // Title
+  doc.setFontSize(20);
+  doc.setFont('helvetica', 'bold');
+  doc.text(assessment.name, pageWidth / 2, yPos, { align: 'center' });
+  yPos += 10;
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Completed: ${assessment.completedDate}`, pageWidth / 2, yPos, { align: 'center' });
+  yPos += 15;
+
+  // Find dominant and secondary modes
+  const sortedModes = Object.entries(modeScores)
+    .sort(([, a], [, b]) => (b as number) - (a as number));
+  const dominantMode = sortedModes[0]?.[0] || '';
+  const secondaryMode = sortedModes[1]?.[0] || '';
+
+  // Dominant and Secondary Modes
+  yPos = addSectionTitle(doc, 'Conflict Mode Profile', yPos, pageWidth, pageHeight);
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Dominant Mode:', 20, yPos);
+  yPos += 8;
+  doc.setFont('helvetica', 'normal');
+  doc.text(`  ${dominantMode.replace(/\b\w/g, c => c.toUpperCase())} (${modeScores[dominantMode] || 0} responses)`, 25, yPos);
+  yPos += 10;
+  if (secondaryMode) {
+    doc.setFont('helvetica', 'bold');
+    doc.text('Secondary Mode:', 20, yPos);
+    yPos += 8;
+    doc.setFont('helvetica', 'normal');
+    doc.text(`  ${secondaryMode.replace(/\b\w/g, c => c.toUpperCase())} (${modeScores[secondaryMode] || 0} responses)`, 25, yPos);
+    yPos += 10;
+  }
+
+  // All Modes Breakdown
+  yPos = addSectionTitle(doc, 'All Conflict Modes', yPos, pageWidth, pageHeight);
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+
+  sortedModes.forEach(([mode, count]) => {
+    yPos = checkNewPage(doc, yPos, pageHeight);
+    const percentage = Math.round((count as number / 30) * 100);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${mode.replace(/\b\w/g, c => c.toUpperCase())}:`, 20, yPos);
+    yPos += 7;
+    doc.setFont('helvetica', 'normal');
+    doc.text(`  Responses: ${count} (${percentage}%)`, 25, yPos);
+    yPos += 10;
+  });
+
+  // Insights Section
+  if (insights && Object.keys(insights).length > 0) {
+    yPos = addSectionTitle(doc, 'Insights', yPos, pageWidth, pageHeight);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    
+    const insightsText = typeof insights === 'string' 
+      ? insights 
+      : JSON.stringify(insights, null, 2);
+    const lines = doc.splitTextToSize(insightsText, pageWidth - 40);
+    doc.text(lines, 20, yPos);
+    yPos += lines.length * 6 + 10;
+  }
+
+  // Recommendations Section
+  if (results.recommendations) {
+    yPos = addSectionTitle(doc, 'Key Recommendations', yPos, pageWidth, pageHeight);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    
+    const recommendations = Array.isArray(results.recommendations)
+      ? results.recommendations
+      : typeof results.recommendations === 'object'
+      ? Object.values(results.recommendations)
+      : [];
+    
+    recommendations.forEach((rec, index) => {
+      yPos = checkNewPage(doc, yPos, pageHeight);
+      const text = typeof rec === 'string' ? `${index + 1}. ${rec}` : `${index + 1}. ${JSON.stringify(rec)}`;
+      const lines = doc.splitTextToSize(text, pageWidth - 40);
+      doc.text(lines, 20, yPos);
+      yPos += lines.length * 6 + 3;
+    });
+  }
+};
+
 /**
  * Generate a PDF for a single assessment
  */
@@ -49,215 +506,44 @@ export const generateAssessmentPDF = async (assessment: AssessmentForPDF): Promi
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
-  let yPos = 20;
 
-  // Title
-  doc.setFontSize(20);
-  doc.setFont('helvetica', 'bold');
-  doc.text(assessment.name, pageWidth / 2, yPos, { align: 'center' });
-  yPos += 15;
-
-  // Assessment Info
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Completed: ${assessment.completedDate}`, 20, yPos);
-  yPos += 8;
-  doc.text(`Score: ${assessment.score}`, 20, yPos);
-  yPos += 8;
-  doc.text(`Result: ${assessment.result}`, 20, yPos);
-  yPos += 15;
-
-  // Detailed Results Section
-  if (assessment.detailedResult?.scores) {
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Detailed Results', 20, yPos);
-    yPos += 10;
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-
-    const scores = assessment.detailedResult.scores;
-
-    // MBTI Results
-    if (assessment.type === 'MBTI' && scores.mbti_type) {
-      doc.text(`Personality Type: ${scores.mbti_type}`, 20, yPos);
-      yPos += 7;
-      
-      // Dimension Preferences (format: EI: E: 46%, I: 54%)
-      if (scores.dimension_preferences) {
-        doc.text('Dimension Preferences:', 20, yPos);
-        yPos += 7;
-        Object.entries(scores.dimension_preferences).forEach(([dimension, preferences]) => {
-          if (typeof preferences === 'object' && preferences !== null) {
-            // Format: "EI: E: 46%, I: 54%"
-            const formattedPrefs = Object.entries(preferences)
-              .map(([letter, value]) => `${letter}: ${value}%`)
-              .join(', ');
-            doc.text(`  ${dimension}: ${formattedPrefs}`, 25, yPos);
-            yPos += 6;
-          }
-        });
-        yPos += 5;
-      }
-    }
-
-    // TKI Results
-    if (assessment.type === 'TKI' && scores.mode_scores) {
-      doc.text('Conflict Mode Scores:', 20, yPos);
-      yPos += 7;
-      Object.entries(scores.mode_scores)
-        .sort(([, a], [, b]) => (b as number) - (a as number))
-        .forEach(([mode, score]) => {
-          doc.text(`  ${mode}: ${score}`, 25, yPos);
-          yPos += 6;
-        });
-    }
-
-    // Wellness Results
-    if (assessment.type === 'WELLNESS' && scores.pillar_scores) {
-      doc.text('Wellness Pillar Scores:', 20, yPos);
-      yPos += 7;
-      Object.entries(scores.pillar_scores).forEach(([pillar, score]) => {
-        const scoreValue = typeof score === 'number' 
-          ? score 
-          : (score as any).score || (score as any).percentage || 0;
-        doc.text(`  ${pillar.replace(/_/g, ' ')}: ${scoreValue}`, 25, yPos);
-        yPos += 6;
-      });
-    }
-
-    // 360° Feedback Results
-    if (assessment.type === 'THREE_SIXTY_SELF' && scores.capability_scores) {
-      doc.text('Capability Scores:', 20, yPos);
-      yPos += 7;
-      Object.entries(scores.capability_scores).forEach(([capability, score]) => {
-        const scoreValue = typeof score === 'number'
-          ? score
-          : (score as any).self_score || (score as any).percentage || 0;
-        doc.text(`  ${capability.replace(/_/g, ' ')}: ${scoreValue}`, 25, yPos);
-        yPos += 6;
-      });
-    }
-
-    // Add new page if needed
-    if (yPos > pageHeight - 30) {
-      doc.addPage();
-      yPos = 20;
-    }
+  // Generate PDF based on assessment type
+  switch (assessment.type) {
+    case 'WELLNESS':
+      await generateWellnessPDF(doc, assessment, pageWidth, pageHeight);
+      break;
+    case 'THREE_SIXTY_SELF':
+      await generate360PDF(doc, assessment, pageWidth, pageHeight);
+      break;
+    case 'MBTI':
+      await generateMBTIPDF(doc, assessment, pageWidth, pageHeight);
+      break;
+    case 'TKI':
+      await generateTKIPDF(doc, assessment, pageWidth, pageHeight);
+      break;
+    default:
+      // Fallback to basic PDF
+      let yPos = 20;
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.text(assessment.name, pageWidth / 2, yPos, { align: 'center' });
+      yPos += 15;
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Completed: ${assessment.completedDate}`, 20, yPos);
+      yPos += 8;
+      doc.text(`Score: ${assessment.score}`, 20, yPos);
+      yPos += 8;
+      doc.text(`Result: ${assessment.result}`, 20, yPos);
+      break;
   }
 
-  // Insights Section
-  if (assessment.detailedResult?.insights) {
-    if (yPos > pageHeight - 50) {
-      doc.addPage();
-      yPos = 20;
-    }
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Insights', 20, yPos);
-    yPos += 10;
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-
-    const insights = assessment.detailedResult.insights;
-    if (typeof insights === 'object') {
-      Object.entries(insights).forEach(([key, value]) => {
-        // Format based on data type
-        let formattedValue: string;
-        
-        if (typeof value === 'string') {
-          formattedValue = value;
-        } else if (Array.isArray(value)) {
-          // Format arrays as bullet points
-          formattedValue = '\n' + value.map(item => `  • ${item}`).join('\n');
-        } else if (typeof value === 'object' && value !== null) {
-          // Format objects based on their structure
-          if (key === 'leadership_capabilities') {
-            // Format leadership capabilities specially
-            formattedValue = '\n' + Object.entries(value).map(([capKey, capValue]: [string, any]) => {
-              if (typeof capValue === 'object' && capValue !== null) {
-                return `  • ${capValue.title || capKey}:\n    ${capValue.description || ''}`;
-              }
-              return `  • ${capKey}: ${capValue}`;
-            }).join('\n');
-          } else if (key === 'dimensions') {
-            // Format dimensions
-            formattedValue = '\n' + Object.entries(value).map(([dim, scores]) => {
-              if (typeof scores === 'object' && scores !== null) {
-                const formattedScores = Object.entries(scores)
-                  .map(([letter, val]) => `${letter}: ${val}%`)
-                  .join(', ');
-                return `  • ${dim}: ${formattedScores}`;
-              }
-              return `  • ${dim}: ${scores}`;
-            }).join('\n');
-          } else {
-            // Default object formatting
-            formattedValue = '\n' + Object.entries(value).map(([k, v]) => `  • ${k}: ${v}`).join('\n');
-          }
-        } else {
-          formattedValue = String(value);
-        }
-        
-        // Format key nicely (convert snake_case to Title Case)
-        const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-        
-        const text = `${formattedKey}: ${formattedValue}`;
-        const lines = doc.splitTextToSize(text, pageWidth - 40);
-        doc.text(lines, 20, yPos);
-        yPos += lines.length * 6 + 3;
-        if (yPos > pageHeight - 30) {
-          doc.addPage();
-          yPos = 20;
-        }
-      });
-    }
-  }
-
-  // Recommendations Section
-  if (assessment.detailedResult?.recommendations) {
-    if (yPos > pageHeight - 50) {
-      doc.addPage();
-      yPos = 20;
-    }
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Recommendations', 20, yPos);
-    yPos += 10;
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-
-    const recommendations = assessment.detailedResult.recommendations;
-    if (Array.isArray(recommendations)) {
-      recommendations.forEach((rec, index) => {
-        const text = typeof rec === 'string' ? `${index + 1}. ${rec}` : `${index + 1}. ${JSON.stringify(rec)}`;
-        const lines = doc.splitTextToSize(text, pageWidth - 40);
-        doc.text(lines, 20, yPos);
-        yPos += lines.length * 6;
-        if (yPos > pageHeight - 30) {
-          doc.addPage();
-          yPos = 20;
-        }
-      });
-    } else if (typeof recommendations === 'object') {
-      Object.entries(recommendations).forEach(([key, value]) => {
-        const text = `${key}: ${typeof value === 'string' ? value : JSON.stringify(value)}`;
-        const lines = doc.splitTextToSize(text, pageWidth - 40);
-        doc.text(lines, 20, yPos);
-        yPos += lines.length * 6;
-        if (yPos > pageHeight - 30) {
-          doc.addPage();
-          yPos = 20;
-        }
-      });
-    }
-  }
-
-  // Footer
+  // Footer on all pages
   const pageCount = doc.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFontSize(8);
+    doc.setTextColor(128, 128, 128);
     doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
     doc.text('ARISE Leadership Assessment', pageWidth / 2, pageHeight - 5, { align: 'center' });
   }
