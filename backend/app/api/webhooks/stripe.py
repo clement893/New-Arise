@@ -216,13 +216,36 @@ async def handle_checkout_completed(event_object: dict, db: AsyncSession, subscr
             # Store old plan_id for logging
             old_plan_id = existing_subscription.plan_id
             
+            # Verify the plan in Stripe matches what we expect
+            # Get the price_id from Stripe subscription to verify
+            stripe_price_id = None
+            if stripe_subscription.items:
+                items_obj = stripe_subscription.items
+                if hasattr(items_obj, 'data') and items_obj.data and len(items_obj.data) > 0:
+                    stripe_price_id = items_obj.data[0].price.id
+                elif isinstance(items_obj, list) and len(items_obj) > 0:
+                    stripe_price_id = items_obj[0].price.id
+            
+            if stripe_price_id and plan.stripe_price_id != stripe_price_id:
+                logger.warning(f"Plan mismatch: metadata says plan_id={plan_id} (stripe_price_id={plan.stripe_price_id}), but Stripe subscription has price_id={stripe_price_id}")
+                # Try to find the correct plan by stripe_price_id
+                from app.models import Plan
+                plan_result = await db.execute(
+                    select(Plan).where(Plan.stripe_price_id == stripe_price_id)
+                )
+                correct_plan = plan_result.scalar_one_or_none()
+                if correct_plan:
+                    logger.info(f"Found correct plan by stripe_price_id: plan_id={correct_plan.id}, plan_name={correct_plan.name}")
+                    plan_id = correct_plan.id
+                    plan = correct_plan
+            
             # Update the existing subscription with new Stripe subscription ID and plan
             existing_subscription.stripe_subscription_id = subscription_id
             existing_subscription.plan_id = plan_id
             if customer_id:
                 existing_subscription.stripe_customer_id = customer_id
             
-            logger.info(f"Updating subscription {existing_subscription.id}: old_plan_id={old_plan_id}, new_plan_id={plan_id}, new_plan_name={plan.name}")
+            logger.info(f"Updating subscription {existing_subscription.id}: old_plan_id={old_plan_id}, new_plan_id={plan_id}, new_plan_name={plan.name}, stripe_price_id={plan.stripe_price_id}")
             
             if stripe_subscription.current_period_start:
                 existing_subscription.current_period_start = datetime.fromtimestamp(
@@ -371,15 +394,29 @@ async def handle_subscription_updated(
         return
     
     # Check if plan changed in Stripe
+    plan_changed = False
     try:
         if not stripe.api_key and hasattr(settings, 'STRIPE_SECRET_KEY') and settings.STRIPE_SECRET_KEY:
             stripe.api_key = settings.STRIPE_SECRET_KEY
         
-        stripe_subscription = stripe.Subscription.retrieve(subscription_id)
+        stripe_subscription = stripe.Subscription.retrieve(
+            subscription_id,
+            expand=['items']
+        )
         
-        # Get plan_id from Stripe subscription items
-        if stripe_subscription.items and stripe_subscription.items.data:
-            stripe_price_id = stripe_subscription.items.data[0].price.id
+        # Safely access items - check if it's a property with data attribute
+        items_data = None
+        if hasattr(stripe_subscription, 'items'):
+            items_obj = stripe_subscription.items
+            # Check if items is a ListObject with data attribute
+            if hasattr(items_obj, 'data') and items_obj.data:
+                items_data = items_obj.data
+            # Fallback: if items is a list directly
+            elif isinstance(items_obj, list) and len(items_obj) > 0:
+                items_data = items_obj
+        
+        if items_data and len(items_data) > 0:
+            stripe_price_id = items_data[0].price.id
             
             # Find plan by stripe_price_id
             from app.models import Plan
@@ -391,9 +428,20 @@ async def handle_subscription_updated(
             if stripe_plan and subscription.plan_id != stripe_plan.id:
                 logger.info(f"Plan changed in Stripe: updating subscription {subscription.id} from plan {subscription.plan_id} to plan {stripe_plan.id} ({stripe_plan.name})")
                 subscription.plan_id = stripe_plan.id
+                plan_changed = True
     except Exception as e:
-        logger.warning(f"Could not check plan change from Stripe: {e}")
+        logger.warning(f"Could not check plan change from Stripe: {e}", exc_info=True)
         # Continue with status update even if plan check fails
+    
+    # Commit plan change if it was updated
+    if plan_changed:
+        try:
+            await db.commit()
+            await db.refresh(subscription)
+            logger.info(f"Plan change committed: subscription {subscription.id} now has plan_id={subscription.plan_id}")
+        except Exception as e:
+            logger.error(f"Error committing plan change: {e}", exc_info=True)
+            await db.rollback()
     
     # Update subscription status and periods
     result = await subscription_service.update_subscription_status(
