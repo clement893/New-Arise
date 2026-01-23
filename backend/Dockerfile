@@ -109,10 +109,10 @@ ENV PYTHONUNBUFFERED=1
 HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
     CMD sh -c 'PORT=${PORT:-8000}; python -c "import urllib.request; import sys; import socket; socket.setdefaulttimeout(5); url=f\"http://localhost:{PORT}/api/v1/health/\"; r=urllib.request.urlopen(url, timeout=5); sys.exit(0 if r.getcode()==200 else 1)"' || exit 1
 
-# Use WORKDIR to ensure we're in /app when script runs
-WORKDIR /app
-
-# Use entrypoint.sh script - Railway's startCommand will use this
-# The entrypoint.sh script has extensive logging and error handling
-ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
+# Use entrypoint.sh as the entrypoint
+# Railway will use startCommand from railway.json if set, otherwise this ENTRYPOINT
+# The entrypoint.sh script handles migrations in background and starts Uvicorn
+# Note: Railway may prefer startCommand over ENTRYPOINT, so we set both
+ENTRYPOINT ["/bin/sh", "entrypoint.sh"]
+CMD ["/bin/sh", "entrypoint.sh"]
 
