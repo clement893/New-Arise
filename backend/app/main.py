@@ -49,48 +49,6 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     import os
     import asyncio
     
-    # CRITICAL: Yield immediately to allow app to start serving requests
-    # This ensures healthchecks can succeed even if initialization fails
-    # Use print for critical startup messages to ensure they're visible even if logging fails
-    print("=" * 50, file=sys.stderr)
-    print("FastAPI Application Starting...", file=sys.stderr)
-    print("=" * 50, file=sys.stderr)
-    
-    try:
-        from app.core.logging import logger
-    except (ImportError, AttributeError) as e:
-        print(f"WARNING: Failed to initialize logger: {e}", file=sys.stderr)
-        logger = None
-    except Exception as e:
-        # Keep generic Exception as last resort for logger initialization
-        print(f"WARNING: Unexpected error initializing logger: {e}", file=sys.stderr)
-        logger = None
-    
-    # Log environment info early (but don't block on it)
-    try:
-        if logger:
-            logger.info(f"CORS Origins configured: {settings.CORS_ORIGINS}")
-            logger.info(f"ENVIRONMENT: {os.getenv('ENVIRONMENT', 'NOT SET')}")
-            logger.info(f"RAILWAY_ENVIRONMENT: {os.getenv('RAILWAY_ENVIRONMENT', 'NOT SET')}")
-            logger.info(f"RAILWAY_SERVICE_NAME: {os.getenv('RAILWAY_SERVICE_NAME', 'NOT SET')}")
-    except Exception as e:
-        print(f"WARNING: Failed to log environment info: {e}", file=sys.stderr)
-    
-    print("=" * 50, file=sys.stderr)
-    print("✓ FastAPI Application Ready - Starting server", file=sys.stderr)
-    print(f"  Environment: {os.getenv('ENVIRONMENT', 'development')}", file=sys.stderr)
-    print(f"  Port: {os.getenv('PORT', '8000')}", file=sys.stderr)
-    print("  Health endpoint available at: /api/v1/health/", file=sys.stderr)
-    print("  Root endpoint available at: /", file=sys.stderr)
-    print("=" * 50, file=sys.stderr)
-    # Also print to stdout for Railway visibility
-    print("=" * 50)
-    print("✓ FastAPI Application Ready - Server is starting")
-    print(f"  Environment: {os.getenv('ENVIRONMENT', 'development')}")
-    print(f"  Port: {os.getenv('PORT', '8000')}")
-    print("  Health endpoint: http://0.0.0.0:{}/api/v1/health/".format(os.getenv('PORT', '8000')))
-    print("=" * 50)
-    
     # Background initialization tasks - these run after the app has started serving requests
     # This allows healthchecks to succeed even if initialization takes time
     async def background_init():
@@ -214,15 +172,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         if logger:
             logger.info("Application startup complete")
     
-    # Start background initialization as a task BEFORE yielding
+    # Start background initialization as a task (non-blocking)
     # This allows the app to serve requests immediately while initialization happens in the background
     # The task will run concurrently with the app serving requests
     # Note: In FastAPI lifespan, the event loop is always running, so create_task should work
     init_task = asyncio.create_task(background_init())
     
-    # CRITICAL: Yield immediately to allow the app to start serving requests
+    # CRITICAL: Yield IMMEDIATELY to allow the app to start serving requests
     # This ensures the health endpoint is available immediately for Railway healthchecks
-    # Heavy initialization will happen in the background via init_task
+    # All initialization happens in the background via init_task
     yield
     
     # Shutdown - wait for background initialization to complete if still running
