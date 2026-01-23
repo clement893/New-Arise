@@ -700,87 +700,76 @@ const generate360PDF = async (
 
   // Contributors Status Section (same as ThreeSixtyResultContent)
   if (evaluatorsList.length > 0) {
-    yPos = checkNewPage(doc, yPos, pageHeight, 150);
+    yPos = checkNewPage(doc, yPos, pageHeight, 100);
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.text('Contributor Status', 20, yPos);
-    yPos += 10;
+    yPos += 8;
     
     evaluatorsList.forEach((evaluator, index) => {
       if (index > 0 && index % 3 === 0) {
-        yPos += 15; // New row
+        yPos += 8; // New row - reduced spacing
       }
       
       const col = index % 3;
       const xPos = 20 + (col * ((pageWidth - 40) / 3));
       const boxWidth = (pageWidth - 50) / 3;
       
-      // Evaluator box
+      // Evaluator box - reduced height
       doc.setDrawColor(200, 200, 200);
-      doc.rect(xPos, yPos, boxWidth, 35, 'S');
+      doc.rect(xPos, yPos, boxWidth, 25, 'S');
       
-      // Name
+      // Name - smaller font
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(10);
+      doc.setFontSize(9);
       const nameLines = doc.splitTextToSize(evaluator.name || 'Unknown', boxWidth - 10);
-      doc.text(nameLines, xPos + 5, yPos + 6);
+      doc.text(nameLines, xPos + 4, yPos + 5);
       
-      // Email
+      // Email - smaller font
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8);
-      const emailLines = doc.splitTextToSize(evaluator.email || '', boxWidth - 10);
-      doc.text(emailLines, xPos + 5, yPos + 12);
-      
-      // Role
       doc.setFontSize(7);
+      const emailLines = doc.splitTextToSize(evaluator.email || '', boxWidth - 10);
+      doc.text(emailLines, xPos + 4, yPos + 10);
+      
+      // Role - smaller font
+      doc.setFontSize(6);
       doc.setTextColor(150, 150, 150);
-      doc.text(evaluator.role || '', xPos + 5, yPos + 18);
+      doc.text(evaluator.role || '', xPos + 4, yPos + 15);
       doc.setTextColor(0, 0, 0);
       
-      // Status icon (text representation)
+      // Status icon (text representation) - smaller font
       let statusText = '';
       if (evaluator.status === 'completed' || evaluator.status === 'COMPLETED') {
-        statusText = '✓ Completed';
+        statusText = '✓';
         doc.setTextColor(0, 150, 0);
       } else if (evaluator.status === 'in_progress' || evaluator.status === 'IN_PROGRESS') {
-        statusText = '⏱ In Progress';
+        statusText = '⏱';
         doc.setTextColor(15, 76, 86);
       } else if (evaluator.invitation_opened_at) {
-        statusText = '✉ Opened';
+        statusText = '✉';
         doc.setTextColor(200, 150, 0);
       } else if (evaluator.invitation_sent_at) {
-        statusText = '✉ Sent';
+        statusText = '✉';
         doc.setTextColor(150, 150, 150);
       } else {
-        statusText = '✗ Not Invited';
+        statusText = '✗';
         doc.setTextColor(150, 150, 150);
       }
       doc.setFontSize(8);
-      doc.text(statusText, xPos + 5, yPos + 28);
+      doc.text(statusText, xPos + boxWidth - 8, yPos + 5);
       doc.setTextColor(0, 0, 0);
       
       if (col === 2) {
-        yPos += 40; // Next row
+        yPos += 28; // Next row - reduced spacing
       }
     });
     
     if (evaluatorsList.length % 3 !== 0) {
-      yPos += 40;
+      yPos += 28;
     }
     
-    // Status legend
-    yPos += 10;
-    doc.setFontSize(8);
-    doc.setTextColor(100, 100, 100);
-    const completedCount = evaluatorsList.filter((e) => e.status === 'completed' || e.status === 'COMPLETED').length;
-    const inProgressCount = evaluatorsList.filter((e) => (e.status === 'in_progress' || e.status === 'IN_PROGRESS')).length;
-    const sentCount = evaluatorsList.filter((e) => e.invitation_sent_at && !e.invitation_opened_at).length;
-    
-    doc.text(`✓ Completed (${completedCount})`, 20, yPos);
-    doc.text(`⏱ In Progress (${inProgressCount})`, 100, yPos);
-    doc.text(`✉ Invitation Sent (${sentCount})`, 180, yPos);
-    doc.setTextColor(0, 0, 0);
-    yPos += 15;
+    // Status legend removed as requested
+    yPos += 5;
   }
 
   // Overall Score Section (with teal background simulation)
@@ -823,14 +812,14 @@ const generate360PDF = async (
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(14);
     doc.text(capabilityTitle, 20, yPos);
-    yPos += 8;
+    yPos += 6; // Reduced spacing
     
     if (capabilityDescription) {
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(10);
       const descLines = doc.splitTextToSize(capabilityDescription, pageWidth - 40);
       doc.text(descLines, 20, yPos);
-      yPos += descLines.length * 5 + 8;
+      yPos += descLines.length * 5 + 5; // Reduced spacing
     }
 
     // Get insight based on score (use others_avg_score if available, otherwise self_score)
@@ -865,30 +854,39 @@ const generate360PDF = async (
       yPos = analysisBoxY + 15;
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0); // Ensure text is black and visible
       doc.text(analysisLines, 25, yPos);
-      yPos += analysisLines.length * 5 + 10;
+      yPos += analysisLines.length * 5 + 6; // Reduced spacing
 
       // Recommendations box with colored background
       yPos = checkNewPage(doc, yPos, pageHeight, 60);
       const recBoxY = yPos;
       const recLines = doc.splitTextToSize(insight.recommendation, pageWidth - 50);
       const recBoxHeight = recLines.length * 5 + 15;
+      doc.setFillColor(r, g, b); // Use same color as analysis
       doc.rect(20, recBoxY, pageWidth - 40, recBoxHeight, 'F');
       
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(10);
+      doc.setTextColor(0, 0, 0); // Ensure text is black and visible
       doc.text('Recommendations', 25, recBoxY + 8);
       yPos = recBoxY + 15;
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0); // Ensure text is black and visible
       doc.text(recLines, 25, yPos);
-      yPos += recLines.length * 5 + 10;
+      yPos += recLines.length * 5 + 6; // Reduced spacing
     }
     
-    yPos += 5; // Space between capabilities
+    yPos += 3; // Reduced space between capabilities
   }
 
-  // OVERALL RESULTS' STATEMENT Section
+  // OVERALL RESULTS' STATEMENT Section - Start on new page
+  yPos = checkNewPage(doc, yPos, pageHeight, 200);
+  if (yPos > pageHeight - 200) {
+    doc.addPage();
+    yPos = 20;
+  }
   yPos = addSectionTitle(doc, 'OVERALL RESULTS\' STATEMENT', yPos, pageHeight);
   
   // Calculate average score
@@ -1068,8 +1066,13 @@ const generate360PDF = async (
     }
   }
 
-  // Results & Analysis: Self vs Contributors (if evaluators responded)
+  // Results & Analysis: Self vs Contributors (if evaluators responded) - Start on new page
   if (hasEvaluatorResponses) {
+    yPos = checkNewPage(doc, yPos, pageHeight, 200);
+    if (yPos > pageHeight - 200) {
+      doc.addPage();
+      yPos = 20;
+    }
     yPos = addSectionTitle(doc, 'Results & Analysis: Self vs Contributors', yPos, pageHeight);
     
     for (const capScore of transformedCapabilityScores) {
