@@ -303,7 +303,10 @@ echo ""
 # Start server - use exec to replace shell process
 # This ensures signals are properly handled and Railway can manage the process
 # All output from uvicorn will be visible in Railway logs
-# Use --log-level debug temporarily to see more details
+# Use --log-level info to see startup messages
+echo "=========================================="
+echo "EXECUTING: python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+echo "=========================================="
 exec python -m uvicorn app.main:app \
     --host 0.0.0.0 \
     --port "$PORT" \

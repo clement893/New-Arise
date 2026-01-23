@@ -108,8 +108,9 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
 # Use entrypoint.sh as the entrypoint
 # Railway will use startCommand from railway.json if set, otherwise this ENTRYPOINT
 # The entrypoint.sh script handles migrations in background and starts Uvicorn
-# Note: Railway may prefer startCommand over ENTRYPOINT, so we set both
-# Use absolute path to ensure script is found
+# Note: When both ENTRYPOINT and CMD are set, CMD becomes arguments to ENTRYPOINT
+# So we only set ENTRYPOINT, and Railway's startCommand will override if needed
+# Use WORKDIR to ensure we're in /app when script runs
+WORKDIR /app
 ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
-CMD ["/bin/sh", "/app/entrypoint.sh"]
 
