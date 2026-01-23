@@ -212,16 +212,7 @@ const generateWellnessPDF = async (
       doc.line(chartCenterX, chartCenterY, endX, endY);
     }
     
-    // Draw score labels on axes (0, 5, 10, 15, 20, 25)
-    doc.setFontSize(8);
-    doc.setTextColor(107, 114, 128); // Gray
-    doc.setFont('helvetica', 'normal');
-    for (let level = 0; level <= 5; level++) {
-      const radius = (chartRadius * level) / 5;
-      const labelX = chartCenterX + (radius + 3) * Math.cos(-Math.PI / 2);
-      const labelY = chartCenterY + (radius + 3) * Math.sin(-Math.PI / 2);
-      doc.text(`${level * 5}`, labelX, labelY, { align: 'left' });
-    }
+    // Score labels on axes removed - not needed
     
     // Draw filled area (radar polygon) for scores
     const scorePoints: Array<{ x: number; y: number }> = [];
@@ -274,7 +265,7 @@ const generateWellnessPDF = async (
       const dataPoint = radarData[i];
       if (!dataPoint) continue;
       const angle = (i * angleStep) - (Math.PI / 2);
-      const labelRadius = chartRadius + 15;
+      const labelRadius = chartRadius + 8; // Reduced from 15 to bring labels closer
       const labelX = chartCenterX + labelRadius * Math.cos(angle);
       const labelY = chartCenterY + labelRadius * Math.sin(angle);
       
@@ -304,8 +295,8 @@ const generateWellnessPDF = async (
         doc.text(line, labelX, lineY, { align });
       });
       
-      // Draw score below the label
-      const scoreY = labelY + (lines.length * 4) + 3;
+      // Draw score below the label (reduced spacing from 3 to 1.5)
+      const scoreY = labelY + (lines.length * 4) + 1.5;
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(10);
       doc.setTextColor(15, 76, 86); // Teal color
