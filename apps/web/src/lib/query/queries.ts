@@ -121,7 +121,10 @@ export function useMySubscription() {
   return useQuery({
     queryKey: queryKeys.subscriptions.me,
     queryFn: () => subscriptionsAPI.getMySubscription(),
-    staleTime: 1000 * 60 * 2, // 2 minutes
+    staleTime: 1000 * 30, // 30 seconds (reduced from 2 minutes for faster updates)
+    gcTime: 1000 * 60 * 5, // 5 minutes (formerly cacheTime)
+    refetchOnWindowFocus: true, // Refetch when window regains focus
+    refetchOnMount: true, // Always refetch on mount
     retry: (failureCount, error) => {
       // Don't retry on 404 (no subscription)
       if (error && typeof error === 'object' && 'response' in error) {

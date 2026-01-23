@@ -22,6 +22,7 @@ function SubscriptionSuccessContent() {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuthStore();
+  // Use the subscription namespace and access success keys directly
   const t = useTranslations('dashboard.subscription.success');
   const [planName, setPlanName] = useState('');
   const [billingPeriod, setBillingPeriod] = useState<'month' | 'year'>('month');
@@ -95,13 +96,7 @@ function SubscriptionSuccessContent() {
 
     initializeData();
     
-    // Invalidate ALL subscription-related queries to refresh data after payment
-    // This ensures the dashboard and profile pages will show updated subscription
-    queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.me });
-    queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.payments });
-    queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.plans() });
-    
-    // Also invalidate any cached subscription data in localStorage
+    // Clear localStorage cache immediately
     if (typeof window !== 'undefined') {
       try {
         localStorage.removeItem('subscription_cache');
@@ -110,7 +105,29 @@ function SubscriptionSuccessContent() {
         // Ignore localStorage errors
       }
     }
-  }, [isAuthenticated, router, initializeData, queryClient, planData, subscriptionData]);
+    
+    // Poll for subscription update (webhook might take a few seconds)
+    const pollInterval = setInterval(async () => {
+      // Invalidate and refetch subscription data
+      await queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.me });
+      await queryClient.refetchQueries({ queryKey: queryKeys.subscriptions.me });
+    }, 2000); // Poll every 2 seconds
+    
+    // Stop polling after 30 seconds
+    const timeout = setTimeout(() => {
+      clearInterval(pollInterval);
+    }, 30000);
+    
+    // Initial invalidation
+    queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.me });
+    queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.payments });
+    queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.plans() });
+    
+    return () => {
+      clearInterval(pollInterval);
+      clearTimeout(timeout);
+    };
+  }, [isAuthenticated, router, initializeData, queryClient]);
 
   if (!isAuthenticated()) {
     return null;

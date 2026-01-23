@@ -71,11 +71,19 @@ function DashboardContent() {
     }
   }, [user]);
 
+  // Reload assessments when subscription changes (plan upgrade/downgrade)
+  useEffect(() => {
+    if (user && subscriptionData) {
+      // Reload assessments to reflect new plan features
+      loadAssessments();
+    }
+  }, [subscriptionData?.data?.data?.plan_id, subscriptionData?.data?.plan_id]);
+
   // Refresh subscription data when coming from payment success page
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     if (searchParams.get('refresh') === 'true') {
-      // Clear subscription cache and force refetch
+      // Clear subscription cache immediately
       if (typeof window !== 'undefined') {
         try {
           localStorage.removeItem('subscription_cache');
@@ -83,12 +91,29 @@ function DashboardContent() {
           // Ignore localStorage errors
         }
       }
-      // Force refetch subscription data
+      
+      // Force refetch subscription data immediately
       refetchSubscription();
+      
+      // Also poll for updates (webhook might take a few seconds)
+      const pollInterval = setInterval(() => {
+        refetchSubscription();
+      }, 2000); // Poll every 2 seconds
+      
+      // Stop polling after 20 seconds
+      const timeout = setTimeout(() => {
+        clearInterval(pollInterval);
+      }, 20000);
+      
       // Remove refresh parameter from URL
       searchParams.delete('refresh');
       const newUrl = window.location.pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '');
       window.history.replaceState({}, '', newUrl);
+      
+      return () => {
+        clearInterval(pollInterval);
+        clearTimeout(timeout);
+      };
     }
   }, [refetchSubscription]);
 
@@ -103,6 +128,14 @@ function DashboardContent() {
   }, [assessments]);
 
   const loadAssessments = async () => {
+    // Clear cache before loading to ensure fresh data
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem('subscription_cache');
+      } catch (e) {
+        // Ignore localStorage errors
+      }
+    }
     try {
       setIsLoading(true);
       setError(null);
@@ -213,10 +246,24 @@ function DashboardContent() {
       let planName = '';
       let planFeatures: string | null = null;
 
+      // Always prefer fresh subscription data over cache
       if (actualSubscriptionData?.plan) {
         planName = normalizePlanName(actualSubscriptionData.plan.name || '');
         planFeatures = actualSubscriptionData.plan.features || null;
+        
+        // Update cache with fresh data
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('subscription_cache', JSON.stringify({
+              data: actualSubscriptionData,
+              timestamp: Date.now()
+            }));
+          } catch (e) {
+            // Ignore cache errors
+          }
+        }
       } else {
+        // Only use cache if no fresh data available
         const cachedPlan = getPlanFromCache();
         if (cachedPlan) {
           planName = cachedPlan.planName;
