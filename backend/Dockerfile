@@ -109,9 +109,9 @@ ENV PYTHONUNBUFFERED=1
 HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
     CMD sh -c 'PORT=${PORT:-8000}; python -c "import urllib.request; import sys; import socket; socket.setdefaulttimeout(5); url=f\"http://localhost:{PORT}/api/v1/health/\"; r=urllib.request.urlopen(url, timeout=5); sys.exit(0 if r.getcode()==200 else 1)"' || exit 1
 
-# Use direct Python command as fallback
+# Use Python start script as fallback
 # Railway will use startCommand from railway.json if set, otherwise this CMD
 # Note: Railway prefers startCommand over ENTRYPOINT/CMD
-# Use shell form to allow PORT env var expansion
-CMD python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info --access-log
+# start.py handles PORT env var and produces immediate output
+CMD ["python", "start.py"]
 
