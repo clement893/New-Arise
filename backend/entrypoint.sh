@@ -13,7 +13,19 @@ export PYTHONUNBUFFERED=1
 # We'll rely on PYTHONUNBUFFERED and exec 2>&1 for log visibility
 
 # Print immediate startup message so we know the script is running
-# Use multiple methods to ensure visibility
+# Use multiple methods to ensure visibility - write to both stdout and stderr
+echo "==========================================" >&2
+echo "ENTRYPOINT SCRIPT STARTED - $(date)" >&2
+echo "==========================================" >&2
+echo "Working directory: $(pwd)" >&2
+echo "User: $(whoami)" >&2
+echo "Shell: $SHELL" >&2
+echo "PATH: $PATH" >&2
+echo "Python: $(which python 2>&1)" >&2
+echo "==========================================" >&2
+echo "" >&2
+
+# Also write to stdout
 echo "=========================================="
 echo "ENTRYPOINT SCRIPT STARTED - $(date)"
 echo "=========================================="
@@ -24,9 +36,6 @@ echo "PATH: $PATH"
 echo "Python: $(which python 2>&1)"
 echo "=========================================="
 echo ""
-
-# Also write directly to stderr as backup
-echo "ENTRYPOINT SCRIPT STARTED - stderr backup" >&2
 
 # Use PORT environment variable if set, otherwise default to 8000
 # Railway automatically sets PORT to the port the service should listen on

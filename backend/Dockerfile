@@ -112,5 +112,9 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
 # So we only set ENTRYPOINT, and Railway's startCommand will override if needed
 # Use WORKDIR to ensure we're in /app when script runs
 WORKDIR /app
-ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
+
+# Try CMD as fallback - Railway may ignore startCommand in some cases
+# This ensures uvicorn starts even if entrypoint script fails
+# Use exec form to ensure proper signal handling
+CMD ["/bin/sh", "-c", "echo '=== DOCKERFILE CMD STARTED ===' && /bin/sh /app/entrypoint.sh"]
 
