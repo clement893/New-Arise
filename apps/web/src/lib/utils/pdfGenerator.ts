@@ -700,44 +700,49 @@ const generate360PDF = async (
 
   // Contributors Status Section (same as ThreeSixtyResultContent)
   if (evaluatorsList.length > 0) {
-    yPos = checkNewPage(doc, yPos, pageHeight, 100);
+    yPos = checkNewPage(doc, yPos, pageHeight, 80);
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.text('Contributor Status', 20, yPos);
-    yPos += 8;
+    yPos += 6;
+    
+    // Calculate uniform spacing (same for horizontal and vertical)
+    const horizontalSpacing = 5; // Space between blocks horizontally
+    const verticalSpacing = 5; // Space between rows (same as horizontal)
+    const boxHeight = 18; // Further reduced height
+    const boxWidth = ((pageWidth - 40) - (2 * horizontalSpacing)) / 3; // 3 columns with spacing
     
     evaluatorsList.forEach((evaluator, index) => {
-      if (index > 0 && index % 3 === 0) {
-        yPos += 8; // New row - reduced spacing
-      }
-      
       const col = index % 3;
-      const xPos = 20 + (col * ((pageWidth - 40) / 3));
-      const boxWidth = (pageWidth - 50) / 3;
+      const row = Math.floor(index / 3);
       
-      // Evaluator box - reduced height
+      // Calculate position with uniform spacing
+      const xPos = 20 + (col * (boxWidth + horizontalSpacing));
+      const currentYPos = yPos + (row * (boxHeight + verticalSpacing));
+      
+      // Evaluator box - further reduced height
       doc.setDrawColor(200, 200, 200);
-      doc.rect(xPos, yPos, boxWidth, 25, 'S');
+      doc.rect(xPos, currentYPos, boxWidth, boxHeight, 'S');
       
-      // Name - smaller font
+      // Name - even smaller font
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9);
-      const nameLines = doc.splitTextToSize(evaluator.name || 'Unknown', boxWidth - 10);
-      doc.text(nameLines, xPos + 4, yPos + 5);
+      doc.setFontSize(8);
+      const nameLines = doc.splitTextToSize(evaluator.name || 'Unknown', boxWidth - 8);
+      doc.text(nameLines, xPos + 3, currentYPos + 4);
       
-      // Email - smaller font
+      // Email - even smaller font
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(7);
-      const emailLines = doc.splitTextToSize(evaluator.email || '', boxWidth - 10);
-      doc.text(emailLines, xPos + 4, yPos + 10);
-      
-      // Role - smaller font
       doc.setFontSize(6);
+      const emailLines = doc.splitTextToSize(evaluator.email || '', boxWidth - 8);
+      doc.text(emailLines, xPos + 3, currentYPos + 8);
+      
+      // Role - even smaller font
+      doc.setFontSize(5);
       doc.setTextColor(150, 150, 150);
-      doc.text(evaluator.role || '', xPos + 4, yPos + 15);
+      doc.text(evaluator.role || '', xPos + 3, currentYPos + 12);
       doc.setTextColor(0, 0, 0);
       
-      // Status icon (text representation) - smaller font
+      // Status icon (text representation) - smaller
       let statusText = '';
       if (evaluator.status === 'completed' || evaluator.status === 'COMPLETED') {
         statusText = '✓';
@@ -755,48 +760,47 @@ const generate360PDF = async (
         statusText = '✗';
         doc.setTextColor(150, 150, 150);
       }
-      doc.setFontSize(8);
-      doc.text(statusText, xPos + boxWidth - 8, yPos + 5);
+      doc.setFontSize(7);
+      doc.text(statusText, xPos + boxWidth - 6, currentYPos + 4);
       doc.setTextColor(0, 0, 0);
-      
-      if (col === 2) {
-        yPos += 28; // Next row - reduced spacing
-      }
     });
     
-    if (evaluatorsList.length % 3 !== 0) {
-      yPos += 28;
-    }
-    
-    // Status legend removed as requested
-    yPos += 5;
+    // Calculate final Y position based on number of rows
+    const numRows = Math.ceil(evaluatorsList.length / 3);
+    yPos = yPos + (numRows * (boxHeight + verticalSpacing)) - verticalSpacing + 5;
   }
 
   // Overall Score Section (with teal background simulation)
-  yPos = checkNewPage(doc, yPos, pageHeight, 80);
+  yPos = checkNewPage(doc, yPos, pageHeight, 60);
+  yPos += 10; // Add space above title
   doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
   doc.text('Overall Leadership Score', 20, yPos);
-  yPos += 10;
+  yPos += 8;
   
-  // Draw teal background rectangle
-  const scoreBoxHeight = 50;
-  const scoreBoxY = yPos - 5;
+  // Draw teal background rectangle - reduced size
+  const scoreBoxHeight = 35; // Reduced from 50
+  const scoreBoxY = yPos;
   doc.setFillColor(15, 76, 86); // Teal color #0F4C56
   doc.rect(20, scoreBoxY, pageWidth - 40, scoreBoxHeight, 'F');
   
-  // Score text in white
+  // Score text in white - full width layout
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(36);
+  doc.setFontSize(28); // Reduced from 36
   doc.setFont('helvetica', 'bold');
-  doc.text(`${percentage.toFixed(1)}%`, pageWidth / 2, scoreBoxY + 20, { align: 'center' });
-  doc.setFontSize(12);
+  doc.text(`${percentage.toFixed(1)}%`, pageWidth / 2, scoreBoxY + 14, { align: 'center' });
+  doc.setFontSize(10); // Reduced from 12
   doc.setFont('helvetica', 'normal');
-  doc.text(`Points: ${totalScore} / ${maxScore}`, pageWidth / 2, scoreBoxY + 35, { align: 'center' });
+  doc.text(`Points: ${totalScore} / ${maxScore}`, pageWidth / 2, scoreBoxY + 26, { align: 'center' });
   doc.setTextColor(0, 0, 0);
-  yPos = scoreBoxY + scoreBoxHeight + 15;
+  yPos = scoreBoxY + scoreBoxHeight + 12;
 
-  // Leadership Capabilities Section
+  // Leadership Capabilities Section - Start on new page
+  yPos = checkNewPage(doc, yPos, pageHeight, 200);
+  if (yPos > pageHeight - 200) {
+    doc.addPage();
+    yPos = 20;
+  }
   yPos = addSectionTitle(doc, 'Leadership Capabilities', yPos, pageHeight);
   doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
@@ -914,11 +918,11 @@ const generate360PDF = async (
     statementColor = '#FFC7CE';
   }
 
-  // Statement box with colored background
+  // Statement box with colored background - full width text, reduced block
   yPos = checkNewPage(doc, yPos, pageHeight, 80);
   const statementBoxY = yPos;
-  const statementLines = doc.splitTextToSize(statement, pageWidth - 50);
-  const statementBoxHeight = statementLines.length * 5 + 15;
+  const statementLines = doc.splitTextToSize(statement, pageWidth - 40); // Full width (was 50)
+  const statementBoxHeight = statementLines.length * 5 + 10; // Reduced padding (was 15)
   
   const stmtR = parseInt(statementColor.slice(1, 3), 16);
   const stmtG = parseInt(statementColor.slice(3, 5), 16);
@@ -929,8 +933,8 @@ const generate360PDF = async (
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
   doc.setTextColor(0, 0, 0);
-  doc.text(statementLines, 25, statementBoxY + 10);
-  yPos = statementBoxY + statementBoxHeight + 15;
+  doc.text(statementLines, 20, statementBoxY + 6); // Full width padding (was 25, now 20)
+  yPos = statementBoxY + statementBoxHeight + 12; // Reduced spacing
 
   // Categorize capabilities: Areas for Growth (1-2), Neutral (3), Strengths (4-5)
   const growthCapabilities = transformedCapabilityScores.filter(cap => {
