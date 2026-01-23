@@ -238,6 +238,8 @@ function SubscriptionSuccessContent() {
 }
 
 export default function SubscriptionSuccessPage() {
+  const t = useTranslations('dashboard.subscription.success');
+  
   return (
     <Suspense
       fallback={
