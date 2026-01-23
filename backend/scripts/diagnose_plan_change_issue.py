@@ -52,12 +52,34 @@ async def diagnose_plan_change_issue(email: str = None, user_id: int = None):
             # Mask password in URL for security
             masked_url = str(db_url).split('@')[-1] if '@' in str(db_url) else '***'
             print(f"🔍 DEBUG: DATABASE_URL trouvé (host: {masked_url})")
+            # Check URL format
+            if not str(db_url).startswith('postgresql'):
+                print(f"⚠️  DEBUG: Format d'URL suspect: {str(db_url)[:50]}...")
         else:
             print("⚠️  DEBUG: DATABASE_URL non trouvé dans settings")
     except Exception as e:
         print(f"⚠️  DEBUG: Erreur lors du chargement des settings: {e}")
+        import traceback
+        traceback.print_exc()
     
+    print("🔍 DEBUG: Tentative de connexion à la base de données...")
     try:
+        # Test connection first with a simple query
+        from app.core.database import engine
+        print("🔍 DEBUG: Test de connexion avec l'engine...")
+        try:
+            async with engine.begin() as conn:
+                # Simple test query
+                from sqlalchemy import text
+                result = await conn.execute(text("SELECT 1"))
+                result.scalar()
+                print("✅ DEBUG: Connexion réussie!")
+        except Exception as conn_err:
+            print(f"❌ DEBUG: Erreur lors du test de connexion: {type(conn_err).__name__}: {conn_err}")
+            print(f"   Détails: {str(conn_err)}")
+            # Re-raise to be caught by outer exception handler
+            raise
+        
         async with AsyncSessionLocal() as db:
             print("=" * 80)
             print("DIAGNOSTIC DU PROBLÈME DE CHANGEMENT DE PLAN")
@@ -208,7 +230,17 @@ async def diagnose_plan_change_issue(email: str = None, user_id: int = None):
             print("   Aucune variable Railway/Database trouvée")
         print()
         
-        if "getaddrinfo failed" in error_message or "11001" in error_message:
+        # Print full error details
+        print(f"Type d'erreur: {error_type}")
+        print(f"Message complet: {error_message}")
+        print()
+        
+        # Show more context about the error
+        if hasattr(e, '__cause__') and e.__cause__:
+            print(f"Cause de l'erreur: {type(e.__cause__).__name__}: {str(e.__cause__)}")
+            print()
+        
+        if "getaddrinfo failed" in error_message or "11001" in error_message or "Name resolution" in error_message or "postgres.railway.internal" in error_message:
             print("=" * 80)
             print("❌ ERREUR DE CONNEXION À LA BASE DE DONNÉES")
             print("=" * 80)
