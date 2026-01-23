@@ -323,6 +323,15 @@ export default function TKIAssessmentPage() {
               </div>
             </div>
 
+            {/* TKI Pictogram Image */}
+            <div className="mb-8 flex justify-center">
+              <img
+                src="/images/arise-tki-pictogram.png"
+                alt="ARISE TKI Pictogram"
+                className="max-w-full h-auto rounded-lg shadow-md"
+              />
+            </div>
+
             {/* How to complete section */}
             <div className="mb-8 rounded-lg bg-primary-50 p-6">
               <h3 className="mb-3 text-xl font-semibold text-primary-900">
@@ -336,15 +345,6 @@ export default function TKIAssessmentPage() {
                   • There are no right or wrong answers
                 </li>
               </ul>
-            </div>
-
-            {/* ARISE TKI Pictogram Image */}
-            <div className="mb-8 flex justify-center">
-              <img
-                src="/images/arise-tki-pictogram.png"
-                alt="ARISE TKI Pictogram"
-                className="max-w-full h-auto rounded-lg shadow-md"
-              />
             </div>
 
             <Button
