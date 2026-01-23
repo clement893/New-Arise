@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getErrorMessage, getErrorDetail } from '@/lib/errors';
 import { logger } from '@/lib/logger';
-import { useMySubscription, useSubscriptionPayments, useCreateCheckoutSession, useCancelSubscription, useSubscriptionPlans, useUpgradePlan } from '@/lib/query/queries';
+import { useMySubscription, useSubscriptionPayments, useCreateCheckoutSession, useCancelSubscription, useSubscriptionPlans } from '@/lib/query/queries';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Alert from '@/components/ui/Alert';
@@ -43,7 +43,6 @@ function SubscriptionsContent() {
   const { data: paymentsData, isLoading: paymentsLoading } = useSubscriptionPayments();
   const { data: plansData, isLoading: plansLoading } = useSubscriptionPlans(true);
   const createCheckoutMutation = useCreateCheckoutSession();
-  const upgradePlanMutation = useUpgradePlan();
   const cancelSubscriptionMutation = useCancelSubscription();
   
   const [subscription, setSubscription] = useState<Subscription | null>(null);
@@ -133,7 +132,7 @@ function SubscriptionsContent() {
     
     // Wait for subscription data to load before processing
     // Only trigger if we have both params, haven't processed this exact checkout yet, and subscription data is loaded
-    if (planId && period && checkoutKey !== processedCheckout && !subscriptionLoading && !createCheckoutMutation.isPending && !upgradePlanMutation.isPending) {
+    if (planId && period && checkoutKey !== processedCheckout && !subscriptionLoading && !createCheckoutMutation.isPending) {
       // Call handleSubscribe directly to avoid dependency issues
       (async () => {
         try {
@@ -152,31 +151,20 @@ function SubscriptionsContent() {
             subscriptionPlanId: subscription?.plan_id
           });
           
-          // Check if user already has an active subscription
-          const hasActiveSubscription = subscription && (subscription.status === 'active' || subscription.status === 'trial');
+          // Always use checkout session for plan changes (same as register page)
+          // This ensures proper payment processing and webhook handling
+          logger.info(`Creating checkout session: plan_id=${planIdNum}, period=${period}, current_plan_id=${subscription?.plan_id || 'none'}`);
+          const response = await createCheckoutMutation.mutateAsync({
+            plan_id: planIdNum,
+            success_url: `${window.location.origin}/subscriptions/success?plan=${planId}&period=${period}`,
+            cancel_url: `${window.location.origin}/subscriptions`,
+          });
           
-          if (hasActiveSubscription) {
-            // Use upgrade endpoint instead of checkout
-            logger.info(`Upgrading subscription: current_plan_id=${subscription.plan_id}, new_plan_id=${planIdNum}`);
-            await upgradePlanMutation.mutateAsync(planIdNum);
-            setError('');
-            // Redirect to success page
-            router.push(`/subscriptions/success?plan=${planId}&period=${period}&upgraded=true`);
+          // Backend returns 'url' not 'checkout_url' (see CheckoutSessionResponse schema)
+          if (response.data?.url) {
+            window.location.href = response.data.url;
           } else {
-            // Create new checkout session
-            logger.info(`Creating checkout session: plan_id=${planIdNum}, period=${period}`);
-            const response = await createCheckoutMutation.mutateAsync({
-              plan_id: planIdNum,
-              success_url: `${window.location.origin}/subscriptions/success?plan=${planId}&period=${period}`,
-              cancel_url: `${window.location.origin}/subscriptions`,
-            });
-            
-            // Backend returns 'url' not 'checkout_url' (see CheckoutSessionResponse schema)
-            if (response.data?.url) {
-              window.location.href = response.data.url;
-            } else {
-              router.push(`/subscriptions/success?plan=${planId}&period=${period}`);
-            }
+            router.push(`/subscriptions/success?plan=${planId}&period=${period}`);
           }
         } catch (err: unknown) {
           const errorDetail = getErrorDetail(err);
@@ -187,7 +175,7 @@ function SubscriptionsContent() {
         }
       })();
     }
-  }, [searchParams, processedCheckout, createCheckoutMutation, upgradePlanMutation, router, subscription, subscriptionLoading]);
+  }, [searchParams, processedCheckout, createCheckoutMutation, router, subscription, subscriptionLoading]);
 
   const handleCancelSubscription = async () => {
     if (!confirm('Are you sure you want to cancel your subscription? It will remain active until the end of the current period.')) {
@@ -225,28 +213,18 @@ function SubscriptionsContent() {
     try {
       setError('');
       
-      // Check if user already has an active subscription
-      const hasActiveSubscription = subscription && (subscription.status === 'active' || subscription.status === 'trial');
+      // Always use checkout session for plan changes (same as register page)
+      // This ensures proper payment processing and webhook handling
+      const response = await createCheckoutMutation.mutateAsync({
+        plan_id: planId,
+        success_url: `${window.location.origin}/subscriptions/success?plan=${planId}`,
+        cancel_url: `${window.location.origin}/subscriptions`,
+      });
       
-      if (hasActiveSubscription) {
-        // Use upgrade endpoint instead of checkout
-        await upgradePlanMutation.mutateAsync(planId);
-        setError('');
-        // Redirect to success page
-        router.push(`/subscriptions/success?plan=${planId}&upgraded=true`);
+      if (response.data?.url) {
+        window.location.href = response.data.url;
       } else {
-        // Create new checkout session
-        const response = await createCheckoutMutation.mutateAsync({
-          plan_id: planId,
-          success_url: `${window.location.origin}/subscriptions/success?plan=${planId}`,
-          cancel_url: `${window.location.origin}/subscriptions`,
-        });
-        
-        if (response.data?.url) {
-          window.location.href = response.data.url;
-        } else {
-          router.push(`/subscriptions/success?plan=${planId}`);
-        }
+        router.push(`/subscriptions/success?plan=${planId}`);
       }
     } catch (err: unknown) {
       const errorDetail = getErrorDetail(err);
@@ -317,7 +295,7 @@ function SubscriptionsContent() {
                     key={plan.id}
                     plan={plan}
                     onSelect={handleSelectPlan}
-                    isLoading={createCheckoutMutation.isPending || upgradePlanMutation.isPending}
+                    isLoading={createCheckoutMutation.isPending}
                     currentPlanId={undefined}
                   />
                 ))}

@@ -12,8 +12,7 @@ import {
   useCancelSubscription,
   useCreatePortalSession,
   useSubscriptionPlans,
-  useCreateCheckoutSession,
-  useUpgradePlan
+  useCreateCheckoutSession
 } from '@/lib/query/queries';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -50,7 +49,6 @@ export default function SubscriptionManagement() {
   const cancelSubscriptionMutation = useCancelSubscription();
   const createPortalSessionMutation = useCreatePortalSession();
   const createCheckoutMutation = useCreateCheckoutSession();
-  const upgradePlanMutation = useUpgradePlan();
   
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -313,36 +311,26 @@ export default function SubscriptionManagement() {
       setError('');
       setSuccess('');
       
-      // Check if user already has an active subscription
-      const hasActiveSubscription = subscription && (subscription.status === 'active' || subscription.status === 'trial');
+      // Always use checkout session for plan changes (same as register page)
+      // This ensures proper payment processing and webhook handling
+      const returnUrl = `${window.location.origin}${window.location.pathname}?tab=subscription`;
+      const response = await createCheckoutMutation.mutateAsync({
+        plan_id: planId,
+        success_url: `${window.location.origin}/subscriptions/success?plan=${planId}`,
+        cancel_url: returnUrl,
+      });
       
-      if (hasActiveSubscription) {
-        // Use upgrade endpoint instead of checkout
-        await upgradePlanMutation.mutateAsync(planId);
-        setSuccess(t('upgradeSuccess') || 'Plan updated successfully');
-        // Refetch subscription data to show updated plan
-        refetchSubscription();
+      if (response.data?.url) {
+        window.location.href = response.data.url;
       } else {
-        // Create new checkout session
-        const returnUrl = `${window.location.origin}${window.location.pathname}?tab=subscription`;
-        const response = await createCheckoutMutation.mutateAsync({
-          plan_id: planId,
-          success_url: `${window.location.origin}/subscriptions/success?plan=${planId}`,
-          cancel_url: returnUrl,
-        });
-        
-        if (response.data?.url) {
-          window.location.href = response.data.url;
-        } else {
-          router.push(`/subscriptions/success?plan=${planId}`);
-        }
+        router.push(`/subscriptions/success?plan=${planId}`);
       }
     } catch (err: unknown) {
       const errorDetail = getErrorDetail(err);
       const errorMessage = getErrorMessage(err, t('errors.subscribeFailed'));
       setError(errorDetail || errorMessage);
     }
-  }, [createCheckoutMutation, upgradePlanMutation, router, t, subscription, refetchSubscription]);
+  }, [createCheckoutMutation, router, t]);
 
   return (
     <div className="space-y-6">
@@ -439,7 +427,7 @@ export default function SubscriptionManagement() {
                     key={plan.id}
                     plan={plan}
                     onSelect={handleSelectPlan}
-                    isLoading={createCheckoutMutation.isPending || upgradePlanMutation.isPending}
+                    isLoading={createCheckoutMutation.isPending}
                     currentPlanId={undefined}
                   />
                 ))}
