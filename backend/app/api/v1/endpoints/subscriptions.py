@@ -370,10 +370,24 @@ async def upgrade_subscription(
                 stripe.api_key = settings.STRIPE_SECRET_KEY
             
             # Get subscription from Stripe to verify
-            stripe_sub = stripe.Subscription.retrieve(updated_subscription.stripe_subscription_id)
+            stripe_sub = stripe.Subscription.retrieve(
+                updated_subscription.stripe_subscription_id,
+                expand=['items']
+            )
             
-            if stripe_sub.items and stripe_sub.items.data:
-                stripe_price_id = stripe_sub.items.data[0].price.id
+            # Safely access items - check if it's a property with data attribute
+            items_data = None
+            if hasattr(stripe_sub, 'items'):
+                items_obj = stripe_sub.items
+                # Check if items is a ListObject with data attribute
+                if hasattr(items_obj, 'data') and items_obj.data:
+                    items_data = items_obj.data
+                # Fallback: if items is a list directly
+                elif isinstance(items_obj, list) and len(items_obj) > 0:
+                    items_data = items_obj
+            
+            if items_data and len(items_data) > 0:
+                stripe_price_id = items_data[0].price.id
                 
                 # Find plan by stripe_price_id
                 from app.models import Plan

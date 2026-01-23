@@ -120,6 +120,9 @@ function SubscriptionSuccessContent() {
   }, [searchParams, planData, subscriptionData, planIdParam, planId, planLoading, normalizePlanName]);
 
   useEffect(() => {
+    // Only run on client side to avoid hydration issues
+    if (typeof window === 'undefined') return;
+    
     if (!isAuthenticated()) {
       // Wait a bit for auth to initialize after returning from Stripe
       const authCheckTimeout = setTimeout(() => {
@@ -135,13 +138,11 @@ function SubscriptionSuccessContent() {
       initializeData();
       
       // Clear localStorage cache immediately
-      if (typeof window !== 'undefined') {
-        try {
-          localStorage.removeItem('subscription_cache');
-          logger.debug('Cleared subscription cache from localStorage');
-        } catch (e) {
-          // Ignore localStorage errors
-        }
+      try {
+        localStorage.removeItem('subscription_cache');
+        logger.debug('Cleared subscription cache from localStorage');
+      } catch (e) {
+        // Ignore localStorage errors
       }
       
       // Wait 3 seconds before starting to poll (give webhook time to process)
@@ -201,6 +202,26 @@ function SubscriptionSuccessContent() {
     };
   }, [isAuthenticated, router, initializeData, queryClient]);
 
+  // Use client-side only check to avoid hydration mismatch
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-muted dark:to-muted flex items-center justify-center px-4">
+        <Card className="w-full max-w-2xl">
+          <div className="p-8 text-center">
+            <Loading />
+            <p className="mt-4 text-muted-foreground">{String(t('loading'))}</p>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+  
   if (!isAuthenticated()) {
     return null;
   }
