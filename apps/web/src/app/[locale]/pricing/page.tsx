@@ -272,10 +272,10 @@ export default function PricingPage() {
       <main className="container mx-auto px-4 pt-24 pb-12">
         {/* Hero Section */}
         <MotionDiv variant="fade" duration="normal">
-          <div className="mb-16 relative flex items-center overflow-hidden rounded-2xl" style={{ backgroundColor: '#0F4C56', minHeight: '500px' }}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch w-full">
+          <div className="mb-16 relative overflow-hidden rounded-2xl" style={{ backgroundColor: '#0F4C56' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-center w-full">
               {/* Left Section - Text on Dark Teal Background */}
-              <div className="relative z-10 p-8 md:p-12 lg:p-16 flex flex-col justify-center" style={{ backgroundColor: '#0F4C56' }}>
+              <div className="relative z-10 pt-8 pb-8 pl-8 md:pt-12 md:pb-12 md:pl-12 lg:pt-16 lg:pb-16 lg:pl-16 flex flex-col justify-center" style={{ backgroundColor: '#0F4C56' }}>
                 <div className="text-left">
                   <h1 className="mb-6">
                     <span className="block text-5xl md:text-6xl font-light mb-2" style={{ color: '#D8B868' }}>
@@ -292,8 +292,8 @@ export default function PricingPage() {
               </div>
               
               {/* Right Section - Photo */}
-              <div className="relative h-64 md:h-auto rounded-r-2xl overflow-hidden" style={{ borderLeft: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                <div className="absolute inset-0">
+              <div className="relative p-8 md:p-12 flex items-center justify-center">
+                <div className="relative w-full rounded-2xl overflow-hidden" style={{ aspectRatio: '3/4', maxHeight: '500px' }}>
                   <Image 
                     src="/images/pricing-hero.jpg" 
                     alt={t('hero.title')}
@@ -304,13 +304,9 @@ export default function PricingPage() {
                       // Fallback handled by CSS
                     }}
                   />
-                  {/* Fallback gradient if image fails to load */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                    <Users className="text-white/30" size={120} />
-                  </div>
+                  {/* Subtle border around photo */}
+                  <div className="absolute inset-0 border-2 border-white/10 rounded-2xl pointer-events-none"></div>
                 </div>
-                {/* Subtle border around photo */}
-                <div className="absolute inset-0 border-2 border-black/10 rounded-r-2xl pointer-events-none"></div>
               </div>
             </div>
           </div>
@@ -327,9 +323,9 @@ export default function PricingPage() {
             <Loading />
           </div>
         ) : plans.length > 0 ? (
-          <div className="flex flex-col md:flex-row md:flex-wrap gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {plans.map((plan) => (
-              <div key={plan.id} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.33rem)]">
+              <div key={plan.id}>
                 <PricingCardSimple
                   plan={plan}
                   billingPeriod={billingPeriod}
