@@ -191,15 +191,28 @@ export default function TKIResultsPage() {
             </div>
 
             {/* Dominant & Secondary Modes */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
               <div className="rounded-lg border shadow-sm bg-gradient-to-br from-arise-teal to-arise-teal-dark p-6 md:col-span-2">
-                <div className="text-center">
-                  <div className="text-4xl mb-3">{dominantModeInfo?.icon}</div>
-                  <h3 className="text-sm font-medium mb-2 text-white opacity-95">{t('dominantMode')}</h3>
-                  <h2 className="text-3xl font-bold mb-2 text-white">{dominantModeInfo?.title}</h2>
-                  <p className="text-sm text-white opacity-95">
-                    {t('responsesCount', { count: results.dominant_mode ? (results.mode_counts[results.dominant_mode] || 0) : 0, total: 30 })}
-                  </p>
+                <div className="flex flex-col md:flex-row items-center md:items-start gap-6 h-full">
+                  <div className="text-center md:text-left flex-1">
+                    <div className="text-4xl mb-3">{dominantModeInfo?.icon}</div>
+                    <h3 className="text-sm font-medium mb-2 text-white opacity-95">{t('dominantMode')}</h3>
+                    <h2 className="text-3xl font-bold mb-2 text-white">{dominantModeInfo?.title}</h2>
+                    <p className="text-sm text-white opacity-95">
+                      {t('responsesCount', { count: results.dominant_mode ? (results.mode_counts[results.dominant_mode] || 0) : 0, total: 30 })}
+                    </p>
+                  </div>
+                  <div className="flex-shrink-0">
+                    <img
+                      alt="ARISE TKI Pictogram"
+                      loading="lazy"
+                      width="300"
+                      height="200"
+                      decoding="async"
+                      className="rounded-lg shadow-md bg-white/10 p-2"
+                      src="/images/arise-tki-pictogram.png"
+                    />
+                  </div>
                 </div>
               </div>
 
