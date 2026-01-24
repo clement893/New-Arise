@@ -506,10 +506,10 @@ export default function MBTIResultsPage() {
                               />
                               <div className="absolute inset-0 flex items-center justify-between px-4">
                                 <span className="text-xs font-medium text-gray-700">
-                                  {getPreferenceLabel(dimension[0])}
+                                  {getPreferenceLabel(dimension[0] || '')}
                                 </span>
                                 <span className="text-xs font-medium text-white">
-                                  {getPreferenceLabel(dimension[1])}
+                                  {getPreferenceLabel(dimension[1] || '')}
                                 </span>
                               </div>
                             </div>
