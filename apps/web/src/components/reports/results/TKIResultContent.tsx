@@ -98,8 +98,8 @@ export default function TKIResultContent({ results }: TKIResultContentProps) {
   return (
     <div className="space-y-6">
       {/* Dominant & Secondary Modes */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="text-white" padding={false}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="text-white md:col-span-2" padding={false}>
           <div className="h-full p-lg bg-arise-deep-teal">
             <div className="text-center">
               <div className="text-4xl mb-3">{dominantModeInfo?.icon}</div>
@@ -115,7 +115,7 @@ export default function TKIResultContent({ results }: TKIResultContentProps) {
           </div>
         </Card>
 
-        <Card className="bg-gradient-to-br from-arise-gold to-arise-gold-dark text-white">
+        <Card className="bg-gradient-to-br from-arise-gold to-arise-gold-dark text-white md:col-span-1">
           <div className="text-center">
             <div className="text-4xl mb-3">{secondaryModeInfo?.icon}</div>
             <h3 className="text-sm font-medium mb-2 opacity-95">{t('secondaryMode')}</h3>
@@ -167,7 +167,7 @@ export default function TKIResultContent({ results }: TKIResultContentProps) {
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-3">
                     <div
-                      className="bg-arise-teal h-3 rounded-full transition-all"
+                      className="bg-yellow-500 h-3 rounded-full transition-all"
                       style={{ width: `${percentage}%`, transitionDuration: '800ms' }}
                     />
                   </div>

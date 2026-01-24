@@ -45,10 +45,10 @@ export default function   PricingCardSimple({
 
   return (
     <Card
-      className="relative rounded-xl border-0 shadow-none"
+      className="relative rounded-xl border-0 shadow-none h-full"
       style={{ backgroundColor: '#F3F4F6' }}
     >
-      <div className="p-lg h-full">
+      <div className="p-lg h-full flex flex-col">
         {/* Price */}
         <div className="mb-16">
           {isCustomPricing ? (
@@ -79,26 +79,28 @@ export default function   PricingCardSimple({
           {plan.description || t('defaultDescription')}
         </p>
 
-        {/* Button */}
-        <Link href={`/subscriptions?plan=${plan.id}&period=${billingPeriod}`}>
-          <Button
-            className="w-full rounded-lg flex items-center justify-center gap-2 font-semibold"
-            style={{ 
-              backgroundColor: '#D8B868', 
-              color: '#1F2937',
-              border: 'none'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#C9A85A';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#D8B868';
-            }}
-          >
-            {plan.buttonText}
-            <ArrowRight size={18} />
-          </Button>
-        </Link>
+        {/* Button - pushed to bottom with mt-auto */}
+        <div className="mt-auto">
+          <Link href={`/subscriptions?plan=${plan.id}&period=${billingPeriod}`}>
+            <Button
+              className="w-full rounded-lg flex items-center justify-center gap-2 font-semibold"
+              style={{ 
+                backgroundColor: '#D8B868', 
+                color: '#1F2937',
+                border: 'none'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#C9A85A';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#D8B868';
+              }}
+            >
+              {plan.buttonText}
+              <ArrowRight size={18} />
+            </Button>
+          </Link>
+        </div>
       </div>
     </Card>
   );

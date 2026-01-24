@@ -509,25 +509,46 @@ export function getWellnessInsightWithLocale(
   
   const isFrench = locale === 'fr' || locale.startsWith('fr');
   
+  // Ensure actions is always an array
+  const actions = isFrench && insight.actionsFr 
+    ? (Array.isArray(insight.actionsFr) ? insight.actionsFr : [])
+    : (Array.isArray(insight.actions) ? insight.actions : []);
+  
   return {
     assessment: isFrench && insight.assessmentFr ? insight.assessmentFr : insight.assessment,
     recommendation: isFrench && insight.recommendationFr ? insight.recommendationFr : insight.recommendation,
-    actions: isFrench && insight.actionsFr ? insight.actionsFr : insight.actions,
+    actions: actions,
     colorCode: insight.colorCode
   };
 }
 
 /**
+ * Map backend pillar keys to insight pillar names
+ */
+const pillarNameMap: Record<string, string> = {
+  'sleep': 'Sleep',
+  'nutrition': 'Nutrition',
+  'movement': 'Movement',
+  'avoidance_of_risky_substances': 'Avoidance of Risky Substances',
+  'avoidance_of_toxic_substances': 'Avoidance of Risky Substances',
+  'stress_management': 'Stress Management',
+  'social_connection': 'Social Connection',
+};
+
+/**
  * Get insight for a specific pillar based on score
  */
 export function getWellnessInsight(pillar: string, score: number): WellnessPillarInsight | null {
+  // First, try to map the pillar name using the mapping
+  const mappedPillar = pillarNameMap[pillar.toLowerCase()] || pillar;
+  
   // Find the matching insight based on pillar and score range
   const insights = wellnessInsights.filter(insight => {
     // Normalize pillar name for comparison
-    const normalizedPillar = insight.pillar.toLowerCase().replace(/\s+/g, '_');
-    const normalizedInputPillar = pillar.toLowerCase().replace(/\s+/g, '_');
+    const normalizedPillar = insight.pillar.toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_');
+    const normalizedInputPillar = mappedPillar.toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_');
     
-    // Check if pillars match (handling variations like "avoidance_of_risky_substances")
+    // Check if pillars match (handling variations)
     const pillarMatches = normalizedPillar === normalizedInputPillar ||
                          normalizedPillar.includes(normalizedInputPillar) ||
                          normalizedInputPillar.includes(normalizedPillar);
@@ -535,8 +556,11 @@ export function getWellnessInsight(pillar: string, score: number): WellnessPilla
     if (!pillarMatches) return false;
     
     // Parse score range
-    const [min, max] = insight.scoreRange.split('-').map(s => parseInt(s.trim()));
-    if (min === undefined || max === undefined) return false;
+    const rangeParts = insight.scoreRange.split('-').map(s => parseInt(s.trim(), 10));
+    const min = rangeParts[0];
+    const max = rangeParts[1];
+    
+    if (min === undefined || max === undefined || isNaN(min) || isNaN(max)) return false;
     return score >= min && score <= max;
   });
   
