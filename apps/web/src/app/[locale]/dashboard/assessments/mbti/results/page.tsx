@@ -172,7 +172,6 @@ export default function MBTIResultsPage() {
   }
 
   const mbtiType = results.scores?.mbti_type || 'XXXX';
-  const dimensionPreferences = results.scores?.dimension_preferences || {};
   const insights = results.insights || {};
   const recommendations = results.recommendations || [];
   const isFromOCR = results.scores?.source === 'pdf_ocr';
@@ -195,9 +194,6 @@ export default function MBTIResultsPage() {
                                   (results.scores as any)?.personality_description || 
                                   insights.description || 
                                   typeInfo.description;
-
-  // Get dimension details if available (from URL import)
-  const dimensionDetails = (results.scores as any)?.dimension_details || {};
 
   return (
     <div className="min-h-screen bg-gray-50">
