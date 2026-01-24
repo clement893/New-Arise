@@ -123,35 +123,6 @@ export default function MBTIResultsPage() {
     return labels[preference] || preference;
   };
 
-  const translateStrengthOrChallenge = (text: string): string => {
-    // Try to get translation from the translations object
-    // next-intl returns the key if translation doesn't exist, so we check if result equals the key
-    const strengthKey = `strengths.translations.${text}`;
-    try {
-      const strengthTranslation = t(strengthKey);
-      // If translation exists and is different from the key path, use it
-      if (strengthTranslation && strengthTranslation !== strengthKey) {
-        return strengthTranslation;
-      }
-    } catch (e) {
-      // Key doesn't exist, try challenges
-    }
-    
-    // Try challenges translations
-    const challengeKey = `strengths.challenges.${text}`;
-    try {
-      const challengeTranslation = t(challengeKey);
-      if (challengeTranslation && challengeTranslation !== challengeKey) {
-        return challengeTranslation;
-      }
-    } catch (e) {
-      // Key doesn't exist
-    }
-    
-    // Return original text if no translation found
-    return text;
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
