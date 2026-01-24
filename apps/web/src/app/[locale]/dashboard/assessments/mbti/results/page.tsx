@@ -93,36 +93,6 @@ export default function MBTIResultsPage() {
     }
   };
 
-  const getDimensionLabel = (dimension: string): string => {
-    const labels: Record<string, string> = {
-      EI: t('dimensions.energySource'),
-      SN: t('dimensions.informationGathering'),
-      TF: t('dimensions.decisionMaking'),
-      JP: t('dimensions.lifestyle'),
-      // Support for direct dimension names from 16Personalities
-      Energy: 'Energy',
-      Mind: 'Mind',
-      Nature: 'Nature',
-      Tactics: 'Tactics',
-      Identity: 'Identity',
-    };
-    return labels[dimension] || dimension;
-  };
-
-  const getPreferenceLabel = (preference: string): string => {
-    const labels: Record<string, string> = {
-      E: t('preferences.extraversion'),
-      I: t('preferences.introversion'),
-      S: t('preferences.sensing'),
-      N: t('preferences.intuition'),
-      T: t('preferences.thinking'),
-      F: t('preferences.feeling'),
-      J: t('preferences.judging'),
-      P: t('preferences.perceiving'),
-    };
-    return labels[preference] || preference;
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
