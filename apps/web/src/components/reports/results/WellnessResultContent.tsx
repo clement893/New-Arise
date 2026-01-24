@@ -309,6 +309,7 @@ export default function WellnessResultContent({ results }: WellnessResultContent
                 return growthPillars.map(pillar => {
                   const score = getPillarScore(pillar_scores?.[pillar.id]);
                   const colorCode = getScoreColorCode(score);
+                  const insightData = getWellnessInsightWithLocale(pillar.id, score, locale);
                   
                   let levelTextContent = score >= 11 ? levelText.earlyDevelopment : levelText.significantOpportunity;
 
@@ -328,7 +329,27 @@ export default function WellnessResultContent({ results }: WellnessResultContent
                             <h4 className="font-semibold text-gray-900">{displayName}</h4>
                             <span className="text-sm font-bold" style={{ color: colorCode }}>{score}/25</span>
                           </div>
-                          <p className="text-xs text-gray-600">{levelTextContent}</p>
+                          <p className="text-xs text-gray-600 mb-3">{levelTextContent}</p>
+                          
+                          {/* Recommended Actions */}
+                          {insightData?.actions && insightData.actions.length > 0 && (
+                            <div className="mt-3 pt-3 border-t border-gray-200">
+                              <h5 className="text-xs font-semibold text-gray-900 mb-2">
+                                Recommended Actions:
+                              </h5>
+                              <ul className="space-y-1.5">
+                                {insightData.actions.map((action, actionIndex) => (
+                                  <li 
+                                    key={actionIndex}
+                                    className="flex items-start gap-2 text-xs"
+                                  >
+                                    <CheckCircle className="w-3 h-3 flex-shrink-0 mt-0.5" style={{ color: colorCode }} />
+                                    <span className="text-gray-700">{action}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
