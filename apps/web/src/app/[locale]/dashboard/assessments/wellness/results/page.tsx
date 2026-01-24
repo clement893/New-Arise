@@ -271,6 +271,7 @@ export default function WellnessResultsPage() {
                         .filter(([, score]) => score < 16)
                         .map(([pillar, score]) => {
                           const colorCode = getScoreColorCode(score as number);
+                          const insightData = getWellnessInsightWithLocale(pillar, score as number, locale);
                           let levelText = '';
                           if (score >= 11) {
                             levelText = tr.earlyDevelopment;
@@ -289,7 +290,27 @@ export default function WellnessResultsPage() {
                                       {score}/25
                                     </span>
                                   </div>
-                                  <p className="text-xs text-gray-600 leading-relaxed">{levelText}</p>
+                                  <p className="text-xs text-gray-600 leading-relaxed mb-3">{levelText}</p>
+                                  
+                                  {/* Recommended Actions */}
+                                  {insightData?.actions && insightData.actions.length > 0 && (
+                                    <div className="mt-3 pt-3 border-t border-gray-200">
+                                      <h5 className="text-xs font-semibold text-gray-900 mb-2">
+                                        Recommended Actions:
+                                      </h5>
+                                      <ul className="space-y-1.5">
+                                        {insightData.actions.map((action, actionIndex) => (
+                                          <li 
+                                            key={actionIndex}
+                                            className="flex items-start gap-2 text-xs"
+                                          >
+                                            <CheckCircle className="w-3 h-3 flex-shrink-0 mt-0.5" style={{ color: colorCode }} />
+                                            <span className="text-gray-700">{action}</span>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             </div>

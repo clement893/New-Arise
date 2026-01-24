@@ -201,7 +201,7 @@ export const feedback360Questions: Feedback360Question[] = [
     id: '360_24',
     number: 24,
     capability: 'problem_solving_and_decision_making',
-    question: 'I remains calm and constructive under pressure.',
+    question: 'I remain calm and constructive under pressure.',
   },
   {
     id: '360_25',
