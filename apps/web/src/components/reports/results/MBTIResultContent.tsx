@@ -245,14 +245,14 @@ export default function MBTIResultContent({ results }: MBTIResultContentProps) {
             </div>
 
             {/* 2. Problem-Solving & Conflict Resolution */}
-            <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 rounded-lg">
+            <div className="p-4 bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200 rounded-lg">
               <div className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                <span className="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold">2</span>
                 <div className="flex-1">
-                  <h3 className="font-bold text-green-900 text-lg mb-2">
+                  <h3 className="font-bold text-purple-900 text-lg mb-2">
                     {personalityData.capabilities.problemSolving.name}
                   </h3>
-                  <p className="text-green-800 text-sm">
+                  <p className="text-purple-800 text-sm">
                     {personalityData.capabilities.problemSolving.description}
                   </p>
                 </div>
@@ -260,14 +260,14 @@ export default function MBTIResultContent({ results }: MBTIResultContentProps) {
             </div>
 
             {/* 3. Leadership Style */}
-            <div className="p-4 bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200 rounded-lg">
+            <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 rounded-lg">
               <div className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                <span className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">3</span>
                 <div className="flex-1">
-                  <h3 className="font-bold text-purple-900 text-lg mb-2">
+                  <h3 className="font-bold text-blue-900 text-lg mb-2">
                     {personalityData.capabilities.leadershipStyle.name}
                   </h3>
-                  <p className="text-purple-800 text-sm">
+                  <p className="text-blue-800 text-sm">
                     {personalityData.capabilities.leadershipStyle.description}
                   </p>
                 </div>
@@ -275,14 +275,14 @@ export default function MBTIResultContent({ results }: MBTIResultContentProps) {
             </div>
 
             {/* 4. Team-Culture */}
-            <div className="p-4 bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200 rounded-lg">
+            <div className="p-4 bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200 rounded-lg">
               <div className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center text-sm font-bold">4</span>
+                <span className="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold">4</span>
                 <div className="flex-1">
-                  <h3 className="font-bold text-amber-900 text-lg mb-2">
+                  <h3 className="font-bold text-purple-900 text-lg mb-2">
                     {personalityData.capabilities.teamCulture.name}
                   </h3>
-                  <p className="text-amber-800 text-sm">
+                  <p className="text-purple-800 text-sm">
                     {personalityData.capabilities.teamCulture.description}
                   </p>
                 </div>
@@ -290,14 +290,14 @@ export default function MBTIResultContent({ results }: MBTIResultContentProps) {
             </div>
 
             {/* 5. Change */}
-            <div className="p-4 bg-gradient-to-r from-teal-50 to-cyan-50 border-teal-200 rounded-lg">
+            <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 rounded-lg">
               <div className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-8 h-8 bg-teal-600 text-white rounded-full flex items-center justify-center text-sm font-bold">5</span>
+                <span className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">5</span>
                 <div className="flex-1">
-                  <h3 className="font-bold text-teal-900 text-lg mb-2">
+                  <h3 className="font-bold text-blue-900 text-lg mb-2">
                     {personalityData.capabilities.change.name}
                   </h3>
-                  <p className="text-teal-800 text-sm">
+                  <p className="text-blue-800 text-sm">
                     {personalityData.capabilities.change.description}
                   </p>
                 </div>
@@ -305,14 +305,14 @@ export default function MBTIResultContent({ results }: MBTIResultContentProps) {
             </div>
 
             {/* 6. Stress */}
-            <div className="p-4 bg-gradient-to-r from-rose-50 to-pink-50 border-rose-200 rounded-lg">
+            <div className="p-4 bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200 rounded-lg">
               <div className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-8 h-8 bg-rose-600 text-white rounded-full flex items-center justify-center text-sm font-bold">6</span>
+                <span className="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold">6</span>
                 <div className="flex-1">
-                  <h3 className="font-bold text-rose-900 text-lg mb-2">
+                  <h3 className="font-bold text-purple-900 text-lg mb-2">
                     {personalityData.capabilities.stress.name}
                   </h3>
-                  <p className="text-rose-800 text-sm">
+                  <p className="text-purple-800 text-sm">
                     {personalityData.capabilities.stress.description}
                   </p>
                 </div>
