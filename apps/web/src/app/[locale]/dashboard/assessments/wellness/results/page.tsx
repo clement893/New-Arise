@@ -279,17 +279,6 @@ export default function WellnessResultsPage() {
                             levelText = tr.significantOpportunity;
                           }
                           
-                          // Debug logging - always log to help diagnose
-                          if (typeof window !== 'undefined') {
-                            console.log('Areas for Growth Debug:', {
-                              pillar,
-                              score,
-                              hasInsightData: !!insightData,
-                              actionsCount: insightData?.actions?.length || 0,
-                              actions: insightData?.actions
-                            });
-                          }
-                          
                           return (
                             <div key={pillar} className="p-4 rounded-lg" style={{ backgroundColor: colorCode + '15' }}>
                               <div className="flex items-start gap-3">
@@ -303,8 +292,8 @@ export default function WellnessResultsPage() {
                                   </div>
                                   <p className="text-xs text-gray-600 leading-relaxed mb-3">{levelText}</p>
                                   
-                                  {/* Recommended Actions */}
-                                  {insightData && insightData.actions && Array.isArray(insightData.actions) && insightData.actions.length > 0 ? (
+                                  {/* Recommended Actions - Same logic as detailed pillars section */}
+                                  {insightData?.actions && insightData.actions.length > 0 && (
                                     <div className="mt-3 pt-3 border-t border-gray-200">
                                       <h5 className="text-xs font-semibold text-gray-900 mb-2">
                                         Recommended Actions:
@@ -321,12 +310,18 @@ export default function WellnessResultsPage() {
                                         ))}
                                       </ul>
                                     </div>
-                                  ) : insightData ? (
-                                    <div className="mt-3 pt-3 border-t border-gray-200 text-xs text-gray-500 italic">
-                                      No recommended actions available for this score range.
+                                  )}
+                                  
+                                  {/* Debug: Show if insightData exists but no actions */}
+                                  {insightData && (!insightData.actions || insightData.actions.length === 0) && (
+                                    <div className="mt-3 pt-3 border-t border-gray-200 text-xs text-orange-600">
+                                      Debug: insightData exists but actions are {insightData.actions ? 'empty' : 'missing'} for {pillar} (score: {score})
                                     </div>
-                                  ) : (
-                                    <div className="mt-3 pt-3 border-t border-gray-200 text-xs text-red-500">
+                                  )}
+                                  
+                                  {/* Debug: Show if insightData is null */}
+                                  {!insightData && (
+                                    <div className="mt-3 pt-3 border-t border-gray-200 text-xs text-red-600">
                                       Debug: insightData is null for {pillar} (score: {score})
                                     </div>
                                   )}
