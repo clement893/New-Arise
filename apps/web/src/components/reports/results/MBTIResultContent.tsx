@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui';
 import { AssessmentResult } from '@/lib/api/assessments';
 import { mbtiTypes } from '@/data/mbtiQuestions';
+import { mbtiPersonalities } from '@/data/mbtiPersonalities';
 import { Brain } from 'lucide-react';
 
 interface MBTIResultContentProps {
@@ -19,15 +20,21 @@ export default function MBTIResultContent({ results }: MBTIResultContentProps) {
   const isFromOCR = results.scores?.source === 'pdf_ocr';
   
   // Extract base type without variant (e.g., "ISFP-T" -> "ISFP")
-  const baseType = mbtiType.split('-')[0] || 'XXXX';
+  const baseType = mbtiType.substring(0, 4).toUpperCase() || 'XXXX';
+  
+  // Get personality data from new comprehensive data structure
+  const personalityData = mbtiPersonalities[baseType];
+  
+  // Fallback to old typeInfo if personality data not found
   const typeInfo = mbtiTypes[baseType] || {
     name: 'Unknown Type',
     description: 'Type description not available.',
     strengths: [],
   };
 
-  // Use personality description from URL import if available
-  const personalityDescription = (results.scores as any)?.personality_description || 
+  // Use personality description from new data structure, or fallback
+  const personalityDescription = personalityData?.descriptionOverall || 
+                                  (results.scores as any)?.personality_description || 
                                   insights.description || 
                                   typeInfo.description;
 
@@ -73,6 +80,20 @@ export default function MBTIResultContent({ results }: MBTIResultContentProps) {
     return labels[dimension] || dimension;
   };
 
+  const getPreferenceLabel = (preference: string): string => {
+    const labels: Record<string, string> = {
+      E: t('preferences.extraversion'),
+      I: t('preferences.introversion'),
+      S: t('preferences.sensing'),
+      N: t('preferences.intuition'),
+      T: t('preferences.thinking'),
+      F: t('preferences.feeling'),
+      J: t('preferences.judging'),
+      P: t('preferences.perceiving'),
+    };
+    return labels[preference] || preference;
+  };
+
   return (
     <div className="space-y-6">
       {/* Personality Type Card */}
@@ -80,13 +101,15 @@ export default function MBTIResultContent({ results }: MBTIResultContentProps) {
         <div className="flex items-center gap-6">
           <div className="flex-shrink-0">
             <div className="w-32 h-32 bg-purple-600 rounded-full flex items-center justify-center">
-              <span className={`font-bold text-white ${mbtiType.length > 4 ? 'text-2xl' : 'text-4xl'}`}>
-                {mbtiType}
+              <span className="font-bold text-white text-2xl">
+                {baseType}
               </span>
             </div>
           </div>
           <div className="flex-1">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">{typeInfo.name}</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              {personalityData?.name || typeInfo.name}
+            </h2>
             <p className="text-lg text-gray-700 mb-4">{personalityDescription}</p>
             {isFromOCR && (
               <div className="mb-3 inline-flex items-center gap-2 px-3 py-1 bg-arise-gold/20 text-arise-gold rounded-full text-sm font-medium">
@@ -95,12 +118,12 @@ export default function MBTIResultContent({ results }: MBTIResultContentProps) {
               </div>
             )}
             <div className="flex flex-wrap gap-2">
-              {typeInfo.strengths.map((strength, index) => (
+              {personalityData?.tags.map((tag, index) => (
                 <span
                   key={index}
                   className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium"
                 >
-                  {translateStrengthOrChallenge(strength)}
+                  {tag}
                 </span>
               ))}
             </div>
@@ -137,7 +160,7 @@ export default function MBTIResultContent({ results }: MBTIResultContentProps) {
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-semibold text-gray-900 text-lg">{dimName}</h3>
                     <span className="text-sm font-medium text-purple-600">
-                      {percentage}% {trait}
+                      {trait}
                     </span>
                   </div>
 
@@ -149,10 +172,10 @@ export default function MBTIResultContent({ results }: MBTIResultContentProps) {
                     />
                     <div className="absolute inset-0 flex items-center justify-between px-4">
                       <span className="text-xs font-medium text-gray-700">
-                        {oppositeTrait} ({oppositePercentage}%)
+                        {oppositeTrait}
                       </span>
                       <span className="text-xs font-medium text-white">
-                        {trait} ({percentage}%)
+                        {trait}
                       </span>
                     </div>
                   </div>
@@ -210,10 +233,10 @@ export default function MBTIResultContent({ results }: MBTIResultContentProps) {
                     />
                     <div className="absolute inset-0 flex items-center justify-between px-4">
                       <span className="text-xs font-medium text-gray-700">
-                        {dimension[0]} ({(100 - percentage).toFixed(0)}%)
+                        {getPreferenceLabel(dimension[0])}
                       </span>
                       <span className="text-xs font-medium text-white">
-                        {dimension[1]} ({percentage.toFixed(0)}%)
+                        {getPreferenceLabel(dimension[1])}
                       </span>
                     </div>
                   </div>
@@ -224,109 +247,102 @@ export default function MBTIResultContent({ results }: MBTIResultContentProps) {
         </div>
       </Card>
 
-      {/* Leadership Capabilities Analysis */}
-      {insights.leadership_capabilities && Object.keys(insights.leadership_capabilities).length > 0 && (
+      {/* Your Personality Dimensions */}
+      {personalityData && (
         <Card className="bg-white">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            MBTI Profile and Capabilities Analysis
+            Your Personality Dimensions
           </h2>
-          <p className="text-gray-600 mb-6">Based on 6 key leadership skills</p>
           <div className="grid gap-4">
-            {insights.leadership_capabilities.communication && (
-              <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">1</span>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-blue-900 text-lg mb-2">
-                      Communication: {insights.leadership_capabilities.communication.title}
-                    </h3>
-                    <p className="text-blue-800 text-sm">
-                      {insights.leadership_capabilities.communication.description}
-                    </p>
-                  </div>
+            {/* 1. Communication */}
+            <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 rounded-lg">
+              <div className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                <div className="flex-1">
+                  <h3 className="font-bold text-blue-900 text-lg mb-2">
+                    {personalityData.capabilities.communication.name}
+                  </h3>
+                  <p className="text-blue-800 text-sm">
+                    {personalityData.capabilities.communication.description}
+                  </p>
                 </div>
               </div>
-            )}
+            </div>
 
-            {insights.leadership_capabilities.problemSolving && (
-              <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-bold">2</span>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-green-900 text-lg mb-2">
-                      Problem-solving: {insights.leadership_capabilities.problemSolving.title}
-                    </h3>
-                    <p className="text-green-800 text-sm">
-                      {insights.leadership_capabilities.problemSolving.description}
-                    </p>
-                  </div>
+            {/* 2. Problem-Solving & Conflict Resolution */}
+            <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 rounded-lg">
+              <div className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                <div className="flex-1">
+                  <h3 className="font-bold text-green-900 text-lg mb-2">
+                    {personalityData.capabilities.problemSolving.name}
+                  </h3>
+                  <p className="text-green-800 text-sm">
+                    {personalityData.capabilities.problemSolving.description}
+                  </p>
                 </div>
               </div>
-            )}
+            </div>
 
-            {insights.leadership_capabilities.leadershipStyle && (
-              <div className="p-4 bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold">3</span>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-purple-900 text-lg mb-2">
-                      Leadership Style: {insights.leadership_capabilities.leadershipStyle.title}
-                    </h3>
-                    <p className="text-purple-800 text-sm">
-                      {insights.leadership_capabilities.leadershipStyle.description}
-                    </p>
-                  </div>
+            {/* 3. Leadership Style */}
+            <div className="p-4 bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200 rounded-lg">
+              <div className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                <div className="flex-1">
+                  <h3 className="font-bold text-purple-900 text-lg mb-2">
+                    {personalityData.capabilities.leadershipStyle.name}
+                  </h3>
+                  <p className="text-purple-800 text-sm">
+                    {personalityData.capabilities.leadershipStyle.description}
+                  </p>
                 </div>
               </div>
-            )}
+            </div>
 
-            {insights.leadership_capabilities.teamCulture && (
-              <div className="p-4 bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center text-sm font-bold">4</span>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-amber-900 text-lg mb-2">
-                      Team culture: {insights.leadership_capabilities.teamCulture.title}
-                    </h3>
-                    <p className="text-amber-800 text-sm">
-                      {insights.leadership_capabilities.teamCulture.description}
-                    </p>
-                  </div>
+            {/* 4. Team-Culture */}
+            <div className="p-4 bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200 rounded-lg">
+              <div className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center text-sm font-bold">4</span>
+                <div className="flex-1">
+                  <h3 className="font-bold text-amber-900 text-lg mb-2">
+                    {personalityData.capabilities.teamCulture.name}
+                  </h3>
+                  <p className="text-amber-800 text-sm">
+                    {personalityData.capabilities.teamCulture.description}
+                  </p>
                 </div>
               </div>
-            )}
+            </div>
 
-            {insights.leadership_capabilities.change && (
-              <div className="p-4 bg-gradient-to-r from-teal-50 to-cyan-50 border-teal-200 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-8 h-8 bg-teal-600 text-white rounded-full flex items-center justify-center text-sm font-bold">5</span>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-teal-900 text-lg mb-2">
-                      Change: {insights.leadership_capabilities.change.title}
-                    </h3>
-                    <p className="text-teal-800 text-sm">
-                      {insights.leadership_capabilities.change.description}
-                    </p>
-                  </div>
+            {/* 5. Change */}
+            <div className="p-4 bg-gradient-to-r from-teal-50 to-cyan-50 border-teal-200 rounded-lg">
+              <div className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-8 h-8 bg-teal-600 text-white rounded-full flex items-center justify-center text-sm font-bold">5</span>
+                <div className="flex-1">
+                  <h3 className="font-bold text-teal-900 text-lg mb-2">
+                    {personalityData.capabilities.change.name}
+                  </h3>
+                  <p className="text-teal-800 text-sm">
+                    {personalityData.capabilities.change.description}
+                  </p>
                 </div>
               </div>
-            )}
+            </div>
 
-            {insights.leadership_capabilities.stress && (
-              <div className="p-4 bg-gradient-to-r from-rose-50 to-pink-50 border-rose-200 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-8 h-8 bg-rose-600 text-white rounded-full flex items-center justify-center text-sm font-bold">6</span>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-rose-900 text-lg mb-2">
-                      Stress: {insights.leadership_capabilities.stress.title}
-                    </h3>
-                    <p className="text-rose-800 text-sm">
-                      {insights.leadership_capabilities.stress.description}
-                    </p>
-                  </div>
+            {/* 6. Stress */}
+            <div className="p-4 bg-gradient-to-r from-rose-50 to-pink-50 border-rose-200 rounded-lg">
+              <div className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-8 h-8 bg-rose-600 text-white rounded-full flex items-center justify-center text-sm font-bold">6</span>
+                <div className="flex-1">
+                  <h3 className="font-bold text-rose-900 text-lg mb-2">
+                    {personalityData.capabilities.stress.name}
+                  </h3>
+                  <p className="text-rose-800 text-sm">
+                    {personalityData.capabilities.stress.description}
+                  </p>
                 </div>
               </div>
-            )}
+            </div>
           </div>
         </Card>
       )}
