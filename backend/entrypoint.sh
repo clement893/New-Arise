@@ -1,13 +1,12 @@
 #!/bin/sh
+# Redirect stderr to stdout so Railway captures everything
+exec 2>&1
+
 # CRITICAL: Output IMMEDIATELY - Railway needs to see this
-# Write to stdout (file descriptor 1) which Railway captures
 echo "ENTRYPOINT: Script starting at $(date)"
 echo "ENTRYPOINT: Working directory: $(pwd)"
 echo "ENTRYPOINT: User: $(whoami)"
 echo "ENTRYPOINT: Script: $0"
-
-# Redirect stderr to stdout so Railway captures everything
-exec 2>&1
 
 # CRITICAL: Output immediately to confirm script is running
 echo "=========================================="
@@ -19,11 +18,12 @@ echo "User: $(whoami)"
 echo "Script path: $0"
 echo "=========================================="
 
-# Ensure script fails loudly on any error after this point
-set -u  # Fail on undefined variables
+# Don't use set -u or set -e - we'll handle errors explicitly
+# This prevents the script from exiting on undefined variables or command failures
 
 # Force flush output immediately
 echo "ENTRYPOINT: Script starting..."
+echo "ENTRYPOINT: Continuing past initial output..."
 sleep 0.1  # Small delay to ensure output is flushed
 
 # Force unbuffered output for immediate visibility
@@ -33,28 +33,15 @@ export PYTHONUNBUFFERED=1
 # Note: stdbuf may not be available in all environments
 # We'll rely on PYTHONUNBUFFERED and exec 2>&1 for log visibility
 
-# Print immediate startup message so we know the script is running
-# Use multiple methods to ensure visibility - write to both stdout and stderr
-echo "==========================================" >&2
-echo "ENTRYPOINT SCRIPT STARTED - $(date)" >&2
-echo "==========================================" >&2
-echo "Working directory: $(pwd)" >&2
-echo "User: $(whoami)" >&2
-echo "Shell: $SHELL" >&2
-echo "PATH: $PATH" >&2
-echo "Python: $(which python 2>&1)" >&2
-echo "==========================================" >&2
-echo "" >&2
-
-# Also write to stdout
+# Print immediate startup message
 echo "=========================================="
 echo "ENTRYPOINT SCRIPT STARTED - $(date)"
 echo "=========================================="
 echo "Working directory: $(pwd)"
 echo "User: $(whoami)"
-echo "Shell: $SHELL"
+echo "Shell: ${SHELL:-/bin/sh}"
 echo "PATH: $PATH"
-echo "Python: $(which python 2>&1)"
+echo "Python: $(which python 2>&1 || echo 'python not found')"
 echo "=========================================="
 echo ""
 
@@ -74,28 +61,34 @@ echo "Working directory: $(pwd)"
 echo "=========================================="
 
 # Verify Python and uvicorn are available
-echo "Verifying Python installation..."
+echo "=========================================="
+echo "STEP 1: Verifying Python installation..."
+echo "=========================================="
 if ! command -v python >/dev/null 2>&1; then
-    echo "ERROR: Python not found!" >&2
+    echo "ERROR: Python not found!"
     exit 1
 fi
 echo "✓ Python found: $(which python)"
 
-echo "Verifying uvicorn installation..."
+echo "=========================================="
+echo "STEP 2: Verifying uvicorn installation..."
+echo "=========================================="
 if ! python -c "import uvicorn" 2>&1; then
-    echo "ERROR: uvicorn not installed!" >&2
+    echo "ERROR: uvicorn not installed!"
     exit 1
 fi
 echo "✓ uvicorn is installed"
+echo "=========================================="
 
 # SECURITY: Start server IMMEDIATELY, then run migrations in background
 # This ensures health endpoint is available immediately for Railway healthchecks
 # All migrations (Alembic + SQL + scripts) run in background
+echo "=========================================="
+echo "STEP 3: Checking database configuration..."
+echo "=========================================="
 if [ -n "$DATABASE_URL" ]; then
-    echo "=========================================="
-    echo "Migrations will run in background"
+    echo "DATABASE_URL is set - migrations will run in background"
     echo "Server starting immediately for healthcheck"
-    echo "=========================================="
     
     # Run ALL migrations in background (non-blocking)
     (
@@ -247,14 +240,17 @@ if [ -n "$DATABASE_URL" ]; then
     echo "ℹ️  Migration logs: tail -f /tmp/migration.log"
     echo "ℹ️  Server starting NOW - health endpoint will be available immediately"
 else
-    echo "⚠️  Warning: DATABASE_URL not set, skipping migrations..."
+    echo "DATABASE_URL not set - skipping migrations"
     echo "The application will start but database operations may fail."
 fi
+echo "=========================================="
+echo "STEP 4: Preparing to start server..."
+echo "=========================================="
 
 # Start Uvicorn directly for FastAPI
 # Railway will route traffic to this port
 echo "=========================================="
-echo "Starting Uvicorn on 0.0.0.0:$PORT..."
+echo "STEP 5: Starting Uvicorn on 0.0.0.0:$PORT..."
 echo "=========================================="
 echo "Application will be available at http://0.0.0.0:$PORT"
 echo "Health check endpoint: http://0.0.0.0:$PORT/api/v1/health/"
@@ -268,7 +264,9 @@ echo "=========================================="
 # Add --limit-concurrency to prevent resource exhaustion
 
 # Test that the app can be imported before starting
-echo "Testing application import..."
+echo "=========================================="
+echo "STEP 6: Testing application import..."
+echo "=========================================="
 IMPORT_OUTPUT=$(python -c "from app.main import app; print('✓ Application imported successfully')" 2>&1)
 IMPORT_EXIT=$?
 if [ $IMPORT_EXIT -ne 0 ]; then
