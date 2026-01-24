@@ -41,30 +41,6 @@ export default function MBTIResultContent({ results }: MBTIResultContentProps) {
   // Get dimension details if available (from URL import)
   const dimensionDetails = (results.scores as any)?.dimension_details || {};
 
-  const translateStrengthOrChallenge = (text: string): string => {
-    try {
-      const strengthKey = `strengths.translations.${text}`;
-      const strengthTranslation = t(strengthKey);
-      if (strengthTranslation && strengthTranslation !== strengthKey) {
-        return strengthTranslation;
-      }
-    } catch (e) {
-      // Try challenges
-    }
-    
-    try {
-      const challengeKey = `strengths.challenges.${text}`;
-      const challengeTranslation = t(challengeKey);
-      if (challengeTranslation && challengeTranslation !== challengeKey) {
-        return challengeTranslation;
-      }
-    } catch (e) {
-      // Return original
-    }
-    
-    return text;
-  };
-
   const getDimensionLabel = (dimension: string): string => {
     const labels: Record<string, string> = {
       EI: t('dimensions.energySource'),
@@ -144,7 +120,6 @@ export default function MBTIResultContent({ results }: MBTIResultContentProps) {
               if (!dimInfo) return null;
 
               const { trait, percentage, description, image_url, image_alt } = dimInfo;
-              const oppositePercentage = 100 - percentage;
               
               const oppositeTraitMap: Record<string, Record<string, string>> = {
                 'Energy': { 'Introverted': 'Extraverted', 'Extraverted': 'Introverted' },
@@ -233,10 +208,10 @@ export default function MBTIResultContent({ results }: MBTIResultContentProps) {
                     />
                     <div className="absolute inset-0 flex items-center justify-between px-4">
                       <span className="text-xs font-medium text-gray-700">
-                        {getPreferenceLabel(dimension[0])}
+                        {getPreferenceLabel(dimension[0] || '')}
                       </span>
                       <span className="text-xs font-medium text-white">
-                        {getPreferenceLabel(dimension[1])}
+                        {getPreferenceLabel(dimension[1] || '')}
                       </span>
                     </div>
                   </div>
