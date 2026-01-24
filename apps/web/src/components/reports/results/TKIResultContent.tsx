@@ -99,7 +99,7 @@ export default function TKIResultContent({ results }: TKIResultContentProps) {
   return (
     <div className="space-y-6">
       {/* Dominant & Secondary Modes */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="text-white md:col-span-2" padding={false}>
           <div className="h-full p-lg bg-arise-deep-teal">
             <div className="text-center">
@@ -129,15 +129,16 @@ export default function TKIResultContent({ results }: TKIResultContentProps) {
             </p>
           </div>
         </Card>
-        <div className="mt-4 flex justify-center">
-                <Image 
-                  src="/images/assessments/arise_tki_pictogram.webp" 
-                  alt="ARISE TKI Pictogram" 
-                  width={300} 
-                  height={200} 
-                  className="rounded-lg shadow-md bg-white/10 p-2"
-                />
-              </div>
+
+        <div className="flex items-center justify-center md:col-span-1">
+          <Image 
+            src="/images/assessments/arise_tki_pictogram.webp" 
+            alt="ARISE TKI Pictogram" 
+            width={300} 
+            height={200} 
+            className="rounded-lg shadow-md bg-white/10 p-2 object-contain"
+          />
+        </div>
       </div>
 
       {/* All Modes Breakdown */}

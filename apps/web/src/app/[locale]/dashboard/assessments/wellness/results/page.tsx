@@ -279,9 +279,15 @@ export default function WellnessResultsPage() {
                             levelText = tr.significantOpportunity;
                           }
                           
-                          // Debug: Log if insightData is null
-                          if (!insightData && process.env.NODE_ENV === 'development') {
-                            console.log('No insight data found for pillar:', pillar, 'score:', score);
+                          // Debug logging - always log to help diagnose
+                          if (typeof window !== 'undefined') {
+                            console.log('Areas for Growth Debug:', {
+                              pillar,
+                              score,
+                              hasInsightData: !!insightData,
+                              actionsCount: insightData?.actions?.length || 0,
+                              actions: insightData?.actions
+                            });
                           }
                           
                           return (
@@ -298,7 +304,7 @@ export default function WellnessResultsPage() {
                                   <p className="text-xs text-gray-600 leading-relaxed mb-3">{levelText}</p>
                                   
                                   {/* Recommended Actions */}
-                                  {insightData?.actions && insightData.actions.length > 0 ? (
+                                  {insightData && insightData.actions && Array.isArray(insightData.actions) && insightData.actions.length > 0 ? (
                                     <div className="mt-3 pt-3 border-t border-gray-200">
                                       <h5 className="text-xs font-semibold text-gray-900 mb-2">
                                         Recommended Actions:
@@ -315,7 +321,15 @@ export default function WellnessResultsPage() {
                                         ))}
                                       </ul>
                                     </div>
-                                  ) : null}
+                                  ) : insightData ? (
+                                    <div className="mt-3 pt-3 border-t border-gray-200 text-xs text-gray-500 italic">
+                                      No recommended actions available for this score range.
+                                    </div>
+                                  ) : (
+                                    <div className="mt-3 pt-3 border-t border-gray-200 text-xs text-red-500">
+                                      Debug: insightData is null for {pillar} (score: {score})
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             </div>

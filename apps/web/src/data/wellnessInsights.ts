@@ -514,12 +514,27 @@ export function getWellnessInsightWithLocale(
     ? (Array.isArray(insight.actionsFr) ? insight.actionsFr : [])
     : (Array.isArray(insight.actions) ? insight.actions : []);
   
-  return {
+  const result = {
     assessment: isFrench && insight.assessmentFr ? insight.assessmentFr : insight.assessment,
     recommendation: isFrench && insight.recommendationFr ? insight.recommendationFr : insight.recommendation,
     actions: actions,
     colorCode: insight.colorCode
   };
+  
+  // Debug logging in development
+  if (typeof window !== 'undefined' && actions.length === 0) {
+    console.warn('getWellnessInsightWithLocale: No actions found', { 
+      pillar, 
+      score, 
+      locale,
+      hasActions: !!insight.actions,
+      hasActionsFr: !!insight.actionsFr,
+      actionsCount: insight.actions?.length || 0,
+      actionsFrCount: insight.actionsFr?.length || 0
+    });
+  }
+  
+  return result;
 }
 
 /**
@@ -544,7 +559,18 @@ export function getWellnessInsight(pillar: string, score: number): WellnessPilla
   
   // Find the matching insight based on pillar and score range
   const insights = wellnessInsights.filter(insight => {
-    // Normalize pillar name for comparison
+    // Direct match first (most reliable)
+    if (insight.pillar === mappedPillar) {
+      // Parse score range
+      const rangeParts = insight.scoreRange.split('-').map(s => parseInt(s.trim(), 10));
+      const min = rangeParts[0];
+      const max = rangeParts[1];
+      
+      if (min === undefined || max === undefined || isNaN(min) || isNaN(max)) return false;
+      return score >= min && score <= max;
+    }
+    
+    // Fallback: Normalize pillar name for comparison
     const normalizedPillar = insight.pillar.toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_');
     const normalizedInputPillar = mappedPillar.toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_');
     
@@ -564,7 +590,20 @@ export function getWellnessInsight(pillar: string, score: number): WellnessPilla
     return score >= min && score <= max;
   });
   
-  return insights[0] || null;
+  const result = insights[0] || null;
+  
+  // Debug logging only when no result found
+  if (typeof window !== 'undefined' && result === null) {
+    console.error('❌ getWellnessInsight: No insight found', { 
+      inputPillar: pillar, 
+      mappedPillar, 
+      score,
+      availablePillars: [...new Set(wellnessInsights.map(i => i.pillar))],
+      allInsightsCount: wellnessInsights.length
+    });
+  }
+  
+  return result;
 }
 
 /**
