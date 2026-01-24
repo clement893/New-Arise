@@ -347,9 +347,6 @@ export default function MBTIResultsPage() {
 
                   const { trait, percentage, description, image_url, image_alt } = dimInfo;
                   
-                  // Calculate opposite percentage
-                  const oppositePercentage = 100 - percentage;
-                  
                   // Get opposite trait name based on dimension
                   const oppositeTraitMap: Record<string, Record<string, string>> = {
                     'Energy': { 'Introverted': 'Extraverted', 'Extraverted': 'Introverted' },
