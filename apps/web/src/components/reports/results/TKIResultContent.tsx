@@ -5,6 +5,7 @@ import { Card } from '@/components/ui';
 import { AssessmentResult } from '@/lib/api/assessments';
 import { tkiModes, tkiQuestions } from '@/data/tkiQuestions';
 import { TrendingUp, TrendingDown, Minus, LucideIcon } from 'lucide-react';
+import Image from 'next/image';
 
 interface TKIResults {
   mode_counts: Record<string, number>;
@@ -105,12 +106,21 @@ export default function TKIResultContent({ results }: TKIResultContentProps) {
               <div className="text-4xl mb-3">{dominantModeInfo?.icon}</div>
               <h3 className="text-sm font-medium mb-2 opacity-95">{t('dominantMode')}</h3>
               <h2 className="text-3xl font-bold mb-2">{dominantModeInfo?.title}</h2>
-              <p className="text-sm opacity-95">
+              <p className="text-sm opacity-95 mb-4">
                 {t('responsesCount', { 
                   count: transformedResults.dominant_mode ? (transformedResults.mode_counts[transformedResults.dominant_mode] || 0) : 0, 
                   total: 30 
                 })}
               </p>
+              <div className="mt-4 flex justify-center">
+                <Image 
+                  src="/images/assessments/arise_tki_pictogram.webp" 
+                  alt="ARISE TKI Pictogram" 
+                  width={300} 
+                  height={200} 
+                  className="rounded-lg shadow-md bg-white/10 p-2"
+                />
+              </div>
             </div>
           </div>
         </Card>

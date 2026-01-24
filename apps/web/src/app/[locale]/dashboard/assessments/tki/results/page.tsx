@@ -10,6 +10,7 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { TrendingUp, TrendingDown, Minus, ArrowLeft, LucideIcon } from 'lucide-react';
+import Image from 'next/image';
 import { formatError } from '@/lib/utils/formatError';
 
 interface TKIResults {
@@ -197,9 +198,18 @@ export default function TKIResultsPage() {
                   <div className="text-4xl mb-3">{dominantModeInfo?.icon}</div>
                   <h3 className="text-sm font-medium mb-2 text-white opacity-95">{t('dominantMode')}</h3>
                   <h2 className="text-3xl font-bold mb-2 text-white">{dominantModeInfo?.title}</h2>
-                  <p className="text-sm text-white opacity-95">
+                  <p className="text-sm text-white opacity-95 mb-4">
                     {t('responsesCount', { count: results.dominant_mode ? (results.mode_counts[results.dominant_mode] || 0) : 0, total: 30 })}
                   </p>
+                  <div className="mt-4 flex justify-center">
+                    <Image 
+                      src="/images/assessments/arise_tki_pictogram.webp" 
+                      alt="ARISE TKI Pictogram" 
+                      width={300} 
+                      height={200} 
+                      className="rounded-lg shadow-md bg-white/10 p-2"
+                    />
+                  </div>
                 </div>
               </div>
 
