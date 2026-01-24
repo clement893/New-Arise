@@ -1,20 +1,15 @@
 #!/bin/sh
-# Don't use set -e to allow graceful error handling
+# CRITICAL: Output IMMEDIATELY - Railway needs to see this
+# Write to stdout (file descriptor 1) which Railway captures
+echo "ENTRYPOINT: Script starting at $(date)"
+echo "ENTRYPOINT: Working directory: $(pwd)"
+echo "ENTRYPOINT: User: $(whoami)"
+echo "ENTRYPOINT: Script: $0"
 
-# CRITICAL: Force immediate output visibility
 # Redirect stderr to stdout so Railway captures everything
 exec 2>&1
 
 # CRITICAL: Output immediately to confirm script is running
-# Railway needs to see output right away - output to both stdout and stderr
-echo "==========================================" 1>&2
-echo "ENTRYPOINT SCRIPT EXECUTING NOW" 1>&2
-echo "==========================================" 1>&2
-echo "Timestamp: $(date)" 1>&2
-echo "Working directory: $(pwd)" 1>&2
-echo "User: $(whoami)" 1>&2
-echo "Script path: $0" 1>&2
-echo "==========================================" 1>&2
 echo "=========================================="
 echo "ENTRYPOINT SCRIPT EXECUTING NOW"
 echo "=========================================="
@@ -358,6 +353,15 @@ echo "=========================================="
 echo "Starting server NOW - all output will be visible below"
 echo "If server fails to start, errors will appear here"
 echo "=========================================="
+
+# Test import first to catch errors early
+echo "Testing app import..."
+if ! python -c "from app.main import app; print('Import successful')" 2>&1; then
+    echo "ERROR: App import failed!"
+    echo "Attempting to use minimal startup script..."
+    exec python start_minimal.py
+fi
+
 exec python -m uvicorn app.main:app \
     --host 0.0.0.0 \
     --port "$PORT" \
