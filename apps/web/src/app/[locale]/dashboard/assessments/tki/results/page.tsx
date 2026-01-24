@@ -10,6 +10,7 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { TrendingUp, TrendingDown, Minus, ArrowLeft, LucideIcon } from 'lucide-react';
+import Image from 'next/image';
 import { formatError } from '@/lib/utils/formatError';
 
 interface TKIResults {
@@ -203,14 +204,12 @@ export default function TKIResultsPage() {
                     </p>
                   </div>
                   <div className="flex-shrink-0">
-                    <img
-                      alt="ARISE TKI Pictogram"
-                      loading="lazy"
-                      width="300"
-                      height="200"
-                      decoding="async"
+                    <Image 
+                      src="/images/assessments/arise_tki_pictogram.webp" 
+                      alt="ARISE TKI Pictogram" 
+                      width={300} 
+                      height={200} 
                       className="rounded-lg shadow-md bg-white/10 p-2"
-                      src="/images/arise-tki-pictogram.png"
                     />
                   </div>
                 </div>
