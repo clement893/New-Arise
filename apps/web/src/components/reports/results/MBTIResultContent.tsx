@@ -15,7 +15,6 @@ export default function MBTIResultContent({ results }: MBTIResultContentProps) {
   const t = useTranslations('dashboard.assessments.mbti.results');
 
   const mbtiType = results.scores?.mbti_type || 'XXXX';
-  const dimensionPreferences = results.scores?.dimension_preferences || {};
   const insights = results.insights || {};
   const isFromOCR = results.scores?.source === 'pdf_ocr';
   
@@ -37,38 +36,6 @@ export default function MBTIResultContent({ results }: MBTIResultContentProps) {
                                   (results.scores as any)?.personality_description || 
                                   insights.description || 
                                   typeInfo.description;
-
-  // Get dimension details if available (from URL import)
-  const dimensionDetails = (results.scores as any)?.dimension_details || {};
-
-  const getDimensionLabel = (dimension: string): string => {
-    const labels: Record<string, string> = {
-      EI: t('dimensions.energySource'),
-      SN: t('dimensions.informationGathering'),
-      TF: t('dimensions.decisionMaking'),
-      JP: t('dimensions.lifestyle'),
-      Energy: 'Energy',
-      Mind: 'Mind',
-      Nature: 'Nature',
-      Tactics: 'Tactics',
-      Identity: 'Identity',
-    };
-    return labels[dimension] || dimension;
-  };
-
-  const getPreferenceLabel = (preference: string): string => {
-    const labels: Record<string, string> = {
-      E: t('preferences.extraversion'),
-      I: t('preferences.introversion'),
-      S: t('preferences.sensing'),
-      N: t('preferences.intuition'),
-      T: t('preferences.thinking'),
-      F: t('preferences.feeling'),
-      J: t('preferences.judging'),
-      P: t('preferences.perceiving'),
-    };
-    return labels[preference] || preference;
-  };
 
   return (
     <div className="space-y-6">
@@ -105,120 +72,6 @@ export default function MBTIResultContent({ results }: MBTIResultContentProps) {
             </div>
           </div>
           <Brain className="w-16 h-16 text-purple-600 flex-shrink-0" />
-        </div>
-      </Card>
-
-      {/* Dimension Breakdown */}
-      <Card className="bg-white">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('dimensions.title')}</h2>
-        <div className="grid gap-4">
-          {/* Check if we have dimension_details from URL import (preferred) */}
-          {Object.keys(dimensionDetails).length > 0 ? (
-            // Render using dimension_details (from 16Personalities URL import)
-            ['Energy', 'Mind', 'Nature', 'Tactics', 'Identity'].map((dimName) => {
-              const dimInfo = dimensionDetails[dimName];
-              if (!dimInfo) return null;
-
-              const { trait, percentage, description, image_url, image_alt } = dimInfo;
-              
-              const oppositeTraitMap: Record<string, Record<string, string>> = {
-                'Energy': { 'Introverted': 'Extraverted', 'Extraverted': 'Introverted' },
-                'Mind': { 'Observant': 'Intuitive', 'Intuitive': 'Observant' },
-                'Nature': { 'Feeling': 'Thinking', 'Thinking': 'Feeling' },
-                'Tactics': { 'Prospecting': 'Judging', 'Judging': 'Prospecting' },
-                'Identity': { 'Turbulent': 'Assertive', 'Assertive': 'Turbulent' },
-              };
-              const oppositeTrait = oppositeTraitMap[dimName]?.[trait] || '';
-
-              return (
-                <div key={dimName} className="p-4 border border-gray-200 rounded-lg">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-gray-900 text-lg">{dimName}</h3>
-                    <span className="text-sm font-medium text-purple-600">
-                      {trait}
-                    </span>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="relative h-8 bg-gray-200 rounded-full overflow-hidden mb-4">
-                    <div
-                      className="absolute left-0 h-full bg-purple-600 transition-all duration-500"
-                      style={{ width: `${percentage}%` }}
-                    />
-                    <div className="absolute inset-0 flex items-center justify-between px-4">
-                      <span className="text-xs font-medium text-gray-700">
-                        {oppositeTrait}
-                      </span>
-                      <span className="text-xs font-medium text-white">
-                        {trait}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Description with Image */}
-                  {description && (
-                    <div className="flex gap-4 items-start">
-                      {image_url && (
-                        <div className="flex-shrink-0">
-                          <img 
-                            src={image_url} 
-                            alt={image_alt || trait}
-                            className="w-32 h-24 object-contain"
-                          />
-                        </div>
-                      )}
-                      <p className="text-sm text-gray-600 flex-1">{description}</p>
-                    </div>
-                  )}
-                </div>
-              );
-            })
-          ) : (
-            // Fallback: Render using old dimensionPreferences format
-            Object.entries(dimensionPreferences).map(([dimension, prefs]: [string, any]) => {
-              let preference: string | undefined;
-              let percentage: number = 50;
-
-              if (prefs && typeof prefs === 'object') {
-                if (prefs.preference) {
-                  preference = prefs.preference;
-                } else {
-                  const dimKeys = dimension.split('');
-                  if (dimKeys.length >= 2) preference = dimKeys[0];
-                }
-
-                if (preference) {
-                  const prefValue = prefs[preference];
-                  if (typeof prefValue === 'number') {
-                    percentage = prefValue;
-                  }
-                }
-              }
-
-              return (
-                <div key={dimension} className="p-4 border border-gray-200 rounded-lg">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-gray-900">{getDimensionLabel(dimension)}</h3>
-                  </div>
-
-                  <div className="relative h-8 bg-gray-200 rounded-full overflow-hidden">
-                    <div
-                      className="absolute left-0 h-full bg-purple-600 transition-all duration-500"
-                      style={{ width: `${percentage}%` }}
-                    />
-                    <div className="absolute inset-0 flex items-center justify-between px-4">
-                      <span className="text-xs font-medium text-gray-700">
-                        {getPreferenceLabel(dimension[0] || '')}
-                      </span>
-                      <span className="text-xs font-medium text-white">
-                        {getPreferenceLabel(dimension[1] || '')}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })
-          )}
         </div>
       </Card>
 

@@ -1251,301 +1251,83 @@ Retournez UNIQUEMENT le JSON, sans texte avant ou après."""
     
     async def _parse_html_for_mbti(self, html_content: str, url: str, client: httpx.AsyncClient) -> Dict[str, Any]:
         """
-        Parse HTML content to extract MBTI information
+        Parse HTML content to extract MBTI type (4 letters only)
         
         Args:
             html_content: The HTML content of the page
             url: The original URL (for building absolute URLs)
-            client: HTTP client for downloading images
+            client: HTTP client for downloading images (not used, kept for compatibility)
             
         Returns:
-            Dictionary containing extracted MBTI data
+            Dictionary containing only the MBTI type (4 letters)
         """
         try:
             if not BEAUTIFULSOUP_AVAILABLE:
-                logger.warning("BeautifulSoup not available, falling back to OpenAI-based extraction")
-                return await self._extract_mbti_with_openai_text(html_content)
+                logger.warning("BeautifulSoup not available, falling back to regex extraction")
+                import re
+                # Fallback: try to find MBTI type in raw HTML
+                mbti_pattern = r'<h1[^>]*>([IE][NS][TF][JP])(?:-[AT])?</h1>'
+                matches = re.findall(mbti_pattern, html_content, re.IGNORECASE)
+                if matches:
+                    mbti_type = matches[0].upper()
+                    logger.info(f"Extracted MBTI type via regex: {mbti_type}")
+                    return {"mbti_type": mbti_type}
+                raise ValueError("Could not extract MBTI type from HTML")
             
             # Parse HTML with BeautifulSoup
             logger.info("Starting HTML parsing with BeautifulSoup...")
             soup = BeautifulSoup(html_content, 'lxml')
             logger.info(f"HTML parsed successfully. Document title: {soup.title.string if soup.title else 'No title'}")
             
-            # Save first 2000 chars of HTML for debugging
-            logger.debug(f"HTML preview (first 2000 chars):\n{html_content[:2000]}")
+            # Look for the specific element: <div class="code"><h1>ISFP-T</h1></div>
+            # Try multiple selectors to find the MBTI type
+            mbti_type = None
             
-            # Extract structured data from the page
-            extracted_info = {
-                'text_content': '',
-                'images': [],
-                'structured_data': {}
-            }
+            # Method 1: Look for div with class containing "code" and h1 inside
+            code_div = soup.find('div', class_=lambda x: x and 'code' in str(x))
+            if code_div:
+                h1_tag = code_div.find('h1')
+                if h1_tag:
+                    type_text = h1_tag.get_text().strip()
+                    # Extract 4 letters (e.g., "ISFP-T" -> "ISFP")
+                    import re
+                    mbti_match = re.match(r'([IE][NS][TF][JP])(?:-[AT])?', type_text, re.IGNORECASE)
+                    if mbti_match:
+                        mbti_type = mbti_match.group(1).upper()
+                        logger.info(f"Found MBTI type in code div: {mbti_type}")
             
-            # 1. Try to find JSON-LD or structured data
-            json_ld_scripts = soup.find_all('script', type='application/ld+json')
-            for script in json_ld_scripts:
-                try:
-                    import json
-                    data = json.loads(script.string)
-                    extracted_info['structured_data']['json_ld'] = data
-                    logger.info("Found JSON-LD structured data")
-                except:
-                    pass
-            
-            # 2. Try to find embedded data in script tags
-            import re
-            script_tags = soup.find_all('script')
-            for script in script_tags:
-                if script.string:
-                    # Look for common data patterns
-                    patterns = [
-                        r'window\.__INITIAL_STATE__\s*=\s*({.+?});',
-                        r'window\.__PRELOADED_STATE__\s*=\s*({.+?});',
-                        r'window\.profileData\s*=\s*({.+?});',
-                        r'window\.__NEXT_DATA__\s*=\s*({.+?});',
-                    ]
-                    for pattern in patterns:
-                        matches = re.findall(pattern, script.string, re.DOTALL)
-                        if matches:
-                            try:
-                                import json
-                                data = json.loads(matches[0])
-                                extracted_info['structured_data']['embedded'] = data
-                                logger.info(f"Found embedded data using pattern: {pattern[:50]}...")
-                                break
-                            except:
-                                pass
-            
-            # 3. Extract visible text from the page (prioritize specific sections)
-            # Remove script and style elements
-            for element in soup(['script', 'style', 'meta', 'link', 'noscript']):
-                element.decompose()
-            
-            # Look for main content areas
-            main_content = None
-            content_selectors = [
-                {'class': re.compile(r'profile|personality|result|content|main', re.I)},
-                {'id': re.compile(r'profile|personality|result|content|main', re.I)},
-                'main',
-                'article',
-                {'role': 'main'},
-            ]
-            
-            for selector in content_selectors:
-                if isinstance(selector, str):
-                    main_content = soup.find(selector)
-                else:
-                    main_content = soup.find(attrs=selector)
-                if main_content:
-                    logger.info(f"Found main content using selector: {selector}")
-                    break
-            
-            if not main_content:
-                main_content = soup.find('body')
-                logger.info("Using body tag as main content")
-            
-            if main_content:
-                # Extract all text
-                text_content = main_content.get_text(separator='\n', strip=True)
-                extracted_info['text_content'] = text_content
-                logger.info(f"Extracted {len(text_content)} characters of text content")
-            
-            # 4. Extract personality type from meta tags or data attributes
-            meta_tags = soup.find_all('meta')
-            for meta in meta_tags:
-                if meta.get('property') or meta.get('name'):
-                    prop = meta.get('property') or meta.get('name')
-                    content = meta.get('content')
-                    if content and any(keyword in str(prop).lower() for keyword in ['type', 'personality', 'mbti']):
-                        extracted_info['structured_data'][f'meta_{prop}'] = content
-                        logger.info(f"Found meta tag: {prop} = {content}")
-            
-            # 5. Look for specific MBTI type patterns in text
-            mbti_pattern = r'\b([IE][NS][TF][JP])(?:-[AT])?\b'
-            mbti_matches = re.findall(mbti_pattern, extracted_info['text_content'])
-            if mbti_matches:
-                extracted_info['structured_data']['mbti_type_candidates'] = mbti_matches
-                logger.info(f"Found MBTI type candidates: {mbti_matches}")
-            
-            # 5.5 Extract percentage scores for MBTI dimensions
-            # Look for patterns like "54% Introverted", "Introverted 54%", "Energy: 54% Introverted"
-            # IMPORTANT: 16Personalities uses "Extraverted" (with 'a'), not "Extroverted"
-            dimension_scores = {}
-            
-            # Define exact terms used by 16Personalities (case-sensitive after capture)
-            valid_traits = {
-                'introverted': 'Introverted',
-                'extraverted': 'Extraverted',
-                'intuitive': 'Intuitive',
-                'observant': 'Observant',
-                'thinking': 'Thinking',
-                'feeling': 'Feeling',
-                'judging': 'Judging',
-                'prospecting': 'Prospecting',
-                'assertive': 'Assertive',
-                'turbulent': 'Turbulent'
-            }
-            
-            # Simple patterns for percentage extraction
-            # Pattern 1: "54% Introverted" or "Energy: 54% Introverted"
-            percent_trait_pattern = r'(\d+)%\s+(Introverted|Extraverted|Intuitive|Observant|Thinking|Feeling|Judging|Prospecting|Assertive|Turbulent)'
-            matches = re.finditer(percent_trait_pattern, extracted_info['text_content'], re.IGNORECASE)
-            for match in matches:
-                percentage = int(match.group(1))
-                trait_raw = match.group(2).strip()
-                # Normalize to exact 16Personalities terminology
-                trait = valid_traits.get(trait_raw.lower(), trait_raw)
-                dimension_scores[trait] = percentage
-                logger.info(f"Found score: {trait}: {percentage}%")
-            
-            # Pattern 2: "Introverted 54%" (less common but possible)
-            trait_percent_pattern = r'(Introverted|Extraverted|Intuitive|Observant|Thinking|Feeling|Judging|Prospecting|Assertive|Turbulent)\s+(\d+)%'
-            matches = re.finditer(trait_percent_pattern, extracted_info['text_content'], re.IGNORECASE)
-            for match in matches:
-                trait_raw = match.group(1).strip()
-                percentage = int(match.group(2))
-                # Normalize to exact 16Personalities terminology
-                trait = valid_traits.get(trait_raw.lower(), trait_raw)
-                # Only add if not already found (Pattern 1 has priority)
-                if trait not in dimension_scores:
-                    dimension_scores[trait] = percentage
-                    logger.info(f"Found score (alt pattern): {trait}: {percentage}%")
-            
-            if dimension_scores:
-                extracted_info['structured_data']['dimension_scores'] = dimension_scores
-                logger.info(f"Extracted dimension scores: {dimension_scores}")
-            
-            # 5.7 Extract complete personality description
-            # Look for the main personality description (usually starts with "As an [TYPE]...")
-            personality_description = None
-            # Try to find sections with specific patterns
-            desc_patterns = [
-                r'As an ([A-Z]{4})(?:-[AT])?\s*\([^)]+\),\s*([^\.]+\.(?:[^\.]+\.){0,10})',  # "As an ISFP (Adventurer), you are..."
-                r'As an?\s+([A-Z]{4})(?:-[AT])?,\s*([^\.]+\.(?:[^\.]+\.){0,10})',  # Alternative pattern
-            ]
-            for pattern in desc_patterns:
-                matches = re.findall(pattern, extracted_info['text_content'], re.DOTALL)
-                if matches:
-                    # Get the full description (usually 2-3 paragraphs)
-                    match_pos = extracted_info['text_content'].find(f"As an {matches[0][0]}")
-                    if match_pos != -1:
-                        # Extract next ~1000 characters as description
-                        desc_text = extracted_info['text_content'][match_pos:match_pos+1500]
-                        # Clean up - take complete sentences
-                        sentences = desc_text.split('.')
-                        if len(sentences) >= 3:
-                            personality_description = '.'.join(sentences[:4]).strip() + '.'  # Take first 4 sentences
-                        else:
-                            personality_description = desc_text.strip()
-                        logger.info(f"Found personality description: {personality_description[:100]}...")
+            # Method 2: If not found, look for any h1 with MBTI pattern
+            if not mbti_type:
+                import re
+                h1_tags = soup.find_all('h1')
+                for h1 in h1_tags:
+                    h1_text = h1.get_text().strip()
+                    mbti_match = re.match(r'([IE][NS][TF][JP])(?:-[AT])?', h1_text, re.IGNORECASE)
+                    if mbti_match:
+                        mbti_type = mbti_match.group(1).upper()
+                        logger.info(f"Found MBTI type in h1 tag: {mbti_type}")
                         break
             
-            if personality_description:
-                extracted_info['structured_data']['personality_description'] = personality_description
+            # Method 3: Fallback - search entire HTML for MBTI pattern
+            if not mbti_type:
+                import re
+                # Look for MBTI pattern anywhere in the HTML
+                mbti_pattern = r'\b([IE][NS][TF][JP])(?:-[AT])?\b'
+                matches = re.findall(mbti_pattern, html_content, re.IGNORECASE)
+                if matches:
+                    # Take the first match
+                    mbti_type = matches[0].upper()
+                    logger.info(f"Found MBTI type via pattern matching: {mbti_type}")
             
-            # 5.8 Extract dimension descriptions and images
-            # Parse the trait boxes to get descriptions for each dimension
-            dimension_details = {}
+            if not mbti_type:
+                raise ValueError("Could not extract MBTI type from HTML. No MBTI pattern found.")
             
-            # Find all traitbox divs
-            traitboxes = main_content.find_all('div', class_=re.compile(r'traitbox')) if main_content else []
-            logger.info(f"Found {len(traitboxes)} traitboxes to parse")
-            
-            for traitbox in traitboxes:
-                try:
-                    # Extract dimension name (Energy, Mind, Nature, Tactics, Identity)
-                    # Look for h4/h6 tags with pattern "Energy: 54% Introverted"
-                    header_tag = traitbox.find(['h4', 'h6'])
-                    if not header_tag:
-                        continue
-                    
-                    header_text = header_tag.get_text().strip()
-                    # Parse header like "Energy: 54% Introverted"
-                    header_match = re.match(r'([^:]+):\s*(\d+)%\s+([A-Za-z]+)', header_text)
-                    if not header_match:
-                        continue
-                    
-                    dimension_name = header_match.group(1).strip()  # "Energy", "Mind", etc.
-                    percentage = int(header_match.group(2))
-                    trait_raw = header_match.group(3).strip()
-                    trait = valid_traits.get(trait_raw.lower(), trait_raw)
-                    
-                    # Extract image URL
-                    img_tag = traitbox.find('img')
-                    image_url = None
-                    image_alt = None
-                    if img_tag:
-                        img_src = img_tag.get('src') or img_tag.get('data-src')
-                        if img_src:
-                            from urllib.parse import urljoin
-                            image_url = urljoin(url, img_src)
-                            image_alt = img_tag.get('alt', '')
-                    
-                    # Extract description (the <p> tag text)
-                    desc_tag = traitbox.find('p')
-                    description = desc_tag.get_text().strip() if desc_tag else None
-                    
-                    # Store dimension details
-                    dimension_details[dimension_name] = {
-                        'trait': trait,
-                        'percentage': percentage,
-                        'description': description,
-                        'image_url': image_url,
-                        'image_alt': image_alt
-                    }
-                    
-                    logger.info(f"Extracted {dimension_name}: {trait} {percentage}% - {description[:50] if description else 'No description'}...")
-                    
-                except Exception as e:
-                    logger.warning(f"Error parsing traitbox: {e}")
-                    continue
-            
-            if dimension_details:
-                extracted_info['structured_data']['dimension_details'] = dimension_details
-                logger.info(f"Extracted details for {len(dimension_details)} dimensions")
-            
-            # 6. Extract images (optional, can be used for additional analysis)
-            img_tags = soup.find_all('img')
-            for img in img_tags[:5]:  # Limit to first 5 images to avoid excessive downloads
-                src = img.get('src') or img.get('data-src')
-                if src:
-                    # Make absolute URL
-                    from urllib.parse import urljoin
-                    absolute_url = urljoin(url, src)
-                    # Only include if it looks like it might be relevant
-                    if any(keyword in absolute_url.lower() for keyword in ['profile', 'avatar', 'personality', 'type', 'result', 'chart', 'graph']):
-                        extracted_info['images'].append({
-                            'url': absolute_url,
-                            'alt': img.get('alt', ''),
-                            'title': img.get('title', '')
-                        })
-            
-            logger.info(f"Found {len(extracted_info['images'])} relevant images")
-            
-            # Log extraction summary
-            logger.info(f"Extraction summary:")
-            logger.info(f"  - Text content length: {len(extracted_info['text_content'])} chars")
-            logger.info(f"  - Structured data keys: {list(extracted_info['structured_data'].keys())}")
-            logger.info(f"  - Images found: {len(extracted_info['images'])}")
-            logger.info(f"  - Text preview (first 500 chars): {extracted_info['text_content'][:500]}")
-            
-            # Check if we have sufficient content
-            if len(extracted_info['text_content']) < 100 and not extracted_info['structured_data']:
-                logger.warning("Very little content extracted from HTML, likely JavaScript-rendered page")
-                logger.info("Attempting direct text extraction fallback")
-                return await self._extract_mbti_with_openai_text(html_content)
-            
-            # 7. Use OpenAI to analyze the extracted content
-            logger.info("Analyzing extracted content with OpenAI")
-            result = await self._analyze_extracted_content_with_openai(extracted_info, client)
-            
-            return result
+            logger.info(f"Successfully extracted MBTI type: {mbti_type}")
+            return {"mbti_type": mbti_type}
             
         except Exception as e:
             logger.error(f"Error parsing HTML for MBTI: {e}", exc_info=True)
-            # Fallback to simple text-based extraction
-            logger.info("Falling back to simple text-based extraction due to error")
-            return await self._extract_mbti_with_openai_text(html_content)
+            raise ValueError(f"Failed to extract MBTI type from URL: {str(e)}")
     
     async def _analyze_extracted_content_with_openai(self, extracted_info: Dict[str, Any], client: httpx.AsyncClient) -> Dict[str, Any]:
         """
