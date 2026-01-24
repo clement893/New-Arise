@@ -112,15 +112,6 @@ export default function TKIResultContent({ results }: TKIResultContentProps) {
                   total: 30 
                 })}
               </p>
-              <div className="mt-4 flex justify-center">
-                <Image 
-                  src="/images/assessments/arise_tki_pictogram.webp" 
-                  alt="ARISE TKI Pictogram" 
-                  width={300} 
-                  height={200} 
-                  className="rounded-lg shadow-md bg-white/10 p-2"
-                />
-              </div>
             </div>
           </div>
         </Card>
@@ -138,6 +129,15 @@ export default function TKIResultContent({ results }: TKIResultContentProps) {
             </p>
           </div>
         </Card>
+        <div className="mt-4 flex justify-center">
+                <Image 
+                  src="/images/assessments/arise_tki_pictogram.webp" 
+                  alt="ARISE TKI Pictogram" 
+                  width={300} 
+                  height={200} 
+                  className="rounded-lg shadow-md bg-white/10 p-2"
+                />
+              </div>
       </div>
 
       {/* All Modes Breakdown */}
