@@ -279,14 +279,14 @@ export default function PricingPage() {
                 <div className="text-left">
                   <h1 className="mb-6">
                     <span className="block text-5xl md:text-6xl font-light mb-2" style={{ color: '#D8B868' }}>
-                    {t('hero.titlePart1')}
+                      {t('hero.titlePart1')}
                     </span>
                     <span className="block text-5xl md:text-6xl font-medium" style={{ color: '#D8B868' }}>
-                    {t('hero.titlePart2')}
+                      {t('hero.titlePart2')}
                     </span>
                   </h1>
                   <p className="text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed">
-                  {t('hero.subtitle')}
+                    {t('hero.subtitle')}
                   </p>
                 </div>
               </div>
