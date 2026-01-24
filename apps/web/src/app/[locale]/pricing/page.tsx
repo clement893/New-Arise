@@ -14,7 +14,6 @@ import { Footer } from '@/components/landing/Footer';
 import Loading from '@/components/ui/Loading';
 import Alert from '@/components/ui/Alert';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { Users } from 'lucide-react';
 import { subscriptionsAPI } from '@/lib/api';
 import { handleApiError } from '@/lib/errors/api';
 import { logger } from '@/lib/logger';
