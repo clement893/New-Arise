@@ -1721,7 +1721,6 @@ const generateTKIPDF = async (
   
   // Calculate content height first
   const recBoxY = yPos;
-  let contentY = recBoxY + 20; // Start after title
   
   // Prepare all text content to calculate height
   const leverageText = `Your dominant ${dominantModeInfo?.title.toLowerCase() || dominantMode} style can be very effective in appropriate situations. Continue to use it when it serves you well.`;
