@@ -343,8 +343,8 @@ function ResultsReportsContent() {
 
       setAssessments(transformedAssessments);
       
-      // Load executive summary data
-      await loadExecutiveSummary(transformedAssessments);
+      // Load executive summary data (pass both transformed and original for fallback)
+      await loadExecutiveSummary(transformedAssessments, sortedAssessments);
       
       // Load additional stats after assessments are set
       // Use the latest assessment (first in sorted list) for evaluator count if it's a 360
@@ -807,23 +807,74 @@ function ResultsReportsContent() {
   };
 
   // Load executive summary data
-  const loadExecutiveSummary = async (assessments: AssessmentDisplay[]) => {
+  const loadExecutiveSummary = async (assessments: AssessmentDisplay[], apiAssessments?: ApiAssessment[]) => {
     try {
-      // Find MBTI and TKI assessments
-      const mbtiAssessment = assessments.find(a => a.type === 'MBTI' && a.detailedResult);
-      const tkiAssessment = assessments.find(a => a.type === 'TKI' && a.detailedResult);
-      const threeSixtyAssessment = assessments.find(a => a.type === 'THREE_SIXTY_SELF' && a.detailedResult);
+      console.log('[Executive Summary] Loading summary for assessments:', assessments.map(a => ({ type: a.type, hasDetailedResult: !!a.detailedResult })));
+      
+      // Find MBTI and TKI assessments - try with detailedResult first, otherwise try to load
+      let mbtiAssessment = assessments.find(a => a.type === 'MBTI' && a.detailedResult);
+      let tkiAssessment = assessments.find(a => a.type === 'TKI' && a.detailedResult);
+      let threeSixtyAssessment = assessments.find(a => a.type === 'THREE_SIXTY_SELF' && a.detailedResult);
+
+      // If not found with detailedResult, try to find and load them
+      if (!mbtiAssessment) {
+        const mbti = assessments.find(a => a.type === 'MBTI');
+        if (mbti) {
+          try {
+            const result = await getAssessmentResults(mbti.id);
+            mbtiAssessment = { ...mbti, detailedResult: result };
+          } catch (err) {
+            console.warn('[Executive Summary] Could not load MBTI results:', err);
+          }
+        }
+      }
+
+      if (!tkiAssessment) {
+        const tki = assessments.find(a => a.type === 'TKI');
+        if (tki) {
+          try {
+            const result = await getAssessmentResults(tki.id);
+            tkiAssessment = { ...tki, detailedResult: result };
+          } catch (err) {
+            console.warn('[Executive Summary] Could not load TKI results:', err);
+          }
+        }
+      }
+
+      if (!threeSixtyAssessment) {
+        const threeSixty = assessments.find(a => a.type === 'THREE_SIXTY_SELF');
+        if (threeSixty) {
+          try {
+            const result = await getAssessmentResults(threeSixty.id);
+            threeSixtyAssessment = { ...threeSixty, detailedResult: result };
+          } catch (err) {
+            console.warn('[Executive Summary] Could not load 360 results:', err);
+          }
+        }
+      }
 
       let leadershipDescription: string | null = null;
       let selfAwarenessDescription: string | null = null;
 
       // Get Leadership description from MBTI + ARISE
-      if (mbtiAssessment && tkiAssessment && mbtiAssessment.detailedResult && tkiAssessment.detailedResult) {
-        const mbtiType = mbtiAssessment.detailedResult.scores?.mbti_type;
+      let mbtiType: string | null = null;
+      let ariseMode: string | null = null;
+
+      // Try to get MBTI type from detailedResult
+      if (mbtiAssessment?.detailedResult?.scores?.mbti_type) {
+        mbtiType = mbtiAssessment.detailedResult.scores.mbti_type;
+      } else if (apiAssessments) {
+        // Fallback to score_summary
+        const mbtiApi = apiAssessments.find(a => a.assessment_type === 'MBTI');
+        if (mbtiApi?.score_summary?.profile) {
+          mbtiType = mbtiApi.score_summary.profile;
+        }
+      }
+
+      // Try to get ARISE mode from detailedResult
+      if (tkiAssessment?.detailedResult) {
         const tkiScores = tkiAssessment.detailedResult.scores as any;
         
-        // Get dominant ARISE mode
-        let ariseMode: string | null = null;
         if (tkiScores.mode_scores) {
           const modeEntries = Object.entries(tkiScores.mode_scores);
           if (modeEntries.length > 0) {
@@ -839,23 +890,40 @@ function ResultsReportsContent() {
         } else if (tkiScores.dominant_mode) {
           ariseMode = tkiScores.dominant_mode;
         }
-
-        if (mbtiType && ariseMode) {
-          leadershipDescription = getLeadershipDescription(mbtiType, ariseMode);
+      } else if (apiAssessments) {
+        // Fallback to score_summary
+        const tkiApi = apiAssessments.find(a => a.assessment_type === 'TKI');
+        if (tkiApi?.score_summary?.dominant_mode) {
+          ariseMode = tkiApi.score_summary.dominant_mode;
         }
+      }
+
+      console.log('[Executive Summary] MBTI type:', mbtiType, 'ARISE mode:', ariseMode);
+
+      if (mbtiType && ariseMode) {
+        leadershipDescription = getLeadershipDescription(mbtiType, ariseMode);
+        console.log('[Executive Summary] Leadership description found:', !!leadershipDescription);
+      } else {
+        console.warn('[Executive Summary] Missing MBTI type or ARISE mode:', { mbtiType, ariseMode });
       }
 
       // Get Self-Awareness description from 360 results
       if (threeSixtyAssessment) {
         selfAwarenessDescription = await getSelfAwarenessDescription(threeSixtyAssessment.id);
+        console.log('[Executive Summary] Self-awareness description found:', !!selfAwarenessDescription);
       }
+
+      console.log('[Executive Summary] Final summary:', {
+        hasLeadership: !!leadershipDescription,
+        hasSelfAwareness: !!selfAwarenessDescription
+      });
 
       setExecutiveSummary({
         leadershipDescription,
         selfAwarenessDescription,
       });
     } catch (err) {
-      console.error('Failed to load executive summary:', err);
+      console.error('[Executive Summary] Failed to load executive summary:', err);
     }
   };
 
