@@ -19,6 +19,7 @@ import { usePathname, useRouter, Link } from '@/i18n/routing';
 import { useAuthStore } from '@/lib/store';
 import { useAuth } from '@/hooks/useAuth';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import ProtectedSubscriptionRoute from '@/components/auth/ProtectedSubscriptionRoute';
 import Sidebar from '@/components/ui/Sidebar';
 import { checkMySuperAdminStatus } from '@/lib/api/admin';
 // ThemeToggle removed - dark mode is no longer supported
@@ -445,8 +446,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   // The layout component stays mounted, only {children} changes during navigation
   // This ensures the sidebar stays in place while only the content area updates
   return (
-    <ProtectedRoute>
+    <ProtectedSubscriptionRoute>
       <DashboardLayoutContent>{children}</DashboardLayoutContent>
-    </ProtectedRoute>
+    </ProtectedSubscriptionRoute>
   );
 }

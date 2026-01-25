@@ -652,8 +652,26 @@ function ResultsReportsContent() {
 
       setIsGeneratingPDF(true);
       
+      // Ensure all assessments have detailed results loaded before generating PDFs
+      const assessmentsWithResults = await Promise.all(
+        assessments.map(async (assessment) => {
+          let detailedResult = assessment.detailedResult;
+          if (!detailedResult) {
+            try {
+              detailedResult = await getAssessmentResults(assessment.id);
+            } catch (err) {
+              console.warn(`Could not load detailed results for assessment ${assessment.id}:`, err);
+            }
+          }
+          return {
+            ...assessment,
+            detailedResult: detailedResult || assessment.detailedResult,
+          };
+        })
+      );
+      
       // Generate ZIP with all PDFs
-      const zipBlob = await generateAllAssessmentsZip(assessments);
+      const zipBlob = await generateAllAssessmentsZip(assessmentsWithResults);
       
       // Download the ZIP file
       const timestamp = new Date().toISOString().split('T')[0];
