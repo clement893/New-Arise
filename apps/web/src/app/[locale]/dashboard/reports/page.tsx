@@ -862,12 +862,16 @@ function ResultsReportsContent() {
 
       // Try to get MBTI type from detailedResult
       if (mbtiAssessment?.detailedResult?.scores?.mbti_type) {
-        mbtiType = mbtiAssessment.detailedResult.scores.mbti_type;
+        const rawMbtiType = mbtiAssessment.detailedResult.scores.mbti_type;
+        // Extract only the 4 letters (remove -T, -A, or any suffix)
+        mbtiType = rawMbtiType.substring(0, 4).toUpperCase();
       } else if (apiAssessments) {
         // Fallback to score_summary
         const mbtiApi = apiAssessments.find(a => a.assessment_type === 'MBTI');
         if (mbtiApi?.score_summary?.profile) {
-          mbtiType = mbtiApi.score_summary.profile;
+          const rawMbtiType = mbtiApi.score_summary.profile;
+          // Extract only the 4 letters (remove -T, -A, or any suffix)
+          mbtiType = rawMbtiType.substring(0, 4).toUpperCase();
         }
       }
 

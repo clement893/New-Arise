@@ -1845,8 +1845,18 @@ export const generateAllAssessmentsZip = async (assessments: AssessmentForPDF[])
 
   console.log(`[generateAllAssessmentsZip] Generated ${pdfCount} PDF(s), creating ZIP...`);
   // Generate the ZIP file
-  const zipBlob = await zip.generateAsync({ type: 'blob' });
-  console.log(`[generateAllAssessmentsZip] ZIP created: ${zipBlob.size} bytes`);
+  const zipBlob = await zip.generateAsync({ type: 'blob', mimeType: 'application/zip' });
+  console.log(`[generateAllAssessmentsZip] ZIP created: ${zipBlob.size} bytes, type: ${zipBlob.type}`);
+  
+  // Verify it's actually a ZIP by checking the first bytes (ZIP files start with PK)
+  const firstBytes = await zipBlob.slice(0, 2).arrayBuffer();
+  const isZip = new Uint8Array(firstBytes)[0] === 0x50 && new Uint8Array(firstBytes)[1] === 0x4B; // "PK"
+  console.log(`[generateAllAssessmentsZip] ZIP verification: ${isZip ? 'VALID ZIP' : 'INVALID - NOT A ZIP!'}`);
+  
+  if (!isZip) {
+    throw new Error('Generated file is not a valid ZIP file');
+  }
+  
   return zipBlob;
 };
 

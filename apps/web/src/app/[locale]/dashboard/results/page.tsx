@@ -161,6 +161,8 @@ function ResultsReportsContent() {
 
       setIsGeneratingPDF(true);
       
+      console.log('[handleDownloadCompleteProfile] Starting export with', assessments.length, 'assessments');
+      
       // Ensure all assessments have detailed results loaded before generating PDFs
       const assessmentsWithResults = await Promise.all(
         assessments.map(async (assessment) => {
@@ -180,14 +182,25 @@ function ResultsReportsContent() {
         })
       );
       
+      console.log('[handleDownloadCompleteProfile] Assessments with results:', assessmentsWithResults.length);
+      console.log('[handleDownloadCompleteProfile] Calling generateAllAssessmentsZip...');
+      
       // Generate ZIP with all PDFs
       const zipBlob = await generateAllAssessmentsZip(assessmentsWithResults);
       
+      console.log('[handleDownloadCompleteProfile] ZIP blob received:', {
+        size: zipBlob.size,
+        type: zipBlob.type,
+        isZIP: zipBlob.type === 'application/zip' || zipBlob.type === 'application/x-zip-compressed'
+      });
+      
       // Download the ZIP file
       const timestamp = new Date().toISOString().split('T')[0];
-      downloadBlob(zipBlob, `ARISE_Assessments_${timestamp}.zip`);
+      const fileName = `ARISE_Assessments_${timestamp}.zip`;
+      console.log('[handleDownloadCompleteProfile] Downloading file:', fileName);
+      downloadBlob(zipBlob, fileName);
     } catch (err) {
-      console.error('Failed to export assessments:', err);
+      console.error('[handleDownloadCompleteProfile] Failed to export assessments:', err);
       alert(t('errors.exportFailed'));
     } finally {
       setIsGeneratingPDF(false);
