@@ -1330,7 +1330,7 @@
         "types": {
           "MBTI": "Personnalité MBTI",
           "TKI": "Style de conflit ARISE",
-          "WELLNESS": "Évaluation LIFESTYLE & WELLNESS",
+          "WELLNESS": "Évaluation du mode de vie & bien-être",
           "THREE_SIXTY_SELF": "Feedback 360°"
         }
       },
@@ -1342,7 +1342,7 @@
           "leadershipStyle": "Style de leadership",
           "conflictResolution": "Résolution de conflits",
           "teamPerception": "Perception de l'équipe",
-          "wellnessFocus": "Focus bien-être",
+          "wellnessFocus": "Focus Mode de vie & Bien-être",
           "continueJourney": "Continuez votre parcours"
         },
         "categories": {

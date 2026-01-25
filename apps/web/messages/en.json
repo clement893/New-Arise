@@ -1255,7 +1255,7 @@
         "types": {
           "MBTI": "MBTI Personality",
           "TKI": "ARISE Conflict Style",
-          "WELLNESS": "LIFESTYLE & WELLNESS Assessment",
+          "WELLNESS": "Lifestyle & Wellness Assessment",
           "THREE_SIXTY_SELF": "360° Feedback"
         }
       },
@@ -1267,7 +1267,7 @@
           "leadershipStyle": "Leadership Style",
           "conflictResolution": "Conflict Resolution",
           "teamPerception": "Team Perception",
-          "wellnessFocus": "Wellness Focus",
+          "wellnessFocus": "Lifestyle & Wellness Focus",
           "continueJourney": "Continue Your Journey"
         },
         "categories": {
@@ -1304,7 +1304,7 @@
           "description": "Understanding your natural preferences and how you interact with the world"
         },
         "tki": {
-          "title": "TKI Conflict Management",
+          "title": "Arise Conflict Management",
           "description": "Explore your conflict management approach and how you handle disagreements"
         },
         "threeSixty": {
@@ -1312,7 +1312,7 @@
           "description": "Multi-faceted leadership perspectives from colleagues and team members"
         },
         "wellness": {
-          "title": "Wellness Assessment",
+          "title": "Lifestyle & Wellness Assessment",
           "description": "Holistic view of your health and well-being across six key pillars"
         },
         "downloadButton": "Download Complete Leadership Profile",

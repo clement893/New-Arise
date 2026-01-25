@@ -169,7 +169,7 @@ function ResultsReportsContent() {
     },
     {
       id: 4,
-      title: 'Wellness Focus',
+      title: 'Lifestyle & Wellness Focus',
       description: 'Consider improving your stress management and sleep quality for better performance.',
       category: 'Wellness',
     },
