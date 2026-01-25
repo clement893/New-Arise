@@ -12,7 +12,7 @@ import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Card, Button } from '@/components/ui';
 import { Link } from '@/i18n/routing';
-import { HelpCircle, MessageSquare, BookOpen, Video, FileText, Search } from 'lucide-react';
+import { HelpCircle, MessageSquare, Search } from 'lucide-react';
 
 export interface HelpCategory {
   id: string;
@@ -51,36 +51,12 @@ export default function HelpCenter({
       color: 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800',
     },
     {
-      id: 'guides',
-      title: t('categories.guides.title'),
-      description: t('categories.guides.description'),
-      icon: <BookOpen className="w-6 h-6" />,
-      link: '/help/guides',
-      color: 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800',
-    },
-    {
-      id: 'videos',
-      title: t('categories.videos.title'),
-      description: t('categories.videos.description'),
-      icon: <Video className="w-6 h-6" />,
-      link: '/help/videos',
-      color: 'bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800',
-    },
-    {
       id: 'contact',
       title: t('categories.contact.title'),
       description: t('categories.contact.description'),
       icon: <MessageSquare className="w-6 h-6" />,
-      link: '/help/contact',
+      link: '/contact',
       color: 'bg-teal-50 dark:bg-teal-950 border-teal-200 dark:border-teal-800',
-    },
-    {
-      id: 'tickets',
-      title: t('categories.tickets.title'),
-      description: t('categories.tickets.description'),
-      icon: <FileText className="w-6 h-6" />,
-      link: '/help/tickets',
-      color: 'bg-orange-50 dark:bg-orange-950 border-orange-200 dark:border-orange-800',
     },
   ], [t]);
 

@@ -1551,64 +1551,80 @@ const generateTKIPDF = async (
   const secondaryModeInfo = getModeInfo(secondaryMode);
 
   // Helper function to draw mode icons as simple shapes (jsPDF doesn't support Unicode symbols well)
+  // Using only basic shapes (rectangles, circles, lines) for maximum compatibility
   const drawModeIcon = (doc: any, x: number, y: number, modeId: string, size: number = 20) => {
     const iconSize = size;
     const halfSize = iconSize / 2;
     
+    // Set white color for all icons
     doc.setDrawColor(255, 255, 255);
     doc.setFillColor(255, 255, 255);
+    doc.setLineWidth(2);
     
     switch (modeId) {
       case 'competing':
-        // Draw a simple arrow/sword pointing right using path
-        const arrowPath = [
-          { op: 'm', c: [x - halfSize, y] },
-          { op: 'l', c: [x + halfSize, y - halfSize] },
-          { op: 'l', c: [x + halfSize, y + halfSize] },
-          { op: 'h', c: [] }
-        ];
-        doc.path(arrowPath);
-        doc.fillStroke();
-        // Add a line for the handle
-        doc.setLineWidth(2);
-        doc.line(x - halfSize, y, x - halfSize - 3, y);
+        // Draw a right-pointing arrow using rectangles (more reliable)
+        // Arrow head - three rectangles forming a triangle
+        const arrowHeadSize = halfSize * 0.8;
+        // Top part of arrow head
+        doc.rect(x - halfSize * 0.2, y - arrowHeadSize, arrowHeadSize * 0.3, arrowHeadSize * 0.4, 'F');
+        // Middle part
+        doc.rect(x + halfSize * 0.1, y - arrowHeadSize * 0.3, arrowHeadSize * 0.5, arrowHeadSize * 0.6, 'F');
+        // Bottom part
+        doc.rect(x - halfSize * 0.2, y + arrowHeadSize * 0.6, arrowHeadSize * 0.3, arrowHeadSize * 0.4, 'F');
+        // Arrow shaft
+        doc.rect(x - halfSize, y - arrowHeadSize * 0.2, halfSize * 0.5, arrowHeadSize * 0.4, 'F');
         break;
       case 'collaborating':
-        // Draw two overlapping circles (handshake representation)
-        doc.circle(x - 4, y, halfSize * 0.6, 'F');
-        doc.circle(x + 4, y, halfSize * 0.6, 'F');
+        // Draw two overlapping filled circles (handshake)
+        const circleRadius = halfSize * 0.7;
+        doc.circle(x - 5, y, circleRadius, 'F');
+        doc.circle(x + 5, y, circleRadius, 'F');
+        // Connection line
+        doc.setLineWidth(3);
+        doc.line(x - 5 + circleRadius * 0.7, y, x + 5 - circleRadius * 0.7, y);
         break;
       case 'compromising':
-        // Draw a simple scale/balance (two circles connected by lines)
-        doc.circle(x - 5, y - 3, halfSize * 0.4, 'F');
-        doc.circle(x + 5, y - 3, halfSize * 0.4, 'F');
+        // Draw a balance scale using circles and lines
+        const panRadius = halfSize * 0.4;
+        // Left pan
+        doc.circle(x - halfSize * 0.6, y - halfSize * 0.1, panRadius, 'F');
+        // Right pan
+        doc.circle(x + halfSize * 0.6, y - halfSize * 0.1, panRadius, 'F');
+        // Center post
+        doc.setLineWidth(3);
+        doc.line(x, y + halfSize * 0.6, x, y - halfSize * 0.1);
+        // Base
+        doc.line(x - halfSize * 0.5, y + halfSize * 0.6, x + halfSize * 0.5, y + halfSize * 0.6);
+        // Connectors
         doc.setLineWidth(2);
-        doc.line(x - 5, y - 3, x, y + 3);
-        doc.line(x + 5, y - 3, x, y + 3);
+        doc.line(x - halfSize * 0.6, y - halfSize * 0.1, x, y - halfSize * 0.1);
+        doc.line(x + halfSize * 0.6, y - halfSize * 0.1, x, y - halfSize * 0.1);
         break;
       case 'avoiding':
-        // Draw a simple arrow pointing left using path
-        const leftArrowPath = [
-          { op: 'm', c: [x + halfSize, y] },
-          { op: 'l', c: [x - halfSize, y - halfSize] },
-          { op: 'l', c: [x - halfSize, y + halfSize] },
-          { op: 'h', c: [] }
-        ];
-        doc.path(leftArrowPath);
-        doc.fillStroke();
-        // Add a line
-        doc.setLineWidth(2);
-        doc.line(x + halfSize, y, x + halfSize + 3, y);
+        // Draw a left-pointing arrow using rectangles
+        const leftArrowHeadSize = halfSize * 0.8;
+        // Top part of arrow head
+        doc.rect(x + halfSize * 0.2, y - leftArrowHeadSize, leftArrowHeadSize * 0.3, leftArrowHeadSize * 0.4, 'F');
+        // Middle part
+        doc.rect(x - halfSize * 0.4, y - leftArrowHeadSize * 0.3, leftArrowHeadSize * 0.5, leftArrowHeadSize * 0.6, 'F');
+        // Bottom part
+        doc.rect(x + halfSize * 0.2, y + leftArrowHeadSize * 0.6, leftArrowHeadSize * 0.3, leftArrowHeadSize * 0.4, 'F');
+        // Arrow shaft
+        doc.rect(x + halfSize * 0.5, y - leftArrowHeadSize * 0.2, halfSize * 0.5, leftArrowHeadSize * 0.4, 'F');
         break;
       case 'accommodating':
-        // Draw a check mark
-        doc.setLineWidth(3);
-        doc.line(x - halfSize, y, x - 2, y + halfSize * 0.6);
-        doc.line(x - 2, y + halfSize * 0.6, x + halfSize, y - halfSize * 0.6);
+        // Draw a check mark using thick lines
+        doc.setLineWidth(5);
+        const checkOffset = halfSize * 0.7;
+        // First segment (diagonal down-right)
+        doc.line(x - checkOffset, y - halfSize * 0.2, x - checkOffset * 0.2, y + halfSize * 0.3);
+        // Second segment (diagonal up-right)
+        doc.line(x - checkOffset * 0.2, y + halfSize * 0.3, x + checkOffset, y - halfSize * 0.5);
         break;
       default:
-        // Default: simple circle
-        doc.circle(x, y, halfSize * 0.5, 'F');
+        // Default: filled circle
+        doc.circle(x, y, halfSize * 0.6, 'F');
     }
   };
 
@@ -1639,8 +1655,8 @@ const generateTKIPDF = async (
   doc.setFillColor(15, 76, 86); // ARISE deep teal
   doc.rect(dominantCardX, dominantCardY, cardWidth, cardHeight, 'F');
   
-  // Draw icon as a shape instead of text
-  drawModeIcon(doc, dominantCardX + cardWidth / 2, dominantCardY + 12, dominantMode, 24);
+  // Draw icon as a shape instead of text - larger size for visibility
+  drawModeIcon(doc, dominantCardX + cardWidth / 2, dominantCardY + 12, dominantMode, 28);
   
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
@@ -1662,8 +1678,8 @@ const generateTKIPDF = async (
   doc.setFillColor(212, 175, 55); // Gold color approximation
   doc.rect(secondaryCardX, secondaryCardY, cardWidth, cardHeight, 'F');
   
-  // Draw icon as a shape instead of text
-  drawModeIcon(doc, secondaryCardX + cardWidth / 2, secondaryCardY + 12, secondaryMode, 24);
+  // Draw icon as a shape instead of text - larger size for visibility
+  drawModeIcon(doc, secondaryCardX + cardWidth / 2, secondaryCardY + 12, secondaryMode, 28);
   
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
@@ -1697,8 +1713,8 @@ const generateTKIPDF = async (
     // Mode header with icon, title, description, and level
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
-    // Draw icon as a shape instead of text
-    drawModeIcon(doc, 25, yPos + 3, modeId, 14);
+    // Draw icon as a shape instead of text - larger size for visibility
+    drawModeIcon(doc, 25, yPos + 3, modeId, 16);
     doc.text(modeInfo?.title || modeId, 35, yPos);
     
     // Level on the right
