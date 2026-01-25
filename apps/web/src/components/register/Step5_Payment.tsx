@@ -422,13 +422,18 @@ function PaymentFormContent() {
                       </p>
                     )}
                     <p>
-                      <strong>Amount:</strong> {formatPrice(selectedPlan)} / {getIntervalLabel(selectedPlan)}
+                      <strong>Amount:</strong> {formatPrice(selectedPlan)} (1 time)
                     </p>
                   </div>
                 </div>
 
                 <div className="relative">
                   <form onSubmit={handleSubmit} className="space-y-4">
+                    {/* MVP Test Card Helper */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                      <p className="text-xs text-blue-800 font-medium mb-1">MVP Test Card (Pre-filled for testing):</p>
+                      <p className="text-xs text-blue-700">Card: 4242 4242 4242 4242 | Expiry: 01/30 | CVV: 565</p>
+                    </div>
                     <div style={{ pointerEvents: isProcessing ? 'none' : 'auto', opacity: isProcessing ? 0.6 : 1 }}>
                       <StripeCardElement
                         key="payment-card-element"
@@ -496,22 +501,21 @@ function PaymentFormContent() {
             </div>
             <div className="flex justify-between">
               <span className="text-white">Billing</span>
-              <span className="text-white capitalize">
-                {selectedPlan ? getIntervalLabel(selectedPlan) : 'Monthly'}
+              <span className="text-white">
+                1 time
               </span>
             </div>
             <div className="border-t pt-4">
               <div className="flex flex-col">
                 <span className="font-semibold text-white mb-2">Total</span>
                 <span className="font-bold text-white text-xl">
-                  {selectedPlan ? `${formatPrice(selectedPlan)}/${getIntervalLabel(selectedPlan)}` : '$0.00'}
+                  {selectedPlan ? `${formatPrice(selectedPlan)} (1 time)` : '$0.00'}
                 </span>
               </div>
             </div>
           </div>
 
           <div className="rounded-lg p-4 text-sm text-white" style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}>
-            <p className="mb-2">✓ 30-day money-back guarantee</p>
             <p className="mb-2">✓ Cancel anytime</p>
             <p className="mb-2">✓ Secure payment processing by Stripe</p>
             <p>✓ Industry-standard encryption</p>
