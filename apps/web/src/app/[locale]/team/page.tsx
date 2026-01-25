@@ -7,15 +7,25 @@ import { Card } from '@/components/ui';
 import MotionDiv from '@/components/motion/MotionDiv';
 import { Users, Linkedin, Mail, Award, GraduationCap, Briefcase, ExternalLink, Handshake } from 'lucide-react';
 import Image from 'next/image';
+import { Link } from '@/i18n/routing';
 
 export default function TeamPage() {
   const t = useTranslations('team');
+
+  // Helper function to generate slug from name
+  const getSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
 
   // Team members data - translated
   const teamMembers = [
     {
       id: 1,
       name: 'Gabriela Loureiro',
+      slug: 'gabriela-loureiro',
       role: t('members.gabriela.role'),
       bio: t('members.gabriela.bio'),
       expertise: t('members.gabriela.expertise'),
@@ -28,6 +38,7 @@ export default function TeamPage() {
     {
       id: 2,
       name: 'Tamara Lovi, MBA',
+      slug: 'tamara-lovi',
       role: t('members.tamara.role'),
       bio: t('members.tamara.bio'),
       expertise: t('members.tamara.expertise'),
@@ -81,76 +92,80 @@ export default function TeamPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {teamMembers.map((member, index) => (
               <MotionDiv key={member.id} variant="slideUp" delay={index * 100}>
-                <Card className="p-6 hover:shadow-lg transition-shadow">
-                  <div className="flex flex-col gap-6">
-                    <div className="flex justify-center">
-                      <div className="w-48 h-48 rounded-lg bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 flex items-center justify-center overflow-hidden border-white shadow-md">
-                        {member.image ? (
-                          <Image
-                            src={member.image}
-                            alt={member.name}
-                            width={192}
-                            height={192}
-                            className="object-cover object-top h-full"
-                          />
-                        ) : (
-                          <Users className="text-arise-deep-teal/40" size={96} />
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-2xl font-bold text-gray-900 mb-1 text-center">{member.name}</h3>
-                      <p className="text-lg text-arise-deep-teal font-semibold mb-3 text-center">{member.role}</p>
-                      <p className="text-gray-700 mb-4">{member.bio}</p>
-                      
-                      <div className="space-y-3 mb-4">
-                        <div className="flex items-start gap-2">
-                          <Briefcase className="text-arise-deep-teal flex-shrink-0 mt-1" size={16} />
-                          <div>
-                            <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Expertise</p>
-                            <p className="text-sm text-gray-600">{member.expertise}</p>
-                          </div>
+                <Link href={`/team/${member.slug}`}>
+                  <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="flex flex-col gap-6">
+                      <div className="flex justify-center">
+                        <div className="w-48 h-48 rounded-lg bg-gradient-to-br from-arise-deep-teal/20 to-arise-gold/20 flex items-center justify-center overflow-hidden border-white shadow-md">
+                          {member.image ? (
+                            <Image
+                              src={member.image}
+                              alt={member.name}
+                              width={192}
+                              height={192}
+                              className="object-cover object-top h-full"
+                            />
+                          ) : (
+                            <Users className="text-arise-deep-teal/40" size={96} />
+                          )}
                         </div>
-                        <div className="flex items-start gap-2">
-                          <GraduationCap className="text-arise-deep-teal flex-shrink-0 mt-1" size={16} />
-                          <div>
-                            <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Education</p>
-                            <p className="text-sm text-gray-600">{member.education}</p>
-                          </div>
-                        </div>
-                        {member.wellbeing && (
-                          <div className="bg-arise-deep-teal/5 p-3 rounded-lg mt-3">
-                            <p className="text-xs font-semibold text-arise-deep-teal uppercase mb-2">My Wellbeing</p>
-                            <p className="text-sm text-gray-700 italic">{member.wellbeing}</p>
-                          </div>
-                        )}
                       </div>
+                      <div className="flex-1">
+                        <h3 className="text-2xl font-bold text-gray-900 mb-1 text-center">{member.name}</h3>
+                        <p className="text-lg text-arise-deep-teal font-semibold mb-3 text-center">{member.role}</p>
+                        <p className="text-gray-700 mb-4">{member.bio}</p>
+                        
+                        <div className="space-y-3 mb-4">
+                          <div className="flex items-start gap-2">
+                            <Briefcase className="text-arise-deep-teal flex-shrink-0 mt-1" size={16} />
+                            <div>
+                              <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Expertise</p>
+                              <p className="text-sm text-gray-600">{member.expertise}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <GraduationCap className="text-arise-deep-teal flex-shrink-0 mt-1" size={16} />
+                            <div>
+                              <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Education</p>
+                              <p className="text-sm text-gray-600">{member.education}</p>
+                            </div>
+                          </div>
+                          {member.wellbeing && (
+                            <div className="bg-arise-deep-teal/5 p-3 rounded-lg mt-3">
+                              <p className="text-xs font-semibold text-arise-deep-teal uppercase mb-2">My Wellbeing</p>
+                              <p className="text-sm text-gray-700 italic">{member.wellbeing}</p>
+                            </div>
+                          )}
+                        </div>
 
-                      <div className="flex items-center justify-center gap-4">
-                        {member.linkedin && (
-                          <a
-                            href={member.linkedin}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-arise-deep-teal hover:text-arise-deep-teal/80 transition-colors"
-                            aria-label={`${member.name} LinkedIn`}
-                          >
-                            <Linkedin size={20} />
-                          </a>
-                        )}
-                        {member.email && (
-                          <a
-                            href={`mailto:${member.email}`}
-                            className="text-arise-deep-teal hover:text-arise-deep-teal/80 transition-colors"
-                            aria-label={`Email ${member.name}`}
-                          >
-                            <Mail size={20} />
-                          </a>
-                        )}
+                        <div className="flex items-center justify-center gap-4">
+                          {member.linkedin && (
+                            <a
+                              href={member.linkedin}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-arise-deep-teal hover:text-arise-deep-teal/80 transition-colors"
+                              aria-label={`${member.name} LinkedIn`}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Linkedin size={20} />
+                            </a>
+                          )}
+                          {member.email && (
+                            <a
+                              href={`mailto:${member.email}`}
+                              className="text-arise-deep-teal hover:text-arise-deep-teal/80 transition-colors"
+                              aria-label={`Email ${member.name}`}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Mail size={20} />
+                            </a>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Card>
+                  </Card>
+                </Link>
               </MotionDiv>
             ))}
           </div>
