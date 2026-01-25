@@ -1393,6 +1393,15 @@
         "downloadButton": "Télécharger le profil de leadership complet",
         "generatingPdf": "Génération du PDF..."
       },
+      "executiveSummary": {
+        "title": "Votre rapport exécutif de synthèse",
+        "profession": {
+          "title": "PROFESSION"
+        },
+        "lifestyleWellness": {
+          "title": "MODE DE VIE & BIEN-ÊTRE"
+        }
+      },
       "deleteAssessmentModal": {
         "title": "Supprimer l'assessment",
         "message": "Cette action est irréversible. Cette suppression supprimera définitivement l'assessment et toutes les données associées, y compris les réponses, les résultats et tous les contributeurs 360°.",
