@@ -1145,52 +1145,6 @@ function ResultsReportsContent() {
             </div>
           </Card>
 
-          {/* Key Insights */}
-          <Card className="bg-white">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-arise-deep-teal/10 rounded-lg flex items-center justify-center">
-                <Brain className="text-arise-deep-teal" size={24} />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {t('insights.title')}
-                </h2>
-                <p className="text-gray-700">
-                  {t('insights.description')}
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {keyInsights.length > 0 ? (
-                keyInsights.map((insight) => (
-                <Card key={insight.id} className="border border-gray-200 bg-gray-50">
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-arise-gold rounded-full mt-2 flex-shrink-0" />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-base font-semibold text-gray-900">
-                          {insight.title}
-                        </h3>
-                        <span className="text-xs text-gray-600 bg-white px-2 py-1 rounded border border-gray-200">
-                          {insight.category}
-                        </span>
-                      </div>
-                      <p className="text-gray-700 text-sm">
-                        {insight.description}
-                      </p>
-                    </div>
-                  </div>
-                </Card>
-              ))
-              ) : (
-                <div className="col-span-2 text-center sm:py-8 py-2 text-gray-500">
-                  <p>{t('insights.noInsights')}</p>
-                </div>
-              )}
-            </div>
-          </Card>
-
           {/* Comprehensive Leadership Profile */}
           <Card className="bg-white">
             <div className="flex items-center gap-3 mb-6">
