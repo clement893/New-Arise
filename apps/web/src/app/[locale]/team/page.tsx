@@ -12,14 +12,6 @@ import { Link } from '@/i18n/routing';
 export default function TeamPage() {
   const t = useTranslations('team');
 
-  // Helper function to generate slug from name
-  const getSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-  };
-
   // Team members data - translated
   const teamMembers = [
     {
