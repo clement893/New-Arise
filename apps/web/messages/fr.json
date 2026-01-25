@@ -3853,6 +3853,48 @@
       }
     }
   },
+  "help": {
+    "title": "Centre d'Aide",
+    "description": "Trouvez des réponses, des guides et obtenez de l'aide pour utiliser la plateforme ARISE",
+    "search": {
+      "placeholder": "Rechercher de l'aide...",
+      "button": "Rechercher"
+    },
+    "categories": {
+      "faq": {
+        "title": "FAQ",
+        "description": "Questions fréquemment posées et leurs réponses"
+      },
+      "guides": {
+        "title": "Guides Utilisateur",
+        "description": "Guides pas à pas et tutoriels détaillés"
+      },
+      "videos": {
+        "title": "Tutoriels Vidéo",
+        "description": "Regardez des tutoriels vidéo et des démonstrations"
+      },
+      "contact": {
+        "title": "Contacter le Support",
+        "description": "Entrez en contact avec notre équipe de support"
+      },
+      "tickets": {
+        "title": "Tickets de Support",
+        "description": "Consultez et gérez vos tickets de support"
+      }
+    },
+    "quickLinks": {
+      "title": "Liens Rapides",
+      "faq": {
+        "title": "Questions Courantes",
+        "description": "Trouvez des réponses aux questions courantes"
+      },
+      "contact": {
+        "title": "Besoin d'Aide Supplémentaire ?",
+        "description": "Contactez notre équipe de support"
+      }
+    },
+    "noResults": "Aucun résultat trouvé pour \"{query}\". Essayez avec d'autres mots-clés."
+  },
   "faq": {
     "title": "Questions Fréquemment Posées",
     "description": "Trouvez des réponses aux questions les plus courantes sur la plateforme ARISE"

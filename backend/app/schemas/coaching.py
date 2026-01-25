@@ -12,8 +12,8 @@ class CoachingPackageBase(BaseModel):
     """Base coaching package schema"""
     name: str = Field(..., description="Package name")
     description: Optional[str] = None
-    price: float = Field(..., gt=0, description="Price in euros")
-    currency: str = Field(default="eur", description="Currency code")
+    price: float = Field(..., gt=0, description="Price amount")
+    currency: str = Field(default="cad", description="Currency code")
     duration_months: Optional[int] = Field(None, ge=1, description="Duration in months")
     sessions_count: int = Field(default=1, ge=1, description="Number of sessions")
     features: Optional[str] = None  # JSON string

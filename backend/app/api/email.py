@@ -23,6 +23,7 @@ class SendEmailRequest(BaseModel):
     reply_to: Optional[str] = Field(None, description="Reply-to email (optional)")
     cc: Optional[List[str]] = Field(None, description="CC email addresses (optional)")
     bcc: Optional[List[str]] = Field(None, description="BCC email addresses (optional)")
+    locale: Optional[str] = Field("fr", description="Locale for email (en/fr)")
 
 
 class EmailResponse(BaseModel):
@@ -37,6 +38,7 @@ class EmailResponse(BaseModel):
 class TestEmailRequest(BaseModel):
     """Schema for test email request."""
     to_email: EmailStr = Field(..., description="Recipient email address for test")
+    locale: Optional[str] = Field("fr", description="Locale for email (en/fr)")
 
 
 @router.get("/health")
@@ -248,6 +250,7 @@ async def send_welcome_email_endpoint(
     
     try:
         email_service = EmailService()
+        locale = request_data.locale or "fr"
         
         # Get user info safely - User model has first_name, last_name, and email
         user_first_name = getattr(current_user, 'first_name', None) or ''
@@ -267,7 +270,7 @@ async def send_welcome_email_endpoint(
             
             # Check if Celery is available
             try:
-                task = send_welcome_email_task.delay(request_data.to_email, name)
+                task = send_welcome_email_task.delay(request_data.to_email, name, None, locale)
                 return EmailResponse(
                     status="queued",
                     task_id=task.id,
@@ -281,7 +284,7 @@ async def send_welcome_email_endpoint(
             # Fall through to direct send
         
         # Direct send (fallback or primary method)
-        result = email_service.send_welcome_email(request_data.to_email, name)
+        result = email_service.send_welcome_email(request_data.to_email, name, None, locale)
         return EmailResponse(**result)
         
     except ValueError as e:
@@ -305,9 +308,10 @@ class InvoiceEmailRequest(BaseModel):
     invoice_number: str
     invoice_date: str
     amount: float
-    currency: str = "EUR"
+    currency: str = "CAD"
     invoice_url: Optional[str] = None
     items: Optional[List[Dict[str, Union[str, int, float]]]] = None
+    locale: Optional[str] = Field("fr", description="Locale for email (en/fr)")
 
 
 @router.post("/invoice")
@@ -319,6 +323,7 @@ async def send_invoice_email_endpoint(
     from app.tasks.email_tasks import send_invoice_email_task
     
     try:
+        locale = request_data.locale or "fr"
         task = send_invoice_email_task.delay(
             request_data.to_email,
             request_data.name,
@@ -328,6 +333,7 @@ async def send_invoice_email_endpoint(
             request_data.currency,
             request_data.invoice_url,
             request_data.items or [],
+            locale,
         )
         return {
             "status": "queued",
@@ -345,7 +351,8 @@ class SubscriptionEmailRequest(BaseModel):
     name: str
     plan_name: str
     amount: float
-    currency: str = "EUR"
+    currency: str = "CAD"
+    locale: Optional[str] = Field("fr", description="Locale for email (en/fr)")
 
 
 @router.post("/subscription/created")
@@ -357,12 +364,14 @@ async def send_subscription_created_email_endpoint(
     from app.tasks.email_tasks import send_subscription_created_email_task
     
     try:
+        locale = request_data.locale or "fr"
         task = send_subscription_created_email_task.delay(
             request_data.to_email,
             request_data.name,
             request_data.plan_name,
             request_data.amount,
             request_data.currency,
+            locale,
         )
         return {
             "status": "queued",
@@ -380,6 +389,7 @@ class SubscriptionCancelledEmailRequest(BaseModel):
     name: str
     plan_name: str
     end_date: str
+    locale: Optional[str] = Field("fr", description="Locale for email (en/fr)")
 
 
 @router.post("/subscription/cancelled")
@@ -391,11 +401,13 @@ async def send_subscription_cancelled_email_endpoint(
     from app.tasks.email_tasks import send_subscription_cancelled_email_task
     
     try:
+        locale = request_data.locale or "fr"
         task = send_subscription_cancelled_email_task.delay(
             request_data.to_email,
             request_data.name,
             request_data.plan_name,
             request_data.end_date,
+            locale,
         )
         return {
             "status": "queued",
@@ -413,6 +425,7 @@ class TrialEndingEmailRequest(BaseModel):
     name: str
     days_remaining: int
     upgrade_url: Optional[str] = None
+    locale: Optional[str] = Field("fr", description="Locale for email (en/fr)")
 
 
 @router.post("/trial/ending")
@@ -424,11 +437,13 @@ async def send_trial_ending_email_endpoint(
     from app.tasks.email_tasks import send_trial_ending_email_task
     
     try:
+        locale = request_data.locale or "fr"
         task = send_trial_ending_email_task.delay(
             request_data.to_email,
             request_data.name,
             request_data.days_remaining,
             request_data.upgrade_url,
+            locale,
         )
         return {
             "status": "queued",

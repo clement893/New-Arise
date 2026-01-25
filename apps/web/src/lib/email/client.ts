@@ -38,6 +38,7 @@ export interface SendEmailRequest {
   reply_to?: string;
   cc?: string[];
   bcc?: string[];
+  locale?: string;
 }
 
 export interface EmailResponse {
@@ -64,6 +65,7 @@ export interface InvoiceEmailRequest {
   currency?: string;
   invoice_url?: string;
   items?: Array<{ description: string; amount: number }>;
+  locale?: string;
 }
 
 export interface SubscriptionEmailRequest {
@@ -72,6 +74,7 @@ export interface SubscriptionEmailRequest {
   plan_name: string;
   amount: number;
   currency?: string;
+  locale?: string;
 }
 
 export interface SubscriptionCancelledEmailRequest {
@@ -79,6 +82,7 @@ export interface SubscriptionCancelledEmailRequest {
   name: string;
   plan_name: string;
   end_date: string;
+  locale?: string;
 }
 
 export interface TrialEndingEmailRequest {
@@ -86,6 +90,20 @@ export interface TrialEndingEmailRequest {
   name: string;
   days_remaining: number;
   upgrade_url?: string;
+  locale?: string;
+}
+
+/**
+ * Get locale from HTML lang attribute
+ */
+function getLocaleFromHTML(): string {
+  if (typeof document !== 'undefined') {
+    const htmlLang = document.documentElement.getAttribute('lang');
+    if (htmlLang === 'en' || htmlLang === 'fr') {
+      return htmlLang;
+    }
+  }
+  return 'fr'; // Default to French
 }
 
 export const emailAPI = {
@@ -93,21 +111,28 @@ export const emailAPI = {
    * Send a custom email
    */
   send: async (data: SendEmailRequest): Promise<ApiResponse<EmailResponse>> => {
-    return apiClient.post<EmailResponse>('/email/send', data);
+    const payload = { ...data, locale: data.locale || getLocaleFromHTML() };
+    return apiClient.post<EmailResponse>('/email/send', payload);
   },
 
   /**
    * Send a test email
    */
   sendTest: async (toEmail: string): Promise<ApiResponse<EmailResponse>> => {
-    return apiClient.post<EmailResponse>('/email/test', { to_email: toEmail });
+    return apiClient.post<EmailResponse>('/email/test', { 
+      to_email: toEmail,
+      locale: getLocaleFromHTML()
+    });
   },
 
   /**
    * Send welcome email
    */
   sendWelcome: async (toEmail: string, name?: string): Promise<ApiResponse<EmailResponse>> => {
-    const payload: { to_email: string; name?: string } = { to_email: toEmail };
+    const payload: { to_email: string; name?: string; locale: string } = { 
+      to_email: toEmail,
+      locale: getLocaleFromHTML()
+    };
     if (name) {
       payload.name = name;
     }
@@ -118,28 +143,32 @@ export const emailAPI = {
    * Send invoice email
    */
   sendInvoice: async (data: InvoiceEmailRequest): Promise<ApiResponse<EmailResponse>> => {
-    return apiClient.post<EmailResponse>('/email/invoice', data);
+    const payload = { ...data, locale: data.locale || getLocaleFromHTML() };
+    return apiClient.post<EmailResponse>('/email/invoice', payload);
   },
 
   /**
    * Send subscription created email
    */
   sendSubscriptionCreated: async (data: SubscriptionEmailRequest): Promise<ApiResponse<EmailResponse>> => {
-    return apiClient.post<EmailResponse>('/email/subscription/created', data);
+    const payload = { ...data, locale: data.locale || getLocaleFromHTML() };
+    return apiClient.post<EmailResponse>('/email/subscription/created', payload);
   },
 
   /**
    * Send subscription cancelled email
    */
   sendSubscriptionCancelled: async (data: SubscriptionCancelledEmailRequest): Promise<ApiResponse<EmailResponse>> => {
-    return apiClient.post<EmailResponse>('/email/subscription/cancelled', data);
+    const payload = { ...data, locale: data.locale || getLocaleFromHTML() };
+    return apiClient.post<EmailResponse>('/email/subscription/cancelled', payload);
   },
 
   /**
    * Send trial ending email
    */
   sendTrialEnding: async (data: TrialEndingEmailRequest): Promise<ApiResponse<EmailResponse>> => {
-    return apiClient.post<EmailResponse>('/email/trial/ending', data);
+    const payload = { ...data, locale: data.locale || getLocaleFromHTML() };
+    return apiClient.post<EmailResponse>('/email/trial/ending', payload);
   },
 
   /**

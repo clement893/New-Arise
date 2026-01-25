@@ -9,6 +9,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, Button } from '@/components/ui';
 import { Link } from '@/i18n/routing';
 import { HelpCircle, MessageSquare, BookOpen, Video, FileText, Search } from 'lucide-react';
@@ -27,75 +28,79 @@ export interface HelpCenterProps {
   className?: string;
 }
 
-const defaultCategories: HelpCategory[] = [
-  {
-    id: 'faq',
-    title: 'FAQ',
-    description: 'Questions fréquemment posées et leurs réponses',
-    icon: <HelpCircle className="w-6 h-6" />,
-    link: '/help/faq',
-    color: 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800',
-  },
-  {
-    id: 'guides',
-    title: 'Guides Utilisateur',
-    description: 'Guides pas à pas et tutoriels détaillés',
-    icon: <BookOpen className="w-6 h-6" />,
-    link: '/help/guides',
-    color: 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800',
-  },
-  {
-    id: 'videos',
-    title: 'Tutoriels Vidéo',
-    description: 'Regardez des tutoriels vidéo et des démonstrations',
-    icon: <Video className="w-6 h-6" />,
-    link: '/help/videos',
-    color: 'bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800',
-  },
-  {
-    id: 'contact',
-    title: 'Contacter le Support',
-    description: 'Entrez en contact avec notre équipe de support',
-    icon: <MessageSquare className="w-6 h-6" />,
-    link: '/help/contact',
-    color: 'bg-teal-50 dark:bg-teal-950 border-teal-200 dark:border-teal-800',
-  },
-  {
-    id: 'tickets',
-    title: 'Tickets de Support',
-    description: 'Consultez et gérez vos tickets de support',
-    icon: <FileText className="w-6 h-6" />,
-    link: '/help/tickets',
-    color: 'bg-orange-50 dark:bg-orange-950 border-orange-200 dark:border-orange-800',
-  },
-];
-
 /**
  * Help Center Component
  * 
  * Displays help categories and quick links.
  */
 export default function HelpCenter({
-  categories = defaultCategories,
+  categories,
   className,
 }: HelpCenterProps) {
+  const t = useTranslations('help');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Build categories from translations
+  const defaultCategories: HelpCategory[] = useMemo(() => [
+    {
+      id: 'faq',
+      title: t('categories.faq.title'),
+      description: t('categories.faq.description'),
+      icon: <HelpCircle className="w-6 h-6" />,
+      link: '/help/faq',
+      color: 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800',
+    },
+    {
+      id: 'guides',
+      title: t('categories.guides.title'),
+      description: t('categories.guides.description'),
+      icon: <BookOpen className="w-6 h-6" />,
+      link: '/help/guides',
+      color: 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800',
+    },
+    {
+      id: 'videos',
+      title: t('categories.videos.title'),
+      description: t('categories.videos.description'),
+      icon: <Video className="w-6 h-6" />,
+      link: '/help/videos',
+      color: 'bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800',
+    },
+    {
+      id: 'contact',
+      title: t('categories.contact.title'),
+      description: t('categories.contact.description'),
+      icon: <MessageSquare className="w-6 h-6" />,
+      link: '/help/contact',
+      color: 'bg-teal-50 dark:bg-teal-950 border-teal-200 dark:border-teal-800',
+    },
+    {
+      id: 'tickets',
+      title: t('categories.tickets.title'),
+      description: t('categories.tickets.description'),
+      icon: <FileText className="w-6 h-6" />,
+      link: '/help/tickets',
+      color: 'bg-orange-50 dark:bg-orange-950 border-orange-200 dark:border-orange-800',
+    },
+  ], [t]);
+
+  const displayCategories = categories || defaultCategories;
 
   // Filter categories based on search query
   const filteredCategories = useMemo(() => {
     if (!searchQuery.trim()) {
-      return categories;
+      return displayCategories;
     }
     
     const query = searchQuery.toLowerCase();
-    return categories.filter((category) => {
+    return displayCategories.filter((category) => {
       return (
         category.title.toLowerCase().includes(query) ||
         category.description.toLowerCase().includes(query) ||
         category.id.toLowerCase().includes(query)
       );
     });
-  }, [categories, searchQuery]);
+  }, [displayCategories, searchQuery]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,7 +115,7 @@ export default function HelpCenter({
           <Search className="w-5 h-5 text-gray-500 md:display-block display-none" />
           <input
             type="text"
-            placeholder="Rechercher de l'aide..."
+            placeholder={t('search.placeholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-arise-deep-teal focus:border-transparent"
@@ -120,7 +125,7 @@ export default function HelpCenter({
             variant="primary" 
             className="bg-arise-deep-teal hover:bg-arise-deep-teal/90 text-white"
           >
-            Rechercher
+            {t('search.button')}
           </Button>
         </form>
       </Card>
@@ -152,24 +157,24 @@ export default function HelpCenter({
       ) : (
         <Card className="p-8 text-center">
           <p className="text-gray-600">
-            Aucun résultat trouvé pour "{searchQuery}". Essayez avec d'autres mots-clés.
+            {t('noResults', { query: searchQuery })}
           </p>
         </Card>
       )}
 
       {/* Quick Links */}
-      <Card title="Liens Rapides" className="mt-8">
+      <Card title={t('quickLinks.title')} className="mt-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Link href="/help/faq">
             <div className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-              <h4 className="font-medium text-gray-900">Questions Courantes</h4>
-              <p className="text-sm text-gray-600 mt-1">Trouvez des réponses aux questions courantes</p>
+              <h4 className="font-medium text-gray-900">{t('quickLinks.faq.title')}</h4>
+              <p className="text-sm text-gray-600 mt-1">{t('quickLinks.faq.description')}</p>
             </div>
           </Link>
           <Link href="/contact">
             <div className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-              <h4 className="font-medium text-gray-900">Besoin d'Aide Supplémentaire ?</h4>
-              <p className="text-sm text-gray-600 mt-1">Contactez notre équipe de support</p>
+              <h4 className="font-medium text-gray-900">{t('quickLinks.contact.title')}</h4>
+              <p className="text-sm text-gray-600 mt-1">{t('quickLinks.contact.description')}</p>
             </div>
           </Link>
         </div>

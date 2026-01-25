@@ -3918,8 +3918,50 @@
       }
     }
   },
+  "help": {
+    "title": "Help Center",
+    "description": "Find answers, guides, and get help using the ARISE platform",
+    "search": {
+      "placeholder": "Search for help...",
+      "button": "Search"
+    },
+    "categories": {
+      "faq": {
+        "title": "FAQ",
+        "description": "Frequently asked questions and their answers"
+      },
+      "guides": {
+        "title": "User Guides",
+        "description": "Step-by-step guides and detailed tutorials"
+      },
+      "videos": {
+        "title": "Video Tutorials",
+        "description": "Watch video tutorials and demonstrations"
+      },
+      "contact": {
+        "title": "Contact Support",
+        "description": "Get in touch with our support team"
+      },
+      "tickets": {
+        "title": "Support Tickets",
+        "description": "View and manage your support tickets"
+      }
+    },
+    "quickLinks": {
+      "title": "Quick Links",
+      "faq": {
+        "title": "Common Questions",
+        "description": "Find answers to common questions"
+      },
+      "contact": {
+        "title": "Need Additional Help?",
+        "description": "Contact our support team"
+      }
+    },
+    "noResults": "No results found for \"{query}\". Try different keywords."
+  },
   "faq": {
-    "title": "Questions Frequently Asked",
+    "title": "Frequently Asked Question",
     "description": "Find answers to the most frequently asked questions about the ARISE Holistic Leadership platform."
   },
   "register": {

@@ -236,13 +236,10 @@ export default function PricingPage() {
   useEffect(() => {
     if (apiPlans.length > 0) {
       const mappedPlans = apiPlans.map(mapApiPlanToDisplayPlan);
-      // Sort plans: popular first, then by price ascending
+      // Sort plans by price descending (highest to lowest) - highest cost on left, lowest on right
       const sortedPlans = mappedPlans.sort((a, b) => {
-        // Popular plans first
-        if (a.popular && !b.popular) return -1;
-        if (!a.popular && b.popular) return 1;
-        // Then sort by price ascending
-        return a.price - b.price;
+        // Sort by price descending (highest first)
+        return b.price - a.price;
       });
       setPlans(sortedPlans);
     }

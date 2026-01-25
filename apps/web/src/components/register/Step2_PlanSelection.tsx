@@ -63,7 +63,14 @@ export function Step2_PlanSelection() {
           console.warn('[PlanSelection] No plans found in database. Please create plans in the admin panel.');
         }
         
-        setPlans(fetchedPlans);
+        // Sort plans by price descending (highest to lowest) - Revelation first, Lifestyle & Wellness last
+        const sortedPlans = fetchedPlans.sort((a, b) => {
+          const priceA = typeof a.amount === 'string' ? parseFloat(a.amount) : (a.amount || 0);
+          const priceB = typeof b.amount === 'string' ? parseFloat(b.amount) : (b.amount || 0);
+          return priceB - priceA; // Descending order (highest first)
+        });
+        
+        setPlans(sortedPlans);
       } catch (err: any) {
         console.error('[PlanSelection] Error loading plans:', {
           error: err,

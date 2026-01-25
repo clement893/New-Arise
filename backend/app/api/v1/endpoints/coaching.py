@@ -219,7 +219,7 @@ async def create_checkout_session(
     stripe_session = await stripe_service.create_coaching_checkout_session(
         user=current_user,
         amount=float(session.amount),
-        currency=session.currency or "eur",
+        currency=session.currency or "cad",
         session_id=session_id,
         success_url=checkout_data.success_url,
         cancel_url=checkout_data.cancel_url,

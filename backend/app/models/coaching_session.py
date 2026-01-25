@@ -42,8 +42,8 @@ class CoachingSession(Base):
     status = Column(SQLEnum(SessionStatus), default=SessionStatus.PENDING, nullable=False, index=True)
     
     # Payment
-    amount = Column(Numeric(10, 2), nullable=False)  # Price in euros
-    currency = Column(String(3), default="eur", nullable=False)
+    amount = Column(Numeric(10, 2), nullable=False)  # Price amount
+    currency = Column(String(3), default="cad", nullable=False)
     stripe_checkout_session_id = Column(String(255), nullable=True, index=True)
     stripe_payment_intent_id = Column(String(255), nullable=True)
     payment_status = Column(String(50), nullable=True)  # paid, pending, failed, refunded
@@ -85,8 +85,8 @@ class CoachingPackage(Base):
     description = Column(Text, nullable=True)
     
     # Pricing
-    price = Column(Numeric(10, 2), nullable=False)  # Price in euros
-    currency = Column(String(3), default="eur", nullable=False)
+    price = Column(Numeric(10, 2), nullable=False)  # Price amount
+    currency = Column(String(3), default="cad", nullable=False)
     duration_months = Column(Integer, nullable=True)  # Duration in months (null for single session)
     sessions_count = Column(Integer, default=1, nullable=False)  # Number of sessions included
     

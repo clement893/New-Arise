@@ -110,9 +110,9 @@ class EmailService:
             # Catch any other unexpected exceptions
             raise RuntimeError(f"Unexpected error sending email: {str(e)}")
 
-    def send_welcome_email(self, to_email: str, name: str, login_url: Optional[str] = None) -> Dict[str, Any]:
+    def send_welcome_email(self, to_email: str, name: str, login_url: Optional[str] = None, locale: str = "fr") -> Dict[str, Any]:
         """Send a welcome email to a new user."""
-        template = EmailTemplates.welcome(name, login_url)
+        template = EmailTemplates.welcome(name, login_url, locale=locale)
         return self.send_email(
             to_email=to_email,
             subject=template["subject"],
@@ -121,10 +121,10 @@ class EmailService:
         )
 
     def send_password_reset_email(
-        self, to_email: str, name: str, reset_token: str, reset_url: Optional[str] = None
+        self, to_email: str, name: str, reset_token: str, reset_url: Optional[str] = None, locale: str = "fr"
     ) -> Dict[str, Any]:
         """Send a password reset email."""
-        template = EmailTemplates.password_reset(name, reset_token, reset_url)
+        template = EmailTemplates.password_reset(name, reset_token, reset_url, locale=locale)
         return self.send_email(
             to_email=to_email,
             subject=template["subject"],
@@ -133,10 +133,10 @@ class EmailService:
         )
 
     def send_verification_email(
-        self, to_email: str, name: str, verification_token: str, verification_url: Optional[str] = None
+        self, to_email: str, name: str, verification_token: str, verification_url: Optional[str] = None, locale: str = "fr"
     ) -> Dict[str, Any]:
         """Send an email verification email."""
-        template = EmailTemplates.email_verification(name, verification_token, verification_url)
+        template = EmailTemplates.email_verification(name, verification_token, verification_url, locale=locale)
         return self.send_email(
             to_email=to_email,
             subject=template["subject"],
@@ -151,12 +151,13 @@ class EmailService:
         invoice_number: str,
         invoice_date: str,
         amount: float,
-        currency: str = "EUR",
+        currency: str = "CAD",
         invoice_url: Optional[str] = None,
         items: Optional[list] = None,
+        locale: str = "fr",
     ) -> Dict[str, Any]:
         """Send an invoice email."""
-        template = EmailTemplates.invoice(name, invoice_number, invoice_date, amount, currency, invoice_url, items)
+        template = EmailTemplates.invoice(name, invoice_number, invoice_date, amount, currency, invoice_url, items, locale=locale)
         return self.send_email(
             to_email=to_email,
             subject=template["subject"],
@@ -165,10 +166,10 @@ class EmailService:
         )
 
     def send_subscription_created_email(
-        self, to_email: str, name: str, plan_name: str, amount: float, currency: str = "EUR"
+        self, to_email: str, name: str, plan_name: str, amount: float, currency: str = "EUR", locale: str = "fr"
     ) -> Dict[str, Any]:
         """Send subscription created email."""
-        template = EmailTemplates.subscription_created(name, plan_name, amount, currency)
+        template = EmailTemplates.subscription_created(name, plan_name, amount, currency, locale=locale)
         return self.send_email(
             to_email=to_email,
             subject=template["subject"],
@@ -177,10 +178,10 @@ class EmailService:
         )
 
     def send_subscription_cancelled_email(
-        self, to_email: str, name: str, plan_name: str, end_date: str
+        self, to_email: str, name: str, plan_name: str, end_date: str, locale: str = "fr"
     ) -> Dict[str, Any]:
         """Send subscription cancelled email."""
-        template = EmailTemplates.subscription_cancelled(name, plan_name, end_date)
+        template = EmailTemplates.subscription_cancelled(name, plan_name, end_date, locale=locale)
         return self.send_email(
             to_email=to_email,
             subject=template["subject"],
@@ -189,10 +190,10 @@ class EmailService:
         )
 
     def send_trial_ending_email(
-        self, to_email: str, name: str, days_remaining: int, upgrade_url: Optional[str] = None
+        self, to_email: str, name: str, days_remaining: int, upgrade_url: Optional[str] = None, locale: str = "fr"
     ) -> Dict[str, Any]:
         """Send trial ending soon email."""
-        template = EmailTemplates.trial_ending(name, days_remaining, upgrade_url)
+        template = EmailTemplates.trial_ending(name, days_remaining, upgrade_url, locale=locale)
         return self.send_email(
             to_email=to_email,
             subject=template["subject"],
@@ -206,14 +207,16 @@ class EmailService:
         evaluator_name: str,
         sender_name: str,
         evaluation_url: str,
-        role: Optional[str] = None
+        role: Optional[str] = None,
+        locale: str = "fr"
     ) -> Dict[str, Any]:
         """Send 360° feedback evaluator invitation email."""
         template = EmailTemplates.evaluator_360_invitation(
             evaluator_name=evaluator_name,
             sender_name=sender_name,
             evaluation_url=evaluation_url,
-            role=role
+            role=role,
+            locale=locale
         )
         return self.send_email(
             to_email=to_email,

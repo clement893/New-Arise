@@ -112,7 +112,7 @@ export default function SubscriptionManagement() {
         current_period_end: sub.current_period_end || new Date().toISOString(),
         cancel_at_period_end: sub.cancel_at_period_end || false,
         amount: sub.plan?.amount ? Number(sub.plan.amount) / 100 : 0, // Convert from cents
-        currency: sub.plan?.currency?.toUpperCase() || 'EUR',
+        currency: sub.plan?.currency?.toUpperCase() || 'CAD',
         billing_period: (sub.plan?.interval?.toLowerCase() === 'year' ? 'year' : 'month') as 'month' | 'year',
       });
       

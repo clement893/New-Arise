@@ -1366,11 +1366,16 @@ async def forgot_password(
                             logger.info(f"📧 Attempting to send password reset email to {user.email} via SendGrid...")
                             logger.info(f"📧 Reset URL: {reset_url[:50]}... (truncated)")
                             
+                            # Get locale from Accept-Language header or default to 'fr'
+                            accept_language = request.headers.get("accept-language", "fr")
+                            locale = "en" if accept_language and "en" in accept_language.lower() and accept_language.lower().index("en") < (accept_language.lower().index("fr") if "fr" in accept_language.lower() else len(accept_language)) else "fr"
+                            
                             result = email_service.send_password_reset_email(
                                 to_email=user.email,
                                 name=user_name,
                                 reset_token=reset_token,
-                                reset_url=reset_url
+                                reset_url=reset_url,
+                                locale=locale
                             )
                             status = result.get('status', 'unknown')
                             message_id = result.get('message_id', 'N/A')
@@ -1399,11 +1404,16 @@ async def forgot_password(
                             try:
                                 logger.info(f"🔄 Attempting Celery fallback for {user.email}...")
                                 from app.tasks.email_tasks import send_password_reset_email_task
+                                # Get locale from Accept-Language header or default to 'fr'
+                                accept_language = request.headers.get("accept-language", "fr")
+                                locale = "en" if accept_language and "en" in accept_language.lower() and accept_language.lower().index("en") < (accept_language.lower().index("fr") if "fr" in accept_language.lower() else len(accept_language)) else "fr"
+                                
                                 send_password_reset_email_task.delay(
                                     email=user.email,
                                     name=user_name,
                                     reset_token=reset_token,
-                                    reset_url=reset_url
+                                    reset_url=reset_url,
+                                    locale=locale
                                 )
                                 logger.info(f"✅ Password reset email queued via Celery (fallback) for user: {user.email}")
                                 email_sent = True

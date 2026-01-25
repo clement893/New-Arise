@@ -5,7 +5,7 @@ ARISE Leadership Assessment Tool
 
 from typing import List, Optional, Dict, Any
 import json
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Body, File, UploadFile, Form
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Body, File, UploadFile, Form, Request
 from pydantic import BaseModel, Field, EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, UniqueConstraint, text
@@ -1003,7 +1003,8 @@ async def get_assessment_results(
 
 @router.post("/360/start")
 async def start_360_feedback(
-    request: Start360FeedbackRequest,
+    request_data: Start360FeedbackRequest,
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
@@ -1249,12 +1250,17 @@ async def start_360_feedback(
                     sender_name = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
                     role_label = evaluator_data.role.replace('_', ' ').title()
                     try:
+                        # Get locale from Accept-Language header or default to 'fr'
+                        accept_language = http_request.headers.get("accept-language", "fr")
+                        locale = "en" if accept_language and "en" in accept_language.lower() and (accept_language.lower().index("en") < accept_language.lower().index("fr") if "fr" in accept_language.lower() else True) else "fr"
+                        
                         email_service.send_360_evaluator_invitation(
                             to_email=evaluator_data.email,
                             evaluator_name=evaluator_data.name,
                             sender_name=sender_name,
                             evaluation_url=evaluation_url,
-                            role=role_label
+                            role=role_label,
+                            locale=locale
                         )
                         # Update invitation_sent_at if email was sent successfully
                         from sqlalchemy import text
@@ -1382,6 +1388,7 @@ async def start_360_feedback(
 async def invite_360_evaluators(
     assessment_id: int,
     request: Evaluator360InviteRequest,
+    http_request: Request,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
@@ -1437,12 +1444,17 @@ async def invite_360_evaluators(
             if email_service.is_configured():
                 sender_name = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
                 role_label = evaluator_data.role.replace('_', ' ').title()
+                # Get locale from Accept-Language header or default to 'fr'
+                accept_language = http_request.headers.get("accept-language", "fr")
+                locale = "en" if accept_language and "en" in accept_language.lower() and (accept_language.lower().index("en") < accept_language.lower().index("fr") if "fr" in accept_language.lower() else True) else "fr"
+                
                 email_service.send_360_evaluator_invitation(
                     to_email=evaluator_data.email,
                     evaluator_name=evaluator_data.name,
                     sender_name=sender_name,
                     evaluation_url=evaluation_url,
-                    role=role_label
+                    role=role_label,
+                    locale=locale
                 )
                 evaluator.invitation_sent_at = datetime.now(timezone.utc)
                 logger.info(f"Sent 360 evaluator invitation email to {evaluator_data.email}")

@@ -114,7 +114,7 @@ class SubscriptionService:
         name: str,
         description: Optional[str] = None,
         amount: float = 0,
-        currency: str = "eur",
+        currency: str = "cad",
         interval: PlanInterval = PlanInterval.MONTH,
         interval_count: int = 1,
         status: PlanStatus = PlanStatus.ACTIVE,
