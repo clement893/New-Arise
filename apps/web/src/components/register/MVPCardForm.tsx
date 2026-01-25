@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { CreditCard, AlertCircle } from 'lucide-react';
 import { Alert } from '@/components/ui';
 
