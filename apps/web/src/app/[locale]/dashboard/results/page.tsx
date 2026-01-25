@@ -170,9 +170,6 @@ function ResultsReportsContent() {
       // Ensure all assessments have detailed results loaded before generating PDFs
       const assessmentsWithResults = await Promise.all(
         completedAssessments.map(async (apiAssessment: ApiAssessment) => {
-          // Get the corresponding display assessment or create one
-          const displayAssessment = assessments.find(a => a.id === apiAssessment.id);
-          
           const completedDate = apiAssessment.completed_at 
             ? new Date(apiAssessment.completed_at).toLocaleDateString('en-US')
             : 'N/A';
