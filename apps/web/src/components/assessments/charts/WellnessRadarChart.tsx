@@ -101,10 +101,58 @@ const WellnessRadarChart: React.FC<WellnessRadarChartProps> = ({
 
   return (
     <div className={`w-full ${className}`}>
-      <ResponsiveContainer width="100%" height={480} className="hidden md:block">
+      {/* Desktop version - responsive heights for different screen sizes */}
+      <ResponsiveContainer width="100%" height={350} className="hidden lg:block">
         <RadarChart 
           data={data}
-          margin={{ top: 30, right: 80, bottom: 30, left: 80 }}
+          margin={{ top: 20, right: 60, bottom: 20, left: 60 }}
+        >
+          <PolarGrid stroke="#e5e7eb" strokeWidth={1} />
+          <PolarAngleAxis
+            dataKey="pillar"
+            tick={<CustomTick isMobile={false} />}
+            tickLine={false}
+          />
+          <PolarRadiusAxis
+            angle={90}
+            domain={[0, 25]}
+            tick={{ fill: '#6b7280', fontSize: 9 }}
+            tickCount={6}
+          />
+          <Radar
+            name="Your Scores"
+            dataKey="score"
+            stroke="#0F4C56"
+            fill="#0F4C56"
+            fillOpacity={0.5}
+            strokeWidth={2}
+          />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e5e7eb',
+              borderRadius: '0.5rem',
+              padding: '0.75rem',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            }}
+            formatter={(value: number) => [`${value} / 25`, 'Score']}
+            labelStyle={{ 
+              fontWeight: 600, 
+              marginBottom: '0.25rem',
+              color: '#000000'
+            }}
+            itemStyle={{
+              color: '#000000'
+            }}
+          />
+        </RadarChart>
+      </ResponsiveContainer>
+      
+      {/* Medium screens (tablets) */}
+      <ResponsiveContainer width="100%" height={320} className="hidden md:block lg:hidden">
+        <RadarChart 
+          data={data}
+          margin={{ top: 18, right: 50, bottom: 18, left: 50 }}
         >
           <PolarGrid stroke="#e5e7eb" strokeWidth={1} />
           <PolarAngleAxis
@@ -148,10 +196,10 @@ const WellnessRadarChart: React.FC<WellnessRadarChartProps> = ({
       </ResponsiveContainer>
       
       {/* Mobile version - smaller and more compact */}
-      <ResponsiveContainer width="100%" height={320} className="block md:hidden">
+      <ResponsiveContainer width="100%" height={280} className="block md:hidden">
         <RadarChart 
           data={data}
-          margin={{ top: 20, right: 30, bottom: 20, left: 30 }}
+          margin={{ top: 15, right: 25, bottom: 15, left: 25 }}
         >
           <PolarGrid stroke="#e5e7eb" strokeWidth={1} />
           <PolarAngleAxis

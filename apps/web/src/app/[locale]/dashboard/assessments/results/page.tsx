@@ -309,7 +309,7 @@ function AssessmentResultsContent() {
                 {/* Right side - Wellness Radar */}
                 <div className="flex flex-col items-center justify-center pb-4 lg:pb-0">
                   <h3 className="text-lg lg:text-xl font-bold mb-2 lg:mb-4 text-center">ARISE Wellness Radar</h3>
-                  <div className="bg-white rounded-lg p-1 lg:p-2 w-full overflow-visible">
+                  <div className="bg-white rounded-lg p-1 lg:p-2 w-full">
                     <WellnessRadarChart 
                       scores={(() => {
                         // Transform pillar_scores to simple number map
