@@ -3525,21 +3525,25 @@
     "values": {
       "title": "Nos valeurs",
       "subtitle": "Les principes qui guident tout ce que nous faisons",
-      "authenticity": {
-        "title": "Authenticité",
-        "text": "Nous croyons en un leadership authentique qui vient de la compréhension et de l'acceptation de votre vrai moi."
+      "collaboration": {
+        "title": "Collaboration",
+        "text": "Nous travaillons mieux ensemble et valorisons la contribution de chacun."
       },
-      "growth": {
-        "title": "Croissance",
-        "text": "Nous nous engageons à l'apprentissage continu et à aider les leaders à grandir tout au long de leur parcours."
+      "openness": {
+        "title": "Ouverture",
+        "text": "Nous partageons nos idées ouvertement, accueillons différentes perspectives et restons ouverts au changement."
       },
-      "innovation": {
-        "title": "Innovation",
-        "text": "Nous exploitons la science et la technologie de pointe pour fournir les meilleurs outils d'évaluation et de développement."
+      "accountability": {
+        "title": "Responsabilité",
+        "text": "Nous assumons la responsabilité de nos actions, apprenant autant des revers que des succès."
       },
-      "excellence": {
-        "title": "Excellence",
-        "text": "Nous visons la plus haute qualité dans tout ce que nous faisons, des évaluations au support client."
+      "continuousGrowth": {
+        "title": "Croissance continue",
+        "text": "Nous croyons que la croissance est un parcours de toute une vie, façonné par l'apprentissage constant, le changement et l'évolution."
+      },
+      "honesty": {
+        "title": "Honnêteté",
+        "text": "Nous communiquons avec transparence, intégrité, bienveillance et empathie."
       }
     },
     "cta": {

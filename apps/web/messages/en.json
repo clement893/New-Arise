@@ -3611,21 +3611,25 @@
     "values": {
       "title": "Our Values",
       "subtitle": "The principles that guide everything we do",
-      "authenticity": {
-        "title": "Authenticity",
-        "text": "We believe in genuine leadership that comes from understanding and embracing your true self."
+      "collaboration": {
+        "title": "Collaboration",
+        "text": "We work better together and value everyone's contribution."
       },
-      "growth": {
-        "title": "Growth",
-        "text": "We are committed to continuous learning and helping leaders grow throughout their journey."
+      "openness": {
+        "title": "Openness",
+        "text": "We share ideas openly, welcome different perspectives, and stay open to change."
       },
-      "innovation": {
-        "title": "Innovation",
-        "text": "We leverage cutting-edge science and technology to deliver the best assessment and development tools."
+      "accountability": {
+        "title": "Accountability",
+        "text": "We take ownership of our actions, learning just as much from setbacks as we do from successes."
       },
-      "excellence": {
-        "title": "Excellence",
-        "text": "We strive for the highest quality in everything we do, from assessments to customer support."
+      "continuousGrowth": {
+        "title": "Continuous Growth",
+        "text": "We believe growth is a lifelong journey, shaped by constant learning, change, and evolution."
+      },
+      "honesty": {
+        "title": "Honesty",
+        "text": "We communicate with transparency, integrity, kindness, and empathy."
       }
     },
     "cta": {

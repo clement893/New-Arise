@@ -1550,16 +1550,66 @@ const generateTKIPDF = async (
   const dominantModeInfo = getModeInfo(dominantMode);
   const secondaryModeInfo = getModeInfo(secondaryMode);
 
-  // Helper function to convert mode icons to Unicode symbols (better supported than emojis)
-  const getModeIconText = (modeId: string): string => {
-    const iconMap: Record<string, string> = {
-      'competing': '⚔',      // Sword (U+2694)
-      'collaborating': '⚡',  // Lightning (U+26A1) - represents energy/action
-      'compromising': '⚖',   // Scales (U+2696)
-      'avoiding': '➖',       // Minus sign (U+2796) - represents withdrawal
-      'accommodating': '✓',  // Check mark (U+2713) - represents agreement
-    };
-    return iconMap[modeId] || '•';
+  // Helper function to draw mode icons as simple shapes (jsPDF doesn't support Unicode symbols well)
+  const drawModeIcon = (doc: any, x: number, y: number, modeId: string, size: number = 20) => {
+    const iconSize = size;
+    const halfSize = iconSize / 2;
+    
+    doc.setDrawColor(255, 255, 255);
+    doc.setFillColor(255, 255, 255);
+    
+    switch (modeId) {
+      case 'competing':
+        // Draw a simple arrow/sword pointing right using path
+        const arrowPath = [
+          { op: 'm', c: [x - halfSize, y] },
+          { op: 'l', c: [x + halfSize, y - halfSize] },
+          { op: 'l', c: [x + halfSize, y + halfSize] },
+          { op: 'h', c: [] }
+        ];
+        doc.path(arrowPath);
+        doc.fillStroke();
+        // Add a line for the handle
+        doc.setLineWidth(2);
+        doc.line(x - halfSize, y, x - halfSize - 3, y);
+        break;
+      case 'collaborating':
+        // Draw two overlapping circles (handshake representation)
+        doc.circle(x - 4, y, halfSize * 0.6, 'F');
+        doc.circle(x + 4, y, halfSize * 0.6, 'F');
+        break;
+      case 'compromising':
+        // Draw a simple scale/balance (two circles connected by lines)
+        doc.circle(x - 5, y - 3, halfSize * 0.4, 'F');
+        doc.circle(x + 5, y - 3, halfSize * 0.4, 'F');
+        doc.setLineWidth(2);
+        doc.line(x - 5, y - 3, x, y + 3);
+        doc.line(x + 5, y - 3, x, y + 3);
+        break;
+      case 'avoiding':
+        // Draw a simple arrow pointing left using path
+        const leftArrowPath = [
+          { op: 'm', c: [x + halfSize, y] },
+          { op: 'l', c: [x - halfSize, y - halfSize] },
+          { op: 'l', c: [x - halfSize, y + halfSize] },
+          { op: 'h', c: [] }
+        ];
+        doc.path(leftArrowPath);
+        doc.fillStroke();
+        // Add a line
+        doc.setLineWidth(2);
+        doc.line(x + halfSize, y, x + halfSize + 3, y);
+        break;
+      case 'accommodating':
+        // Draw a check mark
+        doc.setLineWidth(3);
+        doc.line(x - halfSize, y, x - 2, y + halfSize * 0.6);
+        doc.line(x - 2, y + halfSize * 0.6, x + halfSize, y - halfSize * 0.6);
+        break;
+      default:
+        // Default: simple circle
+        doc.circle(x, y, halfSize * 0.5, 'F');
+    }
   };
 
   // Sort modes by count for display
@@ -1589,12 +1639,8 @@ const generateTKIPDF = async (
   doc.setFillColor(15, 76, 86); // ARISE deep teal
   doc.rect(dominantCardX, dominantCardY, cardWidth, cardHeight, 'F');
   
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(32);
-  doc.setFont('helvetica', 'normal');
-  // Use text representation instead of emoji
-  const dominantIconText = getModeIconText(dominantMode);
-  doc.text(dominantIconText, dominantCardX + cardWidth / 2, dominantCardY + 12, { align: 'center' });
+  // Draw icon as a shape instead of text
+  drawModeIcon(doc, dominantCardX + cardWidth / 2, dominantCardY + 12, dominantMode, 24);
   
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
@@ -1616,11 +1662,8 @@ const generateTKIPDF = async (
   doc.setFillColor(212, 175, 55); // Gold color approximation
   doc.rect(secondaryCardX, secondaryCardY, cardWidth, cardHeight, 'F');
   
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(32);
-  doc.setFont('helvetica', 'normal');
-  const secondaryIconText = getModeIconText(secondaryMode);
-  doc.text(secondaryIconText, secondaryCardX + cardWidth / 2, secondaryCardY + 12, { align: 'center' });
+  // Draw icon as a shape instead of text
+  drawModeIcon(doc, secondaryCardX + cardWidth / 2, secondaryCardY + 12, secondaryMode, 24);
   
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
@@ -1654,9 +1697,8 @@ const generateTKIPDF = async (
     // Mode header with icon, title, description, and level
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
-    // Icon as text - use simple text representation instead of emoji
-    const modeIconText = getModeIconText(modeId);
-    doc.text(modeIconText, 20, yPos);
+    // Draw icon as a shape instead of text
+    drawModeIcon(doc, 25, yPos + 3, modeId, 14);
     doc.text(modeInfo?.title || modeId, 35, yPos);
     
     // Level on the right

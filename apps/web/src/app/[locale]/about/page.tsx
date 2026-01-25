@@ -6,7 +6,7 @@ import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
 import { Card } from '@/components/ui';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { Target, Eye, Award, Lightbulb, TrendingUp, CheckCircle } from 'lucide-react';
+import { Target, Eye, Award, Lightbulb, TrendingUp, CheckCircle, Users, Globe, ShieldCheck, Heart } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 
 export default function AboutPage() {
@@ -157,48 +157,59 @@ export default function AboutPage() {
               </div>
             </MotionDiv>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-              {/* Authenticité */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+              {/* Collaboration */}
               <Card className="p-6 text-left rounded-xl" padding={false} style={{ backgroundColor: '#10454D' }}>
                 <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(216, 184, 104, 0.15)', border: '1px solid #D8B868' }}>
-                  <CheckCircle className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
+                  <Users className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
                 </div>
-                <h3 className="text-xl md:text-2xl font-medium text-white mb-3">{t('values.authenticity.title')}</h3>
+                <h3 className="text-xl md:text-2xl font-medium text-white mb-3">{t('values.collaboration.title')}</h3>
                 <p className="text-base md:text-lg text-white/80" style={{ lineHeight: 'normal' }}>
-                  {t('values.authenticity.text')}
+                  {t('values.collaboration.text')}
                 </p>
               </Card>
 
-              {/* Croissance */}
+              {/* Openness */}
+              <Card className="p-6 text-left rounded-xl" padding={false} style={{ backgroundColor: '#10454D' }}>
+                <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(216, 184, 104, 0.15)', border: '1px solid #D8B868' }}>
+                  <Globe className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
+                </div>
+                <h3 className="text-xl md:text-2xl font-medium text-white mb-3">{t('values.openness.title')}</h3>
+                <p className="text-base md:text-lg text-white/80" style={{ lineHeight: 'normal' }}>
+                  {t('values.openness.text')}
+                </p>
+              </Card>
+
+              {/* Accountability */}
+              <Card className="p-6 text-left rounded-xl" padding={false} style={{ backgroundColor: '#10454D' }}>
+                <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(216, 184, 104, 0.15)', border: '1px solid #D8B868' }}>
+                  <ShieldCheck className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
+                </div>
+                <h3 className="text-xl md:text-2xl font-medium text-white mb-3">{t('values.accountability.title')}</h3>
+                <p className="text-base md:text-lg text-white/80" style={{ lineHeight: 'normal' }}>
+                  {t('values.accountability.text')}
+                </p>
+              </Card>
+
+              {/* Continuous Growth */}
               <Card className="p-6 text-left rounded-xl" padding={false} style={{ backgroundColor: '#10454D' }}>
                 <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(216, 184, 104, 0.15)', border: '1px solid #D8B868' }}>
                   <TrendingUp className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
                 </div>
-                <h3 className="text-xl md:text-2xl font-medium text-white mb-3">{t('values.growth.title')}</h3>
+                <h3 className="text-xl md:text-2xl font-medium text-white mb-3">{t('values.continuousGrowth.title')}</h3>
                 <p className="text-base md:text-lg text-white/80" style={{ lineHeight: 'normal' }}>
-                  {t('values.growth.text')}
+                  {t('values.continuousGrowth.text')}
                 </p>
               </Card>
 
-              {/* Innovation */}
+              {/* Honesty */}
               <Card className="p-6 text-left rounded-xl" padding={false} style={{ backgroundColor: '#10454D' }}>
                 <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(216, 184, 104, 0.15)', border: '1px solid #D8B868' }}>
-                  <Lightbulb className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
+                  <Heart className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
                 </div>
-                <h3 className="text-xl md:text-2xl font-medium text-white mb-3">{t('values.innovation.title')}</h3>
+                <h3 className="text-xl md:text-2xl font-medium text-white mb-3">{t('values.honesty.title')}</h3>
                 <p className="text-base md:text-lg text-white/80" style={{ lineHeight: 'normal' }}>
-                  {t('values.innovation.text')}
-                </p>
-              </Card>
-
-              {/* Excellence */}
-              <Card className="p-6 text-left rounded-xl" padding={false} style={{ backgroundColor: '#10454D' }}>
-                <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(216, 184, 104, 0.15)', border: '1px solid #D8B868' }}>
-                  <Award className="text-arise-gold" size={24} style={{ color: '#D8B868' }} />
-                </div>
-                <h3 className="text-xl md:text-2xl font-medium text-white mb-3">{t('values.excellence.title')}</h3>
-                <p className="text-base md:text-lg text-white/80" style={{ lineHeight: 'normal' }}>
-                  {t('values.excellence.text')}
+                  {t('values.honesty.text')}
                 </p>
               </Card>
             </div>
