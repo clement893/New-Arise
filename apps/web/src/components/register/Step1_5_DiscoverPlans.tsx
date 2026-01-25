@@ -141,6 +141,11 @@ export function Step1_5_DiscoverPlans() {
 
       // Find the plan matching the selected tab
       const planName = planNameMap[selectedPlanTab];
+      
+      if (!planName) {
+        throw new Error(`Invalid plan selection. Please try again.`);
+      }
+      
       let selectedPlanData = fetchedPlans.find((plan: Plan) => 
         plan.name === planName || 
         plan.name === 'LIFESTYLE & WELLNESS' && selectedPlanTab === 'wellness'
