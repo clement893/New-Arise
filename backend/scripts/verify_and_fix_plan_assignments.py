@@ -47,7 +47,7 @@ async def verify_and_fix_plan_assignments():
         
         # 2. Identifier les plans attendus par prix
         expected_plans_by_price = {
-            9900: 'WELLNESS',      # $99
+            9900: 'LIFESTYLE & WELLNESS',      # $99 (formerly WELLNESS)
             24900: 'SELF EXPLORATION',  # $249
             25000: 'SELF EXPLORATION',  # $250 (alternative)
             29900: 'REVELATION',    # $299
@@ -59,7 +59,10 @@ async def verify_and_fix_plan_assignments():
             plan_price_cents = int(plan.amount) if plan.amount else 0
             plan_name_normalized = plan.name.strip().upper()
             
-            if plan_name_normalized == 'WELLNESS' and plan_price_cents == 9900:
+            # Support both new name "LIFESTYLE & WELLNESS" and old name "WELLNESS" for backward compatibility
+            if (plan_name_normalized == 'LIFESTYLE & WELLNESS' or plan_name_normalized == 'LIFESTYLE AND WELLNESS' or plan_name_normalized == 'WELLNESS') and plan_price_cents == 9900:
+                correct_plan_ids['LIFESTYLE & WELLNESS'] = plan.id
+                # Also map old name for backward compatibility
                 correct_plan_ids['WELLNESS'] = plan.id
             elif plan_name_normalized == 'SELF EXPLORATION' and (plan_price_cents == 24900 or plan_price_cents == 25000):
                 correct_plan_ids['SELF EXPLORATION'] = plan.id
@@ -108,7 +111,7 @@ async def verify_and_fix_plan_assignments():
             elif plan_price_cents in [24900, 25000]:
                 expected_plan_name = 'SELF EXPLORATION'
             elif plan_price_cents == 9900:
-                expected_plan_name = 'WELLNESS'
+                expected_plan_name = 'LIFESTYLE & WELLNESS'  # formerly WELLNESS
             
             if expected_plan_name and plan_name_normalized != expected_plan_name:
                 # Le prix correspond mais le nom ne correspond pas

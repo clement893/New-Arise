@@ -35,7 +35,7 @@ function ExecutiveSummaryContent() {
     
     // Check if user has access to Executive Summary based on their plan
     if (actualSubscriptionData?.plan) {
-      // Normalize plan name to handle cases like "WELLNESS $99" -> "WELLNESS"
+      // Normalize plan name to handle cases like "LIFESTYLE & WELLNESS $99" -> "LIFESTYLE & WELLNESS"
       const rawPlanName = actualSubscriptionData.plan.name?.toUpperCase() || '';
       const planName = rawPlanName.replace(/\s*\$\d+.*$/i, '').trim();
       const planFeatures = actualSubscriptionData.plan.features;
@@ -50,8 +50,9 @@ function ExecutiveSummaryContent() {
         }
       }
 
-      // WELLNESS plan doesn't have access to Executive Summary
-      if (planName === 'WELLNESS') {
+      // LIFESTYLE & WELLNESS plan doesn't have access to Executive Summary
+      // Support both new name "LIFESTYLE & WELLNESS" and old name "WELLNESS" for backward compatibility
+      if (planName === 'LIFESTYLE & WELLNESS' || planName === 'LIFESTYLE AND WELLNESS' || planName === 'WELLNESS') {
         setError('Executive Summary is not available in your current plan. Please upgrade to SELF EXPLORATION or REVELATION to access this feature.');
         setIsLoading(false);
         return;

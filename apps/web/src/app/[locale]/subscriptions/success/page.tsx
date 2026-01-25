@@ -111,7 +111,7 @@ function SubscriptionSuccessContent() {
       enterprise: 'Enterprise',
       revelation: 'REVELATION',
       'self-exploration': 'SELF EXPLORATION',
-      wellness: 'WELLNESS',
+      wellness: 'LIFESTYLE & WELLNESS',
     };
     const fallbackName = planNames[planIdParam?.toLowerCase() || ''] || planIdParam || 'Plan';
     setPlanName(fallbackName);

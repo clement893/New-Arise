@@ -47,7 +47,7 @@ def fix_plan_amounts():
         correct_amounts = {
             'REVELATION': 29900,  # $299.00
             'SELF EXPLORATION': 25000,  # $250.00
-            'WELLNESS': 9900,  # $99.00
+            'LIFESTYLE & WELLNESS': 9900,  # $99.00 (formerly WELLNESS)
             'Test': 29900,  # Assuming "Test" should be REVELATION at $299
         }
         

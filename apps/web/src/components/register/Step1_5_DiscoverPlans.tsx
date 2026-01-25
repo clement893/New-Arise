@@ -48,7 +48,7 @@ export function Step1_5_DiscoverPlans() {
     },
     { 
       id: 'wellness', 
-      name: 'WELLNESS', 
+      name: 'LIFESTYLE & WELLNESS', 
       price: 99,
       included: [
         'Wellness Pulse',

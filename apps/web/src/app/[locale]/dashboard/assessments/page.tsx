@@ -179,7 +179,7 @@ function AssessmentsContent() {
           }
         }
         
-        // Normalize plan name to handle cases like "WELLNESS $99" -> "WELLNESS"
+        // Normalize plan name to handle cases like "LIFESTYLE & WELLNESS $99" -> "LIFESTYLE & WELLNESS"
         const planName = actualSubscriptionData.plan.name?.toUpperCase() || '';
         const planFeatures = actualSubscriptionData.plan.features;
         return checkPlanFeatures(planName, planFeatures, assessmentType);
@@ -204,7 +204,7 @@ function AssessmentsContent() {
             if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) {
               const cachedData = parsed.data;
               if (cachedData?.plan) {
-                // Normalize plan name to handle cases like "WELLNESS $99" -> "WELLNESS"
+                // Normalize plan name to handle cases like "LIFESTYLE & WELLNESS $99" -> "LIFESTYLE & WELLNESS"
                 const rawPlanName = cachedData.plan.name?.toUpperCase() || '';
                 const planName = rawPlanName.replace(/\s*\$\d+.*$/i, '').trim();
                 const planFeatures = cachedData.plan.features;
@@ -232,7 +232,7 @@ function AssessmentsContent() {
       // Try to get from subscription data
       const actualSubscriptionData = subscriptionData?.data?.data || subscriptionData?.data;
       if (actualSubscriptionData?.plan) {
-        // Normalize plan name to handle cases like "WELLNESS $99" -> "WELLNESS"
+        // Normalize plan name to handle cases like "LIFESTYLE & WELLNESS $99" -> "LIFESTYLE & WELLNESS"
         const rawPlanName = actualSubscriptionData.plan.name?.toUpperCase() || '';
         planName = rawPlanName.replace(/\s*\$\d+.*$/i, '').trim();
         if (actualSubscriptionData.plan.features) {
@@ -252,7 +252,7 @@ function AssessmentsContent() {
               if (parsed.timestamp && Date.now() - parsed.timestamp < 5 * 60 * 1000) {
                 const cachedData = parsed.data;
                 if (cachedData?.plan) {
-                  // Normalize plan name to handle cases like "WELLNESS $99" -> "WELLNESS"
+                  // Normalize plan name to handle cases like "LIFESTYLE & WELLNESS $99" -> "LIFESTYLE & WELLNESS"
                   const rawPlanName = cachedData.plan.name?.toUpperCase() || '';
                   planName = rawPlanName.replace(/\s*\$\d+.*$/i, '').trim();
                   if (cachedData.plan.features) {
@@ -343,7 +343,7 @@ function AssessmentsContent() {
   // Helper function to normalize plan name (remove price and extra spaces)
   const normalizePlanName = (planName: string): string => {
     if (!planName) return '';
-    // Remove price information (e.g., "WELLNESS $99" -> "WELLNESS")
+    // Remove price information (e.g., "LIFESTYLE & WELLNESS $99" -> "LIFESTYLE & WELLNESS")
     // Remove anything after $ or any price pattern
     let normalized = planName.toUpperCase().trim();
     // Remove price patterns like "$99", "$249", "$299", etc.
@@ -356,7 +356,7 @@ function AssessmentsContent() {
   // Helper function to check plan features
   const checkPlanFeatures = (planName: string, planFeatures: string | null | undefined, assessmentType: string): boolean => {
     try {
-      // Normalize plan name to handle cases like "WELLNESS $99" -> "WELLNESS"
+      // Normalize plan name to handle cases like "LIFESTYLE & WELLNESS $99" -> "LIFESTYLE & WELLNESS"
       const normalizedPlanName = normalizePlanName(planName);
 
       // Parse plan features
@@ -409,19 +409,20 @@ function AssessmentsContent() {
         return false;
       }
 
-      // WELLNESS plan: only Wellness Pulse + Basic Assessment Summary
-      if (normalizedPlanName === 'WELLNESS') {
+      // LIFESTYLE & WELLNESS plan: only Wellness Pulse + Basic Assessment Summary
+      // Support both new name "LIFESTYLE & WELLNESS" and old name "WELLNESS" for backward compatibility
+      if (normalizedPlanName === 'LIFESTYLE & WELLNESS' || normalizedPlanName === 'LIFESTYLE AND WELLNESS' || normalizedPlanName === 'WELLNESS') {
         // Only WELLNESS is available
         if (assessmentType === 'WELLNESS' || assessmentType === 'wellness') {
-          // If features are available, check the feature flag; otherwise, allow by default for WELLNESS plan
+          // If features are available, check the feature flag; otherwise, allow by default for LIFESTYLE & WELLNESS plan
           if (hasFeatures && features.wellness_pulse !== undefined) {
             return features.wellness_pulse === true;
           } else {
-            // Fallback: WELLNESS plan includes WELLNESS assessment by default
+            // Fallback: LIFESTYLE & WELLNESS plan includes WELLNESS assessment by default
             return true;
           }
         }
-        // All other assessments are not available in WELLNESS plan
+        // All other assessments are not available in LIFESTYLE & WELLNESS plan
         return false;
       }
 

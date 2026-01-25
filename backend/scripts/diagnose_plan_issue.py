@@ -46,7 +46,7 @@ async def diagnose_plans():
         print("2. VÉRIFICATION DES PLANS ATTENDUS:")
         print("-" * 80)
         expected_plans = {
-            'WELLNESS': 9900,  # $99
+            'LIFESTYLE & WELLNESS': 9900,  # $99 (formerly WELLNESS)
             'SELF EXPLORATION': 25000,  # $250
             'REVELATION': 29900,  # $299
         }
@@ -121,13 +121,13 @@ async def diagnose_plans():
         
         # Vérifier si WELLNESS a le bon prix
         result = await db.execute(
-            select(Plan).where(Plan.name == 'WELLNESS')
+            select(Plan).where((Plan.name == 'LIFESTYLE & WELLNESS') | (Plan.name == 'LIFESTYLE AND WELLNESS') | (Plan.name == 'WELLNESS'))
         )
         wellness_plan = result.scalar_one_or_none()
         if wellness_plan:
             wellness_amount = int(wellness_plan.amount) if wellness_plan.amount else 0
             if wellness_amount != 9900:
-                issues.append(f"⚠️ Plan WELLNESS (ID: {wellness_plan.id}) a un prix de ${wellness_amount/100:.2f} au lieu de $99.00")
+                issues.append(f"⚠️ Plan LIFESTYLE & WELLNESS (ID: {wellness_plan.id}) a un prix de ${wellness_amount/100:.2f} au lieu de $99.00")
         
         # Vérifier si SELF EXPLORATION a le bon prix
         result = await db.execute(
@@ -150,7 +150,7 @@ async def diagnose_plans():
             
             for sub in wellness_subs:
                 # Vérifier si le prix payé correspond au plan
-                if sub.plan and sub.plan.name == 'WELLNESS':
+                if sub.plan and (sub.plan.name == 'LIFESTYLE & WELLNESS' or sub.plan.name == 'LIFESTYLE AND WELLNESS' or sub.plan.name == 'WELLNESS'):
                     plan_price = float(sub.plan.amount) / 100 if sub.plan.amount else 0
                     if plan_price != 99.00:
                         user_result = await db.execute(
@@ -158,7 +158,7 @@ async def diagnose_plans():
                         )
                         user = user_result.scalar_one_or_none()
                         user_email = user.email if user else f"User {sub.user_id}"
-                        issues.append(f"⚠️ User {user_email} a un abonnement WELLNESS (ID: {sub.plan_id}) mais le plan a un prix de ${plan_price:.2f}")
+                        issues.append(f"⚠️ User {user_email} a un abonnement LIFESTYLE & WELLNESS (ID: {sub.plan_id}) mais le plan a un prix de ${plan_price:.2f}")
         
         if issues:
             for issue in issues:

@@ -357,15 +357,6 @@ function PaymentFormContent() {
     return `$${amount}`;
   };
 
-  const getIntervalLabel = (plan: Plan | null) => {
-    if (!plan) return 'month';
-    if (plan.interval === 'month' && plan.interval_count === 1) return 'month';
-    if (plan.interval === 'month' && plan.interval_count === 3) return 'quarter';
-    if (plan.interval === 'month' && plan.interval_count === 12) return 'year';
-    if (plan.interval === 'year') return 'year';
-    return plan.interval;
-  };
-
   return (
     <div className="w-full max-w-4xl mx-auto p-6">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -321,17 +321,18 @@ function DashboardContent() {
         return false;
       }
 
-      // WELLNESS plan: only Wellness Pulse
-      if (planName === 'WELLNESS') {
+      // LIFESTYLE & WELLNESS plan: only Wellness Pulse
+      // Support both new name "LIFESTYLE & WELLNESS" and old name "WELLNESS" for backward compatibility
+      if (planName === 'LIFESTYLE & WELLNESS' || planName === 'LIFESTYLE AND WELLNESS' || planName === 'WELLNESS') {
         if (assessmentType === 'WELLNESS') {
           // If features are available, check the feature flag; otherwise, allow by default
           if (hasFeatures && features.wellness_pulse !== undefined) {
             return features.wellness_pulse === true;
           }
-          // Fallback: WELLNESS plan includes WELLNESS assessment by default
+          // Fallback: LIFESTYLE & WELLNESS plan includes WELLNESS assessment by default
           return true;
         }
-        // All other assessments are not available in WELLNESS plan
+        // All other assessments are not available in LIFESTYLE & WELLNESS plan
         return false;
       }
 

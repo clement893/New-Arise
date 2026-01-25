@@ -48,7 +48,7 @@ async def fix_wrong_plan_assignments():
         
         # 2. Identifier les plans attendus par prix
         expected_plans = {
-            9900: 'WELLNESS',      # $99
+            9900: 'LIFESTYLE & WELLNESS',      # $99 (formerly WELLNESS)
             25000: 'SELF EXPLORATION',  # $250 (mais dans la DB c'est $249)
             24900: 'SELF EXPLORATION',  # $249 (valeur alternative)
             29900: 'REVELATION',    # $299
@@ -110,7 +110,10 @@ async def fix_wrong_plan_assignments():
             plan_name_normalized = re.sub(r'\s*\$\d+.*$', '', plan.name, flags=re.IGNORECASE).strip().upper()
             plan_price_cents = int(plan.amount) if plan.amount else 0
             
-            if plan_name_normalized == 'WELLNESS' and plan_price_cents == 9900:
+            # Support both new name "LIFESTYLE & WELLNESS" and old name "WELLNESS" for backward compatibility
+            if (plan_name_normalized == 'LIFESTYLE & WELLNESS' or plan_name_normalized == 'LIFESTYLE AND WELLNESS' or plan_name_normalized == 'WELLNESS') and plan_price_cents == 9900:
+                correct_plan_ids['LIFESTYLE & WELLNESS'] = plan.id
+                # Also map old name for backward compatibility
                 correct_plan_ids['WELLNESS'] = plan.id
             elif plan_name_normalized == 'SELF EXPLORATION' and (plan_price_cents == 25000 or plan_price_cents == 24900):
                 correct_plan_ids['SELF EXPLORATION'] = plan.id

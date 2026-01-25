@@ -35,7 +35,7 @@ export default function ProfilePage() {
   // Helper function to normalize plan name for display (remove price if present)
   const normalizePlanNameForDisplay = (planName: string): string => {
     if (!planName) return '';
-    // Remove price information (e.g., "WELLNESS $99" -> "WELLNESS")
+    // Remove price information (e.g., "LIFESTYLE & WELLNESS $99" -> "LIFESTYLE & WELLNESS")
     // But keep the original if it doesn't contain a price pattern
     const hasPrice = /\$\d+/.test(planName);
     if (hasPrice) {
