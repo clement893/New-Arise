@@ -118,7 +118,7 @@ class Settings(BaseSettings):
 
     # Database
     DATABASE_URL: PostgresDsn = Field(
-        default="postgresql+asyncpg://user:CHANGE_PASSWORD@localhost:5432/modele",
+        default="postgresql+asyncpg://user:password@localhost:5432/modele",
         description="Database connection URL",
     )
 
@@ -215,34 +215,6 @@ class Settings(BaseSettings):
         import re
         if v and not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', v):
             raise ValueError(f"Invalid email format: {v}")
-        return v
-
-    @field_validator("DATABASE_URL", mode="after")
-    @classmethod
-    def validate_database_url(cls, v: Union[str, PostgresDsn]) -> Union[str, PostgresDsn]:
-        """Validate DATABASE_URL is set in production (warns but doesn't fail)"""
-        import os
-        import sys
-        env = os.getenv("ENVIRONMENT", "development")
-        
-        if env == "production":
-            # Convert PostgresDsn to string for comparison
-            # In mode="after", v is already a PostgresDsn object, so we need to convert it
-            v_str = str(v)
-            
-            # Check if it's the default value (simplified check - no substring search)
-            default_url = "postgresql+asyncpg://user:password@localhost:5432/modele"
-            default_url_with_change = "postgresql+asyncpg://user:CHANGE_PASSWORD@localhost:5432/modele"
-            
-            if not v_str or v_str == default_url or v_str == default_url_with_change:
-                # Warn but don't fail - app can start without database for health checks
-                print(
-                    "WARNING: DATABASE_URL is not properly configured in production. "
-                    "The application will start, but database operations will fail.",
-                    file=sys.stderr
-                )
-                # Don't raise - allow app to start for health checks
-        
         return v
 
     # Database Connection Pool Configuration
