@@ -1371,10 +1371,15 @@ const generateMBTIPDF = async (
       doc.setFillColor(dim.color[0], dim.color[1], dim.color[2]);
       doc.circle(circleCenterX, circleCenterY, numCircleRadius, 'F');
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(8); // Reduced from 10
+      doc.setFontSize(11); // Increased from 8 to make numbers bigger
       doc.setFont('helvetica', 'bold');
-      // Center the text in the circle
-      doc.text(String(dim.num), circleCenterX, circleCenterY, { align: 'center' });
+      // Center the text in the circle (both horizontal and vertical)
+      // In jsPDF, text Y position is at the baseline. To center vertically in circle,
+      // we need to move the text down. The offset depends on font metrics.
+      // For better vertical centering, we use a larger offset to position text lower
+      const fontSize = 11;
+      const verticalOffset = fontSize * 0.4; // Increased offset to center vertically and position lower
+      doc.text(String(dim.num), circleCenterX, circleCenterY + verticalOffset, { align: 'center' });
       doc.setTextColor(0, 0, 0);
       
       // Capability name and description - more compact
@@ -1545,16 +1550,16 @@ const generateTKIPDF = async (
   const dominantModeInfo = getModeInfo(dominantMode);
   const secondaryModeInfo = getModeInfo(secondaryMode);
 
-  // Helper function to convert mode icons to text (jsPDF doesn't support emojis well)
+  // Helper function to convert mode icons to Unicode symbols (better supported than emojis)
   const getModeIconText = (modeId: string): string => {
     const iconMap: Record<string, string> = {
-      'competing': 'C',
-      'collaborating': 'CO',
-      'compromising': 'CP',
-      'avoiding': 'A',
-      'accommodating': 'AC',
+      'competing': '⚔',      // Sword (U+2694)
+      'collaborating': '⚡',  // Lightning (U+26A1) - represents energy/action
+      'compromising': '⚖',   // Scales (U+2696)
+      'avoiding': '➖',       // Minus sign (U+2796) - represents withdrawal
+      'accommodating': '✓',  // Check mark (U+2713) - represents agreement
     };
-    return iconMap[modeId] || modeId.substring(0, 2).toUpperCase();
+    return iconMap[modeId] || '•';
   };
 
   // Sort modes by count for display
@@ -1670,11 +1675,11 @@ const generateTKIPDF = async (
       doc.setFontSize(10);
       const descLines = doc.splitTextToSize(modeInfo.description, pageWidth - 40);
       doc.text(descLines, 20, yPos);
-      yPos += descLines.length * 5 + 5;
+      yPos += descLines.length * 5 + 2; // Reduced from 5 to 2
     }
 
     // Progress Bar
-    yPos += 3;
+    yPos += 1; // Reduced from 3 to 1
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     doc.text(`${count} responses`, 20, yPos);
@@ -1714,12 +1719,34 @@ const generateTKIPDF = async (
   yPos = checkNewPage(doc, yPos, pageHeight, 100);
   yPos += 5;
   
-  // Recommendations box with gold background
+  // Calculate content height first
   const recBoxY = yPos;
+  let contentY = recBoxY + 20; // Start after title
+  
+  // Prepare all text content to calculate height
+  const leverageText = `Your dominant ${dominantModeInfo?.title.toLowerCase() || dominantMode} style can be very effective in appropriate situations. Continue to use it when it serves you well.`;
+  const leverageLines = doc.splitTextToSize(leverageText, pageWidth - 50);
+  
+  const flexibilityText = 'Consider situations where your less-used modes might be more effective. Expanding your conflict management repertoire will make you a more adaptable leader.';
+  const flexibilityLines = doc.splitTextToSize(flexibilityText, pageWidth - 50);
+  
+  const contextText = 'No single conflict mode is best in all situations. The most effective leaders can flex between different approaches based on the context, relationship, and importance of the issue.';
+  const contextLines = doc.splitTextToSize(contextText, pageWidth - 50);
+  
+  // Calculate total content height
+  let totalHeight = 20; // Title space
+  totalHeight += 6; // "Leverage your strengths:" title
+  totalHeight += leverageLines.length * 5 + 8; // Leverage text
+  totalHeight += 6; // "Develop flexibility:" title
+  totalHeight += flexibilityLines.length * 5 + 8; // Flexibility text
+  totalHeight += 6; // "Context matters:" title
+  totalHeight += contextLines.length * 5 + 10; // Context text
+  
+  // Draw recommendations box with calculated height
   doc.setFillColor(255, 248, 220); // Gold/10 background
   doc.setDrawColor(212, 175, 55); // Gold border
   doc.setLineWidth(2);
-  doc.rect(20, recBoxY, pageWidth - 40, 60, 'FD'); // Filled and drawn
+  doc.rect(20, recBoxY, pageWidth - 40, totalHeight, 'FD'); // Filled and drawn with calculated height
   
   doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
@@ -1735,8 +1762,6 @@ const generateTKIPDF = async (
   doc.text('Leverage your strengths:', 25, yPos);
   yPos += 6;
   doc.setFont('helvetica', 'normal');
-  const leverageText = `Your dominant ${dominantModeInfo?.title.toLowerCase() || dominantMode} style can be very effective in appropriate situations. Continue to use it when it serves you well.`;
-  const leverageLines = doc.splitTextToSize(leverageText, pageWidth - 50);
   doc.text(leverageLines, 25, yPos);
   yPos += leverageLines.length * 5 + 8;
   
@@ -1745,8 +1770,6 @@ const generateTKIPDF = async (
   doc.text('Develop flexibility:', 25, yPos);
   yPos += 6;
   doc.setFont('helvetica', 'normal');
-  const flexibilityText = 'Consider situations where your less-used modes might be more effective. Expanding your conflict management repertoire will make you a more adaptable leader.';
-  const flexibilityLines = doc.splitTextToSize(flexibilityText, pageWidth - 50);
   doc.text(flexibilityLines, 25, yPos);
   yPos += flexibilityLines.length * 5 + 8;
   
@@ -1755,8 +1778,6 @@ const generateTKIPDF = async (
   doc.text('Context matters:', 25, yPos);
   yPos += 6;
   doc.setFont('helvetica', 'normal');
-  const contextText = 'No single conflict mode is best in all situations. The most effective leaders can flex between different approaches based on the context, relationship, and importance of the issue.';
-  const contextLines = doc.splitTextToSize(contextText, pageWidth - 50);
   doc.text(contextLines, 25, yPos);
   yPos += contextLines.length * 5 + 10;
 };
