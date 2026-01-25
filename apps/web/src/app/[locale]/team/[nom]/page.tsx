@@ -6,9 +6,10 @@ import { Footer } from '@/components/landing/Footer';
 import { Button } from '@/components/ui';
 import Modal from '@/components/ui/Modal';
 import MotionDiv from '@/components/motion/MotionDiv';
-import { ArrowLeft, Linkedin, Mail, GraduationCap, Briefcase } from 'lucide-react';
+import { ArrowLeft, Linkedin, Mail, GraduationCap } from 'lucide-react';
 import Image from 'next/image';
-import { Link, useParams } from '@/i18n/routing';
+import { Link } from '@/i18n/routing';
+import { useParams } from 'next/navigation';
 import { useState } from 'react';
 
 export default function TeamMemberBioPage() {
