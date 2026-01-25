@@ -87,8 +87,8 @@ export default function TeamMemberBioPage() {
         {/* Back Button */}
         <MotionDiv variant="fade" duration="normal">
           <Link href="/team">
-            <Button variant="ghost" className="mb-8">
-              <ArrowLeft className="mr-2" size={16} />
+            <Button variant="ghost" className="mb-8 flex items-center gap-4">
+              <ArrowLeft size={16} />
               {t('back') || 'Back'}
             </Button>
           </Link>
