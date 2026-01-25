@@ -1214,6 +1214,7 @@ const generate360PDF = async (
 /**
  * Generate MBTI Assessment PDF
  * Matches the structure of MBTIResultsPage and MBTIResultContent components
+ * Optimized to fit on a single page
  */
 const generateMBTIPDF = async (
   doc: any,
@@ -1225,7 +1226,7 @@ const generateMBTIPDF = async (
   const { mbtiPersonalities } = await import('@/data/mbtiPersonalities');
   const { mbtiTypes } = await import('@/data/mbtiQuestions');
   
-  let yPos = 20;
+  let yPos = 15; // Reduced from 20
   const results = assessment.detailedResult;
   if (!results?.scores) return;
 
@@ -1253,78 +1254,77 @@ const generateMBTIPDF = async (
                                   insights.description || 
                                   typeInfo.description;
 
-  // Title
-  doc.setFontSize(20);
+  // Title - more compact
+  doc.setFontSize(16); // Reduced from 20
   doc.setFont('helvetica', 'bold');
   doc.text(assessment.name, pageWidth / 2, yPos, { align: 'center' });
-  yPos += 10;
-  doc.setFontSize(12);
+  yPos += 7; // Reduced from 10
+  doc.setFontSize(10); // Reduced from 12
   doc.setFont('helvetica', 'normal');
   doc.text(`Completed: ${assessment.completedDate}`, pageWidth / 2, yPos, { align: 'center' });
-  yPos += 15;
+  yPos += 10; // Reduced from 15
 
-  // Personality Type Card Section (matching the results page)
-  yPos = checkNewPage(doc, yPos, pageHeight, 100);
-  
-  // Draw background rectangle (simulating the gradient card)
+  // Personality Type Card Section - more compact
   const cardY = yPos;
-  const cardHeight = 80;
+  const cardHeight = 50; // Reduced from 80
   doc.setFillColor(240, 245, 255); // Light purple/indigo background
   doc.rect(20, cardY, pageWidth - 40, cardHeight, 'F');
   doc.setDrawColor(200, 200, 220); // Light border
   doc.rect(20, cardY, pageWidth - 40, cardHeight, 'S');
   
-  // Draw circle for MBTI type (simulating the visual element)
-  const circleX = 30;
-  const circleY = cardY + 20;
-  const circleRadius = 25;
+  // Draw circle for MBTI type - smaller
+  const circleX = 25;
+  const circleY = cardY + 10;
+  const circleRadius = 15; // Reduced from 25
   doc.setFillColor(128, 0, 128); // Purple color
   doc.circle(circleX + circleRadius, circleY + circleRadius, circleRadius, 'F');
   
   // MBTI type text in circle
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(16);
+  doc.setFontSize(12); // Reduced from 16
   doc.setFont('helvetica', 'bold');
   doc.text(baseType, circleX + circleRadius, circleY + circleRadius, { align: 'center' });
   doc.setTextColor(0, 0, 0);
   
-  // Personality name and description (to the right of circle)
-  const textStartX = circleX + (circleRadius * 2) + 20;
-  doc.setFontSize(18);
+  // Personality name and description - more compact
+  const textStartX = circleX + (circleRadius * 2) + 12;
+  doc.setFontSize(14); // Reduced from 18
   doc.setFont('helvetica', 'bold');
-  doc.text(personalityData?.name || typeInfo.name, textStartX, cardY + 15);
+  doc.text(personalityData?.name || typeInfo.name, textStartX, cardY + 10);
   
-  doc.setFontSize(11);
+  doc.setFontSize(9); // Reduced from 11
   doc.setFont('helvetica', 'normal');
-  const descLines = doc.splitTextToSize(personalityDescription, pageWidth - textStartX - 30);
-  doc.text(descLines, textStartX, cardY + 25);
+  const descLines = doc.splitTextToSize(personalityDescription, pageWidth - textStartX - 25);
+  doc.text(descLines, textStartX, cardY + 18);
   
-  // OCR Badge (if applicable)
+  // OCR Badge (if applicable) - smaller
   if (isFromOCR) {
-    const badgeY = cardY + 25 + (descLines.length * 5) + 5;
+    const badgeY = cardY + 18 + (descLines.length * 4) + 2;
     doc.setFillColor(255, 248, 220); // Gold background
-    doc.rect(textStartX, badgeY, 80, 8, 'F');
-    doc.setFontSize(8);
+    doc.rect(textStartX, badgeY, 60, 6, 'F');
+    doc.setFontSize(7);
     doc.setFont('helvetica', 'bold');
-    doc.text('OCR Processed', textStartX + 5, badgeY + 6);
+    doc.text('OCR', textStartX + 3, badgeY + 4.5);
   }
   
-  // Tags (below description)
+  // Tags (below description) - more compact
   if (personalityData?.tags && personalityData.tags.length > 0) {
-    const tagsY = cardY + 25 + (descLines.length * 5) + (isFromOCR ? 15 : 5);
-    doc.setFontSize(9);
+    const tagsY = cardY + 18 + (descLines.length * 4) + (isFromOCR ? 10 : 2);
+    doc.setFontSize(8); // Reduced from 9
     doc.setFont('helvetica', 'normal');
     const tagsText = personalityData.tags.join(' • ');
-    const tagsLines = doc.splitTextToSize(tagsText, pageWidth - textStartX - 30);
+    const tagsLines = doc.splitTextToSize(tagsText, pageWidth - textStartX - 25);
     doc.text(tagsLines, textStartX, tagsY);
   }
   
-  yPos = cardY + cardHeight + 15;
+  yPos = cardY + cardHeight + 8; // Reduced from 15
 
-  // Your Personality Dimensions Section (matching the results page)
+  // Your Personality Dimensions Section - two columns layout
   if (personalityData) {
-    yPos = checkNewPage(doc, yPos, pageHeight, 200);
-    yPos = addSectionTitle(doc, 'Your Personality Dimensions', yPos, pageHeight);
+    doc.setFontSize(12); // Reduced from 16
+    doc.setFont('helvetica', 'bold');
+    doc.text('Your Personality Dimensions', 20, yPos);
+    yPos += 8; // Reduced spacing
     
     const dimensions = [
       { key: 'communication', num: 1, color: [59, 130, 246], bgColor: [239, 246, 255] },
@@ -1335,107 +1335,105 @@ const generateMBTIPDF = async (
       { key: 'stress', num: 6, color: [147, 51, 234], bgColor: [250, 245, 255] },
     ];
     
-    for (const dim of dimensions) {
+    // Two columns layout
+    const colWidth = (pageWidth - 50) / 2; // Two columns with spacing
+    const startX1 = 20;
+    const startX2 = startX1 + colWidth + 10;
+    let currentCol = 1;
+    let currentX = startX1;
+    let rowY = yPos;
+    
+    for (let i = 0; i < dimensions.length; i++) {
+      const dim = dimensions[i];
       const capability = personalityData.capabilities[dim.key as keyof typeof personalityData.capabilities];
       if (!capability) continue;
       
-      yPos = checkNewPage(doc, yPos, pageHeight, 60);
+      // Switch to second column after 3 items
+      if (i === 3) {
+        currentCol = 2;
+        currentX = startX2;
+        rowY = yPos;
+      }
       
-      // Draw background box (alternating colors)
-      const boxY = yPos;
-      const boxHeight = 40;
+      // Draw background box - more compact
+      const boxY = rowY;
+      const boxHeight = 28; // Reduced from 40
       doc.setFillColor(dim.bgColor[0], dim.bgColor[1], dim.bgColor[2]);
       doc.setDrawColor(dim.color[0], dim.color[1], dim.color[2]);
-      doc.setLineWidth(1);
-      doc.rect(20, boxY, pageWidth - 40, boxHeight, 'FD');
+      doc.setLineWidth(0.5);
+      doc.rect(currentX, boxY, colWidth, boxHeight, 'FD');
       
-      // Number circle
-      const numCircleX = 25;
-      const numCircleY = boxY + 8;
-      const numCircleRadius = 6;
+      // Number circle - smaller
+      const numCircleX = currentX + 3;
+      const numCircleY = boxY + 5;
+      const numCircleRadius = 4; // Reduced from 6
       doc.setFillColor(dim.color[0], dim.color[1], dim.color[2]);
       doc.circle(numCircleX + numCircleRadius, numCircleY + numCircleRadius, numCircleRadius, 'F');
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(10);
+      doc.setFontSize(8); // Reduced from 10
       doc.setFont('helvetica', 'bold');
-      doc.text(String(dim.num), numCircleX, numCircleY + 4);
+      doc.text(String(dim.num), numCircleX, numCircleY + 3);
       doc.setTextColor(0, 0, 0);
       
-      // Capability name and description
-      const textX = numCircleX + (numCircleRadius * 2) + 10;
-      doc.setFontSize(12);
+      // Capability name and description - more compact
+      const textX = numCircleX + (numCircleRadius * 2) + 5;
+      doc.setFontSize(9); // Reduced from 12
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(dim.color[0], dim.color[1], dim.color[2]);
-      doc.text(capability.name, textX, boxY + 10);
+      doc.text(capability.name, textX, boxY + 6);
       doc.setTextColor(0, 0, 0);
       
-      doc.setFontSize(10);
+      doc.setFontSize(7); // Reduced from 10
       doc.setFont('helvetica', 'normal');
-      const capDescLines = doc.splitTextToSize(capability.description, pageWidth - textX - 25);
-      doc.text(capDescLines, textX, boxY + 20);
+      const capDescLines = doc.splitTextToSize(capability.description, colWidth - (textX - currentX) - 5);
+      doc.text(capDescLines, textX, boxY + 12);
       
-      yPos = boxY + boxHeight + 10;
+      // Move to next row in same column
+      rowY = boxY + boxHeight + 4; // Reduced spacing
     }
+    
+    // Set yPos to the bottom of the right column
+    yPos = rowY + 5;
   }
 
-  // Recommendations Section
-  if (results.recommendations && Array.isArray(results.recommendations) && results.recommendations.length > 0) {
-    yPos = checkNewPage(doc, yPos, pageHeight, 100);
-    yPos = addSectionTitle(doc, 'Recommendations', yPos, pageHeight);
-    doc.setFontSize(11);
+  // Recommendations Section - more compact, only if space allows
+  if (results.recommendations && Array.isArray(results.recommendations) && results.recommendations.length > 0 && yPos < pageHeight - 40) {
+    doc.setFontSize(12); // Reduced from 16
+    doc.setFont('helvetica', 'bold');
+    doc.text('Recommendations', 20, yPos);
+    yPos += 6; // Reduced spacing
+    
+    doc.setFontSize(9); // Reduced from 11
     doc.setFont('helvetica', 'normal');
     
-    results.recommendations.forEach((rec: any, index: number) => {
-      yPos = checkNewPage(doc, yPos, pageHeight, 40);
+    // Only show first recommendation if space is limited
+    const maxRecommendations = yPos < pageHeight - 60 ? results.recommendations.length : 1;
+    
+    results.recommendations.slice(0, maxRecommendations).forEach((rec: any, index: number) => {
+      if (yPos > pageHeight - 20) return; // Stop if no space
       
       // Recommendation title
       if (rec.title) {
         doc.setFont('helvetica', 'bold');
-        doc.setFontSize(12);
+        doc.setFontSize(10); // Reduced from 12
         doc.text(`${index + 1}. ${rec.title}`, 20, yPos);
-        yPos += 8;
+        yPos += 5; // Reduced from 8
       }
       
-      // Recommendation description
+      // Recommendation description - truncated if needed
       if (rec.description) {
         doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
-        const descLines = doc.splitTextToSize(rec.description, pageWidth - 40);
+        doc.setFontSize(8); // Reduced from 10
+        const maxDescLength = 150; // Limit description length
+        const truncatedDesc = rec.description.length > maxDescLength 
+          ? rec.description.substring(0, maxDescLength) + '...'
+          : rec.description;
+        const descLines = doc.splitTextToSize(truncatedDesc, pageWidth - 40);
         doc.text(descLines, 20, yPos);
-        yPos += descLines.length * 5 + 5;
+        yPos += descLines.length * 4 + 3; // Reduced spacing
       }
       
-      // Actions
-      if (rec.actions && Array.isArray(rec.actions) && rec.actions.length > 0) {
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(10);
-        doc.text('Actions:', 25, yPos);
-        yPos += 7;
-        doc.setFont('helvetica', 'normal');
-        rec.actions.forEach((action: string) => {
-          yPos = checkNewPage(doc, yPos, pageHeight, 20);
-          const actionLines = doc.splitTextToSize(`• ${action}`, pageWidth - 50);
-          doc.text(actionLines, 30, yPos);
-          yPos += actionLines.length * 5 + 3;
-        });
-      }
-      
-      // Resources
-      if (rec.resources && Array.isArray(rec.resources) && rec.resources.length > 0) {
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(10);
-        doc.text('Resources:', 25, yPos);
-        yPos += 7;
-        doc.setFont('helvetica', 'normal');
-        rec.resources.forEach((resource: string) => {
-          yPos = checkNewPage(doc, yPos, pageHeight, 20);
-          const resourceLines = doc.splitTextToSize(`• ${resource}`, pageWidth - 50);
-          doc.text(resourceLines, 30, yPos);
-          yPos += resourceLines.length * 5 + 3;
-        });
-      }
-      
-      yPos += 5; // Space between recommendations
+      yPos += 3; // Space between recommendations
     });
   }
 };
