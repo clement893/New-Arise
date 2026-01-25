@@ -488,12 +488,13 @@ function ResultsReportsContent() {
 
           <div className="mt-6 pt-6 border-t border-gray-200">
             <Button 
-              variant="primary" 
-              className="w-full bg-arise-deep-teal hover:bg-arise-deep-teal/90 text-white"
+              variant="arise-primary"
+              className="flex items-center gap-2 w-full"
               onClick={handleDownloadCompleteProfile}
               disabled={isGeneratingPDF || assessments.length === 0}
             >
-              {isGeneratingPDF ? (t('profile.generatingPdf') || 'Generating PDF...') : (t('profile.downloadButton') || 'Download Complete Leadership Profile')}
+              <Download size={16} />
+              {isGeneratingPDF ? t('assessments.generating') : t('profile.downloadButton')}
             </Button>
           </div>
         </div>

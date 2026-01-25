@@ -1550,64 +1550,6 @@ const generateTKIPDF = async (
   const dominantModeInfo = getModeInfo(dominantMode);
   const secondaryModeInfo = getModeInfo(secondaryMode);
 
-  // Helper function to draw mode icons using very simple, reliable shapes
-  const drawModeIcon = (doc: any, x: number, y: number, modeId: string, size: number = 20) => {
-    const iconSize = size;
-    const halfSize = iconSize / 2;
-    
-    // Set white color for all icons
-    doc.setDrawColor(255, 255, 255);
-    doc.setFillColor(255, 255, 255);
-    doc.setLineWidth(3); // Thicker lines for visibility
-    
-    switch (modeId) {
-      case 'competing':
-        // Simple right arrow: large filled circle with arrow line
-        doc.circle(x, y, halfSize * 0.8, 'F');
-        // Arrow line pointing right
-        doc.setLineWidth(4);
-        doc.line(x, y, x + halfSize * 0.6, y);
-        // Arrow head (small triangle using lines)
-        doc.line(x + halfSize * 0.6, y, x + halfSize * 0.3, y - halfSize * 0.3);
-        doc.line(x + halfSize * 0.6, y, x + halfSize * 0.3, y + halfSize * 0.3);
-        break;
-      case 'collaborating':
-        // Two overlapping circles (simple and reliable)
-        const circleR = halfSize * 0.6;
-        doc.circle(x - 4, y, circleR, 'F');
-        doc.circle(x + 4, y, circleR, 'F');
-        break;
-      case 'compromising':
-        // Simple balance: horizontal line with two circles
-        doc.setLineWidth(3);
-        doc.line(x - halfSize * 0.5, y, x + halfSize * 0.5, y);
-        doc.circle(x - halfSize * 0.4, y, halfSize * 0.3, 'F');
-        doc.circle(x + halfSize * 0.4, y, halfSize * 0.3, 'F');
-        break;
-      case 'avoiding':
-        // Simple left arrow: large filled circle with arrow line
-        doc.circle(x, y, halfSize * 0.8, 'F');
-        // Arrow line pointing left
-        doc.setLineWidth(4);
-        doc.line(x, y, x - halfSize * 0.6, y);
-        // Arrow head
-        doc.line(x - halfSize * 0.6, y, x - halfSize * 0.3, y - halfSize * 0.3);
-        doc.line(x - halfSize * 0.6, y, x - halfSize * 0.3, y + halfSize * 0.3);
-        break;
-      case 'accommodating':
-        // Simple check mark: large circle with check
-        doc.circle(x, y, halfSize * 0.8, 'F');
-        // Check mark inside
-        doc.setLineWidth(4);
-        doc.line(x - halfSize * 0.4, y, x - halfSize * 0.1, y + halfSize * 0.3);
-        doc.line(x - halfSize * 0.1, y + halfSize * 0.3, x + halfSize * 0.4, y - halfSize * 0.3);
-        break;
-      default:
-        // Default: simple filled circle
-        doc.circle(x, y, halfSize * 0.7, 'F');
-    }
-  };
-
   // Sort modes by count for display
   const sortedModesList = Object.entries(modeScores)
     .sort(([, a], [, b]) => b - a)
@@ -1635,21 +1577,21 @@ const generateTKIPDF = async (
   doc.setFillColor(15, 76, 86); // ARISE deep teal
   doc.rect(dominantCardX, dominantCardY, cardWidth, cardHeight, 'F');
   
-  // Draw icon as a shape instead of text - larger size for visibility
-  drawModeIcon(doc, dominantCardX + cardWidth / 2, dominantCardY + 12, dominantMode, 28);
-  
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  doc.text('Dominant Mode', dominantCardX + cardWidth / 2, dominantCardY + 20, { align: 'center' });
+  doc.setTextColor(255, 255, 255);
+  doc.text('Dominant Mode', dominantCardX + cardWidth / 2, dominantCardY + 18, { align: 'center' });
   
   doc.setFontSize(18);
   doc.setFont('helvetica', 'bold');
-  doc.text(dominantModeInfo?.title || dominantMode, dominantCardX + cardWidth / 2, dominantCardY + 32, { align: 'center' });
+  doc.setTextColor(255, 255, 255);
+  doc.text(dominantModeInfo?.title || dominantMode, dominantCardX + cardWidth / 2, dominantCardY + 35, { align: 'center' });
   
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
+  doc.setTextColor(255, 255, 255);
   const dominantCount = modeScores[dominantMode] || 0;
-  doc.text(`${dominantCount} out of 30 responses`, dominantCardX + cardWidth / 2, dominantCardY + 42, { align: 'center' });
+  doc.text(`${dominantCount} out of 30 responses`, dominantCardX + cardWidth / 2, dominantCardY + 48, { align: 'center' });
   
   // Secondary Mode Card (gold gradient - using gold color)
   const secondaryCardX = dominantCardX + cardWidth + 10;
@@ -1658,21 +1600,21 @@ const generateTKIPDF = async (
   doc.setFillColor(212, 175, 55); // Gold color approximation
   doc.rect(secondaryCardX, secondaryCardY, cardWidth, cardHeight, 'F');
   
-  // Draw icon as a shape instead of text - larger size for visibility
-  drawModeIcon(doc, secondaryCardX + cardWidth / 2, secondaryCardY + 12, secondaryMode, 28);
-  
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  doc.text('Secondary Mode', secondaryCardX + cardWidth / 2, secondaryCardY + 20, { align: 'center' });
+  doc.setTextColor(255, 255, 255);
+  doc.text('Secondary Mode', secondaryCardX + cardWidth / 2, secondaryCardY + 18, { align: 'center' });
   
   doc.setFontSize(18);
   doc.setFont('helvetica', 'bold');
-  doc.text(secondaryModeInfo?.title || secondaryMode, secondaryCardX + cardWidth / 2, secondaryCardY + 32, { align: 'center' });
+  doc.setTextColor(255, 255, 255);
+  doc.text(secondaryModeInfo?.title || secondaryMode, secondaryCardX + cardWidth / 2, secondaryCardY + 35, { align: 'center' });
   
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
+  doc.setTextColor(255, 255, 255);
   const secondaryCount = modeScores[secondaryMode] || 0;
-  doc.text(`${secondaryCount} out of 30 responses`, secondaryCardX + cardWidth / 2, secondaryCardY + 42, { align: 'center' });
+  doc.text(`${secondaryCount} out of 30 responses`, secondaryCardX + cardWidth / 2, secondaryCardY + 48, { align: 'center' });
   
   doc.setTextColor(0, 0, 0);
   yPos = dominantCardY + cardHeight + 15;
@@ -1690,12 +1632,10 @@ const generateTKIPDF = async (
     const percentage = getModePercentage(count);
     const insight = getModeInsight(modeId, count);
 
-    // Mode header with icon, title, description, and level
+    // Mode header with title, description, and level
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
-    // Draw icon as a shape instead of text - larger size for visibility
-    drawModeIcon(doc, 25, yPos + 3, modeId, 16);
-    doc.text(modeInfo?.title || modeId, 35, yPos);
+    doc.text(modeInfo?.title || modeId, 20, yPos);
     
     // Level on the right
     const levelColor = level.color;
