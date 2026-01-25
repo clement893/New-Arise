@@ -776,10 +776,64 @@ function ResultsReportsContent() {
     try {
       const result = await getAssessmentResults(assessmentId);
       const scores = result.scores as any;
+      const comparisonData = result.comparison_data as any;
 
-      // Check if we have capability_scores with gaps
-      if (scores.capability_scores && Array.isArray(scores.capability_scores)) {
-        const capabilityScores = scores.capability_scores;
+      console.log('[Self-Awareness] Loading 360 results:', {
+        hasCapabilityScores: !!scores.capability_scores,
+        capabilityScoresType: typeof scores.capability_scores,
+        isArray: Array.isArray(scores.capability_scores),
+        hasComparisonData: !!comparisonData,
+      });
+
+      // Helper to check if value is PillarScore
+      const isPillarScore = (value: any): boolean => {
+        return typeof value === 'object' && value !== null && 'score' in value;
+      };
+
+      // Check if we have capability_scores
+      if (scores.capability_scores) {
+        let capabilityScores: any[] = [];
+        
+        // If it's already an array with gaps, use it directly
+        if (Array.isArray(scores.capability_scores)) {
+          capabilityScores = scores.capability_scores;
+        } else if (typeof scores.capability_scores === 'object') {
+          // Calculate others_avg_score from comparison_data
+          let othersAvgScores: Record<string, number> = {};
+          
+          // First, try to get from comparison_data
+          if (comparisonData && typeof comparisonData === 'object') {
+            if (comparisonData.capability_scores && typeof comparisonData.capability_scores === 'object') {
+              Object.entries(comparisonData.capability_scores).forEach(([capability, score]) => {
+                const rawScoreValue = isPillarScore(score) ? (score as any).score : (typeof score === 'number' ? score : 0);
+                const averageScore = rawScoreValue / 5;
+                othersAvgScores[capability] = averageScore;
+              });
+            }
+          }
+          
+          // Transform object to array and calculate gaps
+          capabilityScores = Object.entries(scores.capability_scores).map(([capability, score]) => {
+            const rawScoreValue = isPillarScore(score) ? (score as any).score : (typeof score === 'number' ? score : 0);
+            // Convert sum (max 25) to average (max 5.0) by dividing by 5
+            const averageScore = rawScoreValue / 5;
+            
+            // Get others_avg_score from comparison_data
+            const othersAvgScore = othersAvgScores[capability] || 0;
+            
+            // Calculate gap (self_score - others_avg_score)
+            const gap = averageScore - othersAvgScore;
+            
+            return {
+              capability,
+              self_score: averageScore,
+              others_avg_score: othersAvgScore,
+              gap: gap,
+            };
+          });
+        }
+        
+        console.log('[Self-Awareness] Capability scores:', capabilityScores.length, capabilityScores.map(c => ({ capability: c.capability, gap: c.gap })));
         
         // Count red gaps (gap < -0.5 or gap > 0.5)
         const redGapCount = capabilityScores.filter((cap: any) => {
@@ -787,6 +841,8 @@ function ResultsReportsContent() {
           const roundedGap = Math.round(gap * 10) / 10;
           return !(roundedGap >= -0.5 && roundedGap <= 0.5);
         }).length;
+
+        console.log('[Self-Awareness] Red gap count:', redGapCount, 'out of', capabilityScores.length);
 
         // Determine color based on red gap count
         if (redGapCount <= 2) {
@@ -799,9 +855,11 @@ function ResultsReportsContent() {
           // Red
           return 'Deepen self-reflection, actively seek feedback, and explore perception differences to strengthen impact and alignment.';
         }
+      } else {
+        console.warn('[Self-Awareness] No capability_scores found in results');
       }
     } catch (err) {
-      console.warn('Could not load 360 results for self-awareness:', err);
+      console.error('[Self-Awareness] Could not load 360 results for self-awareness:', err);
     }
     return null;
   };
@@ -1290,33 +1348,35 @@ function ResultsReportsContent() {
                 </div>
 
                 <div className="space-y-6">
-                  {/* PROFESSION Section */}
-                  {executiveSummary.leadershipDescription && (
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 uppercase text-center py-2 px-4 rounded-t-lg mb-0" style={{ backgroundColor: '#D5DEE0', color: '#10454D' }}>
-                        {t('executiveSummary.profession.title')}
-                      </h3>
-                      <div className="border border-gray-300 rounded-b-lg p-6 bg-white">
-                        <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                          {executiveSummary.leadershipDescription}
-                        </p>
-                      </div>
+                {/* PROFESSION Section */}
+                {executiveSummary.leadershipDescription && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 uppercase text-center py-2 px-4 rounded-t-lg mb-0" style={{ backgroundColor: '#D5DEE0', color: '#10454D' }}>
+                      {t('executiveSummary.profession.title')}
+                    </h3>
+                    <div className="border border-gray-300 rounded-b-lg p-6 bg-white">
+                      <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                        <span className="font-semibold">Leadership : </span>
+                        {executiveSummary.leadershipDescription}
+                      </p>
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {/* LIFESTYLE & WELLNESS Section */}
-                  {executiveSummary.selfAwarenessDescription && (
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 uppercase text-center py-2 px-4 rounded-t-lg mb-0" style={{ backgroundColor: '#D5DEE0', color: '#10454D' }}>
-                        {t('executiveSummary.lifestyleWellness.title')}
-                      </h3>
-                      <div className="border border-gray-300 rounded-b-lg p-6 bg-white">
-                        <p className="text-gray-700 leading-relaxed">
-                          {executiveSummary.selfAwarenessDescription}
-                        </p>
-                      </div>
+                {/* LIFESTYLE & WELLNESS Section */}
+                {executiveSummary.selfAwarenessDescription && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 uppercase text-center py-2 px-4 rounded-t-lg mb-0" style={{ backgroundColor: '#D5DEE0', color: '#10454D' }}>
+                      {t('executiveSummary.lifestyleWellness.title')}
+                    </h3>
+                    <div className="border border-gray-300 rounded-b-lg p-6 bg-white">
+                      <p className="text-gray-700 leading-relaxed">
+                        <span className="font-semibold">Self-Awareness : </span>
+                        {executiveSummary.selfAwarenessDescription}
+                      </p>
                     </div>
-                  )}
+                  </div>
+                )}
                 </div>
               </Card>
             );
