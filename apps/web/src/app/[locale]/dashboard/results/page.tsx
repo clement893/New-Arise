@@ -331,9 +331,14 @@ function ResultsReportsContent() {
               </p>
             </div>
           </div>
-          <Button variant="secondary" className="flex items-center gap-2">
+          <Button 
+            variant="secondary" 
+            className="flex items-center gap-2"
+            onClick={handleDownloadCompleteProfile}
+            disabled={isGeneratingPDF}
+          >
             <Download size={16} />
-            Export All
+            {isGeneratingPDF ? 'Generating...' : 'Export All'}
           </Button>
         </div>
 
