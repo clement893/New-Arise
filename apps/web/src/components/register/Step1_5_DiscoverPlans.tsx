@@ -194,11 +194,12 @@ export function Step1_5_DiscoverPlans() {
         const nameMatch = planConfig.namePatterns.some(pattern => {
           const normalizedPattern = normalizePlanName(pattern);
           // Check if plan name contains the pattern or vice versa
+          const planNameWithoutPrice = planNameUpper.split('$')[0]?.trim() || planNameUpper.trim();
           return normalizedPlanName === normalizedPattern ||
                  normalizedPlanName.includes(normalizedPattern) ||
                  normalizedPattern.includes(normalizedPlanName) ||
                  planNameUpper.includes(pattern.toUpperCase()) ||
-                 pattern.toUpperCase().includes(planNameUpper.split('$')[0].trim());
+                 pattern.toUpperCase().includes(planNameWithoutPrice);
         });
         
         // Match by price (exact match or within 100 cents tolerance)
