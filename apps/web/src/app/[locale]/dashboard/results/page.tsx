@@ -5,12 +5,14 @@ export const dynamicParams = true;
 
 import { useState, useEffect } from 'react';
 import { useRouter } from '@/i18n/routing';
+import { useTranslations } from 'next-intl';
 import { ErrorBoundary } from '@/components/errors/ErrorBoundary';
 import { Card, Loading } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import { FileText, Download, TrendingUp, Target, Users, Brain } from 'lucide-react';
 import Image from 'next/image';
-import { getMyAssessments, Assessment as ApiAssessment, AssessmentType } from '@/lib/api/assessments';
+import { getMyAssessments, getAssessmentResults, Assessment as ApiAssessment, AssessmentType, AssessmentResult } from '@/lib/api/assessments';
+import { generateAllAssessmentsZip, downloadBlob } from '@/lib/utils/pdfGenerator';
 
 interface AssessmentDisplay {
   id: number;
@@ -20,12 +22,15 @@ interface AssessmentDisplay {
   completedDate: string;
   score: string;
   result: string;
+  detailedResult?: AssessmentResult; // Store detailed result for PDF generation
 }
 
 function ResultsReportsContent() {
+  const t = useTranslations('dashboard.reports');
   const router = useRouter();
   const [assessments, setAssessments] = useState<AssessmentDisplay[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -144,6 +149,47 @@ function ResultsReportsContent() {
     } else {
       // Default to general results page
       router.push(`/dashboard/assessments/results?id=${assessment.id}`);
+    }
+  };
+
+  const handleDownloadCompleteProfile = async () => {
+    try {
+      if (assessments.length === 0) {
+        alert(t('errors.noAssessmentsToExport') || 'No assessments to export');
+        return;
+      }
+
+      setIsGeneratingPDF(true);
+      
+      // Ensure all assessments have detailed results loaded before generating PDFs
+      const assessmentsWithResults = await Promise.all(
+        assessments.map(async (assessment) => {
+          let detailedResult = assessment.detailedResult;
+          if (!detailedResult) {
+            try {
+              detailedResult = await getAssessmentResults(assessment.id);
+            } catch (err) {
+              console.warn(`Could not load detailed results for assessment ${assessment.id}:`, err);
+            }
+          }
+          return {
+            ...assessment,
+            detailedResult: detailedResult || assessment.detailedResult,
+          };
+        })
+      );
+      
+      // Generate ZIP with all PDFs
+      const zipBlob = await generateAllAssessmentsZip(assessmentsWithResults);
+      
+      // Download the ZIP file
+      const timestamp = new Date().toISOString().split('T')[0];
+      downloadBlob(zipBlob, `ARISE_Assessments_${timestamp}.zip`);
+    } catch (err) {
+      console.error('Failed to export assessments:', err);
+      alert(t('errors.exportFailed') || 'Failed to export assessments. Please try again.');
+    } finally {
+      setIsGeneratingPDF(false);
     }
   };
 
@@ -441,8 +487,13 @@ function ResultsReportsContent() {
           </div>
 
           <div className="mt-6 pt-6 border-t border-gray-200">
-            <Button variant="primary" className="w-full bg-arise-deep-teal hover:bg-arise-deep-teal/90 text-white">
-              Download Complete Leadership Profile
+            <Button 
+              variant="primary" 
+              className="w-full bg-arise-deep-teal hover:bg-arise-deep-teal/90 text-white"
+              onClick={handleDownloadCompleteProfile}
+              disabled={isGeneratingPDF || assessments.length === 0}
+            >
+              {isGeneratingPDF ? (t('profile.generatingPdf') || 'Generating PDF...') : (t('profile.downloadButton') || 'Download Complete Leadership Profile')}
             </Button>
           </div>
         </div>

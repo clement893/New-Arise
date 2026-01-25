@@ -1550,8 +1550,7 @@ const generateTKIPDF = async (
   const dominantModeInfo = getModeInfo(dominantMode);
   const secondaryModeInfo = getModeInfo(secondaryMode);
 
-  // Helper function to draw mode icons as simple shapes (jsPDF doesn't support Unicode symbols well)
-  // Using only basic shapes (rectangles, circles, lines) for maximum compatibility
+  // Helper function to draw mode icons using very simple, reliable shapes
   const drawModeIcon = (doc: any, x: number, y: number, modeId: string, size: number = 20) => {
     const iconSize = size;
     const halfSize = iconSize / 2;
@@ -1559,72 +1558,53 @@ const generateTKIPDF = async (
     // Set white color for all icons
     doc.setDrawColor(255, 255, 255);
     doc.setFillColor(255, 255, 255);
-    doc.setLineWidth(2);
+    doc.setLineWidth(3); // Thicker lines for visibility
     
     switch (modeId) {
       case 'competing':
-        // Draw a right-pointing arrow using rectangles (more reliable)
-        // Arrow head - three rectangles forming a triangle
-        const arrowHeadSize = halfSize * 0.8;
-        // Top part of arrow head
-        doc.rect(x - halfSize * 0.2, y - arrowHeadSize, arrowHeadSize * 0.3, arrowHeadSize * 0.4, 'F');
-        // Middle part
-        doc.rect(x + halfSize * 0.1, y - arrowHeadSize * 0.3, arrowHeadSize * 0.5, arrowHeadSize * 0.6, 'F');
-        // Bottom part
-        doc.rect(x - halfSize * 0.2, y + arrowHeadSize * 0.6, arrowHeadSize * 0.3, arrowHeadSize * 0.4, 'F');
-        // Arrow shaft
-        doc.rect(x - halfSize, y - arrowHeadSize * 0.2, halfSize * 0.5, arrowHeadSize * 0.4, 'F');
+        // Simple right arrow: large filled circle with arrow line
+        doc.circle(x, y, halfSize * 0.8, 'F');
+        // Arrow line pointing right
+        doc.setLineWidth(4);
+        doc.line(x, y, x + halfSize * 0.6, y);
+        // Arrow head (small triangle using lines)
+        doc.line(x + halfSize * 0.6, y, x + halfSize * 0.3, y - halfSize * 0.3);
+        doc.line(x + halfSize * 0.6, y, x + halfSize * 0.3, y + halfSize * 0.3);
         break;
       case 'collaborating':
-        // Draw two overlapping filled circles (handshake)
-        const circleRadius = halfSize * 0.7;
-        doc.circle(x - 5, y, circleRadius, 'F');
-        doc.circle(x + 5, y, circleRadius, 'F');
-        // Connection line
-        doc.setLineWidth(3);
-        doc.line(x - 5 + circleRadius * 0.7, y, x + 5 - circleRadius * 0.7, y);
+        // Two overlapping circles (simple and reliable)
+        const circleR = halfSize * 0.6;
+        doc.circle(x - 4, y, circleR, 'F');
+        doc.circle(x + 4, y, circleR, 'F');
         break;
       case 'compromising':
-        // Draw a balance scale using circles and lines
-        const panRadius = halfSize * 0.4;
-        // Left pan
-        doc.circle(x - halfSize * 0.6, y - halfSize * 0.1, panRadius, 'F');
-        // Right pan
-        doc.circle(x + halfSize * 0.6, y - halfSize * 0.1, panRadius, 'F');
-        // Center post
+        // Simple balance: horizontal line with two circles
         doc.setLineWidth(3);
-        doc.line(x, y + halfSize * 0.6, x, y - halfSize * 0.1);
-        // Base
-        doc.line(x - halfSize * 0.5, y + halfSize * 0.6, x + halfSize * 0.5, y + halfSize * 0.6);
-        // Connectors
-        doc.setLineWidth(2);
-        doc.line(x - halfSize * 0.6, y - halfSize * 0.1, x, y - halfSize * 0.1);
-        doc.line(x + halfSize * 0.6, y - halfSize * 0.1, x, y - halfSize * 0.1);
+        doc.line(x - halfSize * 0.5, y, x + halfSize * 0.5, y);
+        doc.circle(x - halfSize * 0.4, y, halfSize * 0.3, 'F');
+        doc.circle(x + halfSize * 0.4, y, halfSize * 0.3, 'F');
         break;
       case 'avoiding':
-        // Draw a left-pointing arrow using rectangles
-        const leftArrowHeadSize = halfSize * 0.8;
-        // Top part of arrow head
-        doc.rect(x + halfSize * 0.2, y - leftArrowHeadSize, leftArrowHeadSize * 0.3, leftArrowHeadSize * 0.4, 'F');
-        // Middle part
-        doc.rect(x - halfSize * 0.4, y - leftArrowHeadSize * 0.3, leftArrowHeadSize * 0.5, leftArrowHeadSize * 0.6, 'F');
-        // Bottom part
-        doc.rect(x + halfSize * 0.2, y + leftArrowHeadSize * 0.6, leftArrowHeadSize * 0.3, leftArrowHeadSize * 0.4, 'F');
-        // Arrow shaft
-        doc.rect(x + halfSize * 0.5, y - leftArrowHeadSize * 0.2, halfSize * 0.5, leftArrowHeadSize * 0.4, 'F');
+        // Simple left arrow: large filled circle with arrow line
+        doc.circle(x, y, halfSize * 0.8, 'F');
+        // Arrow line pointing left
+        doc.setLineWidth(4);
+        doc.line(x, y, x - halfSize * 0.6, y);
+        // Arrow head
+        doc.line(x - halfSize * 0.6, y, x - halfSize * 0.3, y - halfSize * 0.3);
+        doc.line(x - halfSize * 0.6, y, x - halfSize * 0.3, y + halfSize * 0.3);
         break;
       case 'accommodating':
-        // Draw a check mark using thick lines
-        doc.setLineWidth(5);
-        const checkOffset = halfSize * 0.7;
-        // First segment (diagonal down-right)
-        doc.line(x - checkOffset, y - halfSize * 0.2, x - checkOffset * 0.2, y + halfSize * 0.3);
-        // Second segment (diagonal up-right)
-        doc.line(x - checkOffset * 0.2, y + halfSize * 0.3, x + checkOffset, y - halfSize * 0.5);
+        // Simple check mark: large circle with check
+        doc.circle(x, y, halfSize * 0.8, 'F');
+        // Check mark inside
+        doc.setLineWidth(4);
+        doc.line(x - halfSize * 0.4, y, x - halfSize * 0.1, y + halfSize * 0.3);
+        doc.line(x - halfSize * 0.1, y + halfSize * 0.3, x + halfSize * 0.4, y - halfSize * 0.3);
         break;
       default:
-        // Default: filled circle
-        doc.circle(x, y, halfSize * 0.6, 'F');
+        // Default: simple filled circle
+        doc.circle(x, y, halfSize * 0.7, 'F');
     }
   };
 

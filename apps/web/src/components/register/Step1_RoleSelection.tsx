@@ -13,19 +13,22 @@ export function Step1_RoleSelection() {
       id: 'individual' as const,
       icon: User,
       title: t('roles.individual.title'),
-      description: t('roles.individual.description')
+      description: t('roles.individual.description'),
+      disabled: false
     },
     {
       id: 'coach' as const,
       icon: Users,
       title: t('roles.coach.title'),
-      description: t('roles.coach.description')
+      description: t('roles.coach.description'),
+      disabled: true
     },
     {
       id: 'business' as const,
       icon: Building2,
       title: t('roles.business.title'),
-      description: t('roles.business.description')
+      description: t('roles.business.description'),
+      disabled: true
     }
   ];
 
@@ -44,11 +47,18 @@ export function Step1_RoleSelection() {
         {roles.map((role) => (
           <button
             key={role.id}
-            onClick={() => handleRoleSelect(role.id)}
-            className="group relative bg-white rounded-lg shadow-xl p-4 border-2 border-gray-200 hover:border-arise-gold transition-all duration-300 text-left flex flex-col overflow-hidden"
+            onClick={() => !role.disabled && handleRoleSelect(role.id)}
+            disabled={role.disabled}
+            className={`group relative bg-white rounded-lg shadow-xl p-4 border-2 transition-all duration-300 text-left flex flex-col overflow-hidden ${
+              role.disabled
+                ? 'border-gray-200 opacity-50 cursor-not-allowed'
+                : 'border-gray-200 hover:border-arise-gold'
+            }`}
           >
             {/* Hover overlay */}
-            <div className="absolute inset-0 bg-arise-deep-teal/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 rounded-lg" />
+            {!role.disabled && (
+              <div className="absolute inset-0 bg-arise-deep-teal/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 rounded-lg" />
+            )}
             
             {/* Content with relative z-index */}
             <div className="relative z-20 flex flex-col">
@@ -58,10 +68,14 @@ export function Step1_RoleSelection() {
               >
                 <role.icon className="w-8 h-8" style={{ color: '#0F4C56' }} />
               </div>
-              <h3 className="text-xl font-bold text-arise-deep-teal mb-2 group-hover:text-black/40 transition-colors duration-300">
+              <h3 className={`text-xl font-bold text-arise-deep-teal mb-2 transition-colors duration-300 ${
+                role.disabled ? '' : 'group-hover:text-black/40'
+              }`}>
                 {role.title}
               </h3>
-              <p className="text-gray-600 group-hover:text-black/40 transition-colors duration-300">
+              <p className={`text-gray-600 transition-colors duration-300 ${
+                role.disabled ? '' : 'group-hover:text-black/40'
+              }`}>
                 {role.description}
               </p>
             </div>
