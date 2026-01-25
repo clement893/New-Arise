@@ -1213,6 +1213,7 @@ const generate360PDF = async (
 
 /**
  * Generate MBTI Assessment PDF
+ * Matches the structure of MBTIResultsPage and MBTIResultContent components
  */
 const generateMBTIPDF = async (
   doc: any,
@@ -1220,14 +1221,37 @@ const generateMBTIPDF = async (
   pageWidth: number,
   pageHeight: number
 ): Promise<void> => {
+  // Dynamic imports for MBTI data
+  const { mbtiPersonalities } = await import('@/data/mbtiPersonalities');
+  const { mbtiTypes } = await import('@/data/mbtiQuestions');
+  
   let yPos = 20;
   const results = assessment.detailedResult;
   if (!results?.scores) return;
 
   const scores = results.scores;
   const mbtiType = scores.mbti_type || 'XXXX';
-  const dimensionPreferences = scores.dimension_preferences || {};
   const insights = results.insights || {};
+  const isFromOCR = scores.source === 'pdf_ocr';
+  
+  // Extract base type without variant (e.g., "ISFP-T" -> "ISFP")
+  const baseType = mbtiType.substring(0, 4).toUpperCase() || 'XXXX';
+  
+  // Get personality data from comprehensive data structure
+  const personalityData = mbtiPersonalities[baseType];
+  
+  // Fallback to old typeInfo if personality data not found
+  const typeInfo = mbtiTypes[baseType] || {
+    name: 'Unknown Type',
+    description: 'Type description not available.',
+    strengths: [],
+  };
+
+  // Use personality description from new data structure, or fallback
+  const personalityDescription = personalityData?.descriptionOverall || 
+                                  (scores as any)?.personality_description || 
+                                  insights.description || 
+                                  typeInfo.description;
 
   // Title
   doc.setFontSize(20);
@@ -1239,87 +1263,179 @@ const generateMBTIPDF = async (
   doc.text(`Completed: ${assessment.completedDate}`, pageWidth / 2, yPos, { align: 'center' });
   yPos += 15;
 
-  // Personality Type Section
-  yPos = addSectionTitle(doc, 'Personality Type', yPos, pageHeight);
+  // Personality Type Card Section (matching the results page)
+  yPos = checkNewPage(doc, yPos, pageHeight, 100);
+  
+  // Draw background rectangle (simulating the gradient card)
+  const cardY = yPos;
+  const cardHeight = 80;
+  doc.setFillColor(240, 245, 255); // Light purple/indigo background
+  doc.rect(20, cardY, pageWidth - 40, cardHeight, 'F');
+  doc.setDrawColor(200, 200, 220); // Light border
+  doc.rect(20, cardY, pageWidth - 40, cardHeight, 'S');
+  
+  // Draw circle for MBTI type (simulating the visual element)
+  const circleX = 30;
+  const circleY = cardY + 20;
+  const circleRadius = 25;
+  doc.setFillColor(128, 0, 128); // Purple color
+  doc.circle(circleX + circleRadius, circleY + circleRadius, circleRadius, 'F');
+  
+  // MBTI type text in circle
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text(baseType, circleX + circleRadius, circleY + circleRadius, { align: 'center' });
+  doc.setTextColor(0, 0, 0);
+  
+  // Personality name and description (to the right of circle)
+  const textStartX = circleX + (circleRadius * 2) + 20;
   doc.setFontSize(18);
   doc.setFont('helvetica', 'bold');
-  doc.text(mbtiType, 20, yPos);
-  yPos += 12;
-
-  // Type Description
-  if (insights.personality_type || insights.description) {
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    const description = insights.personality_type || insights.description || '';
-    const lines = doc.splitTextToSize(description, pageWidth - 40);
-    doc.text(lines, 20, yPos);
-    yPos += lines.length * 6 + 10;
+  doc.text(personalityData?.name || typeInfo.name, textStartX, cardY + 15);
+  
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  const descLines = doc.splitTextToSize(personalityDescription, pageWidth - textStartX - 30);
+  doc.text(descLines, textStartX, cardY + 25);
+  
+  // OCR Badge (if applicable)
+  if (isFromOCR) {
+    const badgeY = cardY + 25 + (descLines.length * 5) + 5;
+    doc.setFillColor(255, 248, 220); // Gold background
+    doc.rect(textStartX, badgeY, 80, 8, 'F');
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.text('OCR Processed', textStartX + 5, badgeY + 6);
   }
-
-  // Dimension Breakdown
-  if (Object.keys(dimensionPreferences).length > 0) {
-    yPos = addSectionTitle(doc, 'Dimension Preferences', yPos, pageHeight);
-    doc.setFontSize(11);
+  
+  // Tags (below description)
+  if (personalityData?.tags && personalityData.tags.length > 0) {
+    const tagsY = cardY + 25 + (descLines.length * 5) + (isFromOCR ? 15 : 5);
+    doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
-
-    Object.entries(dimensionPreferences).forEach(([dimension, prefs]) => {
-      yPos = checkNewPage(doc, yPos, pageHeight);
-      if (typeof prefs === 'object' && prefs !== null) {
-        const formattedPrefs = Object.entries(prefs)
-          .map(([letter, value]) => `${letter}: ${value}%`)
-          .join(', ');
-        doc.text(`${dimension}: ${formattedPrefs}`, 25, yPos);
-        yPos += 7;
-      }
-    });
-    yPos += 5;
+    const tagsText = personalityData.tags.join(' • ');
+    const tagsLines = doc.splitTextToSize(tagsText, pageWidth - textStartX - 30);
+    doc.text(tagsLines, textStartX, tagsY);
   }
+  
+  yPos = cardY + cardHeight + 15;
 
-  // Leadership Capabilities
-  if (insights.leadership_capabilities && typeof insights.leadership_capabilities === 'object') {
-    yPos = addSectionTitle(doc, 'Leadership Capabilities Analysis', yPos, pageHeight);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-
-    Object.entries(insights.leadership_capabilities).forEach(([capKey, capValue]: [string, any]) => {
-      yPos = checkNewPage(doc, yPos, pageHeight, 40);
-      if (typeof capValue === 'object' && capValue !== null) {
-        doc.setFont('helvetica', 'bold');
-        doc.text(`${capKey.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}:`, 20, yPos);
-        yPos += 7;
-        if (capValue.title) {
-          doc.setFont('helvetica', 'bold');
-          doc.text(`  ${capValue.title}`, 25, yPos);
-          yPos += 7;
-        }
-        if (capValue.description) {
-          doc.setFont('helvetica', 'normal');
-          const lines = doc.splitTextToSize(capValue.description, pageWidth - 50);
-          doc.text(lines, 25, yPos);
-          yPos += lines.length * 6 + 5;
-        }
-      }
-    });
+  // Your Personality Dimensions Section (matching the results page)
+  if (personalityData) {
+    yPos = checkNewPage(doc, yPos, pageHeight, 200);
+    yPos = addSectionTitle(doc, 'Your Personality Dimensions', yPos, pageHeight);
+    
+    const dimensions = [
+      { key: 'communication', num: 1, color: [59, 130, 246], bgColor: [239, 246, 255] },
+      { key: 'problemSolving', num: 2, color: [147, 51, 234], bgColor: [250, 245, 255] },
+      { key: 'leadershipStyle', num: 3, color: [59, 130, 246], bgColor: [239, 246, 255] },
+      { key: 'teamCulture', num: 4, color: [147, 51, 234], bgColor: [250, 245, 255] },
+      { key: 'change', num: 5, color: [59, 130, 246], bgColor: [239, 246, 255] },
+      { key: 'stress', num: 6, color: [147, 51, 234], bgColor: [250, 245, 255] },
+    ];
+    
+    for (const dim of dimensions) {
+      const capability = personalityData.capabilities[dim.key as keyof typeof personalityData.capabilities];
+      if (!capability) continue;
+      
+      yPos = checkNewPage(doc, yPos, pageHeight, 60);
+      
+      // Draw background box (alternating colors)
+      const boxY = yPos;
+      const boxHeight = 40;
+      doc.setFillColor(dim.bgColor[0], dim.bgColor[1], dim.bgColor[2]);
+      doc.setDrawColor(dim.color[0], dim.color[1], dim.color[2]);
+      doc.setLineWidth(1);
+      doc.rect(20, boxY, pageWidth - 40, boxHeight, 'FD');
+      
+      // Number circle
+      const numCircleX = 25;
+      const numCircleY = boxY + 8;
+      const numCircleRadius = 6;
+      doc.setFillColor(dim.color[0], dim.color[1], dim.color[2]);
+      doc.circle(numCircleX + numCircleRadius, numCircleY + numCircleRadius, numCircleRadius, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text(String(dim.num), numCircleX, numCircleY + 4);
+      doc.setTextColor(0, 0, 0);
+      
+      // Capability name and description
+      const textX = numCircleX + (numCircleRadius * 2) + 10;
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(dim.color[0], dim.color[1], dim.color[2]);
+      doc.text(capability.name, textX, boxY + 10);
+      doc.setTextColor(0, 0, 0);
+      
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      const capDescLines = doc.splitTextToSize(capability.description, pageWidth - textX - 25);
+      doc.text(capDescLines, textX, boxY + 20);
+      
+      yPos = boxY + boxHeight + 10;
+    }
   }
 
   // Recommendations Section
-  if (results.recommendations) {
+  if (results.recommendations && Array.isArray(results.recommendations) && results.recommendations.length > 0) {
+    yPos = checkNewPage(doc, yPos, pageHeight, 100);
     yPos = addSectionTitle(doc, 'Recommendations', yPos, pageHeight);
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
     
-    const recommendations = Array.isArray(results.recommendations)
-      ? results.recommendations
-      : typeof results.recommendations === 'object'
-      ? Object.values(results.recommendations)
-      : [];
-    
-    recommendations.forEach((rec, index) => {
-      yPos = checkNewPage(doc, yPos, pageHeight);
-      const text = typeof rec === 'string' ? `${index + 1}. ${rec}` : `${index + 1}. ${JSON.stringify(rec)}`;
-      const lines = doc.splitTextToSize(text, pageWidth - 40);
-      doc.text(lines, 20, yPos);
-      yPos += lines.length * 6 + 3;
+    results.recommendations.forEach((rec: any, index: number) => {
+      yPos = checkNewPage(doc, yPos, pageHeight, 40);
+      
+      // Recommendation title
+      if (rec.title) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text(`${index + 1}. ${rec.title}`, 20, yPos);
+        yPos += 8;
+      }
+      
+      // Recommendation description
+      if (rec.description) {
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        const descLines = doc.splitTextToSize(rec.description, pageWidth - 40);
+        doc.text(descLines, 20, yPos);
+        yPos += descLines.length * 5 + 5;
+      }
+      
+      // Actions
+      if (rec.actions && Array.isArray(rec.actions) && rec.actions.length > 0) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text('Actions:', 25, yPos);
+        yPos += 7;
+        doc.setFont('helvetica', 'normal');
+        rec.actions.forEach((action: string) => {
+          yPos = checkNewPage(doc, yPos, pageHeight, 20);
+          const actionLines = doc.splitTextToSize(`• ${action}`, pageWidth - 50);
+          doc.text(actionLines, 30, yPos);
+          yPos += actionLines.length * 5 + 3;
+        });
+      }
+      
+      // Resources
+      if (rec.resources && Array.isArray(rec.resources) && rec.resources.length > 0) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text('Resources:', 25, yPos);
+        yPos += 7;
+        doc.setFont('helvetica', 'normal');
+        rec.resources.forEach((resource: string) => {
+          yPos = checkNewPage(doc, yPos, pageHeight, 20);
+          const resourceLines = doc.splitTextToSize(`• ${resource}`, pageWidth - 50);
+          doc.text(resourceLines, 30, yPos);
+          yPos += resourceLines.length * 5 + 3;
+        });
+      }
+      
+      yPos += 5; // Space between recommendations
     });
   }
 };
