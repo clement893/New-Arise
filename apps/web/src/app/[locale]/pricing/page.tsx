@@ -289,7 +289,7 @@ export default function PricingPage() {
               
               {/* Right Section - Photo */}
               <div className="relative p-8 md:p-12 flex items-center justify-center">
-                <div className="relative w-full rounded-2xl overflow-hidden" style={{ aspectRatio: '3/4', maxHeight: '500px' }}>
+                <div className="relative w-full rounded-2xl overflow-hidden max-h-[200px] md:max-h-[300px]" style={{ aspectRatio: '3/4' }}>
                   <Image 
                     src="/images/pricing-hero.jpg" 
                     alt={t('hero.title')}
