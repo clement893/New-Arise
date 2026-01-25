@@ -18,7 +18,6 @@ import { useTranslations } from 'next-intl';
 import { usePathname, useRouter, Link } from '@/i18n/routing';
 import { useAuthStore } from '@/lib/store';
 import { useAuth } from '@/hooks/useAuth';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import ProtectedSubscriptionRoute from '@/components/auth/ProtectedSubscriptionRoute';
 import Sidebar from '@/components/ui/Sidebar';
 import { checkMySuperAdminStatus } from '@/lib/api/admin';
