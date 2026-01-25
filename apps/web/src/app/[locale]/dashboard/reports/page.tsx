@@ -38,7 +38,6 @@ interface DashboardStats {
 
 function ResultsReportsContent() {
   const t = useTranslations('dashboard.reports');
-  const tWellness = useTranslations('dashboard.assessments.wellness.results');
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
