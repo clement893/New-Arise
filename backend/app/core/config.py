@@ -226,10 +226,15 @@ class Settings(BaseSettings):
         env = os.getenv("ENVIRONMENT", "development")
         
         if env == "production":
-            # Convert to string for comparison (PostgresDsn objects need to be converted)
-            v_str = str(v) if not isinstance(v, str) else v
+            # Convert PostgresDsn to string for comparison
+            # In mode="after", v is already a PostgresDsn object, so we need to convert it
+            v_str = str(v)
             
-            if not v_str or v_str == "postgresql+asyncpg://user:password@localhost:5432/modele" or "CHANGE_PASSWORD" in v_str:
+            # Check if it's the default value (simplified check - no substring search)
+            default_url = "postgresql+asyncpg://user:password@localhost:5432/modele"
+            default_url_with_change = "postgresql+asyncpg://user:CHANGE_PASSWORD@localhost:5432/modele"
+            
+            if not v_str or v_str == default_url or v_str == default_url_with_change:
                 # Warn but don't fail - app can start without database for health checks
                 print(
                     "WARNING: DATABASE_URL is not properly configured in production. "
@@ -237,9 +242,6 @@ class Settings(BaseSettings):
                     file=sys.stderr
                 )
                 # Don't raise - allow app to start for health checks
-                # raise ValueError(
-                #     "DATABASE_URL must be set to a valid PostgreSQL connection string in production"
-                # )
         
         return v
 
