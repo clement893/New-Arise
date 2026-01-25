@@ -1366,12 +1366,15 @@ const generateMBTIPDF = async (
       const numCircleX = currentX + 3;
       const numCircleY = boxY + 5;
       const numCircleRadius = 4; // Reduced from 6
+      const circleCenterX = numCircleX + numCircleRadius;
+      const circleCenterY = numCircleY + numCircleRadius;
       doc.setFillColor(dim.color[0], dim.color[1], dim.color[2]);
-      doc.circle(numCircleX + numCircleRadius, numCircleY + numCircleRadius, numCircleRadius, 'F');
+      doc.circle(circleCenterX, circleCenterY, numCircleRadius, 'F');
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(8); // Reduced from 10
       doc.setFont('helvetica', 'bold');
-      doc.text(String(dim.num), numCircleX, numCircleY + 3);
+      // Center the text in the circle
+      doc.text(String(dim.num), circleCenterX, circleCenterY, { align: 'center' });
       doc.setTextColor(0, 0, 0);
       
       // Capability name and description - more compact
@@ -1542,6 +1545,18 @@ const generateTKIPDF = async (
   const dominantModeInfo = getModeInfo(dominantMode);
   const secondaryModeInfo = getModeInfo(secondaryMode);
 
+  // Helper function to convert mode icons to text (jsPDF doesn't support emojis well)
+  const getModeIconText = (modeId: string): string => {
+    const iconMap: Record<string, string> = {
+      'competing': 'C',
+      'collaborating': 'CO',
+      'compromising': 'CP',
+      'avoiding': 'A',
+      'accommodating': 'AC',
+    };
+    return iconMap[modeId] || modeId.substring(0, 2).toUpperCase();
+  };
+
   // Sort modes by count for display
   const sortedModesList = Object.entries(modeScores)
     .sort(([, a], [, b]) => b - a)
@@ -1572,9 +1587,9 @@ const generateTKIPDF = async (
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(32);
   doc.setFont('helvetica', 'normal');
-  // Icon as text (emoji won't work well, so we'll use text representation)
-  const dominantIcon = dominantModeInfo?.icon || '⚔️';
-  doc.text(dominantIcon, dominantCardX + cardWidth / 2, dominantCardY + 12, { align: 'center' });
+  // Use text representation instead of emoji
+  const dominantIconText = getModeIconText(dominantMode);
+  doc.text(dominantIconText, dominantCardX + cardWidth / 2, dominantCardY + 12, { align: 'center' });
   
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
@@ -1599,8 +1614,8 @@ const generateTKIPDF = async (
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(32);
   doc.setFont('helvetica', 'normal');
-  const secondaryIcon = secondaryModeInfo?.icon || '⚖️';
-  doc.text(secondaryIcon, secondaryCardX + cardWidth / 2, secondaryCardY + 12, { align: 'center' });
+  const secondaryIconText = getModeIconText(secondaryMode);
+  doc.text(secondaryIconText, secondaryCardX + cardWidth / 2, secondaryCardY + 12, { align: 'center' });
   
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
@@ -1634,9 +1649,9 @@ const generateTKIPDF = async (
     // Mode header with icon, title, description, and level
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
-    // Icon as text
-    const modeIcon = modeInfo?.icon || '⚔️';
-    doc.text(modeIcon, 20, yPos);
+    // Icon as text - use simple text representation instead of emoji
+    const modeIconText = getModeIconText(modeId);
+    doc.text(modeIconText, 20, yPos);
     doc.text(modeInfo?.title || modeId, 35, yPos);
     
     // Level on the right
