@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { useRegistrationStore } from '@/stores/registrationStore';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import Image from 'next/image';
+import { subscriptionsAPI } from '@/lib/api';
+import { Alert } from '@/components/ui';
 
 interface PlanTab {
   id: string;
@@ -18,11 +20,25 @@ interface Feature {
   description: string;
 }
 
+interface Plan {
+  id: number;
+  name: string;
+  description?: string;
+  amount?: number | string;
+  currency: string;
+  interval: string;
+  interval_count?: number;
+  is_popular?: boolean;
+  features?: string | null;
+}
+
 export function Step1_5_DiscoverPlans() {
-  const { setStep } = useRegistrationStore();
+  const { setStep, setSelectedPlan } = useRegistrationStore();
   const [selectedPlanTab, setSelectedPlanTab] = useState<string>('revelation');
   const [selectedFeatures, setSelectedFeatures] = useState<Set<string>>(new Set());
   const [hoveredPlan, setHoveredPlan] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const planTabs: PlanTab[] = [
     { 
@@ -92,10 +108,77 @@ export function Step1_5_DiscoverPlans() {
     'wellness': ['wellness-pulse', 'basic-assessment-summary'],
   };
 
+  // Map tab IDs to backend plan names
+  const planNameMap: Record<string, string> = {
+    'revelation': 'REVELATION',
+    'self-exploration': 'SELF EXPLORATION',
+    'wellness': 'WELLNESS', // Backend might use 'WELLNESS' or 'LIFESTYLE & WELLNESS'
+  };
+
   // Filter features based on selected plan
   const features = allFeatures.filter(feature => 
     planFeatureMap[selectedPlanTab]?.includes(feature.id)
   );
+
+  const handlePlanValidation = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Fetch plans from backend
+      const response = await subscriptionsAPI.getPlans(true);
+      let fetchedPlans = response.data?.plans || [];
+
+      // If no active plans found, try fetching all plans
+      if (fetchedPlans.length === 0) {
+        const allPlansResponse = await subscriptionsAPI.getPlans(false);
+        fetchedPlans = allPlansResponse.data?.plans || [];
+      }
+
+      if (fetchedPlans.length === 0) {
+        throw new Error('No plans available. Please contact support.');
+      }
+
+      // Find the plan matching the selected tab
+      const planName = planNameMap[selectedPlanTab];
+      let selectedPlanData = fetchedPlans.find((plan: Plan) => 
+        plan.name === planName || 
+        plan.name === 'LIFESTYLE & WELLNESS' && selectedPlanTab === 'wellness'
+      );
+
+      // If not found, try case-insensitive match
+      if (!selectedPlanData) {
+        selectedPlanData = fetchedPlans.find((plan: Plan) => 
+          plan.name.toUpperCase() === planName.toUpperCase()
+        );
+      }
+
+      if (!selectedPlanData) {
+        throw new Error(`Plan "${planName}" not found. Please contact support.`);
+      }
+
+      // Set the selected plan in the store
+      setSelectedPlan({
+        id: selectedPlanData.id,
+        name: selectedPlanData.name,
+        amount: selectedPlanData.amount,
+        currency: selectedPlanData.currency,
+        interval: selectedPlanData.interval,
+        interval_count: selectedPlanData.interval_count,
+      });
+
+      // Advance directly to Step 3 (Create Account)
+      setStep(3);
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.detail 
+        || err?.response?.data?.message
+        || err?.message 
+        || 'Failed to load plan. Please try again.';
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const toggleFeature = (featureId: string) => {
     setSelectedFeatures((prev) => {
@@ -109,15 +192,16 @@ export function Step1_5_DiscoverPlans() {
       return newSet;
     });
     
-    // Automatically advance to next step when a feature is selected (not when deselected)
+    // When a feature is clicked, validate the selected plan and proceed to Step 3
     if (!selectedFeatures.has(featureId)) {
-      setStep(2);
+      handlePlanValidation();
     }
   };
 
   const handlePlanTabSelect = (planId: string) => {
     setSelectedPlanTab(planId);
-    // Plan tabs are just for display - don't advance to next step
+    // Reset selected features when changing tabs
+    setSelectedFeatures(new Set());
   };
 
   const handleBack = () => {
@@ -188,6 +272,12 @@ export function Step1_5_DiscoverPlans() {
             ))}
           </div>
 
+          {error && (
+            <Alert variant="error" className="mb-6">
+              {error}
+            </Alert>
+          )}
+
           {/* Features Cards */}
           <div className="space-y-3 mb-8">
             {features.map((feature) => {
@@ -198,7 +288,7 @@ export function Step1_5_DiscoverPlans() {
                   onClick={() => toggleFeature(feature.id)}
                   className={`group relative bg-white rounded-lg p-4 cursor-pointer transition-all duration-200 flex items-center justify-between overflow-hidden ${
                     isSelected ? 'ring-2 ring-[#D8B868] shadow-md' : 'hover:shadow-md'
-                  }`}
+                  } ${isLoading ? 'opacity-50 cursor-wait' : ''}`}
                 >
                   {/* Hover overlay */}
                   <div className="absolute inset-0 bg-black/10 backdrop-blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
@@ -211,6 +301,11 @@ export function Step1_5_DiscoverPlans() {
                       {feature.description}
                     </p>
                   </div>
+                  {isLoading && (
+                    <div className="relative z-30 ml-4">
+                      <Loader2 className="w-5 h-5 animate-spin text-[#D8B868]" />
+                    </div>
+                  )}
                 </div>
               );
             })}

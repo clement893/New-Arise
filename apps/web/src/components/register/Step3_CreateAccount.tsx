@@ -44,16 +44,8 @@ export function Step3_CreateAccount() {
   };
 
   const formatInterval = () => {
-    if (!selectedPlan) return '';
-    const interval = selectedPlan.interval?.toUpperCase();
-    const count = selectedPlan.interval_count || 1;
-    
-    if (interval === 'MONTH' && count === 1) return '/month';
-    if (interval === 'YEAR' && count === 1) return '/year';
-    if (interval === 'MONTH') return `/${count} months`;
-    if (interval === 'YEAR') return `/${count} years`;
-    
-    return `/${count} ${selectedPlan.interval?.toLowerCase()}${count > 1 ? 's' : ''}`;
+    // Billing is one-time, so no interval text is shown
+    return '';
   };
   
   const {
@@ -146,7 +138,6 @@ export function Step3_CreateAccount() {
               <div className="sm:text-right">
                 <p className="text-xl font-bold text-arise-gold">
                   {formatPrice()}
-                  {selectedPlan.amount && (typeof selectedPlan.amount === 'string' ? parseFloat(selectedPlan.amount) : selectedPlan.amount) > 0 && formatInterval()}
                 </p>
               </div>
             </div>
@@ -244,10 +235,7 @@ export function Step3_CreateAccount() {
             <button
               type="button"
               onClick={() => {
-                // Warn user that going back after account creation may cause issues
-                if (window.confirm('Your account has been created and you are logged in. Going back may cause navigation issues. Do you want to continue?')) {
-                  setStep(2);
-                }
+                setStep(1.5);
               }}
               disabled={isLoading}
               className="text-arise-deep-teal text-base font-semibold flex items-center gap-2 hover:text-arise-deep-teal/80 transition-colors disabled:opacity-50 px-4 py-2 rounded-lg hover:bg-gray-100"

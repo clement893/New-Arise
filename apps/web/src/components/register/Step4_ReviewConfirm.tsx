@@ -17,16 +17,8 @@ export function Step4_ReviewConfirm() {
   };
 
   const formatInterval = () => {
-    if (!selectedPlan) return '';
-    const interval = selectedPlan.interval?.toUpperCase();
-    const count = selectedPlan.interval_count || 1;
-    
-    if (interval === 'MONTH' && count === 1) return '/month';
-    if (interval === 'YEAR' && count === 1) return '/year';
-    if (interval === 'MONTH') return `/${count} months`;
-    if (interval === 'YEAR') return `/${count} years`;
-    
-    return `/${count} ${selectedPlan.interval?.toLowerCase()}${count > 1 ? 's' : ''}`;
+    // Billing is one-time, so no interval text is shown
+    return '';
   };
 
   // Automatically advance to payment step after a short delay
@@ -69,7 +61,7 @@ export function Step4_ReviewConfirm() {
             <div className="flex justify-between items-start mb-4">
               <h3 className="text-lg font-semibold text-arise-deep-teal">Plan</h3>
               <button
-                onClick={() => setStep(2)}
+                onClick={() => setStep(1.5)}
                 className="text-arise-gold hover:text-arise-gold/80 flex items-center gap-1"
               >
                 <Edit2 className="w-4 h-4" />
@@ -81,7 +73,6 @@ export function Step4_ReviewConfirm() {
                 <p className="text-gray-900 font-semibold text-lg">{selectedPlan.name}</p>
                 <p className="text-arise-gold font-bold text-xl mt-1">
                   {formatPrice()}
-                  {selectedPlan.amount && (typeof selectedPlan.amount === 'string' ? parseFloat(selectedPlan.amount) : selectedPlan.amount) > 0 && formatInterval()}
                 </p>
               </div>
             ) : (
