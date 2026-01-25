@@ -1256,7 +1256,8 @@
           "MBTI": "MBTI Personality",
           "TKI": "ARISE Conflict Style",
           "WELLNESS": "Lifestyle & Wellness Assessment",
-          "THREE_SIXTY_SELF": "360° Feedback"
+          "THREE_SIXTY_SELF": "360° Feedback",
+          "THREE_SIXTY_EVALUATOR": "360° Evaluator"
         }
       },
       "insights": {

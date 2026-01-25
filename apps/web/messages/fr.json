@@ -1331,7 +1331,8 @@
           "MBTI": "Personnalité MBTI",
           "TKI": "Style de conflit ARISE",
           "WELLNESS": "Évaluation du mode de vie & bien-être",
-          "THREE_SIXTY_SELF": "Feedback 360°"
+          "THREE_SIXTY_SELF": "Feedback 360°",
+          "THREE_SIXTY_EVALUATOR": "Évaluateur 360°"
         }
       },
       "insights": {

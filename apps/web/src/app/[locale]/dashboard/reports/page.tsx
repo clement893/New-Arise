@@ -902,7 +902,10 @@ function ResultsReportsContent() {
 
       if (mbtiType && ariseMode) {
         leadershipDescription = getLeadershipDescription(mbtiType, ariseMode);
-        console.log('[Executive Summary] Leadership description found:', !!leadershipDescription);
+        console.log('[Executive Summary] Leadership description found:', !!leadershipDescription, 'Length:', leadershipDescription?.length || 0);
+        if (!leadershipDescription) {
+          console.warn('[Executive Summary] No description found for combination:', { mbtiType, ariseMode });
+        }
       } else {
         console.warn('[Executive Summary] Missing MBTI type or ARISE mode:', { mbtiType, ariseMode });
       }
@@ -1260,45 +1263,60 @@ function ResultsReportsContent() {
           </Card>
 
           {/* Executive Summary Report */}
-          {(executiveSummary.leadershipDescription || executiveSummary.selfAwarenessDescription) && (
-            <Card className="bg-white">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-white uppercase text-center py-3 px-4 rounded-t-lg" style={{ backgroundColor: '#10454D' }}>
-                  {t('executiveSummary.title')}
-                </h2>
-              </div>
+          {(() => {
+            const hasContent = executiveSummary.leadershipDescription || executiveSummary.selfAwarenessDescription;
+            console.log('[Executive Summary Render] State:', {
+              hasLeadership: !!executiveSummary.leadershipDescription,
+              hasSelfAwareness: !!executiveSummary.selfAwarenessDescription,
+              hasContent,
+              leadershipLength: executiveSummary.leadershipDescription?.length || 0,
+              selfAwarenessLength: executiveSummary.selfAwarenessDescription?.length || 0,
+            });
+            
+            if (!hasContent) {
+              return null;
+            }
+            
+            return (
+              <Card className="bg-white">
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold text-white uppercase text-center py-3 px-4 rounded-t-lg" style={{ backgroundColor: '#10454D' }}>
+                    {t('executiveSummary.title')}
+                  </h2>
+                </div>
 
-              <div className="space-y-6">
-                {/* PROFESSION Section */}
-                {executiveSummary.leadershipDescription && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 uppercase text-center py-2 px-4 rounded-t-lg mb-0" style={{ backgroundColor: '#D5DEE0', color: '#10454D' }}>
-                      {t('executiveSummary.profession.title')}
-                    </h3>
-                    <div className="border border-gray-300 rounded-b-lg p-6 bg-white">
-                      <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                        {executiveSummary.leadershipDescription}
-                      </p>
+                <div className="space-y-6">
+                  {/* PROFESSION Section */}
+                  {executiveSummary.leadershipDescription && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 uppercase text-center py-2 px-4 rounded-t-lg mb-0" style={{ backgroundColor: '#D5DEE0', color: '#10454D' }}>
+                        {t('executiveSummary.profession.title')}
+                      </h3>
+                      <div className="border border-gray-300 rounded-b-lg p-6 bg-white">
+                        <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                          {executiveSummary.leadershipDescription}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* LIFESTYLE & WELLNESS Section */}
-                {executiveSummary.selfAwarenessDescription && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 uppercase text-center py-2 px-4 rounded-t-lg mb-0" style={{ backgroundColor: '#D5DEE0', color: '#10454D' }}>
-                      {t('executiveSummary.lifestyleWellness.title')}
-                    </h3>
-                    <div className="border border-gray-300 rounded-b-lg p-6 bg-white">
-                      <p className="text-gray-700 leading-relaxed">
-                        {executiveSummary.selfAwarenessDescription}
-                      </p>
+                  {/* LIFESTYLE & WELLNESS Section */}
+                  {executiveSummary.selfAwarenessDescription && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 uppercase text-center py-2 px-4 rounded-t-lg mb-0" style={{ backgroundColor: '#D5DEE0', color: '#10454D' }}>
+                        {t('executiveSummary.lifestyleWellness.title')}
+                      </h3>
+                      <div className="border border-gray-300 rounded-b-lg p-6 bg-white">
+                        <p className="text-gray-700 leading-relaxed">
+                          {executiveSummary.selfAwarenessDescription}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            </Card>
-          )}
+                  )}
+                </div>
+              </Card>
+            );
+          })()}
 
           {/* Comprehensive Leadership Profile */}
           <Card className="bg-white">

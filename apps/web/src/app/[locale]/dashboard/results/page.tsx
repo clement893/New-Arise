@@ -161,60 +161,21 @@ function ResultsReportsContent() {
 
       setIsGeneratingPDF(true);
       
-      // Reload assessments to ensure we have the latest data
-      const apiAssessments = await getMyAssessments();
-      const completedAssessments = apiAssessments.filter(
-        (a: ApiAssessment) => a.status === 'COMPLETED'
-      );
-
       // Ensure all assessments have detailed results loaded before generating PDFs
       const assessmentsWithResults = await Promise.all(
-        completedAssessments.map(async (apiAssessment: ApiAssessment) => {
-          const completedDate = apiAssessment.completed_at 
-            ? new Date(apiAssessment.completed_at).toLocaleDateString('en-US')
-            : 'N/A';
-          
-          // Extract score/result from score_summary
-          let score = 'N/A';
-          let result = 'Completed';
-          
-          if (apiAssessment.score_summary) {
-            const summary = apiAssessment.score_summary;
-            if (apiAssessment.assessment_type === 'MBTI' && summary.profile) {
-              result = summary.profile;
-              score = '100%';
-            } else if (apiAssessment.assessment_type === 'TKI' && summary.dominant_mode) {
-              result = summary.dominant_mode;
-              score = '100%';
-            } else if (apiAssessment.assessment_type === 'WELLNESS' && summary.percentage) {
-              score = `${Math.round(summary.percentage)}%`;
-              result = 'Wellness Score';
-            } else if (apiAssessment.assessment_type === 'THREE_SIXTY_SELF' && summary.total_score) {
-              score = `${Math.round(summary.total_score)}%`;
-              result = '360° Feedback';
-            } else if (summary.percentage) {
-              score = `${Math.round(summary.percentage)}%`;
+        assessments.map(async (assessment) => {
+          let detailedResult = assessment.detailedResult;
+          if (!detailedResult) {
+            try {
+              detailedResult = await getAssessmentResults(assessment.id);
+            } catch (err) {
+              console.warn(`Could not load detailed results for assessment ${assessment.id}:`, err);
             }
           }
-
-          const assessmentName = getAssessmentName(apiAssessment.assessment_type);
-          
-          // Load detailed result for PDF generation
-          let detailedResult: AssessmentResult | undefined;
-          try {
-            detailedResult = await getAssessmentResults(apiAssessment.id);
-          } catch (err) {
-            console.warn(`Could not load detailed results for assessment ${apiAssessment.id}:`, err);
-          }
-          
           return {
-            id: apiAssessment.id,
-            name: assessmentName,
-            type: apiAssessment.assessment_type as string,
-            completedDate,
-            score,
-            result,
-            detailedResult,
+            ...assessment,
+            type: assessment.type as string,
+            detailedResult: detailedResult || assessment.detailedResult,
           };
         })
       );
