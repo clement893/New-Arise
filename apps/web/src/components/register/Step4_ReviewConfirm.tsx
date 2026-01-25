@@ -15,12 +15,7 @@ export function Step4_ReviewConfirm() {
     const price = (amountInCents / 100).toFixed(2);
     return `$${price}`;
   };
-
-  const formatInterval = () => {
-    // Billing is one-time, so no interval text is shown
-    return '';
-  };
-
+  
   // Automatically advance to payment step after a short delay
   useEffect(() => {
     const timer = setTimeout(() => {
