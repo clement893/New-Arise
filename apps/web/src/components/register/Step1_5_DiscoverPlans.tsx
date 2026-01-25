@@ -108,11 +108,21 @@ export function Step1_5_DiscoverPlans() {
     'wellness': ['wellness-pulse', 'basic-assessment-summary'],
   };
 
-  // Map tab IDs to backend plan names
-  const planNameMap: Record<string, string> = {
-    'revelation': 'REVELATION',
-    'self-exploration': 'SELF EXPLORATION',
-    'wellness': 'WELLNESS', // Backend might use 'WELLNESS' or 'LIFESTYLE & WELLNESS'
+  // Map tab IDs to expected plan names and prices (in cents)
+  // Note: Database stores plan names with price included (e.g., "REVELATION $299")
+  const planConfigMap: Record<string, { namePatterns: string[], price: number }> = {
+    'revelation': {
+      namePatterns: ['REVELATION'], // Matches "REVELATION $299" or "REVELATION"
+      price: 29900 // $299
+    },
+    'self-exploration': {
+      namePatterns: ['SELF EXPLORATION'], // Matches "SELF EXPLORATION $249" or "SELF EXPLORATION $250"
+      price: 24900 // $249 (database has $249, but we also accept $250)
+    },
+    'wellness': {
+      namePatterns: ['LIFESTYLE & WELLNESS', 'LIFESTYLE AND WELLNESS', 'WELLNESS'], // Matches "LIFESTYLE & WELLNESS $99"
+      price: 9900 // $99
+    },
   };
 
   // Filter features based on selected plan
@@ -126,41 +136,114 @@ export function Step1_5_DiscoverPlans() {
 
     try {
       // Fetch plans from backend
+      console.log('[Step1_5] Fetching plans...');
       const response = await subscriptionsAPI.getPlans(true);
+      console.log('[Step1_5] Plans response:', response);
       let fetchedPlans = response.data?.plans || [];
 
       // If no active plans found, try fetching all plans
       if (fetchedPlans.length === 0) {
+        console.log('[Step1_5] No active plans, fetching all plans...');
         const allPlansResponse = await subscriptionsAPI.getPlans(false);
+        console.log('[Step1_5] All plans response:', allPlansResponse);
         fetchedPlans = allPlansResponse.data?.plans || [];
       }
+
+      console.log('[Step1_5] Fetched plans:', fetchedPlans.map((p: Plan) => ({
+        id: p.id,
+        name: p.name,
+        amount: p.amount,
+        status: 'active'
+      })));
 
       if (fetchedPlans.length === 0) {
         throw new Error('No plans available. Please contact support.');
       }
 
-      // Find the plan matching the selected tab
-      const planName = planNameMap[selectedPlanTab];
+      // Get the plan configuration for the selected tab
+      const planConfig = planConfigMap[selectedPlanTab];
       
-      if (!planName) {
+      if (!planConfig) {
         throw new Error(`Invalid plan selection. Please try again.`);
       }
-      
-      let selectedPlanData = fetchedPlans.find((plan: Plan) => 
-        plan.name === planName || 
-        plan.name === 'LIFESTYLE & WELLNESS' && selectedPlanTab === 'wellness'
-      );
 
-      // If not found, try case-insensitive match
+      // Helper function to get plan price in cents
+      const getPlanPrice = (plan: Plan): number => {
+        if (typeof plan.amount === 'string') {
+          return Math.round(parseFloat(plan.amount));
+        }
+        return plan.amount || 0;
+      };
+
+      // Helper function to normalize plan name (remove price, extra spaces, etc.)
+      const normalizePlanName = (name: string): string => {
+        return name
+          .toUpperCase()
+          .replace(/\$\d+/g, '') // Remove price like "$299", "$249", "$99"
+          .replace(/\s+/g, ' ') // Normalize spaces
+          .trim();
+      };
+
+      // Find the plan by matching name pattern (handles names with or without price) OR price
+      let selectedPlanData = fetchedPlans.find((plan: Plan) => {
+        const planPrice = getPlanPrice(plan);
+        const planNameUpper = plan.name.toUpperCase().trim();
+        const normalizedPlanName = normalizePlanName(plan.name);
+        
+        // Match by name pattern (handles names with price included like "REVELATION $299")
+        const nameMatch = planConfig.namePatterns.some(pattern => {
+          const normalizedPattern = normalizePlanName(pattern);
+          // Check if plan name contains the pattern or vice versa
+          return normalizedPlanName === normalizedPattern ||
+                 normalizedPlanName.includes(normalizedPattern) ||
+                 normalizedPattern.includes(normalizedPlanName) ||
+                 planNameUpper.includes(pattern.toUpperCase()) ||
+                 pattern.toUpperCase().includes(planNameUpper.split('$')[0].trim());
+        });
+        
+        // Match by price (exact match or within 100 cents tolerance)
+        // For self-exploration, accept both $249 and $250
+        const priceTolerance = selectedPlanTab === 'self-exploration' ? 100 : 100;
+        const priceMatch = Math.abs(planPrice - planConfig.price) <= priceTolerance;
+        
+        return nameMatch || priceMatch;
+      });
+
+      // If still not found, try matching by price only (as fallback)
       if (!selectedPlanData) {
-        selectedPlanData = fetchedPlans.find((plan: Plan) => 
-          plan.name.toUpperCase() === planName.toUpperCase()
+        const priceTolerance = selectedPlanTab === 'self-exploration' ? 100 : 100;
+        selectedPlanData = fetchedPlans.find((plan: Plan) => {
+          const planPrice = getPlanPrice(plan);
+          return Math.abs(planPrice - planConfig.price) <= priceTolerance;
+        });
+      }
+
+      if (!selectedPlanData) {
+        // Debug: log available plans
+        const availablePlans = fetchedPlans.map((p: Plan) => ({
+          id: p.id,
+          name: p.name,
+          price: getPlanPrice(p),
+          priceDollars: (getPlanPrice(p) / 100).toFixed(2)
+        }));
+        console.error('[Step1_5] Available plans:', availablePlans);
+        console.error('[Step1_5] Looking for tab:', selectedPlanTab);
+        console.error('[Step1_5] Plan config:', planConfig);
+        
+        const availablePlansList = fetchedPlans.map((p: Plan) => 
+          `${p.name} ($${(getPlanPrice(p) / 100).toFixed(2)})`
+        ).join(', ');
+        
+        throw new Error(
+          `Plan "${planConfig.namePatterns[0]}" not found. Available plans: ${availablePlansList}. Please contact support.`
         );
       }
 
-      if (!selectedPlanData) {
-        throw new Error(`Plan "${planName}" not found. Please contact support.`);
-      }
+      console.log('[Step1_5] Selected plan found:', {
+        id: selectedPlanData.id,
+        name: selectedPlanData.name,
+        amount: selectedPlanData.amount
+      });
 
       // Set the selected plan in the store
       setSelectedPlan({
