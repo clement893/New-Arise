@@ -64,7 +64,7 @@ export function Step2_PlanSelection() {
         }
         
         // Sort plans by price descending (highest to lowest) - Revelation first, Lifestyle & Wellness last
-        const sortedPlans = fetchedPlans.sort((a, b) => {
+        const sortedPlans = fetchedPlans.sort((a: Plan, b: Plan) => {
           const priceA = typeof a.amount === 'string' ? parseFloat(a.amount) : (a.amount || 0);
           const priceB = typeof b.amount === 'string' ? parseFloat(b.amount) : (b.amount || 0);
           return priceB - priceA; // Descending order (highest first)
