@@ -199,128 +199,127 @@ async def handle_checkout_completed(event_object: dict, db: AsyncSession, subscr
         # User already has an active subscription - this is a plan change
         logger.info(f"User {user_id} already has active subscription {existing_subscription.id}, updating to plan {plan_id}")
         
-            # Get subscription details from Stripe
-            try:
-                # Initialize Stripe if needed
-                if not stripe.api_key and hasattr(settings, 'STRIPE_SECRET_KEY') and settings.STRIPE_SECRET_KEY:
-                    stripe.api_key = settings.STRIPE_SECRET_KEY
-                
-                # Expand items to get price_id
-                stripe_subscription = stripe.Subscription.retrieve(
-                    subscription_id,
-                    expand=['items']
-                )
+        # Get subscription details from Stripe
+        try:
+            # Initialize Stripe if needed
+            if not stripe.api_key and hasattr(settings, 'STRIPE_SECRET_KEY') and settings.STRIPE_SECRET_KEY:
+                stripe.api_key = settings.STRIPE_SECRET_KEY
             
-            # Verify plan exists before updating
-            plan = await subscription_service.get_plan(plan_id)
-            if not plan:
-                logger.error(f"Cannot update subscription: Plan {plan_id} does not exist")
-                return
-            
-            # Store old plan_id and old stripe_subscription_id for logging
-            old_plan_id = existing_subscription.plan_id
-            old_stripe_subscription_id = existing_subscription.stripe_subscription_id
-            
-            # If the old Stripe subscription ID is different from the new one, cancel the old subscription in Stripe
-            # This happens when Stripe creates a new subscription instead of updating the existing one
-            if old_stripe_subscription_id and old_stripe_subscription_id != subscription_id:
-                try:
-                    logger.info(f"Cancelling old Stripe subscription {old_stripe_subscription_id} (new subscription is {subscription_id})")
-                    stripe.Subscription.delete(old_stripe_subscription_id)
-                    logger.info(f"Successfully cancelled old Stripe subscription {old_stripe_subscription_id}")
-                except stripe.StripeError as e:
-                    # If subscription is already cancelled or doesn't exist, that's OK
-                    if e.code == 'resource_missing':
-                        logger.info(f"Old Stripe subscription {old_stripe_subscription_id} already deleted or doesn't exist")
-                    else:
-                        logger.warning(f"Could not cancel old Stripe subscription {old_stripe_subscription_id}: {e}")
-            
-            # ALWAYS use the plan from Stripe as the source of truth
-            # Get the price_id from Stripe subscription
-            stripe_price_id = None
-            logger.debug(f"Checking Stripe subscription items for subscription_id={subscription_id}")
-            logger.debug(f"stripe_subscription.items type: {type(stripe_subscription.items)}")
-            logger.debug(f"stripe_subscription.items: {stripe_subscription.items}")
-            
-            if stripe_subscription.items:
-                items_obj = stripe_subscription.items
-                if hasattr(items_obj, 'data') and items_obj.data and len(items_obj.data) > 0:
-                    stripe_price_id = items_obj.data[0].price.id
-                    logger.info(f"Found stripe_price_id from items.data: {stripe_price_id}")
-                elif isinstance(items_obj, list) and len(items_obj) > 0:
-                    stripe_price_id = items_obj[0].price.id
-                    logger.info(f"Found stripe_price_id from items list: {stripe_price_id}")
-                else:
-                    logger.warning(f"Stripe subscription items exists but is empty or invalid: {items_obj}")
-            else:
-                logger.warning(f"Stripe subscription has no items attribute")
-            
-            if stripe_price_id:
-                # Find plan by stripe_price_id (Stripe is the source of truth)
-                from app.models import Plan
-                plan_result = await db.execute(
-                    select(Plan).where(Plan.stripe_price_id == stripe_price_id)
-                )
-                stripe_plan = plan_result.scalar_one_or_none()
-                
-                if stripe_plan:
-                    # Use the plan from Stripe, not from metadata
-                    if stripe_plan.id != plan_id:
-                        logger.info(f"Plan from Stripe ({stripe_plan.id} - {stripe_plan.name}) differs from metadata ({plan_id} - {plan.name}). Using Stripe plan as source of truth.")
-                    plan_id = stripe_plan.id
-                    plan = stripe_plan
-                    logger.info(f"✅ Using plan from Stripe: plan_id={plan_id}, plan_name={plan.name}, stripe_price_id={stripe_price_id}")
-                else:
-                    logger.warning(f"⚠️ Plan with stripe_price_id {stripe_price_id} not found in database. Using metadata plan_id={plan_id} as fallback.")
-            else:
-                logger.warning(f"⚠️ Could not get price_id from Stripe subscription. Using metadata plan_id={plan_id} as fallback.")
-            
-            # Update the existing subscription with new Stripe subscription ID and plan
-            existing_subscription.stripe_subscription_id = subscription_id
-            existing_subscription.plan_id = plan_id
-            if customer_id:
-                existing_subscription.stripe_customer_id = customer_id
-            
-            logger.info(f"Updating subscription {existing_subscription.id}: old_plan_id={old_plan_id}, new_plan_id={plan_id}, new_plan_name={plan.name}, stripe_price_id={plan.stripe_price_id}, old_stripe_subscription_id={old_stripe_subscription_id}, new_stripe_subscription_id={subscription_id}")
-            
-            if stripe_subscription.current_period_start:
-                existing_subscription.current_period_start = datetime.fromtimestamp(
-                    stripe_subscription.current_period_start, 
-                    tz=timezone.utc
-                )
-            
-            if stripe_subscription.current_period_end:
-                existing_subscription.current_period_end = datetime.fromtimestamp(
-                    stripe_subscription.current_period_end,
-                    tz=timezone.utc
-                )
-            
-            if stripe_subscription.trial_end:
-                existing_subscription.trial_end = datetime.fromtimestamp(
-                    stripe_subscription.trial_end, 
-                    tz=timezone.utc
-                )
-                from app.models.subscription import SubscriptionStatus
-                existing_subscription.status = SubscriptionStatus.TRIALING
-            else:
-                from app.models.subscription import SubscriptionStatus
-                existing_subscription.status = SubscriptionStatus.ACTIVE
-            
-            await db.commit()
-            await db.refresh(existing_subscription)  # Refresh to ensure we have latest data
-            
-            # Verify the update was successful
-            if existing_subscription.plan_id != plan_id:
-                logger.error(f"CRITICAL: Plan update failed! subscription.plan_id={existing_subscription.plan_id}, expected={plan_id}")
-            else:
-                logger.info(f"✅ Successfully updated subscription {existing_subscription.id} to plan {plan_id} ({plan.name})")
-                logger.info(f"Verification: subscription.plan_id={existing_subscription.plan_id}, subscription.stripe_subscription_id={existing_subscription.stripe_subscription_id}")
-            
-            return
+            # Expand items to get price_id
+            stripe_subscription = stripe.Subscription.retrieve(
+                subscription_id,
+                expand=['items']
+            )
         except Exception as e:
-            logger.error(f"Error updating existing subscription: {e}", exc_info=True)
-            await db.rollback()  # Rollback on error
-            # Fall through to create new subscription if update fails
+            logger.error(f"Error retrieving Stripe subscription {subscription_id}: {e}")
+            return
+        
+        # Verify plan exists before updating
+        plan = await subscription_service.get_plan(plan_id)
+        if not plan:
+            logger.error(f"Cannot update subscription: Plan {plan_id} does not exist")
+            return
+        
+        # Store old plan_id and old stripe_subscription_id for logging
+        old_plan_id = existing_subscription.plan_id
+        old_stripe_subscription_id = existing_subscription.stripe_subscription_id
+        
+        # If the old Stripe subscription ID is different from the new one, cancel the old subscription in Stripe
+        # This happens when Stripe creates a new subscription instead of updating the existing one
+        if old_stripe_subscription_id and old_stripe_subscription_id != subscription_id:
+            try:
+                logger.info(f"Cancelling old Stripe subscription {old_stripe_subscription_id} (new subscription is {subscription_id})")
+                stripe.Subscription.delete(old_stripe_subscription_id)
+                logger.info(f"Successfully cancelled old Stripe subscription {old_stripe_subscription_id}")
+            except stripe.StripeError as e:
+                # If subscription is already cancelled or doesn't exist, that's OK
+                if e.code == 'resource_missing':
+                    logger.info(f"Old Stripe subscription {old_stripe_subscription_id} already deleted or doesn't exist")
+                else:
+                    logger.warning(f"Could not cancel old Stripe subscription {old_stripe_subscription_id}: {e}")
+        
+        # ALWAYS use the plan from Stripe as the source of truth
+        # Get the price_id from Stripe subscription
+        stripe_price_id = None
+        logger.debug(f"Checking Stripe subscription items for subscription_id={subscription_id}")
+        logger.debug(f"stripe_subscription.items type: {type(stripe_subscription.items)}")
+        logger.debug(f"stripe_subscription.items: {stripe_subscription.items}")
+        
+        if stripe_subscription.items:
+            items_obj = stripe_subscription.items
+            if hasattr(items_obj, 'data') and items_obj.data and len(items_obj.data) > 0:
+                stripe_price_id = items_obj.data[0].price.id
+                logger.info(f"Found stripe_price_id from items.data: {stripe_price_id}")
+            elif isinstance(items_obj, list) and len(items_obj) > 0:
+                stripe_price_id = items_obj[0].price.id
+                logger.info(f"Found stripe_price_id from items list: {stripe_price_id}")
+            else:
+                logger.warning(f"Stripe subscription items exists but is empty or invalid: {items_obj}")
+        else:
+            logger.warning(f"Stripe subscription has no items attribute")
+        
+        if stripe_price_id:
+            # Find plan by stripe_price_id (Stripe is the source of truth)
+            from app.models import Plan
+            plan_result = await db.execute(
+                select(Plan).where(Plan.stripe_price_id == stripe_price_id)
+            )
+            stripe_plan = plan_result.scalar_one_or_none()
+            
+            if stripe_plan:
+                # Use the plan from Stripe, not from metadata
+                if stripe_plan.id != plan_id:
+                    logger.info(f"Plan from Stripe ({stripe_plan.id} - {stripe_plan.name}) differs from metadata ({plan_id} - {plan.name}). Using Stripe plan as source of truth.")
+                plan_id = stripe_plan.id
+                plan = stripe_plan
+                logger.info(f"✅ Using plan from Stripe: plan_id={plan_id}, plan_name={plan.name}, stripe_price_id={stripe_price_id}")
+            else:
+                logger.warning(f"⚠️ Plan with stripe_price_id {stripe_price_id} not found in database. Using metadata plan_id={plan_id} as fallback.")
+        else:
+            logger.warning(f"⚠️ Could not get price_id from Stripe subscription. Using metadata plan_id={plan_id} as fallback.")
+        
+        # Update the existing subscription with new Stripe subscription ID and plan
+        existing_subscription.stripe_subscription_id = subscription_id
+        existing_subscription.plan_id = plan_id
+        if customer_id:
+            existing_subscription.stripe_customer_id = customer_id
+        
+        logger.info(f"Updating subscription {existing_subscription.id}: old_plan_id={old_plan_id}, new_plan_id={plan_id}, new_plan_name={plan.name}, stripe_price_id={plan.stripe_price_id}, old_stripe_subscription_id={old_stripe_subscription_id}, new_stripe_subscription_id={subscription_id}")
+        
+        if stripe_subscription.current_period_start:
+            existing_subscription.current_period_start = datetime.fromtimestamp(
+                stripe_subscription.current_period_start, 
+                tz=timezone.utc
+            )
+        
+        if stripe_subscription.current_period_end:
+            existing_subscription.current_period_end = datetime.fromtimestamp(
+                stripe_subscription.current_period_end,
+                tz=timezone.utc
+            )
+        
+        if stripe_subscription.trial_end:
+            existing_subscription.trial_end = datetime.fromtimestamp(
+                stripe_subscription.trial_end, 
+                tz=timezone.utc
+            )
+            from app.models.subscription import SubscriptionStatus
+            existing_subscription.status = SubscriptionStatus.TRIALING
+        else:
+            from app.models.subscription import SubscriptionStatus
+            existing_subscription.status = SubscriptionStatus.ACTIVE
+        
+        await db.commit()
+        await db.refresh(existing_subscription)  # Refresh to ensure we have latest data
+        
+        # Verify the update was successful
+        if existing_subscription.plan_id != plan_id:
+            logger.error(f"CRITICAL: Plan update failed! subscription.plan_id={existing_subscription.plan_id}, expected={plan_id}")
+        else:
+            logger.info(f"✅ Successfully updated subscription {existing_subscription.id} to plan {plan_id} ({plan.name})")
+            logger.info(f"Verification: subscription.plan_id={existing_subscription.plan_id}, subscription.stripe_subscription_id={existing_subscription.stripe_subscription_id}")
+        
+        return
     
     # Get subscription details from Stripe if subscription_id exists
     trial_end = None
