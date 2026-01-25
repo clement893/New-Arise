@@ -1565,59 +1565,59 @@ const generateTKIPDF = async (
   doc.text(`Completed: ${assessment.completedDate}`, pageWidth / 2, yPos, { align: 'center' });
   yPos += 15;
 
-  // Dominant & Secondary Modes (two side-by-side cards)
+  // Dominant & Secondary Modes (two side-by-side cards) - reduced size
   yPos = checkNewPage(doc, yPos, pageHeight, 100);
   
-  // Dominant Mode Card (teal background)
+  // Dominant Mode Card (teal background) - smaller
   const cardWidth = (pageWidth - 50) / 2;
-  const cardHeight = 60;
+  const cardHeight = 45; // Reduced from 60
   const dominantCardX = 20;
   const dominantCardY = yPos;
   
   doc.setFillColor(15, 76, 86); // ARISE deep teal
   doc.rect(dominantCardX, dominantCardY, cardWidth, cardHeight, 'F');
   
-  doc.setFontSize(10);
+  doc.setFontSize(9); // Reduced from 10
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(255, 255, 255);
-  doc.text('Dominant Mode', dominantCardX + cardWidth / 2, dominantCardY + 18, { align: 'center' });
+  doc.text('Dominant Mode', dominantCardX + cardWidth / 2, dominantCardY + 12, { align: 'center' });
   
-  doc.setFontSize(18);
+  doc.setFontSize(16); // Reduced from 18
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(255, 255, 255);
-  doc.text(dominantModeInfo?.title || dominantMode, dominantCardX + cardWidth / 2, dominantCardY + 35, { align: 'center' });
+  doc.text(dominantModeInfo?.title || dominantMode, dominantCardX + cardWidth / 2, dominantCardY + 26, { align: 'center' });
   
-  doc.setFontSize(10);
+  doc.setFontSize(9); // Reduced from 10
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(255, 255, 255);
   const dominantCount = modeScores[dominantMode] || 0;
-  doc.text(`${dominantCount} out of 30 responses`, dominantCardX + cardWidth / 2, dominantCardY + 48, { align: 'center' });
+  doc.text(`${dominantCount} out of 30 responses`, dominantCardX + cardWidth / 2, dominantCardY + 37, { align: 'center' });
   
-  // Secondary Mode Card (gold gradient - using gold color)
+  // Secondary Mode Card (gold gradient - using gold color) - smaller
   const secondaryCardX = dominantCardX + cardWidth + 10;
   const secondaryCardY = yPos;
   
   doc.setFillColor(212, 175, 55); // Gold color approximation
   doc.rect(secondaryCardX, secondaryCardY, cardWidth, cardHeight, 'F');
   
-  doc.setFontSize(10);
+  doc.setFontSize(9); // Reduced from 10
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(255, 255, 255);
-  doc.text('Secondary Mode', secondaryCardX + cardWidth / 2, secondaryCardY + 18, { align: 'center' });
+  doc.text('Secondary Mode', secondaryCardX + cardWidth / 2, secondaryCardY + 12, { align: 'center' });
   
-  doc.setFontSize(18);
+  doc.setFontSize(16); // Reduced from 18
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(255, 255, 255);
-  doc.text(secondaryModeInfo?.title || secondaryMode, secondaryCardX + cardWidth / 2, secondaryCardY + 35, { align: 'center' });
+  doc.text(secondaryModeInfo?.title || secondaryMode, secondaryCardX + cardWidth / 2, secondaryCardY + 26, { align: 'center' });
   
-  doc.setFontSize(10);
+  doc.setFontSize(9); // Reduced from 10
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(255, 255, 255);
   const secondaryCount = modeScores[secondaryMode] || 0;
-  doc.text(`${secondaryCount} out of 30 responses`, secondaryCardX + cardWidth / 2, secondaryCardY + 48, { align: 'center' });
+  doc.text(`${secondaryCount} out of 30 responses`, secondaryCardX + cardWidth / 2, secondaryCardY + 37, { align: 'center' });
   
   doc.setTextColor(0, 0, 0);
-  yPos = dominantCardY + cardHeight + 15;
+  yPos = dominantCardY + cardHeight + 10; // Reduced spacing from 15 to 10
 
   // All Modes Breakdown
   yPos = addSectionTitle(doc, 'Your Conflict Management Profile', yPos, pageHeight);
@@ -1701,14 +1701,16 @@ const generateTKIPDF = async (
   const recBoxY = yPos;
   
   // Prepare all text content to calculate height
+  // Text width: box width (pageWidth - 40) minus left margin (25) minus right margin (15) = pageWidth - 80
+  const textWidth = pageWidth - 80;
   const leverageText = `Your dominant ${dominantModeInfo?.title.toLowerCase() || dominantMode} style can be very effective in appropriate situations. Continue to use it when it serves you well.`;
-  const leverageLines = doc.splitTextToSize(leverageText, pageWidth - 50);
+  const leverageLines = doc.splitTextToSize(leverageText, textWidth);
   
   const flexibilityText = 'Consider situations where your less-used modes might be more effective. Expanding your conflict management repertoire will make you a more adaptable leader.';
-  const flexibilityLines = doc.splitTextToSize(flexibilityText, pageWidth - 50);
+  const flexibilityLines = doc.splitTextToSize(flexibilityText, textWidth);
   
   const contextText = 'No single conflict mode is best in all situations. The most effective leaders can flex between different approaches based on the context, relationship, and importance of the issue.';
-  const contextLines = doc.splitTextToSize(contextText, pageWidth - 50);
+  const contextLines = doc.splitTextToSize(contextText, textWidth);
   
   // Calculate total content height
   let totalHeight = 20; // Title space
