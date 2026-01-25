@@ -219,14 +219,17 @@ class Settings(BaseSettings):
 
     @field_validator("DATABASE_URL", mode="after")
     @classmethod
-    def validate_database_url(cls, v: str) -> str:
+    def validate_database_url(cls, v: Union[str, PostgresDsn]) -> Union[str, PostgresDsn]:
         """Validate DATABASE_URL is set in production (warns but doesn't fail)"""
         import os
         import sys
         env = os.getenv("ENVIRONMENT", "development")
         
         if env == "production":
-            if not v or v == "postgresql+asyncpg://user:password@localhost:5432/modele" or "CHANGE_PASSWORD" in v:
+            # Convert to string for comparison (PostgresDsn objects need to be converted)
+            v_str = str(v) if not isinstance(v, str) else v
+            
+            if not v_str or v_str == "postgresql+asyncpg://user:password@localhost:5432/modele" or "CHANGE_PASSWORD" in v_str:
                 # Warn but don't fail - app can start without database for health checks
                 print(
                     "WARNING: DATABASE_URL is not properly configured in production. "
