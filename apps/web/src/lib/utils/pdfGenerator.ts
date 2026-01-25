@@ -1344,6 +1344,7 @@ const generateMBTIPDF = async (
     
     for (let i = 0; i < dimensions.length; i++) {
       const dim = dimensions[i];
+      if (!dim) continue;
       const capability = personalityData.capabilities[dim.key as keyof typeof personalityData.capabilities];
       if (!capability) continue;
       
