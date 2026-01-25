@@ -1339,7 +1339,6 @@ const generateMBTIPDF = async (
     const colWidth = (pageWidth - 50) / 2; // Two columns with spacing
     const startX1 = 20;
     const startX2 = startX1 + colWidth + 10;
-    let currentCol = 1;
     let currentX = startX1;
     let rowY = yPos;
     
@@ -1350,7 +1349,6 @@ const generateMBTIPDF = async (
       
       // Switch to second column after 3 items
       if (i === 3) {
-        currentCol = 2;
         currentX = startX2;
         rowY = yPos;
       }
