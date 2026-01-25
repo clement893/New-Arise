@@ -174,6 +174,7 @@ function ResultsReportsContent() {
           }
           return {
             ...assessment,
+            type: assessment.type as string, // Ensure type is string for AssessmentForPDF
             detailedResult: detailedResult || assessment.detailedResult,
           };
         })

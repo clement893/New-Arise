@@ -1824,6 +1824,7 @@ export const generateAllAssessmentsZip = async (assessments: AssessmentForPDF[])
   ensureClientSide();
   
   const zip = new JSZip();
+  let pdfCount = 0;
   
   // Generate PDF for each assessment
   for (const assessment of assessments) {
@@ -1831,13 +1832,22 @@ export const generateAllAssessmentsZip = async (assessments: AssessmentForPDF[])
       const pdfBlob = await generateAssessmentPDF(assessment);
       const fileName = `${assessment.name.replace(/\s+/g, '_')}_${assessment.id}.pdf`;
       zip.file(fileName, pdfBlob);
+      pdfCount++;
+      console.log(`[generateAllAssessmentsZip] Added PDF: ${fileName} (${pdfBlob.size} bytes)`);
     } catch (err) {
       console.error(`Failed to generate PDF for assessment ${assessment.id}:`, err);
     }
   }
 
+  if (pdfCount === 0) {
+    throw new Error('No PDFs were generated. Cannot create ZIP file.');
+  }
+
+  console.log(`[generateAllAssessmentsZip] Generated ${pdfCount} PDF(s), creating ZIP...`);
   // Generate the ZIP file
-  return await zip.generateAsync({ type: 'blob' });
+  const zipBlob = await zip.generateAsync({ type: 'blob' });
+  console.log(`[generateAllAssessmentsZip] ZIP created: ${zipBlob.size} bytes`);
+  return zipBlob;
 };
 
 /**
