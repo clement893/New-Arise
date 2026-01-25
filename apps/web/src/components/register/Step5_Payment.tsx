@@ -150,6 +150,11 @@ function PaymentFormContent() {
       return;
     }
 
+    if (!elements) {
+      setError('Please wait for Stripe to load.');
+      return;
+    }
+
     if (!selectedPlan || !planId) {
       setError('Please select a plan.');
       return;
