@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { feedback360Questions, feedback360QuestionsForContributors, feedback360Capabilities } from '@/data/feedback360Questions';
+import { feedback360QuestionsForContributors, feedback360Capabilities } from '@/data/feedback360Questions';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import MotionDiv from '@/components/motion/MotionDiv';
