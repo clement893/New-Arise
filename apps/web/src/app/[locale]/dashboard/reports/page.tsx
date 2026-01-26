@@ -17,6 +17,7 @@ import { generateAssessmentPDF, generateAllAssessmentsZip, downloadBlob } from '
 import { checkMySuperAdminStatus } from '@/lib/api/admin';
 import { Trash2, AlertTriangle } from 'lucide-react';
 import AssessmentResultAccordion from '@/components/reports/AssessmentResultAccordion';
+import AssessmentResultsBars from '@/components/reports/AssessmentResultsBars';
 
 interface AssessmentDisplay {
   id: number;
@@ -1286,6 +1287,16 @@ function ResultsReportsContent() {
                           </Button>
                         </div>
                       </div>
+                      
+                      {/* Results Bars - Always visible */}
+                      {assessment.detailedResult && (
+                        <div className="mt-4 pt-4 border-t border-gray-200">
+                          <AssessmentResultsBars
+                            assessmentType={assessment.type}
+                            results={assessment.detailedResult}
+                          />
+                        </div>
+                      )}
                       
                       {/* Accordion Content */}
                       <AssessmentResultAccordion
