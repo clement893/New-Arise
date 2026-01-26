@@ -253,7 +253,7 @@ export const feedback360QuestionsForContributors: Feedback360Question[] = [
     id: '360_2',
     number: 2,
     capability: 'communication',
-    question: 'This person listens attentively and demonstrates understanding of others' perspectives before responding',
+    question: "This person listens attentively and demonstrates understanding of others' perspectives before responding",
   },
   {
     id: '360_3',
@@ -271,7 +271,7 @@ export const feedback360QuestionsForContributors: Feedback360Question[] = [
     id: '360_5',
     number: 5,
     capability: 'communication',
-    question: 'This person's communication fosters collaboration, engagement and alignment within the team.',
+    question: "This person's communication fosters collaboration, engagement and alignment within the team.",
   },
   {
     id: '360_6',
