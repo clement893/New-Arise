@@ -14,6 +14,7 @@ import {
 } from '@/lib/api/assessments';
 import {
   feedback360Questions,
+  feedback360QuestionsForContributors,
   feedback360Capabilities,
   feedback360Scale,
   type Feedback360ScaleOption,
@@ -147,7 +148,8 @@ export default function Evaluator360Page() {
   const localizedScale = getLocalizedScale(locale);
   const localizedCapabilities = getLocalizedCapabilities(locale);
 
-  const question = feedback360Questions[currentQuestion];
+  // Use contributor questions for evaluators
+  const question = feedback360QuestionsForContributors[currentQuestion];
   const progress = question
     ? Math.round(
         ((Object.keys(answers).length + (selectedValue !== null && !answers[question.id] ? 1 : 0)) /

@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { feedback360Questions, feedback360Capabilities } from '@/data/feedback360Questions';
+import { feedback360Questions, feedback360QuestionsForContributors, feedback360Capabilities } from '@/data/feedback360Questions';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import MotionDiv from '@/components/motion/MotionDiv';
@@ -48,7 +48,7 @@ export default function EvaluatorAssessmentPage() {
 
   useEffect(() => {
     // Load existing answer for current question
-    const currentQuestion = feedback360Questions[currentQuestionIndex];
+    const currentQuestion = feedback360QuestionsForContributors[currentQuestionIndex];
     if (currentQuestion) {
       const existingAnswer = answers.find(a => a.question_id === currentQuestion.id);
       if (existingAnswer) {
@@ -72,7 +72,7 @@ export default function EvaluatorAssessmentPage() {
   };
 
   const handleSelectScore = async (score: number) => {
-    const currentQuestion = feedback360Questions[currentQuestionIndex];
+    const currentQuestion = feedback360QuestionsForContributors[currentQuestionIndex];
     if (!currentQuestion) return;
     
     setSelectedScore(score);
@@ -110,7 +110,7 @@ export default function EvaluatorAssessmentPage() {
   };
 
   const handleNext = () => {
-    if (selectedScore !== null && currentQuestionIndex < feedback360Questions.length - 1) {
+    if (selectedScore !== null && currentQuestionIndex < feedback360QuestionsForContributors.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     }
   };
@@ -194,10 +194,10 @@ export default function EvaluatorAssessmentPage() {
     );
   }
 
-  const currentQuestion = feedback360Questions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex + 1) / feedback360Questions.length) * 100;
-  const isLastQuestion = currentQuestionIndex === feedback360Questions.length - 1;
-  const canSubmit = answers.length === feedback360Questions.length;
+  const currentQuestion = feedback360QuestionsForContributors[currentQuestionIndex];
+  const progress = ((currentQuestionIndex + 1) / feedback360QuestionsForContributors.length) * 100;
+  const isLastQuestion = currentQuestionIndex === feedback360QuestionsForContributors.length - 1;
+  const canSubmit = answers.length === feedback360QuestionsForContributors.length;
 
   const daysUntilExpiry = assessmentInfo 
     ? Math.ceil((new Date(assessmentInfo.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
@@ -278,7 +278,7 @@ export default function EvaluatorAssessmentPage() {
                   </div>
                   <div className="text-center">
                     <div className="text-sm font-medium text-gray-700 mb-1">
-                      Question {currentQuestionIndex + 1} / {feedback360Questions.length}
+                      Question {currentQuestionIndex + 1} / {feedback360QuestionsForContributors.length}
                     </div>
                     <div className="w-32 bg-gray-200 rounded-full h-2">
                       <div
@@ -356,7 +356,7 @@ export default function EvaluatorAssessmentPage() {
                     Back
                   </Button>
                   <span className="text-sm text-gray-600">
-                    {answers.length} / {feedback360Questions.length} responses
+                    {answers.length} / {feedback360QuestionsForContributors.length} responses
                   </span>
                   {isLastQuestion && canSubmit ? (
                     <Button

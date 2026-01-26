@@ -241,6 +241,190 @@ export const feedback360Questions: Feedback360Question[] = [
   },
 ];
 
+// Questions for contributors (evaluators) - same structure but different text
+export const feedback360QuestionsForContributors: Feedback360Question[] = [
+  {
+    id: '360_1',
+    number: 1,
+    capability: 'communication',
+    question: 'This person communicates their ideas and expectations clearly and in a way that is easy to understand.',
+  },
+  {
+    id: '360_2',
+    number: 2,
+    capability: 'communication',
+    question: 'This person listens attentively and demonstrates understanding of others' perspectives before responding',
+  },
+  {
+    id: '360_3',
+    number: 3,
+    capability: 'communication',
+    question: 'This person adapts their communication style to different audiences and situations.',
+  },
+  {
+    id: '360_4',
+    number: 4,
+    capability: 'communication',
+    question: 'This person provides feedback that is respectful, actionable, and supportive of growth',
+  },
+  {
+    id: '360_5',
+    number: 5,
+    capability: 'communication',
+    question: 'This person's communication fosters collaboration, engagement and alignment within the team.',
+  },
+  {
+    id: '360_6',
+    number: 6,
+    capability: 'team_culture',
+    question: 'This person promotes teamwork and supports colleagues to achieve shared goals',
+  },
+  {
+    id: '360_7',
+    number: 7,
+    capability: 'team_culture',
+    question: 'This person treats team members with respect and encourages an inclusive environment where everyone feels valued.',
+  },
+  {
+    id: '360_8',
+    number: 8,
+    capability: 'team_culture',
+    question: 'This person builds trust within the team by being reliable, transparent and accountable',
+  },
+  {
+    id: '360_9',
+    number: 9,
+    capability: 'team_culture',
+    question: 'This person addresses and resolves conflicts in a constructive and respectful way',
+  },
+  {
+    id: '360_10',
+    number: 10,
+    capability: 'team_culture',
+    question: 'This person actively contributes to building a positive, motivating and collaborative team culture.',
+  },
+  {
+    id: '360_11',
+    number: 11,
+    capability: 'leadership_style',
+    question: 'This person inspires and motivates others toward a shared vision',
+  },
+  {
+    id: '360_12',
+    number: 12,
+    capability: 'leadership_style',
+    question: 'This person demonstrates fairness, integrity and consistency in their leadership.',
+  },
+  {
+    id: '360_13',
+    number: 13,
+    capability: 'leadership_style',
+    question: 'This person empowers others to take ownership and make decisions.',
+  },
+  {
+    id: '360_14',
+    number: 14,
+    capability: 'leadership_style',
+    question: 'This person adapts their leadership style to different situations and individuals.',
+  },
+  {
+    id: '360_15',
+    number: 15,
+    capability: 'leadership_style',
+    question: 'This person provides clear direction while also encouraging autonomy.',
+  },
+  {
+    id: '360_16',
+    number: 16,
+    capability: 'change_management',
+    question: 'This person embraces and adapts effectively to organizational changes.',
+  },
+  {
+    id: '360_17',
+    number: 17,
+    capability: 'change_management',
+    question: 'This person helps others understand and navigate change confidently.',
+  },
+  {
+    id: '360_18',
+    number: 18,
+    capability: 'change_management',
+    question: 'This person maintains a positive and flexible attitude during transitions.',
+  },
+  {
+    id: '360_19',
+    number: 19,
+    capability: 'change_management',
+    question: 'This person supports the team effectively during challenges linked to change.',
+  },
+  {
+    id: '360_20',
+    number: 20,
+    capability: 'change_management',
+    question: 'This person actively contributes to driving and sustaining change initiatives.',
+  },
+  {
+    id: '360_21',
+    number: 21,
+    capability: 'problem_solving_and_decision_making',
+    question: 'This person analyzes problems effectively and identifies appropriate solutions.',
+  },
+  {
+    id: '360_22',
+    number: 22,
+    capability: 'problem_solving_and_decision_making',
+    question: 'This person considers diverse perspectives when solving problems.',
+  },
+  {
+    id: '360_23',
+    number: 23,
+    capability: 'problem_solving_and_decision_making',
+    question: 'This person manages disagreements constructively and seeks mutually beneficial solutions.',
+  },
+  {
+    id: '360_24',
+    number: 24,
+    capability: 'problem_solving_and_decision_making',
+    question: 'This person remains calm and constructive under pressure.',
+  },
+  {
+    id: '360_25',
+    number: 25,
+    capability: 'problem_solving_and_decision_making',
+    question: 'This person follows through on problem-solving actions to ensure effective outcomes.',
+  },
+  {
+    id: '360_26',
+    number: 26,
+    capability: 'stress_management',
+    question: 'This person manages stress without negatively affecting performance or team dynamics.',
+  },
+  {
+    id: '360_27',
+    number: 27,
+    capability: 'stress_management',
+    question: 'This person demonstrates resilience and composure under pressure.',
+  },
+  {
+    id: '360_28',
+    number: 28,
+    capability: 'stress_management',
+    question: 'This person uses healthy coping strategies to handle stress effectively.',
+  },
+  {
+    id: '360_29',
+    number: 29,
+    capability: 'stress_management',
+    question: 'This person supports colleagues in managing stress and maintaining well-being.',
+  },
+  {
+    id: '360_30',
+    number: 30,
+    capability: 'stress_management',
+    question: 'This person balances workload and prioritizes effectively to prevent unnecessary stress.',
+  },
+];
+
 export interface Feedback360ScaleOption {
   value: number;
   label: string;
