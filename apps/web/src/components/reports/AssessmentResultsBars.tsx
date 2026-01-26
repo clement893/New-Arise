@@ -44,8 +44,7 @@ export default function AssessmentResultsBars({ assessmentType, results }: Asses
         return { pillar, score: pillarScore };
       })
       .filter(({ score }) => score > 0)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 3);
+      .sort((a, b) => b.score - a.score);
     
     if (pillarsWithScores.length === 0) {
       return null;
@@ -77,9 +76,6 @@ export default function AssessmentResultsBars({ assessmentType, results }: Asses
               </div>
             );
           })}
-          {wellnessPillars.length > pillarsWithScores.length && (
-            <p className="text-xs text-gray-500 italic">+ {wellnessPillars.length - pillarsWithScores.length} more pillars</p>
-          )}
         </div>
       </div>
     );
@@ -102,8 +98,7 @@ export default function AssessmentResultsBars({ assessmentType, results }: Asses
         };
       })
       .filter(({ self_score }) => self_score > 0)
-      .sort((a, b) => b.self_score - a.self_score)
-      .slice(0, 3);
+      .sort((a, b) => b.self_score - a.self_score);
 
     if (capabilityScoresArray.length === 0) {
       return null;
@@ -137,9 +132,6 @@ export default function AssessmentResultsBars({ assessmentType, results }: Asses
               </div>
             );
           })}
-          {Object.keys(capability_scores).length > capabilityScoresArray.length && (
-            <p className="text-xs text-gray-500 italic">+ {Object.keys(capability_scores).length - capabilityScoresArray.length} more capabilities</p>
-          )}
         </div>
       </div>
     );
@@ -164,8 +156,7 @@ export default function AssessmentResultsBars({ assessmentType, results }: Asses
     }
 
     const sortedModes = Object.entries(modeScores)
-      .sort(([, a], [, b]) => (b as number) - (a as number))
-      .slice(0, 3);
+      .sort(([, a], [, b]) => (b as number) - (a as number));
 
     if (sortedModes.length === 0) {
       return null;
@@ -197,9 +188,6 @@ export default function AssessmentResultsBars({ assessmentType, results }: Asses
               </div>
             );
           })}
-          {Object.keys(modeScores).length > 3 && (
-            <p className="text-xs text-gray-500 italic">+ {Object.keys(modeScores).length - 3} more modes</p>
-          )}
         </div>
       </div>
     );

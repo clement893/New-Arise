@@ -3974,6 +3974,27 @@
     "title": "Frequently Asked Question",
     "description": "Find answers to the most frequently asked questions about the ARISE Holistic Leadership platform."
   },
+  "register": {
+    "stepIndicator": "Step {step} of {total}",
+    "step1": {
+      "title": "Who are you?",
+      "back": "Back",
+      "roles": {
+        "individual": {
+          "title": "Individual",
+          "description": "I want to develop my personal leadership skills"
+        },
+        "coach": {
+          "title": "Coach",
+          "description": "I support leaders in their development journey"
+        },
+        "business": {
+          "title": "Business",
+          "description": "I want to develop leadership talent in my organization"
+        }
+      }
+    }
+  },
   "subscriptionSuccess": {
     "title": "Subscription Confirmed!",
     "messagePrefix": "Thank you for your trust. Your",
