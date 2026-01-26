@@ -60,16 +60,6 @@ export default function AssessmentResultsBars({ assessmentType, results }: Asses
         <h4 className="text-sm font-semibold text-gray-700 mb-2">Pillar Scores:</h4>
         <div className="space-y-2">
           {pillarsWithScores.map(({ pillar, score: pillarScore }) => {
-            const rawPillarData = pillar_scores?.[pillar.id];
-            let pillarScore: number = 0;
-            
-            if (isPillarScore(rawPillarData)) {
-              const scoreValue = rawPillarData.score;
-              pillarScore = typeof scoreValue === 'number' ? scoreValue : 0;
-            } else if (typeof rawPillarData === 'number') {
-              pillarScore = rawPillarData;
-            }
-
             const pillarPercentage = (pillarScore / 25) * 100;
             const colorCode = getScoreColorCode(pillarScore);
 
