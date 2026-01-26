@@ -18,6 +18,7 @@ import { checkMySuperAdminStatus } from '@/lib/api/admin';
 import { Trash2, AlertTriangle } from 'lucide-react';
 import AssessmentResultAccordion from '@/components/reports/AssessmentResultAccordion';
 import AssessmentResultsBars from '@/components/reports/AssessmentResultsBars';
+import { mbtiTypes } from '@/data/mbtiQuestions';
 
 interface AssessmentDisplay {
   id: number;
@@ -273,7 +274,11 @@ function ResultsReportsContent() {
           if (detailedResult?.scores) {
             const scores = detailedResult.scores;
             if (assessment.assessment_type === 'MBTI' && scores.mbti_type) {
-              result = scores.mbti_type;
+              // Extract base type without variant (e.g., "ISFP-T" -> "ISFP")
+              const baseType = (scores.mbti_type as string).substring(0, 4).toUpperCase();
+              // Get personality name from mbtiTypes
+              const personalityInfo = mbtiTypes[baseType];
+              result = personalityInfo?.name || scores.mbti_type;
               score = scores.percentage ? `${Math.round(scores.percentage)}%` : '100%';
             } else if (assessment.assessment_type === 'TKI' && scores.mode_scores) {
               // Find dominant mode
@@ -305,7 +310,11 @@ function ResultsReportsContent() {
           } else if (assessment.score_summary) {
             const summary = assessment.score_summary;
             if (assessment.assessment_type === 'MBTI' && summary.profile) {
-              result = summary.profile;
+              // Extract base type without variant (e.g., "ISFP-T" -> "ISFP")
+              const baseType = (summary.profile as string).substring(0, 4).toUpperCase();
+              // Get personality name from mbtiTypes
+              const personalityInfo = mbtiTypes[baseType];
+              result = personalityInfo?.name || summary.profile;
               score = '100%';
             } else if (assessment.assessment_type === 'TKI' && summary.dominant_mode) {
               const modeId = (summary.dominant_mode as string).toLowerCase();
