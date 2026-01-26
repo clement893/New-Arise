@@ -101,7 +101,7 @@
     "autoprefixer": "^10.4.16",
     "cross-env": "^10.1.0",
     "eslint": "^8.56.0",
-    "eslint-config-next": "^16.1.0",
+    "eslint-config-next": "^16.1.1",
     "jest-axe": "^10.0.0",
     "jsdom": "^23.0.1",
     "msw": "^2.0.0",
