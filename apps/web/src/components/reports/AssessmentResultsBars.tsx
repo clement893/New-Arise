@@ -1,6 +1,5 @@
 'use client';
 
-import { useTranslations, useLocale } from 'next-intl';
 import { AssessmentType, AssessmentResult, PillarScore } from '@/lib/api/assessments';
 import { wellnessPillars } from '@/data/wellnessQuestionsReal';
 import { feedback360Capabilities } from '@/data/feedback360Questions';
@@ -19,9 +18,6 @@ function isPillarScore(value: unknown): value is PillarScore {
 }
 
 export default function AssessmentResultsBars({ assessmentType, results }: AssessmentResultsBarsProps) {
-  const t = useTranslations('dashboard.assessments');
-  const locale = useLocale();
-
   if (!results || !results.scores) {
     return null;
   }
