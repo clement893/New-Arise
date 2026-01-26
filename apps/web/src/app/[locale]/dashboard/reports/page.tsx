@@ -13,7 +13,7 @@ import Button from '@/components/ui/Button';
 import { FileText, Download, TrendingUp, Target, Users, Brain, Eye } from 'lucide-react';
 import Image from 'next/image';
 import { getMyAssessments, getAssessmentResults, get360Evaluators, getDevelopmentGoalsCount, deleteAllMyAssessments, resetAssessment, Assessment as ApiAssessment, AssessmentType, AssessmentResult } from '@/lib/api/assessments';
-import { generateAssessmentPDF, generateAllAssessmentsZip, generateCompleteLeadershipProfilePDF, downloadBlob } from '@/lib/utils/pdfGenerator';
+import { generateAssessmentPDF, generateAllAssessmentsZip, downloadBlob } from '@/lib/utils/pdfGenerator';
 import { checkMySuperAdminStatus } from '@/lib/api/admin';
 import { Trash2, AlertTriangle } from 'lucide-react';
 import AssessmentResultAccordion from '@/components/reports/AssessmentResultAccordion';
@@ -499,29 +499,6 @@ function ResultsReportsContent() {
     } catch (err) {
       console.error('Failed to export assessments:', err);
       alert(t('errors.exportFailed'));
-    } finally {
-      setIsGeneratingPDF(false);
-    }
-  };
-
-  const handleDownloadProfile = async () => {
-    try {
-      if (assessments.length === 0) {
-        alert(t('errors.noAssessmentsForProfile'));
-        return;
-      }
-
-      setIsGeneratingPDF(true);
-
-      // Generate comprehensive PDF
-      const pdfBlob = await generateCompleteLeadershipProfilePDF(assessments);
-      
-      // Download the PDF
-      const timestamp = new Date().toISOString().split('T')[0];
-      downloadBlob(pdfBlob, `ARISE_Complete_Leadership_Profile_${timestamp}.pdf`);
-    } catch (err) {
-      console.error('Failed to download profile:', err);
-      alert(t('errors.downloadProfileFailed'));
     } finally {
       setIsGeneratingPDF(false);
     }
